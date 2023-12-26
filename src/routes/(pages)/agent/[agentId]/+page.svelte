@@ -10,7 +10,7 @@
 	import AgentDetail from './agent-detail.svelte';
 	import AgentOverview from './agent-overview.svelte';
     import { page } from '$app/stores';
-    import { getAgent } from '$lib/services/agent-service.js';
+    import { getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
     const params = $page.params;
 
@@ -20,6 +20,10 @@
     onMount(async () => {
         agent = await getAgent(params.agentId);
     });
+
+    async function handleAgentUpdate() {
+        const result = await saveAgent(agent)
+    }
 </script>
 
 <HeadTitle title="Agent Overview" />
@@ -32,6 +36,6 @@
 </Row>
 <Row>
     <div class="hstack gap-2 mb-2">
-        <Button class="btn btn-soft-primary">Apply Now</Button>
+        <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>Save Agent</Button>
     </div>
 </Row>

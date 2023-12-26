@@ -20,7 +20,7 @@
 
           <div class="flex-grow-1 overflow-hidden">
             <h5 class="text-truncate font-size-15">
-              <Link href= {`/agent/${agent.id}`} class="text-dark">
+              <Link href= "/agent/{agent.id}" class="text-dark">
                 {agent.name}
               </Link>
             </h5>
@@ -50,8 +50,10 @@
           </li>
           {" "}
           <li class="list-inline-item me-3" id="comments">
-            <i class="bx bx-comment-dots me-1" />{" "}
-            {1}
+            <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
+              <i class="bx bx-chat" />
+              Live Chat
+            </a>
           </li>
         </ul>
       </div>

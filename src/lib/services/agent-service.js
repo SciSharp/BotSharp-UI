@@ -24,3 +24,14 @@ export async function getAgent(id) {
     const response = await axios.get(url);
     return response.data;
 }
+
+/**
+ * Save agent detail
+ * @param {import('$types').AgentModel} agent
+ */
+export async function saveAgent(agent) {
+    setAuthorization();
+    let url = endpoints.agentDetailUrl.replace("{id}", agent.id);
+    await axios.put(url, agent);
+}
+

@@ -1,6 +1,7 @@
 <script>
     import Link from 'svelte-link';
     import { Button, Card, CardBody, CardHeader, Col, Table } from 'sveltestrap';
+    import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 
     /** @type {import('$types').AgentModel} */
@@ -12,7 +13,7 @@
         <CardHeader>
             <div class="text-center">
                 <img src="/images/users/bot.png" alt="" height="50" class="mx-auto d-block" />
-                <h5 class="mt-1 mb-1">{agent.name}</h5>
+                <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name}/></h5>
                 <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
             </div>
         </CardHeader>
@@ -21,15 +22,11 @@
                 <Table >
                     <tbody>
                         <tr>
-                            <th>Name</th>
-                            <td><input class="form-control" type="text" value={agent.name} /></td>
-                        </tr>
-                        <tr>
                             <th>Is Public</th>
                             <td>
                                 <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
-                                    <label class="form-check-label" for="defaultCheck1"> Public </label>
+                                    <input class="form-check-input" type="checkbox" bind:checked={agent.is_public} id="is_public" />
+                                    <label class="form-check-label" for="is_public"> Public </label>
                                 </div>
                             </td>
                         </tr>
@@ -37,8 +34,8 @@
                             <th>Allow Routing</th>
                             <td>
                                 <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
-                                    <label class="form-check-label" for="defaultCheck1"> Allow </label>
+                                    <input class="form-check-input" type="checkbox" bind:checked={agent.allow_routing} id="allow_routing" />
+                                    <label class="form-check-label" for="allow_routing"> Allow </label>
                                 </div>                                
                             </td>
                         </tr>
@@ -47,11 +44,11 @@
                             <td><span class="badge badge-soft-success">Full Time</span></td>
                         </tr>
                         <tr>
-                            <th>Status</th>
+                            <th>Inactive</th>
                             <td>							
                                 <div class="form-check mb-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="defaultCheck1" />
-                                    <label class="form-check-label" for="defaultCheck1"> Active </label>
+                                    <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />
+                                    <label class="form-check-label" for="disabled"> Disabled </label>
                                 </div>
                             </td>
                         </tr>
@@ -68,14 +65,17 @@
     <Card>
         <CardBody>
             <div class="text-center">
-                <img src="/images/brands/azure-openai-logo.avif" alt="" height="50" class="mx-auto d-block" />
                 <h5 class="mt-1 mb-3">LLM Config</h5>
+                <img src="/images/brands/azure-openai-logo.avif" alt="" height="50" />
+                {#if agent.llm_config?.is_inherit}
+                <i class="bx bx-copy"></i> <span class="text-muted">Inherited</span>    
+                {/if}
             </div>
 
             <div class="mb-3 row">
                 <label class="col-md-3 col-form-label" for="example-large">Provider</label>
                 <div class="col-md-9">
-                  <select class="form-select">
+                  <select class="form-select" value="{agent.llm_config?.provider}">
                     <option>Select</option>
                     <option>azure-openai</option>
                     <option>google-ai</option>
@@ -89,7 +89,7 @@
                   Model
                 </label>
                 <div class="col-md-9">
-                  <input class="form-control" type="text" value="" />
+                  <input class="form-control" type="text" value="{agent.llm_config?.model}"/>
                 </div>
             </div>
         </CardBody>

@@ -1,5 +1,5 @@
 import { endpoints } from './api-endpoints.js';
-import { setAuthorization } from '$lib/helpers/http';
+import { setAuthorization, replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
 
 /**
@@ -11,6 +11,18 @@ export async function newConversation(agentId) {
     setAuthorization();
     let url = endpoints.conversationInitUrl.replace("{agentId}", agentId);
     const response = await axios.post(url, {});
+    return response.data;
+}
+
+/**
+ * Get conversation detail
+ * @param {string} id
+ * @returns {Promise<import('$types').ConversationModel>}
+ */
+export async function getConversation(id) {
+    setAuthorization();
+    let url = replaceUrl(endpoints.conversationDetailUrl, {conversationId: id});
+    const response = await axios.get(url);
     return response.data;
 }
 

@@ -44,6 +44,7 @@
  */
 /**
  * @typedef {Object} AgentLlmConfig
+ * @property {boolean} is_inherit - Inherited from default Agent settings
  * @property {string} provider 
  * @property {string} model
  */
@@ -61,9 +62,11 @@
  * @property {string} description - Agent description.
  * @property {string} instruction - System prompt
  * @property {boolean} disabled
+ * @property {boolean} is_public
+ * @property {boolean} allow_routing
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
- * @property {AgentLlmConfig} llmConfig - LLM settings.
+ * @property {AgentLlmConfig} llm_config - LLM settings.
  * @property {FunctionDef[]} functions
  * @property {AgentTemplate[]} templates
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.

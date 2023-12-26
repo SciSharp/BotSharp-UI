@@ -53,11 +53,6 @@
 	}
 
     /** @param {string} conversationId */
-    async function handleConversationView(conversationId) {
-
-    }
-
-    /** @param {string} conversationId */
     async function handleConversationDeletion(conversationId) {
         await deleteConversation(conversationId);
         conversations.count--;
@@ -154,13 +149,13 @@
 								<td><span class="badge bg-success">{conv.status}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Dialog">
-											<Link href="#" on:click={() => handleConversationView(conv.id)} class="btn btn-sm btn-soft-primary">
+										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
+											<Link href="/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
                                                 <i class="mdi mdi-eye-outline" />
                                             </Link>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-											<Link href="{`/chat/${conv.agent_id}/${conv.id}`}" target="_blank" class="btn btn-sm btn-soft-info">
+											<Link href="/chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
                                                 <i class="mdi mdi-pencil-outline" />
                                             </Link>
 										</li>

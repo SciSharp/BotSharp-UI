@@ -19,6 +19,7 @@ export const endpoints = {
     conversationsUrl: `${host}/conversations`,
     conversationCountUrl: `${host}/conversations/count`,
     conversationDeletionUrl: `${host}/conversation/{conversationId}`,
+    conversationDetailUrl: `${host}/conversation/{conversationId}`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     
     // chathub 

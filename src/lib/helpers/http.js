@@ -9,3 +9,16 @@ export function setAuthorization() {
     let headers = axios.defaults.headers;
     headers.common['Authorization'] = `Bearer ${user.token}`;
 }
+
+/**
+ * @param {String} url
+ * @param {Object} args
+ * @returns {String}
+ */
+export function replaceUrl(url, args) {
+    const keys = Object.keys(args);
+    keys.forEach(key => {
+        url = url.replace("{" + key + "}", args[key]);
+    });
+    return url;
+}

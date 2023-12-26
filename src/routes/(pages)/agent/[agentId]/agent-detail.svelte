@@ -31,7 +31,7 @@
                     id="formmessage"
                     class="form-control"
                     rows="3"
-                    value={agent.description}
+                    bind:value={agent.description}
                     placeholder="Enter your Message"
                 />
             </FormGroup>
@@ -43,7 +43,7 @@
                     id="formmessage"
                     class="form-control"
                     rows="20"
-                    value={agent.instruction}
+                    bind:value={agent.instruction}
                     placeholder="Enter your Message"
                 />
             </FormGroup>
