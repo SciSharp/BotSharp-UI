@@ -1,25 +1,14 @@
-import { getUserStore } from '$lib/helpers/store.js';
-import { pluginListUrl } from '$lib/services/api-endpoints.js';
+import { setAuthorization, replaceUrl } from '$lib/helpers/http';
+import { endpoints } from './api-endpoints.js';
+import axios from 'axios';
 
 /**
  * Get plugin list
  * @returns {Promise<import('$types').PluginDefModel[]>}
  */
 export async function GetPlugins() {
-    let user = getUserStore();
-    const headers = {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${user.token}`,
-    };
-
-    const response = await fetch(pluginListUrl, {
-        headers: headers
-    }).then(response => {
-        if (response.ok) {
-            return response.json();
-        } else {
-            alert(response.statusText);
-        }
-    });
-    return response;
+    setAuthorization();
+    let url = endpoints.pluginListUrl;
+    const response = await axios.get(url);
+    return response.data;
 }

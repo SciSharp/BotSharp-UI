@@ -18,9 +18,13 @@ const Navdata = [
     "link": "/conversation"
   },
   {
-    "icon": "bx bx-message-dots",
-    "label": "Live Chat",
-    "link": "/chat"
+    label: 'Plugin',
+    isHeader: true
+  },
+  {
+    "icon": "bx bx-plug",
+    "label": "Plugins",
+    "link": "/plugin"
   }
 ]
 
