@@ -7,11 +7,11 @@
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
 
-    /** @type {string} */
-    export let conversationId;
+    /** @type {import('$types').ConversationModel} */
+    export let conversation;
 
     onMount(async () => {
-        dialogs = await GetDialogs(conversationId);
+        dialogs = await GetDialogs(conversation.id);
     });
 </script>
 
@@ -37,7 +37,7 @@
                             <div>
                                 <span>{dialog.sender.full_name}</span>
                                 <p class="fw-bold">{dialog.text}</p>
-                                <span class="text-muted">{format(dialog.created_at, 'time')}</span>
+                                <span class="text-muted">{format(dialog.created_at, 'long-time')}</span>
                             </div>
                         </div>
                     </div>

@@ -122,7 +122,7 @@
 
 <div class="d-lg-flex">
 	<div class="w-100 user-chat">
-		<div class="card">
+		<div class="card mb-0">
 			<div class="p-4 border-bottom" style="height: 12vh">
 				<div class="row">
 					<div class="col-md-4 col-7">
@@ -147,7 +147,7 @@
 								</Dropdown>
 							</li>
 							<li class="list-inline-item d-sm-inline-block">
-								<button type="submit" class="btn btn-secondary btn-rounded chat-send w-md waves-effect waves-light"
+								<button type="submit" class="btn btn-secondary btn-rounded chat-send waves-effect waves-light"
 									on:click={close}
 								>
 									<span class="d-none d-sm-inline-block me-2" >Close</span> <i class="mdi mdi-window-close"></i>
@@ -192,7 +192,11 @@
 									</p>									
 									{:else}
 									<div class="flex-shrink-0 align-self-center me-3">
+										{#if message.sender.role == "client"}
+										<img src="/images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+										{:else}
 										<img src="/images/users/chatbot.png" class="rounded-circle avatar-xs" alt="avatar">
+										{/if}
 										{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
 										<RcText message={message.rich_content.message} />
 										{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
@@ -239,7 +243,7 @@
 					<div class="col-auto">
 						<button
 							type="submit"
-							class="btn btn-primary btn-rounded chat-send w-md waves-effect waves-light"
+							class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 							on:click={sendTextMessage}
 							><span class="d-none d-sm-inline-block me-2">Send</span>
 							<i class="mdi mdi-send" />

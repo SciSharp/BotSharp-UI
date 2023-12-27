@@ -8,7 +8,10 @@ export function format(datetime, type = 'date') {
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
         return date.toLocaleString(undefined, options);
     } else if (type == 'time') {
-        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        const options = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        return date.toLocaleString(undefined, options);
+    } else if (type == 'long-time') {
+        const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' };
         return date.toLocaleString(undefined, options);
     } else if (type == 'short-time') {
         const options = { hour: '2-digit', minute: '2-digit' };

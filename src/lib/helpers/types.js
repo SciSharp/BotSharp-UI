@@ -70,6 +70,7 @@
  * @property {AgentLlmConfig} llm_config - LLM settings.
  * @property {FunctionDef[]} functions
  * @property {AgentTemplate[]} templates
+ * @property {Object[]} responses
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
  */
 
@@ -89,6 +90,7 @@
  * @property {string} agent_id - The conversation agent id.
  * @property {string} channel - The conversation status.
  * @property {string} status - The conversation status.
+ * @property {Object[]} states - The conversation states. 
  * @property {number} unread_msg_count - The unread message count.
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.

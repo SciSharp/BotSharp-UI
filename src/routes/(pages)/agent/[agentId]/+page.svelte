@@ -7,15 +7,17 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 
-	import AgentDetail from './agent-detail.svelte';
+	import AgentPrompt from './agent-prompt.svelte';
 	import AgentOverview from './agent-overview.svelte';
+    import AgentFunction from './agent-function.svelte';
+    import AgentLlmConfig from './agent-llm-config.svelte';
     import { page } from '$app/stores';
     import { getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
     const params = $page.params;
 
     /** @type {import('$types').AgentModel} */
-    let agent = {};
+    let agent;
 
     onMount(async () => {
         agent = await getAgent(params.agentId);
@@ -31,11 +33,19 @@
 <Breadcrumb title="Agent" pagetitle="Agent Overview" />
 
 <Row>
-    <AgentOverview agent={agent} />
-    <AgentDetail agent={agent} />
+    {#if agent}
+    <Col>
+        <AgentOverview agent={agent} />
+        <AgentLlmConfig agent={agent} />
+    </Col>
+    <Col>
+        <AgentPrompt agent={agent} />
+        <AgentFunction agent={agent} />
+    </Col>
+    {/if}
 </Row>
 <Row>
-    <div class="hstack gap-2 mb-2">
+    <div class="hstack gap-2 my-4">
         <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>Save Agent</Button>
     </div>
 </Row>

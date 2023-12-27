@@ -1,10 +1,9 @@
 <script>
     import Link from 'svelte-link'
     import { Card, CardBody, Col, FormGroup, Label, Input } from 'sveltestrap';
-
+    
     /** @type {import('$types').AgentModel} */
-    export let agent = {};
-
+    export let agent;
 </script>
 <Col xl={9}>
     <Card>
@@ -25,7 +24,7 @@
         </CardBody>
         <CardBody>
             <FormGroup class="mb-3">
-                <Label for="formmessage">Description :</Label>
+                <Label for="formmessage">Description:</Label>
                 <Input
                     type="textarea"
                     id="formmessage"
@@ -37,7 +36,7 @@
             </FormGroup>
             
             <FormGroup class="mb-3">
-                <Label for="formmessage">System Prompt :</Label>
+                <Label for="formmessage">System Prompt:</Label>
                 <Input
                     type="textarea"
                     id="formmessage"

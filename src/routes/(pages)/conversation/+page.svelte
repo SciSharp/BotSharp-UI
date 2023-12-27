@@ -127,7 +127,7 @@
 						<thead>
 							<tr>
 								<th scope="col">Title</th>
-								<th scope="col">Customer Name</th>
+								<th scope="col">User Name</th>
 								<th scope="col">Role</th>
 								<th scope="col">Channel</th>
 								<th scope="col">Posted Date</th>

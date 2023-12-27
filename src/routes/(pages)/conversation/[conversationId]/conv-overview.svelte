@@ -52,8 +52,5 @@
                 </div>
             </li>
         </ul>
-        <div class="mt-4">
-            <Button class="btn btn-soft-primary btn-hover w-100 rounded"><i class="mdi mdi-delete"></i> Delete Conversation</Button>
-        </div>
     </CardBody>
 </Card>
