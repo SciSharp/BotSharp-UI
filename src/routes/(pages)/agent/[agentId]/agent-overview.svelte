@@ -40,7 +40,7 @@
                     </tr>
                     <tr>
                         <th>Profiles</th>
-                        <td><span class="badge badge-soft-success">Full Time</span></td>
+                        <td><span class="badge badge-soft-success mx-1">phone</span><span class="badge badge-soft-success mx-1">webchat</span></td>
                     </tr>
                     <tr>
                         <th>Inactive</th>
@@ -50,10 +50,6 @@
                                 <label class="form-check-label" for="disabled"> Disabled </label>
                             </div>
                         </td>
-                    </tr>
-                    <tr>
-                        <th>Templates</th>
-                        <td></td>
                     </tr>
                     <tr>
                         <th>Created Date</th>

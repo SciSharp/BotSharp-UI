@@ -14,7 +14,11 @@
         <div class="d-flex">
           <div class="avatar-md me-4">
             <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
+              {#if agent.icon_url}
+              <img src={agent.icon_url} alt="" height="60" />
+              {:else}
               <img src="/images/users/bot.png" alt="" height="60" />
+              {/if}
             </span>
           </div>
 
@@ -24,7 +28,12 @@
                 {agent.name}
               </Link>
             </h5>
-            <p class="text-muted mb-4" style="height: 50px;">{agent.description}</p>
+            <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
+            <p>
+              <a href= "/agent/{agent.id}/knowledge-base" class="btn btn-link" target="_blank">
+                <i class="bx bx-book-open" /> Knowledge Base
+              </a>
+            </p>
             <div class="avatar-group" style="height:35px;">
               {#each agent.functions as fn}
                 <div class="avatar-group-item">
@@ -51,8 +60,7 @@
           {" "}
           <li class="list-inline-item me-3" id="comments">
             <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-chat" />
-              Live Chat
+              <i class="bx bx-chat" /> Live Chat
             </a>
           </li>
         </ul>

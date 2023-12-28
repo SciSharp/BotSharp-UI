@@ -4,6 +4,14 @@ The `BotSharp UI` is a web app used to manage agents and conversations. Through 
 
 [<img src="https://i.ytimg.com/vi/nougEw-vyk0/maxresdefault.jpg" width="50%">](https://www.youtube.com/watch?v=nougEw-vyk0 "BotSharp UI")
 
+## Installation
+
+Install dependent libraries with `--force` option.
+
+```bash
+npm install --force
+```
+
 ## Developing
 
 Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:

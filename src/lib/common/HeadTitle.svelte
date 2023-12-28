@@ -3,5 +3,5 @@
 </script>
 
 <svelte:head>
-	<title>{title} | Agent Builder - Admin & Dashboard</title>
+	<title>{title} | BotSharp - Admin & Dashboard</title>
 </svelte:head>

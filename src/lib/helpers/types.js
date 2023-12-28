@@ -56,6 +56,11 @@
  * @property {string} description
  */
 
+/** 
+ * @typedef {Object} AgentFilter
+ * @property {boolean} isRouter
+ */
+
 /**
  * @typedef {Object} AgentModel
  * @property {string} id - Agent Id.
@@ -64,6 +69,7 @@
  * @property {string} instruction - System prompt
  * @property {boolean} disabled
  * @property {boolean} is_public
+ * @property {string} icon_url - Icon
  * @property {boolean} allow_routing
  * @property {Date} created_datetime
  * @property {Date} updated_datetime

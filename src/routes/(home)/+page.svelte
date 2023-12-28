@@ -83,7 +83,7 @@
                               </div>
                           </Col>
                       </Row>
-                      <h4 class="mt-5">Let&#39;s <a href="/login">get started</a> with Agent Builder</h4>
+                      <h4 class="mt-5">Let&#39;s <a href="/login">get started</a> with BotSharp</h4>
                       <p class="text-muted">
                           It will be as simple as Occidental in fact it will be Occidental.
                       </p>

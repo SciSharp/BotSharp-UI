@@ -5,7 +5,7 @@ import adapter from '@sveltejs/adapter-static';
 const config = {
 	kit: {
 		alias: {
-			'$types': './src/lib/helpers/types.js'
+			$types: './src/lib/helpers/types.js',
 		},
 
 		// for static deployment
@@ -35,11 +35,16 @@ const config = {
 				"/recoverpw",
 				"/dashboard",
 				"/agent",
-				"/agent/{agentId}",
+				"/agent/router",
+				"/agent/[agentId]",
+				"/agent/[agentId]/knowledge-base",
 				"/conversation",
+				"/conversation/[conversationId]",
 				"/chat",
-				"/chat/{agentId}",
-				"/chat/{agentId}/{conversationId}"
+				"/chat/[agentId]",
+				"/chat/[agentId]/[conversationId]",
+				"/plugin",
+				"/plugin/[pluginId]"
 			]
 		}
 	},

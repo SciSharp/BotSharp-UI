@@ -4,12 +4,15 @@ import axios from 'axios';
 
 /**
  * Get agent list
+ * @param {import('$types').AgentFilter} filter
  * @returns {Promise<import('$types').AgentModel[]>}
  */
-export async function getAgents() {
+export async function getAgents(filter) {
     setAuthorization();
     let url = endpoints.agentListUrl;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: filter
+    });
     return response.data;
 }
 
