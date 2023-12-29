@@ -1,0 +1,8 @@
+.drawflow .drawflow-node {
+    background: rgb(128, 0, 128);
+    color: white;
+}
+
+.drawflow .drawflow-node.selected {
+    background: rgb(200, 0, 200);
+}

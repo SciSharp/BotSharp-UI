@@ -8,7 +8,6 @@
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 
-	export let toggleRightBar;
 	const toggleSideBar = () => {
 		if (browser) {
 			document.body.classList.toggle('sidebar-enable');

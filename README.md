@@ -9,6 +9,8 @@ The `BotSharp UI` is a web app used to manage agents and conversations. Through 
 Install dependent libraries with `--force` option.
 
 ```bash
+git clone https://github.com/SciSharp/BotSharp-UI
+cd BotSharp-UI
 npm install --force
 ```
 
