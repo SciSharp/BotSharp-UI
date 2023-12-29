@@ -10,11 +10,11 @@
 
   onMount(async () => {
     agents = await getAgents({
-        isRouter: true
+        isEvaluator: true
     });
   });
 </script>
 
-<HeadTitle title="Router" />
+<HeadTitle title="Evaluator" />
 
-<Breadcrumb title="Agent" pagetitle="Router" />
+<Breadcrumb title="Agent" pagetitle="Evaluator" />

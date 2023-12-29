@@ -10,7 +10,10 @@
   let agents = [];
 
   onMount(async () => {
-    agents = await getAgents({isRouter: false});
+    agents = await getAgents({
+      isRouter: false, 
+      isEvaluator: false
+    });
   });
 </script>
 

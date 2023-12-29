@@ -58,7 +58,8 @@
 
 /** 
  * @typedef {Object} AgentFilter
- * @property {boolean} isRouter
+ * @property {boolean} [isRouter]
+ * @property {boolean} [isEvaluator]
  */
 
 /**

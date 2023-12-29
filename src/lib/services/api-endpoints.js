@@ -22,6 +22,9 @@ export const endpoints = {
     conversationDetailUrl: `${host}/conversation/{conversationId}`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     
+    // knowledge base
+    knowledgeBaseUploadUrl: `${host}/knowledge-base/upload`,
+
     // chathub 
     chatHubUrl: `${host}/chatHub`,
 }

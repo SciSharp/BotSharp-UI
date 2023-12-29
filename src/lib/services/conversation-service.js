@@ -63,8 +63,8 @@ export async function GetDialogs(conversationId) {
     return response.data;
 }
 
- // send a message to the hub
 /**
+ * send a message to the hub
  * @param {string} agentId The agent id
  * @param {string} conversationId The conversation id
  * @param {string} message The text message sent to CSR

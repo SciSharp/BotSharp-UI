@@ -36,6 +36,7 @@ const config = {
 				"/dashboard",
 				"/agent",
 				"/agent/router",
+				"/agent/evaluator",
 				"/agent/[agentId]",
 				"/agent/[agentId]/knowledge-base",
 				"/conversation",

@@ -14,6 +14,11 @@ const Navdata = [
     "link": "/agent/router"
   },  
   {
+    "icon": "bx bx-task",
+    "label": "Evaluator",
+    "link": "/agent/evaluator"
+  },    
+  {
     "icon": "bx bx-bot",
     "label": "Agents",
     "link": "/agent"
@@ -34,7 +39,7 @@ const Navdata = [
   {
     "icon": "bx bx-book-open",
     "label": "Knowledge Base",
-    "link": "/rag/knowledge-base"
+    "link": "/knowledge-base"
   },  
   {
     label: 'System',
