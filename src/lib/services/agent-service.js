@@ -3,6 +3,17 @@ import { endpoints } from '$lib/services/api-endpoints.js';
 import axios from 'axios';
 
 /**
+ * Get agent settings
+ * @returns {Promise<import('$types').AgentSettings>}
+ */
+export async function getSettings() {
+    setAuthorization();
+    let url = endpoints.agentSettingUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * Get agent list
  * @param {import('$types').AgentFilter} filter
  * @returns {Promise<import('$types').AgentModel[]>}

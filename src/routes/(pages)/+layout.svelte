@@ -5,13 +5,6 @@
 </svelte:head>
 
 <script>
-    import { setAuthorization } from '$lib/helpers/http';
-    import { getUserStore } from '$lib/helpers/store.js';
-
-    let user = getUserStore();
-	let token = user.token;
-	setAuthorization(token);
-
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
 	let component = VerticalLayout;
 </script>

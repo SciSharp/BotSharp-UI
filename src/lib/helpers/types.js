@@ -82,6 +82,19 @@
  */
 
 /**
+ * @typedef {Object} AgentSettings
+ * @property {string} dataDir
+ * @property {string} templateFormat
+ * @property {AgentLlmConfig} llmConfig - LLM settings.
+ */
+
+/**
+ * @typedef {Object} RouterSettings
+ * @property {string} agentId
+ * @property {string} planner
+ */
+
+/**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
  * @property {string?} agentId - The agent id.

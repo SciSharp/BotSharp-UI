@@ -10,9 +10,13 @@ export const endpoints = {
     pluginListUrl: `${host}/plugins`,
     
     // agent
+    agentSettingUrl: `${host}/agent/settings`,
     agentListUrl: `${host}/agents`,
     agentDetailUrl: `${host}/agent/{id}`,
     
+    // router
+    routerSettingUrl: `${host}/router/settings`,
+
     // conversation
     conversationInitUrl: `${host}/conversation/{agentId}`,
     conversationMessageUrl: `${host}/conversation/{agentId}/{conversationId}`,
