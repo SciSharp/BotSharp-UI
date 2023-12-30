@@ -11,7 +11,6 @@
 
   onMount(async () => {
     agents = await getAgents({
-      isRouter: false, 
       isEvaluator: false
     });
   });

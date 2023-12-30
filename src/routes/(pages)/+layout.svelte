@@ -6,7 +6,10 @@
 
 <script>
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
+	import { setAuthorization } from '$lib/helpers/http';
+
 	let component = VerticalLayout;
+	setAuthorization();
 </script>
 
 <svelte:component this={component}>

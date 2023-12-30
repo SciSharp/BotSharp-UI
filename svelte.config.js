@@ -43,6 +43,7 @@ const config = {
 				"/chat",
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",
+				"/knowledge-base",
 				"/plugin",
 				"/plugin/[pluginId]"
 			]

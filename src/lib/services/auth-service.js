@@ -1,5 +1,4 @@
 import { userStore, getUserStore } from '$lib/helpers/store.js';
-import { setAuthorization } from '$lib/helpers/http';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
@@ -44,7 +43,6 @@ export function setToken(token) {
  * @returns {Promise<import('$types').UserModel>}
  */
 export async function myInfo() {
-    setAuthorization();
     const response = await axios.get(endpoints.myInfoUrl);
     return response.data;
 }

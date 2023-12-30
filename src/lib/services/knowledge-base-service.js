@@ -1,5 +1,4 @@
 import { endpoints } from './api-endpoints.js';
-import { setAuthorization, replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
 
 /**
@@ -7,7 +6,6 @@ import axios from 'axios';
  * @param {File} file
  */
 export async function uploadDocument(file) {
-    setAuthorization();
     let url = endpoints.knowledgeBaseUploadUrl;
 
     const formData = new FormData();

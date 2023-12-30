@@ -5,14 +5,16 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import { getAgents } from '$lib/services/agent-service.js'
+	import { setAuthorization } from '$lib/helpers/http';
 
+	setAuthorization();
     const params = $page.params;
     let agentId = "undefined";
     /** @type {import('$types').AgentModel[]} */
     let agents = [];
 
     onMount(async () => {
-        agents = await getAgents();
+        agents = await getAgents({isEvaluator: false});
         agentId = agents[0].id;
     });
 </script>

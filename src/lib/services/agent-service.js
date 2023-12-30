@@ -1,4 +1,3 @@
-import { setAuthorization } from '$lib/helpers/http';
 import { endpoints } from '$lib/services/api-endpoints.js';
 import axios from 'axios';
 
@@ -7,7 +6,6 @@ import axios from 'axios';
  * @returns {Promise<import('$types').AgentSettings>}
  */
 export async function getSettings() {
-    setAuthorization();
     let url = endpoints.agentSettingUrl;
     const response = await axios.get(url);
     return response.data;
@@ -19,7 +17,6 @@ export async function getSettings() {
  * @returns {Promise<import('$types').AgentModel[]>}
  */
 export async function getAgents(filter) {
-    setAuthorization();
     let url = endpoints.agentListUrl;
     const response = await axios.get(url, {
         params: filter
@@ -33,7 +30,6 @@ export async function getAgents(filter) {
  * @returns {Promise<import('$types').AgentModel>}
  */
 export async function getAgent(id) {
-    setAuthorization();
     let url = endpoints.agentDetailUrl.replace("{id}", id);
     const response = await axios.get(url);
     return response.data;
@@ -44,7 +40,6 @@ export async function getAgent(id) {
  * @param {import('$types').AgentModel} agent
  */
 export async function saveAgent(agent) {
-    setAuthorization();
     let url = endpoints.agentDetailUrl.replace("{id}", agent.id);
     await axios.put(url, agent);
 }

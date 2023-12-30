@@ -1,5 +1,5 @@
 import { endpoints } from './api-endpoints.js';
-import { setAuthorization, replaceUrl } from '$lib/helpers/http';
+import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
 
 /**
@@ -8,8 +8,7 @@ import axios from 'axios';
  * @returns {Promise<import('$types').ConversationModel>}
  */
 export async function newConversation(agentId) {
-    setAuthorization();
-    let url = endpoints.conversationInitUrl.replace("{agentId}", agentId);
+    let url = replaceUrl(endpoints.conversationInitUrl, {agentId: agentId});
     const response = await axios.post(url, {});
     return response.data;
 }
@@ -20,7 +19,6 @@ export async function newConversation(agentId) {
  * @returns {Promise<import('$types').ConversationModel>}
  */
 export async function getConversation(id) {
-    setAuthorization();
     let url = replaceUrl(endpoints.conversationDetailUrl, {conversationId: id});
     const response = await axios.get(url);
     return response.data;
@@ -32,7 +30,6 @@ export async function getConversation(id) {
  * @returns {Promise<import('$types').PagedItems<import('$types').ConversationModel>>}
  */
 export async function getConversations(filter) {
-    setAuthorization();
     let url = endpoints.conversationsUrl;
     const response = await axios.get(url, {
         params: filter
@@ -45,8 +42,7 @@ export async function getConversations(filter) {
  * @param {string} conversationId 
  */
 export async function deleteConversation(conversationId) {
-    setAuthorization();
-    let url = endpoints.conversationDeletionUrl.replace("{conversationId}", conversationId);
+    let url = replaceUrl(endpoints.conversationDeletionUrl, {conversationId: conversationId});
     const response = await axios.delete(url);
     return response.data;
 }
@@ -57,8 +53,7 @@ export async function deleteConversation(conversationId) {
  * @returns {Promise<import('$types').ChatResponseModel[]>}
  */
 export async function GetDialogs(conversationId) {
-    setAuthorization();
-    let url = endpoints.dialogsUrl.replace("{conversationId}", conversationId);
+    let url = replaceUrl(endpoints.dialogsUrl, {conversationId: conversationId});
     const response = await axios.get(url);
     return response.data;
 }
@@ -70,8 +65,9 @@ export async function GetDialogs(conversationId) {
  * @param {string} message The text message sent to CSR
  */
 export async function sendMessageToHub(agentId, conversationId, message) {
-    let url = endpoints.conversationMessageUrl.replace("{agentId}", agentId)
-        .replace("{conversationId}", conversationId);
+    let url = replaceUrl(endpoints.conversationMessageUrl, {
+        agentId: agentId,
+        conversationId: conversationId});
     const response = await axios.post(url, {
         "text": message
     });
