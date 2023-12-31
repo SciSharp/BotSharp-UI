@@ -1,6 +1,6 @@
 <script>
 	import Link from 'svelte-link';
-	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from 'sveltestrap';
+	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 </script>
 

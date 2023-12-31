@@ -11,7 +11,7 @@
 		Input,
 		Button,
 		Alert
-	} from 'sveltestrap';
+	} from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js'
 	import { goto } from '$app/navigation';

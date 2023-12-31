@@ -1,6 +1,6 @@
 <script>
     import Link from 'svelte-link';
-    import { Button, Card, CardBody, CardHeader, Col, Table } from 'sveltestrap';
+    import { Button, Card, CardBody, CardHeader, Col, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 

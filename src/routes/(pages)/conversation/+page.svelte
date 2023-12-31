@@ -11,7 +11,7 @@
 		Input,
 		Row,
 		Table
-	} from 'sveltestrap';
+	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import Pagination from '$lib/common/Pager.svelte';

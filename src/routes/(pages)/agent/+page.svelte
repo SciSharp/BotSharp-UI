@@ -1,5 +1,5 @@
 <script>
-	import { Col, Row } from 'sveltestrap';
+	import { Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import CardAgent from './card-agent.svelte';

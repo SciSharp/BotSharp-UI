@@ -1,6 +1,6 @@
 <script>
     import Link from 'svelte-link'
-    import { Card, CardBody, Col, FormGroup, Label, Input } from 'sveltestrap';
+    import { Card, CardBody, Col, FormGroup, Label, Input } from '@sveltestrap/sveltestrap';
     
     /** @type {import('$types').AgentModel} */
     export let agent;

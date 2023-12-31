@@ -1,5 +1,5 @@
 <script>
-    import { Button, Card, CardBody, CardTitle} from 'sveltestrap';
+    import { Button, Card, CardBody, CardTitle} from '@sveltestrap/sveltestrap';
     import { format } from '$lib/helpers/datetime';
 
     /** @type {import('$types').ConversationModel} */

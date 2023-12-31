@@ -1,6 +1,6 @@
 <script>
 	import { browser } from '$app/environment';
-	import { Input, Dropdown, DropdownToggle, DropdownMenu, Row, Col } from 'sveltestrap';
+	import { Input, Dropdown, DropdownToggle, DropdownMenu, Row, Col } from '@sveltestrap/sveltestrap';
 	import Link from 'svelte-link';
 	import LanguageDropdown from '$lib/common/LanguageDropdown.svelte';
 	import FullScreenDropdown from '$lib/common/FullScreenDropdown.svelte';

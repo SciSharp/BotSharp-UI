@@ -1,5 +1,5 @@
 <script>
-	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from 'sveltestrap';
+	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 

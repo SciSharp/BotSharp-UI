@@ -1,5 +1,5 @@
 <script>
-	import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Row } from 'sveltestrap';
+	import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Row } from '@sveltestrap/sveltestrap';
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';    
     import { uploadDocument } from '$lib/services/knowledge-base-service';

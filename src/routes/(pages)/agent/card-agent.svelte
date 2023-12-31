@@ -1,6 +1,6 @@
 <script>
   import Link from "svelte-link";
-  import { Badge, Card, CardBody, Col } from "sveltestrap";
+  import { Badge, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
   import { format } from '$lib/helpers/datetime';
 
   /** @type {import('$types').AgentModel[]} */

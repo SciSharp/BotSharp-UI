@@ -1,5 +1,5 @@
 <script>
-    import { Container, Row, Col } from "sveltestrap";
+    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
 
     // This page is used to initialize a new conversation for client
     import { page } from '$app/stores';

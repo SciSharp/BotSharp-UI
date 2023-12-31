@@ -1,5 +1,5 @@
 <script>
-	import { Col, Container, Row } from "sveltestrap";
+	import { Col, Container, Row } from '@sveltestrap/sveltestrap';
 
 </script>
 

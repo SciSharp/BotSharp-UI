@@ -10,7 +10,7 @@
 		Label,
 		Input,
 		Button
-	} from 'sveltestrap';
+	} from '@sveltestrap/sveltestrap';
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;

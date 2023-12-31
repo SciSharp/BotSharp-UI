@@ -1,5 +1,5 @@
 <script>
-    import { Card, CardBody, CardTitle, Col, Row } from 'sveltestrap';
+    import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import { GetDialogs } from '$lib/services/conversation-service.js';
     import { format } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';

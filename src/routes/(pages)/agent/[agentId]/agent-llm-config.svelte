@@ -1,5 +1,5 @@
 <script>
-    import { Button, Card, CardBody, CardHeader, Col } from 'sveltestrap';
+    import { Button, Card, CardBody, CardHeader, Col } from '@sveltestrap/sveltestrap';
 
     /** @type {import('$types').AgentModel} */
     export let agent;

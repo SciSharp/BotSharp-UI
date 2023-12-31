@@ -1,5 +1,5 @@
 <script>
-	import { Row, Col, Breadcrumb, BreadcrumbItem } from 'sveltestrap';
+	import { Row, Col, Breadcrumb, BreadcrumbItem } from '@sveltestrap/sveltestrap';
 	import Link from 'svelte-link';
 
 	export let title;

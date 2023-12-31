@@ -1,5 +1,5 @@
 <script>
-    import { Col, Row, Button } from 'sveltestrap';
+    import { Col, Row, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import Dialog from './conv-dialogs.svelte';

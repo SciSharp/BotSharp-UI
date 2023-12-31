@@ -6,7 +6,7 @@
 		DropdownItem,
 		Input,
 		Button
-	} from 'sveltestrap';
+	} from '@sveltestrap/sveltestrap';
 
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';

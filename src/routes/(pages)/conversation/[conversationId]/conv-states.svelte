@@ -1,5 +1,5 @@
 <script>
-    import { Button, Card, CardBody, CardTitle} from 'sveltestrap';
+    import { Button, Card, CardBody, CardTitle} from '@sveltestrap/sveltestrap';
     import jsonview from '@pgrabovets/json-view';
     import { onMount } from 'svelte';
 

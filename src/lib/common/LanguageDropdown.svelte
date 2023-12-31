@@ -4,7 +4,7 @@
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
-	} from "sveltestrap";
+	} from '@sveltestrap/sveltestrap';
 
 	import { setupI18n } from "$lib/helpers/i18n";
 

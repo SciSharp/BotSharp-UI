@@ -1,6 +1,6 @@
 <script lang="ts">
 	import Link from 'svelte-link/src/Link.svelte';
-	import { Dropdown, DropdownToggle, DropdownMenu } from 'sveltestrap';
+	import { Dropdown, DropdownToggle, DropdownMenu } from '@sveltestrap/sveltestrap';
 	import "overlayscrollbars/overlayscrollbars.css";
 	import { OverlayScrollbars } from "overlayscrollbars";
 

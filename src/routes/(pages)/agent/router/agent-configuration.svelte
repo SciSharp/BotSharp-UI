@@ -1,5 +1,5 @@
 <script>
-    import { Card, CardBody, CardHeader, Table } from 'sveltestrap';
+    import { Card, CardBody, CardHeader, Table } from '@sveltestrap/sveltestrap';
     import { getSettings } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
 
