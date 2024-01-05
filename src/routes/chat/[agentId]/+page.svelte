@@ -6,6 +6,7 @@
     import { onMount } from 'svelte';
     import { newConversation } from '$lib/services/conversation-service.js';
     import { getToken, setToken } from '$lib/services/auth-service.js'
+    import { getUserStore } from '$lib/helpers/store.js';
 	import { setAuthorization } from '$lib/helpers/http';
 
     const params = $page.params;
@@ -17,13 +18,16 @@
     let agentId = params.agentId;
 
     onMount(async () => {
-        if(!$page.url.searchParams.has('token')) {
+        let user = getUserStore();
+        if (user.token) {
+            console.log("login as existing account.");
+        } else if($page.url.searchParams.has('token')) {
+            let token = $page.url.searchParams.get('token');
+            setToken(token);
+        } else {
             await getToken("guest@gmail.com", "123456", () => {
                 console.log("login as guest.");
             });
-        } else {
-            let token = $page.url.searchParams.get('token') ?? "unauthorized";
-            setToken(token);
         }
 
         setAuthorization();
