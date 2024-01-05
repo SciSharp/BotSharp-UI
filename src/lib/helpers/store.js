@@ -1,27 +1,28 @@
 import { writable } from 'svelte/store';
+import { browser } from '$app/environment';
 
-function isBrowser() {
-    return typeof window !== 'undefined';
-}
+/** @type {Writable<import('$types').UserModel>} */
+export const userStore = writable({ id: "" });
 
-const initValue = { init: true, loggedIn: false, token: '' };
-export const userStore = writable(initValue);
-
+/**
+ * @returns {Writable<import('$types').UserModel>}
+ */
 export function getUserStore () {
-    if (isBrowser()) {
+    if (browser) {
         // Access localStorage only if in the browser context
         let json = localStorage.getItem('user');
-        return JSON.parse(json) || initValue;
+        if (json)
+            return JSON.parse(json);
+        else
+            return userStore;
     } else {
         // Return a default value for SSR
-        return initValue;
+        return userStore;
     }
 };
 
 userStore.subscribe(value => {
-    if (isBrowser()) {
-        if(!value.init) {
-            localStorage.setItem('user', JSON.stringify(value));
-        }
+    if (browser && value.token) {
+        localStorage.setItem('user', JSON.stringify(value));
     }
 });

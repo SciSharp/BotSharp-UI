@@ -24,7 +24,8 @@ export async function getToken(email, password, onSucceed) {
         }
     }).then(result => {
         let user = getUserStore();
-        userStore.set({ ...user, init: false, loggedIn: true, email, token: result.access_token });
+        user.token = result.access_token;
+        userStore.set(user);
         onSucceed();
     })
     .catch(error => alert(error.message));
@@ -36,7 +37,7 @@ export async function getToken(email, password, onSucceed) {
  */
 export function setToken(token) {
     let user = getUserStore();
-    userStore.set({ ...user, init: false, loggedIn: true, token: token });
+    user.token = token;
 }
 
 /**
@@ -44,6 +45,9 @@ export function setToken(token) {
  */
 export async function myInfo() {
     const response = await axios.get(endpoints.myInfoUrl);
+    let user = getUserStore();
+    user.id = response.data.id;
+    userStore.set(user);
     return response.data;
 }
 

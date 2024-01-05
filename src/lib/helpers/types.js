@@ -1,13 +1,15 @@
 /**
  * @typedef {Object} UserModel
  * @property {string} id - The user id.
- * @property {string} first_name - The user first name.
- * @property {string} last_name - The user last name.
- * @property {string} full_name - The user full name.
- * @property {string} email - The user email.
- * @property {string} role - The user role.
- * @property {string} avatar - The user avatar.
- * @property {string} color 
+ * @property {string} [user_name] - User name
+ * @property {string} [first_name] - The user first name.
+ * @property {string} [last_name] - The user last name.
+ * @property {string} [full_name] - The user full name.
+ * @property {string} [email] - The user email.
+ * @property {string} [role] - The user role.
+ * @property {string} [avatar] - The user avatar.
+ * @property {string} [color]
+ * @property {string} [token]
  */
 
 /**
