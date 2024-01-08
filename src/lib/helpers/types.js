@@ -33,6 +33,7 @@
  * @property {string} description - The plugin description.
  * @property {string} assembly - The plugin assembly.
  * @property {string} icon_url
+ * @property {boolean} with_agent
  */
 
 /**

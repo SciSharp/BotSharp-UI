@@ -3,4 +3,4 @@
 	export let message;
 </script>
 
-<span>{message.text}</span>
+<span>{@html message.text}</span>

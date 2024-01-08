@@ -1,46 +1,32 @@
 <script>
-	import { Button, Card, CardBody, CardHeader, CardTitle, Col, Input, Label, Row } from '@sveltestrap/sveltestrap';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-    import HeadTitle from '$lib/common/HeadTitle.svelte';    
-    import { uploadDocument } from '$lib/services/knowledge-base-service';
+	import { Row, Card, CardBody, CardHeader, Container } from '@sveltestrap/sveltestrap';
+	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+    import HeadTitle from '$lib/common/HeadTitle.svelte';
 
-    /** @type {FileList} */
-    let files;
-
-	$: if (files) {
-		// Note that `files` is of type `FileList`, not an Array:
-		// https://developer.mozilla.org/en-US/docs/Web/API/FileList
-		console.log(files);
-
-		for (const file of files) {
-			console.log(`${file.name}: ${file.size} bytes`);
-		}
-	}
-
-    async function handleFileUpload() {
-        for (const file of files) {
-			await uploadDocument(file);
-		}
-    }
+	import UploadDocument from "./upload-document.svelte";
+	import FileLeftBar from './FileLeftBar.svelte';
+	import FileLists from "./FileLists.svelte";
+	import RecentFile from "./RecentFile.svelte";
+	import Storage from "./Storage.svelte";
 </script>
-
-<HeadTitle title="Agent Knowledge Base" />
-<Breadcrumb title="Agent" pagetitle="Knowledge Base" />
-
-<Card>
-    <CardHeader>
-        <p>Upload your own document, BotSharp will convert this data into its knowledges.</p>
-    </CardHeader>
-    <CardBody>
-        <div class="input-group">
-            <Input
-                type="file"
-                bind:files
-                class="form-control"
-                aria-describedby="inputGroupFileAddon04"
-                aria-label="Upload"
-            />
-            <Button color="primary" on:click={() => handleFileUpload()}>Upload</Button>
-        </div>
-    </CardBody>
-</Card>
+<HeadTitle title="Knowledge Manager" />
+<Breadcrumb pagetitle="Knowledge Management" title="Knowledge Base"/>
+<div class="d-xl-flex">
+	<div class="w-100">
+		<div class="d-md-flex">
+			<FileLeftBar />
+			<div class="w-100">
+				<Card>
+					<CardBody>
+						<FileLists />
+						<div class="mb-3">
+							<UploadDocument />
+						</div>						
+                  		<RecentFile />
+					</CardBody>
+				</Card>
+			</div>
+		</div>
+	</div>
+	<Storage />
+</div>

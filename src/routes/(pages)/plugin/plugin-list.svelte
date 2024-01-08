@@ -44,7 +44,9 @@
 					</ul>
 					<div class="mt-3 hstack gap-2">
 						<span class="badge rounded-1 badge-soft-success">Enabled</span>
-						<span class="badge rounded-1 badge-soft-warning">Urgent</span>
+						{#if item.with_agent}
+						<span class="badge rounded-1 badge-soft-warning">Agent</span>
+						{/if}
 						<span class="badge rounded-1 badge-soft-info">Public</span>
 					</div>
 					<div class="mt-4 hstack gap-2">

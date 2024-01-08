@@ -170,6 +170,7 @@
 						<li id={'test_k' + message.message_id}
 							class={message.sender.id === currentUser.id ? 'right' : ''}>
 							<div class="conversation-list">
+								{#if message.sender.id === currentUser.id}
 								<Dropdown>
 									<DropdownToggle class="dropdown-toggle" tag="span" color="">
 										<i class="bx bx-dots-vertical-rounded" />
@@ -181,7 +182,7 @@
 										<DropdownItem href="#">Delete</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
-
+								{/if}
 								<div class="ctext-wrap">
 									{#if message.sender.id === currentUser.id}
 									<!--<div class="conversation-name">{message.sender.full_name}</div>-->

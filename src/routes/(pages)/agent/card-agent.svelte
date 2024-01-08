@@ -29,11 +29,6 @@
               </Link>
             </h5>
             <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
-            <p>
-              <a href= "#" class="btn btn-link" target="_blank">
-                <i class="bx bx-book-open" /> Knowledge Base
-              </a>
-            </p>
             <div class="avatar-group" style="height:35px;">
               {#each agent.functions as fn}
                 <div class="avatar-group-item">

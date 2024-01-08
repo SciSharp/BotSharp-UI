@@ -1,4 +1,5 @@
-export const host = 'http://localhost:5500';
+import { PUBLIC_SERVICE_URL } from '$env/static/public';
+export const host = PUBLIC_SERVICE_URL;
 
 export const endpoints = {
     // user

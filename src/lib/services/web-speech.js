@@ -39,7 +39,7 @@ function setVoiceSynthesis() {
         const voices = synth.getVoices();
         for (let i = 0; i < voices.length; i++) {
             if (voices[i].name === "Microsoft Michelle Online (Natural) - English (United States)" ||
-                voices[i].name === "Microsoft Zira - English (United States)") {
+                voices[i].name === "Google US English") {
               utterThis.voice = voices[i];
               console.log(voices[i].name);
               break;
