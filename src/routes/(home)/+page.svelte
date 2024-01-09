@@ -2,14 +2,15 @@
     import Link from "svelte-link";
     import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import HeadTitle from "$lib/common/HeadTitle.svelte";
+    import { PUBLIC_LOGO_URL, PUBLIC_BRAND_NAME } from '$env/static/public';
   </script>
   
-  <HeadTitle title="BotSharp Workspace" />
+  <HeadTitle title="{PUBLIC_BRAND_NAME} Workspace" />
   
   <div class="home-btn d-none d-sm-block">
     <Link href="/" class="text-dark">              
         <img
-            src="/images/logo.png"
+            src={PUBLIC_LOGO_URL}
             alt="logo"
             height="50"
             class="auth-logo-dark mx-auto"
@@ -29,7 +30,7 @@
                               </div>
                           </Col>
                       </Row>
-                      <h4 class="mt-5">Let&#39;s <a href="/login">get started</a> with BotSharp</h4>
+                      <h4 class="mt-5">Let&#39;s <a href="/login">get started</a> with {PUBLIC_BRAND_NAME}</h4>
                       <p class="text-muted">
                       A central workspace for building, testing and evaluating your AI Agents.
                       </p>

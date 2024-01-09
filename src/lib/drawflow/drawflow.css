@@ -1,8 +1,8 @@
 .drawflow .drawflow-node {
-    background: rgb(128, 0, 128);
+    background: var(--bs-primary);
     color: white;
 }
 
 .drawflow .drawflow-node.selected {
-    background: rgb(0, 200, 50);
+    background: var(--bs-success);
 }

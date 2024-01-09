@@ -7,6 +7,7 @@
 	import NotificationDropdown from '$lib/common/NotificationDropdown.svelte';
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
+	import { PUBLIC_LOGO_URL } from '$env/static/public';
 
 	const toggleSideBar = () => {
 		if (browser) {
@@ -44,19 +45,19 @@
 			<div class="navbar-brand-box">
 				<a href="/dashboard" class="logo logo-dark">
 					<span class="logo-sm">
-						<img src='/images/logo.png' alt="" height="25" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
 					</span>
 					<span class="logo-lg">
-						<img src='/images/logo.png' alt="" height="50" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="40" />
 					</span>
 				</a>
 
 				<a href="/dashboard" class="logo logo-light">
 					<span class="logo-sm">
-						<img src='/images/logo.png' alt="" height="25" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
 					</span>
 					<span class="logo-lg">
-						<img src='/images/logo.png' alt="" height="50" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="40" />
 					</span>
 				</a>
 			</div>
