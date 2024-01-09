@@ -25,10 +25,7 @@
 
     /** @type {import('$types').ConversationFilter} */
     let filter = { 
-		pager: { page: 0, size: 20, count: 0 }, 
-		agentId: '01fcc3e5-9af7-49e6-ad7a-a760bd12dc4a', 
-		channel: null, 		
-		status: null 
+		pager: { page: 0, size: 20, count: 0 }
 	};	
 
 	/** @type {import('$types').Pagination} */

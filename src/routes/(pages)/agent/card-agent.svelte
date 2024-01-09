@@ -30,6 +30,16 @@
             </h5>
             <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
             <div class="avatar-group" style="height:35px;">
+              {#if agent.is_router}
+              <div class="avatar-group-item me-3">
+                  <img src="/icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
+              </div>
+              {/if}
+              {#if agent.allow_routing}
+              <div class="avatar-group-item me-3">
+                  <img src="/icons/routing-2.png" class="rounded-circle avatar-xs" alt="routing"/>
+              </div>
+              {/if}
               {#each agent.functions as fn}
                 <div class="avatar-group-item">
                 <Link href="#" class="d-inline-block" id={"member" + fn.name}>
@@ -43,17 +53,17 @@
       </CardBody>
       <div class="px-4 py-3 border-top">
         <ul class="list-inline mb-0">
-          <li class="list-inline-item me-3">
-            <Badge color={agent.disabled ? "warning" : "success"} class={"bg-" + agent.disabled ? "warning" : "success"}
-              >{agent.disabled ? "Disabled" : "Enabled"}</Badge>
+          <li class="list-inline-item me-1">
+            <Badge color={agent.disabled ? "warning" : "success"}>{agent.disabled ? "Disabled" : "Enabled"}</Badge>
           </li>
-          {" "}
-          <li class="list-inline-item me-3" id="dueDate">
+          <li class="list-inline-item me-1">
+            <Badge color={agent.is_public ? "success" : "warning"}>{agent.is_public ? "Public" : "Private"}</Badge>
+          </li>
+          <li class="list-inline-item me-1" id="dueDate">
             <i class="bx bx-calendar me-1" />
-            {format(agent.updated_datetime)}
+            {format(agent.updated_datetime, 'short-date')}
           </li>
-          {" "}
-          <li class="list-inline-item me-3" id="comments">
+          <li class="list-inline-item me-1" id="comments">
             <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> Live Chat
             </a>

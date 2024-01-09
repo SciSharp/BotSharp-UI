@@ -15,9 +15,17 @@
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js'
 	import { goto } from '$app/navigation';
+	import { 
+		PUBLIC_LOGO_URL, 
+		PUBLIC_LOGIN_IMAGE,
+		PUBLIC_BRAND_NAME, 
+		PUBLIC_ADMIN_USERNAME, 
+		PUBLIC_ADMIN_PASSWORD,
+		PUBLIC_COMPANY_NAME 
+	} from '$env/static/public';
 
-	let username = 'admin@gmail.com';
-	let password = '123456';
+	let username = PUBLIC_ADMIN_USERNAME;
+	let password = PUBLIC_ADMIN_PASSWORD;
 	let isOpen = false;
 	let msg = '';
 	let status = '';
@@ -44,11 +52,11 @@
 							<Col class="col-7">
 								<div class="text-primary p-4">
 									<h5 class="text-primary">Welcome Back !</h5>
-									<p>Sign in to continue to BotSharp.</p>
+									<p>Sign in to continue to {PUBLIC_BRAND_NAME}.</p>
 								</div>
 							</Col>
 							<Col class="col-5 align-self-end">
-								<img src='/images/profile-img.png' alt="" class="img-fluid" />
+								<img src={PUBLIC_LOGIN_IMAGE} alt="" class="img-fluid" />
 							</Col>
 						</Row>
 					</div>
@@ -57,14 +65,14 @@
 							<Link href="/dashboard" class="auth-logo-light">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
-										<img src='/images/logo.png' alt="" class="rounded-circle" height="55" />
+										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
 									</span>
 								</div>
 							</Link>
 							<Link href="/dashboard" class="auth-logo-dark">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
-										<img src='/images/logo.png' alt="" class="rounded-circle" height="55" />
+										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
 									</span>
 								</div>
 							</Link>
@@ -149,7 +157,7 @@
 						<Link href="/register" class="fw-medium text-primary">Signup now</Link>
 					</p>
 					<p>
-						© {new Date().getFullYear()} SciSharp STACK. Crafted with
+						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
 						<i class="mdi mdi-heart text-danger" /> by open source community
 					</p>
 				</div>

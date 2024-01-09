@@ -2,6 +2,7 @@
 	import Link from 'svelte-link';
 	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
+	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME } from '$env/static/public';
 </script>
 
 <Headtitle title="Recover Password" />
@@ -29,7 +30,7 @@
 							<Link href="/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
-										<img src='/images/logo.png' alt="" class="rounded-circle" height="34" />
+										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
 									</span>
 								</div>
 							</Link>
@@ -66,8 +67,8 @@
 						<Link href="/login" class="fw-medium text-primary">Sign In here</Link>
 					</p>
 					<p>
-						© {new Date().getFullYear()} SciSharp STACK. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by SciSharp STACK
+						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
+						<i class="mdi mdi-heart text-danger" /> by Open Source community
 					</p>
 				</div>
 			</Col>

@@ -3,6 +3,7 @@
 	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { goto } from '$app/navigation';
+	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME } from '$env/static/public';
 
 	let username = '';
 	let emailid = '';
@@ -65,7 +66,7 @@
 							<Col class="col-7">
 								<div class="text-primary p-4">
 									<h5 class="text-primary">Free Register</h5>
-									<p>Get your free SciSharp account now.</p>
+									<p>Get your free account now.</p>
 								</div>
 							</Col>
 							<Col class="col-5 align-self-end">
@@ -78,7 +79,7 @@
 							<Link href="/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
-										<img src='/images/logo.png' alt="" class="rounded-circle" height="34" />
+										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
 									</span>
 								</div>
 							</Link>
@@ -155,7 +156,7 @@
 
 								<div class="mt-4 text-center">
 									<p class="mb-0">
-										By registering you agree to the SciSharp <Link href="#" class="text-primary"
+										By registering you agree to the <Link href="#" class="text-primary"
 											>Terms of Use</Link
 										>
 									</p>
@@ -170,8 +171,8 @@
 						<Link href="/login" class="fw-medium text-primary">Login</Link>
 					</p>
 					<p>
-						© {new Date().getFullYear()} SciSharp STACK. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by SciSharp STACK
+						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
+						<i class="mdi mdi-heart text-danger" /> by Open Source community
 					</p>
 				</div>
 			</Col>
