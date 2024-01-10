@@ -24,7 +24,7 @@
 
           <div class="flex-grow-1 overflow-hidden">
             <h5 class="text-truncate font-size-15">
-              <Link href= "/agent/{agent.id}" class="text-dark">
+              <Link href= "/page/agent/{agent.id}" class="text-dark">
                 {agent.name}
               </Link>
             </h5>

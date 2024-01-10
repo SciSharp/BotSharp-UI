@@ -49,7 +49,7 @@
 						{/if}
 						<span class="badge rounded-1 badge-soft-info">Public</span>
 					</div>
-					<div class="mt-4 hstack gap-2">
+					<div class="mt-2 hstack pt-2 gap-2 border-top">
 						<a href="/plugin/{item.id}" class="btn btn-soft-success btn-sm">Settings</a>
 						<a href="#" class="btn btn-soft-warning btn-sm">Disable</a>
 					</div>

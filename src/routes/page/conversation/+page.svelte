@@ -147,7 +147,7 @@
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-											<Link href="/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
+											<Link href="/page/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
                                                 <i class="mdi mdi-eye-outline" />
                                             </Link>
 										</li>

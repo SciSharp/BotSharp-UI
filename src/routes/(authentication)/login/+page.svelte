@@ -36,7 +36,7 @@
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
-			goto('/dashboard');
+			goto('/page/dashboard');
 		});
 	}
 </script>

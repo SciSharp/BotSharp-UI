@@ -2,7 +2,7 @@ const Navdata = [
   {
     "icon": "bx bx-home-circle",
     "label": "Dashboard",
-    "link": "/dashboard"
+    "link": "/page/dashboard"
   },  
   {
     label: 'Agent',
@@ -11,17 +11,17 @@ const Navdata = [
   {
     "icon": "bx bx-map-pin",
     "label": "Router",
-    "link": "/agent/router"
+    "link": "/page/agent/router"
   },  
   {
     "icon": "bx bx-task",
     "label": "Evaluator",
-    "link": "/agent/evaluator"
+    "link": "/page/agent/evaluator"
   },    
   {
     "icon": "bx bx-bot",
     "label": "Agents",
-    "link": "/agent"
+    "link": "/page/agent"
   },
   {
     label: 'Conversation',
@@ -30,7 +30,7 @@ const Navdata = [
   {
     "icon": "bx bx-conversation",
     "label": "Conversations",
-    "link": "/conversation"
+    "link": "/page/conversation"
   },
   {
     label: 'RAG',
@@ -39,7 +39,7 @@ const Navdata = [
   {
     "icon": "bx bx-book-open",
     "label": "Knowledge Base",
-    "link": "/knowledge-base"
+    "link": "/page/knowledge-base"
   },  
   {
     label: 'System',
@@ -48,12 +48,12 @@ const Navdata = [
   {
     "icon": "bx bx-plug",
     "label": "Plugins",
-    "link": "/plugin"
+    "link": "/page/plugin"
   }, 
   {
     "icon": "bx bx-cog",
     "label": "Settings",
-    "link": "/setting"
+    "link": "/page/setting"
   }
 ]
 
