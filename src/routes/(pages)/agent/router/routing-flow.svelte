@@ -15,7 +15,8 @@
     onMount(async () => {
         agents = await getAgents({
             isRouter: false,
-            isEvaluator: false
+            isEvaluator: false,
+            allowRouting: true
         });
 
         const container = document.getElementById("drawflow");

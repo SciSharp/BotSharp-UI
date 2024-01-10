@@ -63,6 +63,7 @@
  * @typedef {Object} AgentFilter
  * @property {boolean} [isRouter]
  * @property {boolean} [isEvaluator]
+ * @property {boolean} [allowRouting]
  */
 
 /**
@@ -73,6 +74,7 @@
  * @property {string} instruction - System prompt
  * @property {boolean} disabled
  * @property {boolean} is_public
+ * @property {boolean} is_router
  * @property {string} icon_url - Icon
  * @property {boolean} allow_routing
  * @property {Date} created_datetime
@@ -100,9 +102,9 @@
 /**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
- * @property {string?} agentId - The agent id.
- * @property {string?} channel - The conversation channel.
- * @property {string?} status - The conversation status.
+ * @property {string?} [agentId] - The agent id.
+ * @property {string?} [channel] - The conversation channel.
+ * @property {string?} [status] - The conversation status.
  */
 
 /**
