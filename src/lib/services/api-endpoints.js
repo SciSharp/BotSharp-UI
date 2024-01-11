@@ -27,6 +27,9 @@ export const endpoints = {
     conversationDetailUrl: `${host}/conversation/{conversationId}`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     
+    // logging
+    loggingFullLogUrl: `${host}/logger/full-log`,
+    
     // knowledge base
     knowledgeBaseUploadUrl: `${host}/knowledge-base/upload`,
 

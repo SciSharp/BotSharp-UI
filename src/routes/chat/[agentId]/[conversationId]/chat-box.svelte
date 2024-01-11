@@ -16,6 +16,7 @@
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
+	import { getFullLog } from '$lib/services/logging-service';
 	import { format } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
@@ -91,6 +92,10 @@
 		refresh();
     }    
 
+	async function viewFullLogHandler() {
+      await getFullLog();
+    }
+
     async function sendTextMessage() {
       await sendMessageToHub(params.agentId, params.conversationId, text);
     }
@@ -140,9 +145,7 @@
 										<i class="bx bx-dots-horizontal-rounded" />
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
-										<DropdownItem>Action</DropdownItem>
-										<DropdownItem>Another action</DropdownItem>
-										<DropdownItem>Something else</DropdownItem>
+										<DropdownItem on:click={viewFullLogHandler} >View Log</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</li>
@@ -176,9 +179,8 @@
 										<i class="bx bx-dots-vertical-rounded" />
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
+										<DropdownItem href="#">Eidt</DropdownItem>
 										<DropdownItem href="#">Copy</DropdownItem>
-										<DropdownItem href="#">Save</DropdownItem>
-										<DropdownItem href="#">Forward</DropdownItem>
 										<DropdownItem href="#">Delete</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
