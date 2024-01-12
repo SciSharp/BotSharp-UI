@@ -7,7 +7,7 @@
 		if (browser){	
 			localStorage.removeItem('authUser');
 		} 
-		goto('/login');
+		goto('/');
 	};
 </script>
 

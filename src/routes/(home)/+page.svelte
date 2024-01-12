@@ -2,7 +2,12 @@
     import Link from "svelte-link";
     import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import HeadTitle from "$lib/common/HeadTitle.svelte";
-    import { PUBLIC_LOGO_URL, PUBLIC_BRAND_NAME } from '$env/static/public';
+    import { 
+        PUBLIC_LOGO_URL, 
+        PUBLIC_BRAND_NAME, 
+        PUBLIC_HOME_SLOGAN, 
+        PUBLIC_HOME_IMAGE 
+    } from '$env/static/public';
   </script>
   
   <HeadTitle title="{PUBLIC_BRAND_NAME} Workspace" />
@@ -26,13 +31,13 @@
                       <Row class="justify-content-center mt-5">
                           <Col sm="8">
                               <div class="maintenance-img">
-                                <img src="/images/megamenu-img.png" alt="" style="width: 25vw;" />
+                                <img src={PUBLIC_HOME_IMAGE} alt="" style="width: 25vw;" />
                               </div>
                           </Col>
                       </Row>
                       <h4 class="mt-5">Let&#39;s <a href="/login">get started</a> with {PUBLIC_BRAND_NAME}</h4>
                       <p class="text-muted">
-                      A central workspace for building, testing and evaluating your AI Agents.
+                      {PUBLIC_HOME_SLOGAN}
                       </p>
                   </div>
               </Col>
