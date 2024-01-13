@@ -27,6 +27,6 @@
 <span>{@html message.text}</span>
 <div class="fixed-bottom p-2 text-center" style="margin-bottom: 10vh;">
 {#each message.quick_replies as reply}
-<button class="btn btn-secondary btn-rounded btn-sm m-1" on:click={() => onQuickReplyClick(reply.payload)}>{reply.title}</button>
+<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={() => onQuickReplyClick(reply.payload)}>{reply.title}</button>
 {/each}
 </div>

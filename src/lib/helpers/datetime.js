@@ -21,3 +21,12 @@ export function format(datetime, type = 'date') {
         return date.toLocaleString(undefined, options);
     }
 };
+
+/**
+ * Sleep
+ * @param {number} ms 
+ * @returns {Promise<function>}
+ */
+export function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}

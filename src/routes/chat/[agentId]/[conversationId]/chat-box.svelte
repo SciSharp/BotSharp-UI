@@ -20,6 +20,7 @@
 	import { format } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
+	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 
 	const options = {
 		scrollbars: {
@@ -150,7 +151,7 @@
 								</Dropdown>
 							</li>
 							<li class="list-inline-item d-sm-inline-block">
-								<button type="submit" class="btn btn-secondary btn-rounded chat-send waves-effect waves-light"
+								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									on:click={close}
 								>
 									<span class="d-none d-sm-inline-block me-2" >Close</span> <i class="mdi mdi-window-close"></i>
@@ -194,11 +195,11 @@
 										{format(message.created_at, 'short-time')}
 									</p>									
 									{:else}
-									<div class="flex-shrink-0 align-self-center me-3">
+									<div class="flex-shrink-0 align-self-center">
 										{#if message.sender.role == "client"}
 										<img src="/images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 										{:else}
-										<img src="/images/users/chatbot.png" class="rounded-circle avatar-xs" alt="avatar">
+										<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 										{/if}
 										{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
 										<RcText message={message.rich_content.message} />

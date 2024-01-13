@@ -7,6 +7,7 @@
 <script>
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
 	import { setAuthorization } from '$lib/helpers/http';
+	import LiveChat from '$lib/common/LiveChatEntry.svelte';
 
 	let component = VerticalLayout;
 	setAuthorization();
@@ -15,3 +16,5 @@
 <svelte:component this={component}>
 	<slot />
 </svelte:component>
+
+<LiveChat />
