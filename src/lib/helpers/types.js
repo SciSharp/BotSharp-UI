@@ -90,6 +90,7 @@
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.
+ * @property {PluginDefModel} plugin
  * @property {FunctionDef[]} functions
  * @property {AgentTemplate[]} templates
  * @property {Object[]} responses

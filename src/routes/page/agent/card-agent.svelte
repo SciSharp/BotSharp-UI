@@ -28,6 +28,7 @@
                 {agent.name}
               </Link>
             </h5>
+            <p>Provided by {agent.plugin.name}</p>
             <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
             <div class="avatar-group" style="height:35px;">
               {#if agent.is_router}
