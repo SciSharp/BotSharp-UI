@@ -65,7 +65,7 @@
           </li>
           <li class="list-inline-item me-1" id="comments">
             <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-chat" /> Live Chat
+              <i class="bx bx-chat" /> Chat Test
             </a>
           </li>
         </ul>
