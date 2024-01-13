@@ -11,10 +11,27 @@
 		Input,
 		Button
 	} from '@sveltestrap/sveltestrap';
+	import { enablePlugin, disablePlugin } from '$lib/services/plugin-service';
+	import { goto } from '$app/navigation';
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;
 
+	/** 
+	 * @param {string} id
+	 * @param {boolean} enable
+	*/
+	async function handlePluginStatus(id, enable) {
+		if (enable) {
+			await enablePlugin(id);
+		} else {
+			await disablePlugin(id);
+		}
+		
+		const path = window.location.pathname;
+		// refresh page
+		goto('/').then(() => goto(path));
+	}
 </script>
 
 <Row>
@@ -27,7 +44,7 @@
 					</div>
 					<img src="{item.icon_url}" alt="{item.name}" height="35" class="mb-3" />
 					<h5 class="fs-17 mb-2">
-						<Link href="/jobs/details" class="text-dark">{item.name}</Link>
+						<Link href="#" class="text-dark">{item.name}</Link>
 						<small class="text-muted fw-normal">plugin</small>
 					</h5>
 					<ul class="list-inline mb-0">
@@ -43,15 +60,15 @@
 						</li>
 					</ul>
 					<div class="mt-3 hstack gap-2">
-						<span class="badge rounded-1 badge-soft-success">Enabled</span>
-						{#if item.with_agent}
-						<span class="badge rounded-1 badge-soft-warning">Agent</span>
+						<span class="badge rounded-1 badge-soft-{item.enabled ? 'success' : 'danger'}">{item.enabled ? "Enabled" : "Disabled"}</span>
+						{#if item.agent_ids.length > 0}
+						<span class="badge rounded-1 badge-soft-info">{item.agent_ids.length} Agent(s)</span>
 						{/if}
 						<span class="badge rounded-1 badge-soft-info">Public</span>
 					</div>
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
 						<a href="/plugin/{item.id}" class="btn btn-soft-success btn-sm">Settings</a>
-						<a href="#" class="btn btn-soft-warning btn-sm">Disable</a>
+						<a href="#" class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? "Disable" : "Enable"}</a>
 					</div>
 				</CardBody>
 			</Card>

@@ -33,7 +33,16 @@
  * @property {string} description - The plugin description.
  * @property {string} assembly - The plugin assembly.
  * @property {string} icon_url
- * @property {boolean} with_agent
+ * @property {string[]} agent_ids
+ * @property {boolean} enabled
+ */
+
+/**
+ * @typedef {Object} PluginMenuDefModel
+ * @property {string} label
+ * @property {string} icon
+ * @property {string} link
+ * @property {boolean} isHeader
  */
 
 /**
@@ -64,6 +73,7 @@
  * @property {boolean} [isRouter]
  * @property {boolean} [isEvaluator]
  * @property {boolean} [allowRouting]
+ * @property {boolean} [disabled]
  */
 
 /**

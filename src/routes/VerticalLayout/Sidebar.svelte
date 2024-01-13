@@ -2,13 +2,19 @@
 	import { onMount, afterUpdate } from 'svelte';
 	import 'overlayscrollbars/overlayscrollbars.css';
 	import { OverlayScrollbars } from 'overlayscrollbars';
-	import data from '$lib/common/data/Layoutmenudata';
 	import Link from 'svelte-link';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n'
+	import { getPluginMenu } from '$lib/services/plugin-service';
 
-	// after routeing complete call afterUpdate function
+	/** @type {import('$types').PluginMenuDefModel[]} */
+	let menu = [];
+	onMount(async () => {
+        menu = await getPluginMenu();
+    });
+
+	// after routing complete call afterUpdate function
 	afterUpdate(() => {
 
 		removeActiveDropdown()
@@ -167,7 +173,7 @@
 		<div id="sidebar-menu">
 			<!-- Left Menu Start -->
 			<ul class="metismenu list-unstyled" id="side-menu">
-				{#each data.Navdata as item}
+				{#each menu as item}
 					{#if item.isHeader}
 						<li class="menu-title" key="t-menu">{$_(item.label)}</li>
 					{:else if item.subMenu}

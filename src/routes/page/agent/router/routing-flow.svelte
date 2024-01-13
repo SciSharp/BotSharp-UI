@@ -16,6 +16,7 @@
         agents = await getAgents({
             isRouter: false,
             isEvaluator: false,
+            disabled: false,
             allowRouting: true
         });
 
@@ -56,8 +57,8 @@
         posY = 100;
         posX += nodeSpace;
         nodeId++;
-        agents.forEach(agent => { 
-            editor.addNode('agent', 1, 0, posX, posY, 'agent', data, `Agent (${agent.name})`, false);    
+        agents.forEach(agent => {                           
+            editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, `Agent (${agent.name})`, false);
             editor.addConnection(2, nodeId, `output_1`, `input_1`);    
             posY += 100;
             nodeId++;
