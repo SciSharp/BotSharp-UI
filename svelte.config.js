@@ -43,6 +43,7 @@ const config = {
 				"/page/knowledge-base",
 				"/page/plugin",
 				"/page/plugin/[pluginId]",
+				"/page/setting",
 				"/chat",
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",
