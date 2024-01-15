@@ -6,13 +6,9 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n'
-	import { getPluginMenu } from '$lib/services/plugin-service';
 
 	/** @type {import('$types').PluginMenuDefModel[]} */
-	let menu = [];
-	onMount(async () => {
-        menu = await getPluginMenu();
-    });
+	export let menu
 
 	// after routing complete call afterUpdate function
 	afterUpdate(() => {
@@ -57,7 +53,7 @@
 		}
 	};
 
-	onMount(() => {
+	onMount(async () => {
 		const menuElement = document.querySelector('#vertical-menu');
 		OverlayScrollbars(menuElement, options);
 		activeMenu();

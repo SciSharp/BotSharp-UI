@@ -5,6 +5,10 @@
 	import { browser } from '$app/environment';
 	import Footer from './Footer.svelte';
 	import { onMount } from 'svelte';
+	import { getPluginMenu } from '$lib/services/plugin-service';
+
+	/** @type {import('$types').PluginMenuDefModel[]} */
+	let menu;
 
 	const toggleRightBar = () => {
 		if (browser) {
@@ -20,7 +24,8 @@
 		toggleRightBar();
 	};
 
-	onMount(() => {
+	onMount(async () => {
+		menu = await getPluginMenu();
 		if (browser) {
 			document.body.setAttribute('data-layout', 'vertical');
 		}
@@ -29,8 +34,9 @@
 
 <div id="layout-wrapper">
 	<Header {toggleRightBar} />
-	<Sidebar />
-
+	{#if menu}
+	<Sidebar menu={menu}/>
+	{/if}
 	<div class="main-content">
 		<div class="page-content">
 			<div class="container-fluid">
