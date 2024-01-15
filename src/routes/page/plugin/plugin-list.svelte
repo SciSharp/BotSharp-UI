@@ -69,7 +69,7 @@
 					</div>
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
 						<a href="/plugin/{item.id}" class="btn btn-soft-success btn-sm">Settings</a>
-						<a href="#" class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? "Disable" : "Enable"}</a>
+						<a href="#" class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? "Remove" : "Install"}</a>
 					</div>
 				</CardBody>
 			</Card>

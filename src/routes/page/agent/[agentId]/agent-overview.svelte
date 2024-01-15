@@ -21,7 +21,17 @@
             <Table >
                 <tbody>
                     <tr>
-                        <th>Is Public</th>
+                        <th>Type</th>
+                        <td>
+                            {#if agent.is_router}
+                                Routing Agent
+                            {:else}
+                                Task Agent
+                            {/if}
+                        </td>
+                    </tr>                    
+                    <tr>
+                        <th>Visibility</th>
                         <td>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.is_public} id="is_public" />
@@ -30,7 +40,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>Allow Routing</th>
+                        <th>Routable</th>
                         <td>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.allow_routing} id="allow_routing" />
@@ -43,7 +53,7 @@
                         <td><span class="badge badge-soft-success mx-1">phone</span><span class="badge badge-soft-success mx-1">webchat</span></td>
                     </tr>
                     <tr>
-                        <th>Inactive</th>
+                        <th>Status</th>
                         <td>							
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />

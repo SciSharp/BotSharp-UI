@@ -185,22 +185,27 @@
 										<DropdownItem href="#">Delete</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
+								{:else}
+								<div class="cicon-wrap float-start">
+									{#if message.sender.role == "client"}
+									<img src="/images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+									{:else}
+									<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+									{/if}
+								</div>																
 								{/if}
-								<div class="ctext-wrap">
-									{#if message.sender.id === currentUser.id}
+								{#if message.sender.id === currentUser.id}
+								<div class="ctext-wrap float-end">
 									<!--<div class="conversation-name">{message.sender.full_name}</div>-->
 									<span>{message.text}</span>
 									<p class="chat-time mb-0">
 										<i class="bx bx-time-five align-middle me-1" />
 										{format(message.created_at, 'short-time')}
-									</p>									
-									{:else}
+									</p>	
+								</div>								
+								{:else}
+								<div class="ctext-wrap float-start">
 									<div class="flex-shrink-0 align-self-center">
-										{#if message.sender.role == "client"}
-										<img src="/images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
-										{:else}
-										<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
-										{/if}
 										{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
 										<RcText message={message.rich_content.message} />
 										{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
@@ -213,8 +218,8 @@
 										<span>{message.text}</span>
 										{/if}
 									</div>
-									{/if}
 								</div>
+								{/if}
 							</div>
 						</li>
 						{/each}

@@ -22,3 +22,12 @@ export function replaceUrl(url, args) {
     });
     return url;
 }
+
+/**
+ * Replace new line as <br>
+ * @param {string} text 
+ * @returns string
+ */
+export function replaceNewLine(text) {
+    return text.replace(/\\r\\n/g, '<br>');
+}

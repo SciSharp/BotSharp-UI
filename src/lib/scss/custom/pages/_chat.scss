@@ -131,12 +131,18 @@
         margin-bottom: 24px;
         display: inline-block;
         position: relative;
+        width: 100%;
+
+        .cicon-wrap {
+            margin-right: 4px;
+        }
 
         .ctext-wrap {
             padding: 8px 12px;
             background-color: rgba($primary, 0.1);
             border-radius: 8px 8px 8px 0px;
             overflow: hidden;
+            max-width: 80vw;
 
             .conversation-name {
                 font-weight: $font-weight-semibold;
@@ -176,7 +182,7 @@
                 border-radius: 8px 8px 0px 8px;
             }
             .dropdown {
-                float: left;
+                float: right;
             }
 
             &.last-chat {
@@ -217,7 +223,7 @@
     border-radius: 30px;
     background-color: var(--#{$prefix}light) !important;
     border-color: var(--#{$prefix}light) !important;
-    padding-right: 120px;
+    padding-right: 40px;
 }
 
 .chat-input-links {

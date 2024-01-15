@@ -7,6 +7,10 @@ export const endpoints = {
     myInfoUrl: `${host}/user/my`,
     usrCreationUrl: `${host}/user`,
     
+    // setting
+    settingListUrl: `${host}/settings`,
+    settingDetailUrl: `${host}/setting/{id}`,
+
     // plugin
     pluginListUrl: `${host}/plugins`,
     pluginMenuUrl: `${host}/plugin/menu`,

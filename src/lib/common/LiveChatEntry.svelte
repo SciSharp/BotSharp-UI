@@ -1,5 +1,5 @@
 <script>
-    import { fade, fly } from 'svelte/transition';
+    import { fade } from 'svelte/transition';
     import { onMount } from 'svelte';
     import { PUBLIC_LIVECHAT_HOST, PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
     import { getAgents } from '$lib/services/agent-service.js'

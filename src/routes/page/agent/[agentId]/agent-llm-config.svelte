@@ -1,8 +1,14 @@
 <script>
     import { Button, Card, CardBody, CardHeader, Col } from '@sveltestrap/sveltestrap';
 
+    let options = [
+        { id: 1, name: 'azure-openai' },
+        { id: 2, name: 'google-ai' },
+        { id: 3, name: 'llama-sharp' },
+    ]
     /** @type {import('$types').AgentModel} */
     export let agent;
+    let config = agent.llm_config;
 </script>
 
 <Card>
@@ -18,11 +24,10 @@
         <div class="mb-3 row">
             <label class="col-md-3 col-form-label" for="example-large">Provider</label>
             <div class="col-md-9">
-                <select class="form-select" value="{agent.llm_config?.provider}">
-                <option>Select</option>
-                <option>azure-openai</option>
-                <option>google-ai</option>
-                <option>llama-sharp</option>
+                <select class="form-select" bind:value={config.provider} on:change={() => config.is_inherit = false}>
+                {#each options as option}
+                    <option value={option.name}>{option.name}</option>
+                {/each}
                 </select>
             </div>
         </div>
@@ -32,7 +37,7 @@
                 Model
             </label>
             <div class="col-md-9">
-                <input class="form-control" type="text" value="{agent.llm_config?.model}"/>
+                <input class="form-control" type="text" bind:value={config.model} on:change={() => config.is_inherit = false}/>
             </div>
         </div>
     </CardBody>

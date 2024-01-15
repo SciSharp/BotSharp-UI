@@ -13,9 +13,9 @@
     onMount(() => {
         content = {
             json: {
+                functions: agent.functions,
                 responses: agent.responses,
-                templates: agent.templates,
-                functions: agent.functions
+                templates: agent.templates
             }
         }         
     });
@@ -23,4 +23,14 @@
   
 </script>
 
-<JSONEditor bind:content />
+<div class="my-json-editor">
+    <JSONEditor bind:content />
+</div>
+
+<style>
+    .my-json-editor {
+      /* define a custom theme color */
+      --jse-theme-color: var(--bs-primary);
+      --jse-theme-color-highlight: #687177;
+    }
+</style>
