@@ -21,7 +21,7 @@ export const endpoints = {
     agentSettingUrl: `${host}/agent/settings`,
     agentListUrl: `${host}/agents`,
     agentDetailUrl: `${host}/agent/{id}`,
-    refreshAgentsUrl: `${host}/refresh-agents`,
+    agentRefreshUrl: `${host}/refresh-agents`,
     
     // router
     routerSettingUrl: `${host}/router/settings`,
