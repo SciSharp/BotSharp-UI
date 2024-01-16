@@ -58,7 +58,7 @@
 
         <Nav tabs class="nav-tabs-custom nav-justified">
             {#each settings as tab}
-            <NavItem>
+            <NavItem id={tab}>
                 <NavLink
                     style="cursor: pointer"
                     on:click={() => handleGetSettingDetail(tab)}
