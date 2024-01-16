@@ -34,14 +34,16 @@
 
 <Row>
     {#if agent}
-    <Col lg={4}>
+    <Col lg={3}>
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
     </Col>
-    <Col lg={8}>
+    <Col lg={6}>
         <AgentPrompt agent={agent} />
-        <AgentFunction agent={agent} />
     </Col>
+    <Col lg={3}>
+        <AgentFunction agent={agent} />
+    </Col>    
     {/if}
 </Row>
 <Row>

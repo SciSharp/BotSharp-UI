@@ -55,11 +55,18 @@
  * @property {string} name
  * @property {string} content
  */
+
 /**
  * @typedef {Object} AgentLlmConfig
  * @property {boolean} is_inherit - Inherited from default Agent settings
  * @property {string} provider 
  * @property {string} model
+ */
+
+/**
+ * @typedef {Object} LlmModelSetting
+ * @property {string} name
+ * @property {string} type
  */
 
 /**

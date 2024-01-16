@@ -1,14 +1,29 @@
 <script>
     import { Button, Card, CardBody, CardHeader, Col } from '@sveltestrap/sveltestrap';
+    import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
+    import { onMount } from 'svelte';
 
-    let options = [
-        { id: 1, name: 'azure-openai' },
-        { id: 2, name: 'google-ai' },
-        { id: 3, name: 'llama-sharp' },
-    ]
+    /** @type {string[]} */
+    let options = [];
+
     /** @type {import('$types').AgentModel} */
     export let agent;
+
+    /** @type {import('$types').LlmModelSetting[]} */
+    let models = []
+
     let config = agent.llm_config;
+
+    onMount(async () =>{
+        options = await getLlmProviders();
+        models = await getLlmProviderModels(config.provider);
+    });
+
+    /** @param {string} provider */
+    async function handleProviderChanged(provider) {
+        config.is_inherit = false;
+        models = await getLlmProviderModels(provider);
+    }
 </script>
 
 <Card>
@@ -24,9 +39,9 @@
         <div class="mb-3 row">
             <label class="col-md-3 col-form-label" for="example-large">Provider</label>
             <div class="col-md-9">
-                <select class="form-select" bind:value={config.provider} on:change={() => config.is_inherit = false}>
+                <select class="form-select" bind:value={config.provider} on:change={() => handleProviderChanged(config.provider)}>
                 {#each options as option}
-                    <option value={option.name}>{option.name}</option>
+                    <option value={option}>{option}</option>
                 {/each}
                 </select>
             </div>
@@ -37,7 +52,11 @@
                 Model
             </label>
             <div class="col-md-9">
-                <input class="form-control" type="text" bind:value={config.model} on:change={() => config.is_inherit = false}/>
+                <select class="form-select" bind:value={config.model} on:change={() => config.is_inherit = false}>
+                    {#each models as option}
+                        <option value={option.name}>{option.name}</option>
+                    {/each}
+                </select>                
             </div>
         </div>
     </CardBody>

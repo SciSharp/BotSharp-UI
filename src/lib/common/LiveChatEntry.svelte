@@ -2,19 +2,15 @@
     import { fade } from 'svelte/transition';
     import { onMount } from 'svelte';
     import { PUBLIC_LIVECHAT_HOST, PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-    import { getAgents } from '$lib/services/agent-service.js'
+    import { getSettingDetail } from '$lib/services/setting-service';
 
     let showChatIcon = false;
     let showChatBox = false;
     let chatUrl = PUBLIC_LIVECHAT_HOST;
 
-    /** @type {import('$types').AgentModel} */
-    let agent;
-
 	onMount(async () => {
-        let agents = await getAgents({isRouter: true});
-        agent = agents[0];
-        chatUrl = `${PUBLIC_LIVECHAT_HOST}/chat/${agent.id}`;
+        const agentSettings = await getSettingDetail("Agent");
+        chatUrl = `${PUBLIC_LIVECHAT_HOST}/chat/${agentSettings.hostAgentId}`;
         showChatIcon = true;
 	});
 

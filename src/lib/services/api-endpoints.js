@@ -34,6 +34,10 @@ export const endpoints = {
     conversationDetailUrl: `${host}/conversation/{conversationId}`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     
+    // LLM provider
+    llmProvidersUrl: `${host}/llm-providers`,
+    llmProviderModelsUrl: `${host}/llm-provider/{provider}/models`,
+
     // logging
     loggingFullLogUrl: `${host}/logger/full-log`,
     
