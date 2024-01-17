@@ -1,14 +1,13 @@
 <script>
-	import { Alert, Button, Col, Row } from '@sveltestrap/sveltestrap';
+	import { Alert, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-  import { onMount } from 'svelte';
 	import { refreshAgents } from '$lib/services/agent-service';
 
-  /** @type {import('$types').AgentModel[]} */
-  let agents = [];
   let isLoading = false;
   let isComplete = false;
+  let isError = false;
+  const duration = 3000;
 
   const refreshAgentData = () => {
     isLoading = true;
@@ -17,21 +16,20 @@
       isLoading = false;
       setTimeout(() => {
         isComplete = false;
-      }, 3000);
+      }, duration);
     }).catch(err => {
       isLoading = false;
+      isComplete = false;
+      isError = true;
+      setTimeout(() => {
+        isError = false;
+      }, duration);
     });
   };
 
-  onMount(async () => {
-    agents = await getAgents({
-      isEvaluator: false
-    });
-  });
 </script>
 
 <HeadTitle title="MongoDB" />
-
 <Breadcrumb title="MongoDB" pagetitle="Setting" />
 
 {#if isLoading}
@@ -42,11 +40,17 @@
 
 {#if isComplete}
   <Alert color="success">
-    <div>Update comppleted!</div>
+    <div>Update completed!</div>
+  </Alert>
+{/if}
+
+{#if isError}
+  <Alert color="danger">
+    <div>Error!</div>
   </Alert>
 {/if}
 
 <h3>Migrate agents from file repository to MongoDB</h3>
-<Button color="primary" on:click={() => refreshAgentData()}>
+<Button color="primary" on:click={() => refreshAgentData()} disabled={isComplete || isError}>
   <i class="bx bx-copy" /> Start Migration
 </Button>
