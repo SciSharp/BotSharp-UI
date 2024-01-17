@@ -246,3 +246,47 @@
         min-width: auto;
     }
 }
+
+.user-chat {
+    flex: 1;
+}
+
+.chat-with-log {
+    flex: 0.7;
+}
+
+.chat-log {
+    flex: 0.3;
+    background-color: white;
+
+    .padding-side {
+        padding-left: 10px;
+        padding-right: 20px;
+    }
+
+    .log-close-btn {
+        margin-top: 1.5rem;
+        margin-bottom: 10px;
+        position: sticky;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    .log-list {
+        height: 90vh;
+        .log-element {
+            margin-top: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            background-color: antiquewhite;
+        
+            .log-content {
+                padding: 15px 15px;
+                font-size: 15px;
+            }
+        }
+    }
+}
+
+
+

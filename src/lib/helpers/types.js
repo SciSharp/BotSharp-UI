@@ -226,6 +226,13 @@ IRichContent.prototype.text;
  * @param {string} text
  */
 
+/** 
+ * Content log
+ * 
+ * @callback ContentLog
+ * @param {string} message
+ */
+
 // having to export an empty object here is annoying, 
 // but required for vscode to pass on your types. 
 export default {};

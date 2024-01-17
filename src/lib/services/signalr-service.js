@@ -1,4 +1,4 @@
-import { HubConnection, HubConnectionBuilder, LogLevel, HubConnectionState } from '@microsoft/signalr';
+import { HubConnection, HubConnectionBuilder, LogLevel } from '@microsoft/signalr';
 import { endpoints } from '$lib/services/api-endpoints.js';
 import { getUserStore } from '$lib/helpers/store.js';
 
@@ -20,6 +20,9 @@ export const signalr = {
   
   /** @type {import('$types').OnMessageReceived} */
   onMessageReceivedFromAssistant: () => {},
+
+  /** @type {import('$types').ContentLog} */
+  onContentLogGenerated: () => {},
 
   // start the connection
   /** @param {string} conversationId */
@@ -73,6 +76,11 @@ export const signalr = {
         console.log(`[OnMessageReceivedFromAssistant] ${message.sender.role}: ${message.text}`);
         this.onMessageReceivedFromAssistant(message);
       }
+    });
+
+    connection.on('onContentLogGenerated', (log) => {
+      console.log('Log: ', log);
+      this.onContentLogGenerated(log);
     });
   },
 
