@@ -44,6 +44,9 @@ export async function saveAgent(agent) {
     await axios.put(url, agent);
 }
 
+/**
+ * Refresh agent data
+ */
 export async function refreshAgents() {
     const url = endpoints.agentRefreshUrl;
     await axios.post(url);
