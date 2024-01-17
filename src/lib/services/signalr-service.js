@@ -79,7 +79,6 @@ export const signalr = {
     });
 
     connection.on('onContentLogGenerated', (log) => {
-      console.log('Log: ', log);
       this.onContentLogGenerated(log);
     });
   },
