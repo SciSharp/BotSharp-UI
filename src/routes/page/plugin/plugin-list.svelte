@@ -13,7 +13,6 @@
 	} from '@sveltestrap/sveltestrap';
 	import { enablePlugin, disablePlugin } from '$lib/services/plugin-service';
 	import { goto } from '$app/navigation';
-	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;
@@ -43,7 +42,7 @@
 					<div class="favorite-icon">
 						<Link href="#"><i class="uil uil-heart-alt fs-18" /></Link>
 					</div>
-					<img src={item.icon_url ? item.icon_url : PUBLIC_PLUGIN_DEFAULT_ICON} alt="{item.name}" height="35" class="mb-3" />
+					<img src={item.icon_url} alt="{item.name}" height="35" class="mb-3" />
 					<h5 class="fs-17 mb-2">
 						<Link href="#" class="text-dark">{item.name}</Link>
 						<small class="text-muted fw-normal">plugin</small>
