@@ -29,5 +29,5 @@ export function replaceUrl(url, args) {
  * @returns string
  */
 export function replaceNewLine(text) {
-    return text.replace(/\\r\\n/g, '<br>');
+    return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
 }
