@@ -13,15 +13,15 @@
 		Alert
 	} from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
-	import { getToken } from '$lib/services/auth-service.js'
+	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
-	import { 
-		PUBLIC_LOGO_URL, 
+	import {
+		PUBLIC_LOGO_URL,
 		PUBLIC_LOGIN_IMAGE,
-		PUBLIC_BRAND_NAME, 
-		PUBLIC_ADMIN_USERNAME, 
+		PUBLIC_BRAND_NAME,
+		PUBLIC_ADMIN_USERNAME,
 		PUBLIC_ADMIN_PASSWORD,
-		PUBLIC_COMPANY_NAME 
+		PUBLIC_COMPANY_NAME
 	} from '$env/static/public';
 
 	let username = PUBLIC_ADMIN_USERNAME;
@@ -29,15 +29,30 @@
 	let isOpen = false;
 	let msg = '';
 	let status = '';
+	let isSubmitting = false;
 	async function onSubmit(e) {
+		isSubmitting = true;
 		e.preventDefault();
-
 		await getToken(username, password, () => {
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
 			goto('/page/dashboard');
+			isSubmitting = false;
 		});
+		isSubmitting = false;
+	}
+	function onPasswordToggle() {
+		var x = document.getElementById('user-password');
+		if (x.type === 'password') {
+			x.type = 'text';
+			var icon = document.getElementById('password-eye-icon');
+			icon.className = 'mdi mdi-eye-off-outline';
+		} else {
+			x.type = 'password';
+			var icon = document.getElementById('password-eye-icon');
+			icon.className = 'mdi mdi-eye-outline';
+		}
 	}
 </script>
 
@@ -103,8 +118,8 @@
 											aria-describedby="password-addon"
 											bind:value={password}
 										/>
-										<Button color="light" type="button" id="password-addon"
-											><i class="mdi mdi-eye-outline" /></Button
+										<Button color="light" type="button" id="password-addon" on:click={() => onPasswordToggle()}
+											><i id="password-eye-icon" class="mdi mdi-eye-outline" /></Button
 										>
 									</div>
 								</div>
@@ -115,8 +130,8 @@
 								</div>
 
 								<div class="mt-3 d-grid">
-									<Button color="primary" class="waves-effect waves-light" type="submit"
-										>Log In</Button
+									<Button color="primary" disabled={isSubmitting} class="waves-effect waves-light" type="submit"
+										>{!isSubmitting ? 'Log In' : 'Logging In'}</Button
 									>
 								</div>
 
@@ -157,7 +172,8 @@
 						<Link href="/register" class="fw-medium text-primary">Signup now</Link>
 					</p>
 					<p>
-						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
+						© {new Date().getFullYear()}
+						{PUBLIC_COMPANY_NAME}. Crafted with
 						<i class="mdi mdi-heart text-danger" /> by open source community
 					</p>
 				</div>
