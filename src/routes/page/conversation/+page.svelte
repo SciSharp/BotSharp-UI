@@ -10,7 +10,8 @@
 		DropdownToggle,
 		Input,
 		Row,
-		Table
+		Table,
+		Alert
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -20,47 +21,107 @@
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { format } from '$lib/helpers/datetime';
 
+	let isLoading = false;
+	let isComplete = false;
+	let isError = false;
+	const duration = 3000;
+	const firstPage = 1;
+	const pageSize = 10;
+
     /** @type {import('$types').PagedItems<import('$types').ConversationModel>} */
-    let conversations = {count: 0, items: []};	
+    let conversations = { count: 0, items: [] };
+
+	/** @type {import('$types').ConversationFilter} */
+	let initFilter = {
+		pager: { page: 1, size: pageSize, count: 0 }
+	};
 
     /** @type {import('$types').ConversationFilter} */
-    let filter = { 
-		pager: { page: 0, size: 20, count: 0 }
-	};	
+    let filter = { ... initFilter };
 
 	/** @type {import('$types').Pagination} */
-	let pager = filter.pager;	
+	let pager = filter.pager;
 
     onMount(async () => {
 		await getConversationList();
     });
 
-    function refreshPager() {
-        pager = {
-			page: filter.pager.page,
-			size: filter.pager.size,
-			count: conversations.count
-		}
-    }
+	/** @param {number} totalItemsCount */
+	function refreshPager(totalItemsCount, page = firstPage, size = pageSize) {
+		pager = {
+			page: page,
+			size: pageSize,
+			count: totalItemsCount
+		};
+	}
 
 	async function getConversationList() {
 		conversations = await getConversations(filter);
+		refreshPager(conversations.count, filter.pager.page, filter.pager.size);
+	}
 
-		refreshPager();
+	async function refreshConversationList() {
+		filter = { ...initFilter };
+		conversations = await getConversations(filter);
+		refreshPager(conversations.count);
 	}
 
     /** @param {string} conversationId */
-    async function handleConversationDeletion(conversationId) {
-        await deleteConversation(conversationId);
-        conversations.count--;
-        conversations.items = conversations.items.filter(x => x.id != conversationId);
-        refreshPager();
+    function handleConversationDeletion(conversationId) {
+		isLoading = true;
+        deleteConversation(conversationId).then(async () => {
+			isLoading = false;
+			isComplete = true;
+			setTimeout(() => {
+				isComplete = false;
+			}, duration);
+
+			await refreshConversationList();
+		}).catch(err => {
+			isLoading = false;
+			isComplete = false;
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		});
     }
+
+	/** @param {number} pageNum */
+	function pageTo(pageNum) {
+		pager = {
+			...pager,
+			page: pageNum
+		};
+
+		filter = {
+			pager: pager
+		};
+
+		getConversationList();
+	}
 </script>
 
 <HeadTitle title="Conversation List" />
-
 <Breadcrumb title="Communication" pagetitle="Conversations" />
+
+{#if isLoading}
+  <Alert color="secondary">
+    <div>In Progress...</div>
+  </Alert>
+{/if}
+
+{#if isComplete}
+  <Alert color="success">
+    <div>Update completed!</div>
+  </Alert>
+{/if}
+
+{#if isError}
+  <Alert color="danger">
+    <div>Error!</div>
+  </Alert>
+{/if}
 
 <Row>
 	<Col lg="12">
@@ -169,7 +230,7 @@
 					</Table>
 				</div>
 
-				<Pagination pagination={pager} />
+				<Pagination pagination={pager} pageTo={pageTo} />
 
 			</CardBody>
 		</Card>

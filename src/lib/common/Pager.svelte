@@ -2,15 +2,36 @@
     import { onMount } from 'svelte';
 	import Link from 'svelte-link';    
 
-    /** @type {import('$lib/types').Pagination} */    
+    /** @type {import('$lib/helpers/types').Pagination} */    
     export let pagination;
+    /** @type {(pageNum: number) => void} */  
+    export let pageTo;
+
+    const firstPage = 1;
+    const offSet = 2;
 
     /** @type {number} */
     $: totalPages = Math.ceil(pagination.count / pagination.size);
     /** @type {number} */
-    $: offset = pagination.page * pagination.size;
+    $: start = (pagination.page - 1) * pagination.size + 1;
+    /** @type {number} */
+    $: end = Math.min(pagination.page * pagination.size, pagination.count);
+    /** @type {number} */
+    $: minPage = Math.max(Math.min(pagination.page - offSet, totalPages - 2 * offSet), firstPage);
+    /** @type {number} */
+    $: maxPage = Math.min(Math.max(pagination.page + offSet, firstPage + 2 * offSet), totalPages);
     /** @type {number[]} */
-    $: pages = Array.from(String(totalPages), Number);
+    $: pages = Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i);
+
+    /**
+	 * @param {any} e
+	 * @param {number} pageNum
+	 */
+    function handlePageTo(e, pageNum) {
+        e.preventDefault();
+        if (pagination.page === pageNum || pageNum < firstPage || pageNum > totalPages) return;
+        pageTo(pageNum);
+    }
 
     onMount(async () => {
 
@@ -19,7 +40,7 @@
 
 <div class="row justify-content-between align-items-center">
     <div class="col-auto me-auto">
-        <p class="text-muted mb-0">Showing <b>{offset}</b> to <b>{offset + pagination.size}</b> of <b>{pagination.count}</b> entries</p>
+        <p class="text-muted mb-0">Showing <b>{start}</b> to <b>{end}</b> of <b>{pagination.count}</b> entries</p>
     </div>
     <div class="col-auto">
         <div class="card d-inline-block ms-auto mb-0">
@@ -27,22 +48,30 @@
                 <nav aria-label="Page navigation example" class="mb-0">
                     <ul class="pagination mb-0">
                         <li class="page-item">
-                            <Link class="page-link" href="#" aria-label="Previous">
+                            <Link class="page-link" aria-label="Begin" on:click={(e) => handlePageTo(e, firstPage)}>
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </Link>
+                        </li>
+                        <li class="page-item">
+                            <Link class="page-link" aria-label="Previous" on:click={(e) => handlePageTo(e, pagination.page - 1)}>
                                 <span aria-hidden="true">&laquo;</span>
                             </Link>
                         </li>
                 
                         {#each pages as page}
-                            {#if page == pagination.page + 1}
-                            <li class="page-item active"><Link class="page-link" href="#">{page}</Link></li>
-                            {:else}
-                            <li class="page-item"><Link class="page-link" href="#">{page}</Link></li>
-                            {/if}
+                            <li class={`page-item ${page === pagination.page ? 'active' : ''}`}>
+                                <Link class="page-link" on:click={(e) => handlePageTo(e, page)}>{page}</Link>
+                            </li>
                         {/each}
                 
                         <li class="page-item">
-                            <Link class="page-link" href="#" aria-label="Next">
+                            <Link class="page-link" aria-label="Next" on:click={(e) => handlePageTo(e, pagination.page + 1)}>
                                 <span aria-hidden="true">&raquo;</span>
+                            </Link>
+                        </li>
+                        <li class="page-item">
+                            <Link class="page-link" aria-label="Last" on:click={(e) => handlePageTo(e, totalPages)}>
+                                <span aria-hidden="true">&raquo;&raquo;</span>
                             </Link>
                         </li>
                     </ul>

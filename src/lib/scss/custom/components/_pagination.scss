@@ -14,4 +14,9 @@
         text-align: center;
         line-height: 32px;
     }
-  }
+}
+
+.page-link:focus {
+    outline: none;
+    box-shadow: none;
+}
