@@ -14,7 +14,7 @@
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
-	import { format } from '$lib/helpers/datetime';
+	import { format, utcToLocal } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
@@ -124,7 +124,11 @@
 
     async function refresh() {
       // trigger UI render
-      dialogs = dialogs;
+      dialogs = dialogs.map(item => {
+		return {
+			...item
+		};
+	  });
 	  await tick();
 
       setTimeout(() => {
@@ -224,7 +228,8 @@
 									<span>{message.text}</span>
 									<p class="chat-time mb-0">
 										<i class="bx bx-time-five align-middle me-1" />
-										{format(message.created_at, 'short-time')}
+										<!-- {format(message.created_at, 'short-time')} -->
+										{utcToLocal(message.created_at, 'hh:mm A')}
 									</p>	
 								</div>
 								{:else}

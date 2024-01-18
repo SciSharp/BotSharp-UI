@@ -41,7 +41,7 @@
 
     async function refreshLog() {
       // trigger UI render
-      logs = logs;
+      logs = [...logs];
       await tick();
 
       setTimeout(() => {
@@ -69,6 +69,7 @@
                         <div class="log-content">
                             {@html replaceNewLine(log)}
                         </div>
+                        <hr class="divider">
                     </div>
                 {/each}
             </ul>

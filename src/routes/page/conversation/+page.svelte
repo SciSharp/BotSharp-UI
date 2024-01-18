@@ -23,8 +23,8 @@
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
-	import { format } from '$lib/helpers/datetime';
 	import Loader from '$lib/common/Loader.svelte';
+	import { utcToLocal } from '$lib/helpers/datetime';
 
 	let isLoading = false;
 	let isComplete = false;
@@ -246,8 +246,8 @@
 								<td>{conv.user.full_name}</td>
 								<td>{conv.user.role}</td>
 								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
-								<td>{format(conv.created_time, 'time')}</td>
-								<td>{format(conv.updated_time, 'time')}</td>
+								<td>{utcToLocal(conv.created_time)}</td>
+								<td>{utcToLocal(conv.updated_time)}</td>
 								<td><span class="badge bg-success">{conv.status}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
