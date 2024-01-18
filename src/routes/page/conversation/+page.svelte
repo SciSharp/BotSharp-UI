@@ -11,7 +11,11 @@
 		Input,
 		Row,
 		Table,
-		Alert
+		Alert,
+		Modal,
+		ModalHeader,
+		ModalBody,
+		ModalFooter
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -20,10 +24,13 @@
 	import Link from 'svelte-link';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { format } from '$lib/helpers/datetime';
+	import Loader from '$lib/common/Loader.svelte';
 
 	let isLoading = false;
 	let isComplete = false;
 	let isError = false;
+	let isOpenDeleteModal = false;
+	let deleteConversationId = '';
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
@@ -69,18 +76,19 @@
     /** @param {string} conversationId */
     function handleConversationDeletion(conversationId) {
 		isLoading = true;
+		isOpenDeleteModal = false;
         deleteConversation(conversationId).then(async () => {
 			isLoading = false;
 			isComplete = true;
 			setTimeout(() => {
 				isComplete = false;
 			}, duration);
-
 			await refreshConversationList();
 		}).catch(err => {
 			isLoading = false;
 			isComplete = false;
 			isError = true;
+			isOpenDeleteModal = false;
 			setTimeout(() => {
 				isError = false;
 			}, duration);
@@ -100,15 +108,51 @@
 
 		getConversationList();
 	}
+
+	function confirmDeleteConversation() {
+		!!deleteConversationId && handleConversationDeletion(deleteConversationId);
+	}
+
+	/** @param {string} conversationId */
+	function openDeleteModal(conversationId) {
+		deleteConversationId = conversationId;
+		isOpenDeleteModal = true;
+	}
+
+	function closeDeleteModal() {
+		isOpenDeleteModal = false;
+		deleteConversationId = '';
+	}
+
+	const toggle = () => {
+		isOpenDeleteModal = !isOpenDeleteModal;
+	};
+
 </script>
 
 <HeadTitle title="Conversation List" />
 <Breadcrumb title="Communication" pagetitle="Conversations" />
 
+<Modal
+	isOpen={isOpenDeleteModal}
+	fade
+	centered
+	keyboard
+	unmountOnClose
+	toggle={() => toggle()}
+>
+	<ModalHeader>Delete Conversation</ModalHeader>
+    <ModalBody style="font-size: 15px; margin-top: 10px; margin-bottom: 30px;">
+		Are you sure you want to delete this conversation?
+    </ModalBody>
+    <ModalFooter>
+      <Button color="primary" on:click={() => confirmDeleteConversation()}>Yes</Button>
+      <Button color="secondary" on:click={() => closeDeleteModal()}>No</Button>
+    </ModalFooter>
+</Modal>
+
 {#if isLoading}
-  <Alert color="secondary">
-    <div>In Progress...</div>
-  </Alert>
+  <Loader />
 {/if}
 
 {#if isComplete}
@@ -218,7 +262,7 @@
                                             </Link>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-											<Link href="#" on:click={() => handleConversationDeletion(conv.id)} class="btn btn-sm btn-soft-danger">
+											<Link href="#" on:click={() => openDeleteModal(conv.id)} class="btn btn-sm btn-soft-danger">
                                                 <i class="mdi mdi-delete-outline" />
                                             </Link>
 										</li>
