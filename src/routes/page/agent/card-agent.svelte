@@ -65,8 +65,13 @@
             {format(agent.updated_datetime, 'short-date')}
           </li>
           <li class="list-inline-item me-1" id="comments">
+            <a href= "/page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
+              <i class="bx bx-wrench" /> Build
+            </a>
+          </li>          
+          <li class="list-inline-item me-1" id="comments">
             <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-chat" /> Chat Test
+              <i class="bx bx-chat" /> Test
             </a>
           </li>
         </ul>

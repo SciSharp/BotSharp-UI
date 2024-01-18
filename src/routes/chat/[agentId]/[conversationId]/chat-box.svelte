@@ -178,7 +178,7 @@
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									on:click={close}
 								>
-									<span class="d-none d-sm-inline-block me-2" >Close</span> <i class="mdi mdi-window-close"></i>
+									<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
 								</button>
 							</li>
 						</ul>

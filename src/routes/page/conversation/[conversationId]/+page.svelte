@@ -38,8 +38,8 @@
 
 </script>
 
-<HeadTitle title="Conversation" />
-<Breadcrumb title="Conversation" pagetitle="Detail" />
+<HeadTitle title={conversation?.title} />
+<Breadcrumb title="Conversation" pagetitle="Conversation Detail" />
 
 {#if conversation}
 <Row>

@@ -3,9 +3,6 @@
     import { getSettings } from '$lib/services/router-service.js';
     import { onMount } from 'svelte';
 
-    /** @type {import('$types').AgentModel} */
-    export let router;    
-    
     /** @type {import('$types').RouterSettings} */
     let settings;  
 

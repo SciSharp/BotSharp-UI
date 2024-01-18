@@ -57,10 +57,9 @@
         <div class="log-close-btn padding-side ">
             <button
                 type="button"
-                class="btn btn-danger btn-rounded chat-send waves-effect waves-light"
+                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
                 on:click={() => closeLog()}
-            >
-                <span class="d-none d-sm-inline-block me-2" >Close</span><i class="mdi mdi-window-close"></i>
+            ><i class="mdi mdi-window-close"></i>
             </button>
         </div>
         <div class="log-scrollbar log-list padding-side">

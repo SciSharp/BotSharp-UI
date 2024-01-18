@@ -1,7 +1,7 @@
 # BotSharp UI
 
-The `BotSharp UI` is a web app used to manage agents and conversations. Through it you can use it to build new Agent, manage existing Agents and conversations.
-Thie project is written in [SvelteKit v2](https://svelte.dev/) and backed by [BotSharp](https://github.com/SciSharp/BotSharp) as the [LLM](https://en.wikipedia.org/wiki/Large_language_model) services.
+The `BotSharp UI` is a web app used to manage agents and conversations. Through it you can build new Agent, manage existing Agents and conversations. The Node-based Agent building experience allows you to build a brand new AI assistant in a very short time. 
+This project is written in [SvelteKit v2](https://svelte.dev/) and backed by [BotSharp](https://github.com/SciSharp/BotSharp) as the [LLM](https://en.wikipedia.org/wiki/Large_language_model) services.
 
 [![Discord](https://img.shields.io/discord/1106946823282761851?label=Discord)](https://discord.com/channels/1106946823282761851/1106947212459642991)
 [![QQ群聊](https://img.shields.io/static/v1?label=QQ&message=群聊&color=brightgreen)](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=sN9VVMwbWjs5L0ATpizKKxOcZdEPMrp8&authKey=RLDw41bLTrEyEgZZi%2FzT4pYk%2BwmEFgFcrhs8ZbkiVY7a4JFckzJefaYNW6Lk4yPX&noverify=0&group_code=985366726)
