@@ -246,3 +246,48 @@
         min-width: auto;
     }
 }
+
+.user-chat {
+    flex: 1;
+}
+
+.chat-with-log {
+    flex: 0.7;
+}
+
+.chat-log {
+    flex: 0.3;
+
+    .padding-side {
+        padding-left: 10px;
+        padding-right: 20px;
+    }
+
+    .log-background {
+        background-color: black;
+
+        .log-close-btn {
+            margin-top: 1.5rem;
+            margin-bottom: 10px;
+            position: sticky;
+            display: flex;
+            justify-content: flex-end;
+        }
+    
+        .log-list {
+            height: 90vh;
+            .log-element {
+                margin-top: 15px;
+                margin-bottom: 15px;
+            
+                .log-content {
+                    font-size: 15px;
+                    color: white;
+                }
+            }
+        }
+    }
+}
+
+
+

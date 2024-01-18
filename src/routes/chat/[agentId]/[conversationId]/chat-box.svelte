@@ -4,23 +4,21 @@
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
-		Input,
-		Button
 	} from '@sveltestrap/sveltestrap';
 
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Link from 'svelte-link';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
-	import { getFullLog } from '$lib/services/logging-service';
 	import { format } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
+	import ContentLog from './content-log.svelte';
 
 	const options = {
 		scrollbars: {
@@ -50,12 +48,19 @@
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
 	
+	/** @type {string[]} */
+	let contentLogs = [];
+
+	/** @type {boolean} */
+	let isLoadLog = false;
+	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
+		signalr.onContentLogGenerated = onContentLogGenerated;
 		await signalr.start(params.conversationId);
 
 		const scrollElements = document.querySelectorAll('.scrollbar');
@@ -91,10 +96,16 @@
 
 		dialogs.push(message);
 		refresh();
-    }    
+    }
 
-	async function viewFullLogHandler() {
-      await getFullLog();
+	/** @param {string} log */
+	function onContentLogGenerated(log) {
+		contentLogs.push(log);
+		contentLogs = contentLogs;
+	}
+
+	function viewFullLogHandler() {
+	  isLoadLog = true;
     }
 
     async function sendTextMessage() {
@@ -111,9 +122,10 @@
 		webSpeech.start();
     }	
 
-    function refresh() {
+    async function refresh() {
       // trigger UI render
       dialogs = dialogs;
+	  await tick();
 
       setTimeout(() => {
 		const { viewport } = scrollbar.elements();
@@ -121,13 +133,23 @@
 	  }, 200);
     }
 
+	/** @param {any} e */
+	async function onSendMessage(e) {
+		if (e.key !== 'Enter') return;
+		await sendMessageToHub(params.agentId, params.conversationId, text);
+	}
+
 	function close() {
 		window.parent.postMessage({ action: "close" }, "*");
+	}
+
+	function closeLog() {
+		isLoadLog = false;
 	}
 </script>
 
 <div class="d-lg-flex">
-	<div class="w-100 user-chat">
+	<div class="user-chat" class:chat-with-log={isLoadLog}>
 		<div class="card mb-0">
 			<div class="p-4 border-bottom" style="height: 12vh">
 				<div class="row">
@@ -140,6 +162,7 @@
 
 					<div class="col-md-8 col-5">
 						<ul class="list-inline user-chat-nav text-end mb-0">
+							{#if !isLoadLog}
 							<li class="list-inline-item">
 								<Dropdown>
 									<DropdownToggle tag="button" class="nav-btn dropdown-toggle" color="">
@@ -150,6 +173,7 @@
 									</DropdownMenu>
 								</Dropdown>
 							</li>
+							{/if}
 							<li class="list-inline-item d-sm-inline-block">
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									on:click={close}
@@ -180,7 +204,7 @@
 										<i class="bx bx-dots-vertical-rounded" />
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
-										<DropdownItem href="#">Eidt</DropdownItem>
+										<DropdownItem href="#">Edit</DropdownItem>
 										<DropdownItem href="#">Copy</DropdownItem>
 										<DropdownItem href="#">Delete</DropdownItem>
 									</DropdownMenu>
@@ -202,7 +226,7 @@
 										<i class="bx bx-time-five align-middle me-1" />
 										{format(message.created_at, 'short-time')}
 									</p>	
-								</div>								
+								</div>
 								{:else}
 								<div class="ctext-wrap float-start">
 									<div class="flex-shrink-0 align-self-center">
@@ -239,7 +263,7 @@
 					</div>
 					<div class="col">
 						<div class="position-relative">						
-							<input type="text" class="form-control chat-input" bind:value={text} placeholder="Enter Message..." />
+							<input type="text" class="form-control chat-input" bind:value={text} on:keydown={e => { onSendMessage(e); }} placeholder="Enter Message..." />
 							<div class="chat-input-links" id="tooltip-container">
 								<ul class="list-inline mb-0">
 									<li class="list-inline-item">
@@ -262,4 +286,8 @@
 			</div>
 		</div>
 	</div>
+
+	{#if isLoadLog}
+		<ContentLog logs={contentLogs} closeLog={closeLog} />
+	{/if}
 </div>
