@@ -9,7 +9,7 @@
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
-	import { onMount } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import Link from 'svelte-link';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
@@ -86,7 +86,7 @@
 
     /** @param {import('$types').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
-		// webSpeech.utter(message.text);
+		webSpeech.utter(message.text);
 		// clean rich content elements
 		dialogs.forEach(dialog => {
 			if (dialog.rich_content && dialog.rich_content.message.rich_type == "quick_reply") {
@@ -122,9 +122,10 @@
 		webSpeech.start();
     }	
 
-    function refresh() {
+    async function refresh() {
       // trigger UI render
       dialogs = dialogs;
+	  await tick();
 
       setTimeout(() => {
 		const { viewport } = scrollbar.elements();
@@ -203,7 +204,7 @@
 										<i class="bx bx-dots-vertical-rounded" />
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
-										<DropdownItem href="#">Eidt</DropdownItem>
+										<DropdownItem href="#">Edit</DropdownItem>
 										<DropdownItem href="#">Copy</DropdownItem>
 										<DropdownItem href="#">Delete</DropdownItem>
 									</DropdownMenu>

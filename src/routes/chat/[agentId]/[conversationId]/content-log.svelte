@@ -1,7 +1,7 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onMount } from 'svelte';
+	import { afterUpdate, onMount, tick } from 'svelte';
 	import { replaceNewLine } from '$lib/helpers/http';
 
     /** @type {any[]} */
@@ -26,7 +26,7 @@
 	};
 
     onMount(async () => {
-		const scrollElements = document.querySelectorAll('.scrollbar');
+		const scrollElements = document.querySelectorAll('.log-scrollbar');
 		scrollElements.forEach((item) => {
 			scrollbar = OverlayScrollbars(item, options);
 		});
@@ -39,9 +39,10 @@
     });
 
 
-    function refreshLog() {
+    async function refreshLog() {
       // trigger UI render
       logs = logs;
+      await tick();
 
       setTimeout(() => {
 		const { viewport } = scrollbar.elements();
@@ -52,7 +53,7 @@
 </script>
 
 <div class="chat-log">
-    <div class="card mb-0" style="height: 100%;">
+    <div class="card mb-0 log-background" style="height: 100%;">
         <div class="log-close-btn padding-side ">
             <button
                 type="button"
@@ -62,7 +63,7 @@
                 <span class="d-none d-sm-inline-block me-2" >Close</span><i class="mdi mdi-window-close"></i>
             </button>
         </div>
-        <div class="scrollbar log-list padding-side">
+        <div class="log-scrollbar log-list padding-side">
             <ul>
                 {#each logs as log}
                     <div class="log-element">
