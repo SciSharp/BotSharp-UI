@@ -2,6 +2,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onMount } from 'svelte';
+	import { replaceNewLine } from '$lib/helpers/http';
 
     /** @type {any[]} */
     export let logs = [];
@@ -66,7 +67,7 @@
                 {#each logs as log}
                     <div class="log-element">
                         <div class="log-content">
-                            {log}
+                            {@html replaceNewLine(log)}
                         </div>
                     </div>
                 {/each}
