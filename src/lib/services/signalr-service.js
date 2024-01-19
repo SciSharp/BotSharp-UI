@@ -21,7 +21,7 @@ export const signalr = {
   /** @type {import('$types').OnMessageReceived} */
   onMessageReceivedFromAssistant: () => {},
 
-  /** @type {import('$types').ContentLog} */
+  /** @type {import('$types').OnContentLogReceived} */
   onContentLogGenerated: () => {},
 
   // start the connection
@@ -79,7 +79,10 @@ export const signalr = {
     });
 
     connection.on('onContentLogGenerated', (log) => {
-      this.onContentLogGenerated(log);
+      const jsonLog = JSON.parse(log);
+      if (conversationId === jsonLog?.conversation_id) {
+        this.onContentLogGenerated(jsonLog);
+      }
     });
   },
 

@@ -3,8 +3,9 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onMount, tick } from 'svelte';
 	import { replaceNewLine } from '$lib/helpers/http';
+    import moment from 'moment';
 
-    /** @type {any[]} */
+    /** @type {import('$types').ContentLogModel[]} */
     export let logs = [];
 
     /** @type {() => void} */
@@ -41,7 +42,7 @@
 
     async function refreshLog() {
       // trigger UI render
-      logs = [...logs];
+      logs = logs?.map(log => { return { ...log }; }) || [];
       await tick();
 
       setTimeout(() => {
@@ -67,7 +68,11 @@
                 {#each logs as log}
                     <div class="log-element">
                         <div class="log-content">
-                            {@html replaceNewLine(log)}
+                            <b>{`[${moment.utc(log?.created_at).local().format('MMM DD YYYY, hh:mm:ss A')}]`}</b>
+                        </div>
+                        <br>
+                        <div class="log-content">
+                            {@html replaceNewLine(log?.content)}
                         </div>
                         <hr class="divider">
                     </div>

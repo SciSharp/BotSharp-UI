@@ -14,7 +14,7 @@
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
-	import { format, utcToLocal } from '$lib/helpers/datetime';
+	import { utcToLocal } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
@@ -48,7 +48,7 @@
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
 	
-	/** @type {string[]} */
+	/** @type {import('$types').ContentLogModel[]} */
 	let contentLogs = [];
 
 	/** @type {boolean} */
@@ -98,10 +98,10 @@
 		refresh();
     }
 
-	/** @param {string} log */
+	/** @param {import('$types').ContentLogModel} log */
 	function onContentLogGenerated(log) {
 		contentLogs.push(log);
-		contentLogs = contentLogs;
+		contentLogs = contentLogs.map(log => { return { ...log }; });
 	}
 
 	function viewFullLogHandler() {
@@ -124,11 +124,7 @@
 
     async function refresh() {
       // trigger UI render
-      dialogs = dialogs.map(item => {
-		return {
-			...item
-		};
-	  });
+      dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 	  await tick();
 
       setTimeout(() => {

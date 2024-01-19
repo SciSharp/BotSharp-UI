@@ -286,17 +286,12 @@
                 }
                 
                 .divider {
-                    border-width: 0 0 1px;
-                    $color: white;
-                    color: $color;
-                    border-image: linear-gradient(
-                        90deg,
-                        rgba($color, 0),
-                        rgba($color, 1) 50%,
-                        rgba($color, 0) 100%) 0 0 100%;
-                    border-style: solid;
-                    margin-top: 25px;
-                    margin-bottom: 25px;
+                    overflow: visible; /* For IE */
+                    padding: 0;
+                    border: none;
+                    border-top: medium double white;
+                    color: white;
+                    text-align: center;
                 }
             }
         }
