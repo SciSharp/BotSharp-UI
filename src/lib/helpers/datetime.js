@@ -1,3 +1,5 @@
+import moment from "moment";
+
 /**
  * @param {Date} datetime
  * @param {string} type - date or time
@@ -21,6 +23,14 @@ export function format(datetime, type = 'date') {
         return date.toLocaleString(undefined, options);
     }
 };
+
+/**
+ * @param {Date} datetime
+ * @param {string} format - date or time
+ */
+export function utcToLocal(datetime, format = 'MMM DD YYYY, hh:mm A') {
+    return moment.utc(datetime).local().format(format);
+}
 
 /**
  * Sleep

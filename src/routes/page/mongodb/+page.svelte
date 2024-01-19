@@ -3,6 +3,7 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import { refreshAgents } from '$lib/services/agent-service';
+	import Loader from '$lib/common/Loader.svelte';
 
   let isLoading = false;
   let isComplete = false;
@@ -33,9 +34,7 @@
 <Breadcrumb title="MongoDB" pagetitle="Setting" />
 
 {#if isLoading}
-  <Alert color="secondary">
-    <div>In Progress...</div>
-  </Alert>
+  <Loader />
 {/if}
 
 {#if isComplete}
@@ -51,6 +50,6 @@
 {/if}
 
 <h3>Migrate agents from file repository to MongoDB</h3>
-<Button color="primary" on:click={() => refreshAgentData()} disabled={isComplete || isError}>
+<Button color="primary" on:click={() => refreshAgentData()} disabled={isLoading}>
   <i class="bx bx-copy" /> Start Migration
 </Button>
