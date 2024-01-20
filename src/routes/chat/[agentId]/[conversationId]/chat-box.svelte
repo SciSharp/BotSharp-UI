@@ -149,9 +149,9 @@
 </script>
 
 <div class="d-lg-flex">
-	<div class="user-chat" class:chat-with-log={isLoadLog}>
-		<div class="card mb-0">
-			<div class="p-4 border-bottom" style="height: 12vh">
+	<div class="user-chat" class:chat-with-log={isLoadLog} style="height: 100vh;">
+		<div class="card mb-0" style="height: 100vh;">
+			<div class="p-3 border-bottom" style="height: 10vh">
 				<div class="row">
 					<div class="col-md-4 col-7">
 						<h5 class="font-size-15 mb-1">{agent?.name}</h5>
@@ -186,7 +186,7 @@
 				</div>
 			</div>
 
-			<div class="scrollbar" style="height: 78vh">
+			<div class="scrollbar" style="height: 80vh">
 				<div class="chat-conversation p-3">
 					<ul class="list-unstyled mb-0">
 						<li>
@@ -264,7 +264,7 @@
 					</div>
 					<div class="col">
 						<div class="position-relative">						
-							<input type="text" class="form-control chat-input" bind:value={text} on:keydown={e => { onSendMessage(e); }} placeholder="Enter Message..." />
+							<textarea rows={1} class="form-control chat-input" bind:value={text} on:keydown={e => { onSendMessage(e); }} placeholder="Enter Message..." />
 							<div class="chat-input-links" id="tooltip-container">
 								<ul class="list-inline mb-0">
 									<li class="list-inline-item">

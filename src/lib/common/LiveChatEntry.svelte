@@ -28,12 +28,12 @@
     }
 </script>
 
-<div class="fixed-bottom z-1">
+<div class="fixed-bottom float-bottom-right">
     {#if showChatBox}
     <div transition:fade={{ delay: 250, duration: 300 }}>
         <iframe src={chatUrl}
-            width="350px" 
-            height="600px" 
+            width="380px" 
+            height="650px" 
             class="border border-2 rounded-3 m-3 float-end"
             title="live chat"></iframe>
     </div>
@@ -72,5 +72,11 @@
       40%, 60% {
         transform: translate3d(4px, 0, 0);
       }
+    }
+
+    .float-bottom-right {
+      width: fit-content;
+      margin-right: 0px;
+      margin-left: auto;
     }
 </style>

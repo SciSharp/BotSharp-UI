@@ -70,6 +70,11 @@
             </a>
           </li>          
           <li class="list-inline-item me-1" id="comments">
+            <a href= "/page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
+              <i class="bx bx-book-open" /> Train
+            </a>
+          </li>
+          <li class="list-inline-item me-1" id="comments">
             <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> Test
             </a>
