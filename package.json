@@ -59,6 +59,7 @@
 		"svelte-jsoneditor": "^0.21.1",
 		"svelte-link": "^1.4.0",
 		"svelte-select": "^5.7.0",
+		"svelvet": "^9.0.0",
 		"sweetalert2": "^11.6.13",
 		"swiper": "^10.3.1"
 	}
