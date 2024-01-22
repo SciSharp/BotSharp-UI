@@ -31,7 +31,7 @@
             if (result.value) {
                 await deleteConversation(conversation.id);
                 // Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
-                window.location.href = "/conversation";
+                window.location.href = "/page/conversation";
             }
         });
     }

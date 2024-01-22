@@ -1,7 +1,7 @@
 <svelte:head>
 	<!-- jsvectormap -->
-	<script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script>
+	<!-- <script src="https://cdn.jsdelivr.net/npm/jsvectormap"></script> -->
+	<!-- <script src="https://cdn.jsdelivr.net/npm/jsvectormap/dist/maps/world.js"></script> -->
 </svelte:head>
 
 <script>

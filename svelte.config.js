@@ -41,6 +41,7 @@ const config = {
 				"/page/agent/evaluator",
 				"/page/agent/[agentId]",
 				"/page/agent/[agentId]/build",
+				"/page/agent/[agentId]/train",
 				"/page/conversation",
 				"/page/conversation/[conversationId]",
 				"/page/knowledge-base",
