@@ -28,7 +28,7 @@
 	import { getUserStore } from '$lib/helpers/store';
 	
 	let subscribemodal = false;
-	let user = {};
+	let user = {full_name: ""};
 	const togglesubscribemodal = (() => {
 		subscribemodal = !subscribemodal;
 	})
@@ -67,7 +67,7 @@
 						<div class="avatar-md profile-user-wid mb-4">
 							<Image src='/images/users/user-dummy.jpg' alt="" class="img-thumbnail rounded-circle" />
 						</div>
-						<h5 class="font-size-15 text-truncate">{user.full_name}</h5>
+						<h5 class="font-size-15 text-truncate">{user?.full_name}</h5>
 						<p class="text-muted mb-0 text-truncate">Agent Manager</p>
 					</Col>
 					<Col sm={8}>
