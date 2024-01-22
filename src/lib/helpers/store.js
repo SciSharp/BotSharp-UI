@@ -2,7 +2,7 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 /** @type {Writable<import('$types').UserModel>} */
-export const userStore = writable({ id: "" });
+export const userStore = writable({ id: "", full_name: "" });
 
 /**
  * @returns {Writable<import('$types').UserModel>}

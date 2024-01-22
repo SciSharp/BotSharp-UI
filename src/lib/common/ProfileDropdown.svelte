@@ -2,7 +2,10 @@
 	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
-
+	/**
+	 * @type {{ full_name: any; }}
+	 */
+	 export let user;
 	function logout() {
 		if (browser){	
 			localStorage.removeItem('authUser');
@@ -19,7 +22,7 @@
 		id="page-header-user-dropdown"
 	>
 		<img class="rounded-circle header-profile-user" src='/images/users/user-dummy.jpg' alt="Header Avatar" />
-		<span class="d-none d-xl-inline-block ms-1" key="t-henry">Henry</span>
+		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
 		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
 	</DropdownToggle>
 	<DropdownMenu end>
