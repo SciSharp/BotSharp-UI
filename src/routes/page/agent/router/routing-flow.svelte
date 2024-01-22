@@ -20,6 +20,12 @@
             allowRouting: true
         });
 
+        // add a "New Agent" button
+        agents.push({
+            name: "New Agent",
+            allowRouting: true
+        });
+
         const container = document.getElementById("drawflow");
         const editor = new Drawflow(container);
         editor.reroute = true;
@@ -57,8 +63,13 @@
         posY = 100;
         posX += nodeSpace;
         nodeId++;
-        agents.forEach(agent => {                           
-            editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, `Agent (${agent.name})`, false);
+        agents.forEach(agent => {                 
+            if (!agent.id) {
+                // add a "New Agent" button
+                editor.addNode('new-agent', 1, 0, posX, posY, 'new-node', data, `New Agent`, false);
+            } else {
+                editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, `Agent (${agent.name})`, false);
+            }
             editor.addConnection(2, nodeId, `output_1`, `input_1`);    
             posY += 100;
             nodeId++;

@@ -6,3 +6,8 @@
 .drawflow .drawflow-node.selected {
     background: var(--bs-success);
 }
+
+.drawflow .new-node {
+    background: var(--bs-info);
+    color: white;
+}

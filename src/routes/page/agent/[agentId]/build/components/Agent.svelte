@@ -25,7 +25,7 @@
 <Node useDefaults id="output" position={{ x: 560, y: 30 }} let:selected locked>
 	<div class="node" class:selected>
 		<span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-			<img src="/images/users/bot.png" alt="" width="120px"/>
+			<img src={agent?.icon_url} alt="" width="120px"/>
 		</span>
 		<p>{agent?.description}</p>
 		<div class="input-anchors">

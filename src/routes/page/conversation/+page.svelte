@@ -242,7 +242,7 @@
 							{#each conversations.items as conv}
 							<tr>
 								<td scope="row">
-									<a href={`/communication/${conv.id}`}>{conv.title}</a></td>
+									<a href="/page/conversation/{conv.id}">{conv.title}</a></td>
 								<td>{conv.user.full_name}</td>
 								<td>{conv.user.role}</td>
 								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
@@ -256,9 +256,9 @@
                                                 <i class="mdi mdi-eye-outline" />
                                             </Link>
 										</li>
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
 											<Link href="/chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
-                                                <i class="mdi mdi-pencil-outline" />
+                                                <i class="mdi mdi-chat" />
                                             </Link>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
