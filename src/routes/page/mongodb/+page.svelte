@@ -4,6 +4,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import { refreshAgents } from '$lib/services/agent-service';
 	import Loader from '$lib/common/Loader.svelte';
+	import LoadingToResult from '$lib/common/LoadingToResult.svelte';
 
   let isLoading = false;
   let isComplete = false;
@@ -32,22 +33,7 @@
 
 <HeadTitle title="MongoDB" />
 <Breadcrumb title="MongoDB" pagetitle="Setting" />
-
-{#if isLoading}
-  <Loader />
-{/if}
-
-{#if isComplete}
-  <Alert color="success">
-    <div>Update completed!</div>
-  </Alert>
-{/if}
-
-{#if isError}
-  <Alert color="danger">
-    <div>Error!</div>
-  </Alert>
-{/if}
+<LoadingToResult isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <h3>Migrate agents from file repository to MongoDB</h3>
 <Button color="primary" on:click={() => refreshAgentData()} disabled={isLoading}>

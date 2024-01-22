@@ -220,9 +220,10 @@
 }
 
 .chat-input {
-    border-radius: 30px;
+    border-radius: 5px;
     background-color: var(--#{$prefix}light) !important;
     border-color: var(--#{$prefix}light) !important;
+    resize: none;
 }
 
 .chat-input-links {

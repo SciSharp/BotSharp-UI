@@ -19,6 +19,9 @@
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import ContentLog from './content-log.svelte';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+	import "sweetalert2/src/sweetalert2.scss";
+	import { replaceNewLine } from '$lib/helpers/http';
 
 	const options = {
 		scrollbars: {
@@ -135,12 +138,26 @@
 
 	/** @param {any} e */
 	async function onSendMessage(e) {
-		if (e.key !== 'Enter') return;
+		if ((e.key === 'Enter' && !!e.shiftKey) || e.key !== 'Enter') return;
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
-	function close() {
-		window.parent.postMessage({ action: "close" }, "*");
+	function endChat() {
+		// @ts-ignore
+		Swal.fire({
+            title: 'Are you sure?',
+            text: "You will exit this conversation.",
+            icon: 'warning',
+			customClass: 'conv-delete-modal',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+			cancelButtonText: 'No'
+        // @ts-ignore
+        }).then((result) => {
+            if (result.value) {
+				window.close();
+            }
+        });
 	}
 
 	function closeLog() {
@@ -176,7 +193,7 @@
 							{/if}
 							<li class="list-inline-item d-sm-inline-block">
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									on:click={close}
+									on:click={() => endChat()}
 								>
 									<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
 								</button>
@@ -186,7 +203,7 @@
 				</div>
 			</div>
 
-			<div class="scrollbar" style="height: 80vh">
+			<div class="scrollbar" style="height: 75vh">
 				<div class="chat-conversation p-3">
 					<ul class="list-unstyled mb-0">
 						<li>
@@ -221,7 +238,7 @@
 								{#if message.sender.id === currentUser.id}
 								<div class="ctext-wrap float-end">
 									<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-									<span>{message.text}</span>
+									<span>{@html replaceNewLine(message.text)}</span>
 									<p class="chat-time mb-0">
 										<i class="bx bx-time-five align-middle me-1" />
 										<!-- {format(message.created_at, 'short-time')} -->
@@ -252,7 +269,7 @@
 				</div>
 			</div>
 
-			<div class="p-3 chat-input-section" style="height: 10vh">
+			<div class="p-3 chat-input-section" style="height: 15vh">
 				<div class="row">
 					<div class="col-auto">
 						<button
@@ -264,7 +281,7 @@
 					</div>
 					<div class="col">
 						<div class="position-relative">						
-							<textarea rows={1} class="form-control chat-input" bind:value={text} on:keydown={e => { onSendMessage(e); }} placeholder="Enter Message..." />
+							<textarea rows={3} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} placeholder="Enter Message..." />
 							<div class="chat-input-links" id="tooltip-container">
 								<ul class="list-inline mb-0">
 									<li class="list-inline-item">

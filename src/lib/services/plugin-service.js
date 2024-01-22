@@ -4,11 +4,12 @@ import axios from 'axios';
 
 /**
  * Get plugin list
- * @returns {Promise<import('$types').PluginDefModel[]>}
+ * @param {import('$types').PluginFilter} filter
+ * @returns {Promise<import('$types').PagedItems<import('$types').PluginDefModel>>}
  */
-export async function getPlugins() {
+export async function getPlugins(filter) {
     let url = endpoints.pluginListUrl;
-    const response = await axios.get(url);
+    const response = await axios.post(url, { ...filter });
     return response.data;
 }
 
