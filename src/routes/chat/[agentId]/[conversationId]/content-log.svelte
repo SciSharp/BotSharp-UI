@@ -68,7 +68,7 @@
                 {#each logs as log}
                     <div class="log-element">
                         <div class="log-content">
-                            <b>{`[${moment.utc(log?.created_at).local().format('MMM DD YYYY, hh:mm:ss A')}]`}</b>
+                            <b>{`[${moment.utc(log?.created_at).local().format('MMM DD YYYY, hh:mm:ss.SSS A')}]`}</b>
                         </div>
                         <br>
                         <div class="log-content">

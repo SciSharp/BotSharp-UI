@@ -31,9 +31,7 @@ export async function getConversation(id) {
  */
 export async function getConversations(filter) {
     let url = endpoints.conversationsUrl;
-    const response = await axios.post(url, {
-        ...filter
-    });
+    const response = await axios.post(url, { ...filter });
     return response.data;
 }
 

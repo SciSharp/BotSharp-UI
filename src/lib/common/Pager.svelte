@@ -22,6 +22,10 @@
     $: maxPage = Math.min(Math.max(pagination.page + offSet, firstPage + 2 * offSet), totalPages);
     /** @type {number[]} */
     $: pages = Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i);
+    /** @type {boolean} */
+    $: disableBackward = pagination.page === firstPage;
+    /** @type {boolean} */
+    $: disableForward = pagination.page === totalPages;
 
     /**
 	 * @param {any} e
@@ -48,12 +52,12 @@
                 <nav aria-label="Page navigation example" class="mb-0">
                     <ul class="pagination mb-0">
                         <li class="page-item">
-                            <Link class="page-link" aria-label="Begin" on:click={(e) => handlePageTo(e, firstPage)}>
+                            <Link class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Begin" on:click={(e) => handlePageTo(e, firstPage)}>
                                 <span aria-hidden="true">&laquo;&laquo;</span>
                             </Link>
                         </li>
                         <li class="page-item">
-                            <Link class="page-link" aria-label="Previous" on:click={(e) => handlePageTo(e, pagination.page - 1)}>
+                            <Link class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Previous" on:click={(e) => handlePageTo(e, pagination.page - 1)}>
                                 <span aria-hidden="true">&laquo;</span>
                             </Link>
                         </li>
@@ -65,12 +69,12 @@
                         {/each}
                 
                         <li class="page-item">
-                            <Link class="page-link" aria-label="Next" on:click={(e) => handlePageTo(e, pagination.page + 1)}>
+                            <Link class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Next" on:click={(e) => handlePageTo(e, pagination.page + 1)}>
                                 <span aria-hidden="true">&raquo;</span>
                             </Link>
                         </li>
                         <li class="page-item">
-                            <Link class="page-link" aria-label="Last" on:click={(e) => handlePageTo(e, totalPages)}>
+                            <Link class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Last" on:click={(e) => handlePageTo(e, totalPages)}>
                                 <span aria-hidden="true">&raquo;&raquo;</span>
                             </Link>
                         </li>

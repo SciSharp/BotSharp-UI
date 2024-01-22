@@ -48,6 +48,11 @@
  */
 
 /**
+ * @typedef {Object} PluginFilter
+ * @property {Pagination} pager - Pagination
+ */
+
+/**
  * @typedef {Object} AgentWelcomeInfo
  * @property {string[]} messages - The welcome messages in Rich content format.
  */

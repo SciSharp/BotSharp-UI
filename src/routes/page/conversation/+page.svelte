@@ -34,8 +34,8 @@
     let conversations = { count: 0, items: [] };
 
 	/** @type {import('$types').ConversationFilter} */
-	let initFilter = {
-		pager: { page: 1, size: pageSize, count: 0 }
+	const initFilter = {
+		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
     /** @type {import('$types').ConversationFilter} */
@@ -49,10 +49,10 @@
     });
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, size = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
 		pager = {
 			page: page,
-			size: pageSize,
+			size: pageCount,
 			count: totalItemsCount
 		};
 	}

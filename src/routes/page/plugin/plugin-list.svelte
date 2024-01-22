@@ -4,19 +4,14 @@
 		Card,
 		CardBody,
 		Col,
-		ModalBody,
-		ModalHeader,
 		Row,
-		Label,
-		Input,
-		Button
 	} from '@sveltestrap/sveltestrap';
 	import { enablePlugin, disablePlugin } from '$lib/services/plugin-service';
 	import { goto } from '$app/navigation';
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;
-
+	
 	/** 
 	 * @param {string} id
 	 * @param {boolean} enable
@@ -36,13 +31,13 @@
 
 <Row>
 	{#each plugins as item}
-		<Col xl={3} md={6}>
-			<Card>
+		<Col xl={3} md={6} style="margin-bottom: 10px;">
+			<Card style="height: 100%">
 				<CardBody>
 					<div class="favorite-icon">
 						<Link href="#"><i class="uil uil-heart-alt fs-18" /></Link>
 					</div>
-					<img src={item.icon_url} alt="{item.name}" height="35" class="mb-3" />
+					<img src={item.icon_url} alt="{item.name}" height="35" style="max-width: 100%;" class="mb-3" />
 					<h5 class="fs-17 mb-2">
 						<Link href="#" class="text-dark">{item.name}</Link>
 						<small class="text-muted fw-normal">plugin</small>
@@ -79,24 +74,4 @@
 			</Card>
 		</Col>
 	{/each}
-</Row>
-
-<Row class="mb-3">
-	<Col lg="12">
-		<div class="d-flex justify-content-center">
-			<nav aria-label="Page navigation example" id="pagination-element" class="mb-0">
-				<div class="pagination-block pagination pagination-rounded">
-					<Link href="#" class="page-link outline-none disabled" id="page-prev">
-						<i class="bx bx-chevron-left align-middle" />
-					</Link>
-					<span id="page-num" class="outline-none pagination">
-                        <Link class="page-link clickPageNumber " href="#" active>1</Link><Link
-							class="page-link clickPageNumber"
-							href="#">2</Link>
-					</span>
-					<Link href="#" class="page-link outline-none" id="page-next"><i class="bx bx-chevron-right align-middle" /></Link>
-				</div>
-			</nav>
-		</div>
-	</Col>
 </Row>
