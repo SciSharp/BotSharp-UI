@@ -19,6 +19,8 @@
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import ContentLog from './content-log.svelte';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+	import "sweetalert2/src/sweetalert2.scss";
 
 	const options = {
 		scrollbars: {
@@ -139,8 +141,20 @@
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
-	function close() {
-		window.parent.postMessage({ action: "close" }, "*");
+	function endChat() {
+		Swal.fire({
+            title: 'Are you sure?',
+            text: "You will exit this conversation.",
+            icon: 'warning',
+			customClass: 'conv-delete-modal',
+            showCancelButton: true,
+            confirmButtonText: 'Yes',
+			cancelButtonText: 'No'
+        }).then((result) => {
+            if (result.value) {
+				window.close();
+            }
+        });
 	}
 
 	function closeLog() {
@@ -176,7 +190,7 @@
 							{/if}
 							<li class="list-inline-item d-sm-inline-block">
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									on:click={close}
+									on:click={() => endChat()}
 								>
 									<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
 								</button>

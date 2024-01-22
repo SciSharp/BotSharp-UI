@@ -1,4 +1,5 @@
 <script>
+	import LoadingToResult from './../../../lib/common/LoadingToResult.svelte';
 	import {
 		Button,
 		Card,
@@ -10,12 +11,7 @@
 		DropdownToggle,
 		Input,
 		Row,
-		Table,
-		Alert,
-		Modal,
-		ModalHeader,
-		ModalBody,
-		ModalFooter
+		Table
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -23,14 +19,13 @@
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
-	import Loader from '$lib/common/Loader.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+	import "sweetalert2/src/sweetalert2.scss";
 
 	let isLoading = false;
 	let isComplete = false;
 	let isError = false;
-	let isOpenDeleteModal = false;
-	let deleteConversationId = '';
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
@@ -76,7 +71,6 @@
     /** @param {string} conversationId */
     function handleConversationDeletion(conversationId) {
 		isLoading = true;
-		isOpenDeleteModal = false;
         deleteConversation(conversationId).then(async () => {
 			isLoading = false;
 			isComplete = true;
@@ -88,7 +82,6 @@
 			isLoading = false;
 			isComplete = false;
 			isError = true;
-			isOpenDeleteModal = false;
 			setTimeout(() => {
 				isError = false;
 			}, duration);
@@ -109,63 +102,26 @@
 		getConversationList();
 	}
 
-	function confirmDeleteConversation() {
-		!!deleteConversationId && handleConversationDeletion(deleteConversationId);
-	}
-
 	/** @param {string} conversationId */
 	function openDeleteModal(conversationId) {
-		deleteConversationId = conversationId;
-		isOpenDeleteModal = true;
+		Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+			customClass: 'conv-delete-modal',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+				handleConversationDeletion(conversationId);
+            }
+        });
 	}
-
-	function closeDeleteModal() {
-		isOpenDeleteModal = false;
-		deleteConversationId = '';
-	}
-
-	const toggle = () => {
-		isOpenDeleteModal = !isOpenDeleteModal;
-	};
-
 </script>
 
 <HeadTitle title="Conversation List" />
 <Breadcrumb title="Communication" pagetitle="Conversations" />
-
-<Modal
-	isOpen={isOpenDeleteModal}
-	fade
-	centered
-	keyboard
-	unmountOnClose
-	toggle={() => toggle()}
->
-	<ModalHeader>Delete Conversation</ModalHeader>
-    <ModalBody style="font-size: 15px; margin-top: 10px; margin-bottom: 30px;">
-		Are you sure you want to delete this conversation?
-    </ModalBody>
-    <ModalFooter>
-      <Button color="primary" on:click={() => confirmDeleteConversation()}>Yes</Button>
-      <Button color="secondary" on:click={() => closeDeleteModal()}>No</Button>
-    </ModalFooter>
-</Modal>
-
-{#if isLoading}
-  <Loader />
-{/if}
-
-{#if isComplete}
-  <Alert color="success">
-    <div>Update completed!</div>
-  </Alert>
-{/if}
-
-{#if isError}
-  <Alert color="danger">
-    <div>Error!</div>
-  </Alert>
-{/if}
+<LoadingToResult isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <Row>
 	<Col lg="12">
@@ -273,9 +229,7 @@
 						</tbody>
 					</Table>
 				</div>
-
 				<Pagination pagination={pager} pageTo={pageTo} />
-
 			</CardBody>
 		</Card>
 	</Col>

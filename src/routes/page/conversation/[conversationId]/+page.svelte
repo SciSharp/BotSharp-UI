@@ -26,6 +26,7 @@
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
+            customClass: 'conv-delete-modal',
             confirmButtonText: 'Yes, delete it!'
         }).then(async (result) => {
             if (result.value) {
