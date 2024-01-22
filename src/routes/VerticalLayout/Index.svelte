@@ -6,9 +6,14 @@
 	import Footer from './Footer.svelte';
 	import { onMount } from 'svelte';
 	import { getPluginMenu } from '$lib/services/plugin-service';
+	import { myInfo } from '$lib/services/auth-service';
 
 	/** @type {import('$types').PluginMenuDefModel[]} */
 	let menu;
+	/**
+	 * @type {import("$types").UserModel}
+	 */
+	let user;
 
 	const toggleRightBar = () => {
 		if (browser) {
@@ -26,6 +31,7 @@
 
 	onMount(async () => {
 		menu = await getPluginMenu();
+		user = await myInfo();
 		if (browser) {
 			document.body.setAttribute('data-layout', 'vertical');
 		}
@@ -33,7 +39,7 @@
 </script>
 
 <div id="layout-wrapper">
-	<Header {toggleRightBar} />
+	<Header user={user} {toggleRightBar} />
 	{#if menu}
 	<Sidebar menu={menu}/>
 	{/if}

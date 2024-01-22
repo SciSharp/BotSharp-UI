@@ -8,6 +8,10 @@
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
+	/**
+	 * @type {any}
+	 */
+	 export let user;
 
 	const toggleSideBar = () => {
 		if (browser) {
@@ -83,7 +87,7 @@
 			<LanguageDropdown />
 			<FullScreenDropdown />
 			<NotificationDropdown />
-			<ProfileDropdown />
+			<ProfileDropdown user={user}/>
 		</div>
 	</div>
 </header>

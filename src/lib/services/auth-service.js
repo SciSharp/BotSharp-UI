@@ -47,6 +47,7 @@ export async function myInfo() {
     const response = await axios.get(endpoints.myInfoUrl);
     let user = getUserStore();
     user.id = response.data.id;
+    user.full_name = response.data.full_name;
     userStore.set(user);
     return response.data;
 }
