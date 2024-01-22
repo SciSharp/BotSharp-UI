@@ -25,13 +25,10 @@
 	let pager = filter.pager;
 
     onMount(async () => {
-		await getPagedPlugins(initFilter);
+		await getPagedPlugins();
     });
 
-	/**
-	 * @param {import("$types").PluginFilter} filter
-	 */
-	async function getPagedPlugins(filter) {
+	async function getPagedPlugins() {
 		plugins = await getPlugins(filter);
 		refreshPlugins();
 		refreshPager(plugins.count, filter.pager.page, filter.pager.size);
@@ -80,7 +77,7 @@
 			pager: pager
 		};
 
-		getPagedPlugins(filter);
+		getPagedPlugins();
 	}
 </script>
 
