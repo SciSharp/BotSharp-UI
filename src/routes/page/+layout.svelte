@@ -6,11 +6,10 @@
 
 <script>
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
-	import { setAuthorization } from '$lib/helpers/http';
+	import '$lib/helpers/http';
 	import LiveChat from '$lib/common/LiveChatEntry.svelte';
 
 	let component = VerticalLayout;
-	setAuthorization();
 </script>
 
 <svelte:component this={component}>

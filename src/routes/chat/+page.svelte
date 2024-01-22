@@ -5,9 +5,7 @@
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import { getAgents } from '$lib/services/agent-service.js'
-	import { setAuthorization } from '$lib/helpers/http';
 
-	setAuthorization();
     const params = $page.params;
     let agentId = "undefined";
     /** @type {import('$types').AgentModel[]} */

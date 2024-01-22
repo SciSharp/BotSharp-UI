@@ -7,7 +7,6 @@
     import { newConversation } from '$lib/services/conversation-service.js';
     import { getToken, setToken } from '$lib/services/auth-service.js'
     import { getUserStore } from '$lib/helpers/store.js';
-	import { setAuthorization } from '$lib/helpers/http';
 
     const params = $page.params;
     
@@ -30,7 +29,6 @@
             });
         }
 
-        setAuthorization();
         // new conversation
         conversation = await newConversation(agentId);
         conversationId = conversation.id;

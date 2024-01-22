@@ -4,9 +4,7 @@
 	import { onMount } from 'svelte';
 	import { myInfo } from '$lib/services/auth-service.js';
 	import { getAgent } from '$lib/services/agent-service.js';
-	import { setAuthorization } from '$lib/helpers/http';
 
-	setAuthorization();
 	const params = $page.params;
 
 	/** @type {import('$types').AgentModel} */
