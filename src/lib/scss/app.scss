@@ -231,3 +231,12 @@ File: Main Css File
     float: right;
   }
 }
+
+.json-container .json-string {
+    overflow-x: hidden;
+}
+
+// swal2
+.swal2-container .swal2-confirm {
+    background-color: var(--bs-primary);
+}
