@@ -84,6 +84,7 @@
 
 /** 
  * @typedef {Object} AgentFilter
+ * @property {Pagination} pager - Pagination
  * @property {boolean} [isRouter]
  * @property {boolean} [isEvaluator]
  * @property {boolean} [allowRouting]

@@ -4,7 +4,6 @@
 		Col,
 		Row,
 	} from '@sveltestrap/sveltestrap';
-	import { afterUpdate } from 'svelte';
 
     /** @type {import('$lib/helpers/types').Pagination} */    
     export let pagination = { page: 1, size: 10, count: 0 };
@@ -23,9 +22,9 @@
     /** @type {number[]} */
     $: pages = Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i);
     /** @type {boolean} */
-    $: disableBackward = pagination.page === firstPage;
+    $: disableBackward = pagination.page === firstPage || pagination.count === 0;
     /** @type {boolean} */
-    $: disableForward = pagination.page === totalPages;
+    $: disableForward = pagination.page === totalPages || pagination.count === 0;
 
     /**
 	 * @param {any} e

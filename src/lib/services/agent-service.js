@@ -12,15 +12,19 @@ export async function getSettings() {
 }
 
 /**
+ * Get conversation list
+ * @param {import('$types').ConversationFilter} filter
+ * @returns {Promise<import('$types').PagedItems<import('$types').ConversationModel>>}
+ */
+
+/**
  * Get agent list
  * @param {import('$types').AgentFilter} filter
- * @returns {Promise<import('$types').AgentModel[]>}
+ * @returns {Promise<import('$types').PagedItems<import('$types').AgentModel>>}
  */
 export async function getAgents(filter) {
     let url = endpoints.agentListUrl;
-    const response = await axios.get(url, {
-        params: filter
-    });
+    const response = await axios.post(url, { ...filter });
     return response.data;
 }
 

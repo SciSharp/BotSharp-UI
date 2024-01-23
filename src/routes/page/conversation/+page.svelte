@@ -1,5 +1,4 @@
 <script>
-	import LoadingToResult from './../../../lib/common/LoadingToResult.svelte';
 	import {
 		Button,
 		Card,
@@ -15,7 +14,8 @@
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import Pagination from '$lib/common/Pager.svelte';
+	import TablePagination from '$lib/common/TablePagination.svelte';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
@@ -45,8 +45,25 @@
 	let pager = filter.pager;
 
     onMount(async () => {
-		await getConversationList();
+		await getPagedConversations();
     });
+
+	async function getPagedConversations() {
+		conversations = await getConversations(filter);
+		refresh();
+	}
+
+	function refresh() {
+		refreshConversations();
+		refreshPager(conversations.count, filter.pager.page, filter.pager.size);
+	}
+
+	function refreshConversations() {
+		conversations = {
+			items: conversations?.items?.map(t => { return { ...t }; }) || [],
+			count: conversations?.count || 0
+		};
+	}
 
 	/** @param {number} totalItemsCount */
 	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
@@ -57,18 +74,29 @@
 		};
 	}
 
-	async function getConversationList() {
-		conversations = await getConversations(filter);
-		refreshPager(conversations.count, filter.pager.page, filter.pager.size);
+	/** @param {number} pageNum */
+	function pageTo(pageNum) {
+		pager = {
+			...pager,
+			page: pageNum
+		};
+
+		filter = {
+			...filter,
+			pager: pager
+		};
+
+		getPagedConversations();
 	}
 
-	async function refreshConversationList() {
+
+	async function reloadConversations() {
 		filter = { ...initFilter };
 		conversations = await getConversations(filter);
 		refreshPager(conversations.count);
 	}
 
-    /** @param {string} conversationId */
+	/** @param {string} conversationId */
     function handleConversationDeletion(conversationId) {
 		isLoading = true;
         deleteConversation(conversationId).then(async () => {
@@ -77,7 +105,7 @@
 			setTimeout(() => {
 				isComplete = false;
 			}, duration);
-			await refreshConversationList();
+			await reloadConversations();
 		}).catch(err => {
 			isLoading = false;
 			isComplete = false;
@@ -88,22 +116,9 @@
 		});
     }
 
-	/** @param {number} pageNum */
-	function pageTo(pageNum) {
-		pager = {
-			...pager,
-			page: pageNum
-		};
-
-		filter = {
-			pager: pager
-		};
-
-		getConversationList();
-	}
-
 	/** @param {string} conversationId */
 	function openDeleteModal(conversationId) {
+		// @ts-ignore
 		Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
@@ -111,17 +126,30 @@
 			customClass: 'conv-delete-modal',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!'
+        // @ts-ignore
         }).then((result) => {
             if (result.value) {
 				handleConversationDeletion(conversationId);
             }
         });
 	}
+
+	/**
+	 * @param {any} e
+	 */
+	function searchConversations(e) {
+		e.preventDefault();
+		filter = {
+			...filter,
+			pager: { page: firstPage, size: pageSize, count: 0 }
+		};
+		getPagedConversations();
+	}
 </script>
 
 <HeadTitle title="Conversation List" />
 <Breadcrumb title="Communication" pagetitle="Conversations" />
-<LoadingToResult isLoading={isLoading} isComplete={isComplete} isError={isError} />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <Row>
 	<Col lg="12">
@@ -130,15 +158,15 @@
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">Conversation List</h5>
 					<div class="flex-shrink-0">
-						<Link href="#" class="btn btn-light" on:click={getConversationList}><i class="mdi mdi-magnify" /></Link>
+						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
 								<i class="mdi mdi-dots-vertical" /></DropdownToggle
 							>
 							<DropdownMenu>
-								<DropdownItem href="#">Action</DropdownItem>
-								<DropdownItem href="#">Another action</DropdownItem>
-								<DropdownItem href="#">Something else here</DropdownItem>
+								<DropdownItem>Action</DropdownItem>
+								<DropdownItem>Another action</DropdownItem>
+								<DropdownItem>Something else here</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -229,7 +257,7 @@
 						</tbody>
 					</Table>
 				</div>
-				<Pagination pagination={pager} pageTo={pageTo} />
+				<TablePagination pagination={pager} pageTo={pageTo} />
 			</CardBody>
 		</Card>
 	</Col>
