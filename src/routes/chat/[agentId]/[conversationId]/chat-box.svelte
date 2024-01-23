@@ -139,7 +139,7 @@
 
 	/** @param {any} e */
 	async function onSendMessage(e) {
-		if ((e.key === 'Enter' && !!e.shiftKey) || e.key !== 'Enter') return;
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter') return;
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
