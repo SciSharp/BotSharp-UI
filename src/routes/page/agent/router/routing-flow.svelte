@@ -5,7 +5,7 @@
     import { getAgents } from '$lib/services/agent-service.js';
     import { onMount, createEventDispatcher } from 'svelte';
 
-    /** @type any[]} */
+    /** @type {any[]} */
     let agents = [];
 
     /** @type {import('$types').AgentFilter} */
@@ -14,7 +14,7 @@
 		isRouter: false,
         isEvaluator: false,
         disabled: false,
-        allowRouting: false
+        allowRouting: true
 	};
 
     /** @type {import('$types').AgentModel} */

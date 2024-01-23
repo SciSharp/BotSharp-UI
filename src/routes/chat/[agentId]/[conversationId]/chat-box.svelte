@@ -5,7 +5,6 @@
 		DropdownMenu,
 		DropdownItem,
 	} from '@sveltestrap/sveltestrap';
-
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
@@ -19,8 +18,6 @@
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import ContentLog from './content-log.svelte';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
 	import { replaceNewLine } from '$lib/helpers/http';
 	import _ from "lodash";
 
@@ -105,7 +102,7 @@
 	/** @param {import('$types').ContentLogModel} log */
 	function onContentLogGenerated(log) {
 		contentLogs.push(log);
-		contentLogs = contentLogs.map(log => { return { ...log }; });
+		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
 	function viewFullLogHandler() {
@@ -143,22 +140,8 @@
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
-	function endChat() {
-		// @ts-ignore
-		Swal.fire({
-            title: 'Are you sure?',
-            text: "You will exit this conversation.",
-            icon: 'warning',
-			customClass: 'conv-delete-modal',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-			cancelButtonText: 'No'
-        // @ts-ignore
-        }).then((result) => {
-            if (result.value) {
-				window.close();
-            }
-        });
+	function close() {
+		window.parent.postMessage({ action: "close" }, "*");
 	}
 
 	function closeLog() {
@@ -194,7 +177,7 @@
 							{/if}
 							<li class="list-inline-item d-sm-inline-block">
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									on:click={() => endChat()}
+									on:click={close}
 								>
 									<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
 								</button>
