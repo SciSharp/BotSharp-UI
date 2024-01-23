@@ -15,7 +15,6 @@
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
-	import Loader from '$lib/common/Loader.svelte';
 	import {
 		PUBLIC_LOGO_URL,
 		PUBLIC_LOGIN_IMAGE,
@@ -80,9 +79,6 @@
 <div class="account-pages my-5 pt-sm-5">
 	<Container>
 		<Row class="justify-content-center">
-			{#if isSubmitting}
-				<Loader size={50} />
-			{/if}
 			<Col md={8} lg={6} xl={5}>
 				<Card class="overflow-hidden">
 					<div class="bg-primary-subtle">

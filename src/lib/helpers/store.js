@@ -26,3 +26,12 @@ userStore.subscribe(value => {
         localStorage.setItem('user', JSON.stringify(value));
     }
 });
+
+export const globalLoaderStore = writable(false);
+
+/**
+ * @param {boolean} value
+ */
+export function setGlobalLoad(value){
+    globalLoaderStore.set(value);
+}
