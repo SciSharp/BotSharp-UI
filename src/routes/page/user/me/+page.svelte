@@ -7,9 +7,7 @@
 	import { myInfo } from '$lib/services/auth-service';
     import Loader from '$lib/common/Loader.svelte';
 
-	/**
-	 * @type {{ full_name: any; id?: string; user_name?: string | undefined; first_name?: string | undefined; last_name?: string | undefined; email?: string | undefined; role?: string | undefined; avatar?: string | undefined; color?: string | undefined; token?: string | undefined; }}
-	 */
+	/** @type {import('$types').UserModel} */
 	let currentUser;
 	let isLoading = false;
 	onMount(async () => {
@@ -75,6 +73,24 @@
 									<th>Email:</th>
 									<td>
 										{currentUser?.email ?? "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<th>External Id:</th>
+									<td>
+										{currentUser?.external_id ?? "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<th>Update Date:</th>
+									<td>
+										{currentUser?.update_date ? new Date(currentUser?.update_date).toLocaleString() : "N/A"}
+									</td>
+								</tr>
+								<tr>
+									<th>Create Date:</th>
+									<td>
+										{currentUser?.create_date ? new Date(currentUser?.create_date).toLocaleString() : "N/A"}
 									</td>
 								</tr>
 							</tbody>
