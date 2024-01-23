@@ -49,6 +49,7 @@ const config = {
 				"/page/plugin/[pluginId]",
 				"/page/setting",
 				"/page/mongodb",
+				"/page/user/me",
 				"/chat",
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",

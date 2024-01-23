@@ -1,7 +1,8 @@
 <script>
     import { Circle } from 'svelte-loading-spinners';
+    export let size=100
 </script>
 
 <div class="loader">
-    <Circle size="100" color="#6F42C1" unit="px" duration="1s" />
+    <Circle {size} color="var(--bs-primary)" unit="px" duration="1s" />
 </div>

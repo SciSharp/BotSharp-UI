@@ -8,7 +8,7 @@
 	 export let user;
 	function logout() {
 		if (browser){	
-			localStorage.removeItem('authUser');
+			localStorage.removeItem('user');
 		} 
 		goto('/');
 	};
@@ -27,7 +27,7 @@
 	</DropdownToggle>
 	<DropdownMenu end>
 		<!-- item-->
-		<DropdownItem href="/page/myProfile"
+		<DropdownItem href="/page/user/me"
 			><i class="bx bx-user font-size-16 align-middle me-1" />
 			<span>Profile</span>
 		</DropdownItem>
