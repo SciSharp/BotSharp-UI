@@ -9,7 +9,11 @@ import axios from 'axios';
  */
 export async function getPlugins(filter) {
     let url = endpoints.pluginListUrl;
-    const response = await axios.post(url, { ...filter });
+    const response = await axios.get(url, { params: filter,
+        paramsSerializer: {
+            dots: true
+        }
+    });
     return response.data;
 }
 

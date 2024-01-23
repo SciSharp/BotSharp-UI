@@ -3,34 +3,34 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import CardAgent from './card-agent.svelte';
-  import { getAgents } from '$lib/services/agent-service.js';
-  import { onMount } from 'svelte';
+  	import { getAgents } from '$lib/services/agent-service.js';
+  	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 
-  const firstPage = 1;
+  	const firstPage = 1;
 	const pageSize = 12;
 
 	/** @type {import('$types').PagedItems<import('$types').AgentModel>} */
-  let agents = { items: [], count: 0 };
+  	let agents = { items: [], count: 0 };
 
 	/** @type {import('$types').AgentFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 },
-    isEvaluator: false
+		isEvaluator: false
 	};
 
-  /** @type {import('$types').AgentFilter} */
-  let filter = { ... initFilter };
+	/** @type {import('$types').AgentFilter} */
+	let filter = { ... initFilter };
 
 	/** @type {import('$types').Pagination} */
 	let pager = filter.pager;
 
-  onMount(async () => {
-    await getPagedAgents();
-  });
+	onMount(async () => {
+		await getPagedAgents();
+	});
 
-  async function getPagedAgents() {
-    agents = await getAgents(filter);
+  	async function getPagedAgents() {
+    	agents = await getAgents(filter);
 		refresh();
 	}
 
