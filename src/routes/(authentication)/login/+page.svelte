@@ -15,6 +15,7 @@
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
+	import Loader from '$lib/common/Loader.svelte';
 	import {
 		PUBLIC_LOGO_URL,
 		PUBLIC_LOGIN_IMAGE,
@@ -60,6 +61,9 @@
 <div class="account-pages my-5 pt-sm-5">
 	<Container>
 		<Row class="justify-content-center">
+			{#if isSubmitting}
+				<Loader />
+			{/if}
 			<Col md={8} lg={6} xl={5}>
 				<Card class="overflow-hidden">
 					<div class="bg-primary-subtle">
@@ -118,7 +122,11 @@
 											aria-describedby="password-addon"
 											bind:value={password}
 										/>
-										<Button color="light" type="button" id="password-addon" on:click={() => onPasswordToggle()}
+										<Button
+											color="light"
+											type="button"
+											id="password-addon"
+											on:click={() => onPasswordToggle()}
 											><i id="password-eye-icon" class="mdi mdi-eye-outline" /></Button
 										>
 									</div>
@@ -130,8 +138,11 @@
 								</div>
 
 								<div class="mt-3 d-grid">
-									<Button color="primary" disabled={isSubmitting} class="waves-effect waves-light" type="submit"
-										>{!isSubmitting ? 'Log In' : 'Logging In'}</Button
+									<Button
+										color="primary"
+										disabled={isSubmitting}
+										class="waves-effect waves-light"
+										type="submit">{!isSubmitting ? 'Log In' : 'Log In...'}</Button
 									>
 								</div>
 

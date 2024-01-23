@@ -27,7 +27,7 @@
 	</DropdownToggle>
 	<DropdownMenu end>
 		<!-- item-->
-		<DropdownItem href="#"
+		<DropdownItem href="/page/myProfile"
 			><i class="bx bx-user font-size-16 align-middle me-1" />
 			<span>Profile</span>
 		</DropdownItem>

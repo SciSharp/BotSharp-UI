@@ -25,7 +25,7 @@
 		PUBLIC_BRAND_NAME
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
-	import { getUserStore } from '$lib/helpers/store';
+	import { getUserStore, userStore } from '$lib/helpers/store';
 	
 	let subscribemodal = false;
 	let user = {full_name: ""};
@@ -34,6 +34,9 @@
 	})
 
 	onMount(() => {
+		const userModelSubscribe = userStore.subscribe((/** @type {{ full_name: string; }} */ value) => {
+			user = value;
+		})
 		user = getUserStore();
 		setTimeout(() => {
 			subscribemodal = true;
@@ -83,7 +86,7 @@
 								</Col>
 							</Row>
 							<div class="mt-4">
-								<Link class="btn btn-primary waves-effect waves-light btn-sm">
+								<Link href="/page/myProfile" class="btn btn-primary waves-effect waves-light btn-sm">
 									View Profile <i class="mdi mdi-arrow-right ms-1" />
 								</Link>
 							</div>
