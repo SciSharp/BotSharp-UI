@@ -13,12 +13,22 @@
   let isRouterNodeSelected = false;
   let isAgentNodeSelected = false;
 
+  /** @type {import('$types').AgentFilter} */
+	const filter = {
+		pager: { page: 1, size: 10, count: 0 },
+		isRouter: true
+	};
+
   onMount(async () => {
-    let list = await getAgents({
-      isRouter: true
-    });
-    router = list[0];
+    await getRouter();
   });
+
+  async function getRouter() {
+    const response = await getAgents(filter);
+    if (response.items?.length > 0) {
+      router = response.items[0];
+    }
+  };
 
   function handleUserNodeSelected() {
     isRouterNodeSelected = false;

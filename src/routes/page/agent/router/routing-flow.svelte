@@ -5,35 +5,41 @@
     import { getAgents } from '$lib/services/agent-service.js';
     import { onMount, createEventDispatcher } from 'svelte';
 
-    /** @type {import('$types').AgentModel[]} */
+    /** @type any[]} */
     let agents = [];
+
+    /** @type {import('$types').AgentFilter} */
+	const filter = {
+		pager: { page: 1, size: 20, count: 0 },
+		isRouter: false,
+        isEvaluator: false,
+        disabled: false,
+        allowRouting: false
+	};
 
     /** @type {import('$types').AgentModel} */
     export let router;
+
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
-        agents = await getAgents({
-            isRouter: false,
-            isEvaluator: false,
-            disabled: false,
-            allowRouting: true
-        });
+        const response = await getAgents(filter);
+        agents = response?.items || [];
 
         // add a "New Agent" button
         agents.push({
-            name: "New Agent",
-            allowRouting: true
-        });
+			name: "New Agent",
+			allow_routing: true
+		});
 
         const container = document.getElementById("drawflow");
-        const editor = new Drawflow(container);
-        editor.reroute = true;
-        editor.reroute_fix_curvature = true;
-
-        editor.start();
-
-        renderRoutingFlow(editor);
+        if (!!container) {
+            const editor = new Drawflow(container);
+            editor.reroute = true;
+            editor.reroute_fix_curvature = true;
+            editor.start();
+            renderRoutingFlow(editor);
+        }
     });    
 
     /** @param {Drawflow} editor*/
