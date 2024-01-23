@@ -22,8 +22,10 @@
 		PUBLIC_BRAND_NAME,
 		PUBLIC_ADMIN_USERNAME,
 		PUBLIC_ADMIN_PASSWORD,
-		PUBLIC_COMPANY_NAME
+		PUBLIC_COMPANY_NAME,
+		PUBLIC_ALLOW_SIGNUP
 	} from '$env/static/public';
+	import { onMount } from 'svelte';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -31,8 +33,25 @@
 	let msg = '';
 	let status = '';
 	let isSubmitting = false;
+	let isRememberMe = false;
+	onMount(() => {
+		const userName = localStorage.getItem('user_name');
+		isRememberMe = userName !== null;
+		if(isRememberMe){
+			username = userName;
+		}
+	});
+	function handleRememberMe(){
+		if(isRememberMe){
+			localStorage.setItem("user_name", username);
+		}
+		else {
+			localStorage.removeItem("user_name");
+		}
+	}
 	async function onSubmit(e) {
 		isSubmitting = true;
+		handleRememberMe();
 		e.preventDefault();
 		await getToken(username, password, () => {
 			isOpen = true;
@@ -62,7 +81,7 @@
 	<Container>
 		<Row class="justify-content-center">
 			{#if isSubmitting}
-				<Loader />
+				<Loader size={50} />
 			{/if}
 			<Col md={8} lg={6} xl={5}>
 				<Card class="overflow-hidden">
@@ -133,7 +152,12 @@
 								</div>
 
 								<div class="form-check">
-									<input class="form-check-input" type="checkbox" id="remember-check" />
+									<input
+										class="form-check-input"
+										type="checkbox"
+										id="remember-check"
+										bind:checked={isRememberMe}
+									/>
 									<Label class="form-check-label" for="remember-check">Remember me</Label>
 								</div>
 
@@ -178,7 +202,7 @@
 					</CardBody>
 				</Card>
 				<div class="mt-5 text-center">
-					<p>
+					<p hidden={!(PUBLIC_ALLOW_SIGNUP === 'true')}>
 						Don&apos;t have an account ?
 						<Link href="/register" class="fw-medium text-primary">Signup now</Link>
 					</p>

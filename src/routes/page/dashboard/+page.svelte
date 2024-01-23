@@ -86,7 +86,7 @@
 								</Col>
 							</Row>
 							<div class="mt-4">
-								<Link href="/page/myProfile" class="btn btn-primary waves-effect waves-light btn-sm">
+								<Link href="/page/user/me" class="btn btn-primary waves-effect waves-light btn-sm">
 									View Profile <i class="mdi mdi-arrow-right ms-1" />
 								</Link>
 							</div>
