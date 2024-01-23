@@ -6,6 +6,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n'
+	import { isMenuButton } from 'svelte-jsoneditor';
 
 	/** @type {import('$types').PluginMenuDefModel[]} */
 	export let menu
@@ -131,6 +132,11 @@
 	};
 
 	const removeActiveDropdown = () => {
+		document.querySelectorAll('.vertical-menu .mm-active').forEach((menu) => {
+			menu.querySelectorAll('.active').forEach(child => child.classList.remove('active'));
+			menu.classList.remove('mm-active');
+		});
+
 		document.querySelectorAll('.vertical-menu .has-arrow').forEach((menu) => {
 			if (menu.nextElementSibling) {
 				menu.nextElementSibling.classList.add('mm-collapse');
