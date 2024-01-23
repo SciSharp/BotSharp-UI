@@ -13,7 +13,7 @@
     /** @type {number} */
     $: totalPages = Math.ceil(pagination.count / pagination.size);
     /** @type {number} */
-    $: start = (pagination.page - 1) * pagination.size + 1;
+    $: start = pagination.count <= 0 ? 0 : (pagination.page - 1) * pagination.size + 1;
     /** @type {number} */
     $: end = Math.min(pagination.page * pagination.size, pagination.count);
     /** @type {number} */
@@ -23,9 +23,9 @@
     /** @type {number[]} */
     $: pages = Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i);
     /** @type {boolean} */
-    $: disableBackward = pagination.page === firstPage;
+    $: disableBackward = pagination.page === firstPage || pagination.count === 0;
     /** @type {boolean} */
-    $: disableForward = pagination.page === totalPages;
+    $: disableForward = pagination.page === totalPages || pagination.count === 0;
 
     /**
 	 * @param {any} e

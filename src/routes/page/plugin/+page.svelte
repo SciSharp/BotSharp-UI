@@ -5,7 +5,7 @@
     import { onMount } from 'svelte';
     import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
-	import PluginPagination from './plugin-pagination.svelte';
+	import PlainPagination from '$lib/common/PlainPagination.svelte';
 
 	const firstPage = 1;
 	const pageSize = 12;
@@ -30,17 +30,12 @@
 
 	async function getPagedPlugins() {
 		plugins = await getPlugins(filter);
-		refreshPlugins();
-		refreshPager(plugins.count, filter.pager.page, filter.pager.size);
+		refresh();
 	}
 
-	/** @param {import('$types').PluginDefModel} plugin */
-	function getIconUrl(plugin) {
-		if (plugin.is_core) {
-			return '/images/logo.png';
-		} else {
-			return plugin.icon_url ? plugin.icon_url : PUBLIC_PLUGIN_DEFAULT_ICON;
-		}
+	function refresh() {
+		refreshPlugins();
+		refreshPager(plugins.count, filter.pager.page, filter.pager.size);
 	}
 
 	function refreshPlugins() {
@@ -59,8 +54,8 @@
 	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
 		pager = {
 			page: page,
-			size: pageCount,
-			count: totalItemsCount
+			size: pageCount || 0,
+			count: totalItemsCount || 0
 		};
 	}
 
@@ -74,10 +69,20 @@
 		};
 
 		filter = {
+			...filter,
 			pager: pager
 		};
 
 		getPagedPlugins();
+	}
+
+	/** @param {import('$types').PluginDefModel} plugin */
+	function getIconUrl(plugin) {
+		if (plugin.is_core) {
+			return '/images/logo.png';
+		} else {
+			return plugin.icon_url ? plugin.icon_url : PUBLIC_PLUGIN_DEFAULT_ICON;
+		}
 	}
 </script>
 
@@ -85,4 +90,4 @@
 <Breadcrumb title="Plugin" pagetitle="List" />
 
 <Plugins plugins={plugins.items} />
-<PluginPagination pagination={pager} pageTo={pageTo} />
+<PlainPagination pagination={pager} pageTo={pageTo} />

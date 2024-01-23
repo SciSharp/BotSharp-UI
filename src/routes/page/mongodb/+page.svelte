@@ -1,10 +1,9 @@
 <script>
-	import { Alert, Button } from '@sveltestrap/sveltestrap';
+	import { Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import { refreshAgents } from '$lib/services/agent-service';
-	import Loader from '$lib/common/Loader.svelte';
-	import LoadingToResult from '$lib/common/LoadingToResult.svelte';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 
   let isLoading = false;
   let isComplete = false;
@@ -33,7 +32,7 @@
 
 <HeadTitle title="MongoDB" />
 <Breadcrumb title="MongoDB" pagetitle="Setting" />
-<LoadingToResult isLoading={isLoading} isComplete={isComplete} isError={isError} />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <h3>Migrate agents from file repository to MongoDB</h3>
 <Button color="primary" on:click={() => refreshAgentData()} disabled={isLoading}>
