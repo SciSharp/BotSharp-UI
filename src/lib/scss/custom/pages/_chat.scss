@@ -94,7 +94,7 @@
             border: 1px solid var(--#{$prefix}border-color);
 
             li:first-child {
-                @media (max-width: 575.98px) {
+                @media (max-width: 1024px) {
                     display: none;
                 }
             }
@@ -304,3 +304,18 @@
     }
 }
 
+.chat-iframe {
+    @media (max-width: 1024px) {
+        position: fixed;
+        top: 0 !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        border: none !important;
+        margin:0 !important;
+        padding:0 !important;
+        overflow: hidden !important;
+    }
+}
