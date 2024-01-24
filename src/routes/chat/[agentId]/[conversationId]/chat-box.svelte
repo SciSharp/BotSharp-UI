@@ -171,19 +171,21 @@
 
 					<div class="col-md-8 col-5">
 						<ul class="list-inline user-chat-nav text-end mb-0">
-							{#if !isLoadLog}
+							
 							<li class="list-inline-item">
 								<Dropdown>
 									<DropdownToggle tag="button" class="nav-btn dropdown-toggle" color="">
 										<i class="bx bx-dots-horizontal-rounded" />
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
+										{#if !isLoadLog}
 										<DropdownItem on:click={viewFullLogHandler} >View Log</DropdownItem>
+										{/if}
 										<DropdownItem on:click={newConversationHandler} >New Conversation</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</li>
-							{/if}
+							
 							<li class="list-inline-item d-sm-inline-block">
 								<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									on:click={close}

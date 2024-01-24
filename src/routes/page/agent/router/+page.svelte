@@ -4,12 +4,10 @@
   import HeadTitle from '$lib/common/HeadTitle.svelte';
   import { getAgents } from '$lib/services/agent-service.js';
   import RoutingFlow from './routing-flow.svelte'
-  import RoutingConfiguration from './router-configuration.svelte';
-  import AgentConfiguration from './agent-configuration.svelte';
   import { onMount } from 'svelte';
 
-  /** @type {import('$types').AgentModel} */
-  let router;
+  /** @type {import('$types').AgentModel[]} */
+  let routers;
   let isRouterNodeSelected = false;
   let isAgentNodeSelected = false;
 
@@ -26,7 +24,7 @@
   async function getRouter() {
     const response = await getAgents(filter);
     if (response.items?.length > 0) {
-      router = response.items[0];
+      routers = response.items;
     }
   };
 
@@ -52,22 +50,14 @@
 <HeadTitle title="Router" />
 <Breadcrumb title="Agent" pagetitle="Router" />
 
-{#if router}
+{#if routers}
 <Row>
-  <Col lg={9}>
-    <RoutingFlow router={router} 
+  <Col>
+    <RoutingFlow routers={routers} 
       on:userNodeSelected={(e) => handleUserNodeSelected()}
       on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
       on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>
   </Col>    
-  <Col lg={3}>
-    {#if isAgentNodeSelected}
-    <AgentConfiguration agent={router} />
-    {/if}     
-    {#if isRouterNodeSelected}
-    <RoutingConfiguration router={router} />
-    {/if}
-  </Col>
 </Row>
 {/if}   
 

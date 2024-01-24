@@ -11,26 +11,17 @@
     /** @type {import('$types').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 20, count: 0 },
-		isRouter: false,
-        isEvaluator: false,
-        disabled: false,
         allowRouting: true
 	};
 
-    /** @type {import('$types').AgentModel} */
-    export let router;
+    /** @type {import('$types').AgentModel[]} */
+    export let routers;
 
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
         const response = await getAgents(filter);
         agents = response?.items || [];
-
-        // add a "New Agent" button
-        agents.push({
-			name: "New Agent",
-			allow_routing: true
-		});
 
         const container = document.getElementById("drawflow");
         if (!!container) {
@@ -49,7 +40,7 @@
         };
 
         let posX = 0;
-        let nodeSpace = 200;
+        let nodeSpace = 250;
         let nodeId = 1;
         let posY = 100 * agents.length / 2 + 50;
 
@@ -61,22 +52,28 @@
         posX += nodeSpace;
         nodeId++;
         let routerNodeId = nodeId;
-        editor.addNode('router', 1, 1, posX, posY, 'router', data, `Router (${router.name})`, false);
-
-        // connect user and router
-        editor.addConnection(1, nodeId, `output_1`, `input_1`);    
+        let hostNodeId = nodeId;
+        let routerPosY = posY;
+        routers.forEach(router => {
+            const profiles = router.profiles.join(', ');
+            if (router.is_host) {
+                editor.addNode('host', 1, 1, posX, routerPosY, 'router', data, `${router.name} (Host Router) ${profiles}`, false);
+                hostNodeId = nodeId;
+            } else {
+                editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${router.name} (Routing Agent) ${profiles}`, false);
+            }
+            // connect user and router
+            editor.addConnection(1, nodeId, `output_1`, `input_1`);    
+            routerPosY += 100;
+            nodeId++;
+        });
 
         posY = 100;
         posX += nodeSpace;
-        nodeId++;
-        agents.forEach(agent => {                 
-            if (!agent.id) {
-                // add a "New Agent" button
-                editor.addNode('new-agent', 1, 0, posX, posY, 'new-node', data, `New Agent`, false);
-            } else {
-                editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, `Agent (${agent.name})`, false);
-            }
-            editor.addConnection(2, nodeId, `output_1`, `input_1`);    
+        agents.forEach(agent => {       
+            const profiles = agent.profiles.join(', ');          
+            editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, `${agent.name} (Task Agent) ${profiles}`, false);
+            editor.addConnection(hostNodeId, nodeId, `output_1`, `input_1`);    
             posY += 100;
             nodeId++;
         });
@@ -87,7 +84,7 @@
             if (id == userNodeId) {
                 dispatch('userNodeSelected', {});
             } else if (id == routerNodeId) {
-                dispatch('routerNodeSelected', {agent: router});
+                dispatch('routerNodeSelected', {});
             } else {
                 dispatch('agentNodeSelected', {agent: agents[id - routerNodeId - 1]});
             }

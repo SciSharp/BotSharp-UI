@@ -3,6 +3,7 @@
     import { Button, Card, CardBody, CardHeader, Col, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
+	import AgentLlmConfig from './agent-llm-config.svelte';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -50,7 +51,12 @@
                     </tr>
                     <tr>
                         <th>Profiles</th>
-                        <td><span class="badge badge-soft-success mx-1">phone</span><span class="badge badge-soft-success mx-1">webchat</span></td>
+                        <td>
+                            {#each agent.profiles as profile}
+                            <input class="form-control" type="text" value={profile} />
+                            <a href={null} class="btn btn-danger">Delete</a>
+                            {/each}
+                        </td>
                     </tr>
                     <tr>
                         <th>Status</th>

@@ -103,8 +103,10 @@
  * @property {boolean} disabled
  * @property {boolean} is_public
  * @property {boolean} is_router
+ * @property {boolean} is_host
  * @property {string} icon_url - Icon
  * @property {boolean} allow_routing
+ * @property {string[]} profiles - The agent profiles.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.
