@@ -21,17 +21,18 @@
     });  
 
     function handleConversationDeletion() {
+        // @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            customClass: 'conv-delete-modal',
+            customClass: 'delete-modal',
             confirmButtonText: 'Yes, delete it!'
+        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 await deleteConversation(conversation.id);
-                // Swal.fire('Deleted!', 'Your file has been deleted.', 'success');
                 window.location.href = "/page/conversation";
             }
         });
