@@ -13,6 +13,8 @@
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
+	import { newConversation } from '$lib/services/conversation-service';
+	import { conversationStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
@@ -109,6 +111,12 @@
 	  isLoadLog = true;
     }
 
+	async function newConversationHandler() {
+		const conversation = await newConversation(params.agentId);
+        conversationStore.set(conversation);
+		window.location.href = `/chat/${params.agentId}/${conversation.id}`;
+	}
+
     async function sendTextMessage() {
       await sendMessageToHub(params.agentId, params.conversationId, text);
     }
@@ -171,6 +179,9 @@
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
 										<DropdownItem on:click={viewFullLogHandler} >View Log</DropdownItem>
+									</DropdownMenu>
+									<DropdownMenu class="dropdown-menu-end">
+										<DropdownItem on:click={newConversationHandler} >New Conversation</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</li>

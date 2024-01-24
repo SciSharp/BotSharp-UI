@@ -1,20 +1,20 @@
 <script>
     import { Container, Row, Col } from '@sveltestrap/sveltestrap';
-
-    // This page is used to initialize a new conversation for client
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
+    import { getSettingDetail } from '$lib/services/setting-service';
     import { getAgents } from '$lib/services/agent-service.js'
-
+    
     const params = $page.params;
-    let agentId = "undefined";
     /** @type {import('$types').AgentModel[]} */
     let agents = [];
+    let agentId = 'undefined';
 
-    onMount(async () => {
+	onMount(async () => {
         agents = await getAgents({isEvaluator: false});
-        agentId = agents[0].id;
-    });
+        const agentSettings = await getSettingDetail("Agent");
+        agentId = agentSettings.hostAgentId;
+	});
 </script>
 
 <Container fluid>
@@ -43,7 +43,7 @@
     </Row>
     <Row class="text-center">
         <Col>
-            <p class="section-subtitle text-muted text-center pt-4 font-secondary">We craft digital, graphic and dimensional thinking, to create category leading brand experiences that have meaning and add a value for our clients.</p>
+            <p class="section-subtitle text-muted text-center pt-4 font-secondary">Select a bot you want to start chatting with and click the Start button.</p>
             <div class="d-flex justify-content-center">
                 <a href="/chat/{agentId}" class="btn btn-primary">
                     <i class="mdi mdi-chat" />
