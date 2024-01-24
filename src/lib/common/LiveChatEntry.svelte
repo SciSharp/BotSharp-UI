@@ -40,7 +40,7 @@
     {/if}
 
     {#if showChatIcon}
-    <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 1500, duration: 500 }}>
+    <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 100, duration: 500 }}>
         <button class="btn btn-transparent" on:click={handleChatBox}>
             <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
         </button>
