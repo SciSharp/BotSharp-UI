@@ -92,6 +92,12 @@
         .dropdown-menu {
             box-shadow: $box-shadow;
             border: 1px solid var(--#{$prefix}border-color);
+
+            li:first-child {
+                @media (max-width: 575.98px) {
+                    display: none;
+                }
+            }
         }
     }
 }
@@ -297,6 +303,4 @@
         }
     }
 }
-
-
 

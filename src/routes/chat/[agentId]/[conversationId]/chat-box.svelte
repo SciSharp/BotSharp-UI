@@ -179,8 +179,6 @@
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
 										<DropdownItem on:click={viewFullLogHandler} >View Log</DropdownItem>
-									</DropdownMenu>
-									<DropdownMenu class="dropdown-menu-end">
 										<DropdownItem on:click={newConversationHandler} >New Conversation</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
