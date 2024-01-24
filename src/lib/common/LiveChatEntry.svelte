@@ -35,7 +35,7 @@
         src={chatUrl}
         width="380px" 
         height="650px" 
-        class="border border-2 rounded-3 m-3 float-end"
+        class="border border-2 rounded-3 m-3 float-end chat-iframe"
         title="live chat"
       >
       </iframe>
