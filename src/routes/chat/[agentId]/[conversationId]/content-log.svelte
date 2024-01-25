@@ -2,8 +2,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onMount, tick } from 'svelte';
-	import { replaceNewLine } from '$lib/helpers/http';
-    import moment from 'moment';
+	import LogElement from './log-element.svelte';
 
     /** @type {import('$types').ContentLogModel[]} */
     export let logs = [];
@@ -66,16 +65,7 @@
         <div class="log-scrollbar log-list padding-side">
             <ul>
                 {#each logs as log}
-                    <div class="log-element">
-                        <div class="log-content">
-                            <b>{`[${moment.utc(log?.created_at).local().format('MMM DD YYYY, hh:mm:ss.SSS A')}]`}</b>
-                        </div>
-                        <br>
-                        <div class="log-content">
-                            {@html replaceNewLine(log?.content)}
-                        </div>
-                        <hr class="divider">
-                    </div>
+                    <LogElement log={log} />
                 {/each}
             </ul>
         </div>

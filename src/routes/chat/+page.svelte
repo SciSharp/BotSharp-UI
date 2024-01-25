@@ -6,13 +6,21 @@
     import { getAgents } from '$lib/services/agent-service.js'
     
     const params = $page.params;
+    /** @type {import('$types').AgentFilter} */
+    const filter = {
+        pager: { page: 1, size: 10, count: 0 },
+    	isEvaluator: false
+    };
+
     /** @type {import('$types').AgentModel[]} */
     let agents = [];
     let agentId = 'undefined';
 
 	onMount(async () => {
-        agents = await getAgents({isEvaluator: false});
+        const response = await getAgents(filter);
+        agents = response?.items?.map(t => { return { ...t }; }) || [];
         const agentSettings = await getSettingDetail("Agent");
+        // @ts-ignore
         agentId = agentSettings.hostAgentId;
 	});
 </script>
