@@ -108,7 +108,7 @@
 	function onContentLogGenerated(log) {
 		contentLogs.push({
 			...log,
-			isCollapsed: true
+			is_collapsed: true
 		});
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}

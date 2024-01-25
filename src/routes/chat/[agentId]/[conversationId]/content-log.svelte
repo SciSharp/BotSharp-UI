@@ -35,19 +35,20 @@
 	});
 
     afterUpdate(() => {
+        console.log('inside content-log after update');
         refreshLog();
     });
 
 
     async function refreshLog() {
       // trigger UI render
-      logs = logs?.map(log => { return { ...log }; }) || [];
-      await tick();
+        logs = logs || [];
+        await tick();
 
-      setTimeout(() => {
-		const { viewport } = scrollbar.elements();
-		viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-	  }, 200);
+        setTimeout(() => {
+            const { viewport } = scrollbar.elements();
+            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
+        }, 200);
     }
      
 </script>

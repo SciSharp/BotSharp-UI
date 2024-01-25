@@ -220,7 +220,7 @@ IRichContent.prototype.text;
  * @property {string} name - The sender name.
  * @property {string} content - The log content.
  * @property {Date} created_at - The log sent time.
- * @property {boolean} isCollapsed - For UI display.
+ * @property {boolean} is_collapsed - For UI display.
  */
 
 /**
