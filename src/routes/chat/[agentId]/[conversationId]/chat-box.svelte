@@ -233,7 +233,7 @@
 								{#if message.sender.id === currentUser.id}
 								<div class="ctext-wrap float-end">
 									<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-									<span>{@html replaceNewLine(message.text)}</span>
+									<div class="text-start">{@html replaceNewLine(message.text)}</div>
 									<p class="chat-time mb-0">
 										<i class="bx bx-time-five align-middle me-1" />
 										<!-- {format(message.created_at, 'short-time')} -->
