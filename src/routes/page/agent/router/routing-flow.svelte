@@ -49,8 +49,9 @@
     /** @param {Drawflow} editor*/
     function renderRoutingFlow(editor){
         let posX = 0;
-        let nodeSpace = 250;
-        let posY = 100 * agents.length / 2 + 50;
+        const nodeSpaceX = 300, nodeSpaceY = 120;
+
+        let posY = nodeSpaceY * (agents.length + 1) / 2;
 
         // add end-user node
         let userNodeId = editor.addNode('user', 0, 1, posX, posY, 'user', 
@@ -61,15 +62,16 @@
         }, `<i class="mdi mdi-account font-size-16 text-info me-2"></i><span class="h6">User Request</span>`, false);
 
         // add router node
-        posX += nodeSpace;
+        posX += nodeSpaceX;
         let hostNodeId = 0;
-        let routerPosY = posY;
+        let routerPosY = nodeSpaceY * (routers.length + 1) / 2;
         routers.forEach(router => {
             let profiles = [];
-            let html = `<span class="h6">${router.name}</span>`;
+            const chatTestLinkHtml = `<a href= "/chat/${router.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
+            let html = `<span class="h5">${router.name} ${chatTestLinkHtml}</span><span class="text-info">Routing Agent</span>`;
             if (router.profiles.length > 0) {
                 profiles = router.profiles;
-                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>${profiles.join(', ')}`;
+                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i><span>${profiles.join(', ')}</span>`;
             }
             
             const data = {
@@ -88,14 +90,15 @@
             }
             // connect user and router
             editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);    
-            routerPosY += 100;
+            routerPosY += nodeSpaceY * (agents.length - 1) / 2;
         });
 
         posY = 100;
-        posX += nodeSpace;
+        posX += nodeSpaceX;
         agents.forEach(agent => {       
             let profiles = [];
-            let html = `<span class="h6">${agent.name}</span>`;
+            const chatTestLinkHtml = `<a href= "/chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
+            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
             if (agent.profiles.length > 0) {
                 profiles = agent.profiles;
                 html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + profiles.join(', ');
@@ -118,6 +121,7 @@
                             editor.addConnection(r.nid, nid, `output_1`, `input_1`);
                         } else {
                             // editor.removeNodeInput(nid, "input_2");
+                            editor.addConnection(userNodeId, nid, `output_1`, `input_1`);
                         }
                     });
                 });
@@ -130,7 +134,7 @@
                     });
             }
 
-            posY += 100;
+            posY += nodeSpaceY;
         });
     }
     
