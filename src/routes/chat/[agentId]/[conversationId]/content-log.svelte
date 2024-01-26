@@ -2,8 +2,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onMount, tick } from 'svelte';
-	import { replaceNewLine } from '$lib/helpers/http';
-    import moment from 'moment';
+	import LogElement from './log-element.svelte';
 
     /** @type {import('$types').ContentLogModel[]} */
     export let logs = [];
@@ -36,19 +35,20 @@
 	});
 
     afterUpdate(() => {
+        console.log('inside content-log after update');
         refreshLog();
     });
 
 
     async function refreshLog() {
       // trigger UI render
-      logs = logs?.map(log => { return { ...log }; }) || [];
-      await tick();
+        logs = logs || [];
+        await tick();
 
-      setTimeout(() => {
-		const { viewport } = scrollbar.elements();
-		viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-	  }, 200);
+        setTimeout(() => {
+            const { viewport } = scrollbar.elements();
+            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
+        }, 200);
     }
      
 </script>
@@ -66,16 +66,7 @@
         <div class="log-scrollbar log-list padding-side">
             <ul>
                 {#each logs as log}
-                    <div class="log-element">
-                        <div class="log-content">
-                            <b>{`[${moment.utc(log?.created_at).local().format('MMM DD YYYY, hh:mm:ss.SSS A')}]`}</b>
-                        </div>
-                        <br>
-                        <div class="log-content">
-                            {@html replaceNewLine(log?.content)}
-                        </div>
-                        <hr class="divider">
-                    </div>
+                    <LogElement log={log} />
                 {/each}
             </ul>
         </div>

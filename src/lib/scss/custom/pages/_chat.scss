@@ -253,16 +253,8 @@
     }
 }
 
-.user-chat {
-    flex: 1;
-}
-
-.chat-with-log {
-    flex: 0.6;
-}
-
 .chat-log {
-    flex: 0.4;
+    height: 100vh;
 
     .padding-side {
         padding-left: 10px;
@@ -285,10 +277,23 @@
             .log-element {
                 margin-top: 15px;
                 margin-bottom: 15px;
+
+                .log-meta {
+                    font-size: 15px;
+                    color: white;
+                }
             
                 .log-content {
                     font-size: 15px;
                     color: white;
+                }
+
+                .log-collapse {
+                    overflow-y: hidden;
+                    height: 10%;
+                    display: -webkit-box;
+                    -webkit-box-orient: vertical;
+                    -webkit-line-clamp: 5;
                 }
                 
                 .divider {
@@ -298,6 +303,14 @@
                     border-top: medium double white;
                     color: white;
                     text-align: center;
+                }
+
+                .toggle-btn {
+                    outline: none;
+                    box-shadow: none;
+                    color: white;
+                    font-size: 15px;
+                    padding-left: 0px;
                 }
             }
         }
