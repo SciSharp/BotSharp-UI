@@ -58,7 +58,7 @@
 	let contentLogs = [];
 
 	/** @type {boolean} */
-	let isLoadLog = true;
+	let isLoadLog = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
