@@ -24,6 +24,9 @@ export const signalr = {
   /** @type {import('$types').OnContentLogReceived} */
   onContentLogGenerated: () => {},
 
+  /** @type {import('$types').OnConversationStatesGenerated} */
+  onConversationStatesGenerated: () => {},
+
   // start the connection
   /** @param {string} conversationId */
   async start(conversationId) {
@@ -82,6 +85,13 @@ export const signalr = {
       const jsonLog = JSON.parse(log);
       if (conversationId === jsonLog?.conversation_id) {
         this.onContentLogGenerated(jsonLog);
+      }
+    });
+
+    connection.on('onConversateStatesGenerated', (data) => {
+      const jsonData = JSON.parse(data);
+      if (conversationId === jsonData?.conversation_id) {
+        this.onConversationStatesGenerated(jsonData);
       }
     });
   },

@@ -93,9 +93,11 @@
             box-shadow: $box-shadow;
             border: 1px solid var(--#{$prefix}border-color);
 
-            li:first-child {
-                @media (max-width: 1024px) {
-                    display: none;
+            li {
+                &:nth-child(-n+2) {
+                    @media (max-width: 1024px) {
+                        display: none;
+                    }
                 }
             }
         }
@@ -275,8 +277,8 @@
         .log-list {
             height: 90vh;
             .log-element {
-                margin-top: 15px;
-                margin-bottom: 15px;
+                margin-top: 25px;
+                margin-bottom: 30px;
 
                 .log-meta {
                     font-size: 15px;
@@ -286,6 +288,19 @@
                 .log-content {
                     font-size: 15px;
                     color: white;
+
+                    li {
+                        margin-top: 5px;
+                        margin-bottom: 5px;
+                        .property {
+                            padding-left: 10px;
+                        }
+                    }
+
+                    span {
+                        color: white;
+                        font-size: 18px;
+                    }
                 }
 
                 .log-collapse {
@@ -312,10 +327,28 @@
                     font-size: 15px;
                     padding-left: 0px;
                 }
+
+                &:nth-child(even) {
+                    .log-meta {
+                        color: $faded-color !important;
+                    }
+                    
+                    .log-content {
+                        color: $faded-color !important;
+                        span {
+                            color: $faded-color !important;
+                        }
+                    }
+
+                    button {
+                        color: $faded-color !important;
+                    }
+                }
             }
         }
     }
 }
+
 
 .chat-iframe {
     @media (max-width: 1024px) {

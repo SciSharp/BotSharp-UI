@@ -222,6 +222,13 @@ IRichContent.prototype.text;
  */
 
 /**
+ * @typedef {Object} ConversationStateLogModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} states - The states content.
+ * @property {Date} created_at - The states sent time.
+ */
+
+/**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
  *
@@ -249,6 +256,13 @@ IRichContent.prototype.text;
  * 
  * @callback OnContentLogReceived
  * @param {ContentLogModel} log
+ */
+
+/** 
+ * Conversation states
+ * 
+ * @callback OnConversationStatesGenerated
+ * @param {ConversationStateLogModel} data
  */
 
 // having to export an empty object here is annoying, 
