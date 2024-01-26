@@ -88,9 +88,8 @@
 /** 
  * @typedef {Object} AgentFilter
  * @property {Pagination} pager - Pagination
- * @property {boolean} [isRouter]
- * @property {boolean} [isEvaluator]
- * @property {boolean} [allowRouting]
+ * @property {string} [type]
+ * @property {boolean} [isPublic]
  * @property {boolean} [disabled]
  */
 
@@ -99,13 +98,12 @@
  * @property {string} id - Agent Id.
  * @property {string} name - Agent name.
  * @property {string} description - Agent description.
+ * @property {string} type - Agent type
  * @property {string} instruction - System prompt
  * @property {boolean} disabled
  * @property {boolean} is_public
- * @property {boolean} is_router
  * @property {boolean} is_host
  * @property {string} icon_url - Icon
- * @property {boolean} allow_routing
  * @property {string[]} profiles - The agent profiles.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
