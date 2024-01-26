@@ -14,7 +14,8 @@
   /** @type {import('$types').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 10, count: 0 },
-		isRouter: true
+    disabled: false,
+		type: "routing"
 	};
 
   onMount(async () => {

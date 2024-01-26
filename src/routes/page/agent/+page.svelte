@@ -15,8 +15,7 @@
 
 	/** @type {import('$types').AgentFilter} */
 	const initFilter = {
-		pager: { page: firstPage, size: pageSize, count: 0 },
-		isEvaluator: false
+		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
 	/** @type {import('$types').AgentFilter} */
