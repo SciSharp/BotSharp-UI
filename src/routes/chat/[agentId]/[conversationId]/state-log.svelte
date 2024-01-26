@@ -2,10 +2,10 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onMount, tick } from 'svelte';
-	import ContentLogElement from './content-log-element.svelte';
+	import StateLogElement from './state-log-element.svelte';
 
-    /** @type {import('$types').ContentLogModel[]} */
-    export let logs = [];
+    /** @type {any[]} */
+    export let stateLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -26,7 +26,7 @@
 	};
 
     onMount(async () => {
-		const scrollElements = document.querySelectorAll('.content-log-scrollbar');
+		const scrollElements = document.querySelectorAll('.state-log-scrollbar');
 		scrollElements.forEach((item) => {
 			scrollbar = OverlayScrollbars(item, options);
 		});
@@ -41,7 +41,7 @@
 
     async function refreshLog() {
         // trigger UI render
-        logs = logs || [];
+        stateLogs = stateLogs || [];
         await tick();
 
         setTimeout(() => {
@@ -49,7 +49,6 @@
             viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
         }, 200);
     }
-     
 </script>
 
 <div class="chat-log">
@@ -62,10 +61,10 @@
             ><i class="mdi mdi-window-close"></i>
             </button>
         </div>
-        <div class="content-log-scrollbar log-list padding-side">
+        <div class="state-log-scrollbar log-list padding-side">
             <ul>
-                {#each logs as log}
-                    <ContentLogElement data={log} />
+                {#each stateLogs as state}
+                    <StateLogElement data={state} />
                 {/each}
             </ul>
         </div>

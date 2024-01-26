@@ -1,6 +1,6 @@
 <script>
     import { Circle } from 'svelte-loading-spinners';
-    export let size=100
+    export let size = 100;
 </script>
 
 <div class="loader">
