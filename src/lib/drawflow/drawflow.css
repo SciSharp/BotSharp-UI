@@ -1,13 +1,21 @@
 .drawflow .drawflow-node {
     background: var(--bs-primary);
     color: white;
+    width: 200px;
+    border: 2px solid var(--bs-primary);
 }
 
 .drawflow .drawflow-node.selected {
-    background: var(--bs-success);
+    background: var(--bs-primary);
+    border: 2px solid black;
 }
 
 .drawflow .new-node {
     background: var(--bs-info);
     color: white;
+}
+
+.drawflow-delete {
+    background-color: var(--bs-danger);
+    line-height: 25px;
 }
