@@ -46,7 +46,7 @@
         }
     });    
 
-    /** @param {Drawflow} editor*/
+    /** @param {Drawflow} editor */
     function renderRoutingFlow(editor){
         let posX = 0;
         const nodeSpaceX = 300, nodeSpaceY = 120;
@@ -67,8 +67,9 @@
         let routerPosY = nodeSpaceY * (routers.length + 1) / 2;
         routers.forEach(router => {
             let profiles = [];
+            const planner = getPlannerName(router);
             const chatTestLinkHtml = `<a href= "/chat/${router.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
-            let html = `<span class="h5">${router.name} ${chatTestLinkHtml}</span><span class="text-info">Routing Agent</span>`;
+            let html = `<span class="h5">${router.name} ${chatTestLinkHtml}</span><span class="text-info">Routing with ${planner}</span>`;
             if (router.profiles.length > 0) {
                 profiles = router.profiles;
                 html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i><span>${profiles.join(', ')}</span>`;
@@ -135,9 +136,29 @@
             }
 
             posY += nodeSpaceY;
+
+            // draw fallback routing
+            // fallback
+            const fallback = agent.routing_rules.find(p => p.type == "fallback");
+            if (fallback) {
+                let router = agentNodes.find(ag => ag.id == fallback.redirectTo);
+                editor.addNodeOutput(nid);
+                /*editor.addNodeInput(router.nid);
+                var inputs = editor.getNodeFromId(router.nid).inputs;
+                let inputId = 0;
+                for (let prop in inputs) {
+                    inputId++;
+                }
+                editor.addConnection(nid, router.nid, `output_1`, `input_${inputId}`); */
+            }
         });
     }
     
+    /** @param {import('$types').AgentModel} router */
+    function getPlannerName(router) {
+        const planner = router.routing_rules.find(p => p.type == "planner");
+        return planner?.field ?? "NaviePlanner";
+    }
 </script>
 
 <div id="drawflow" style="height: 75vh; width: 100%">
