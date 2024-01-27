@@ -112,6 +112,7 @@
  * @property {FunctionDef[]} functions
  * @property {AgentTemplate[]} templates
  * @property {Object[]} responses
+ * @property {RoutingRule[]} routing_rules
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
  */
 
@@ -123,17 +124,26 @@
  */
 
 /**
+ * @typedef {Object} RoutingRule
+ * @property {string} type
+ * @property {string} field
+ * @property {string} description
+ * @property {string} fieldType
+ * @property {boolean} required
+ * @property {string} redirectTo
+ */
+
+/**
  * @typedef {Object} RouterSettings
- * @property {string} agentId
  * @property {string} planner
  */
 
 /**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
- * @property {string?} [agentId] - The agent id.
- * @property {string?} [channel] - The conversation channel.
- * @property {string?} [status] - The conversation status.
+ * @property {string} [agentId] - The agent id.
+ * @property {string} [channel] - The conversation channel.
+ * @property {string} [status] - The conversation status.
  */
 
 /**
