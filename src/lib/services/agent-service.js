@@ -20,7 +20,8 @@ export async function getAgents(filter) {
     let url = endpoints.agentListUrl;
     const response = await axios.get(url, { params: filter,
         paramsSerializer: {
-            dots: true
+            dots: true,
+            indexes: null,
         }
     });
     return response.data;

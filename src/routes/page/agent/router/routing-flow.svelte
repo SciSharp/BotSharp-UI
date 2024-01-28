@@ -63,7 +63,6 @@
 
         // add router node
         posX += nodeSpaceX;
-        let hostNodeId = 0;
         let routerPosY = nodeSpaceY * (routers.length + 1) / 2;
         routers.forEach(router => {
             let profiles = [];
@@ -82,13 +81,10 @@
                 type: router.type,
             };
 
-            let nodeId = 0;
             if (router.is_host) {
-                nodeId = editor.addNode('host', 1, 1, posX, routerPosY, 'router', data, `<img src="/images/users/bot.png" height="30">${html}`, false);
-                hostNodeId = nodeId;
-            } else {
-                nodeId = editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${html}`, false);
+                html =`<img src="/images/users/bot.png" height="30">${html}`;
             }
+            let nodeId = editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${html}`, false);;
             // connect user and router
             editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);    
             routerPosY += nodeSpaceY * (agents.length - 1) / 2;
@@ -99,10 +95,15 @@
         agents.forEach(agent => {       
             let profiles = [];
             const chatTestLinkHtml = `<a href= "/chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
-            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
+            const taskLinkHtml = `<a href= "/page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
+            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}${taskLinkHtml}`;
             if (agent.profiles.length > 0) {
                 profiles = agent.profiles;
                 html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + profiles.join(', ');
+            }
+
+            if (agent.is_host) {
+                html =`<img src="/images/users/bot.png" height="30">${html}`;
             }
             
             const data = {
@@ -122,17 +123,19 @@
                             editor.addConnection(r.nid, nid, `output_1`, `input_1`);
                         } else {
                             // editor.removeNodeInput(nid, "input_2");
-                            editor.addConnection(userNodeId, nid, `output_1`, `input_1`);
+                            // editor.addConnection(userNodeId, nid, `output_1`, `input_1`);
                         }
                     });
                 });
                 
             } else {
                 // profile is empty
-                agentNodes.filter(ag => ag.type == "routing" && ag.profiles.length == 0)
+                /*agentNodes.filter(ag => ag.type == "routing" && ag.profiles.length == 0)
                     .forEach(r => {
                         editor.addConnection(r.nid, nid, `output_1`, `input_1`);    
-                    });
+                    });*/
+                
+                editor.addConnection(userNodeId, nid, `output_1`, `input_1`);    
             }
 
             posY += nodeSpaceY;
@@ -143,13 +146,13 @@
             if (fallback) {
                 let router = agentNodes.find(ag => ag.id == fallback.redirectTo);
                 editor.addNodeOutput(nid);
-                /*editor.addNodeInput(router.nid);
+                editor.addNodeInput(router.nid);
                 var inputs = editor.getNodeFromId(router.nid).inputs;
                 let inputId = 0;
                 for (let prop in inputs) {
                     inputId++;
                 }
-                editor.addConnection(nid, router.nid, `output_1`, `input_${inputId}`); */
+                editor.addConnection(nid, router.nid, `output_1`, `input_${inputId}`);
             }
         });
     }

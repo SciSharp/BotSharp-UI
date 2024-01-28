@@ -21,8 +21,12 @@ export async function getToken(email, password, onSucceed) {
             return response.json();
         } else {
             alert(response.statusText);
+            return false
         }
     }).then(result => {
+        if (!result) {
+            return;
+        }
         let user = getUserStore();
         user.token = result.access_token;
         userStore.set(user);

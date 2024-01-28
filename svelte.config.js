@@ -40,6 +40,8 @@ const config = {
 				"/page/agent/router",
 				"/page/agent/evaluator",
 				"/page/agent/[agentId]",
+				"/page/agent/[agentId]/task",
+				"/page/agent/[agentId]/task/[template]",
 				"/page/agent/[agentId]/build",
 				"/page/agent/[agentId]/train",
 				"/page/conversation",

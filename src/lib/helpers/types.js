@@ -91,6 +91,7 @@
  * @property {string} [type]
  * @property {boolean} [isPublic]
  * @property {boolean} [disabled]
+ * @property {string[]} [agentIds]
  */
 
 /**
@@ -124,6 +125,12 @@
  */
 
 /**
+ * @typedef {Object} InstructMessageModel
+ * @property {string} [instruction] - User provided prompt instead of predefined template.
+ * @property {string} [template] - The template name.
+ */
+
+/**
  * @typedef {Object} RoutingRule
  * @property {string} type
  * @property {string} field
@@ -152,10 +159,10 @@
  * @property {string} title - The conversation title.
  * @property {UserModel} user - The conversation initializer.
  * @property {string} agent_id - The conversation agent id.
+ * @property {string} agent_name - The conversation entry agent name.
  * @property {string} channel - The conversation status.
  * @property {string} status - The conversation status.
  * @property {Object[]} states - The conversation states. 
- * @property {number} unread_msg_count - The unread message count.
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.
  */

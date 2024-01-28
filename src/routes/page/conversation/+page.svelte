@@ -214,7 +214,7 @@
 							<tr>
 								<th scope="col">Title</th>
 								<th scope="col">User Name</th>
-								<th scope="col">Role</th>
+								<th scope="col">Agent</th>
 								<th scope="col">Channel</th>
 								<th scope="col">Posted Date</th>
 								<th scope="col">Last Date</th>
@@ -228,7 +228,7 @@
 								<td scope="row">
 									<a href="/page/conversation/{conv.id}">{conv.title}</a></td>
 								<td>{conv.user.full_name}</td>
-								<td>{conv.user.role}</td>
+								<td>{conv.agent_name}</td>
 								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
 								<td>{utcToLocal(conv.created_time)}</td>
 								<td>{utcToLocal(conv.updated_time)}</td>

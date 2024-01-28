@@ -23,6 +23,9 @@ export const endpoints = {
     agentDetailUrl: `${host}/agent/{id}`,
     agentRefreshUrl: `${host}/refresh-agents`,
     
+    // agent instruct
+    instructCompletionUrl: `${host}/instruct/{agentId}`,
+
     // router
     routerSettingUrl: `${host}/router/settings`,
 
