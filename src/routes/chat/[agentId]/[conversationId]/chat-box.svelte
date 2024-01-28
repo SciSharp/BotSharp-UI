@@ -62,8 +62,8 @@
 	let stateLogs = [];
 
 	/** @type {boolean} */
-	let isLoadLog = false;
-	let isLoadStates = false;
+	let isLoadContentLog = false;
+	let isLoadStateLog = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -184,28 +184,43 @@
 		} 
 	}
 
-	function viewContentLog() {
-		isLoadLog = true;
+	function toggleContentLog() {
+		isLoadContentLog = !isLoadContentLog;
     }
 
-	function viewStateLog() {
-		isLoadStates = true;
+	function toggleStateLog() {
+		isLoadStateLog = !isLoadStateLog;
 	}
 
-	function closeContentLog() {
-		isLoadLog = false;
+	/**
+	 * @param {any} e
+	 * @param {string} messageText
+	 */
+	function copyMessage(e, messageText) {
+		e.preventDefault();
+		if (!!!text) {
+			text += messageText;
+		} else {
+			text += ' ' + messageText;
+		}
 	}
 
-	function closeStateLog() {
-		isLoadStates = false;
+	/** @param {any} e */
+	function deleteMessage(e) {
+		e.preventDefault();
+	}
+
+	/** @param {any} e */
+	function editMessage(e) {
+		e.preventDefault();
 	}
 </script>
 
 <div class="d-lg-flex">
 	<Splitpanes>
-		{#if isLoadStates}
+		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog stateLogs={stateLogs} closeWindow={closeStateLog} />
+			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} />
 		</Pane>
 		{/if}
 		<Pane minSize={20}>
@@ -229,11 +244,11 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLoadLog}
-												<DropdownItem on:click={() => viewContentLog()}>View Log</DropdownItem>
+												{#if !isLoadContentLog}
+												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStates}
-												<DropdownItem on:click={() => viewStateLog()}>View States</DropdownItem>
+												{#if !isLoadStateLog}
+												<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 												{/if}
 												<DropdownItem on:click={newConversationHandler}>New Conversation</DropdownItem>
 											</DropdownMenu>
@@ -270,9 +285,9 @@
 												<i class="bx bx-dots-vertical-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												<DropdownItem href="#">Edit</DropdownItem>
-												<DropdownItem href="#">Copy</DropdownItem>
-												<DropdownItem href="#">Delete</DropdownItem>
+												<DropdownItem on:click={(e) => editMessage(e)}>Edit</DropdownItem>
+												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
+												<DropdownItem on:click={(e) => deleteMessage(e)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 										{:else}
@@ -355,9 +370,9 @@
 				</div>
 			</div>
 		</Pane>
-		{#if isLoadLog}
+		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog logs={contentLogs} closeWindow={closeContentLog} />
+			<ContentLog logs={contentLogs} closeWindow={toggleContentLog} />
 		</Pane>
 		{/if}
 	</Splitpanes>

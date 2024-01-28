@@ -164,6 +164,7 @@
             .dropdown-toggle {
                 font-size: 18px;
                 padding: 4px;
+                cursor: pointer;
                 color: var(--#{$prefix}secondary-color);
                 @media (max-width: 575.98px) {
                     display: none;
