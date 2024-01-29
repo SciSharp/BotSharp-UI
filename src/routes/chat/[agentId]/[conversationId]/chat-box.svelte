@@ -4,6 +4,11 @@
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
+		Modal,
+		ModalHeader,
+		ModalBody,
+		ModalFooter,
+		Button
 	} from '@sveltestrap/sveltestrap';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -12,7 +17,7 @@
 	import Link from 'svelte-link';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
-    import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
+    import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import { conversationStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -40,7 +45,10 @@
 	};
 	const params = $page.params;
 	
+	/** @type {string} */
 	let text = "";
+	let editText = "";
+	let truncateMsgId = "";
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -62,8 +70,9 @@
 	let stateLogs = [];
 
 	/** @type {boolean} */
-	let isLoadLog = false;
-	let isLoadStates = false;
+	let isLoadContentLog = false;
+	let isLoadStateLog = false;
+	let isShowEditMsgModal = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -164,48 +173,129 @@
 
 	function endChat() {
 		if (window.location === window.parent.location) {
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You will exit this conversation.",
-			icon: 'warning',
-			customClass: 'delete-modal',
-			showCancelButton: true,
-			confirmButtonText: 'Yes',
-			cancelButtonText: 'No'
-		// @ts-ignore
-		}).then((result) => {
-			if (result.value) {
-				window.close();
-			}
-		});
+			// @ts-ignore
+			Swal.fire({
+				title: 'Are you sure?',
+				text: "You will exit this conversation.",
+				icon: 'warning',
+				customClass: 'delete-modal',
+				showCancelButton: true,
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No'
+			// @ts-ignore
+			}).then((result) => {
+				if (result.value) {
+					window.close();
+				}
+			});
 		} else {
 			window.parent.postMessage({ action: "close" }, "*");
 		} 
 	}
 
-	function viewContentLog() {
-		isLoadLog = true;
+	function toggleContentLog() {
+		isLoadContentLog = !isLoadContentLog;
     }
 
-	function viewStateLog() {
-		isLoadStates = true;
+	function toggleStateLog() {
+		isLoadStateLog = !isLoadStateLog;
 	}
 
-	function closeContentLog() {
-		isLoadLog = false;
+	/**
+	 * @param {any} e
+	 * @param {string} messageText
+	 */
+	function copyMessage(e, messageText) {
+		e.preventDefault();
+		if (!!!text) {
+			text += messageText;
+		} else {
+			text += ' ' + messageText;
+		}
 	}
 
-	function closeStateLog() {
-		isLoadStates = false;
+	/**
+	 * @param {any} e
+	 * @param {string} messageId
+	 */
+	function deleteMessage(e, messageId) {
+		e.preventDefault();
+
+		// @ts-ignore
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			customClass: 'delete-modal',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, delete it!',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then(async (result) => {
+			if (result.value) {
+				await handleDeleteMessage(messageId);
+			}
+		});
+	}
+
+	/** @param {string} messageId */
+	async function handleDeleteMessage(messageId) {
+		const isDeleted = truncateDialog(messageId);
+		if (!isDeleted) return;
+		await deleteConversationMessage(params.conversationId, messageId);
+	}
+
+	/**
+	 * @param {any} e
+	 * @param {import('$types').ChatResponseModel} message
+	 */
+	function editMessage(e, message) {
+		e.preventDefault();
+		truncateMsgId = message?.message_id;
+		editText = message?.text;
+		isShowEditMsgModal = true;
+	}
+
+	function toggleEditMsgModel() {
+		isShowEditMsgModal = !isShowEditMsgModal;
+		if (!isShowEditMsgModal) {
+			truncateMsgId = "";
+			editText = "";
+		}
+	}
+
+	async function confirmEditMsg() {
+		const isDeleted = truncateDialog(truncateMsgId);
+		if (!isDeleted) return;
+		toggleEditMsgModel();
+		await sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId);
+	}
+
+	/** @param {string} messageId */
+	function truncateDialog(messageId) {
+		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
+		if (foundIdx < 0) return false;
+		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		return true;
 	}
 </script>
 
+<Modal class="delete-modal" fade size='xl' isOpen={isShowEditMsgModal} toggle={toggleEditMsgModel}>
+    <ModalHeader>Edit message</ModalHeader>
+    <ModalBody>
+		<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+    </ModalBody>
+    <ModalFooter>
+      <Button color="primary" on:click={confirmEditMsg} disabled={!!!_.trim(editText)}>Confirm</Button>
+      <Button color="secondary" on:click={toggleEditMsgModel}>Cancel</Button>
+    </ModalFooter>
+</Modal>
+
 <div class="d-lg-flex">
 	<Splitpanes>
-		{#if isLoadStates}
+		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog stateLogs={stateLogs} closeWindow={closeStateLog} />
+			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} />
 		</Pane>
 		{/if}
 		<Pane minSize={20}>
@@ -229,11 +319,11 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLoadLog}
-												<DropdownItem on:click={() => viewContentLog()}>View Log</DropdownItem>
+												{#if !isLoadContentLog}
+												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStates}
-												<DropdownItem on:click={() => viewStateLog()}>View States</DropdownItem>
+												{#if !isLoadStateLog}
+												<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 												{/if}
 												<DropdownItem on:click={newConversationHandler}>New Conversation</DropdownItem>
 											</DropdownMenu>
@@ -270,9 +360,9 @@
 												<i class="bx bx-dots-vertical-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												<DropdownItem href="#">Edit</DropdownItem>
-												<DropdownItem href="#">Copy</DropdownItem>
-												<DropdownItem href="#">Delete</DropdownItem>
+												<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
+												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
+												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 										{:else}
@@ -355,9 +445,9 @@
 				</div>
 			</div>
 		</Pane>
-		{#if isLoadLog}
+		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog logs={contentLogs} closeWindow={closeContentLog} />
+			<ContentLog logs={contentLogs} closeWindow={toggleContentLog} />
 		</Pane>
 		{/if}
 	</Splitpanes>

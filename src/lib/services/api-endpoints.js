@@ -37,6 +37,7 @@ export const endpoints = {
     conversationDeletionUrl: `${host}/conversation/{conversationId}`,
     conversationDetailUrl: `${host}/conversation/{conversationId}`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
+    conversationMessageDeletionUrl: `${host}/conversation/{conversationId}/message/{messageId}`,
     
     // LLM provider
     llmProvidersUrl: `${host}/llm-providers`,

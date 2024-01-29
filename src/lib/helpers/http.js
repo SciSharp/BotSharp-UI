@@ -7,7 +7,6 @@ axios.interceptors.request.use(
         // Add your authentication logic here
         let user = getUserStore();
         setGlobalLoad(true);
-        let headers = axios.defaults.headers;
         // For example, attach an authentication token to the request headers
         config.headers.Authorization = `Bearer ${user.token}`;
         return config;
