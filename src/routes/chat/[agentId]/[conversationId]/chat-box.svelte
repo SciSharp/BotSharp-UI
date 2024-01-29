@@ -76,7 +76,6 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
-		console.log('dialogs: ', dialogs);
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
