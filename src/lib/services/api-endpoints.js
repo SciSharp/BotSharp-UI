@@ -14,8 +14,8 @@ export const endpoints = {
     // plugin
     pluginListUrl: `${host}/plugins`,
     pluginMenuUrl: `${host}/plugin/menu`,
-    pluginEnableUrl: `${host}/plugin/{id}/enable`,
-    pluginDisableUrl: `${host}/plugin/{id}/disable`,
+    pluginInstallUrl: `${host}/plugin/{id}/install`,
+    pluginRemoveUrl: `${host}/plugin/{id}/remove`,
     
     // agent
     agentSettingUrl: `${host}/agent/settings`,

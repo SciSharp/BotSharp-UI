@@ -87,7 +87,7 @@
             let nodeId = editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${html}`, false);;
             // connect user and router
             editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);    
-            routerPosY += nodeSpaceY * (agents.length - 1) / 2;
+            routerPosY += nodeSpaceY + 50;
         });
 
         posY = 100;
@@ -95,8 +95,11 @@
         agents.forEach(agent => {       
             let profiles = [];
             const chatTestLinkHtml = `<a href= "/chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
-            const taskLinkHtml = `<a href= "/page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
-            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}${taskLinkHtml}`;
+            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
+            if (agent.type == "static") {
+                const taskLinkHtml = `<a href= "/page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
+                html += taskLinkHtml;
+            }
             if (agent.profiles.length > 0) {
                 profiles = agent.profiles;
                 html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + profiles.join(', ');
@@ -144,15 +147,17 @@
             // fallback
             const fallback = agent.routing_rules.find(p => p.type == "fallback");
             if (fallback) {
-                let router = agentNodes.find(ag => ag.id == fallback.redirectTo);
                 editor.addNodeOutput(nid);
-                editor.addNodeInput(router.nid);
-                var inputs = editor.getNodeFromId(router.nid).inputs;
-                let inputId = 0;
-                for (let prop in inputs) {
-                    inputId++;
+                let router = agentNodes.find(ag => ag.id == fallback.redirectTo);
+                if (router) {
+                    editor.addNodeInput(router.nid);
+                    var inputs = editor.getNodeFromId(router.nid).inputs;
+                    let inputId = 0;
+                    for (let prop in inputs) {
+                        inputId++;
+                    }
+                    editor.addConnection(nid, router.nid, `output_1`, `input_${inputId}`);
                 }
-                editor.addConnection(nid, router.nid, `output_1`, `input_${inputId}`);
             }
         });
     }
@@ -164,5 +169,5 @@
     }
 </script>
 
-<div id="drawflow" style="height: 75vh; width: 100%">
+<div id="drawflow" style="height: 80vh; width: 100%">
 </div>

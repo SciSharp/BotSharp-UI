@@ -32,8 +32,8 @@ export async function getPluginMenu() {
  * @param {string} id 
  * @returns {Promise<import('$types').PluginDefModel>}
  */
-export async function enablePlugin(id) {
-    let url = replaceUrl(endpoints.pluginEnableUrl, {id: id});
+export async function installPlugin(id) {
+    let url = replaceUrl(endpoints.pluginInstallUrl, {id: id});
     const response = await axios.post(url);
     return response.data;
 }
@@ -43,8 +43,8 @@ export async function enablePlugin(id) {
  * @param {string} id 
  * @returns {Promise<import('$types').PluginDefModel>}
  */
-export async function disablePlugin(id) {
-    let url = replaceUrl(endpoints.pluginDisableUrl, {id: id});
+export async function removePlugin(id) {
+    let url = replaceUrl(endpoints.pluginRemoveUrl, {id: id});
     const response = await axios.post(url);
     return response.data;
 }
