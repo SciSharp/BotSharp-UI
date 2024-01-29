@@ -4,6 +4,11 @@
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
+		Modal,
+		ModalHeader,
+		ModalBody,
+		ModalFooter,
+		Button
 	} from '@sveltestrap/sveltestrap';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -40,7 +45,10 @@
 	};
 	const params = $page.params;
 	
+	/** @type {string} */
 	let text = "";
+	let editText = "";
+	let truncateMsgId = "";
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -64,6 +72,7 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
+	let isShowEditMsgModal = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -215,34 +224,73 @@
 
 		// @ts-ignore
 		Swal.fire({
-				title: 'Are you sure?',
-				text: "You won't be able to revert this!",
-				icon: 'warning',
-				customClass: 'delete-modal',
-				showCancelButton: true,
-				confirmButtonText: 'Yes, delete it!',
-				cancelButtonText: 'No'
-			// @ts-ignore
-			}).then(async (result) => {
-				if (result.value) {
-					await handleDeleteMessage(messageId);
-				}
-			});
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			customClass: 'delete-modal',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, delete it!',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then(async (result) => {
+			if (result.value) {
+				await handleDeleteMessage(messageId);
+			}
+		});
 	}
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
-		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
-		if (foundIdx < 0) return;
-		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		const isDeleted = truncateDialog(messageId);
+		if (!isDeleted) return;
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
-	/** @param {any} e */
-	function editMessage(e) {
+	/**
+	 * @param {any} e
+	 * @param {import('$types').ChatResponseModel} message
+	 */
+	function editMessage(e, message) {
 		e.preventDefault();
+		truncateMsgId = message?.message_id;
+		editText = message?.text;
+		isShowEditMsgModal = true;
+	}
+
+	function toggleEditMsgModel() {
+		isShowEditMsgModal = !isShowEditMsgModal;
+		if (!isShowEditMsgModal) {
+			truncateMsgId = "";
+			editText = "";
+		}
+	}
+
+	async function confirmEditMsg() {
+		const isDeleted = truncateDialog(truncateMsgId);
+		if (!isDeleted) return;
+		toggleEditMsgModel();
+		await sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId);
+	}
+
+	/** @param {string} messageId */
+	function truncateDialog(messageId) {
+		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
+		if (foundIdx < 0) return false;
+		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		return true;
 	}
 </script>
+
+<Modal class="delete-modal" fade size='xl' isOpen={isShowEditMsgModal} toggle={toggleEditMsgModel}>
+    <ModalHeader>Edit message</ModalHeader>
+    <ModalBody>
+		<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+    </ModalBody>
+    <ModalFooter>
+      <Button color="primary" on:click={confirmEditMsg} disabled={!!!_.trim(editText)}>Confirm</Button>
+      <Button color="secondary" on:click={toggleEditMsgModel}>Cancel</Button>
+    </ModalFooter>
+</Modal>
 
 <div class="d-lg-flex">
 	<Splitpanes>
@@ -313,7 +361,7 @@
 												<i class="bx bx-dots-vertical-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												<DropdownItem on:click={(e) => editMessage(e)}>Edit</DropdownItem>
+												<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
 												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
 												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
