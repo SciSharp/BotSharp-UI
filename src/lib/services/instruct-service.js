@@ -8,6 +8,6 @@ import axios from 'axios';
  * @param {import('$types').InstructMessageModel} instruction
  */
 export async function executeAgentInstruction(agentId, instruction) {
-    let url = replaceUrl(endpoints.conversationInitUrl, {agentId: agentId});
+    let url = replaceUrl(endpoints.instructCompletionUrl, {agentId: agentId});
     await axios.post(url, instruction);
 }

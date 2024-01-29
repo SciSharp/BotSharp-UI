@@ -6,7 +6,7 @@
 		Col,
 		Row,
 	} from '@sveltestrap/sveltestrap';
-	import { enablePlugin, disablePlugin } from '$lib/services/plugin-service';
+	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
 	import { goto } from '$app/navigation';
 
     /** @type {import('$types').PluginDefModel[]} */
@@ -18,9 +18,9 @@
 	*/
 	async function handlePluginStatus(id, enable) {
 		if (enable) {
-			await enablePlugin(id);
+			await installPlugin(id);
 		} else {
-			await disablePlugin(id);
+			await removePlugin(id);
 		}
 		
 		const path = window.location.pathname;
