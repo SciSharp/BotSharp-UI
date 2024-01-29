@@ -69,9 +69,24 @@ export async function GetDialogs(conversationId) {
 export async function sendMessageToHub(agentId, conversationId, message) {
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
-        conversationId: conversationId});
+        conversationId: conversationId
+    });
     const response = await axios.post(url, {
         "text": message
     });
+    return response.data;
+}
+
+/**
+ * delete a message in conversation
+ * @param {string} conversationId The conversation id
+ * @param {string} messageId The text message sent to CSR
+ */
+export async function deleteConversationMessage(conversationId, messageId) {
+    let url = replaceUrl(endpoints.conversationMessageDeletionUrl, {
+        conversationId: conversationId,
+        messageId: messageId
+    });
+    const response = await axios.delete(url);
     return response.data;
 }

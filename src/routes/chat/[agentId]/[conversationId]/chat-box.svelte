@@ -12,7 +12,7 @@
 	import Link from 'svelte-link';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
-    import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
+    import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import { conversationStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -67,6 +67,7 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
+		console.log('dialogs: ', dialogs);
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -164,21 +165,21 @@
 
 	function endChat() {
 		if (window.location === window.parent.location) {
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You will exit this conversation.",
-			icon: 'warning',
-			customClass: 'delete-modal',
-			showCancelButton: true,
-			confirmButtonText: 'Yes',
-			cancelButtonText: 'No'
-		// @ts-ignore
-		}).then((result) => {
-			if (result.value) {
-				window.close();
-			}
-		});
+			// @ts-ignore
+			Swal.fire({
+				title: 'Are you sure?',
+				text: "You will exit this conversation.",
+				icon: 'warning',
+				customClass: 'delete-modal',
+				showCancelButton: true,
+				confirmButtonText: 'Yes',
+				cancelButtonText: 'No'
+			// @ts-ignore
+			}).then((result) => {
+				if (result.value) {
+					window.close();
+				}
+			});
 		} else {
 			window.parent.postMessage({ action: "close" }, "*");
 		} 
@@ -205,9 +206,36 @@
 		}
 	}
 
-	/** @param {any} e */
-	function deleteMessage(e) {
+	/**
+	 * @param {any} e
+	 * @param {string} messageId
+	 */
+	function deleteMessage(e, messageId) {
 		e.preventDefault();
+
+		// @ts-ignore
+		Swal.fire({
+				title: 'Are you sure?',
+				text: "You won't be able to revert this!",
+				icon: 'warning',
+				customClass: 'delete-modal',
+				showCancelButton: true,
+				confirmButtonText: 'Yes, delete it!',
+				cancelButtonText: 'No'
+			// @ts-ignore
+			}).then(async (result) => {
+				if (result.value) {
+					await handleDeleteMessage(messageId);
+				}
+			});
+	}
+
+	/** @param {string} messageId */
+	async function handleDeleteMessage(messageId) {
+		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
+		if (foundIdx < 0) return;
+		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
 	/** @param {any} e */
@@ -287,7 +315,7 @@
 											<DropdownMenu class="dropdown-menu-end">
 												<DropdownItem on:click={(e) => editMessage(e)}>Edit</DropdownItem>
 												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
-												<DropdownItem on:click={(e) => deleteMessage(e)}>Delete</DropdownItem>
+												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 										{:else}
