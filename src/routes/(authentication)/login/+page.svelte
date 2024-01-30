@@ -56,7 +56,7 @@
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
-			goto('/page/dashboard');
+			goto('page/dashboard');
 			isSubmitting = false;
 		});
 		isSubmitting = false;
@@ -96,14 +96,14 @@
 					</div>
 					<CardBody class="pt-0">
 						<div class="auth-logo">
-							<Link href="/dashboard" class="auth-logo-light">
+							<Link href="page/dashboard" class="auth-logo-light">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
 									</span>
 								</div>
 							</Link>
-							<Link href="/dashboard" class="auth-logo-dark">
+							<Link href="page/dashboard" class="auth-logo-dark">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
@@ -189,7 +189,7 @@
 								</div>
 
 								<div class="mt-4 text-center">
-									<Link href="/recoverpw" class="text-muted"
+									<Link href="recoverpw" class="text-muted"
 										><i class="mdi mdi-lock me-1" /> Forgot your password?</Link
 									>
 								</div>
@@ -200,7 +200,7 @@
 				<div class="mt-5 text-center">
 					<p hidden={!(PUBLIC_ALLOW_SIGNUP === 'true')}>
 						Don&apos;t have an account ?
-						<Link href="/register" class="fw-medium text-primary">Signup now</Link>
+						<Link href="register" class="fw-medium text-primary">Signup now</Link>
 					</p>
 					<p>
 						© {new Date().getFullYear()}
