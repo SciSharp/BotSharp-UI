@@ -21,13 +21,13 @@
 		class="btn header-item waves-effect"
 		id="page-header-user-dropdown"
 	>
-		<img class="rounded-circle header-profile-user" src='/images/users/user-dummy.jpg' alt="Header Avatar" />
+		<img class="rounded-circle header-profile-user" src='images/users/user-dummy.jpg' alt="Header Avatar" />
 		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
 		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
 	</DropdownToggle>
 	<DropdownMenu end>
 		<!-- item-->
-		<DropdownItem href="/page/user/me"
+		<DropdownItem href="page/user/me"
 			><i class="bx bx-user font-size-16 align-middle me-1" />
 			<span>Profile</span>
 		</DropdownItem>

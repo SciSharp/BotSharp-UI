@@ -67,7 +67,7 @@
         routers.forEach(router => {
             let profiles = [];
             const planner = getPlannerName(router);
-            const chatTestLinkHtml = `<a href= "/chat/${router.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
+            const chatTestLinkHtml = `<a href= "chat/${router.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
             let html = `<span class="h5">${router.name} ${chatTestLinkHtml}</span><span class="text-info">Routing with ${planner}</span>`;
             if (router.profiles.length > 0) {
                 profiles = router.profiles;
@@ -82,7 +82,7 @@
             };
 
             if (router.is_host) {
-                html =`<img src="/images/users/bot.png" height="30">${html}`;
+                html =`<img src="images/users/bot.png" height="30">${html}`;
             }
             let nodeId = editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${html}`, false);;
             // connect user and router
@@ -94,10 +94,10 @@
         posX += nodeSpaceX;
         agents.forEach(agent => {       
             let profiles = [];
-            const chatTestLinkHtml = `<a href= "/chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
+            const chatTestLinkHtml = `<a href= "chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
             let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
             if (agent.type == "static") {
-                const taskLinkHtml = `<a href= "/page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
+                const taskLinkHtml = `<a href= "page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
                 html += taskLinkHtml;
             }
             if (agent.profiles.length > 0) {
@@ -106,7 +106,7 @@
             }
 
             if (agent.is_host) {
-                html =`<img src="/images/users/bot.png" height="30">${html}`;
+                html =`<img src="images/users/bot.png" height="30">${html}`;
             }
             
             const data = {

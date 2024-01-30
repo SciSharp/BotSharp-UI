@@ -12,7 +12,7 @@
 <Card>
     <CardHeader>
         <div class="text-center">
-            <img src="/images/users/bot.png" alt="" height="50" class="mx-auto d-block" />
+            <img src="images/users/bot.png" alt="" height="50" class="mx-auto d-block" />
             <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name}/></h5>
             <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
         </div>

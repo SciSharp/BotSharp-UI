@@ -68,7 +68,7 @@
 				<Row>
 					<Col sm={4}>
 						<div class="avatar-md profile-user-wid mb-4">
-							<Image src='/images/users/user-dummy.jpg' alt="" class="img-thumbnail rounded-circle" />
+							<Image src='images/users/user-dummy.jpg' alt="" class="img-thumbnail rounded-circle" />
 						</div>
 						<h5 class="font-size-15 text-truncate">{user?.full_name}</h5>
 						<p class="text-muted mb-0 text-truncate">Agent Manager</p>
@@ -86,7 +86,7 @@
 								</Col>
 							</Row>
 							<div class="mt-4">
-								<Link href="/page/user/me" class="btn btn-primary waves-effect waves-light btn-sm">
+								<Link href="page/user/me" class="btn btn-primary waves-effect waves-light btn-sm">
 									View Profile <i class="mdi mdi-arrow-right ms-1" />
 								</Link>
 							</div>

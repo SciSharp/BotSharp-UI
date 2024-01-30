@@ -49,7 +49,7 @@
                 <span class="sr-only">Loading...</span>
             </div>
             <h3>Initializing a conversation, wait a moment please...</h3>
-            <a href={`/chat/${agentId}/${conversationId}`}>Click here if the browser doesn't redirect correctly.</a>
+            <a href={`chat/${agentId}/${conversationId}`}>Click here if the browser doesn't redirect correctly.</a>
         </Col>
     </Row>
 </Container>

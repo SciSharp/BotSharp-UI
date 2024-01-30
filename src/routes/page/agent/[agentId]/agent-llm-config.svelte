@@ -30,7 +30,7 @@
     <CardBody>
         <div class="text-center">
             <h5 class="mt-1 mb-3">LLM Config</h5>
-            <img src="/images/brands/azure-openai-logo.avif" alt="" height="50" />
+            <img src="images/brands/azure-openai-logo.avif" alt="" height="50" />
             {#if agent.llm_config?.is_inherit}
             <i class="bx bx-copy"></i> <span class="text-muted">Inherited</span>    
             {/if}

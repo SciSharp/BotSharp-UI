@@ -17,14 +17,14 @@
               {#if agent.icon_url}
               <img src={agent.icon_url} alt="" height="60" />
               {:else}
-              <img src="/images/users/bot.png" alt="" height="60" />
+              <img src="images/users/bot.png" alt="" height="60" />
               {/if}
             </span>
           </div>
 
           <div class="flex-grow-1 overflow-hidden">
             <h5 class="text-truncate font-size-15">
-              <Link href= "/page/agent/{agent.id}" class="text-dark">
+              <Link href= "page/agent/{agent.id}" class="text-dark">
                 {agent.name}
               </Link>
             </h5>
@@ -33,18 +33,18 @@
             <div class="avatar-group" style="height:35px;">
               {#if agent.is_router}
               <div class="avatar-group-item me-3">
-                  <img src="/icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
+                  <img src="icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
               </div>
               {/if}
               {#if agent.allow_routing}
               <div class="avatar-group-item me-3">
-                  <img src="/icons/routing-2.png" class="rounded-circle avatar-xs" alt="routing"/>
+                  <img src="icons/routing-2.png" class="rounded-circle avatar-xs" alt="routing"/>
               </div>
               {/if}
               {#each agent.functions as fn}
                 <div class="avatar-group-item">
                 <Link href="#" class="d-inline-block" id={"member" + fn.name}>
-                    <img src="/images/function.png" class="rounded-circle avatar-xs" alt={fn.name}/>
+                    <img src="images/function.png" class="rounded-circle avatar-xs" alt={fn.name}/>
                 </Link>
                 </div>
               {/each}
@@ -65,17 +65,17 @@
             {format(agent.updated_datetime, 'short-date')}
           </li>
           <li class="list-inline-item me-1" id="comments">
-            <a href= "/page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
+            <a href= "page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-wrench" /> Build
             </a>
           </li>          
           <li class="list-inline-item me-1" id="comments">
-            <a href= "/page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
+            <a href= "page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-book-open" /> Train
             </a>
           </li>
           <li class="list-inline-item me-1" id="comments">
-            <a href= "/chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
+            <a href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> Test
             </a>
           </li>

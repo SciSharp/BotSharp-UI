@@ -28,7 +28,7 @@
 	  <Row class="justify-content-center">
 		<Col md="8" xl="6">
 		  <div>
-			<img src='/images/error-img.png' alt="" class="img-fluid" />
+			<img src='images/error-img.png' alt="" class="img-fluid" />
 		  </div>
 		</Col>
 	  </Row>

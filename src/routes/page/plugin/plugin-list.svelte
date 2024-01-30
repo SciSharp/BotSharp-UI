@@ -23,9 +23,9 @@
 			await removePlugin(id);
 		}
 		
-		const path = window.location.pathname;
 		// refresh page
-		goto('/').then(() => goto(path));
+		// const path = window.location.pathname;
+		// goto('/').then(() => goto(path));
 	}
 </script>
 
@@ -64,7 +64,7 @@
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
 						<a href="#" class="btn btn-soft-success btn-sm">View</a>
 						{#if item.settings_name}
-						<a href="/page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">Settings</a>
+						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">Settings</a>
 						{/if}
 						{#if !item.is_core}
 						<a href="#" class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? "Remove" : "Install"}</a>

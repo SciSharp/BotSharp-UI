@@ -41,7 +41,7 @@
 					<Col sm={4}>
 						<div class="avatar-md profile-user-wid mb-4">
 							<img
-								src="/images/users/user-dummy.jpg"
+								src="images/users/user-dummy.jpg"
 								alt="avatar"
 								class="img-thumbnail rounded-circle"
 							/>

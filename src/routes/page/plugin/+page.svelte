@@ -79,7 +79,7 @@
 	/** @param {import('$types').PluginDefModel} plugin */
 	function getIconUrl(plugin) {
 		if (plugin.is_core) {
-			return '/images/logo.png';
+			return 'images/logo.png';
 		} else {
 			return plugin.icon_url ? plugin.icon_url : PUBLIC_PLUGIN_DEFAULT_ICON;
 		}

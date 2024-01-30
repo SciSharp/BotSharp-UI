@@ -226,7 +226,7 @@
 							{#each conversations.items as conv}
 							<tr>
 								<td scope="row">
-									<a href="/page/conversation/{conv.id}">{conv.title}</a></td>
+									<a href="page/conversation/{conv.id}">{conv.title}</a></td>
 								<td>{conv.user.full_name}</td>
 								<td>{conv.agent_name}</td>
 								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
@@ -236,12 +236,12 @@
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-											<Link href="/page/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
+											<Link href="page/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
                                                 <i class="mdi mdi-eye-outline" />
                                             </Link>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
-											<Link href="/chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
+											<Link href="chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
                                                 <i class="mdi mdi-chat" />
                                             </Link>
 										</li>

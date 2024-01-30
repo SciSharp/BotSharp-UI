@@ -33,7 +33,7 @@
         }).then(async (result) => {
             if (result.value) {
                 await deleteConversation(conversation.id);
-                window.location.href = "/page/conversation";
+                window.location.href = "page/conversation";
             }
         });
     }

@@ -70,7 +70,7 @@
 								</div>
 							</Col>
 							<Col class="col-5 align-self-end">
-								<img src='/images/profile-img.png' alt="" class="img-fluid" />
+								<img src='images/profile-img.png' alt="" class="img-fluid" />
 							</Col>
 						</Row>
 					</div>
