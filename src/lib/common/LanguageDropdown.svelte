@@ -29,7 +29,7 @@
 <Dropdown {isOpen} toggle={() => (isOpen = !isOpen)} class="d-inline-block">
 	<DropdownToggle class="btn header-item" tag="button" color="">
 		<img
-			src='/images/flags/us.jpg'
+			src='images/flags/us.jpg'
 			alt="Samply"
 			height="16"
 		/>

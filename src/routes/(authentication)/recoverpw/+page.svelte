@@ -21,7 +21,7 @@
 								</div>
 							</Col>
 							<Col xs={5} class="align-self-end">
-								<img src='/images/profile-img.png' alt="" class="img-fluid" />
+								<img src='images/profile-img.png' alt="" class="img-fluid" />
 							</Col>
 						</Row>
 					</div>

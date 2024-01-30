@@ -53,7 +53,7 @@
         <Col>
             <p class="section-subtitle text-muted text-center pt-4 font-secondary">Select a bot you want to start chatting with and click the Start button.</p>
             <div class="d-flex justify-content-center">
-                <a href="/chat/{agentId}" class="btn btn-primary">
+                <a href="chat/{agentId}" class="btn btn-primary">
                     <i class="mdi mdi-chat" />
                     <span>Start Conversation</span>
                 </a>

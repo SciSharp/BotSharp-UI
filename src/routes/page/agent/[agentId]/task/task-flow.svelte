@@ -5,21 +5,27 @@
     import { onMount, createEventDispatcher } from 'svelte';
     import { replaceNewLine } from '$lib/helpers/http';
     import { newConversation } from '$lib/services/conversation-service';
-    import { conversationStore, getConversationStore } from '$lib/helpers/store.js';
-    
+    import { conversationStore } from '$lib/helpers/store.js';
+    import { sendMessageToHub } from '$lib/services/conversation-service.js';
+
     /** @type {import('$types').AgentModel} */
     export let agent;
     /** @type {import('$types').AgentTemplate[]} */
     let taskNodes = [];
+
+    /** @type {Drawflow} */
+    let editor;
     /** @type {DrawflowNode} */
     let selectedNode;
+
+    let lastPosX = 0;
 
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
         const container = document.getElementById("drawflow");
         if (container) {
-            const editor = new Drawflow(container);
+            editor = new Drawflow(container);
             editor.reroute = true;
             editor.reroute_fix_curvature = true;
             editor.start();
@@ -60,19 +66,22 @@
 
         // render tasks
         templates.forEach(template => {
-            const actionLink = `/page/agent/${agent.id}/task/${template.name}`;
+            const actionLink = `page/agent/${agent.id}/task/${template.name}`;
             let html = `<span class="h6">${template.name}</span>`;
             html += `<hr/><div style="max-height: 50px; overflow: hidden;">${replaceNewLine(template.content)}</div>`;
             
             const data = {
                 agent: agent.name,
                 task: template.name,
+                content: template.content
             };
             let nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
             editor.addConnection(agentNodeId, nid, "output_1", "input_1");
 
             posY += nodeSpaceY;
         });
+
+        lastPosX = posX + nodeSpaceX;
     }
     
     /** @param {import('$types').AgentModel} agent */
@@ -82,12 +91,23 @@
     }
 
     async function handleTestInChat() {
-        window.location.href = `/chat/${agent.id}`;
+        window.location.href = `chat/${agent.id}`;
     }
 
     async function handleRunTask() {
+        // new conversation
         const conversation = await newConversation(agent.id);
         conversationStore.set(conversation);
+
+        // draw conversation node
+        let posX = lastPosX, posY = 100;
+        const html = "New task conversation";
+        editor.addNodeOutput(selectedNode.id);
+        let cid = editor.addNode('conversation', 1, 0, posX, posY, 'conversation', {}, html, false);
+        editor.addConnection(selectedNode.id, cid, "output_1", "input_1");
+        
+        // send message
+        await sendMessageToHub(agent.id, conversation.id, selectedNode.data.content);
     }
 </script>
 
@@ -103,5 +123,6 @@
         {/if}
     </button>
 </div>
+
 <div id="drawflow" style="height: 75vh; width: 100%">
 </div>

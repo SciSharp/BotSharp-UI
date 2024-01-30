@@ -137,7 +137,7 @@
 	async function newConversationHandler() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		window.location.href = `/chat/${params.agentId}/${conversation.id}`;
+		window.location.href = `chat/${params.agentId}/${conversation.id}`;
 	}
 
     async function sendTextMessage() {
@@ -368,7 +368,7 @@
 										{:else}
 										<div class="cicon-wrap float-start">
 											{#if message.sender.role == "client"}
-											<img src="/images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+											<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
