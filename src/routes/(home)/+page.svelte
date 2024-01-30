@@ -22,7 +22,7 @@
   <HeadTitle title="{PUBLIC_BRAND_NAME} Workspace" />
   
   <div class="home-btn d-none d-sm-block">
-    <Link href="/" class="text-dark">              
+    <Link href="" class="text-dark">              
         <img
             src={PUBLIC_LOGO_URL}
             alt="logo"
@@ -47,7 +47,7 @@
                           </Col>
                       </Row>
                       {#if showHomeSlogan}
-                      <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="/login">get started</a> with {PUBLIC_BRAND_NAME}</h4>
+                      <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="login">get started</a> with {PUBLIC_BRAND_NAME}</h4>
                       <p class="text-muted" transition:fade={{ delay: 800, duration: 500 }}>
                       {PUBLIC_HOME_SLOGAN}
                       </p>
