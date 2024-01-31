@@ -169,5 +169,5 @@
     }
 </script>
 
-<div id="drawflow" style="height: 80vh; width: 100%">
+<div id="drawflow" style="height: 78vh; width: 100%">
 </div>

@@ -1,6 +1,6 @@
 import { dictionary, locale, _} from 'svelte-i18n';
  
-const MESSAGE_FILE_URL_TEMPLATE = '/src/lang/{locale}.json';
+const MESSAGE_FILE_URL_TEMPLATE = '/src/lib/langs/{locale}.json';
  
 let cachedLocale;
  

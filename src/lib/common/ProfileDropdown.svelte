@@ -2,6 +2,8 @@
 	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { _ } from 'svelte-i18n';
+	
 	/**
 	 * @type {{ full_name: any; }}
 	 */
@@ -34,7 +36,7 @@
 		<DropdownItem href="#"
 			><span class="badge bg-success float-end">11</span><i
 				class="bx bx-wrench font-size-16 align-middle me-1"
-			/> <span key="t-settings">Settings</span>
+			/> <span key="t-settings">{$_('Settings')}</span>
 		</DropdownItem>
 		<DropdownItem divider />
 		<DropdownItem href="#" >
