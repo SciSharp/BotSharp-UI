@@ -15,6 +15,10 @@
     color: white;
 }
 
+.drawflow .parent-node .task-node {
+    width: 300px;
+}
+
 .drawflow-delete {
     background-color: var(--bs-danger);
     line-height: 25px;

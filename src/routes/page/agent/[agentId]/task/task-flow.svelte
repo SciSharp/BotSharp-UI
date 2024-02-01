@@ -7,6 +7,8 @@
     import { newConversation } from '$lib/services/conversation-service';
     import { conversationStore } from '$lib/helpers/store.js';
     import { sendMessageToHub } from '$lib/services/conversation-service.js';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -42,19 +44,35 @@
             });
             renderTaskFlow(editor);
         }
+
+        const options = {
+            scrollbars: {
+                visibility: 'auto',
+                autoHide: 'move',
+                autoHideDelay: 100,
+                dragScroll: true,
+                clickScroll: false,
+                theme: 'os-theme-dark',
+                pointers: ['mouse', 'touch', 'pen']
+            }
+        };        
+        const scrollElements = document.querySelectorAll('.scrollbar');
+		scrollElements.forEach((item) => {
+			OverlayScrollbars(item, options);
+		});
     });    
 
     /** @param {Drawflow} editor */
     function renderTaskFlow(editor){
         let posX = 0;
-        const nodeSpaceX = 300, nodeSpaceY = 120;
+        const nodeSpaceX = 250, nodeSpaceY = 150;
 
         const templates = agent.templates.filter(t => t.name.startsWith("task."));
         let posY = nodeSpaceY * (templates.length + 1) / 2;
 
         // add agent node
         let agentNodeHtml = agent.icon_url ? `<img src=${agent.icon_url} height="30" />` : "";
-        agentNodeHtml += `<span class="h6 ms-2">${agent.name}</span>`;
+        agentNodeHtml += `<span class="h5 ms-2">${agent.name}</span>`;
         let agentNodeId = editor.addNode('agent', 0, 1, posX, posY, 'agent', 
         {
             is_agent: true,
@@ -67,18 +85,19 @@
         // render tasks
         templates.forEach(template => {
             const actionLink = `page/agent/${agent.id}/task/${template.name}`;
-            let html = `<span class="h6">${template.name}</span>`;
-            html += `<hr/><div style="max-height: 50px; overflow: hidden;">${replaceNewLine(template.content)}</div>`;
+            let html = `<span class="h5">${template.name}</span>`;
+            html += `<hr/><div class="scrollbar" style="max-height: 150px;"><i class="bx bx-script"></i>${replaceNewLine(template.content)}</div>`;
             
             const data = {
                 agent: agent.name,
                 task: template.name,
                 content: template.content
             };
-            let nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
+            let nid = editor.addNode('agent', 1, 0, posX, posY, 'task-node', data, html, false);
             editor.addConnection(agentNodeId, nid, "output_1", "input_1");
 
             posY += nodeSpaceY;
+            posX += 50;
         });
 
         lastPosX = posX + nodeSpaceX;
@@ -94,20 +113,38 @@
         window.location.href = `chat/${agent.id}`;
     }
 
+    /** @type {string} */
+    let cid;
+    /** @type {string} */
+    let mid;
     async function handleRunTask() {
+        // clean added nodes
+        if (mid) {
+            editor.removeNodeId(`node-${mid}`);
+        }
+
+        if (cid) {
+            editor.removeNodeId(`node-${cid}`);
+            editor.removeNodeOutput(selectedNode.id, "output_1");
+        }
+
         // new conversation
         const conversation = await newConversation(agent.id);
         conversationStore.set(conversation);
 
         // draw conversation node
-        let posX = lastPosX, posY = 100;
-        const html = "New task conversation";
+        let posX = lastPosX + 100, posY = 100;
+        let html = "Initialize session";
         editor.addNodeOutput(selectedNode.id);
-        let cid = editor.addNode('conversation', 1, 0, posX, posY, 'conversation', {}, html, false);
+        cid = editor.addNode('conversation', 1, 1, posX, posY, 'conversation', {}, html, false);
         editor.addConnection(selectedNode.id, cid, "output_1", "input_1");
-        
+
         // send message
+        posY += 100;
+        html = "Execute task";
         await sendMessageToHub(agent.id, conversation.id, selectedNode.data.content);
+        mid = editor.addNode('message', 1, 0, posX, posY, 'message', {}, html, false);
+        editor.addConnection(cid, mid, "output_1", "input_1");
     }
 </script>
 
