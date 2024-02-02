@@ -15,53 +15,51 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
-    import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
+    import { getAgentTasks } from '$lib/services/task-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
+	import { replaceNewLine } from '$lib/helpers/http';
 
-	let isLoading = false;
-	let isComplete = false;
 	let isError = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
 
-    /** @type {import('$types').PagedItems<import('$types').ConversationModel>} */
-    let conversations = { count: 0, items: [] };
+    /** @type {import('$types').PagedItems<import('$types').AgentTaskViewModel>} */
+    let tasks = { count: 0, items: [] };
 
-	/** @type {import('$types').ConversationFilter} */
+	/** @type {import('$types').AgentTaskFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-    /** @type {import('$types').ConversationFilter} */
+    /** @type {import('$types').AgentTaskFilter} */
     let filter = { ... initFilter };
 
 	/** @type {import('$types').Pagination} */
 	let pager = filter.pager;
 
     onMount(async () => {
-		await getPagedConversations();
+		await getPagedAgentTasks();
     });
 
-	async function getPagedConversations() {
-		conversations = await getConversations(filter);
+	async function getPagedAgentTasks() {
+		tasks = await getAgentTasks( filter);
 		refresh();
 	}
 
 	function refresh() {
-		refreshConversations();
-		refreshPager(conversations.count, filter.pager.page, filter.pager.size);
+		refreshTasks();
+		refreshPager(tasks.count, filter.pager.page, filter.pager.size);
 	}
 
-	function refreshConversations() {
-		conversations = {
-			items: conversations?.items?.map(t => { return { ...t }; }) || [],
-			count: conversations?.count || 0
+	function refreshTasks() {
+		tasks = {
+			items: tasks?.items?.map(t => { return { ...t }; }) || [],
+			count: tasks?.count || 0
 		};
 	}
 
@@ -86,20 +84,19 @@
 			pager: pager
 		};
 
-		getPagedConversations();
+		getPagedAgentTasks();
 	}
 
 
 	async function reloadConversations() {
 		filter = { ...initFilter };
-		conversations = await getConversations(filter);
-		refreshPager(conversations.count);
+		tasks = await getAgentTasks(filter);
+		refreshPager(tasks.count);
 	}
 
-	/** @param {string} conversationId */
-    function handleConversationDeletion(conversationId) {
-		isLoading = true;
-        deleteConversation(conversationId).then(async () => {
+	/** @param {string} taskId */
+    function handleTaskDeletion(taskId) {
+        /*deleteConversation(conversationId).then(async () => {
 			isLoading = false;
 			isComplete = true;
 			setTimeout(() => {
@@ -113,11 +110,11 @@
 			setTimeout(() => {
 				isError = false;
 			}, duration);
-		});
+		});*/
     }
 
-	/** @param {string} conversationId */
-	function openDeleteModal(conversationId) {
+	/** @param {string} taskId */
+	function openDeleteModal(taskId) {
 		// @ts-ignore
 		Swal.fire({
             title: 'Are you sure?',
@@ -129,7 +126,7 @@
         // @ts-ignore
         }).then((result) => {
             if (result.value) {
-				handleConversationDeletion(conversationId);
+				handleTaskDeletion(taskId);
             }
         });
 	}
@@ -137,36 +134,33 @@
 	/**
 	 * @param {any} e
 	 */
-	function searchConversations(e) {
+	function searchTasks(e) {
 		e.preventDefault();
 		filter = {
 			...filter,
 			pager: { page: firstPage, size: pageSize, count: 0 }
 		};
-		getPagedConversations();
+		getPagedAgentTasks();
 	}
 </script>
 
-<HeadTitle title="Conversation List" />
-<Breadcrumb title="Communication" pagetitle="Conversations" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
+<HeadTitle title="Task List" />
+<Breadcrumb title="Agent" pagetitle="Task" />
 
 <Row>
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">Conversation List</h5>
+					<h5 class="mb-0 card-title flex-grow-1">Task List</h5>
 					<div class="flex-shrink-0">
-						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
+						<Link class="btn btn-light" on:click={(e) => searchTasks(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
 								<i class="mdi mdi-dots-vertical" /></DropdownToggle
 							>
 							<DropdownMenu>
 								<DropdownItem>Action</DropdownItem>
-								<DropdownItem>Another action</DropdownItem>
-								<DropdownItem>Something else here</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -190,17 +184,6 @@
 						</select>
 					</Col>
 					<Col xxl="2" lg="4">
-						<select class="form-select" id="idType" bind:value={filter.channel}>
-							<option value={null}>Select Channel</option>
-							<option value="webchat">Live Chat</option>
-							<option value="phone">Phone</option>
-                            <option value="email">Email</option>
-						</select>
-					</Col>
-					<Col xxl="2" lg="4">
-						<Input type="date" class="form-control" />
-					</Col>
-					<Col xxl="2" lg="4">
 						<Button type="button" color="secondary" class="btn-soft-secondary w-100">
 							<i class="mdi mdi-filter-outline align-middle" /> Filter
 						</Button>
@@ -212,41 +195,30 @@
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
-								<th scope="col">Title</th>
-								<th scope="col">User Name</th>
+								<th scope="col">Name</th>
+								<th scope="col">Description</th>
 								<th scope="col">Agent</th>
-								<th scope="col">Channel</th>
-								<th scope="col">Posted Date</th>
-								<th scope="col">Last Date</th>
+								<th scope="col">Content</th>
+								<th scope="col">Updated Date</th>
 								<th scope="col">Status</th>
 								<th scope="col">Action</th>
 							</tr>
 						</thead>
 						<tbody>
-							{#each conversations.items as conv}
+							{#each tasks.items as task}
 							<tr>
 								<td scope="row">
-									<a href="page/conversation/{conv.id}">{conv.title}</a></td>
-								<td>{conv.user.full_name}</td>
-								<td>{conv.agent_name}</td>
-								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
-								<td>{utcToLocal(conv.created_time)}</td>
-								<td>{utcToLocal(conv.updated_time)}</td>
-								<td><span class="badge bg-success">{conv.status}</span></td>
+									<a href="page/conversation/{task.id}">{task.name}</a>
+								</td>
+								<td>{task.description}</td>
+								<td>{task.agent_name}</td>
+								<td>{@html replaceNewLine(task.content)}</td>
+								<td>{utcToLocal(task.updated_datetime)}</td>
+								<td><span class="badge bg-success">{task.enabled ? "Enabled" : "Disabled"}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-											<Link href="page/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
-                                                <i class="mdi mdi-eye-outline" />
-                                            </Link>
-										</li>
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
-											<Link href="chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
-                                                <i class="mdi mdi-chat" />
-                                            </Link>
-										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-											<Button on:click={() => openDeleteModal(conv.id)} class="btn btn-sm btn-soft-danger">
+											<Button on:click={() => openDeleteModal(task.id)} class="btn btn-sm btn-soft-danger">
                                                 <i class="mdi mdi-delete-outline" />
                                             </Button>
 										</li>

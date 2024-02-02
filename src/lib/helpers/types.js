@@ -124,6 +124,26 @@
  * @property {AgentLlmConfig} llmConfig - LLM settings.
  */
 
+/** 
+ * @typedef {Object} AgentTaskFilter
+ * @property {Pagination} pager - Pagination
+ * @property {string} [agentId] - The agent id.
+ */
+
+/**
+ * @typedef {Object} AgentTaskViewModel
+ * @property {string} id - Task id.
+ * @property {string} name - Task name.
+ * @property {string} description - Description.
+ * @property {string} content - Task detail.
+ * @property {boolean} enabled
+ * @property {Date} created_datetime
+ * @property {Date} updated_datetime
+ * @property {string} agent_id - Description.
+ * @property {string} agent_name - Task detail.
+ */
+
+
 /**
  * @typedef {Object} InstructMessageModel
  * @property {string} [instruction] - User provided prompt instead of predefined template.

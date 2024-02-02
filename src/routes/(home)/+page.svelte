@@ -35,7 +35,7 @@
             </Link>                
         </Col>
     </Row>
-    <Row>
+    <Row class="d-flex justify-content-center align-items-center" style="height: 60vh;">
         <Col lg="12">
             <div class="text-center">
                 <Row class="justify-content-center mt-5">

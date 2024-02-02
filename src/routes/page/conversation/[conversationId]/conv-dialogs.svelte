@@ -13,6 +13,15 @@
     onMount(async () => {
         dialogs = await GetDialogs(conversation.id);
     });
+
+    /** 
+     * @param {import('$types').ChatResponseModel} dialog
+     * @returns {boolean}
+    */
+    function showInRight(dialog) {
+        const sender = dialog.sender;
+        return sender.role != "client" && sender.role != "user";
+    }
 </script>
 
 <Card>
@@ -24,14 +33,14 @@
                 <li class="event-list">
                     <div class="event-timeline-dot">
                       <i
-                        class={dialog.sender.role === "client"
-                          ? "bx bx-right-arrow-circle bx-fade-right"
-                          : "bx bx-right-arrow-circle"}
+                        class={"bx " + showInRight(dialog)
+                          ? "bx-right-arrow-circle bx-fade-right"
+                          : "bx-right-arrow-circle"}
                       />
                     </div>
                     <div class="d-flex">
                         <div class="flex-shrink-0 me-3">
-                            <i class={"bx " + (dialog.sender.role == "client" ? "bx-user" : "bx-bot") + " h2 text-primary"}></i>
+                            <i class={"bx " + (showInRight(dialog) ? "bx-user" : "bx-bot") + " h2 text-primary"}></i>
                         </div>
                         <div class="flex-grow-1">
                             <div>
