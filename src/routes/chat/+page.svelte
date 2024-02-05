@@ -8,8 +8,7 @@
     const params = $page.params;
     /** @type {import('$types').AgentFilter} */
     const filter = {
-        pager: { page: 1, size: 10, count: 0 },
-    	isEvaluator: false
+        pager: { page: 1, size: 10, count: 0 }
     };
 
     /** @type {import('$types').AgentModel[]} */

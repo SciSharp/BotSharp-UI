@@ -38,7 +38,7 @@
         }
 
         conversationId = conversation.id;
-        window.location.href = `/chat/${agentId}/${conversationId}`;
+        window.location.href = `chat/${agentId}/${conversationId}`;
     });
 </script>
 
