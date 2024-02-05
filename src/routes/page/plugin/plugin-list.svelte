@@ -25,7 +25,7 @@
 		
 		// refresh page
 		const path = window.location.pathname;
-		goto('/').then(() => goto(path));
+		goto('').then(() => goto(path));
 	}
 </script>
 
