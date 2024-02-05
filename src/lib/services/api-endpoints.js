@@ -25,6 +25,7 @@ export const endpoints = {
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,
+    agentTaskDetailUrl: `${host}/agent/{agentId}/task/{taskId}`,
 
     // agent instruct
     instructCompletionUrl: `${host}/instruct/{agentId}`,

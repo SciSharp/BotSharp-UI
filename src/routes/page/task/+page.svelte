@@ -28,7 +28,7 @@
 	const firstPage = 1;
 	const pageSize = 10;
 
-    /** @type {import('$types').PagedItems<import('$types').AgentTaskViewModel>} */
+    /** @type {import('$types').PagedItems<import('$types').AgentTaskModel>} */
     let tasks = { count: 0, items: [] };
 
 	/** @type {import('$types').AgentTaskFilter} */
@@ -198,7 +198,7 @@
 								<th scope="col">Name</th>
 								<th scope="col">Description</th>
 								<th scope="col">Agent</th>
-								<th scope="col">Content</th>
+								<th scope="col">Details</th>
 								<th scope="col">Updated Date</th>
 								<th scope="col">Status</th>
 								<th scope="col">Action</th>
@@ -217,6 +217,11 @@
 								<td><span class="badge bg-success">{task.enabled ? "Enabled" : "Disabled"}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
+										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Execute">
+											<a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-danger">
+                                                <i class="mdi mdi-eye-outline" />
+                                            </a>
+										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
 											<Button on:click={() => openDeleteModal(task.id)} class="btn btn-sm btn-soft-danger">
                                                 <i class="mdi mdi-delete-outline" />

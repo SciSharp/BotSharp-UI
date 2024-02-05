@@ -46,6 +46,8 @@ const config = {
 				"/page/agent/[agentId]/train",
 				"/page/conversation",
 				"/page/conversation/[conversationId]",
+				"/page/task",
+				"/page/task/[taskId]",
 				"/page/knowledge-base",
 				"/page/plugin",
 				"/page/plugin/[pluginId]",

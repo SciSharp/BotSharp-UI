@@ -131,7 +131,7 @@
  */
 
 /**
- * @typedef {Object} AgentTaskViewModel
+ * @typedef {Object} AgentTaskModel
  * @property {string} id - Task id.
  * @property {string} name - Task name.
  * @property {string} description - Description.
@@ -141,6 +141,7 @@
  * @property {Date} updated_datetime
  * @property {string} agent_id - Description.
  * @property {string} agent_name - Task detail.
+ * @property {string} direct_agent_id - Run task directly in this agent.
  */
 
 

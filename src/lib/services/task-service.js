@@ -16,3 +16,15 @@ export async function getAgentTasks(filter) {
     });
     return response.data;
 }
+
+/**
+ * Get task detail
+ * @param {string} agentId 
+ * @param {string} taskid 
+ * @returns {Promise<import('$types').AgentTaskModel>}
+ */
+export async function getAgentTaskDetail(agentId, taskid) {
+    const url = replaceUrl(endpoints.agentTaskDetailUrl, { agentId: agentId, taskId: taskid });
+    var response = await axios.get(url);
+    return response.data;
+}
