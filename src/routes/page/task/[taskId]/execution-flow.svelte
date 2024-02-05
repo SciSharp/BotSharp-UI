@@ -66,11 +66,6 @@
         task = await getAgentTaskDetail(agentId, taskId);
 
         renderTaskNode();
-
-        const scrollElements = document.querySelectorAll('.scrollbar');
-		scrollElements.forEach((item) => {
-			const scrollbar = OverlayScrollbars(item, options);
-		});
     });    
 
     function renderTaskNode() {
@@ -86,6 +81,11 @@
 
         lastPosX = posX;
         lastPosY = posY;
+
+        const scrollElements = document.querySelectorAll('.scrollbar');
+		scrollElements.forEach((item) => {
+			const scrollbar = OverlayScrollbars(item, options);
+		});
     }
 
     /** @param {import('$types').ConversationModel} conversation */
