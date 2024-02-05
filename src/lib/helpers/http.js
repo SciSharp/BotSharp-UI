@@ -30,7 +30,7 @@ axios.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Perform actions like redirecting to the login page or refreshing tokens
             // Example: redirect to the login page
-            window.location.href = '/login';
+            window.location.href = 'login';
         }
 
         // Return the error to the calling function

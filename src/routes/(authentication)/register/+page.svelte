@@ -37,7 +37,7 @@
 				msg = 'Registration success. Redirecting...';
 				status = 'success';
 				setTimeout(function() {
-					goto("/login");
+					goto("login");
 				},1500)
 			} else {
 				isOpen = true;
@@ -168,7 +168,7 @@
 				<div class="mt-5 text-center">
 					<p>
 						Already have an account ?
-						<Link href="/login" class="fw-medium text-primary">Login</Link>
+						<Link href="login" class="fw-medium text-primary">Login</Link>
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with

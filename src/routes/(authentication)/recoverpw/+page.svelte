@@ -64,7 +64,7 @@
 				<div class="mt-5 text-center">
 					<p>
 						Remember It ?
-						<Link href="/login" class="fw-medium text-primary">Sign In here</Link>
+						<Link href="login" class="fw-medium text-primary">Sign In here</Link>
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
