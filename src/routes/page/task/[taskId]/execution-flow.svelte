@@ -8,6 +8,7 @@
     import { getAgentTaskDetail } from '$lib/services/task-service';
     import { sendMessageToHub } from '$lib/services/conversation-service.js';
 	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
     import { page } from '$app/stores';
 	import { replaceNewLine } from '$lib/helpers/http';
 
@@ -29,6 +30,18 @@
     let lastPosX = 120;
     let lastPosY = 100;
     const nodeSpaceX = 50, nodeSpaceY = 120;
+
+    const options = {
+		scrollbars: {
+			visibility: 'auto',
+			autoHide: 'move',
+			autoHideDelay: 100,
+			dragScroll: true,
+			clickScroll: false,
+			theme: 'os-theme-dark',
+			pointers: ['mouse', 'touch', 'pen']
+		}
+	};
 
     onMount(async () => {
         const container = document.getElementById("drawflow");
@@ -53,6 +66,11 @@
         task = await getAgentTaskDetail(agentId, taskId);
 
         renderTaskNode();
+
+        const scrollElements = document.querySelectorAll('.scrollbar');
+		scrollElements.forEach((item) => {
+			const scrollbar = OverlayScrollbars(item, options);
+		});
     });    
 
     function renderTaskNode() {
@@ -60,7 +78,7 @@
         let posY = 200;
 
         // draw task node
-        let html = `<span class="h5 ms-2">${task.name}</span><hr><p>${replaceNewLine(task.content)}</p>`;
+        let html = `<span class="h5 ms-2">${task.name}</span><hr><div class="scrollbar" style="max-height: 300px;">${replaceNewLine(task.content)}</div>`;
         tid = editor.addNode('task', 0, 0, posX, posY, 'task', 
         {
             
