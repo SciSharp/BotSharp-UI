@@ -12,7 +12,7 @@
 		if (browser){	
 			localStorage.removeItem('user');
 		} 
-		goto('/');
+		goto('login');
 	};
 </script>
 
@@ -39,8 +39,8 @@
 			/> <span key="t-settings">{$_('Settings')}</span>
 		</DropdownItem>
 		<DropdownItem divider />
-		<DropdownItem href="#" >
-			<div on:click={logout}>
+		<DropdownItem href="#" on:click={logout}>
+			<div>
 				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>Logout</span>
 			</div>
 		</DropdownItem>
