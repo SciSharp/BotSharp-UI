@@ -28,8 +28,8 @@
     /** @type {string} */
     let mid;    
     let lastPosX = 120;
-    let lastPosY = 100;
-    const nodeSpaceX = 50, nodeSpaceY = 120;
+    let lastPosY = 0;
+    const nodeSpaceX = 30, nodeSpaceY = 50;
 
     const options = {
 		scrollbars: {
@@ -70,7 +70,7 @@
 
     function renderTaskNode() {
         let posX = 0;
-        let posY = 200;
+        let posY = 20;
 
         // draw task node
         let html = `<span class="h5 ms-2">${task.name}</span><hr><div class="scrollbar" style="max-height: 300px;">${replaceNewLine(task.content)}</div>`;
@@ -141,7 +141,10 @@
         let steps = task.content.split('\n');
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
-            await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
+            const result = await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
+            if (result.text == "Failed") {
+                break;
+            }
             renderMessageNode(step);
         }        
     }
