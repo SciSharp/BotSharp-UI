@@ -141,7 +141,7 @@
         let steps = task.content.split('\n');
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
-            await sendMessageToHub(task.direct_agent_id, conversation.id, step);
+            await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
             renderMessageNode(step);
         }        
     }
