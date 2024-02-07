@@ -247,6 +247,7 @@ IRichContent.prototype.text;
  * @property {string} message_id - The message id.
  * @property {string} text - The message content.
  * @property {RichContent} rich_content - Rich content
+ * @property {string} data
  * @property {Date} created_at - The message sent time.
  */
 

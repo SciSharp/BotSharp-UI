@@ -29,7 +29,8 @@
     let mid;    
     let lastPosX = 120;
     let lastPosY = 0;
-    const nodeSpaceX = 30, nodeSpaceY = 50;
+    const nodeSpaceX = 50, nodeSpaceY = 50;
+    let messageCount = 0;
 
     const options = {
 		scrollbars: {
@@ -86,12 +87,16 @@
 		scrollElements.forEach((item) => {
 			const scrollbar = OverlayScrollbars(item, options);
 		});
+
+        messageCount = 0;
+        editor.zoom_reset();
     }
 
     /** @param {import('$types').ConversationModel} conversation */
     function renderConversationNode(conversation) {
-        let posX = lastPosX + 250, posY = lastPosX + 20;
-        let html = "Initialize session";
+        let posX = lastPosX + 250 + nodeSpaceX, posY = lastPosY;
+        let html = "New conversation";
+        html += `<a href= "chat/${conversation.agent_id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>`;
         editor.addNodeOutput(tid);
         cid = editor.addNode('conversation', 1, 0, posX, posY, 'conversation', {}, html, false);
         editor.addConnection(tid, cid, "output_1", "input_1");
@@ -100,10 +105,17 @@
         mid = cid;
     }
 
-    /** @param {string} message */
-    function renderMessageNode(message) {
+    /** @param {string} message 
+     * @param {import('$types').ChatResponseModel} response
+    */
+    function renderMessageNode(message, response) {
         let posX = lastPosX + nodeSpaceX, posY = lastPosY + nodeSpaceY;
         let html = `${message}`;
+        if (response.data) {
+            html += `<img src=${response.data} alt="" width="165px"/>`
+        }
+        html += `<div class="bg-info mt-1 mb-1 p-1 rounded">${response.text}</div>`;
+
         editor.addNodeOutput(mid);
         let new_mid = editor.addNode('message', 1, 0, posX, posY, 'message', {}, html, false);
         editor.addConnection(mid, new_mid, "output_1", "input_1");
@@ -111,6 +123,13 @@
         lastPosX = posX;
         lastPosY = posY;
         mid = new_mid;
+
+        messageCount++;
+        if (messageCount % 10 == 0) {
+            // editor.zoom_out();
+            lastPosX = lastPosX + nodeSpaceX;
+            lastPosY = 0;
+        }
     }
 
     async function handleRunTaskSequentiallyInServer() {
@@ -123,8 +142,8 @@
         conversationStore.set(conversation);
         renderConversationNode(conversation);
         
-        await sendMessageToHub(task.agent_id, conversation.id, task.content);
-        renderMessageNode(task.content);
+        var response = await sendMessageToHub(task.agent_id, conversation.id, task.content);
+        renderMessageNode(task.content, response);
     }
 
     async function handleRunTaskInteractively() {
@@ -141,17 +160,17 @@
         let steps = task.content.split('\n');
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
-            const result = await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
-            if (result.text == "Failed") {
+            const response = await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
+            if (response.text.includes("failed")) {
                 break;
             }
-            renderMessageNode(step);
+            renderMessageNode(step, response);
         }        
     }
 </script>
 
 <div>
-    <button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute in {task?.agent_name}</button>
+    <button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute Sequentially through Router</button>
     {#if task?.direct_agent_id}
     <button class="btn btn-primary" on:click={handleRunTaskInteractively}><i class="bx bx-rocket"></i> Execute Interactively</button>
     {/if}

@@ -1,7 +1,7 @@
 .drawflow .drawflow-node {
     background: var(--bs-primary);
     color: white;
-    width: 200px;
+    width: 250px;
     border: 2px solid var(--bs-primary);
 }
 
