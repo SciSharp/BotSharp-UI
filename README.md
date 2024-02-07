@@ -50,6 +50,7 @@ You can preview the production build with `npm run preview`.
 To manual deploy as [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/) at scale.
 
 ```bash
+npm run build -- --mode production
 npm install -g @azure/static-web-apps-cli
 swa deploy ./build/ --env production --deployment-token {token}
 ```
