@@ -1,6 +1,7 @@
 import { endpoints } from './api-endpoints.js';
 import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
+import { getConversationUserStateStore } from '$lib/helpers/store.js';
 
 /**
  * New conversation
@@ -73,12 +74,30 @@ export async function sendMessageToHub(agentId, conversationId, message, truncat
         agentId: agentId,
         conversationId: conversationId
     });
+    const userStates = buildConversationUserStates(conversationId);
     const response = await axios.post(url, {
         text: message,
         truncateMessageId: truncateMsgId,
-        states: states
+        states: [...states, ...userStates]
     });
     return response.data;
+}
+
+
+/**
+ * @param {string} conversationId
+ */
+function buildConversationUserStates(conversationId) {
+    const userStates = getConversationUserStateStore();
+    if (!!userStates && userStates.conversationId == conversationId && !!userStates.states) {
+        // @ts-ignore
+        const states = userStates.states.map(state => {
+            return `${state.key}=${state.value}`;
+        });
+        return states;
+    }
+
+    return [];
 }
 
 /**

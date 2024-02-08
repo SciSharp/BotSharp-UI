@@ -70,7 +70,7 @@
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
-	let isOpenStateModal = true;
+	let isOpenStateModal = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);

@@ -1,6 +1,9 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
+export const conversationKey = "conversation";
+export const conversationUserStatesKey = "conversation_user_states";
+
 /** @type {Writable<import('$types').UserModel>} */
 export const userStore = writable({ id: "", full_name: "" });
 
@@ -45,8 +48,8 @@ export const conversationStore = writable({});
 export function getConversationStore() {
     if (browser) {
         // Access localStorage only if in the browser context
-        let json = localStorage.getItem('conversation');
-        if (json)
+        const json = localStorage.getItem(conversationKey);
+        if (!!json)
             return JSON.parse(json);
         else
             return conversationStore;
@@ -58,6 +61,33 @@ export function getConversationStore() {
 
 conversationStore.subscribe(value => {
     if (browser && value.id) {
-        localStorage.setItem('conversation', JSON.stringify(value));
+        localStorage.setItem(conversationKey, JSON.stringify(value));
+        localStorage.removeItem(conversationUserStatesKey);
+    }
+});
+
+
+
+/** @type {Writable<import('$types').ConversationUserStateModel>}*/
+export const conversationUserStateStore = writable({});
+
+/**
+ * @returns {Writable<import('$types').ConversationUserStateModel>}
+ */
+export function getConversationUserStateStore() {
+    if (!!browser) {
+        const json = localStorage.getItem(conversationUserStatesKey);
+        if (!!json)
+            return JSON.parse(json);
+        else
+            return conversationUserStateStore;
+    } else {
+        return conversationUserStateStore;
+    }
+};
+
+conversationUserStateStore.subscribe(value => {
+    if (!!browser && !!value.conversationId) {
+        localStorage.setItem(conversationUserStatesKey, JSON.stringify(value));
     }
 });

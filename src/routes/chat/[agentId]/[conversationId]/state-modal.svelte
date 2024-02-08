@@ -2,6 +2,8 @@
 	import { Button, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Form, FormGroup } from "@sveltestrap/sveltestrap";
 	import { onMount } from "svelte";
     import _ from "lodash";
+    import { page } from '$app/stores';
+	import { conversationUserStateStore, getConversationUserStateStore } from "$lib/helpers/store";
 
     /** @type {boolean} */
     export let isOpen;
@@ -20,12 +22,21 @@
 
     /** @type {number} */
     const limit = 10;
+    const params = $page.params;
 
+    /** @type {import('$types').UserStateDetailModel} */
     const defaultState = { key: '', value: '', isValidKey: true, isValidValue: true };
-    let states = [{ ...defaultState }];
+
+    /** @type {import('$types').UserStateDetailModel[]} */
+    let states = [];
 
     onMount(() => {
-        
+        const conversationUserStates = getConversationUserStateStore();
+        if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
+            states = [...conversationUserStates.states];
+        } else {
+            states = [{ ...defaultState }];
+        }
     });
 
 
@@ -51,6 +62,16 @@
         });
 
         if (!isValidForm) return;
+
+        const cleanStates = states.map(state => {
+            state.key = _.trim(state.key);
+            state.value = _.trim(state.value);
+            return state;
+        });
+        conversationUserStateStore.set({
+            conversationId: params.conversationId,
+            states: cleanStates
+        });
         confirm && confirm();
     }
 
@@ -100,7 +121,7 @@
 </script>
 
 
-<Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal()}>
+<Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal && toggleModal()}>
     <ModalHeader>Add states</ModalHeader>
     <ModalBody>
         <Form class="state-form">

@@ -267,6 +267,24 @@ IRichContent.prototype.text;
  * @property {Date} created_at - The states sent time.
  */
 
+/** 
+ * Conversation states added by user
+ * 
+ * @typedef {Object} UserStateDetailModel
+ * @property {string} key - The state key.
+ * @property {boolean} isValidKey - Whether the key is valid.
+ * @property {string} value - The state value.
+ * @property {boolean} isValidValue - Whether the value is valid.
+ */
+
+/** 
+ * Conversation states added by user
+ * 
+ * @typedef {Object} ConversationUserStateModel
+ * @property {string} conversationId - The conversation id.
+ * @property {UserStateDetailModel[]} states - The states added by user.
+ */
+
 /**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
@@ -303,6 +321,7 @@ IRichContent.prototype.text;
  * @callback OnConversationStatesGenerated
  * @param {ConversationStateLogModel} data
  */
+
 
 // having to export an empty object here is annoying, 
 // but required for vscode to pass on your types. 
