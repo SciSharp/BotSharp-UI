@@ -90,7 +90,7 @@ export async function sendMessageToHub(agentId, conversationId, message, truncat
  */
 function buildConversationUserStates(conversationId) {
     const userStates = conversationUserStateStore.get();
-    if (!!userStates && userStates.conversationId == conversationId && !!userStates.states) {
+    if (!!userStates && userStates.conversationId == conversationId && userStates.states?.length > 0) {
         // @ts-ignore
         const states = userStates.states.map(state => {
             return `${state.key.data}=${state.value.data}`;

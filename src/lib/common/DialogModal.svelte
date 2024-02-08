@@ -23,7 +23,10 @@
     export let toggleModal;
 
     /** @type {() => void} */
-    export let confirm;
+    export let confirm = () => {};
+
+    /** @type {() => void} */
+    export let cancel = () => {};
 
     /** @type {boolean} */
     export let disableConfirmBtn = false;
@@ -35,9 +38,9 @@
     }
 
     /** @param {any} e */
-    function handleClose(e) {
+    function handleCancel(e) {
         e.preventDefault();
-        toggleModal && toggleModal();
+        cancel && cancel();
     }
 
 </script>
@@ -56,7 +59,7 @@
         {/if}
 
         {#if !!cancelBtnText}
-        <Button color="secondary" on:click={(e) => handleClose(e)}>{cancelBtnText}</Button>
+        <Button color="secondary" on:click={(e) => handleCancel(e)}>{cancelBtnText}</Button>
         {/if}
     </ModalFooter>
 </Modal>

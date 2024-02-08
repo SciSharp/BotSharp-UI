@@ -1,6 +1,5 @@
 <script>
 	import { Button, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Form, FormGroup } from "@sveltestrap/sveltestrap";
-	import { onMount } from "svelte";
     import _ from "lodash";
     import { page } from '$app/stores';
 	import { conversationUserStateStore } from "$lib/helpers/store";
@@ -20,24 +19,28 @@
     /** @type {() => void} */
     export let confirm;
 
+    /** @type {() => void} */
+    export let cancel;
+
     /** @type {number} */
     const limit = 10;
     const params = $page.params;
 
-    /** @type {import('$types').UserStateDetailModel} */
-    const defaultState = { key: { data: '', isValid: true }, value: { data: '', isValid: true } };
-
     /** @type {import('$types').UserStateDetailModel[]} */
     let states = [];
 
-    onMount(() => {
-        const conversationUserStates = conversationUserStateStore.get();
-        if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
-            states = [...conversationUserStates.states];
+    $: {
+        if (isOpen) {
+            const conversationUserStates = conversationUserStateStore.get();
+            if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
+                states = [...conversationUserStates.states];
+            } else {
+                states = [{ key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
+            }
         } else {
-            states = [{ key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
+            states = [];
         }
-    });
+    }
 
 
     /** @param {any} e */
@@ -76,9 +79,9 @@
     }
 
     /** @param {any} e */
-    function handleClose(e) {
+    function handleCancel(e) {
         e.preventDefault();
-        toggleModal && toggleModal();
+        cancel && cancel();
     }
 
     function addState() {
@@ -170,6 +173,6 @@
     </ModalBody>
     <ModalFooter>
       <Button color="primary" on:click={(e) => handleConfirm(e)}>Confirm</Button>
-      <Button color="secondary" on:click={(e) => handleClose(e)}>Cancel</Button>
+      <Button color="secondary" on:click={(e) => handleCancel(e)}>Cancel</Button>
     </ModalFooter>
 </Modal>

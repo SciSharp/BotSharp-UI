@@ -306,6 +306,7 @@
 	isOpen={isOpenEditMsgModal}
 	toggleModal={toggleEditMsgModal}
 	confirm={confirmEditMsg}
+	cancel={toggleEditMsgModal}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
@@ -316,6 +317,7 @@
 	isOpen={isOpenStateModal}
 	toggleModal={toggleStateModal}
 	confirm={toggleStateModal}
+	cancel={toggleStateModal}
 />
 
 <div class="d-lg-flex">
