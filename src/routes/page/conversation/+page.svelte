@@ -123,7 +123,7 @@
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
             icon: 'warning',
-			customClass: 'delete-modal',
+			customClass: 'custom-modal',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!'
         // @ts-ignore
