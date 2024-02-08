@@ -271,10 +271,8 @@ IRichContent.prototype.text;
  * Conversation states added by user
  * 
  * @typedef {Object} UserStateDetailModel
- * @property {string} key - The state key.
- * @property {boolean} isValidKey - Whether the key is valid.
- * @property {string} value - The state value.
- * @property {boolean} isValidValue - Whether the value is valid.
+ * @property {{data: string, isValid: boolean}} key - The state key.
+ * @property {{data: string, isValid: boolean}} value - The state value.
  */
 
 /** 

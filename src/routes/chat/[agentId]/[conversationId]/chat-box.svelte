@@ -3,7 +3,7 @@
 		Dropdown,
 		DropdownToggle,
 		DropdownMenu,
-		DropdownItem
+		DropdownItem,
 	} from '@sveltestrap/sveltestrap';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -14,7 +14,7 @@
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore } from '$lib/helpers/store.js';
+	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
@@ -203,6 +203,24 @@
 		isOpenStateModal = !isOpenStateModal;
 	}
 
+	function clearStates() {
+		// @ts-ignore
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "You won't be able to revert this!",
+			icon: 'warning',
+			customClass: 'custom-modal',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, delete it!',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then(async (result) => {
+			if (result.value) {
+				conversationUserStateStore.reset();
+			}
+		});
+	}
+
 	/**
 	 * @param {any} e
 	 * @param {string} messageText
@@ -344,6 +362,7 @@
 															{#if !isOpenStateModal}
 															<DropdownItem on:click={() => toggleStateModal()}>Add States</DropdownItem>
 															{/if}
+															<DropdownItem on:click={() => clearStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
 													</Dropdown>
 												</li>

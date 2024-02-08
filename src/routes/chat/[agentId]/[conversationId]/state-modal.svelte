@@ -3,7 +3,7 @@
 	import { onMount } from "svelte";
     import _ from "lodash";
     import { page } from '$app/stores';
-	import { conversationUserStateStore, getConversationUserStateStore } from "$lib/helpers/store";
+	import { conversationUserStateStore } from "$lib/helpers/store";
 
     /** @type {boolean} */
     export let isOpen;
@@ -25,17 +25,17 @@
     const params = $page.params;
 
     /** @type {import('$types').UserStateDetailModel} */
-    const defaultState = { key: '', value: '', isValidKey: true, isValidValue: true };
+    const defaultState = { key: { data: '', isValid: true }, value: { data: '', isValid: true } };
 
     /** @type {import('$types').UserStateDetailModel[]} */
     let states = [];
 
     onMount(() => {
-        const conversationUserStates = getConversationUserStateStore();
+        const conversationUserStates = conversationUserStateStore.get();
         if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
             states = [...conversationUserStates.states];
         } else {
-            states = [{ ...defaultState }];
+            states = [{ key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
         }
     });
 
@@ -47,28 +47,28 @@
         // form validation
         let isValidForm = true;
         states = states.map(state => {
-            const key = _.trim(state.key);
-            const value = _.trim(state.value);
+            const key = _.trim(state.key.data);
+            const value = _.trim(state.value.data);
             if (!!!key) {
-                state.isValidKey = false;
+                state.key.isValid = false;
             }
 
             if (!!!value) {
-                state.isValidValue = false;
+                state.value.isValid = false;
             }
 
-            isValidForm = isValidForm && state.isValidKey && state.isValidValue;
+            isValidForm = isValidForm && state.key.isValid && state.value.isValid;
             return state;
         });
 
         if (!isValidForm) return;
 
         const cleanStates = states.map(state => {
-            state.key = _.trim(state.key);
-            state.value = _.trim(state.value);
+            state.key.data = _.trim(state.key.data);
+            state.value.data = _.trim(state.value.data);
             return state;
         });
-        conversationUserStateStore.set({
+        conversationUserStateStore.put({
             conversationId: params.conversationId,
             states: cleanStates
         });
@@ -82,8 +82,7 @@
     }
 
     function addState() {
-        const newState = { ...defaultState };
-        states = [...states, newState];
+        states = [...states, { key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
     }
 
     /** @param {number} index */
@@ -98,8 +97,8 @@
     function changeKey(e, index) {
         states = states.map((state, idx) => {
             if (idx === index) {
-                state.isValidKey = true;
-                state.key = e.target.value;
+                state.key.isValid = true;
+                state.key.data = e.target.value;
             }
             return state;
         });
@@ -112,14 +111,13 @@
     function changeValue(e, index) {
         states = states.map((state, idx) => {
             if (idx === index) {
-                state.isValidValue = true;
-                state.value = e.target.value;
+                state.value.isValid = true;
+                state.value.data = e.target.value;
             }
             return state;
         });
     }
 </script>
-
 
 <Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal && toggleModal()}>
     <ModalHeader>Add states</ModalHeader>
@@ -132,7 +130,7 @@
                         {#if idx === 0}
                         <label for="key">Key</label>
                         {/if}
-                        <Input class={`${!state.isValidKey ? 'invalid' : ''}`} placeholder="Enter a key" value={state.key} maxlength={50} on:input={(e) => changeKey(e, idx)} />
+                        <Input class={`${!state.key.isValid ? 'invalid' : ''}`} placeholder="Enter a key" value={state.key.data} maxlength={50} on:input={(e) => changeKey(e, idx)} />
                     </FormGroup>
                 </div>
                 <div class="state-input">
@@ -140,7 +138,7 @@
                         {#if idx === 0}
                         <label for="value">Value</label>
                         {/if}
-                        <Input class={`${!state.isValidValue ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value} maxlength={100} on:input={(e) => changeValue(e, idx)} />
+                        <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={100} on:input={(e) => changeValue(e, idx)} />
                     </FormGroup>
                 </div>
                 <div class="state-delete">

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
@@ -49,7 +50,7 @@ export function getConversationStore() {
     if (browser) {
         // Access localStorage only if in the browser context
         const json = localStorage.getItem(conversationKey);
-        if (!!json)
+        if (json)
             return JSON.parse(json);
         else
             return conversationStore;
@@ -59,35 +60,31 @@ export function getConversationStore() {
     }
 };
 
+// @ts-ignore
 conversationStore.subscribe(value => {
     if (browser && value.id) {
         localStorage.setItem(conversationKey, JSON.stringify(value));
-        localStorage.removeItem(conversationUserStatesKey);
+        const state = conversationUserStateStore.get();
+        if (state && state.conversationId != value.id) {
+            conversationUserStateStore.reset();
+        }
     }
 });
 
 
-
-/** @type {Writable<import('$types').ConversationUserStateModel>}*/
-export const conversationUserStateStore = writable({});
-
-/**
- * @returns {Writable<import('$types').ConversationUserStateModel>}
- */
-export function getConversationUserStateStore() {
-    if (!!browser) {
-        const json = localStorage.getItem(conversationUserStatesKey);
-        if (!!json)
-            return JSON.parse(json);
-        else
-            return conversationUserStateStore;
-    } else {
-        return conversationUserStateStore;
+const createConversationUserStateStore = () => {
+    return {
+        reset: () => {
+            localStorage.removeItem(conversationUserStatesKey);
+        },
+        get: () => {
+            const json = localStorage.getItem(conversationUserStatesKey);
+            return json ? JSON.parse(json) : {};
+        },
+        put: (value) => {
+            localStorage.setItem(conversationUserStatesKey, JSON.stringify(value));
+        }
     }
 };
 
-conversationUserStateStore.subscribe(value => {
-    if (!!browser && !!value.conversationId) {
-        localStorage.setItem(conversationUserStatesKey, JSON.stringify(value));
-    }
-});
+export const conversationUserStateStore = createConversationUserStateStore();
