@@ -75,10 +75,11 @@ export async function sendMessageToHub(agentId, conversationId, message, truncat
         conversationId: conversationId
     });
     const userStates = buildConversationUserStates(conversationId);
+    const totalStates = !!states ? [...states, ...userStates] : [...userStates];
     const response = await axios.post(url, {
         text: message,
         truncateMessageId: truncateMsgId,
-        states: [...states, ...userStates]
+        states: totalStates
     });
     return response.data;
 }
@@ -96,7 +97,6 @@ function buildConversationUserStates(conversationId) {
         });
         return states;
     }
-
     return [];
 }
 
