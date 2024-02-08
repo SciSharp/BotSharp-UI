@@ -70,7 +70,7 @@
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
-	let isOpenStateModal = false;
+	let isOpenStateModal = true;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -293,7 +293,12 @@
 	<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
 </DialogModal>
 
-<StateModal isOpen={isOpenStateModal} toggleModal={toggleStateModal} confirm={toggleStateModal} />
+<StateModal
+	className="custom-modal"
+	isOpen={isOpenStateModal}
+	toggleModal={toggleStateModal}
+	confirm={toggleStateModal}
+/>
 
 <div class="d-lg-flex">
 	<Splitpanes>
@@ -337,7 +342,7 @@
 															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 															{/if}
 															{#if !isOpenStateModal}
-															<DropdownItem on:click={() => toggleStateModal()}>Set States</DropdownItem>
+															<DropdownItem on:click={() => toggleStateModal()}>Add States</DropdownItem>
 															{/if}
 														</DropdownMenu>
 													</Dropdown>

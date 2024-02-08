@@ -375,3 +375,22 @@
         overflow: hidden !important;
     }
 }
+
+.state-form {
+    .state-input {
+        flex: 0.45;
+    }
+    
+    .state-delete {
+        flex: 0.1;
+    
+        button {
+            margin-top: 5px;
+        }
+    }
+
+    .invalid {
+        border-color: red;
+    }
+}
+
