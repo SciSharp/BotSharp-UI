@@ -42,7 +42,7 @@ export const conversationStore = writable({});
 /**
  * @returns {Writable<import('$types').ConversationModel>}
  */
-export function getConversationStore () {
+export function getConversationStore() {
     if (browser) {
         // Access localStorage only if in the browser context
         let json = localStorage.getItem('conversation');

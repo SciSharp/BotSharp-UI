@@ -89,6 +89,15 @@
             border: none;
         }
 
+        button {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .state-menu > .dropdown-menu {
+            inset: 0px auto auto 0px !important;
+        }
+
         .dropdown-menu {
             box-shadow: $box-shadow;
             border: 1px solid var(--#{$prefix}border-color);

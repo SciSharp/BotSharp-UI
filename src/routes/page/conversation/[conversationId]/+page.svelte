@@ -27,7 +27,7 @@
             text: "You won't be able to revert this!",
             icon: 'warning',
             showCancelButton: true,
-            customClass: 'delete-modal',
+            customClass: 'custom-modal',
             confirmButtonText: 'Yes, delete it!'
         // @ts-ignore
         }).then(async (result) => {

@@ -3,12 +3,7 @@
 		Dropdown,
 		DropdownToggle,
 		DropdownMenu,
-		DropdownItem,
-		Modal,
-		ModalHeader,
-		ModalBody,
-		ModalFooter,
-		Button
+		DropdownItem
 	} from '@sveltestrap/sveltestrap';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -31,6 +26,8 @@
 	import "sweetalert2/src/sweetalert2.scss";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './state-log.svelte';
+	import StateModal from './state-modal.svelte';
+	import DialogModal from '$lib/common/DialogModal.svelte';
 
 	const options = {
 		scrollbars: {
@@ -72,7 +69,8 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
-	let isShowEditMsgModal = false;
+	let isOpenEditMsgModal = false;
+	let isOpenStateModal = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -178,7 +176,7 @@
 				title: 'Are you sure?',
 				text: "You will exit this conversation.",
 				icon: 'warning',
-				customClass: 'delete-modal',
+				customClass: 'custom-modal',
 				showCancelButton: true,
 				confirmButtonText: 'Yes',
 				cancelButtonText: 'No'
@@ -199,6 +197,10 @@
 
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
+	}
+
+	function toggleStateModal() {
+		isOpenStateModal = !isOpenStateModal;
 	}
 
 	/**
@@ -226,7 +228,7 @@
 			title: 'Are you sure?',
 			text: "You won't be able to revert this!",
 			icon: 'warning',
-			customClass: 'delete-modal',
+			customClass: 'custom-modal',
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
@@ -253,12 +255,12 @@
 		e.preventDefault();
 		truncateMsgId = message?.message_id;
 		editText = message?.text;
-		isShowEditMsgModal = true;
+		isOpenEditMsgModal = true;
 	}
 
-	function toggleEditMsgModel() {
-		isShowEditMsgModal = !isShowEditMsgModal;
-		if (!isShowEditMsgModal) {
+	function toggleEditMsgModal() {
+		isOpenEditMsgModal = !isOpenEditMsgModal;
+		if (!isOpenEditMsgModal) {
 			truncateMsgId = "";
 			editText = "";
 		}
@@ -267,7 +269,7 @@
 	async function confirmEditMsg() {
 		const isDeleted = truncateDialog(truncateMsgId);
 		if (!isDeleted) return;
-		toggleEditMsgModel();
+		toggleEditMsgModal();
 		await sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId);
 	}
 
@@ -280,16 +282,18 @@
 	}
 </script>
 
-<Modal class="delete-modal" fade size='xl' isOpen={isShowEditMsgModal} toggle={toggleEditMsgModel}>
-    <ModalHeader>Edit message</ModalHeader>
-    <ModalBody>
-		<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
-    </ModalBody>
-    <ModalFooter>
-      <Button color="primary" on:click={confirmEditMsg} disabled={!!!_.trim(editText)}>Confirm</Button>
-      <Button color="secondary" on:click={toggleEditMsgModel}>Cancel</Button>
-    </ModalFooter>
-</Modal>
+<DialogModal
+	className="custom-modal"
+	title={'Edit message'}
+	isOpen={isOpenEditMsgModal}
+	toggleModal={toggleEditMsgModal}
+	confirm={confirmEditMsg}
+	disableConfirmBtn={!!!_.trim(editText)}
+>
+	<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+</DialogModal>
+
+<StateModal isOpen={isOpenStateModal} toggleModal={toggleStateModal} confirm={toggleStateModal} />
 
 <div class="d-lg-flex">
 	<Splitpanes>
@@ -322,8 +326,22 @@
 												{#if !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStateLog}
-												<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
+												{#if !isLoadStateLog || !isOpenStateModal}
+												<li>
+													<Dropdown direction="right" class="state-menu">
+														<DropdownToggle caret class="dropdown-item">
+															States
+														</DropdownToggle>
+														<DropdownMenu>
+															{#if !isLoadStateLog}
+															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
+															{/if}
+															{#if !isOpenStateModal}
+															<DropdownItem on:click={() => toggleStateModal()}>Set States</DropdownItem>
+															{/if}
+														</DropdownMenu>
+													</Dropdown>
+												</li>
 												{/if}
 												<DropdownItem on:click={newConversationHandler}>New Conversation</DropdownItem>
 											</DropdownMenu>

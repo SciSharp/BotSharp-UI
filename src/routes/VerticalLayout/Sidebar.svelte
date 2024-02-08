@@ -6,7 +6,6 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n'
-	import { isMenuButton } from 'svelte-jsoneditor';
 
 	/** @type {import('$types').PluginMenuDefModel[]} */
 	export let menu
@@ -205,8 +204,8 @@
 						</li>
 					{:else}
 						<li>
-							<Link href={item.link} class="waves-effect"
-								><i class={item.icon} /> <span>{$_(item.label)}</span>
+							<Link href={item.link} class="waves-effect">
+								<i class={item.icon} /> <span>{$_(item.label)}</span>
 							</Link>
 						</li>
 					{/if}
