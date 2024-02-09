@@ -24,12 +24,17 @@
 					const parent2 = parent1.parentElement;
 					if (parent2) {
 						parent2.classList.add('mm-show');
+						parent2.classList.remove('mm-collapse');
 						if (parent2.previousElementSibling) {
 							parent2.previousElementSibling.classList.add('mm-active');
+							if (!parent2.previousElementSibling.classList.contains('revert-arrow')) {
+								parent2.previousElementSibling.classList.add('revert-arrow');
+							}
 						}
 						const parent3 = parent2.parentElement.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
+							parent3.classList.remove('mm-collapse');
 							if (parent3.previousElementSibling) {
 								parent3.previousElementSibling.classList.add('mm-active');
 							}
@@ -69,12 +74,17 @@
 					const parent2 = parent1.parentElement;
 					if (parent2) {
 						parent2.classList.add('mm-show');
+						parent2.classList.remove('mm-collapse');
 						if (parent2.previousElementSibling) {
 							parent2.previousElementSibling.classList.add('mm-active');
+							if (!parent2.previousElementSibling.classList.contains('revert-arrow')) {
+								parent2.previousElementSibling.classList.add('revert-arrow');
+							}
 						}
 						const parent3 = parent2.parentElement.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
+							parent3.classList.remove('mm-collapse');
 							if (parent3.previousElementSibling) {
 								parent3.previousElementSibling.classList.add('mm-active');
 							}
@@ -102,9 +112,11 @@
 						if (menu.nextElementSibling.classList.contains('mm-collapse')) {
 							menu.nextElementSibling.classList.remove('mm-collapse');
 							menu.nextElementSibling.classList.add('mm-show');
+							menu.classList.add('revert-arrow');
 						} else {
 							menu.nextElementSibling.classList.add('mm-collapse');
 							menu.nextElementSibling.classList.remove('mm-show');
+							menu.classList.remove('revert-arrow');
 						}
 					}
 				});
@@ -143,9 +155,12 @@
 	const removeActiveDropdown = () => {
 		document.querySelectorAll('.vertical-menu .has-arrow').forEach((menu) => {
 			if (menu.nextElementSibling) {
-				menu.nextElementSibling.classList.add('mm-collapse');
+				if (!menu.nextElementSibling.classList.contains('mm-collapse')) {
+					menu.nextElementSibling.classList.add('mm-collapse');
+				}
 				menu.nextElementSibling.classList.remove('mm-show');
 				menu.classList.remove('mm-active');
+				menu.classList.remove('revert-arrow');
 			}
 		});
 
