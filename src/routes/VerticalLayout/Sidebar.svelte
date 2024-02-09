@@ -12,25 +12,29 @@
 
 	// after routing complete call afterUpdate function
 	afterUpdate(() => {
-
 		removeActiveDropdown()
-		let currUrl = $page.url.pathname;
-		if (currUrl) {
-			let item = document.querySelector(".vertical-menu a[href='" + currUrl + "']");
+		const curUrl = getPathUrl();
+		if (curUrl) {
+			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
 			if (item) {
-				item.classList.add('active');
+				item.classList.add('mm-active');
 				const parent1 = item.parentElement;
 				if (parent1) {
 					parent1.classList.add('mm-active');
 					const parent2 = parent1.parentElement;
 					if (parent2) {
 						parent2.classList.add('mm-show');
+						parent2.classList.remove('mm-collapse');
 						if (parent2.previousElementSibling) {
 							parent2.previousElementSibling.classList.add('mm-active');
+							if (!parent2.previousElementSibling.classList.contains('revert-arrow')) {
+								parent2.previousElementSibling.classList.add('revert-arrow');
+							}
 						}
-						const parent3 = parent2.parentElement.parentElement;
+						const parent3 = parent2.parentElement?.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
+							parent3.classList.remove('mm-collapse');
 							if (parent3.previousElementSibling) {
 								parent3.previousElementSibling.classList.add('mm-active');
 							}
@@ -57,25 +61,30 @@
 		const menuElement = document.querySelector('#vertical-menu');
 		OverlayScrollbars(menuElement, options);
 		activeMenu();
-
-		let currUrl = $page.url.pathname;
-		if (currUrl) {
-			let item = document.querySelector(".vertical-menu a[href='" + currUrl + "']");
+ 
+		const curUrl = getPathUrl();
+		if (curUrl) {
+			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
 			if (item) {
-				item.classList.add('active');
-				item.scrollIntoView({behavior: 'smooth',block: 'center'});
+				item.classList.add('mm-active');
+				item.scrollIntoView({behavior: 'smooth', block: 'center'});
 				const parent1 = item.parentElement;
 				if (parent1) {
 					parent1.classList.add('mm-active');
 					const parent2 = parent1.parentElement;
 					if (parent2) {
 						parent2.classList.add('mm-show');
+						parent2.classList.remove('mm-collapse');
 						if (parent2.previousElementSibling) {
 							parent2.previousElementSibling.classList.add('mm-active');
+							if (!parent2.previousElementSibling.classList.contains('revert-arrow')) {
+								parent2.previousElementSibling.classList.add('revert-arrow');
+							}
 						}
-						const parent3 = parent2.parentElement.parentElement;
+						const parent3 = parent2.parentElement?.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
+							parent3.classList.remove('mm-collapse');
 							if (parent3.previousElementSibling) {
 								parent3.previousElementSibling.classList.add('mm-active');
 							}
@@ -92,10 +101,23 @@
 		if (browser) {
 			document.querySelectorAll('.vertical-menu .has-arrow').forEach((menu) => {
 				menu.addEventListener('click', () => {
-					menu.classList.add('mm-active');
 					if (menu.nextElementSibling) {
-						menu.nextElementSibling.classList.remove('mm-collapse');
-						menu.nextElementSibling.classList.add('mm-show');
+						let activeLinks = 0;
+						const links = menu.nextElementSibling.querySelectorAll('li a');
+						links.forEach(x => activeLinks += Number(x.classList.contains('mm-active')));
+						if (activeLinks > 0) {
+							menu.classList.add('mm-active');
+						}
+
+						if (menu.nextElementSibling.classList.contains('mm-collapse')) {
+							menu.nextElementSibling.classList.remove('mm-collapse');
+							menu.nextElementSibling.classList.add('mm-show');
+							menu.classList.add('revert-arrow');
+						} else {
+							menu.nextElementSibling.classList.add('mm-collapse');
+							menu.nextElementSibling.classList.remove('mm-show');
+							menu.classList.remove('revert-arrow');
+						}
 					}
 				});
 			});
@@ -103,7 +125,7 @@
 			document.querySelectorAll('.sub-menu a').forEach((submenu) => {
 				submenu.addEventListener('click', () => {
 					removeActiveDropdown();
-					submenu.classList.add('active');
+					submenu.classList.add('mm-active');
 					if (submenu.nextElementSibling) {
 						submenu.nextElementSibling.classList.add('mm-show');
 					}
@@ -116,7 +138,7 @@
 								parent1.previousElementSibling.classList.add('mm-active');
 							}
 
-							const parent2 = parent1.parentElement.parentElement;
+							const parent2 = parent1.parentElement?.parentElement;
 							if (parent2) {
 								parent2.classList.add('mm-show');
 								if (parent2.previousElementSibling) {
@@ -133,38 +155,46 @@
 	const removeActiveDropdown = () => {
 		document.querySelectorAll('.vertical-menu .has-arrow').forEach((menu) => {
 			if (menu.nextElementSibling) {
-				menu.nextElementSibling.classList.add('mm-collapse');
+				if (!menu.nextElementSibling.classList.contains('mm-collapse')) {
+					menu.nextElementSibling.classList.add('mm-collapse');
+				}
 				menu.nextElementSibling.classList.remove('mm-show');
 				menu.classList.remove('mm-active');
+				menu.classList.remove('revert-arrow');
 			}
 		});
 
 		document.querySelectorAll('.sub-menu a').forEach((submenu) => {
-			submenu.classList.remove('active');
+			submenu.classList.remove('mm-active');
 			if (submenu.parentElement) {
 				submenu.parentElement.classList.remove('mm-active');
 			}
 		});
 
 		document.querySelectorAll('.vertical-menu .mm-active').forEach((menu) => {
-			menu.querySelectorAll('.active').forEach(child => child.classList.remove('active'));
+			menu.querySelectorAll('.mm-active').forEach(child => child.classList.remove('mm-active'));
 			menu.classList.remove('mm-active');
 		});
 	};
 
-	const menuItemScroll=() => {
-		if(browser){
-		let currUrl = $page.url.pathname;
-			let item = document.querySelector(".vertical-menu a[href='" + currUrl + "']").offsetTop;
-			if (item > 300) {
-				item = item-300;
+	const menuItemScroll = () => {
+		if (browser) {
+			const curUrl = getPathUrl();
+			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']")?.offsetTop;
+			if (item && item > 300) {
+				item = item - 300;
 				const menuElement = document.getElementById('vertical-menu');
-				menuElement.scrollTo({
+				menuElement?.scrollTo({
 					top: item,
 					behavior:'smooth'
-				})
+				});
 			}
 		}
+	}
+
+	const getPathUrl = () => {
+		const path = $page.url.pathname;
+		return path?.startsWith('/') ? path.substring(1) : path;
 	}
 </script>
 

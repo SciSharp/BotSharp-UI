@@ -77,6 +77,12 @@
         }
     }
 
+    .revert-arrow {
+        &:after {
+            transform: rotate(-180deg);
+        }
+    }
+
     ul {
         li {
             a {

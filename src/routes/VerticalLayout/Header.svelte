@@ -9,9 +9,10 @@
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
 	/**
-	 * @type {any}
-	 */
-	 export let user;
+ 	* @type {any}
+ 	*/
+	export let user;
+	export let toggleRightBar;
 
 	const toggleSideBar = () => {
 		if (browser) {
