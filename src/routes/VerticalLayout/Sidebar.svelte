@@ -31,7 +31,7 @@
 								parent2.previousElementSibling.classList.add('revert-arrow');
 							}
 						}
-						const parent3 = parent2.parentElement.parentElement;
+						const parent3 = parent2.parentElement?.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
 							parent3.classList.remove('mm-collapse');
@@ -81,7 +81,7 @@
 								parent2.previousElementSibling.classList.add('revert-arrow');
 							}
 						}
-						const parent3 = parent2.parentElement.parentElement;
+						const parent3 = parent2.parentElement?.parentElement;
 						if (parent3) {
 							parent3.classList.add('mm-show');
 							parent3.classList.remove('mm-collapse');
@@ -138,7 +138,7 @@
 								parent1.previousElementSibling.classList.add('mm-active');
 							}
 
-							const parent2 = parent1.parentElement.parentElement;
+							const parent2 = parent1.parentElement?.parentElement;
 							if (parent2) {
 								parent2.classList.add('mm-show');
 								if (parent2.previousElementSibling) {
@@ -184,7 +184,7 @@
 			if (item && item > 300) {
 				item = item - 300;
 				const menuElement = document.getElementById('vertical-menu');
-				menuElement.scrollTo({
+				menuElement?.scrollTo({
 					top: item,
 					behavior:'smooth'
 				});
