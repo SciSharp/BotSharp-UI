@@ -12,10 +12,8 @@
 
 	// after routing complete call afterUpdate function
 	afterUpdate(() => {
-
 		removeActiveDropdown()
-		const path = $page.url.pathname;
-		const curUrl = path.startsWith('/') ? path.substring(1) : path;
+		const curUrl = getPathUrl();
 		if (curUrl) {
 			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
 			if (item) {
@@ -59,8 +57,7 @@
 		OverlayScrollbars(menuElement, options);
 		activeMenu();
  
-		const path = $page.url.pathname;
-		const curUrl = path.startsWith('/') ? path.substring(1) : path;
+		const curUrl = getPathUrl();
 		if (curUrl) {
 			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
 			if (item) {
@@ -165,10 +162,9 @@
 		});
 	};
 
-	const menuItemScroll=() => {
+	const menuItemScroll = () => {
 		if (browser) {
-			const path = $page.url.pathname;
-			const curUrl = path.startsWith('/') ? path.substring(1) : path;
+			const curUrl = getPathUrl();
 			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']")?.offsetTop;
 			if (item && item > 300) {
 				item = item - 300;
@@ -179,6 +175,11 @@
 				});
 			}
 		}
+	}
+
+	const getPathUrl = () => {
+		const path = $page.url.pathname;
+		return path?.startsWith('/') ? path.substring(1) : path;
 	}
 </script>
 
