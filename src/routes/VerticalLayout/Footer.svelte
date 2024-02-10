@@ -8,11 +8,11 @@
     <Container fluid>
         <Row>
             <Col sm={6}>
-                {new Date().getFullYear()} © {PUBLIC_COMPANY_NAME}
+                <!-- {new Date().getFullYear()} ~ --> {PUBLIC_COMPANY_NAME}
             </Col>
             <Col sm={6}>
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by open source community
+                    Designed by Sriya, Jared, Giovanni, Christian, and Mina
                 </div>
             </Col>
         </Row>
