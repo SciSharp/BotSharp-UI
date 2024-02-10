@@ -1,4 +1,4 @@
-# BotSharp UI
+# NormChat UI
 #
 
 The `BotSharp UI` is a web app used to manage agents and conversations. Through it you can build new Agent, manage existing Agents and conversations. The Node-based Agent building experience allows you to build a brand new AI assistant in a very short time. 
