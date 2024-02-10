@@ -48,7 +48,7 @@
                     </Col>
                 </Row>
                 {#if showHomeSlogan}
-                <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="login" class="btn btn-primary">get started</a> with {PUBLIC_BRAND_NAME}</h4>
+                <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="login" class="btn btn-primary">get started</a> with {PUBLIC_BRAND_NAME} </h4>
                 <p class="text-muted" transition:fade={{ delay: 800, duration: 500 }}>
                 {PUBLIC_HOME_SLOGAN}
                 </p>
