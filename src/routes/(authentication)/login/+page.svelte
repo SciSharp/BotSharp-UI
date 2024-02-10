@@ -56,7 +56,7 @@
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
-			goto('/chat'); // after login, redircting to chatbox instead of dashboard  
+			goto('/page/agent'); // after login, redircting to chatbox instead of dashboard  
 			isSubmitting = false;
 		});
 		isSubmitting = false;
