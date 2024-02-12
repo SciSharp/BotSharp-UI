@@ -105,16 +105,18 @@
         mid = cid;
     }
 
-    /** @param {string} message 
+    /** 
+     * @param {string} message 
      * @param {import('$types').ChatResponseModel} response
+     * @param {boolean} isSuccess
     */
-    function renderMessageNode(message, response) {
+    function renderMessageNode(message, response, isSuccess) {
         let posX = lastPosX + nodeSpaceX, posY = lastPosY + nodeSpaceY;
         let html = `<div class=''>${message}</div>`;
         if (response.data) {
             html += `<img src=${response.data} alt="" width="215px"/>`
         }
-        html += `<div class="bg-info mt-1 mb-1 p-1 rounded">${response.text}</div>`;
+        html += `<div class="${isSuccess ? 'bg-info' : 'bg-danger'} mt-1 mb-1 p-1 rounded">${response.text}</div>`;
 
         editor.addNodeOutput(mid);
         let new_mid = editor.addNode('message', 1, 0, posX, posY, 'message', {}, html, false);
@@ -127,7 +129,7 @@
         messageCount++;
         if (messageCount % 10 == 0) {
             // editor.zoom_out();
-            lastPosX = lastPosX + nodeSpaceX;
+            lastPosX = posX;
             lastPosY = 0;
         }
     }
@@ -143,7 +145,7 @@
         renderConversationNode(conversation);
         
         var response = await sendMessageToHub(task.agent_id, conversation.id, task.content);
-        renderMessageNode(task.content, response);
+        renderMessageNode(task.content, response, true);
     }
 
     async function handleRunTaskInteractively() {
@@ -153,7 +155,6 @@
 
         // new conversation
         const conversation = await newConversation(task.direct_agent_id, {taskId: task.id});
-        conversation.task_id = task.id;
         conversationStore.set(conversation);
         renderConversationNode(conversation);
 
@@ -163,15 +164,17 @@
             let step = steps[i];
             const response = await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
             if (response.text.includes("failed")) {
+                renderMessageNode(step, response, false);
                 break;
+            } else {
+                renderMessageNode(step, response, true);
             }
-            renderMessageNode(step, response);
         }        
     }
 </script>
 
 <div>
-    <button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute Sequentially through Router</button>
+    <!--<button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute Sequentially through Router</button>-->
     {#if task?.direct_agent_id}
     <button class="btn btn-primary" on:click={handleRunTaskInteractively}><i class="bx bx-rocket"></i> Execute Interactively</button>
     {/if}
