@@ -64,21 +64,23 @@
             <i class="bx bx-calendar me-1" />
             {format(agent.updated_datetime, 'short-date')}
           </li>
-          <li class="list-inline-item me-1" id="comments">
+          <li class="list-inline-item me-1">
             <a href= "page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-wrench" /> Build
             </a>
-          </li>          
-          <li class="list-inline-item me-1" id="comments">
+          </li>
+          {#if agent.is_public }      
+          <li class="list-inline-item me-1">
             <a href= "page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-book-open" /> Train
             </a>
           </li>
-          <li class="list-inline-item me-1" id="comments">
+          <li class="list-inline-item me-1">
             <a href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> Test
             </a>
           </li>
+          {/if}
         </ul>
       </div>
     </Card>
