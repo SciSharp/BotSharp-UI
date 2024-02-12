@@ -12,7 +12,7 @@
             </Col>
             <Col sm={6}>
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Develop by open source community
+                    Design & Developed by open source community
                 </div>
             </Col>
         </Row>

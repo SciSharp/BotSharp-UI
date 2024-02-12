@@ -449,7 +449,7 @@
 
 										{#if message.data && message.data.includes('data:image/png;base64,')}
 										<div style="width: 80%; display: flex; margin-left: 35px; margin-top: 40px;">
-											<img src="{message.data}" width="200px" alt="" class="rounded"/>
+											<img src="{message.data}" alt="" class="border rounded img-fluid"/>
 										</div>
 										{/if}
 									</div>

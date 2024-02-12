@@ -217,7 +217,7 @@
 								<td><span class="badge bg-success">{task.enabled ? "Enabled" : "Disabled"}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Execute">
+										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
 											<a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-danger">
                                                 <i class="mdi mdi-eye-outline" />
                                             </a>
