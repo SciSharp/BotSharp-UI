@@ -29,6 +29,7 @@ export async function getToken(email, password, onSucceed) {
         }
         let user = getUserStore();
         user.token = result.access_token;
+        user.expires = result.expires;
         userStore.set(user);
         onSucceed();
     })

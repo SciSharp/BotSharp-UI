@@ -26,6 +26,13 @@ axios.interceptors.response.use(
     },
     (error) => {
         setGlobalLoad(false);
+
+        let user = getUserStore();
+
+        if (Date.now() / 1000 > user.expires) {
+            error.response = {status: 401};
+        }
+
         // If the error status is 401, handle it here
         if (error.response && error.response.status === 401) {
             // Perform actions like redirecting to the login page or refreshing tokens
