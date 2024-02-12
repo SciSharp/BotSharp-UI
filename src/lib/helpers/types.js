@@ -167,11 +167,17 @@
  */
 
 /**
+ * @typedef {Object} MessageConfig
+ * @property {string} [taskId] - Optional task id.
+ */
+
+/**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
  * @property {string} [agentId] - The agent id.
  * @property {string} [channel] - The conversation channel.
  * @property {string} [status] - The conversation status.
+ * @property {string} [taskId] - The task id.
  */
 
 /**
@@ -182,6 +188,7 @@
  * @property {string} agent_id - The conversation agent id.
  * @property {string} agent_name - The conversation entry agent name.
  * @property {string} channel - The conversation status.
+ * @property {string} [task_id] - Optional task id.
  * @property {string} status - The conversation status.
  * @property {Object[]} states - The conversation states. 
  * @property {Date} updated_time - The conversation updated time.

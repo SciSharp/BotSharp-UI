@@ -174,7 +174,7 @@
 			</CardBody>
 			<CardBody class="border-bottom">
 				<Row class="g-3">
-					<Col xxl="4" lg="6">
+					<Col lg="4">
 						<Input
 							type="search"
 							class="form-control"
@@ -182,14 +182,19 @@
 							placeholder="Search for ..."
 						/>
 					</Col>
-					<Col xxl="2" lg="6">
+					<Col lg="2">
+						<select class="form-select" id="idTask" bind:value={filter.taskId}>
+							<option value={null}>Task</option>
+						</select>
+					</Col>					
+					<Col lg="1">
 						<select class="form-select" id="idStatus" bind:value={filter.status}>
 							<option value={null}>Status</option>
 							<option value="open">Active</option>
 							<option value="closed">Completed</option>
 						</select>
 					</Col>
-					<Col xxl="2" lg="4">
+					<Col lg="2">
 						<select class="form-select" id="idType" bind:value={filter.channel}>
 							<option value={null}>Select Channel</option>
 							<option value="webchat">Live Chat</option>
@@ -197,10 +202,10 @@
                             <option value="email">Email</option>
 						</select>
 					</Col>
-					<Col xxl="2" lg="4">
+					<Col lg="2">
 						<Input type="date" class="form-control" />
 					</Col>
-					<Col xxl="2" lg="4">
+					<Col lg="1">
 						<Button type="button" color="secondary" class="btn-soft-secondary w-100">
 							<i class="mdi mdi-filter-outline align-middle" /> Filter
 						</Button>

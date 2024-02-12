@@ -6,11 +6,12 @@ import { conversationUserStateStore } from '$lib/helpers/store.js';
 /**
  * New conversation
  * @param {string} agentId 
+ * @param {Promise<import('$types').MessageConfig>} [config]
  * @returns {Promise<import('$types').ConversationModel>}
  */
-export async function newConversation(agentId) {
+export async function newConversation(agentId, config) {
     let url = replaceUrl(endpoints.conversationInitUrl, {agentId: agentId});
-    const response = await axios.post(url, {});
+    const response = await axios.post(url, config ?? {});
     return response.data;
 }
 

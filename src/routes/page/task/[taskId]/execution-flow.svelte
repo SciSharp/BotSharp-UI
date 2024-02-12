@@ -110,9 +110,9 @@
     */
     function renderMessageNode(message, response) {
         let posX = lastPosX + nodeSpaceX, posY = lastPosY + nodeSpaceY;
-        let html = `${message}`;
+        let html = `<div class=''>${message}</div>`;
         if (response.data) {
-            html += `<img src=${response.data} alt="" width="165px"/>`
+            html += `<img src=${response.data} alt="" width="215px"/>`
         }
         html += `<div class="bg-info mt-1 mb-1 p-1 rounded">${response.text}</div>`;
 
@@ -138,7 +138,7 @@
         renderTaskNode();
 
         // new conversation
-        const conversation = await newConversation(task.agent_id);
+        const conversation = await newConversation(task.agent_id, {taskId: task.id});
         conversationStore.set(conversation);
         renderConversationNode(conversation);
         
@@ -152,7 +152,8 @@
         renderTaskNode();
 
         // new conversation
-        const conversation = await newConversation(task.direct_agent_id);
+        const conversation = await newConversation(task.direct_agent_id, {taskId: task.id});
+        conversation.task_id = task.id;
         conversationStore.set(conversation);
         renderConversationNode(conversation);
 
