@@ -2,7 +2,8 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
-	plugins: [sveltekit()],
+	// @ts-ignore
+	plugins: [sveltekit(), AutoRefreshHmr()],
 	ssr: {
 		noExternal: ['@popperjs/core']
 	},
@@ -20,3 +21,19 @@ export default defineConfig({
 		host: "0.0.0.0",
 	}
 });
+
+function AutoRefreshHmr() {
+	return {
+		name: 'auto-refresh',
+		enforce: 'post',
+		// @ts-ignore
+		handleHotUpdate({ file, server }) {
+			if (file.endsWith('.svelte') || file.endsWith('.js')) {
+				server.ws.send({
+					type: 'full-reload',
+					path: '*'
+				});
+			}
+		}
+	};
+}

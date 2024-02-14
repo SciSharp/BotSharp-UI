@@ -42,6 +42,9 @@
 		<div class="d-flex justify-content-center">
 			<nav aria-label="Page navigation example" id="pagination-element" class="mb-0">
 				<div class="pagination-block pagination pagination-rounded">
+					<Link class={`page-link outline-none ${disableBackward ? 'disabled' : ''}`} id="page-first" on:click={(e) => { handlePageTo(e, firstPage); }}>
+						<i class="bx bx-chevrons-left align-middle" />
+					</Link>
 					<Link class={`page-link outline-none ${disableBackward ? 'disabled' : ''}`} id="page-prev" on:click={(e) => { handlePageTo(e, pagination.page - 1); }}>
 						<i class="bx bx-chevron-left align-middle" />
 					</Link>
@@ -54,6 +57,9 @@
 
 					<Link class={`page-link outline-none ${disableForward ? 'disabled' : ''}`} id="page-next" on:click={(e) => { handlePageTo(e, pagination.page + 1); }}>
 						<i class="bx bx-chevron-right align-middle" />
+					</Link>
+					<Link class={`page-link outline-none ${disableForward ? 'disabled' : ''}`} id="page-last" on:click={(e) => { handlePageTo(e, totalPages); }}>
+						<i class="bx bx-chevrons-right align-middle" />
 					</Link>
 				</div>
 			</nav>
