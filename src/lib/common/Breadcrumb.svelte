@@ -2,8 +2,8 @@
 	import { Row, Col, Breadcrumb, BreadcrumbItem } from '@sveltestrap/sveltestrap';
 	import Link from 'svelte-link';
 
-	export let title;
-	export let pagetitle;
+	 export let title = '';
+	export let pagetitle = '';
 </script>
 
 <Row>
