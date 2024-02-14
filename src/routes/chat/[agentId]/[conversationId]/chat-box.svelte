@@ -459,13 +459,13 @@
 					<div class="scrollbar" style="height: 80vh">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
-								{#each Object.entries(groupedDialogs) as [createDate, dialog]}
+								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
 								<li>
 									<div class="chat-day-title">
 										<span class="title">{createDate}</span>
 									</div>
 								</li>
-								{#each dialog as message}
+								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
 									class={message.sender.id === currentUser.id ? 'right' : ''}>
 									<div class="conversation-list">
