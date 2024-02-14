@@ -4,7 +4,7 @@ export const host = PUBLIC_SERVICE_URL;
 export const endpoints = {
     // user
     tokenUrl: `${host}/token`,
-    myInfoUrl: `${host}/user/my`,
+    myInfoUrl: `${host}/user/me`,
     usrCreationUrl: `${host}/user`,
     
     // setting

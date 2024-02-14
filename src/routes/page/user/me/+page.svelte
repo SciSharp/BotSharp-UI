@@ -77,9 +77,9 @@
 								</td>
 							</tr>
 							<tr>
-								<th>External Id:</th>
+								<th>Account Origin:</th>
 								<td>
-									{currentUser?.external_id ?? 'N/A'}
+									{currentUser?.source} {currentUser?.external_id ?? 'N/A'}
 								</td>
 							</tr>
 							<tr>

@@ -8,7 +8,8 @@ axios.interceptors.request.use(
         let user = getUserStore();
         setGlobalLoad(true);
         // For example, attach an authentication token to the request headers
-        config.headers.Authorization = `Bearer ${user.token}`;
+        if (user.token)
+            config.headers.Authorization = `Bearer ${user.token}`;
         return config;
     },
     (error) => {

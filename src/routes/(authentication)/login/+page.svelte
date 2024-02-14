@@ -16,6 +16,7 @@
 	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
 	import {
+		PUBLIC_SERVICE_URL,
 		PUBLIC_LOGO_URL,
 		PUBLIC_LOGIN_IMAGE,
 		PUBLIC_BRAND_NAME,
@@ -61,6 +62,7 @@
 		});
 		isSubmitting = false;
 	}
+
 	function onPasswordToggle() {
 		var x = document.getElementById('user-password');
 		if (x.type === 'password') {
@@ -171,17 +173,22 @@
 
 									<ul class="list-inline">
 										<li class="list-inline-item">
-											<a href={'#'} class="social-list-item bg-primary text-white border-primary">
+											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub" class="social-list-item bg-primary text-white border-primary">
+												<i class="mdi mdi-github" />
+											</a>
+										</li>										
+										<li class="list-inline-item">
+											<a href={null} class="social-list-item bg-primary text-white border-primary">
 												<i class="mdi mdi-facebook" />
 											</a>
 										</li>
 										<li class="list-inline-item">
-											<a href={'#'} class="social-list-item bg-info text-white border-info">
+											<a href={null} class="social-list-item bg-info text-white border-info">
 												<i class="mdi mdi-twitter" />
 											</a>
 										</li>
 										<li class="list-inline-item">
-											<a href={'#'} class="social-list-item bg-danger text-white border-danger">
+											<a href={null} class="social-list-item bg-danger text-white border-danger">
 												<i class="mdi mdi-google" />
 											</a>
 										</li>

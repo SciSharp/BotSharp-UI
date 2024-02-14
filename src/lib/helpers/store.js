@@ -6,7 +6,7 @@ export const conversationKey = "conversation";
 export const conversationUserStatesKey = "conversation_user_states";
 
 /** @type {Writable<import('$types').UserModel>} */
-export const userStore = writable({ id: "", full_name: "", expires: 0 });
+export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
 
 /**
  * @returns {Writable<import('$types').UserModel>}
