@@ -28,6 +28,7 @@
 	import StateLog from './state-log.svelte';
 	import StateModal from './state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
+	import { UserRole } from '$lib/helpers/enums';
 
 	const options = {
 		scrollbars: {
@@ -46,6 +47,7 @@
 	let text = "";
 	let editText = "";
 	let truncateMsgId = "";
+	let prevSentMsg = "";
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -74,6 +76,7 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
+		getLatestSentMessage(dialogs);
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -89,6 +92,13 @@
 
 		refresh();
 	});
+
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function getLatestSentMessage(dialogs) {
+		const latestDialog = dialogs.findLast(x => x.sender?.role !== UserRole.Assistant);
+		prevSentMsg = latestDialog?.text || "";
+	}
+
 
 	/** @param {import('$types').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
@@ -165,7 +175,16 @@
 
 	/** @param {any} e */
 	async function onSendMessage(e) {
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter') return;
+		if (!!!text && e.key === 'ArrowUp') {
+			text = prevSentMsg;
+			return;
+		}
+
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter') {
+			return;
+		}
+
+		prevSentMsg = text;
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
