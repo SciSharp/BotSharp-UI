@@ -30,6 +30,7 @@
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import { UserRole } from '$lib/helpers/enums';
 	import moment from 'moment';
+	import HeadTitle from '$lib/common/HeadTitle.svelte';
 
 	const options = {
 		scrollbars: {
@@ -48,7 +49,10 @@
 	let text = "";
 	let editText = "";
 	let truncateMsgId = "";
-	let prevSentMsg = "";
+
+	/** @type {string[]} */
+	let prevSentMsgs = [];
+	let sentMsgIdx = 0;
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -79,7 +83,7 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
-		getLatestSentMessage(dialogs);
+		initPrevSentMessages(dialogs);
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -97,9 +101,11 @@
 	});
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function getLatestSentMessage(dialogs) {
-		const latestDialog = dialogs.findLast(x => x.sender?.role !== UserRole.Assistant);
-		prevSentMsg = latestDialog?.text || "";
+	function initPrevSentMessages(dialogs) {
+		if (!!!dialogs) return;
+
+		prevSentMsgs = dialogs.filter(x => x.sender?.role != UserRole.Assistant).map(x => x.text || '') || [];
+		sentMsgIdx = prevSentMsgs.length;
 	}
 
 
@@ -169,7 +175,6 @@
       // trigger UI render
       dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 	  groupedDialogs = groupDialogs(dialogs);
-	  console.log(groupedDialogs);
 	  await tick();
 
       setTimeout(() => {
@@ -195,21 +200,39 @@
 
 	/** @param {any} e */
 	async function onSendMessage(e) {
-		if (!!!text && e.key === 'ArrowUp') {
+		if (e.key === 'ArrowUp') {
 			e.preventDefault();
-			text = prevSentMsg;
-			await tick();
-			e.target.selectionStart = text?.length || 0;
-			e.target.selectionEnd = text?.length || 0;
-			// console.log(e.target.selectionStart, e.target.selectionEnd, text?.length);
+			if (sentMsgIdx > 0 && sentMsgIdx <= prevSentMsgs.length) {
+				sentMsgIdx -= 1;
+				text = prevSentMsgs[sentMsgIdx];
+			} else if (sentMsgIdx <= 0) {
+				sentMsgIdx = 0;
+				text = prevSentMsgs[0];
+			} else {
+				sentMsgIdx = prevSentMsgs.length;
+				text = '';
+			}
+			return;
+		} else if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			if (sentMsgIdx >= 0 && sentMsgIdx < prevSentMsgs.length - 1) {
+				sentMsgIdx += 1;
+				text = prevSentMsgs[sentMsgIdx];
+			} else if (sentMsgIdx < 0) {
+				sentMsgIdx = 0;
+				text = prevSentMsgs[0];
+			} else {
+				sentMsgIdx = prevSentMsgs.length;
+				text = '';
+			}
 			return;
 		}
 
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter') {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text)) {
 			return;
 		}
 
-		prevSentMsg = text;
+		prevSentMsgs = [...prevSentMsgs, text];
 		await sendMessageToHub(params.agentId, params.conversationId, text);
 	}
 
@@ -304,7 +327,7 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
-		const isDeleted = truncateDialog(messageId);
+		const isDeleted = truncateDialogs(messageId);
 		if (!isDeleted) return;
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
@@ -329,17 +352,18 @@
 	}
 
 	async function confirmEditMsg() {
-		const isDeleted = truncateDialog(truncateMsgId);
+		const isDeleted = truncateDialogs(truncateMsgId);
 		if (!isDeleted) return;
 		toggleEditMsgModal();
 		await sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId);
 	}
 
 	/** @param {string} messageId */
-	function truncateDialog(messageId) {
+	function truncateDialogs(messageId) {
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		initPrevSentMessages(dialogs);
 		refresh();
 		return true;
 	}
@@ -365,6 +389,7 @@
 	cancel={toggleStateModal}
 />
 
+<HeadTitle title="Chat" addOn='' />
 <div class="d-lg-flex">
 	<Splitpanes>
 		{#if isLoadStateLog}
