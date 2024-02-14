@@ -45,7 +45,13 @@
 	let pager = filter.pager;
 
     onMount(async () => {
-		await getPagedConversations();
+		isLoading = true;
+		getPagedConversations().then(res => {
+			isLoading = false;
+		}).catch(error => {
+			isLoading = false;
+			isError = true;
+		});
     });
 
 	async function getPagedConversations() {

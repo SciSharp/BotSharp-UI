@@ -11,7 +11,7 @@ export const userStore = writable({ id: "", full_name: "", expires: 0 });
 /**
  * @returns {Writable<import('$types').UserModel>}
  */
-export function getUserStore () {
+export function getUserStore() {
     if (browser) {
         // Access localStorage only if in the browser context
         let json = localStorage.getItem('user');
