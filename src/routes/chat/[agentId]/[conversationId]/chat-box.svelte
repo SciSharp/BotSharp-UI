@@ -29,6 +29,7 @@
 	import StateModal from './state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import { UserRole } from '$lib/helpers/enums';
+	import moment from 'moment';
 
 	const options = {
 		scrollbars: {
@@ -61,6 +62,8 @@
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
+	/** @type {{ [s: string]: any; }} */
+	let groupedDialogs = [];
 	
 	/** @type {import('$types').ContentLogModel[]} */
 	let contentLogs = [];
@@ -165,6 +168,8 @@
     async function refresh() {
       // trigger UI render
       dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+	  groupedDialogs = groupDialogs(dialogs);
+	  console.log(groupedDialogs);
 	  await tick();
 
       setTimeout(() => {
@@ -173,10 +178,30 @@
 	  }, 200);
     }
 
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function groupDialogs(dialogs) {
+		if (!!!dialogs) return [];
+		// @ts-ignore
+		return _.groupBy(dialogs, (x) => {
+			const createDate = moment.utc(x.created_at).local().format('MMM DD YYYY');
+			if (createDate == moment.utc().local().format('MMM DD YYYY')) {
+				return 'Today';
+			} else if (createDate == moment.utc().local().subtract(1, 'days').format('MMM DD YYYY')) {
+				return 'Yesterday';
+			}
+			return createDate;
+		});
+	}
+
 	/** @param {any} e */
 	async function onSendMessage(e) {
 		if (!!!text && e.key === 'ArrowUp') {
+			e.preventDefault();
 			text = prevSentMsg;
+			await tick();
+			e.target.selectionStart = text?.length || 0;
+			e.target.selectionEnd = text?.length || 0;
+			// console.log(e.target.selectionStart, e.target.selectionEnd, text?.length);
 			return;
 		}
 
@@ -315,6 +340,7 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		refresh();
 		return true;
 	}
 </script>
@@ -408,12 +434,13 @@
 					<div class="scrollbar" style="height: 80vh">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
+								{#each Object.entries(groupedDialogs) as [createDate, dialog]}
 								<li>
 									<div class="chat-day-title">
-										<span class="title">Today</span>
+										<span class="title">{createDate}</span>
 									</div>
 								</li>
-								{#each dialogs as message}
+								{#each dialog as message}
 								<li id={'test_k' + message.message_id}
 									class={message.sender.id === currentUser.id ? 'right' : ''}>
 									<div class="conversation-list">
@@ -473,6 +500,7 @@
 										{/if}
 									</div>
 								</li>
+								{/each}
 								{/each}
 							</ul>
 						</div>
