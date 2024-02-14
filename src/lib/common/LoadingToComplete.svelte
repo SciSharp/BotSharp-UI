@@ -8,10 +8,11 @@
 
     export let successText = 'Update completed!';
     export let errorText = 'Error!';
+    export let spinnerSize = 50;
 </script>
 
 {#if isLoading}
-  <Loader />
+  <Loader size={spinnerSize} />
 {/if}
 
 {#if isComplete}

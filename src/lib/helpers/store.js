@@ -31,14 +31,6 @@ userStore.subscribe(value => {
     }
 });
 
-export const globalLoaderStore = writable(false);
-
-/**
- * @param {boolean} value
- */
-export function setGlobalLoad(value){
-    globalLoaderStore.set(value);
-}
 
 /** @type {Writable<import('$types').ConversationModel>}*/
 export const conversationStore = writable({});
@@ -70,6 +62,18 @@ conversationStore.subscribe(value => {
         }
     }
 });
+
+
+
+const createLoaderStore = () => {
+    const { subscribe, set } = writable(false);
+    return {
+        subscribe,
+        set
+    };
+}
+
+export const loaderStore = createLoaderStore();
 
 
 const createConversationUserStateStore = () => {

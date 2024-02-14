@@ -1,18 +1,18 @@
 import axios from 'axios';
-import { getUserStore, setGlobalLoad } from '$lib/helpers/store.js';
+import { getUserStore, loaderStore } from '$lib/helpers/store.js';
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
     (config) => {
         // Add your authentication logic here
         let user = getUserStore();
-        setGlobalLoad(true);
+        loaderStore.set(true);
         // For example, attach an authentication token to the request headers
         config.headers.Authorization = `Bearer ${user.token}`;
         return config;
     },
     (error) => {
-        setGlobalLoad(false);
+        loaderStore.set(false);
         return Promise.reject(error);
     }
 );
@@ -21,12 +21,11 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         // If the request was successful, return the response
-        setGlobalLoad(false);
+        loaderStore.set(false);
         return response;
     },
     (error) => {
-        setGlobalLoad(false);
-
+        loaderStore.set(false);
         let user = getUserStore();
 
         if (Date.now() / 1000 > user.expires) {

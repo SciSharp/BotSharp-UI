@@ -3,7 +3,7 @@
 	import en from '$lib/langs/en.json';
 	import '$lib/helpers/http';
 	import { onMount } from 'svelte';
-	import { globalLoaderStore } from '$lib/helpers/store';
+	import { loaderStore } from '$lib/helpers/store';
 	import Loader from '$lib/common/Loader.svelte';
 
 	addMessages('en', en);
@@ -17,7 +17,7 @@
 	 */
 	let isLoading;
 	onMount(() => {
-		const subscribe = globalLoaderStore.subscribe((value) => {
+		const subscribe = loaderStore.subscribe(value => {
 			isLoading = value;
 		});
 	})

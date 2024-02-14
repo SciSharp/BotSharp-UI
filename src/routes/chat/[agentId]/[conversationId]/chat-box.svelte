@@ -186,12 +186,13 @@
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
 		if (!!!dialogs) return [];
+		const format = 'MMM D, YYYY';
 		// @ts-ignore
 		return _.groupBy(dialogs, (x) => {
-			const createDate = moment.utc(x.created_at).local().format('MMM DD YYYY');
-			if (createDate == moment.utc().local().format('MMM DD YYYY')) {
+			const createDate = moment.utc(x.created_at).local().format(format);
+			if (createDate == moment.utc().local().format(format)) {
 				return 'Today';
-			} else if (createDate == moment.utc().local().subtract(1, 'days').format('MMM DD YYYY')) {
+			} else if (createDate == moment.utc().local().subtract(1, 'days').format(format)) {
 				return 'Yesterday';
 			}
 			return createDate;
