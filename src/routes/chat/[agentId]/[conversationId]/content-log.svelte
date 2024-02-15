@@ -7,7 +7,7 @@
 	import { GetContentLogs } from '$lib/services/logging-service';
 
     /** @type {import('$types').ConversationContentLogModel[]} */
-    export let contentlogs = [];
+    export let contentLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -16,6 +16,8 @@
     let scrollbar;
     /** @type {import('$types').ConversationContentLogModel[]} */
     let initLogs = [];
+
+    $: allLogs = [...initLogs, ...contentLogs];
 
     const options = {
 		scrollbars: {
@@ -32,30 +34,25 @@
     onMount(async () => {
         const conversationId = $page.params.conversationId;
         initLogs = await GetContentLogs(conversationId);
-        contentlogs = [...initLogs, ...contentlogs];
 
 		const scrollElements = document.querySelectorAll('.content-log-scrollbar');
 		scrollElements.forEach((item) => {
 			scrollbar = OverlayScrollbars(item, options);
 		});
 
-		refreshLog();
+		refresh();
 	});
 
     afterUpdate(() => {
-        refreshLog();
+        refresh();
     });
 
     onDestroy(() => {
         initLogs = [];
-        contentlogs = [];
+        contentLogs = [];
     });
 
-    async function refreshLog() {
-        // trigger UI render
-        contentlogs = [...initLogs, ...contentlogs];
-        await tick();
-
+    async function refresh() {
         setTimeout(() => {
             const { viewport } = scrollbar.elements();
             viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
@@ -76,7 +73,7 @@
         </div>
         <div class="content-log-scrollbar log-list padding-side">
             <ul>
-                {#each contentlogs as log}
+                {#each allLogs as log}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>

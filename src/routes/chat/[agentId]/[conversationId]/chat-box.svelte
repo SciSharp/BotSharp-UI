@@ -77,7 +77,7 @@
 
 	/** @type {boolean} */
 	let isLoadContentLog = false;
-	let isLoadStateLog = true;
+	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
 	let isOpenStateModal = false;
 	let isSendingMsg = false;
@@ -139,12 +139,14 @@
 
 	/** @param {import('$types').ConversationContentLogModel} log */
 	function onContentLogGenerated(log) {
+		if (!isLoadContentLog) return;
 		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
 	/** @param {import('$types').ConversationStateLogModel} data */
 	function onConversationStatesGenerated(data) {
+		if (!isLoadStateLog) return;
 		stateLogs.push({ ...data });
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
@@ -278,10 +280,16 @@
 
 	function toggleContentLog() {
 		isLoadContentLog = !isLoadContentLog;
+		if (!isLoadContentLog) {
+			contentLogs = [];
+		}
     }
 
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
+		if (!isLoadStateLog) {
+			stateLogs = [];
+		}
 	}
 
 	function toggleStateModal() {
@@ -588,7 +596,7 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog contentlogs={contentLogs} closeWindow={toggleContentLog} />
+			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} />
 		</Pane>
 		{/if}
 	</Splitpanes>
