@@ -38,7 +38,12 @@
         }
 
         conversationId = conversation.id;
-        window.location.href = `chat/${agentId}/${conversationId}`;
+        let charUrl = `chat/${agentId}/${conversationId}`;
+        const isLite = $page.url.searchParams.get('isLite');
+        if (isLite === 'true') {
+            charUrl = `${charUrl}?isLite=true`
+        }
+        window.location.href = charUrl;
     });
 </script>
 
