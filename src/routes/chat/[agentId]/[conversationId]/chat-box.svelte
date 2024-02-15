@@ -80,6 +80,7 @@
 	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
 	let isOpenStateModal = false;
+	let isSendingMsg = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -157,16 +158,30 @@
 		window.location.href = `chat/${params.agentId}/${conversation.id}`;
 	}
 
-    async function sendTextMessage() {
-      await sendMessageToHub(params.agentId, params.conversationId, text);
+    function sendTextMessage() {
+		isSendingMsg = true;
+		return new Promise((resolve, reject) => {
+			sendMessageToHub(params.agentId, params.conversationId, text).then(res => {
+				isSendingMsg = false;
+				resolve(res);
+			}).catch(err => {
+				isSendingMsg = false;
+				reject(err);
+			});
+		});
+		
     }
 
     async function startListen() {
 		microphoneIcon = "microphone";
-		webSpeech.onSpeechToTextDetected = async (transcript) => {
+		webSpeech.onSpeechToTextDetected = (transcript) => {
 			text = transcript;
-			await sendTextMessage();
-			microphoneIcon = "microphone-off";
+			if (!!!_.trim(text) || isSendingMsg) return;
+			sendTextMessage().then(() => {
+				microphoneIcon = "microphone-off";
+			}).catch(() => {
+				microphoneIcon = "microphone-off";
+			});
 		}
 		webSpeech.start();
     }	
@@ -229,12 +244,17 @@
 			return;
 		}
 
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text)) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text) || isSendingMsg) {
 			return;
 		}
 
 		prevSentMsgs = [...prevSentMsgs, text];
-		await sendMessageToHub(params.agentId, params.conversationId, text);
+		isSendingMsg = true;
+		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
+			isSendingMsg = false;
+		}).catch(() => {
+			isSendingMsg = false;
+		});
 	}
 
 	function endChat() {
@@ -483,7 +503,7 @@
 										</Dropdown>
 										{:else}
 										<div class="cicon-wrap float-start">
-											{#if message.sender.role == "client"}
+											{#if message.sender.role == UserRole.Client}
 											<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
@@ -558,7 +578,7 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									disabled={!!!_.trim(text)}
+									disabled={!!!_.trim(text) || isSendingMsg}
 									on:click={sendTextMessage}
 								><span class="d-none d-sm-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />

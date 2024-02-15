@@ -1,6 +1,7 @@
 const userRole = {
     System: "system",
     User: "user",
+    Client: "client",
     Function: "function",
     Assistant: "assistant"
 };

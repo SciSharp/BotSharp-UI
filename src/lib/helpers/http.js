@@ -6,7 +6,9 @@ axios.interceptors.request.use(
     (config) => {
         // Add your authentication logic here
         let user = getUserStore();
-        loaderStore.set(true);
+        if (!skipLoader(config)) {
+            loaderStore.set(true);
+        }
         // For example, attach an authentication token to the request headers
         config.headers.Authorization = `Bearer ${user.token}`;
         return config;
@@ -43,6 +45,15 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+/** @param {import('axios').InternalAxiosRequestConfig<any>} config */
+function skipLoader(config) {
+    const regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
+    if (config.method === 'post' && !!config.data && regex.test(config.url || '')) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * @param {String} url
