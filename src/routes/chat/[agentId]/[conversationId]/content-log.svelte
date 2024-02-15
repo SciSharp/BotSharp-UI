@@ -1,17 +1,23 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onMount, tick } from 'svelte';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import ContentLogElement from './content-log-element.svelte';
+	import { page } from '$app/stores';
+	import { GetContentLogs } from '$lib/services/logging-service';
 
-    /** @type {import('$types').ContentLogModel[]} */
-    export let logs = [];
+    /** @type {import('$types').ConversationContentLogModel[]} */
+    export let contentLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
 
     // @ts-ignore
     let scrollbar;
+    /** @type {import('$types').ConversationContentLogModel[]} */
+    let initLogs = [];
+
+    $: allLogs = [...initLogs, ...contentLogs];
 
     const options = {
 		scrollbars: {
@@ -26,24 +32,27 @@
 	};
 
     onMount(async () => {
+        const conversationId = $page.params.conversationId;
+        initLogs = await GetContentLogs(conversationId);
+
 		const scrollElements = document.querySelectorAll('.content-log-scrollbar');
 		scrollElements.forEach((item) => {
 			scrollbar = OverlayScrollbars(item, options);
 		});
 
-		refreshLog();
+		refresh();
 	});
 
     afterUpdate(() => {
-        refreshLog();
+        refresh();
     });
 
+    onDestroy(() => {
+        initLogs = [];
+        contentLogs = [];
+    });
 
-    async function refreshLog() {
-        // trigger UI render
-        logs = logs || [];
-        await tick();
-
+    async function refresh() {
         setTimeout(() => {
             const { viewport } = scrollbar.elements();
             viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
@@ -64,7 +73,7 @@
         </div>
         <div class="content-log-scrollbar log-list padding-side">
             <ul>
-                {#each logs as log}
+                {#each allLogs as log}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>

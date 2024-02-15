@@ -4,6 +4,8 @@
 
     /** @type {any} */
     export let data;
+
+    $: stateObj = JSON.parse(JSON.stringify(data?.states || {}));
 </script>
 
 <div class="log-element">
@@ -12,6 +14,6 @@
     </div>
     <br>
     <div class="log-content">
-        <JSONTree value={JSON.parse(data?.states)} />
+        <JSONTree value={stateObj} />
     </div>
 </div>

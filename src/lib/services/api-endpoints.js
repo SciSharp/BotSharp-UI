@@ -49,6 +49,8 @@ export const endpoints = {
 
     // logging
     loggingFullLogUrl: `${host}/logger/full-log`,
+    loggingContentLogUrl: `${host}/logger/conversation/{conversationId}/content-log`,
+    loggingStateLogUrl: `${host}/logger/conversation/{conversationId}/state-log`,
     
     // knowledge base
     knowledgeBaseUploadUrl: `${host}/knowledge-base/upload`,

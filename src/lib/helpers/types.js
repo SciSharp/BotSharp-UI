@@ -260,19 +260,18 @@ IRichContent.prototype.text;
  */
 
 /**
- * @typedef {Object} ContentLogModel
+ * @typedef {Object} ConversationContentLogModel
  * @property {string} conversation_id - The conversation id.
  * @property {string} name - The sender name.
  * @property {string} role - The sender role.
  * @property {string} content - The log content.
  * @property {Date} created_at - The log sent time.
- * @property {boolean} is_collapsed - For UI display.
  */
 
 /**
  * @typedef {Object} ConversationStateLogModel
  * @property {string} conversation_id - The conversation id.
- * @property {string} states - The states content.
+ * @property {Object} states - The states content.
  * @property {Date} created_at - The states sent time.
  */
 
@@ -319,7 +318,7 @@ IRichContent.prototype.text;
  * Content log
  * 
  * @callback OnContentLogReceived
- * @param {ContentLogModel} log
+ * @param {ConversationContentLogModel} log
  */
 
 /** 

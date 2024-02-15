@@ -69,7 +69,7 @@
 	/** @type {{ [s: string]: any; }} */
 	let groupedDialogs = [];
 	
-	/** @type {import('$types').ContentLogModel[]} */
+	/** @type {import('$types').ConversationContentLogModel[]} */
 	let contentLogs = [];
 
 	/** @type {import('$types').ConversationStateLogModel[]} */
@@ -79,7 +79,7 @@
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
-	let isOpenStateModal = false;
+	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	
 	onMount(async () => {
@@ -137,17 +137,16 @@
 		refresh();
     }
 
-	/** @param {import('$types').ContentLogModel} log */
+	/** @param {import('$types').ConversationContentLogModel} log */
 	function onContentLogGenerated(log) {
-		contentLogs.push({
-			...log,
-			is_collapsed: true
-		});
+		if (!isLoadContentLog) return;
+		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
 	/** @param {import('$types').ConversationStateLogModel} data */
 	function onConversationStatesGenerated(data) {
+		if (!isLoadStateLog) return;
 		stateLogs.push({ ...data });
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
@@ -248,6 +247,10 @@
 			return;
 		}
 
+		if (e.key === 'Enter') {
+			e.preventDefault();
+		}
+
 		prevSentMsgs = [...prevSentMsgs, text];
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
@@ -281,14 +284,20 @@
 
 	function toggleContentLog() {
 		isLoadContentLog = !isLoadContentLog;
+		if (!isLoadContentLog) {
+			contentLogs = [];
+		}
     }
 
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
+		if (!isLoadStateLog) {
+			stateLogs = [];
+		}
 	}
 
-	function toggleStateModal() {
-		isOpenStateModal = !isOpenStateModal;
+	function toggleAddStateModal() {
+		isOpenAddStateModal = !isOpenAddStateModal;
 	}
 
 	function clearStates() {
@@ -404,10 +413,10 @@
 
 <StateModal
 	className="custom-modal"
-	isOpen={isOpenStateModal}
-	toggleModal={toggleStateModal}
-	confirm={toggleStateModal}
-	cancel={toggleStateModal}
+	isOpen={isOpenAddStateModal}
+	toggleModal={toggleAddStateModal}
+	confirm={toggleAddStateModal}
+	cancel={toggleAddStateModal}
 />
 
 <HeadTitle title="Chat" addOn='' />
@@ -442,7 +451,7 @@
 												{#if !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStateLog || !isOpenStateModal}
+												{#if !isLoadStateLog || !isOpenAddStateModal}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -452,8 +461,8 @@
 															{#if !isLoadStateLog}
 															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 															{/if}
-															{#if !isOpenStateModal}
-															<DropdownItem on:click={() => toggleStateModal()}>Add States</DropdownItem>
+															{#if !isOpenAddStateModal}
+															<DropdownItem on:click={() => toggleAddStateModal()}>Add States</DropdownItem>
 															{/if}
 															<DropdownItem on:click={() => clearStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
@@ -508,7 +517,7 @@
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
-										</div>																
+										</div>
 										{/if}
 
 										{#if message.sender.id === currentUser.id}
@@ -564,7 +573,7 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} placeholder="Enter Message..." />
+									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg} placeholder="Enter Message..." />
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
@@ -591,7 +600,7 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog logs={contentLogs} closeWindow={toggleContentLog} />
+			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} />
 		</Pane>
 		{/if}
 	</Splitpanes>
