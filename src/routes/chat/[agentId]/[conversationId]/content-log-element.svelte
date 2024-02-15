@@ -8,6 +8,10 @@
     export let data;
 
     let is_collapsed = true;
+    const excludedRoles = [
+        UserRole.User,
+        UserRole.Assistant
+    ];
 
      /** @param {any} e */
     function toggleText(e) {
@@ -16,7 +20,7 @@
     }
 </script>
 
-<div class="log-element">
+<div class={`log-element ${data.role == UserRole.Assistant ? 'p-2 rounded bg-info' : ''}`}>
     <div class="log-meta">
         <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${moment.utc(data?.created_at).local().format('hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
     </div>
@@ -24,7 +28,7 @@
     <div class="log-content" class:log-collapse={!!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
-    {#if data.role != UserRole.User}
+    {#if !excludedRoles.includes(data.role)}
     <Button class='toggle-btn' color="link" on:click={(e) => toggleText(e)}>
         {`${is_collapsed ? 'More +' : 'Less -'}`}
     </Button>
