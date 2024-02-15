@@ -1,7 +1,11 @@
+:root {
+    --drawflow-node-width: 250px;
+}
+
 .drawflow .drawflow-node {
     background: var(--bs-primary);
     color: white;
-    width: 250px;
+    width: var(--drawflow-node-width);
     border: 2px solid var(--bs-primary);
 }
 
@@ -13,10 +17,6 @@
 .drawflow .new-node {
     background: var(--bs-info);
     color: white;
-}
-
-.drawflow .parent-node .task-node {
-    width: 300px;
 }
 
 .drawflow-delete {
