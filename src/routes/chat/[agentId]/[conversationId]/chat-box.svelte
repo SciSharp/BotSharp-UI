@@ -85,6 +85,7 @@
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
 		initPrevSentMessages(dialogs);
+		initContentLogView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -107,6 +108,38 @@
 
 		prevSentMsgs = dialogs.filter(x => x.sender?.role != UserRole.Assistant).map(x => x.text || '') || [];
 		sentMsgIdx = prevSentMsgs.length;
+	}
+
+	function initContentLogView() {
+		isLoadContentLog = $page.url.searchParams.get('isLite') !== 'true';
+	}
+
+	async function refresh() {
+      // trigger UI render
+      dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+	  groupedDialogs = groupDialogs(dialogs);
+	  await tick();
+
+      setTimeout(() => {
+		const { viewport } = scrollbar.elements();
+		viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
+	  }, 200);
+    }
+
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function groupDialogs(dialogs) {
+		if (!!!dialogs) return [];
+		const format = 'MMM D, YYYY';
+		// @ts-ignore
+		return _.groupBy(dialogs, (x) => {
+			const createDate = moment.utc(x.created_at).local().format(format);
+			if (createDate == moment.utc().local().format(format)) {
+				return 'Today';
+			} else if (createDate == moment.utc().local().subtract(1, 'days').format(format)) {
+				return 'Yesterday';
+			}
+			return createDate;
+		});
 	}
 
 
@@ -168,7 +201,6 @@
 				reject(err);
 			});
 		});
-		
     }
 
     async function startListen() {
@@ -176,41 +208,17 @@
 		webSpeech.onSpeechToTextDetected = (transcript) => {
 			text = transcript;
 			if (!!!_.trim(text) || isSendingMsg) return;
+
+			isSendingMsg = true;
 			sendTextMessage().then(() => {
 				microphoneIcon = "microphone-off";
+				isSendingMsg = false;
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
+				isSendingMsg = false;
 			});
 		}
 		webSpeech.start();
-    }	
-
-    async function refresh() {
-      // trigger UI render
-      dialogs = dialogs?.map(item => { return { ...item }; }) || [];
-	  groupedDialogs = groupDialogs(dialogs);
-	  await tick();
-
-      setTimeout(() => {
-		const { viewport } = scrollbar.elements();
-		viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-	  }, 200);
-    }
-
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function groupDialogs(dialogs) {
-		if (!!!dialogs) return [];
-		const format = 'MMM D, YYYY';
-		// @ts-ignore
-		return _.groupBy(dialogs, (x) => {
-			const createDate = moment.utc(x.created_at).local().format(format);
-			if (createDate == moment.utc().local().format(format)) {
-				return 'Today';
-			} else if (createDate == moment.utc().local().subtract(1, 'days').format(format)) {
-				return 'Yesterday';
-			}
-			return createDate;
-		});
 	}
 
 	/** @param {any} e */
@@ -257,6 +265,21 @@
 			isSendingMsg = false;
 		}).catch(() => {
 			isSendingMsg = false;
+		});
+	}
+
+	/**
+	 * @param {string} payload
+	 * @param {import('$types').QuickReplyMessage} message
+	 */
+	function clickQuickReply(payload, message) {
+		isSendingMsg = true;
+		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
+			isSendingMsg = false;
+			message.quick_replies = [];
+		}).catch(() => {
+			isSendingMsg = false;
+			message.quick_replies = [];
 		});
 	}
 
@@ -537,9 +560,8 @@
 												<RcText message={message.rich_content.message} />
 												{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
 												<RcQuickReply 
-													agentId={params.agentId} 
-													conversationId={params.conversationId} 
-													message={message.rich_content.message} 
+													message={message.rich_content.message}
+													onClickQuickReply={clickQuickReply}
 												/>
 												{:else}
 												<span>{message.text}</span>

@@ -10,7 +10,7 @@
 
 	onMount(async () => {
     const agentSettings = await getSettingDetail("Agent");
-    chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}`;
+    chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}?isLite=true`;
     showChatIcon = true;
 	});
 
