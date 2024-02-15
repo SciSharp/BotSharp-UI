@@ -37,8 +37,8 @@
 			visibility: 'auto',
 			autoHide: 'move',
 			autoHideDelay: 100,
-			dragScroll: true,
-			clickScroll: false,
+			dragScroll: false,
+			clickScroll: true,
 			theme: 'os-theme-dark',
 			pointers: ['mouse', 'touch', 'pen']
 		}
@@ -46,6 +46,8 @@
 
     onMount(async () => {
         const container = document.getElementById("drawflow");
+        container.style.setProperty('--drawflow-node-width', '300px');
+
         if (container) {
             editor = new Drawflow(container);
             editor.reroute = true;
@@ -174,7 +176,7 @@
 </script>
 
 <div>
-    <!--<button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute Sequentially through Router</button>-->
+    <!--<button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute through {task?.agent_name}</button>-->
     {#if task?.direct_agent_id}
     <button class="btn btn-primary" on:click={handleRunTaskInteractively}><i class="bx bx-rocket"></i> Execute Interactively</button>
     {/if}

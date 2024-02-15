@@ -22,11 +22,25 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import { replaceNewLine } from '$lib/helpers/http';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
 
 	let isError = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
+
+	const options = {
+		scrollbars: {
+			visibility: 'auto',
+			autoHide: 'move',
+			autoHideDelay: 100,
+			dragScroll: true,
+			clickScroll: false,
+			theme: 'os-theme-dark',
+			pointers: ['mouse', 'touch', 'pen']
+		}
+	};
 
     /** @type {import('$types').PagedItems<import('$types').AgentTaskModel>} */
     let tasks = { count: 0, items: [] };
@@ -44,6 +58,11 @@
 
     onMount(async () => {
 		await getPagedAgentTasks();
+
+		const scrollElements = document.querySelectorAll('.scrollbar');
+		scrollElements.forEach((item) => {
+			const scrollbar = OverlayScrollbars(item, options);
+		});
     });
 
 	async function getPagedAgentTasks() {
@@ -212,7 +231,7 @@
 								</td>
 								<td>{task.description}</td>
 								<td>{task.agent_name}</td>
-								<td>{@html replaceNewLine(task.content)}</td>
+								<td><div style="max-height: 100px;" class="scrollbar">{@html replaceNewLine(task.content)}</div></td>
 								<td>{utcToLocal(task.updated_datetime)}</td>
 								<td><span class="badge bg-success">{task.enabled ? "Enabled" : "Disabled"}</span></td>
 								<td>
