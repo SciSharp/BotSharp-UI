@@ -209,13 +209,10 @@
 			text = transcript;
 			if (!!!_.trim(text) || isSendingMsg) return;
 
-			isSendingMsg = true;
 			sendTextMessage().then(() => {
 				microphoneIcon = "microphone-off";
-				isSendingMsg = false;
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
-				isSendingMsg = false;
 			});
 		}
 		webSpeech.start();
