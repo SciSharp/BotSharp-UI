@@ -223,7 +223,7 @@
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
-								<th scope="col" class="conv-list-title">Title</th>
+								<th scope="col" class="list-title">Title</th>
 								<th scope="col">User Name</th>
 								<th scope="col">Agent</th>
 								<th scope="col">Channel</th>
@@ -236,7 +236,7 @@
 						<tbody>
 							{#each conversations.items as conv}
 							<tr>
-								<td scope="row" class="conv-list-title">
+								<td scope="row" class="list-title">
 									<a href="page/conversation/{conv.id}">{conv.title}</a></td>
 								<td>{conv.user.full_name}</td>
 								<td>{conv.agent_name}</td>

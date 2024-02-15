@@ -2,6 +2,7 @@
 	import { Button } from '@sveltestrap/sveltestrap';
     import moment from 'moment';
     import { replaceNewLine } from '$lib/helpers/http';
+	import { UserRole } from '$lib/helpers/enums';
 
     /** @type {import('$types').ContentLogModel} */
     export let data;
@@ -21,7 +22,9 @@
     <div class="log-content" class:log-collapse={!!data?.is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
+    {#if data.role != UserRole.User}
     <Button class='toggle-btn' color="link" on:click={(e) => toggleText(e)}>
         {`${!!data?.is_collapsed ? 'More +' : 'Less -'}`}
     </Button>
+    {/if}
 </div>
