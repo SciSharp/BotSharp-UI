@@ -79,7 +79,7 @@
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
 	let isOpenEditMsgModal = false;
-	let isOpenStateModal = false;
+	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	
 	onMount(async () => {
@@ -296,8 +296,8 @@
 		}
 	}
 
-	function toggleStateModal() {
-		isOpenStateModal = !isOpenStateModal;
+	function toggleAddStateModal() {
+		isOpenAddStateModal = !isOpenAddStateModal;
 	}
 
 	function clearStates() {
@@ -413,10 +413,10 @@
 
 <StateModal
 	className="custom-modal"
-	isOpen={isOpenStateModal}
-	toggleModal={toggleStateModal}
-	confirm={toggleStateModal}
-	cancel={toggleStateModal}
+	isOpen={isOpenAddStateModal}
+	toggleModal={toggleAddStateModal}
+	confirm={toggleAddStateModal}
+	cancel={toggleAddStateModal}
 />
 
 <HeadTitle title="Chat" addOn='' />
