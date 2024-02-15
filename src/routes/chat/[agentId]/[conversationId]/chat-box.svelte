@@ -451,7 +451,7 @@
 												{#if !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStateLog || !isOpenStateModal}
+												{#if !isLoadStateLog || !isOpenAddStateModal}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -461,8 +461,8 @@
 															{#if !isLoadStateLog}
 															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 															{/if}
-															{#if !isOpenStateModal}
-															<DropdownItem on:click={() => toggleStateModal()}>Add States</DropdownItem>
+															{#if !isOpenAddStateModal}
+															<DropdownItem on:click={() => toggleAddStateModal()}>Add States</DropdownItem>
 															{/if}
 															<DropdownItem on:click={() => clearStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
