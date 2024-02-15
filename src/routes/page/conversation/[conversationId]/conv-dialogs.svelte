@@ -3,6 +3,7 @@
     import { GetDialogs } from '$lib/services/conversation-service.js';
     import { format } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
+	import { UserRole } from '$lib/helpers/enums';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -20,7 +21,7 @@
     */
     function showInRight(dialog) {
         const sender = dialog.sender;
-        return sender.role != "client" && sender.role != "user";
+        return sender.role != UserRole.Client && sender.role != UserRole.User;
     }
 </script>
 

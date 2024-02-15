@@ -28,7 +28,7 @@ export function format(datetime, type = 'date') {
  * @param {Date} datetime
  * @param {string} format - date or time
  */
-export function utcToLocal(datetime, format = 'MMM DD YYYY, hh:mm A') {
+export function utcToLocal(datetime, format = 'MMM D YYYY, hh:mm A') {
     return moment.utc(datetime).local().format(format);
 }
 

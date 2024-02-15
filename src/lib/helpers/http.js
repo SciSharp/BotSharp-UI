@@ -1,19 +1,21 @@
 import axios from 'axios';
-import { getUserStore, setGlobalLoad } from '$lib/helpers/store.js';
+import { getUserStore, loaderStore } from '$lib/helpers/store.js';
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
     (config) => {
         // Add your authentication logic here
         let user = getUserStore();
-        setGlobalLoad(true);
+        if (!skipLoader(config)) {
+            loaderStore.set(true);
+        }
         // For example, attach an authentication token to the request headers
         if (user.token)
             config.headers.Authorization = `Bearer ${user.token}`;
         return config;
     },
     (error) => {
-        setGlobalLoad(false);
+        loaderStore.set(false);
         return Promise.reject(error);
     }
 );
@@ -22,12 +24,11 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         // If the request was successful, return the response
-        setGlobalLoad(false);
+        loaderStore.set(false);
         return response;
     },
     (error) => {
-        setGlobalLoad(false);
-
+        loaderStore.set(false);
         let user = getUserStore();
 
         if (Date.now() / 1000 > user.expires) {
@@ -45,6 +46,15 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+/** @param {import('axios').InternalAxiosRequestConfig<any>} config */
+function skipLoader(config) {
+    const regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
+    if (config.method === 'post' && !!config.data && regex.test(config.url || '')) {
+        return true;
+    }
+    return false;
+}
 
 /**
  * @param {String} url

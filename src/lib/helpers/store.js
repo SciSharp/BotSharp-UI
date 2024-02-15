@@ -11,7 +11,7 @@ export const userStore = writable({ id: "", full_name: "", expires: 0, token: nu
 /**
  * @returns {Writable<import('$types').UserModel>}
  */
-export function getUserStore () {
+export function getUserStore() {
     if (browser) {
         // Access localStorage only if in the browser context
         let json = localStorage.getItem('user');
@@ -31,14 +31,6 @@ userStore.subscribe(value => {
     }
 });
 
-export const globalLoaderStore = writable(false);
-
-/**
- * @param {boolean} value
- */
-export function setGlobalLoad(value){
-    globalLoaderStore.set(value);
-}
 
 /** @type {Writable<import('$types').ConversationModel>}*/
 export const conversationStore = writable({});
@@ -70,6 +62,18 @@ conversationStore.subscribe(value => {
         }
     }
 });
+
+
+
+const createLoaderStore = () => {
+    const { subscribe, set } = writable(false);
+    return {
+        subscribe,
+        set
+    };
+}
+
+export const loaderStore = createLoaderStore();
 
 
 const createConversationUserStateStore = () => {
