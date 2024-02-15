@@ -1,8 +1,10 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onMount, tick } from 'svelte';
+	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
 	import StateLogElement from './state-log-element.svelte';
+	import { page } from '$app/stores';
+	import { GetStateLogs } from '$lib/services/logging-service';
 
     /** @type {any[]} */
     export let stateLogs = [];
@@ -12,6 +14,8 @@
 
     // @ts-ignore
     let scrollbar;
+    /** @type {any[]} */
+    let initLogs = [];
 
     const options = {
 		scrollbars: {
@@ -26,6 +30,10 @@
 	};
 
     onMount(async () => {
+        const conversationId = $page.params.conversationId;
+        initLogs = await GetStateLogs(conversationId);
+        stateLogs = [...initLogs, ...stateLogs];
+        
 		const scrollElements = document.querySelectorAll('.state-log-scrollbar');
 		scrollElements.forEach((item) => {
 			scrollbar = OverlayScrollbars(item, options);
@@ -38,10 +46,14 @@
         refreshLog();
     });
 
+    onDestroy(() => {
+        initLogs = [];
+        stateLogs = [];
+    });
 
     async function refreshLog() {
         // trigger UI render
-        stateLogs = stateLogs || [];
+        stateLogs = [...initLogs, ...stateLogs];
         await tick();
 
         setTimeout(() => {

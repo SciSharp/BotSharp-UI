@@ -1,3 +1,4 @@
+import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
@@ -18,4 +19,26 @@ export async function getFullLog() {
         link.click();
         link.remove();
     })
+}
+
+/**
+ * Get conversation content log
+ * @param {string} conversationId 
+ * @returns {Promise<import('$types').ConversationContentLogModel[]>}
+ */
+export async function GetContentLogs(conversationId) {
+    let url = replaceUrl(endpoints.loggingContentLogUrl, {conversationId: conversationId});
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * Get conversation state log
+ * @param {string} conversationId 
+ * @returns {Promise<import('$types').ConversationStateLogModel[]>}
+ */
+export async function GetStateLogs(conversationId) {
+    let url = replaceUrl(endpoints.loggingStateLogUrl, {conversationId: conversationId});
+    const response = await axios.get(url);
+    return response.data;
 }

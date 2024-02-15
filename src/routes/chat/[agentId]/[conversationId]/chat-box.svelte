@@ -69,7 +69,7 @@
 	/** @type {{ [s: string]: any; }} */
 	let groupedDialogs = [];
 	
-	/** @type {import('$types').ContentLogModel[]} */
+	/** @type {import('$types').ConversationContentLogModel[]} */
 	let contentLogs = [];
 
 	/** @type {import('$types').ConversationStateLogModel[]} */
@@ -77,7 +77,7 @@
 
 	/** @type {boolean} */
 	let isLoadContentLog = false;
-	let isLoadStateLog = false;
+	let isLoadStateLog = true;
 	let isOpenEditMsgModal = false;
 	let isOpenStateModal = false;
 	let isSendingMsg = false;
@@ -137,12 +137,9 @@
 		refresh();
     }
 
-	/** @param {import('$types').ContentLogModel} log */
+	/** @param {import('$types').ConversationContentLogModel} log */
 	function onContentLogGenerated(log) {
-		contentLogs.push({
-			...log,
-			is_collapsed: true
-		});
+		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
@@ -508,7 +505,7 @@
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
-										</div>																
+										</div>
 										{/if}
 
 										{#if message.sender.id === currentUser.id}
@@ -591,7 +588,7 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog logs={contentLogs} closeWindow={toggleContentLog} />
+			<ContentLog contentlogs={contentLogs} closeWindow={toggleContentLog} />
 		</Pane>
 		{/if}
 	</Splitpanes>
