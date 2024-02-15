@@ -115,15 +115,15 @@
 	}
 
 	async function refresh() {
-      // trigger UI render
-      dialogs = dialogs?.map(item => { return { ...item }; }) || [];
-	  groupedDialogs = groupDialogs(dialogs);
-	  await tick();
+		// trigger UI render
+		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+		groupedDialogs = groupDialogs(dialogs);
+		await tick();
 
-      setTimeout(() => {
-		const { viewport } = scrollbar.elements();
-		viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-	  }, 200);
+		setTimeout(() => {
+			const { viewport } = scrollbar.elements();
+			viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
+		}, 200);
     }
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -145,15 +145,15 @@
 
 	/** @param {import('$types').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
-      dialogs.push(message);
-      refresh();
-      text = "";
+		dialogs.push(message);
+		refresh();
+		text = "";
     }
 
     /** @param {import('$types').ChatResponseModel} message */
     function onMessageReceivedFromCsr(message) {
-      dialogs.push(message);
-      refresh();
+		dialogs.push(message);
+		refresh();
     }
 
     /** @param {import('$types').ChatResponseModel} message */
