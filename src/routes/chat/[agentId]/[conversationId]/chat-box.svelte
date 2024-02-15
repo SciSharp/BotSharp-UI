@@ -247,6 +247,10 @@
 			return;
 		}
 
+		if (e.key === 'Enter') {
+			e.preventDefault();
+		}
+
 		prevSentMsgs = [...prevSentMsgs, text];
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
@@ -569,7 +573,7 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} placeholder="Enter Message..." />
+									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg} placeholder="Enter Message..." />
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
