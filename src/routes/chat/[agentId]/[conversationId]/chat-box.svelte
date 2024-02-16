@@ -32,7 +32,7 @@
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
-	import { Pulse } from 'svelte-loading-spinners';
+	import Loading from '$lib/common/Loading.svelte';
 
 	const options = {
 		scrollbars: {
@@ -599,9 +599,9 @@
 										<div class="cicon-wrap float-start">
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 										</div>
-										<div class="ctext-wrap loading-wrap float-start">
+										<div class="ctext-wrap float-start">
 											<div class="flex-shrink-0 align-self-center">
-												<Pulse duration={'1s'} size={35} color={'var(--bs-primary)'} />
+												<Loading duration={'1s'} size={12} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>
