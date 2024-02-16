@@ -263,6 +263,7 @@
 		}).catch(() => {
 			isSendingMsg = false;
 		});
+		text = "";
 	}
 
 	/**
