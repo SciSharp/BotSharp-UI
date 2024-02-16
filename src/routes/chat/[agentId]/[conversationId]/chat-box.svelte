@@ -31,6 +31,8 @@
 	import { UserRole } from '$lib/helpers/enums';
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
+	import RcMarkdown from './rc-markdown.svelte';
+	import { SyncLoader } from 'svelte-loading-spinners';
 
 	const options = {
 		scrollbars: {
@@ -81,6 +83,7 @@
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
+	let isThinking = true;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -579,6 +582,21 @@
 								</li>
 								{/each}
 								{/each}
+
+								{#if isThinking}
+								<li>
+									<div class="conversation-list">
+										<div class="cicon-wrap float-start">
+											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+										</div>
+										<div class="ctext-wrap loading-wrap float-start">
+											<div class="flex-shrink-0 align-self-center">
+												<SyncLoader duration={'1s'} size={35} color={'var(--bs-primary)'} />
+											</div>
+										</div>
+									</div>
+								</li>
+								{/if}
 							</ul>
 						</div>
 					</div>
