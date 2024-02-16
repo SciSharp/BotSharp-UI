@@ -91,7 +91,6 @@ export const signalr = {
     connection.on('onConversateStatesGenerated', (data) => {
       const jsonData = JSON.parse(data);
       if (conversationId === jsonData?.conversation_id) {
-        console.log(data, jsonData);
         this.onConversationStatesGenerated(jsonData);
       }
     });

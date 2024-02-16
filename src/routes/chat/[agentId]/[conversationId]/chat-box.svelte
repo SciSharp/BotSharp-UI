@@ -192,8 +192,10 @@
 
     function sendTextMessage() {
 		isSendingMsg = true;
+		const sentText = text;
+		text = "";
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, text).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
 				isSendingMsg = false;
 				resolve(res);
 			}).catch(err => {
@@ -263,6 +265,7 @@
 		}).catch(() => {
 			isSendingMsg = false;
 		});
+		text = "";
 	}
 
 	/**

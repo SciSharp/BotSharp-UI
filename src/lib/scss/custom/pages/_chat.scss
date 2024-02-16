@@ -337,23 +337,6 @@
                     font-size: 15px;
                     padding-left: 0px;
                 }
-
-                &:nth-child(even) {
-                    .log-meta {
-                        color: $faded-color !important;
-                    }
-                    
-                    .log-content {
-                        color: $faded-color !important;
-                        span {
-                            color: $faded-color !important;
-                        }
-                    }
-
-                    button {
-                        color: $faded-color !important;
-                    }
-                }
             }
         }
     }
