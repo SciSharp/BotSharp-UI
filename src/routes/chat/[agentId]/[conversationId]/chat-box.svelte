@@ -28,11 +28,11 @@
 	import StateLog from './state-log.svelte';
 	import StateModal from './state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
-	import { UserRole } from '$lib/helpers/enums';
+	import { SenderAction, UserRole } from '$lib/helpers/enums';
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
-	import { SyncLoader } from 'svelte-loading-spinners';
+	import { Pulse } from 'svelte-loading-spinners';
 
 	const options = {
 		scrollbars: {
@@ -83,7 +83,7 @@
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
-	let isThinking = true;
+	let isThinking = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -93,8 +93,9 @@
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
-		signalr.onContentLogGenerated = onContentLogGenerated;
-		signalr.onConversationStatesGenerated = onConversationStatesGenerated;
+		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
+		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
+		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		await signalr.start(params.conversationId);
 
 		const scrollElements = document.querySelectorAll('.scrollbar');
@@ -174,17 +175,26 @@
     }
 
 	/** @param {import('$types').ConversationContentLogModel} log */
-	function onContentLogGenerated(log) {
+	function onConversationContentLogGenerated(log) {
 		if (!isLoadContentLog) return;
 		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').ConversationStateLogModel} data */
-	function onConversationStatesGenerated(data) {
+	/** @param {import('$types').ConversationStateLogModel} log */
+	function onConversationStateLogGenerated(log) {
 		if (!isLoadStateLog) return;
-		stateLogs.push({ ...data });
+		stateLogs.push({ ...log });
 		stateLogs = stateLogs.map(x => { return { ...x }; });
+	}
+
+	/**  @param {import('$types').ConversationSenderActionModel} data */
+	function onSenderActionGenerated(data) {
+		if (data?.sender_action == SenderAction.TypingOn) {
+			isThinking = true;
+		} else if (data?.sender_action == SenderAction.TypingOff) {
+			isThinking = false;
+		}
 	}
 
 	async function newConversationHandler() {
@@ -253,7 +263,7 @@
 			return;
 		}
 
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text) || isSendingMsg) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text) || isSendingMsg || isThinking) {
 			return;
 		}
 
@@ -591,7 +601,7 @@
 										</div>
 										<div class="ctext-wrap loading-wrap float-start">
 											<div class="flex-shrink-0 align-self-center">
-												<SyncLoader duration={'1s'} size={35} color={'var(--bs-primary)'} />
+												<Pulse duration={'1s'} size={35} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>
@@ -613,7 +623,7 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg} placeholder="Enter Message..." />
+									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg || isThinking} placeholder="Enter Message..." />
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
@@ -627,7 +637,7 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									disabled={!!!_.trim(text) || isSendingMsg}
+									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
 									on:click={sendTextMessage}
 								><span class="d-none d-sm-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />

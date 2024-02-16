@@ -291,6 +291,15 @@ IRichContent.prototype.text;
  * @property {UserStateDetailModel[]} states - The states added by user.
  */
 
+
+/** 
+ * Conversation sender action
+ * 
+ * @typedef {Object} ConversationSenderActionModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {number} sender_action - The sender action.
+ */
+
 /**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
@@ -315,17 +324,24 @@ IRichContent.prototype.text;
  */
 
 /** 
- * Content log
+ * Conversation content log
  * 
- * @callback OnContentLogReceived
+ * @callback OnConversationContentLogReceived
  * @param {ConversationContentLogModel} log
+ */
+
+/** 
+ * Conversation state log
+ * 
+ * @callback OnConversationStateLogGenerated
+ * @param {ConversationStateLogModel} log
  */
 
 /** 
  * Conversation states
  * 
- * @callback OnConversationStatesGenerated
- * @param {ConversationStateLogModel} data
+ * @callback OnSenderActionGenerated
+ * @param {ConversationSenderActionModel} data
  */
 
 

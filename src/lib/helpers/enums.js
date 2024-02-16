@@ -7,3 +7,11 @@ const userRole = {
 };
 
 export const UserRole = Object.freeze(userRole);
+
+const senderAction = {
+    TypingOn: 1,
+    TypingOff: 2,
+    MarkSeen: 3
+}
+
+export const SenderAction = Object.freeze(senderAction);
