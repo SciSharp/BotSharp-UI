@@ -174,12 +174,12 @@
 
 									<ul class="list-inline">
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectHost={PUBLIC_LIVECHAT_HOST}" class="social-list-item bg-primary text-white border-primary">
+											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirecturl={PUBLIC_LIVECHAT_HOST}/page/user/me" class="social-list-item bg-primary text-white border-primary">
 												<i class="mdi mdi-github" />
 											</a>
 										</li>		
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectHost={PUBLIC_LIVECHAT_HOST}" class="social-list-item bg-primary text-white border-primary">
+											<a href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirecturl={PUBLIC_LIVECHAT_HOST}/page/user/me" class="social-list-item bg-primary text-white border-primary">
 												<i class="mdi mdi-cloud" />
 											</a>
 										</li>									
