@@ -21,11 +21,14 @@ export const signalr = {
   /** @type {import('$types').OnMessageReceived} */
   onMessageReceivedFromAssistant: () => {},
 
-  /** @type {import('$types').OnContentLogReceived} */
-  onContentLogGenerated: () => {},
+  /** @type {import('$types').OnConversationContentLogReceived} */
+  onConversationContentLogGenerated: () => {},
 
-  /** @type {import('$types').OnConversationStatesGenerated} */
-  onConversationStatesGenerated: () => {},
+  /** @type {import('$types').OnConversationStateLogGenerated} */
+  onConversationStateLogGenerated: () => {},
+
+  /** @type {import('$types').OnSenderActionGenerated} */
+  onSenderActionGenerated: () => {},
 
   // start the connection
   /** @param {string} conversationId */
@@ -81,17 +84,23 @@ export const signalr = {
       }
     });
 
-    connection.on('onContentLogGenerated', (log) => {
+    connection.on('OnConversationContentLogGenerated', (log) => {
       const jsonLog = JSON.parse(log);
       if (conversationId === jsonLog?.conversation_id) {
-        this.onContentLogGenerated(jsonLog);
+        this.onConversationContentLogGenerated(jsonLog);
       }
     });
 
-    connection.on('onConversateStatesGenerated', (data) => {
-      const jsonData = JSON.parse(data);
+    connection.on('OnConversateStateLogGenerated', (log) => {
+      const jsonData = JSON.parse(log);
       if (conversationId === jsonData?.conversation_id) {
-        this.onConversationStatesGenerated(jsonData);
+        this.onConversationStateLogGenerated(jsonData);
+      }
+    });
+
+    connection.on('OnSenderActionGenerated', (data) => {
+      if (conversationId === data?.conversation_id) {
+        this.onSenderActionGenerated(data);
       }
     });
   },
