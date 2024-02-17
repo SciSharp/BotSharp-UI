@@ -33,6 +33,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
 	import Loading from '$lib/common/Loading.svelte';
+	import MessageImage from './message-image.svelte';
 
 	const options = {
 		scrollbars: {
@@ -536,14 +537,19 @@
 									class={message.sender.id === currentUser.id ? 'right' : ''}>
 									<div class="conversation-list">
 										{#if message.sender.id === currentUser.id}
-										<div class="ctext-wrap">
-											<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-											<div class="text-start">{@html replaceNewLine(message.text)}</div>
-											<p class="chat-time mb-0">
-												<i class="bx bx-time-five align-middle me-1" />
-												<!-- {format(message.created_at, 'short-time')} -->
-												{utcToLocal(message.created_at, 'hh:mm A')}
-											</p>	
+										<div class="msg-container">
+											<div class="ctext-wrap">
+												<div>
+													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
+													<div class="text-start">{@html replaceNewLine(message.text)}</div>
+													<p class="chat-time mb-0">
+														<i class="bx bx-time-five align-middle me-1" />
+														<!-- {format(message.created_at, 'short-time')} -->
+														{utcToLocal(message.created_at, 'hh:mm A')}
+													</p>
+												</div>
+											</div>
+											<MessageImage message={message} />
 										</div>
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
@@ -563,25 +569,28 @@
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
 										</div>
-										<div class="ctext-wrap">
-											<div class="flex-shrink-0 align-self-center">
-												{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
-												<RcText message={message.rich_content.message} />
-												{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
-												<RcQuickReply 
-													message={message.rich_content.message}
-													onClickQuickReply={clickQuickReply}
-												/>
-												{:else}
-												<span>{message.text}</span>
-												{/if}
+										<div class="msg-container">
+											<div class="ctext-wrap">
+												<div class="flex-shrink-0 align-self-center">
+													{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
+													<RcText message={message.rich_content.message} />
+													{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
+													<RcQuickReply 
+														message={message.rich_content.message}
+														onClickQuickReply={clickQuickReply}
+													/>
+													{:else}
+													<span>{message.text}</span>
+													{/if}
+												</div>
 											</div>
+											<MessageImage message={message} />
 										</div>
 										{/if}
 
 										<!-- {#if message.data && message.data.includes('data:image/png;base64,')}
 										<div style="width: 80%; display: flex; margin-left: 35px; margin-top: 40px;">
-											<img src={message.data} alt="" class="border rounded img-fluid"/>
+											<img src={"https://media.istockphoto.com/id/1417080439/photo/water-drop-splash-on-the-blue-background.jpg?s=2048x2048&w=is&k=20&c=2a4WKSi3YHDi1-orR-7nTDph5AaH1KbbVdxM79AzxEs="} alt="" class="border rounded img-fluid"/>
 										</div>
 										{/if} -->
 									</div>

@@ -144,6 +144,7 @@
             font-size: 12px;
         }
     }
+
     .conversation-list {
         margin-bottom: 24px;
         display: flex;
@@ -155,13 +156,17 @@
             flex: 0 0 32px;
         }
 
+        .msg-container {
+            max-width: 80%;
+            flex: 0 0 fit-content;
+        }
+
         .ctext-wrap {
             padding: 8px 12px;
             background-color: rgba($primary, 0.1);
             border-radius: 8px 8px 8px 0px;
             overflow: hidden;
-            max-width: 80%;
-            flex: 0 0 fit-content;
+            width: fit-content;
 
             .conversation-name {
                 font-weight: $font-weight-semibold;
@@ -173,6 +178,11 @@
                 margin-top: 0px !important;
                 margin-bottom: 0px !important;
             }
+        }
+
+        .image-wrap {
+            margin-top: 10px;
+            max-width: 80%;
         }
 
         .dropdown {
@@ -189,7 +199,7 @@
             .dropdown-menu {
                 box-shadow: $box-shadow;
                 border: 1px solid var(--#{$prefix}border-color);
-                top: 0px !important;
+                top: 50% !important;
             }
         }
 
@@ -201,6 +211,12 @@
     .right {
         .conversation-list {
             justify-content: flex-end;
+
+            .msg-container {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+            }
 
             .ctext-wrap {
                 background-color: var(--#{$prefix}light);
