@@ -146,12 +146,13 @@
     }
     .conversation-list {
         margin-bottom: 24px;
-        display: inline-block;
+        display: flex;
         position: relative;
         width: 100%;
 
         .cicon-wrap {
             margin-right: 4px;
+            flex: 0 0 32px;
         }
 
         .ctext-wrap {
@@ -159,7 +160,8 @@
             background-color: rgba($primary, 0.1);
             border-radius: 8px 8px 8px 0px;
             overflow: hidden;
-            max-width: 80vw;
+            max-width: 80%;
+            flex: 0 0 fit-content;
 
             .conversation-name {
                 font-weight: $font-weight-semibold;
@@ -174,7 +176,6 @@
         }
 
         .dropdown {
-            float: right;
             .dropdown-toggle {
                 font-size: 18px;
                 padding: 4px;
@@ -188,6 +189,7 @@
             .dropdown-menu {
                 box-shadow: $box-shadow;
                 border: 1px solid var(--#{$prefix}border-color);
+                top: 0px !important;
             }
         }
 
@@ -198,14 +200,12 @@
 
     .right {
         .conversation-list {
-            float: right;
+            justify-content: flex-end;
+
             .ctext-wrap {
                 background-color: var(--#{$prefix}light);
                 text-align: right;
                 border-radius: 8px 8px 0px 8px;
-            }
-            .dropdown {
-                float: right;
             }
 
             &.last-chat {

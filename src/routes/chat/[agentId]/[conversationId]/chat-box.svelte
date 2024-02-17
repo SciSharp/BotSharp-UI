@@ -536,6 +536,15 @@
 									class={message.sender.id === currentUser.id ? 'right' : ''}>
 									<div class="conversation-list">
 										{#if message.sender.id === currentUser.id}
+										<div class="ctext-wrap">
+											<!--<div class="conversation-name">{message.sender.full_name}</div>-->
+											<div class="text-start">{@html replaceNewLine(message.text)}</div>
+											<p class="chat-time mb-0">
+												<i class="bx bx-time-five align-middle me-1" />
+												<!-- {format(message.created_at, 'short-time')} -->
+												{utcToLocal(message.created_at, 'hh:mm A')}
+											</p>	
+										</div>
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
 												<i class="bx bx-dots-vertical-rounded" />
@@ -547,27 +556,14 @@
 											</DropdownMenu>
 										</Dropdown>
 										{:else}
-										<div class="cicon-wrap float-start">
+										<div class="cicon-wrap">
 											{#if message.sender.role == UserRole.Client}
 											<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
 										</div>
-										{/if}
-
-										{#if message.sender.id === currentUser.id}
-										<div class="ctext-wrap float-end">
-											<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-											<div class="text-start">{@html replaceNewLine(message.text)}</div>
-											<p class="chat-time mb-0">
-												<i class="bx bx-time-five align-middle me-1" />
-												<!-- {format(message.created_at, 'short-time')} -->
-												{utcToLocal(message.created_at, 'hh:mm A')}
-											</p>	
-										</div>
-										{:else}
-										<div class="ctext-wrap float-start">
+										<div class="ctext-wrap">
 											<div class="flex-shrink-0 align-self-center">
 												{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
 												<RcText message={message.rich_content.message} />
@@ -583,11 +579,11 @@
 										</div>
 										{/if}
 
-										{#if message.data && message.data.includes('data:image/png;base64,')}
+										<!-- {#if message.data && message.data.includes('data:image/png;base64,')}
 										<div style="width: 80%; display: flex; margin-left: 35px; margin-top: 40px;">
-											<img src="{message.data}" alt="" class="border rounded img-fluid"/>
+											<img src={message.data} alt="" class="border rounded img-fluid"/>
 										</div>
-										{/if}
+										{/if} -->
 									</div>
 								</li>
 								{/each}
