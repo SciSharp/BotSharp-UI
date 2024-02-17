@@ -32,7 +32,7 @@
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
-	import Loading from '$lib/common/Loading.svelte';
+	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import MessageImage from './message-image.svelte';
 
 	const options = {
@@ -587,12 +587,6 @@
 											<MessageImage message={message} />
 										</div>
 										{/if}
-
-										<!-- {#if message.data && message.data.includes('data:image/png;base64,')}
-										<div style="width: 80%; display: flex; margin-left: 35px; margin-top: 40px;">
-											<img src={"https://media.istockphoto.com/id/1417080439/photo/water-drop-splash-on-the-blue-background.jpg?s=2048x2048&w=is&k=20&c=2a4WKSi3YHDi1-orR-7nTDph5AaH1KbbVdxM79AzxEs="} alt="" class="border rounded img-fluid"/>
-										</div>
-										{/if} -->
 									</div>
 								</li>
 								{/each}
@@ -606,7 +600,7 @@
 										</div>
 										<div class="ctext-wrap float-start">
 											<div class="flex-shrink-0 align-self-center">
-												<Loading duration={'1s'} size={12} color={'var(--bs-primary)'} />
+												<LoadingDots duration={'1s'} size={12} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>
