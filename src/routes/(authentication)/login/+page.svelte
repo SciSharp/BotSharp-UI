@@ -184,17 +184,7 @@
 											</a>
 										</li>									
 										<li class="list-inline-item">
-											<a href={null} class="social-list-item bg-primary text-white border-primary">
-												<i class="mdi mdi-facebook" />
-											</a>
-										</li>
-										<li class="list-inline-item">
-											<a href={null} class="social-list-item bg-info text-white border-info">
-												<i class="mdi mdi-twitter" />
-											</a>
-										</li>
-										<li class="list-inline-item">
-											<a href={null} class="social-list-item bg-danger text-white border-danger">
+											<a href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}/page/user/me" class="social-list-item bg-danger text-white border-danger">
 												<i class="mdi mdi-google" />
 											</a>
 										</li>
