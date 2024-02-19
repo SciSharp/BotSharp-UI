@@ -600,7 +600,7 @@
 										</div>
 										<div class="ctext-wrap float-start">
 											<div class="flex-shrink-0 align-self-center">
-												<LoadingDots duration={'1s'} size={12} color={'var(--bs-primary)'} />
+												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>
