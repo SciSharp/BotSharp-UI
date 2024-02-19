@@ -17,6 +17,7 @@
 	import { goto } from '$app/navigation';
 	import {
 		PUBLIC_SERVICE_URL,
+		PUBLIC_LIVECHAT_HOST,
 		PUBLIC_LOGO_URL,
 		PUBLIC_LOGIN_IMAGE,
 		PUBLIC_BRAND_NAME,
@@ -173,10 +174,15 @@
 
 									<ul class="list-inline">
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub" class="social-list-item bg-primary text-white border-primary">
+											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}/page/user/me" class="social-list-item bg-primary text-white border-primary">
 												<i class="mdi mdi-github" />
 											</a>
-										</li>										
+										</li>		
+										<li class="list-inline-item">
+											<a href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}/page/user/me" class="social-list-item bg-primary text-white border-primary">
+												<i class="mdi mdi-cloud" />
+											</a>
+										</li>									
 										<li class="list-inline-item">
 											<a href={null} class="social-list-item bg-primary text-white border-primary">
 												<i class="mdi mdi-facebook" />
