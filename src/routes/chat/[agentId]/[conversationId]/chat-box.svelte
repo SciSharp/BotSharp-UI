@@ -32,7 +32,8 @@
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
-	import Loading from '$lib/common/Loading.svelte';
+	import LoadingDots from '$lib/common/LoadingDots.svelte';
+	import MessageImage from './message-image.svelte';
 
 	const options = {
 		scrollbars: {
@@ -536,6 +537,20 @@
 									class={message.sender.id === currentUser.id ? 'right' : ''}>
 									<div class="conversation-list">
 										{#if message.sender.id === currentUser.id}
+										<div class="msg-container">
+											<div class="ctext-wrap">
+												<div>
+													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
+													<div class="text-start">{@html replaceNewLine(message.text)}</div>
+													<p class="chat-time mb-0">
+														<i class="bx bx-time-five align-middle me-1" />
+														<!-- {format(message.created_at, 'short-time')} -->
+														{utcToLocal(message.created_at, 'hh:mm A')}
+													</p>
+												</div>
+											</div>
+											<MessageImage message={message} />
+										</div>
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
 												<i class="bx bx-dots-vertical-rounded" />
@@ -547,45 +562,29 @@
 											</DropdownMenu>
 										</Dropdown>
 										{:else}
-										<div class="cicon-wrap float-start">
+										<div class="cicon-wrap">
 											{#if message.sender.role == UserRole.Client}
 											<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 											{:else}
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 											{/if}
 										</div>
-										{/if}
-
-										{#if message.sender.id === currentUser.id}
-										<div class="ctext-wrap float-end">
-											<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-											<div class="text-start">{@html replaceNewLine(message.text)}</div>
-											<p class="chat-time mb-0">
-												<i class="bx bx-time-five align-middle me-1" />
-												<!-- {format(message.created_at, 'short-time')} -->
-												{utcToLocal(message.created_at, 'hh:mm A')}
-											</p>	
-										</div>
-										{:else}
-										<div class="ctext-wrap float-start">
-											<div class="flex-shrink-0 align-self-center">
-												{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
-												<RcText message={message.rich_content.message} />
-												{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
-												<RcQuickReply 
-													message={message.rich_content.message}
-													onClickQuickReply={clickQuickReply}
-												/>
-												{:else}
-												<span>{message.text}</span>
-												{/if}
+										<div class="msg-container">
+											<div class="ctext-wrap">
+												<div class="flex-shrink-0 align-self-center">
+													{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
+													<RcText message={message.rich_content.message} />
+													{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
+													<RcQuickReply 
+														message={message.rich_content.message}
+														onClickQuickReply={clickQuickReply}
+													/>
+													{:else}
+													<span>{message.text}</span>
+													{/if}
+												</div>
 											</div>
-										</div>
-										{/if}
-
-										{#if message.data && message.data.includes('data:image/png;base64,')}
-										<div style="width: 80%; display: flex; margin-left: 35px; margin-top: 40px;">
-											<img src="{message.data}" alt="" class="border rounded img-fluid"/>
+											<MessageImage message={message} />
 										</div>
 										{/if}
 									</div>
@@ -601,7 +600,7 @@
 										</div>
 										<div class="ctext-wrap float-start">
 											<div class="flex-shrink-0 align-self-center">
-												<Loading duration={'1s'} size={12} color={'var(--bs-primary)'} />
+												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>
