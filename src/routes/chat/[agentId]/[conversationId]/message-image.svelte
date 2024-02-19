@@ -8,7 +8,7 @@
 {#if message?.data && message.data.includes('data:image/png;base64,')}
 <div class="image-wrap">
     <Lightbox transitionDuration={100}>
-        <img src={message.data} alt={''} class="border rounded img-fluid" />
+        <img src={message.data} alt={''} class="rounded img-fluid" />
     </Lightbox>
 </div>
 {/if}
