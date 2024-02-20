@@ -85,6 +85,7 @@
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
+	let isLite = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -116,7 +117,8 @@
 	}
 
 	function initContentLogView() {
-		isLoadContentLog = $page.url.searchParams.get('isLite') !== 'true';
+		isLite = $page.url.searchParams.get('isLite') === 'true';
+		isLoadContentLog = !isLite;
 	}
 
 	async function refresh() {
@@ -201,7 +203,11 @@
 	async function newConversationHandler() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		window.location.href = `chat/${params.agentId}/${conversation.id}`;
+		let url = `chat/${params.agentId}/${conversation.id}`;
+		if (isLite) {
+			url = `${url}?isLite=true`;
+		}
+		window.location.href = url;
 	}
 
     function sendTextMessage() {
@@ -467,7 +473,7 @@
 		<Pane minSize={20}>
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
-					<div class="p-3 border-bottom" style="height: 10vh">
+					<div class="border-bottom" style="height: 10%; padding: 2%">
 						<div class="row">
 							<div class="col-md-4 col-7">
 								<h5 class="font-size-15 mb-1">{agent?.name}</h5>
@@ -523,7 +529,7 @@
 						</div>
 					</div>
 		
-					<div class="scrollbar" style="height: 80vh">
+					<div class="scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -610,7 +616,7 @@
 						</div>
 					</div>
 		
-					<div class="p-3 chat-input-section" style="height: 10vh">
+					<div class="chat-input-section" style="height: 8%; padding: 2%">
 						<div class="row">
 							<div class="col-auto">
 								<button
