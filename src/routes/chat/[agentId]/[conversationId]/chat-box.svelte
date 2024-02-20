@@ -604,7 +604,7 @@
 										<div class="cicon-wrap float-start">
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 										</div>
-										<div class="ctext-wrap float-start">
+										<div class="ctext-wrap float-start" style="display: flex;">
 											<div class="flex-shrink-0 align-self-center">
 												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 											</div>
