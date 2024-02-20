@@ -33,7 +33,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import MessageImage from './message-image.svelte';
+	import ChatImage from './chat-image.svelte';
 
 	const options = {
 		scrollbars: {
@@ -555,7 +555,7 @@
 													</p>
 												</div>
 											</div>
-											<MessageImage message={message} />
+											<ChatImage message={message} />
 										</div>
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
