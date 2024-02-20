@@ -1,5 +1,4 @@
 <script>
-	import { sendMessageToHub, GetDialogs } from '$lib/services/conversation-service.js';
 	import { replaceNewLine } from '$lib/helpers/http';
 
 	/** @type {import('$types').QuickReplyMessage} */

@@ -10,30 +10,31 @@
 	import { page } from '$app/stores';
 	import { onMount, tick } from 'svelte';
 	import Link from 'svelte-link';
+	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
+	import DialogModal from '$lib/common/DialogModal.svelte';
+	import HeadTitle from '$lib/common/HeadTitle.svelte';
+	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
+	import { replaceNewLine } from '$lib/helpers/http';
+	import { SenderAction, UserRole } from '$lib/helpers/enums';
 	import RcText from './messageComponents/rc-text.svelte';
 	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
-	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
+	import RcMarkdown from './messageComponents/rc-markdown.svelte';
+	import RcButton from './messageComponents/rc-button.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
-	import { replaceNewLine } from '$lib/helpers/http';
 	import _ from "lodash";
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
 	import StateModal from './addStateModal/state-modal.svelte';
-	import DialogModal from '$lib/common/DialogModal.svelte';
-	import { SenderAction, UserRole } from '$lib/helpers/enums';
-	import moment from 'moment';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import RcMarkdown from './messageComponents/rc-markdown.svelte';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import ChatImage from './chatImage/chat-image.svelte';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+	import "sweetalert2/src/sweetalert2.scss";
+	import moment from 'moment';
 
 	const options = {
 		scrollbars: {
@@ -578,7 +579,7 @@
 										<div class="msg-container">
 											<div class="ctext-wrap">
 												<div class="flex-shrink-0 align-self-center">
-													{#if message.rich_content && message.rich_content.message.rich_type == 'text'}
+													<!-- {#if message.rich_content && message.rich_content.message.rich_type == 'text'}
 													<RcText message={message.rich_content.message} />
 													{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
 													<RcQuickReply 
@@ -587,7 +588,8 @@
 													/>
 													{:else}
 													<span>{message.text}</span>
-													{/if}
+													{/if} -->
+													<RcButton text={message.text} />
 												</div>
 											</div>
 											<ChatImage message={message} />
