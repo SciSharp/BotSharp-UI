@@ -21,7 +21,7 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import { SenderAction, UserRole, RichType } from '$lib/helpers/enums';
 	import RcText from './messageComponents/rc-text.svelte';
 	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
 	import RcMarkdown from './messageComponents/rc-markdown.svelte';
@@ -35,6 +35,7 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
 
 	const options = {
 		scrollbars: {
@@ -577,21 +578,24 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											<div class="ctext-wrap">
-												<div class="flex-shrink-0 align-self-center">
-													<!-- {#if message.rich_content && message.rich_content.message.rich_type == 'text'}
-													<RcText message={message.rich_content.message} />
-													{:else if message.rich_content && message.rich_content.message.rich_type == 'quick_reply'}
-													<RcQuickReply 
-														message={message.rich_content.message}
-														onClickQuickReply={clickQuickReply}
-													/>
-													{:else}
-													<span>{message.text}</span>
-													{/if} -->
-													<RcButton text={message.text} />
-												</div>
-											</div>
+											{#if message.rich_content}
+												{#if message.rich_content.message.rich_type === RichType.Text}
+												<RcText message={message.rich_content.message} />
+												{:else if message.rich_content.message.rich_type === RichType.QuickReply}
+												<RcQuickReply 
+													message={message.rich_content.message}
+													onClickQuickReply={clickQuickReply}
+												/>
+												{:else if message.rich_content.message.rich_type === RichType.Button}
+												<RcButton text={message.text} />
+												{:else if message.rich_content.message.rich_type === RichType.MultiSelect}
+												<RcMultiSelect />
+												{:else}
+												<RcText message={message} />
+												{/if}
+											{:else}
+											<RcText message={message} />
+											{/if}
 											<ChatImage message={message} />
 										</div>
 										{/if}

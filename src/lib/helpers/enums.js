@@ -15,3 +15,12 @@ const senderAction = {
 }
 
 export const SenderAction = Object.freeze(senderAction);
+
+const richType = {
+    Text: 'text',
+    QuickReply: 'quick_reply',
+    Button: 'button_template',
+    MultiSelect: 'multi-select_template'
+}
+
+export const RichType = Object.freeze(richType);

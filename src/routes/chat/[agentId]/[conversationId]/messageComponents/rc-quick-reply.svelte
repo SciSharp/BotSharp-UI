@@ -17,7 +17,12 @@
 	}
 </script>
 
-<span>{@html replaceNewLine(message.text)}</span>
+<div class="ctext-wrap">
+	<div class="flex-shrink-0 align-self-center">
+        <span>{@html replaceNewLine(message.text)}</span>
+    </div>
+</div>
+
 <div class="fixed-bottom p-2 text-center" style="margin-bottom: 10vh;">
 {#each message.quick_replies as reply}
 <button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleQuickReplyClick(e, reply.payload)}>{reply.title}</button>
