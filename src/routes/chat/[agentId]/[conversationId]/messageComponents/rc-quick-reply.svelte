@@ -5,26 +5,28 @@
 	export let message;
 
 	/** @type {(arg0: string, arg1: import('$types').QuickReplyMessage) => void} */
-	export let onClickQuickReply;
+	export let onClickOption;
 
 	/**
 	 * @param {any} e
 	 * @param {string} payload
 	 */
-	async function handleQuickReplyClick(e, payload) {
+	async function handleButtonClick(e, payload) {
 		e.preventDefault();
-		onClickQuickReply && onClickQuickReply(payload, message);
+		onClickOption && onClickOption(payload, message);
 	}
 </script>
 
 <div class="ctext-wrap">
 	<div class="flex-shrink-0 align-self-center">
-        <span>{@html replaceNewLine(message.text)}</span>
+        <span>{@html replaceNewLine(message?.text || '')}</span>
     </div>
 </div>
 
-<div class="fixed-bottom p-2 text-center" style="margin-bottom: 10vh;">
+{#if message?.quick_replies?.length > 0}
 {#each message.quick_replies as reply}
-<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleQuickReplyClick(e, reply.payload)}>{reply.title}</button>
-{/each}
+<div class="button-group">
+	<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleButtonClick(e, reply.payload)}>{reply.title}</button>
 </div>
+{/each}
+{/if}

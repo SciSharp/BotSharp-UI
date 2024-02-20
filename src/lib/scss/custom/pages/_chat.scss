@@ -159,6 +159,11 @@
         .msg-container {
             max-width: 80%;
             flex: 0 0 fit-content;
+
+            .button-group {
+                display: flex;
+                flex-wrap: wrap;
+            }
         }
 
         .ctext-wrap {

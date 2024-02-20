@@ -292,17 +292,37 @@
 
 	/**
 	 * @param {string} payload
-	 * @param {import('$types').QuickReplyMessage} message
+	 * @param {any} message
 	 */
 	function clickQuickReply(payload, message) {
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
 			isSendingMsg = false;
-			message.quick_replies = [];
+			if (message) message.quick_replies = [];
 		}).catch(() => {
 			isSendingMsg = false;
-			message.quick_replies = [];
+			if (message) message.quick_replies = [];
 		});
+	}
+
+	/**
+	 * @param {string} payload
+	 * @param {any} message
+	 */
+	function clickButtonOption(payload, message) {
+		isSendingMsg = true;
+		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
+			isSendingMsg = false;
+			if (message) message.buttons = [];
+		}).catch(() => {
+			isSendingMsg = false;
+			if (message) message.buttons = [];
+		});
+	}
+
+	/** @param {string} payload */
+	function clickMultiSelectOption(payload) {
+		// to do
 	}
 
 	function endChat() {
@@ -579,23 +599,21 @@
 										</div>
 										<div class="msg-container">
 											{#if message.rich_content}
-												{#if message.rich_content.message.rich_type === RichType.Text}
+												{#if message.rich_content.message?.rich_type === RichType.Text}
 												<RcText message={message.rich_content.message} />
-												{:else if message.rich_content.message.rich_type === RichType.QuickReply}
-												<RcQuickReply 
-													message={message.rich_content.message}
-													onClickQuickReply={clickQuickReply}
-												/>
-												{:else if message.rich_content.message.rich_type === RichType.Button}
-												<RcButton text={message.text} />
-												{:else if message.rich_content.message.rich_type === RichType.MultiSelect}
-												<RcMultiSelect />
+												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
+												<RcQuickReply message={message.rich_content?.message} onClickOption={clickQuickReply} />
+												{:else if message.rich_content.message?.rich_type === RichType.Button}
+												<RcButton message={message.rich_content.message} onClickOption={clickButtonOption} />
+												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
+												<RcMultiSelect message={message.rich_content.message} onClickOption={clickMultiSelectOption} />
 												{:else}
 												<RcText message={message} />
 												{/if}
 											{:else}
 											<RcText message={message} />
 											{/if}
+
 											<ChatImage message={message} />
 										</div>
 										{/if}

@@ -240,3 +240,8 @@ File: Main Css File
 .swal2-container .swal2-confirm {
     background-color: var(--bs-primary);
 }
+
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
