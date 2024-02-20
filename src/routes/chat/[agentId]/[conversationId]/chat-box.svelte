@@ -16,8 +16,8 @@
 	import { newConversation } from '$lib/services/conversation-service';
 	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import RcText from './rc-text.svelte';
-	import RcQuickReply from './rc-quick-reply.svelte';
+	import RcText from './messageComponents/rc-text.svelte';
+	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -26,14 +26,14 @@
 	import "sweetalert2/src/sweetalert2.scss";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
-	import StateModal from './state-modal.svelte';
+	import StateModal from './addStateModal/state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import RcMarkdown from './rc-markdown.svelte';
+	import RcMarkdown from './messageComponents/rc-markdown.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import ChatImage from './chat-image.svelte';
+	import ChatImage from './chatImage/chat-image.svelte';
 
 	const options = {
 		scrollbars: {
