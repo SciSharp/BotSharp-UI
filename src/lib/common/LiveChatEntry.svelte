@@ -9,23 +9,23 @@
     let chatUrl = PUBLIC_LIVECHAT_HOST;
 
 	onMount(async () => {
-    const agentSettings = await getSettingDetail("Agent");
-    chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}?isLite=true`;
-    showChatIcon = true;
+        const agentSettings = await getSettingDetail("Agent");
+        chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}?isLite=true`;
+        showChatIcon = true;
 	});
 
-  // Handle event from iframe
-  window.onmessage = async function(e) {
-    if (e.data.action == 'close') {
-      showChatIcon = true;
-      showChatBox = false;
-    }
-  };
+    // Handle event from iframe
+    window.onmessage = async function(e) {
+        if (e.data.action == 'close') {
+            showChatIcon = true;
+            showChatBox = false;
+        }
+    };
 
-  function handleChatBox() {
-    showChatIcon = false;
-    showChatBox = true;
-  }
+    function handleChatBox() {
+        showChatIcon = false;
+        showChatBox = true;
+    }
 </script>
 
 <div class="fixed-bottom float-bottom-right">

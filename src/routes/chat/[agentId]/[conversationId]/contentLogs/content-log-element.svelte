@@ -7,11 +7,20 @@
     /** @type {import('$types').ConversationContentLogModel} */
     export let data;
 
+    let logBackground = '';
     let is_collapsed = true;
     const excludedRoles = [
         UserRole.User,
         UserRole.Assistant
     ];
+
+    $: {
+        if (data.role == UserRole.Assistant) {
+            logBackground = 'bg-info';
+        } else if (data.role == UserRole.Function) {
+            logBackground = 'bg-secondary';
+        }
+    }
 
      /** @param {any} e */
     function toggleText(e) {
@@ -20,12 +29,12 @@
     }
 </script>
 
-<div class={`log-element ${data.role == UserRole.Assistant ? 'p-2 rounded bg-info' : ''}`}>
+<div class={`log-element p-2 rounded ${logBackground}`}>
     <div class="log-meta">
         <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${moment.utc(data?.created_at).local().format('hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
     </div>
     <br>
-    <div class="log-content" class:log-collapse={!!is_collapsed}>
+    <div class="log-content" class:log-collapse={!excludedRoles.includes(data.role) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
     {#if !excludedRoles.includes(data.role)}

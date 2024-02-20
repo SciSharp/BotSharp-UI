@@ -146,7 +146,7 @@
     }
 
     .conversation-list {
-        margin-bottom: 24px;
+        margin-bottom: 20px;
         display: flex;
         position: relative;
         width: 100%;
@@ -385,6 +385,8 @@
 }
 
 .state-form {
+    padding-left: 25px;
+
     .state-input {
         flex: 0.45;
     }

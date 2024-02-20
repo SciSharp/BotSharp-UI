@@ -16,24 +16,24 @@
 	import { newConversation } from '$lib/services/conversation-service';
 	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import RcText from './rc-text.svelte';
-	import RcQuickReply from './rc-quick-reply.svelte';
+	import RcText from './messageComponents/rc-text.svelte';
+	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import ContentLog from './content-log.svelte';
+	import ContentLog from './contentLogs/content-log.svelte';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import _ from "lodash";
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import StateLog from './state-log.svelte';
-	import StateModal from './state-modal.svelte';
+	import StateLog from './stateLogs/state-log.svelte';
+	import StateModal from './addStateModal/state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
 	import moment from 'moment';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import RcMarkdown from './rc-markdown.svelte';
+	import RcMarkdown from './messageComponents/rc-markdown.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import MessageImage from './message-image.svelte';
+	import ChatImage from './chatImage/chat-image.svelte';
 
 	const options = {
 		scrollbars: {
@@ -85,6 +85,7 @@
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
+	let isLite = false;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -116,7 +117,8 @@
 	}
 
 	function initContentLogView() {
-		isLoadContentLog = $page.url.searchParams.get('isLite') !== 'true';
+		isLite = $page.url.searchParams.get('isLite') === 'true';
+		isLoadContentLog = !isLite;
 	}
 
 	async function refresh() {
@@ -201,7 +203,11 @@
 	async function newConversationHandler() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		window.location.href = `chat/${params.agentId}/${conversation.id}`;
+		let url = `chat/${params.agentId}/${conversation.id}`;
+		if (isLite) {
+			url = `${url}?isLite=true`;
+		}
+		window.location.href = url;
 	}
 
     function sendTextMessage() {
@@ -467,7 +473,7 @@
 		<Pane minSize={20}>
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
-					<div class="p-3 border-bottom" style="height: 10vh">
+					<div class="border-bottom" style="height: 10%; padding: 2%">
 						<div class="row">
 							<div class="col-md-4 col-7">
 								<h5 class="font-size-15 mb-1">{agent?.name}</h5>
@@ -523,7 +529,7 @@
 						</div>
 					</div>
 		
-					<div class="scrollbar" style="height: 80vh">
+					<div class="scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -549,7 +555,7 @@
 													</p>
 												</div>
 											</div>
-											<MessageImage message={message} />
+											<ChatImage message={message} />
 										</div>
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
@@ -584,7 +590,7 @@
 													{/if}
 												</div>
 											</div>
-											<MessageImage message={message} />
+											<ChatImage message={message} />
 										</div>
 										{/if}
 									</div>
@@ -598,7 +604,7 @@
 										<div class="cicon-wrap float-start">
 											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
 										</div>
-										<div class="ctext-wrap float-start">
+										<div class="ctext-wrap float-start" style="display: flex;">
 											<div class="flex-shrink-0 align-self-center">
 												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 											</div>
@@ -610,7 +616,7 @@
 						</div>
 					</div>
 		
-					<div class="p-3 chat-input-section" style="height: 10vh">
+					<div class="chat-input-section" style="height: 8%; padding: 2%">
 						<div class="row">
 							<div class="col-auto">
 								<button
