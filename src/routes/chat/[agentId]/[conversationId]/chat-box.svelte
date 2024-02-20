@@ -19,13 +19,13 @@
 	import RcText from './rc-text.svelte';
 	import RcQuickReply from './rc-quick-reply.svelte';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import ContentLog from './content-log.svelte';
+	import ContentLog from './contentLogs/content-log.svelte';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import _ from "lodash";
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import StateLog from './state-log.svelte';
+	import StateLog from './stateLogs/state-log.svelte';
 	import StateModal from './state-modal.svelte';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
