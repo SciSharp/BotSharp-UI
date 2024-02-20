@@ -36,6 +36,7 @@
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
 	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
+	import RcDummy from './messageComponents/rc-dummy.svelte';
 
 	const options = {
 		scrollbars: {
@@ -598,7 +599,7 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											{#if message.rich_content}
+											<!-- {#if message.rich_content}
 												{#if message.rich_content.message?.rich_type === RichType.Text}
 												<RcText message={message.rich_content.message} />
 												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
@@ -612,8 +613,9 @@
 												{/if}
 											{:else}
 											<RcText message={message} />
-											{/if}
+											{/if} -->
 
+											<RcDummy message={message} />
 											<ChatImage message={message} />
 										</div>
 										{/if}
