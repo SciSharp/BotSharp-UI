@@ -590,7 +590,7 @@
 													{/if}
 												</div>
 											</div>
-											<MessageImage message={message} />
+											<ChatImage message={message} />
 										</div>
 										{/if}
 									</div>
