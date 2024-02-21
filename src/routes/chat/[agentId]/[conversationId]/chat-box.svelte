@@ -36,7 +36,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	import RcDummy from './messageComponents/rc-dummy.svelte';
 
 	const options = {
 		scrollbars: {
@@ -177,13 +176,6 @@
     /** @param {import('$types').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
 		// webSpeech.utter(message.text);
-		// clean rich content elements
-		dialogs.forEach(dialog => {
-			if (dialog.rich_content && dialog.rich_content.message.rich_type == "quick_reply") {
-				dialog.rich_content.message.quick_replies = [];
-			}
-		});
-
 		dialogs.push(message);
 		refresh();
     }
@@ -612,7 +604,6 @@
 											<RcText message={message} />
 											{/if}
 
-											<!-- <RcDummy message={message} displayOptions={message.message_id === lastBotMsgId} onConfirm={confirmSelectedOption} /> -->
 											<ChatImage message={message} />
 										</div>
 										{/if}
