@@ -159,6 +159,23 @@
         .msg-container {
             max-width: 80%;
             flex: 0 0 fit-content;
+
+            .button-group {
+                display: flex;
+                flex-wrap: wrap;
+
+                .btn:not([name="confirm"]) {
+                    &:hover {
+                        background-color: #fff;
+                        color: var(--bs-primary);
+                    }
+                }
+
+                .btn.active:hover {
+                    background-color: var(--bs-primary);
+                    color: #fff;
+                }
+            }
         }
 
         .ctext-wrap {
