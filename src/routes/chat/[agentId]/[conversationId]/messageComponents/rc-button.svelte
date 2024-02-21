@@ -3,16 +3,20 @@
 
     /** @type {any} */
     export let message;
+
+    /** @type {boolean} */
+    export let displayOptions = false;
+
     /** @type {(args0: string, args1: any) => any} */
-     export let onClickOption;
+    export let onConfirm;
 
     /**
 	 * @param {any} e
      * @param {string} payload
 	 */
-    function handleButtonClick(e, payload) {
+    function handleConfirm(e, payload) {
         e.preventDefault();
-        onClickOption && onClickOption(payload, message);
+        onConfirm && onConfirm(payload, message);
     }
 </script>
 
@@ -22,10 +26,10 @@
     </div>
 </div>
 
-{#if message?.buttons?.length > 0}
+{#if displayOptions && message?.buttons?.length > 0}
 <div class="button-group">
     {#each message.buttons as button}
-    <button class="btn btn-outline-primary btn-rounded btn-sm m-1" on:click={(e) => handleButtonClick(e, button.payload)}>{button.title}</button>
+    <button class="btn btn-outline-primary btn-rounded btn-sm m-1" on:click={(e) => handleConfirm(e, button.payload)}>{button.title}</button>
     {/each}
 </div>
 {/if}

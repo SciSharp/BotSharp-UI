@@ -69,6 +69,7 @@
 	// @ts-ignore
     let scrollbar;
 	let microphoneIcon = "microphone-off";
+	let lastBotMsgId = '';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -124,9 +125,16 @@
 		isLoadContentLog = !isLite;
 	}
 
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function findLastBotMessage(dialogs) {
+		const lastBotMsg = dialogs.findLast(x => x.sender?.role === UserRole.Assistant);
+		return lastBotMsg?.message_id || '';
+	}
+
 	async function refresh() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+		lastBotMsgId = findLastBotMessage(dialogs);
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
@@ -295,35 +303,19 @@
 	 * @param {string} payload
 	 * @param {any} message
 	 */
-	function clickQuickReply(payload, message) {
+	function confirmSelectedOption(payload, message) {
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
 			isSendingMsg = false;
-			if (message) message.quick_replies = [];
+			if (message?.quick_replies) message.quick_replies = [];
+			if (message?.buttons) message.buttons = [];
+			if (message?.options) message.options = [];
 		}).catch(() => {
 			isSendingMsg = false;
-			if (message) message.quick_replies = [];
+			if (message?.quick_replies) message.quick_replies = [];
+			if (message?.buttons) message.buttons = [];
+			if (message?.options) message.options = [];
 		});
-	}
-
-	/**
-	 * @param {string} payload
-	 * @param {any} message
-	 */
-	function clickButtonOption(payload, message) {
-		isSendingMsg = true;
-		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
-			isSendingMsg = false;
-			if (message) message.buttons = [];
-		}).catch(() => {
-			isSendingMsg = false;
-			if (message) message.buttons = [];
-		});
-	}
-
-	/** @param {string} payload */
-	function clickMultiSelectOption(payload) {
-		// to do
 	}
 
 	function endChat() {
@@ -603,11 +595,11 @@
 												{#if message.rich_content.message?.rich_type === RichType.Text}
 												<RcText message={message.rich_content.message} />
 												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
-												<RcQuickReply message={message.rich_content?.message} onClickOption={clickQuickReply} />
+												<RcQuickReply message={message.rich_content?.message} onConfirm={confirmSelectedOption} />
 												{:else if message.rich_content.message?.rich_type === RichType.Button}
-												<RcButton message={message.rich_content.message} onClickOption={clickButtonOption} />
+												<RcButton message={message.rich_content.message} onConfirm={confirmSelectedOption} />
 												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
-												<RcMultiSelect message={message.rich_content.message} onClickOption={clickMultiSelectOption} />
+												<RcMultiSelect message={message.rich_content.message} onConfirm={confirmSelectedOption} />
 												{:else}
 												<RcText message={message} />
 												{/if}
@@ -615,7 +607,7 @@
 											<RcText message={message} />
 											{/if} -->
 
-											<RcDummy message={message} />
+											<RcDummy message={message} displayOptions={message.message_id === lastBotMsgId} onConfirm={confirmSelectedOption} />
 											<ChatImage message={message} />
 										</div>
 										{/if}

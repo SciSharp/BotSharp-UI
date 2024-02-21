@@ -3,6 +3,10 @@
 
     /** @type {any} */
     export let message;
+    export let displayOptions = false;
+
+    /** @type {(args0: string, args1: any) => any} */
+    export let onConfirm;
 
     const separator = '|';
 
@@ -49,10 +53,30 @@
 	 * @param {any} e
      * @param {any} message
 	 */
-    function handleContinue(e, message) {
+    function handleConfirm(e, message) {
         e.preventDefault();
         const payload = answers.join(separator);
         console.log(payload);
+        onConfirm && onConfirm(payload, message);
+        reset();
+    }
+
+    function reset() {
+        answers = [];
+        options = [
+            {
+                title: 'Option 1',
+                isClicked: false
+            },
+            {
+                title: 'Option 2',
+                isClicked: false,
+            },
+            {
+                title: 'Option 3',
+                isClicked: false,
+            },
+        ];
     }
 </script>
 
@@ -62,9 +86,11 @@
     </div>
 </div>
 
+{#if displayOptions}
 <div class="button-group">
     {#each options as option, index}
     <button class="btn btn-outline-primary btn-rounded btn-sm m-1" class:active={option.isClicked} on:click={(e) => clickOption(e, index)}>{option.title}</button>
     {/each}
-    <button class="btn btn-outline-primary btn-rounded btn-sm m-1" disabled={options.every(x => !x.isClicked)} on:click={(e) => handleContinue(e, message)}>{'Continue'}</button>
+    <button class="btn btn-outline-primary btn-rounded btn-sm m-1" disabled={options.every(x => !x.isClicked)} on:click={(e) => handleConfirm(e, message)}>{'Continue'}</button>
 </div>
+{/if}

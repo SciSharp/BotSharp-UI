@@ -1,19 +1,22 @@
 <script>
 	import { replaceNewLine } from '$lib/helpers/http';
 
-	/** @type {import('$types').QuickReplyMessage} */
+	/** @type {any} */
 	export let message;
 
-	/** @type {(arg0: string, arg1: import('$types').QuickReplyMessage) => void} */
-	export let onClickOption;
+	/** @type {boolean} */
+    export let displayOptions = false;
+
+	/** @type {(arg0: string, arg1: any) => void} */
+	export let onConfirm;
 
 	/**
 	 * @param {any} e
 	 * @param {string} payload
 	 */
-	async function handleButtonClick(e, payload) {
+	async function handleConfirm(e, payload) {
 		e.preventDefault();
-		onClickOption && onClickOption(payload, message);
+		onConfirm && onConfirm(payload, message);
 	}
 </script>
 
@@ -23,10 +26,10 @@
     </div>
 </div>
 
-{#if message?.quick_replies?.length > 0}
+{#if displayOptions && message?.quick_replies?.length > 0}
 {#each message.quick_replies as reply}
 <div class="button-group">
-	<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleButtonClick(e, reply.payload)}>{reply.title}</button>
+	<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleConfirm(e, reply.payload)}>{reply.title}</button>
 </div>
 {/each}
 {/if}
