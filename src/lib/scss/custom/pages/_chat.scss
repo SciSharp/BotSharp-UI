@@ -163,6 +163,18 @@
             .button-group {
                 display: flex;
                 flex-wrap: wrap;
+
+                .btn:not([name="confirm"]) {
+                    &:hover {
+                        background-color: #fff;
+                        color: var(--bs-primary);
+                    }
+                }
+
+                .btn.active:hover {
+                    background-color: var(--bs-primary);
+                    color: #fff;
+                }
             }
         }
 

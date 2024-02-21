@@ -26,6 +26,7 @@
 	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
 	import RcMarkdown from './messageComponents/rc-markdown.svelte';
 	import RcButton from './messageComponents/rc-button.svelte';
+	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -35,7 +36,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
 	import RcDummy from './messageComponents/rc-dummy.svelte';
 
 	const options = {
@@ -301,20 +301,13 @@
 
 	/**
 	 * @param {string} payload
-	 * @param {any} message
 	 */
-	function confirmSelectedOption(payload, message) {
+	function confirmSelectedOption(payload) {
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
 			isSendingMsg = false;
-			if (message?.quick_replies) message.quick_replies = [];
-			if (message?.buttons) message.buttons = [];
-			if (message?.options) message.options = [];
 		}).catch(() => {
 			isSendingMsg = false;
-			if (message?.quick_replies) message.quick_replies = [];
-			if (message?.buttons) message.buttons = [];
-			if (message?.options) message.options = [];
 		});
 	}
 
@@ -591,23 +584,35 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											<!-- {#if message.rich_content}
+											{#if message.rich_content}
 												{#if message.rich_content.message?.rich_type === RichType.Text}
 												<RcText message={message.rich_content.message} />
 												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
-												<RcQuickReply message={message.rich_content?.message} onConfirm={confirmSelectedOption} />
+												<RcQuickReply
+													message={message.rich_content?.message}
+													displayOptions={message.message_id === lastBotMsgId}
+													onConfirm={confirmSelectedOption}
+												/>
 												{:else if message.rich_content.message?.rich_type === RichType.Button}
-												<RcButton message={message.rich_content.message} onConfirm={confirmSelectedOption} />
+												<RcButton
+													message={message.rich_content.message}
+													displayOptions={message.message_id === lastBotMsgId}
+													onConfirm={confirmSelectedOption}
+												/>
 												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
-												<RcMultiSelect message={message.rich_content.message} onConfirm={confirmSelectedOption} />
+												<RcMultiSelect
+													message={message.rich_content.message}
+													displayOptions={message.message_id === lastBotMsgId}
+													onConfirm={confirmSelectedOption}
+												/>
 												{:else}
 												<RcText message={message} />
 												{/if}
 											{:else}
 											<RcText message={message} />
-											{/if} -->
+											{/if}
 
-											<RcDummy message={message} displayOptions={message.message_id === lastBotMsgId} onConfirm={confirmSelectedOption} />
+											<!-- <RcDummy message={message} displayOptions={message.message_id === lastBotMsgId} onConfirm={confirmSelectedOption} /> -->
 											<ChatImage message={message} />
 										</div>
 										{/if}

@@ -1,5 +1,6 @@
 <script>
 	import { replaceNewLine } from '$lib/helpers/http';
+	import RcOptions from "./rc-options.svelte";
 
 	/** @type {any} */
 	export let message;
@@ -7,16 +8,14 @@
 	/** @type {boolean} */
     export let displayOptions = false;
 
-	/** @type {(arg0: string, arg1: any) => void} */
+	/** @type {(arg0: string) => void} */
 	export let onConfirm;
 
 	/**
-	 * @param {any} e
 	 * @param {string} payload
 	 */
-	async function handleConfirm(e, payload) {
-		e.preventDefault();
-		onConfirm && onConfirm(payload, message);
+	async function handleConfirm(payload) {
+		onConfirm && onConfirm(payload);
 	}
 </script>
 
@@ -27,9 +26,5 @@
 </div>
 
 {#if displayOptions && message?.quick_replies?.length > 0}
-{#each message.quick_replies as reply}
-<div class="button-group">
-	<button class="btn btn-primary btn-rounded btn-sm m-1" on:click={(e) => handleConfirm(e, reply.payload)}>{reply.title}</button>
-</div>
-{/each}
+<RcOptions options={message.quick_replies} onConfirm={handleConfirm} />
 {/if}
