@@ -23,6 +23,7 @@
     async function handleProviderChanged(provider) {
         config.is_inherit = false;
         models = await getLlmProviderModels(provider);
+        config.model = models[0]?.name;
     }
 </script>
 
