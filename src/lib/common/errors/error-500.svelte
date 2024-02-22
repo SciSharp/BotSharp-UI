@@ -18,7 +18,7 @@
 			</h1>
 			<h4 class="text-uppercase">Internal Server Error</h4>
 			<div class="mt-5 text-center">
-			  <Link class="btn btn-primary" href="/page/dashboard">
+			  <Link class="btn btn-primary" href="page/dashboard">
 				Back to Dashboard
 			  </Link>
 			</div>

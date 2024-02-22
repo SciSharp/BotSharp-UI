@@ -76,7 +76,7 @@
 					</div>
 					<CardBody class="pt-0">
 						<div>
-							<Link href="/page/dashboard">
+							<Link href="page/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
