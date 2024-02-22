@@ -3,6 +3,7 @@
     import moment from 'moment';
     import { replaceNewLine } from '$lib/helpers/http';
 	import { ContentLogSource } from '$lib/helpers/enums';
+	import { utcToLocal } from '$lib/helpers/datetime';
 
     /** @type {import('$types').ConversationContentLogModel} */
     export let data;
@@ -32,9 +33,9 @@
     }
 </script>
 
-<div class={`log-element p-2 rounded ${logBackground}`}>
+<div class={`log-element p-2 rounded ${logBackground}`} id={`content-log-${data.message_id}`}>
     <div class="log-meta">
-        <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${moment.utc(data?.created_at).local().format('hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
+        <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
     </div>
     <br>
     <div class="log-content" class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>

@@ -351,7 +351,7 @@
 		isOpenAddStateModal = !isOpenAddStateModal;
 	}
 
-	function clearStates() {
+	function clearAddedStates() {
 		// @ts-ignore
 		Swal.fire({
 			title: 'Are you sure?',
@@ -435,7 +435,7 @@
 	async function confirmEditMsg() {
 		const isDeleted = truncateDialogs(truncateMsgId);
 		if (!isDeleted) return;
-		
+
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
 			isSendingMsg = false;
@@ -454,6 +454,25 @@
 		initPrevSentMessages(dialogs);
 		refresh();
 		return true;
+	}
+
+	/** @param {string} messageId */
+	function directToLog(messageId) {
+		if (!!!messageId) return;
+
+		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
+		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
+		if (!!contentLogElm) {
+			contentLogElm.scrollIntoView({
+				behavior: 'smooth'
+			});
+		}
+		
+		if (!!stateLogElm) {
+			stateLogElm.scrollIntoView({
+				behavior: 'smooth'
+			});
+		}
 	}
 </script>
 
@@ -502,7 +521,7 @@
 									
 									<li class="list-inline-item">
 										<Dropdown>
-											<DropdownToggle tag="button" class="nav-btn dropdown-toggle" color="">
+											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
@@ -522,7 +541,7 @@
 															{#if !isOpenAddStateModal}
 															<DropdownItem on:click={() => toggleAddStateModal()}>Add States</DropdownItem>
 															{/if}
-															<DropdownItem on:click={() => clearStates()}>Clear States</DropdownItem>
+															<DropdownItem on:click={() => clearAddedStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
 													</Dropdown>
 												</li>
@@ -559,7 +578,13 @@
 									<div class="conversation-list">
 										{#if message.sender.id === currentUser.id}
 										<div class="msg-container">
-											<div class="ctext-wrap">
+											<div class="ctext-wrap"
+												tabindex="0"
+												aria-label="user-msg-to-log"
+												role="button"
+												on:keydown={() => {}}
+												on:click={() => directToLog(message.message_id)}
+											>
 												<div>
 													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
 													<div class="text-start">{@html replaceNewLine(message.text)}</div>
@@ -661,7 +686,7 @@
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
-												<Link href="#" title="Add Files"><i class="mdi mdi-file-document-outline" /></Link>
+												<Link href="#"><i class="mdi mdi-file-document-outline" /></Link>
 											</li>
 										</ul>
 									</div>
