@@ -264,6 +264,7 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} name - The sender name.
  * @property {string} role - The sender role.
+ * @property {string} source - The log source.
  * @property {string} content - The log content.
  * @property {Date} created_at - The log sent time.
  */
