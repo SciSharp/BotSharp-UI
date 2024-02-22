@@ -332,11 +332,19 @@
 		}
     }
 
+	function cleanContentLogScreen() {
+		contentLogs = [];
+	}
+
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
 			stateLogs = [];
 		}
+	}
+
+	function cleanStateLogScreen() {
+		stateLogs = [];
 	}
 
 	function toggleAddStateModal() {
@@ -427,8 +435,15 @@
 	async function confirmEditMsg() {
 		const isDeleted = truncateDialogs(truncateMsgId);
 		if (!isDeleted) return;
-		toggleEditMsgModal();
-		await sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId);
+		
+		isSendingMsg = true;
+		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
+			isSendingMsg = false;
+			toggleEditMsgModal();
+		}).catch(() => {
+			isSendingMsg = false;
+			toggleEditMsgModal();
+		});
 	}
 
 	/** @param {string} messageId */
@@ -467,7 +482,7 @@
 	<Splitpanes>
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} />
+			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} cleanScreen={cleanStateLogScreen} />
 		</Pane>
 		{/if}
 		<Pane minSize={20}>
@@ -669,7 +684,7 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} />
+			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} cleanScreen={cleanContentLogScreen} />
 		</Pane>
 		{/if}
 	</Splitpanes>

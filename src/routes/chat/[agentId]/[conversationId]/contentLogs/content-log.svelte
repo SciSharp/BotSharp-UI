@@ -12,6 +12,9 @@
     /** @type {() => void} */
     export let closeWindow;
 
+    /** @type {() => void} */
+    export let cleanScreen;
+
     // @ts-ignore
     let scrollbar;
     /** @type {import('$types').ConversationContentLogModel[]} */
@@ -63,12 +66,20 @@
 
 <div class="chat-log">
     <div class="card mb-0 log-background" style="height: 100%;">
-        <div class="log-close-btn padding-side ">
+        <div class="log-close-btn padding-side">
+            <button
+                type="button"
+                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                on:click={() => cleanScreen()}
+            >
+                <i class="bx bx-trash"></i>
+            </button>
             <button
                 type="button"
                 class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
                 on:click={() => closeWindow()}
-            ><i class="mdi mdi-window-close"></i>
+            >
+                <i class="mdi mdi-window-close"></i>
             </button>
         </div>
         <div class="content-log-scrollbar log-list padding-side">
