@@ -9,10 +9,8 @@
 
     let logBackground = '';
     let is_collapsed = true;
-    const excludedSources = [
-        ContentLogSource.UserInput,
-        ContentLogSource.FunctionCall,
-        ContentLogSource.AgentResponse
+    const includedSources = [
+        ContentLogSource.Prompt
     ];
 
     $: {
@@ -22,6 +20,8 @@
             logBackground = 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
             logBackground = 'bg-danger';
+        } else if (data.source === ContentLogSource.HardRule) {
+            logBackground = "bg-warning";
         }
     }
 
@@ -37,10 +37,10 @@
         <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${moment.utc(data?.created_at).local().format('hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
     </div>
     <br>
-    <div class="log-content" class:log-collapse={!excludedSources.includes(data.source) && !!is_collapsed}>
+    <div class="log-content" class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
-    {#if !excludedSources.includes(data.source)}
+    {#if includedSources.includes(data.source)}
     <Button class='toggle-btn' color="link" on:click={(e) => toggleText(e)}>
         {`${is_collapsed ? 'More +' : 'Less -'}`}
     </Button>

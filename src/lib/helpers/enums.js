@@ -27,6 +27,7 @@ const contentLogSource = {
     UserInput: "user input",
     Prompt: "prompt",
     FunctionCall: "function call",
-    AgentResponse: "agent response"
+    AgentResponse: "agent response",
+    HardRule: "hard rule"
 };
 export const ContentLogSource = Object.freeze(contentLogSource);
