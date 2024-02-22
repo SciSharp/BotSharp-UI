@@ -2,23 +2,26 @@
 	import { Button } from '@sveltestrap/sveltestrap';
     import moment from 'moment';
     import { replaceNewLine } from '$lib/helpers/http';
-	import { UserRole } from '$lib/helpers/enums';
+	import { ContentLogSource } from '$lib/helpers/enums';
 
     /** @type {import('$types').ConversationContentLogModel} */
     export let data;
 
     let logBackground = '';
     let is_collapsed = true;
-    const excludedRoles = [
-        UserRole.User,
-        UserRole.Assistant
+    const excludedSources = [
+        ContentLogSource.UserInput,
+        ContentLogSource.FunctionCall,
+        ContentLogSource.AgentResponse
     ];
 
     $: {
-        if (data.role == UserRole.Assistant) {
+        if (data.source === ContentLogSource.AgentResponse) {
             logBackground = 'bg-info';
-        } else if (data.role == UserRole.Function) {
+        } else if (data.source === ContentLogSource.FunctionCall) {
             logBackground = 'bg-secondary';
+        } else if (data.source === ContentLogSource.Prompt) {
+            logBackground = 'bg-danger';
         }
     }
 
@@ -34,10 +37,10 @@
         <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${moment.utc(data?.created_at).local().format('hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
     </div>
     <br>
-    <div class="log-content" class:log-collapse={!excludedRoles.includes(data.role) && !!is_collapsed}>
+    <div class="log-content" class:log-collapse={!excludedSources.includes(data.source) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
-    {#if !excludedRoles.includes(data.role)}
+    {#if !excludedSources.includes(data.source)}
     <Button class='toggle-btn' color="link" on:click={(e) => toggleText(e)}>
         {`${is_collapsed ? 'More +' : 'Less -'}`}
     </Button>

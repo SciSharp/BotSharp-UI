@@ -630,7 +630,7 @@
 						</div>
 					</div>
 		
-					<div class="chat-input-section" style="height: 8%; padding: 2%">
+					<div class="chat-input-section" style="height: 8%;">
 						<div class="row">
 							<div class="col-auto">
 								<button
