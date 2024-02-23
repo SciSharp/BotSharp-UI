@@ -49,7 +49,7 @@
 		<div class="d-flex">
 			<!-- LOGO -->
 			<div class="navbar-brand-box">
-				<a href="/dashboard" class="logo logo-dark">
+				<a href="page/dashboard" class="logo logo-dark">
 					<span class="logo-sm">
 						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
 					</span>
@@ -58,7 +58,7 @@
 					</span>
 				</a>
 
-				<a href="/dashboard" class="logo logo-light">
+				<a href="page/dashboard" class="logo logo-light">
 					<span class="logo-sm">
 						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
 					</span>

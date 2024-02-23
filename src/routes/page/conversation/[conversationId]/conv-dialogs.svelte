@@ -1,7 +1,7 @@
 <script>
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import { GetDialogs } from '$lib/services/conversation-service.js';
-    import { format } from '$lib/helpers/datetime';
+    import { utcToLocal } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
 	import { UserRole } from '$lib/helpers/enums';
     import { _ } from 'svelte-i18n'  
@@ -22,7 +22,7 @@
     */
     function showInRight(dialog) {
         const sender = dialog.sender;
-        return sender.role != UserRole.Client && sender.role != UserRole.User;
+        return sender?.role === UserRole.Admin || sender?.role === UserRole.User || sender?.role === UserRole.Client;
     }
 </script>
 
@@ -48,7 +48,7 @@
                             <div>
                                 <span>{dialog.sender.full_name}</span>
                                 <p class="fw-bold">{dialog.text}</p>
-                                <span class="text-muted">{format(dialog.created_at, 'long-time')}</span>
+                                <span class="text-muted">{utcToLocal(dialog.created_at)}</span>
                             </div>
                         </div>
                     </div>

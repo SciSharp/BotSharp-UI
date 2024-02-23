@@ -277,6 +277,7 @@
 
 .chat-input-section {
     border-top: 1px solid var(--#{$prefix}border-color);
+    padding: 2vmin 2% 2vmin 2%;
 }
 
 .chat-input {
@@ -311,8 +312,13 @@
     height: 100vh;
 
     .padding-side {
-        padding-left: 10px;
+        padding-left: 20px;
         padding-right: 20px;
+
+        ul {
+            padding-left: 2px !important;
+            padding-right: 0px !important;
+        }
     }
 
     .log-background {
@@ -323,7 +329,8 @@
             margin-bottom: 10px;
             position: sticky;
             display: flex;
-            justify-content: flex-end;
+            // justify-content: flex-end;
+            justify-content: space-between;
         }
     
         .log-list {

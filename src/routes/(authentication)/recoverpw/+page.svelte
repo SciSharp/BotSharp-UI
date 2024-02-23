@@ -27,7 +27,7 @@
 					</div>
 					<CardBody class="pt-0">
 						<div>
-							<Link href="/dashboard">
+							<Link href="page/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
@@ -41,7 +41,7 @@
 								Enter your Email and instructions will be sent to you!
 							</Alert>
 
-							<Form class="form-horizontal" action="/dashboard">
+							<Form class="form-horizontal" action="page/dashboard">
 								<div class="mb-3">
 									<Label for="useremail" class="form-label">Email</Label>
 									<Input
