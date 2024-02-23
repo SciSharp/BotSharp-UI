@@ -427,9 +427,13 @@
 	function toggleEditMsgModal() {
 		isOpenEditMsgModal = !isOpenEditMsgModal;
 		if (!isOpenEditMsgModal) {
-			truncateMsgId = "";
-			editText = "";
+			resetEditMsg();
 		}
+	}
+
+	function resetEditMsg() {
+		truncateMsgId = "";
+		editText = "";
 	}
 
 	async function confirmEditMsg() {
@@ -437,12 +441,13 @@
 		if (!isDeleted) return;
 
 		isSendingMsg = true;
+		isOpenEditMsgModal = false;
 		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
 			isSendingMsg = false;
-			toggleEditMsgModal();
+			resetEditMsg();
 		}).catch(() => {
 			isSendingMsg = false;
-			toggleEditMsgModal();
+			resetEditMsg();
 		});
 	}
 
