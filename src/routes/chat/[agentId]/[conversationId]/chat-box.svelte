@@ -295,6 +295,8 @@
 	 * @param {string} payload
 	 */
 	function confirmSelectedOption(payload) {
+		if (isSendingMsg || isThinking) return;
+
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
 			isSendingMsg = false;
@@ -463,7 +465,7 @@
 
 	/** @param {string} messageId */
 	function directToLog(messageId) {
-		if (!!!messageId) return;
+		if (!!!messageId || isLite) return;
 
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
@@ -628,18 +630,21 @@
 												<RcQuickReply
 													message={message.rich_content?.message}
 													displayOptions={message.message_id === lastBotMsgId}
+													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else if message.rich_content.message?.rich_type === RichType.Button}
 												<RcButton
 													message={message.rich_content.message}
 													displayOptions={message.message_id === lastBotMsgId}
+													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
 												<RcMultiSelect
 													message={message.rich_content.message}
 													displayOptions={message.message_id === lastBotMsgId}
+													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else}
