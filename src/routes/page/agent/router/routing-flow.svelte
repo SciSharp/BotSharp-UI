@@ -58,9 +58,9 @@
         let posX = 0;
         const nodeSpaceX = 300, nodeSpaceY = 120;
 
-        let posY = agents.length > 0 ?
-            nodeSpaceY * (agents.length + 1) / 2 :
-            nodeSpaceY * (routers.length + 1) / 2;
+        let posY = routers.length > 0 && !includeTaskAgent ?
+            nodeSpaceY * (routers.length + 1) / 2 :
+            nodeSpaceY * (agents.length + 1) / 2;
 
         // add end-user node
         let userNodeId = editor.addNode('user', 0, 1, posX, posY, 'user', 
@@ -212,5 +212,5 @@
     <label class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`} for="btncheck3">Static Agent</label>
 </div>
 
-<div id="drawflow" style="height: 78vh; width: 100%">
+<div id="drawflow" style="height: 72vh; width: 100%">
 </div>

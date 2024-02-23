@@ -517,7 +517,7 @@
 					<div class="border-bottom" style="height: 10%; padding: 2%">
 						<div class="row">
 							<div class="col-md-4 col-7">
-								<h5 class="font-size-15 mb-1">{agent?.name}</h5>
+								<h5 class="font-size-15 m-1">{agent?.name}</h5>
 								<p class="text-muted mb-0">
 									<i class="mdi mdi-circle text-success align-middle me-1" /> Active now
 								</p>
@@ -559,7 +559,7 @@
 									</li>
 									
 									<li class="list-inline-item d-sm-inline-block">
-										<button type="submit" class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
+										<button type="submit" class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
 										>
 											<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
