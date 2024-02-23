@@ -93,7 +93,7 @@
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
 		initPrevSentMessages(dialogs);
-		initContentLogView();
+		initLogView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -119,9 +119,10 @@
 		sentMsgIdx = prevSentMsgs.length;
 	}
 
-	function initContentLogView() {
+	function initLogView() {
 		isLite = $page.url.searchParams.get('isLite') === 'true';
 		isLoadContentLog = !isLite;
+		isLoadStateLog = !isLite;
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -585,10 +586,12 @@
 									<div class="conversation-list">
 										{#if message.sender.id === currentUser.id}
 										<div class="msg-container">
-											<div class="ctext-wrap"
+											<div
+												class="ctext-wrap"
+												class:clickable={!isLite}
 												tabindex="0"
 												aria-label="user-msg-to-log"
-												role="button"
+												role="link"
 												on:keydown={() => {}}
 												on:click={() => directToLog(message.message_id)}
 											>
