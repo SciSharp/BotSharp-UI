@@ -1,4 +1,5 @@
 <script>
+  import { _ } from 'svelte-i18n';
   import Link from "svelte-link";
   import {
     Table,
@@ -20,10 +21,10 @@
 
 <div class="mt-4">
   <div class="d-flex flex-wrap">
-    <h5 class="font-size-16 me-3">Recent Files</h5>
+    <h5 class="font-size-16 me-3">{$_('Recent Files')}</h5>
 
     <div class="ms-auto">
-      <Link to="#" class="fw-medium text-reset">View All</Link>
+      <Link to="#" class="fw-medium text-reset">{$_('View All')}</Link>
     </div>
   </div>
   <hr class="mt-2" />
@@ -32,9 +33,9 @@
     <Table class="table align-middle table-nowrap table-hover mb-0">
       <thead>
         <tr>
-          <th scope="col">Name</th>
-          <th scope="col">Date modified</th>
-          <th scope="col" colSpan="2"> Size </th>
+          <th scope="col">{$_('Name')}</th>
+          <th scope="col">{$_('Date modified')}</th>
+          <th scope="col" colSpan="2"> {$_('Size')} </th>
         </tr>
       </thead>
       <tbody>
@@ -59,11 +60,11 @@
                 </DropdownToggle>
 
                 <DropdownMenu direction="right" class="dropdown-menu-end">
-                  <Link class="dropdown-item" to="#">Open</Link>
-                  <Link class="dropdown-item" to="#">Edit</Link>
-                  <Link class="dropdown-item" to="#">Rename</Link>
+                  <Link class="dropdown-item" to="#">{$_('Open')}</Link>
+                  <Link class="dropdown-item" to="#">{$_('Edit')}</Link>
+                  <Link class="dropdown-item" to="#">{$_('Rename')}</Link>
                   <div class="dropdown-divider" />
-                  <Link class="dropdown-item" to="#">Remove</Link>
+                  <Link class="dropdown-item" to="#">{$_('Remove')}</Link>
                 </DropdownMenu>
               </Dropdown>
             </td>

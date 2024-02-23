@@ -5,6 +5,7 @@
   	import { getAgents } from '$lib/services/agent-service.js';
   	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
+	import { _ } from 'svelte-i18n'
 
   	const firstPage = 1;
 	const pageSize = 12;
@@ -72,7 +73,7 @@
 	}
 </script>
 
-<HeadTitle title="Evaluator" />
-<Breadcrumb title="Agent" pagetitle="Evaluator" />
+<HeadTitle title="{$_('Evaluator')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Evaluator')}" />
 
 <PlainPagination pagination={pager} pageTo={pageTo} />

@@ -10,6 +10,7 @@
     Dropdown,
     Button,
   } from "@sveltestrap/sveltestrap";
+  import { _ } from 'svelte-i18n';
 
   let isOpen = true;
 
@@ -32,7 +33,7 @@
                 id="toggler"
               >
                 <i class="mdi mdi-folder font-size-16 text-warning me-2" />{" "}
-                Files{" "}
+                {$_('Files')}{" "}
                 <i
                   class={isOpen
                     ? "mdi mdi-chevron-up accor-down-icon ms-auto"
@@ -44,7 +45,7 @@
                   <ul class="list-unstyled mb-0">
                     <li>
                       <Link href="#" class="d-flex align-items-center">
-                        <span class="me-auto">Design</span>
+                        <span class="me-auto">{$_('Design')}</span>
                       </Link>
                     </li>
                   </ul>
@@ -57,13 +58,13 @@
               <i
                 class="mdi mdi-google-drive font-size-16 text-muted me-2"
               />{" "}
-              <span class="me-auto">Google Drive</span>
+              <span class="me-auto">{$_('Google Drive')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
               <i class="mdi mdi-dropbox font-size-16 me-2 text-primary" />{" "}
-              <span class="me-auto">Dropbox</span>
+              <span class="me-auto">{$_('Dropbox')}</span>
             </Link>
           </li>
           <li>
@@ -71,19 +72,19 @@
               <i
                 class="mdi mdi-star-outline text-muted font-size-16 me-2"
               />{" "}
-              <span class="me-auto">Starred</span>
+              <span class="me-auto">{$_('Starred')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
               <i class="mdi mdi-trash-can text-danger font-size-16 me-2" />{" "}
-              <span class="me-auto">Trash</span>
+              <span class="me-auto">{$_('Trash')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
               <i class="mdi mdi-cog text-muted font-size-16 me-2" />{" "}
-              <span class="me-auto">Setting</span>
+              <span class="me-auto">{$_('Setting')}</span>
               <span class="badge bg-success rounded-pill ms-2"> 01 </span>
             </Link>
           </li>
@@ -97,14 +98,14 @@
           </div>
 
           <div>
-            <h5 class="text-success">Upgrade Features</h5>
-            <p>Cum sociis natoque penatibus et</p>
+            <h5 class="text-success">{$_('Upgrade Features')}</h5>
+            <p>{$_('Cum sociis natoque penatibus et')}</p>
             <div class="text-center">
               <button
                 type="button"
                 class="btn btn-link text-decoration-none text-success"
               >
-                Upgrade <i class="mdi mdi-arrow-right" />
+                {$_('Upgrade')} <i class="mdi mdi-arrow-right" />
               </button>
             </div>
           </div>

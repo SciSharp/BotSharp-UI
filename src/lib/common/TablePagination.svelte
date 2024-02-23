@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-	import Link from 'svelte-link';    
+	import Link from 'svelte-link';  
+    import { _ } from 'svelte-i18n'  
 
     /** @type {import('$lib/helpers/types').Pagination} */    
     export let pagination;
@@ -44,7 +45,7 @@
 
 <div class="row justify-content-between align-items-center">
     <div class="col-auto me-auto">
-        <p class="text-muted mb-0">Showing <b>{start}</b> to <b>{end}</b> of <b>{pagination.count}</b> entries</p>
+        <p class="text-muted mb-0">{$_('Showing')} <b>{start}</b> {$_('to')} <b>{end}</b> {$_('of')} <b>{pagination.count}</b> {$_('entries')}</p>
     </div>
     <div class="col-auto">
         <div class="card d-inline-block ms-auto mb-0">

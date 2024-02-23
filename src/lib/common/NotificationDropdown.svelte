@@ -3,6 +3,7 @@
 	import { Dropdown, DropdownToggle, DropdownMenu } from '@sveltestrap/sveltestrap';
 	import "overlayscrollbars/overlayscrollbars.css";
 	import { OverlayScrollbars } from "overlayscrollbars";
+	import { _ } from 'svelte-i18n'
 
 	import { onMount } from 'svelte';
 
@@ -33,10 +34,10 @@
 		<div class="p-3">
 			<div class="row align-items-center">
 				<div class="col">
-					<h6 class="m-0">Notifications</h6>
+					<h6 class="m-0">{$_('Notifications')}</h6>
 				</div>
 				<div class="col-auto">
-					<Link href="#!" class="small">View All</Link>
+					<Link href="#!" class="small">{$_('View All')}</Link>
 				</div>
 			</div>
 		</div>
@@ -49,11 +50,11 @@
 							</span>
 						</div>
 						<div class="flex-grow-1">
-							<h6 class="mb-1" >Your order is placed</h6>
+							<h6 class="mb-1" >{$_('Your order is placed')}</h6>
 							<div class="font-size-12 text-muted">
-								<p class="mb-1" >If several languages coalesce the grammar</p>
+								<p class="mb-1" >{$_('If several languages coalesce the grammar')}</p>
 								<p class="mb-0">
-									<i class="mdi mdi-clock-outline" /> <span >3 min ago</span>
+									<i class="mdi mdi-clock-outline" /> <span >3 {$_('min ago')}</span>
 								</p>
 							</div>
 						</div>

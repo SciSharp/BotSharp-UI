@@ -5,7 +5,7 @@ const languages = [
     value: 'en'
   },
   {
-    label: "Chinese",
+    label: "中文",
     flag: 'images/flags/china.png',
     value: 'zh'
   },  

@@ -5,6 +5,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import { onMount } from 'svelte';
 	import { myInfo } from '$lib/services/auth-service';
+	import { _ } from 'svelte-i18n';
 
 	/** @type {import('$types').UserModel} */
 	let currentUser;
@@ -21,8 +22,8 @@
 	});
 </script>
 
-<HeadTitle title="My Profile" />
-<Breadcrumb title="Home" pagetitle="My Profile" />
+<HeadTitle title="{$_('My Profile')}" />
+<Breadcrumb title="{$_('Home')}" pagetitle="{$_('My Profile')}" />
 <Row>
 	<Col xl={4}>
 		<Card class="overflow-hidden">
@@ -30,7 +31,7 @@
 				<Row class="row">
 					<Col xs={7}>
 						<div class="text-primary p-3">
-							<h5 class="text-primary">Welcome Back !</h5>
+							<h5 class="text-primary">{$_('Welcome Back !')}</h5>
 							<p>{PUBLIC_BRAND_NAME}</p>
 						</div>
 					</Col>
@@ -54,36 +55,36 @@
 		</Card>
 		<Card>
 			<CardBody>
-				<CardTitle class="mb-4">Personal Information</CardTitle>
+				<CardTitle class="mb-4">{$_('Personal Information')}</CardTitle>
 				<div class="table-responsive">
 					<Table>
 						<tbody>
 							<tr>
-								<th>First Name:</th>
+								<th>{$_('First Name')}:</th>
 								<td>
 									{currentUser?.first_name ?? 'N/A'}
 								</td>
 							</tr>
 							<tr>
-								<th>Last Name:</th>
+								<th>{$_('Last Name')}:</th>
 								<td>
 									{currentUser?.last_name ?? 'N/A'}
 								</td>
 							</tr>
 							<tr>
-								<th>Email:</th>
+								<th>{$_('Email')}:</th>
 								<td>
 									{currentUser?.email ?? 'N/A'}
 								</td>
 							</tr>
 							<tr>
-								<th>Account Origin:</th>
+								<th>{$_('Account Origin')}:</th>
 								<td>
 									{currentUser?.source} {currentUser?.external_id ?? 'N/A'}
 								</td>
 							</tr>
 							<tr>
-								<th>Update Date:</th>
+								<th>{$_('Update Date')}:</th>
 								<td>
 									{currentUser?.update_date
 										? new Date(currentUser?.update_date).toLocaleString()
@@ -91,7 +92,7 @@
 								</td>
 							</tr>
 							<tr>
-								<th>Create Date:</th>
+								<th>{$_('Create Date')}:</th>
 								<td>
 									{currentUser?.create_date
 										? new Date(currentUser?.create_date).toLocaleString()

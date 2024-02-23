@@ -1,18 +1,20 @@
 <script>
+// @ts-nocheck
+
 	import { onMount, afterUpdate } from 'svelte';
 	import 'overlayscrollbars/overlayscrollbars.css';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import Link from 'svelte-link';
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
-	import { _ } from 'svelte-i18n'
+	import { _ } from 'svelte-i18n';
 
 	/** @type {import('$types').PluginMenuDefModel[]} */
-	export let menu
+	export let menu;
 
 	// after routing complete call afterUpdate function
 	afterUpdate(() => {
-		removeActiveDropdown()
+		removeActiveDropdown();
 		const curUrl = getPathUrl();
 		if (curUrl) {
 			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
@@ -61,13 +63,13 @@
 		const menuElement = document.querySelector('#vertical-menu');
 		OverlayScrollbars(menuElement, options);
 		activeMenu();
- 
+
 		const curUrl = getPathUrl();
 		if (curUrl) {
 			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
 			if (item) {
 				item.classList.add('mm-active');
-				item.scrollIntoView({behavior: 'smooth', block: 'center'});
+				item.scrollIntoView({ behavior: 'smooth', block: 'center' });
 				const parent1 = item.parentElement;
 				if (parent1) {
 					parent1.classList.add('mm-active');
@@ -104,7 +106,8 @@
 					if (menu.nextElementSibling) {
 						let activeLinks = 0;
 						const links = menu.nextElementSibling.querySelectorAll('li a');
-						links.forEach(x => activeLinks += Number(x.classList.contains('mm-active')));
+						links.forEach((x) => (activeLinks += Number(x.classList.contains('mm-active'))));
+						console.log(activeLinks)
 						if (activeLinks > 0) {
 							menu.classList.add('mm-active');
 						}
@@ -122,6 +125,7 @@
 				});
 			});
 
+			
 			document.querySelectorAll('.sub-menu a').forEach((submenu) => {
 				submenu.addEventListener('click', () => {
 					removeActiveDropdown();
@@ -172,7 +176,7 @@
 		});
 
 		document.querySelectorAll('.vertical-menu .mm-active').forEach((menu) => {
-			menu.querySelectorAll('.mm-active').forEach(child => child.classList.remove('mm-active'));
+			menu.querySelectorAll('.mm-active').forEach((child) => child.classList.remove('mm-active'));
 			menu.classList.remove('mm-active');
 		});
 	};
@@ -186,16 +190,22 @@
 				const menuElement = document.getElementById('vertical-menu');
 				menuElement?.scrollTo({
 					top: item,
-					behavior:'smooth'
+					behavior: 'smooth'
 				});
 			}
 		}
-	}
+	};
 
 	const getPathUrl = () => {
 		const path = $page.url.pathname;
-		return path?.startsWith('/') ? path.substring(1) : path;
-	}
+		// return path?.startsWith('/') ? path.substring(1) : path;
+		if (path) {
+        if (path.startsWith('/') && !path.startsWith('/page/knowledge-base')) {
+            return path.substring(1);
+        }
+    }
+    return path;
+	};
 </script>
 
 <div class="vertical-menu">

@@ -1,13 +1,14 @@
 <script>
 	import Link from 'svelte-link';
 	import { Card, CardBody, CardTitle, Col } from '@sveltestrap/sveltestrap';
+    import { _ } from 'svelte-i18n'
 </script>
 
 <Col xl={4}>
 	<Card>
         <CardBody>
         <CardTitle class="mb-5">
-            Activity
+            {$_('Activity')}
         </CardTitle>
 
         <ul class="verti-timeline list-unstyled">
@@ -21,7 +22,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            Responded to need “Volunteer Activities
+                            {$_('Responded to need “Volunteer Activities')}
                         </div>
                     </div>
                 </div>
@@ -36,7 +37,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            Everyone realizes why a new common language would be desirable... <Link>Read more</Link>
+                            {$_('Everyone realizes why a new common language would be desirable...')} <Link>{$_('Read more')}</Link>
                         </div>
                     </div>
                 </div>
@@ -51,7 +52,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            Joined the group “Boardsmanship Forum”
+                            {$_('Joined the group “Boardsmanship Forum”')}
                         </div>
                     </div>
                 </div>
@@ -66,14 +67,14 @@
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            Responded to need “In-Kind Opportunity”
+                           {$_('Responded to need “In-Kind Opportunity”')}
                         </div>
                     </div>
                 </div>
             </li>
         </ul>
         <div class="text-center mt-4">
-            <Link class="btn btn-primary waves-effect waves-light btn-sm">View More <i class="mdi mdi-arrow-right ms-1"></i></Link>
+            <Link class="btn btn-primary waves-effect waves-light btn-sm">{$_('View More')} <i class="mdi mdi-arrow-right ms-1"></i></Link>
         </div>
 
     </CardBody>

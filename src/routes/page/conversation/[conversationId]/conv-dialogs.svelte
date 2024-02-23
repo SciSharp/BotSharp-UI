@@ -4,6 +4,7 @@
     import { format } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
 	import { UserRole } from '$lib/helpers/enums';
+    import { _ } from 'svelte-i18n'  
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -27,7 +28,7 @@
 
 <Card>
     <CardBody>
-        <CardTitle class="mb-5 h4">Dialogs</CardTitle>
+        <CardTitle class="mb-5 h4">{$_('Dialogs')}</CardTitle>
         <div class="">
             <ul class="verti-timeline list-unstyled">
                 {#each dialogs as dialog}

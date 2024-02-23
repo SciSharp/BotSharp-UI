@@ -10,6 +10,7 @@
     import { page } from '$app/stores';
     import Swal from 'sweetalert2/dist/sweetalert2.js';
     import "sweetalert2/src/sweetalert2.scss";
+    import { _ } from 'svelte-i18n'  
 
     const params = $page.params;
 
@@ -41,7 +42,7 @@
 </script>
 
 <HeadTitle title={conversation?.title} />
-<Breadcrumb title="Conversation" pagetitle="Conversation Detail" />
+<Breadcrumb title="{$_('Conversation')}" pagetitle="{$_('Conversation Detail')}" />
 
 {#if conversation}
 <Row>
@@ -56,6 +57,6 @@
 {/if}
 <Row>
     <div class="mb-4">
-        <Button class="btn btn-soft-primary btn-hover rounded" on:click={() => handleConversationDeletion()}><i class="mdi mdi-delete"></i> Delete Conversation</Button>
+        <Button class="btn btn-soft-primary btn-hover rounded" on:click={() => handleConversationDeletion()}><i class="mdi mdi-delete"></i>{$_('Delete Conversation')}</Button>
     </div>
 </Row>

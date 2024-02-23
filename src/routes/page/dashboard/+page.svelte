@@ -1,6 +1,7 @@
 <script>
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+	import { _ } from 'svelte-i18n'
 	import {
 		Card,
 		Col,
@@ -13,6 +14,7 @@
 		Input,
 		Button
 	} from '@sveltestrap/sveltestrap';
+
 
 	import Link from 'svelte-link/src/Link.svelte';
 	import RadialBarChart from './RadialBarChart.svelte';
@@ -44,9 +46,9 @@
 	})
 </script>
 
-<HeadTitle title="Dashboard" />
+<HeadTitle title={$_('Dashboard')} />
 
-<Breadcrumb title="Home" pagetitle="Dashboard" />
+<Breadcrumb title="{$_('Home')}" pagetitle="{$_('Dashboard')}" />
 
 <Row>
 	<Col xl={4}>
@@ -55,7 +57,7 @@
 				<Row class="row">
 					<Col xs={7}>
 						<div class="text-primary p-3">
-							<h5 class="text-primary">Welcome Back !</h5>
+							<h5 class="text-primary">{$_('Welcome Back !')}</h5>
 							<p>{PUBLIC_BRAND_NAME}</p>
 						</div>
 					</Col>
@@ -71,23 +73,23 @@
 							<Image src='images/users/user-dummy.jpg' alt="" class="img-thumbnail rounded-circle" />
 						</div>
 						<h5 class="font-size-15 text-truncate">{user?.full_name}</h5>
-						<p class="text-muted mb-0 text-truncate">Agent Manager</p>
+						<p class="text-muted mb-0 text-truncate">{$_('Agent Manager')}</p>
 					</Col>
 					<Col sm={8}>
 						<div class="pt-4">
 							<Row>
 								<Col xs={6}>
 									<h5 class="font-size-15">125</h5>
-									<p class="text-muted mb-0">Conversations</p>
+									<p class="text-muted mb-0">{$_('Conversations')}</p>
 								</Col>
 								<Col xs={6}>
 									<h5 class="font-size-15">$1245</h5>
-									<p class="text-muted mb-0">Token Cost</p>
+									<p class="text-muted mb-0">{$_('Token Cost')}</p>
 								</Col>
 							</Row>
 							<div class="mt-4">
 								<Link href="page/user/me" class="btn btn-primary waves-effect waves-light btn-sm">
-									View Profile <i class="mdi mdi-arrow-right ms-1" />
+									{$_('View Profile')} <i class="mdi mdi-arrow-right ms-1" />
 								</Link>
 							</div>
 						</div>
@@ -97,18 +99,17 @@
 		</Card>
 		<Card>
 			<CardBody>
-				<CardTitle class="mb-4">Monthly Cost</CardTitle>
+				<CardTitle class="mb-4">{$_('Monthly Cost')}</CardTitle>
 				<Row>
 					<Col sm={6}>
-						<p class="text-muted">This month</p>
+						<p class="text-muted">{$_('This month')}</p>
 						<h3>$34,252</h3>
 						<p class="text-muted">
-							<span class="text-success me-2"> 12% <i class="mdi mdi-arrow-up" /> </span> From previous
-							period
+							<span class="text-success me-2"> 12% <i class="mdi mdi-arrow-up" /> </span> {$_('From previous period')}
 						</p>
 						<div class="mt-4">
 							<Link class="btn btn-primary waves-effect waves-light btn-sm"
-								>View More <i class="mdi mdi-arrow-right ms-1" /></Link
+								>{$_('View More')} <i class="mdi mdi-arrow-right ms-1" /></Link
 							>
 						</div>
 					</Col>
@@ -118,7 +119,7 @@
 						</div>
 					</Col>
 				</Row>
-				<p class="text-muted mb-0">We craft digital, graphic and dimensional thinking.</p>
+				<p class="text-muted mb-0">{$_('We craft digital, graphic and dimensional thinking.')}</p>
 			</CardBody>
 		</Card>
 	</Col>
@@ -129,7 +130,7 @@
 					<CardBody>
 						<div class="d-flex">
 							<div class="flex-grow-1">
-								<p class="text-muted fw-medium">Conversations</p>
+								<p class="text-muted fw-medium">{$_('Conversations')}</p>
 								<h4 class="mb-0">1,235</h4>
 							</div>
 							<div class="flex-shrink-0 align-self-center">
@@ -148,7 +149,7 @@
 					<CardBody>
 						<div class="d-flex">
 							<div class="flex-grow-1">
-								<p class="text-muted fw-medium">Total Cost</p>
+								<p class="text-muted fw-medium">{$_('Total Cost')}</p>
 								<h4 class="mb-0">$35, 723</h4>
 							</div>
 							<div class="flex-shrink-0 align-self-center">
@@ -167,7 +168,7 @@
 					<CardBody>
 						<div class="d-flex">
 							<div class="flex-grow-1">
-								<p class="text-muted fw-medium">Average Cost</p>
+								<p class="text-muted fw-medium">{$_('Average Cost')}</p>
 								<h4 class="mb-0">$16.2</h4>
 							</div>
 							<div class="flex-shrink-0 align-self-center">
@@ -185,17 +186,17 @@
 		<Card>
 			<CardBody>
 				<div class="d-sm-flex flex-wrap">
-					<CardTitle class="mb-4">Token Spent</CardTitle>
+					<CardTitle class="mb-4">{$_('Token Spent')}</CardTitle>
 					<div class="ms-auto">
 						<Nav pills>
 							<NavItem>
-								<Link href="#" class="nav-link">Week</Link>
+								<Link href="#" class="nav-link">{$_('Week')}</Link>
 							</NavItem>
 							<NavItem>
-								<Link href="#" class="nav-link">Month</Link>
+								<Link href="#" class="nav-link">{$_('Month')}</Link>
 							</NavItem>
 							<NavItem>
-								<Link href="#" class="nav-link" active>Year</Link>
+								<Link href="#" class="nav-link" active>{$_('Year')}</Link>
 							</NavItem>
 						</Nav>
 					</div>

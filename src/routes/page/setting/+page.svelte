@@ -1,6 +1,7 @@
 <script>
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
+    import { _ } from 'svelte-i18n';
     import {
 		Button,
 		Card,
@@ -47,13 +48,13 @@
     }
 </script>
 
-<HeadTitle title="Settings" />
+<HeadTitle title="{$_('Settings')}" />
 
-<Breadcrumb title="Settings" pagetitle="Detail" />
+<Breadcrumb title="{$_('Settings')}" pagetitle="{$_('Detail')}" />
 
 <Card>
     <CardBody>
-        <CardTitle class="h4">System & Plugin Settings</CardTitle>
+        <CardTitle class="h4">{$_('System & Plugin Settings')}</CardTitle>
         <p class="card-title-desc"></p>
 
         <Nav tabs class="nav-tabs-custom nav-justified">

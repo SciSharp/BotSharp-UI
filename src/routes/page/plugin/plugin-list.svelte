@@ -1,4 +1,5 @@
 <script>
+	import { _ } from 'svelte-i18n'  
 	import Link from 'svelte-link';
 	import {
 		Card,
@@ -55,19 +56,19 @@
 						</li>
 					</ul>
 					<div class="mt-3 hstack gap-2">
-						<span class="badge rounded-1 badge-soft-{item.enabled ? 'success' : 'danger'}">{item.enabled ? "Enabled" : "Disabled"}</span>
+						<span class="badge rounded-1 badge-soft-{item.enabled ? 'success' : 'danger'}">{item.enabled ? $_("Enabled") : $_("Disabled")}</span>
 						{#if item.agent_ids.length > 0}
 						<span class="badge rounded-1 badge-soft-info">{item.agent_ids.length} Agent(s)</span>
 						{/if}
-						<span class="badge rounded-1 badge-soft-info">Public</span>
+						<span class="badge rounded-1 badge-soft-info">{$_('Public')}</span>
 					</div>
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
-						<button class="btn btn-soft-success btn-sm">View</button>
+						<button class="btn btn-soft-success btn-sm">{$_('View')}</button>
 						{#if item.settings_name}
-						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">Settings</a>
+						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
 						{/if}
 						{#if !item.is_core}
-						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? "Remove" : "Install"}</button>
+						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? $_("Remove") : $_('"Install"')}</button>
 						{/if}
 					</div>
 				</CardBody>
