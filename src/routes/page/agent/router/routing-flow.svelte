@@ -58,7 +58,9 @@
         let posX = 0;
         const nodeSpaceX = 300, nodeSpaceY = 120;
 
-        let posY = nodeSpaceY * (agents.length + 1) / 2;
+        let posY = agents.length > 0 ?
+            nodeSpaceY * (agents.length + 1) / 2 :
+            nodeSpaceY * (routers.length + 1) / 2;
 
         // add end-user node
         let userNodeId = editor.addNode('user', 0, 1, posX, posY, 'user', 
@@ -70,7 +72,7 @@
 
         // add router node
         posX += nodeSpaceX;
-        let routerPosY = nodeSpaceY * (routers.length + 1) / 2;
+        let routerPosY = nodeSpaceY * (agents.length > 0 ? agents.length : 1) / (routers.length > 0 ? routers.length : 1);
         routers.forEach(router => {
             let profiles = [];
             const planner = getPlannerName(router);
