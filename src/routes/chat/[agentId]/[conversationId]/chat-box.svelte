@@ -487,8 +487,8 @@
 
 		elements.forEach(item => {
 			const scrollElement = document.querySelector(item.wrapperName);
-			const logScoll = OverlayScrollbars(scrollElement, options);
-			const { viewport } = logScoll.elements();
+			const logScroll = OverlayScrollbars(scrollElement, options);
+			const { viewport } = logScroll.elements();
 			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
 		});
 	}
