@@ -262,6 +262,7 @@ IRichContent.prototype.text;
 /**
  * @typedef {Object} ConversationContentLogModel
  * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
  * @property {string} name - The sender name.
  * @property {string} role - The sender role.
  * @property {string} source - The log source.
@@ -272,6 +273,7 @@ IRichContent.prototype.text;
 /**
  * @typedef {Object} ConversationStateLogModel
  * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
  * @property {Object} states - The states content.
  * @property {Date} created_at - The states sent time.
  */

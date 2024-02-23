@@ -8,6 +8,9 @@
     /** @type {boolean} */
     export let displayOptions = false;
 
+    /** @type {boolean} */
+    export let disableOption = false;
+
     /** @type {(args0: string) => any} */
     export let onConfirm;
 
@@ -26,5 +29,5 @@
 </div>
 
 {#if displayOptions && message?.buttons?.length > 0}
-<RcOptions options={message.buttons} onConfirm={handleConfirm} />
+<RcOptions options={message.buttons} disableOption={disableOption} onConfirm={handleConfirm} />
 {/if}

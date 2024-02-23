@@ -8,6 +8,9 @@
 	/** @type {boolean} */
     export let displayOptions = false;
 
+	/** @type {boolean} */
+    export let disableOption = false;
+
 	/** @type {(arg0: string) => void} */
 	export let onConfirm;
 
@@ -26,5 +29,5 @@
 </div>
 
 {#if displayOptions && message?.quick_replies?.length > 0}
-<RcOptions options={message.quick_replies} onConfirm={handleConfirm} />
+<RcOptions options={message.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} />
 {/if}
