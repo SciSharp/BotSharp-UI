@@ -468,19 +468,29 @@
 	function directToLog(messageId) {
 		if (!!!messageId || isLite) return;
 
+		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
-		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
 		if (!!contentLogElm) {
-			contentLogElm.scrollIntoView({
-				behavior: 'smooth'
+			elements.push({
+				elm: contentLogElm,
+				wrapperName: '.content-log-scrollbar'
 			});
 		}
 		
+		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
 		if (!!stateLogElm) {
-			stateLogElm.scrollIntoView({
-				behavior: 'smooth'
+			elements.push({
+				elm: stateLogElm,
+				wrapperName: '.state-log-scrollbar'
 			});
 		}
+
+		elements.forEach(item => {
+			const scrollElement = document.querySelector(item.wrapperName);
+			const logScoll = OverlayScrollbars(scrollElement, options);
+			const { viewport } = logScoll.elements();
+			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
+		});
 	}
 </script>
 

@@ -64,7 +64,7 @@
      
 </script>
 
-<div class="chat-log">
+<div class="chat-log" id="content-log-container">
     <div class="card mb-0 log-background" style="height: 100%;">
         <div class="log-close-btn padding-side">
             <button
