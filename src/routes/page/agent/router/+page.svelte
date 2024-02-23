@@ -49,8 +49,8 @@
   }
 </script>
 
-<HeadTitle title="{$_('Router')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Router')}" />
+<HeadTitle title="{$_('Routing')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Routing')}" />
 
 {#if routers}
 <Row>

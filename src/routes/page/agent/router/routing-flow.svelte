@@ -5,21 +5,28 @@
     import { getAgents } from '$lib/services/agent-service.js';
     import { onMount, createEventDispatcher } from 'svelte';
 
+    let includeRoutingAgent = true;
+    let includeTaskAgent = false;
+    let includeStaticAgent = false;
+
     /** @type {any[]} */
     let agents = [];
+
+    /** @type {any[]} */
     let agentNodes = [];
-    let legends = [];
 
     /** @type {import('$types').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 20, count: 0 },
         disabled: false,
-        type: "task"
+        type: includeTaskAgent ? "task" : "none"
 	};
 
     /** @type {import('$types').AgentModel[]} */
     export let routers;
 
+    /** @type {Drawflow} */
+    let editor;
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
@@ -28,7 +35,7 @@
 
         const container = document.getElementById("drawflow");
         if (container) {
-            const editor = new Drawflow(container);
+            editor = new Drawflow(container);
             editor.reroute = true;
             editor.reroute_fix_curvature = true;
             editor.start();
@@ -42,12 +49,12 @@
                 console.log("Node selected " + id);
                 // emit event
             });
-            renderRoutingFlow(editor);
+            renderRoutingFlow();
         }
     });    
 
-    /** @param {Drawflow} editor */
-    function renderRoutingFlow(editor){
+    function renderRoutingFlow(){
+        editor.clear();
         let posX = 0;
         const nodeSpaceX = 300, nodeSpaceY = 120;
 
@@ -171,7 +178,37 @@
         const planner = router.routing_rules.find(p => p.type == "planner");
         return planner?.field ?? "NaviePlanner";
     }
+
+    async function handleTaskAgentSelected() {
+        includeTaskAgent = !includeTaskAgent;
+        filter.type = includeTaskAgent ? "task" : "none";
+        filter.type += includeStaticAgent ? ",static" : ",none";
+        const response = await getAgents(filter);
+        agents = response?.items || [];
+        renderRoutingFlow();
+    }
+
+    async function handleStaticAgentSelected() {
+        includeStaticAgent = !includeStaticAgent;
+        filter.type = includeTaskAgent ? "task" : "none";
+        filter.type += includeStaticAgent ? ",static" : ",none";
+        const response = await getAgents(filter);
+        agents = response?.items || [];
+        renderRoutingFlow();
+    }
+
 </script>
+
+<div class="btn-group" role="group">
+    <input type="checkbox" class="btn-check active" id="btncheck1" autocomplete="off"/>
+    <label class={`btn btn-${includeRoutingAgent ? "" : "outline-"}primary`} for="btncheck1">Routing Agent</label>
+
+    <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off" on:click={handleTaskAgentSelected} />
+    <label class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`} for="btncheck2">Task Agent</label>
+
+    <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" on:click={handleStaticAgentSelected} />
+    <label class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`} for="btncheck3">Static Agent</label>
+</div>
 
 <div id="drawflow" style="height: 78vh; width: 100%">
 </div>

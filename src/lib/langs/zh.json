@@ -363,9 +363,11 @@
     }
   },
 
-  "Agents":"代理",
+  "Agents":"智能代理",
   "Evaluator":"评估者",
+  "Evaluating":"评估器",
   "Router":"路由器",
+  "Routing": "路由图",
   "Plugins": "插件",
   "Settings": "设置",
   "Dashboard":"指示板",
