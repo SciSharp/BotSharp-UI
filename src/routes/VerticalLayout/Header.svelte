@@ -8,6 +8,7 @@
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
+	import { _ } from 'svelte-i18n'
 	/**
  	* @type {any}
  	*/
@@ -79,7 +80,7 @@
 			<!-- App Search-->
 			<form class="app-search d-none d-lg-block">
 				<div class="position-relative">
-					<Input type="text" class="form-control" placeholder="Search..." />
+					<Input type="text" class="form-control" placeholder="{$_('Search')}..." />
 					<span class="bx bx-search-alt" />
 				</div>
 			</form>

@@ -2,6 +2,7 @@
   import Link from "svelte-link";
   import { Badge, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
   import { format } from '$lib/helpers/datetime';
+  import { _ } from 'svelte-i18n';
 
   /** @type {import('$types').AgentModel[]} */
   export let agents;
@@ -55,10 +56,10 @@
       <div class="px-4 py-3 border-top">
         <ul class="list-inline mb-0">
           <li class="list-inline-item me-1">
-            <Badge color={agent.disabled ? "warning" : "success"}>{agent.disabled ? "Disabled" : "Enabled"}</Badge>
+            <Badge color={agent.disabled ? "warning" : "success"}>{agent.disabled ? $_('Disabled') : $_('Enabled')}</Badge>
           </li>
           <li class="list-inline-item me-1">
-            <Badge color={agent.is_public ? "success" : "warning"}>{agent.is_public ? "Public" : "Private"}</Badge>
+            <Badge color={agent.is_public ? "success" : "warning"}>{agent.is_public ? $_('Public') : $_('Private')}</Badge>
           </li>
           <li class="list-inline-item me-1" id="dueDate">
             <i class="bx bx-calendar me-1" />
@@ -66,18 +67,18 @@
           </li>
           <li class="list-inline-item me-1">
             <a href= "page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-wrench" /> Build
+              <i class="bx bx-wrench" /> {$_('Build')}
             </a>
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1">
             <a href= "page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-book-open" /> Train
+              <i class="bx bx-book-open" /> {$_('Train')}
             </a>
           </li>
           <li class="list-inline-item me-1">
             <a href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
-              <i class="bx bx-chat" /> Test
+              <i class="bx bx-chat" /> {$_('Test')}
             </a>
           </li>
           {/if}

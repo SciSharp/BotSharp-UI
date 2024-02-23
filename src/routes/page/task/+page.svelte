@@ -1,4 +1,5 @@
 <script>
+	import { _ } from 'svelte-i18n'
 	import {
 		Button,
 		Card,
@@ -163,15 +164,15 @@
 	}
 </script>
 
-<HeadTitle title="Task List" />
-<Breadcrumb title="Agent" pagetitle="Task" />
+<HeadTitle title="{$_('Task List')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Task')}" />
 
 <Row>
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">Task List</h5>
+					<h5 class="mb-0 card-title flex-grow-1">{$_('Task List')}</h5>
 					<div class="flex-shrink-0">
 						<Link class="btn btn-light" on:click={(e) => searchTasks(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
@@ -179,7 +180,7 @@
 								<i class="mdi mdi-dots-vertical" /></DropdownToggle
 							>
 							<DropdownMenu>
-								<DropdownItem>Action</DropdownItem>
+								<DropdownItem>{$_('Action')}</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -192,19 +193,19 @@
 							type="search"
 							class="form-control"
 							id="searchTableList"
-							placeholder="Search for ..."
+							placeholder="{$_('Search for ...')}"
 						/>
 					</Col>
 					<Col xxl="2" lg="6">
 						<select class="form-select" id="idStatus" bind:value={filter.status}>
-							<option value={null}>Status</option>
-							<option value="open">Active</option>
-							<option value="closed">Completed</option>
+							<option value={null}>{$_('Status')}</option>
+							<option value="{$_('open')}">{$_('Active')}</option>
+							<option value="{$_('closed')}">{$_('Completed')}</option>
 						</select>
 					</Col>
 					<Col xxl="2" lg="4">
 						<Button type="button" color="secondary" class="btn-soft-secondary w-100">
-							<i class="mdi mdi-filter-outline align-middle" /> Filter
+							<i class="mdi mdi-filter-outline align-middle" /> {$_('Filter')}
 						</Button>
 					</Col>
 				</Row>
@@ -214,13 +215,13 @@
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
-								<th scope="col">Name</th>
-								<th scope="col">Description</th>
-								<th scope="col">Agent</th>
-								<th scope="col">Details</th>
-								<th scope="col">Updated Date</th>
-								<th scope="col">Status</th>
-								<th scope="col">Action</th>
+								<th scope="col">{$_('Name')}</th>
+								<th scope="col">{$_('Description')}</th>
+								<th scope="col">{$_('Agent')}</th>
+								<th scope="col">{$_('Details')}</th>
+								<th scope="col">{$_('Updated Date')}</th>
+								<th scope="col">{$_('Status')}</th>
+								<th scope="col">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -233,7 +234,7 @@
 								<td>{task.agent_name}</td>
 								<td><div style="max-height: 100px;" class="scrollbar">{@html replaceNewLine(task.content)}</div></td>
 								<td>{utcToLocal(task.updated_datetime)}</td>
-								<td><span class="badge bg-success">{task.enabled ? "Enabled" : "Disabled"}</span></td>
+								<td><span class="badge bg-success">{task.enabled ? $_("Enabled") : $_('"Disabled"')}</span></td>
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View">

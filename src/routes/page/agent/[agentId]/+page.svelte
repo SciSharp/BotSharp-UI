@@ -15,6 +15,7 @@
     import { getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
     const params = $page.params;
+    import { _ } from 'svelte-i18n'  
 
     /** @type {import('$types').AgentModel} */
     let agent;
@@ -28,9 +29,9 @@
     }
 </script>
 
-<HeadTitle title="Agent Overview" />
+<HeadTitle title="{$_('Agent Overview')}" />
 
-<Breadcrumb title="Agent" pagetitle="Agent Overview" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
 
 <Row>
     {#if agent}
@@ -48,6 +49,6 @@
 </Row>
 <Row>
     <div class="hstack gap-2 my-4">
-        <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>Save Agent</Button>
+        <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>{$_('Save Agent')}</Button>
     </div>
 </Row>

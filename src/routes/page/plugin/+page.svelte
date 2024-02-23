@@ -6,6 +6,7 @@
     import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
+	import { _ } from 'svelte-i18n';
 
 	const firstPage = 1;
 	const pageSize = 12;
@@ -86,8 +87,8 @@
 	}
 </script>
 
-<HeadTitle title="Plugins Grid" />
-<Breadcrumb title="Plugin" pagetitle="List" />
+<HeadTitle title="{$_('Plugin')}" />
+<Breadcrumb title="{$_('Plugin')}" pagetitle="{$_('List')}" />
 
 <Plugins plugins={plugins.items} />
 <PlainPagination pagination={pager} pageTo={pageTo} />

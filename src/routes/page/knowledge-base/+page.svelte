@@ -8,9 +8,10 @@
 	import FileLists from "./FileLists.svelte";
 	import RecentFile from "./RecentFile.svelte";
 	import Storage from "./Storage.svelte";
+	import { _ } from 'svelte-i18n'
 </script>
-<HeadTitle title="Knowledge Manager" />
-<Breadcrumb pagetitle="Knowledge Management" title="Knowledge Base"/>
+<HeadTitle title="{$_('Knowledge Manager')}" />
+<Breadcrumb pagetitle="{$_('Knowledge Manager')}" title="{$_('Knowledge Base')}"/>
 <div class="d-xl-flex">
 	<div class="w-100">
 		<div class="d-md-flex">

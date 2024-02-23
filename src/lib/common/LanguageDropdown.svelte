@@ -29,9 +29,9 @@
 <Dropdown {isOpen} toggle={() => (isOpen = !isOpen)} class="d-inline-block">
 	<DropdownToggle class="btn header-item" tag="button" color="">
 		<img
-			src='images/flags/us.jpg'
-			alt="Samply"
-			height="16"
+		src={languages.find(lang => lang.value === selectedLang)?.flag || 'images/flags/us.jpg'}
+        alt="Language"
+        height="16"
 		/>
 	</DropdownToggle>
 	<DropdownMenu class="language-switch dropdown-menu-end">

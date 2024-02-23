@@ -1,5 +1,6 @@
 <script>
 	import Link from 'svelte-link';
+	import { _ } from 'svelte-i18n'
 	import {
 		Row,
 		Col,
@@ -88,7 +89,7 @@
 						<Row>
 							<Col class="col-7">
 								<div class="text-primary p-4">
-									<h5 class="text-primary">Welcome Back !</h5>
+									<h5 class="text-primary">{$_('Welcome Back !')}</h5>
 									<p>Sign in to continue to {PUBLIC_BRAND_NAME}.</p>
 								</div>
 							</Col>

@@ -5,6 +5,7 @@
   import { getAgents } from '$lib/services/agent-service.js';
   import RoutingFlow from './routing-flow.svelte'
   import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n'
 
   /** @type {import('$types').AgentModel[]} */
   let routers;
@@ -48,8 +49,8 @@
   }
 </script>
 
-<HeadTitle title="Router" />
-<Breadcrumb title="Agent" pagetitle="Router" />
+<HeadTitle title="{$_('Router')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Router')}" />
 
 {#if routers}
 <Row>

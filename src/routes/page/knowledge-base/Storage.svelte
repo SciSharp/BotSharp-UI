@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from "svelte";
+  import { _ } from 'svelte-i18n';
   import Link from "svelte-link";
   import { Card, CardBody } from "@sveltestrap/sveltestrap";
   import "//cdn.jsdelivr.net/npm/apexcharts";
@@ -47,7 +48,7 @@
     stroke: {
       dashArray: 3,
     },
-    labels: ["Storage"],
+    labels: [$_('Storage')],
   };
 
   onMount(() => {
@@ -60,12 +61,12 @@
 <Card class="filemanager-sidebar ms-lg-2">
   <CardBody>
     <div class="text-center">
-      <h5 class="font-size-15 mb-4">Storage</h5>
+      <h5 class="font-size-15 mb-4">{$_('Storage')}</h5>
       <div class="apex-charts">
         <div id="storageChart" class="apex-charts" />
       </div>
 
-      <p class="text-muted mt-4">0 GB (0%) of 1 GB used</p>
+      <p class="text-muted mt-4">{$_('0 GB (0%) of 1 GB used')}</p>
     </div>
 
     <div class="mt-4">
@@ -82,8 +83,8 @@
               </div>
 
               <div class="overflow-hidden me-auto">
-                <h5 class="font-size-13 text-truncate mb-1">Images</h5>
-                <p class="text-muted text-truncate mb-0">0 Files</p>
+                <h5 class="font-size-13 text-truncate mb-1">{$_('Images')}</h5>
+                <p class="text-muted text-truncate mb-0">0 {$_('Files')}</p>
               </div>
 
               <div class="ml-2">
@@ -107,8 +108,8 @@
               </div>
 
               <div class="overflow-hidden me-auto">
-                <h5 class="font-size-13 text-truncate mb-1">Video</h5>
-                <p class="text-muted text-truncate mb-0">0 Files</p>
+                <h5 class="font-size-13 text-truncate mb-1">{$_('Video')}</h5>
+                <p class="text-muted text-truncate mb-0">0 {$_('Files')}</p>
               </div>
 
               <div class="ml-2">
@@ -132,8 +133,8 @@
               </div>
 
               <div class="overflow-hidden me-auto">
-                <h5 class="font-size-13 text-truncate mb-1">Music</h5>
-                <p class="text-muted text-truncate mb-0">0 Files</p>
+                <h5 class="font-size-13 text-truncate mb-1">{$_('Music')}</h5>
+                <p class="text-muted text-truncate mb-0">0 {$_('Files')}</p>
               </div>
 
               <div class="ml-2">
@@ -157,8 +158,8 @@
               </div>
 
               <div class="overflow-hidden me-auto">
-                <h5 class="font-size-13 text-truncate mb-1">Document</h5>
-                <p class="text-muted text-truncate mb-0">0 Files</p>
+                <h5 class="font-size-13 text-truncate mb-1">{$_('Document')}</h5>
+                <p class="text-muted text-truncate mb-0">0 {$_('Files')}</p>
               </div>
 
               <div class="ml-2">
@@ -182,8 +183,8 @@
               </div>
 
               <div class="overflow-hidden me-auto">
-                <h5 class="font-size-13 text-truncate mb-1">Others</h5>
-                <p class="text-muted text-truncate mb-0">0 Files</p>
+                <h5 class="font-size-13 text-truncate mb-1">{$_('Others')}</h5>
+                <p class="text-muted text-truncate mb-0">0 {$_('Files')}</p>
               </div>
 
               <div class="ml-2">

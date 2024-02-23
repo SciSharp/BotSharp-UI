@@ -1,11 +1,12 @@
 <script>
 	import { Card, CardBody, CardTitle, Col, Progress, Table } from '@sveltestrap/sveltestrap';
+	import { _ } from 'svelte-i18n'
 </script>
 
 <Col xl={4}>
 	<Card>
 		<CardBody>
-			<CardTitle class="mb-4">Top Client Usage</CardTitle>
+			<CardTitle class="mb-4">{$_('Top Client Usage')}</CardTitle>
 			<div class="text-center">
 				<div class="mb-4">
 					<i class="bx bx-map-pin text-primary display-4" />

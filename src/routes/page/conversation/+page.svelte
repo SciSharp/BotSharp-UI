@@ -1,4 +1,5 @@
 <script>
+	import { _ } from 'svelte-i18n'
 	import {
 		Button,
 		Card,
@@ -153,8 +154,8 @@
 	}
 </script>
 
-<HeadTitle title="Conversation List" />
-<Breadcrumb title="Communication" pagetitle="Conversations" />
+<HeadTitle title="{$_('Conversation List')}" />
+<Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <Row>
@@ -162,7 +163,7 @@
 		<Card>
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">Conversation List</h5>
+					<h5 class="mb-0 card-title flex-grow-1">{$_('Conversation List')}</h5>
 					<div class="flex-shrink-0">
 						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
@@ -170,9 +171,9 @@
 								<i class="mdi mdi-dots-vertical" /></DropdownToggle
 							>
 							<DropdownMenu>
-								<DropdownItem>Action</DropdownItem>
-								<DropdownItem>Another action</DropdownItem>
-								<DropdownItem>Something else here</DropdownItem>
+								<DropdownItem>{$_('Action')}</DropdownItem>
+								<DropdownItem>{$_('Another action')}</DropdownItem>
+								<DropdownItem>{$_('Something else here')}</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -185,27 +186,27 @@
 							type="search"
 							class="form-control"
 							id="searchTableList"
-							placeholder="Search for ..."
+							placeholder="{$_('Search for ...')}"
 						/>
 					</Col>
 					<Col lg="2">
 						<select class="form-select" id="idTask" bind:value={filter.taskId}>
-							<option value={null}>Task</option>
+							<option value={null}>{$_('Task')}</option>
 						</select>
 					</Col>					
 					<Col lg="1">
 						<select class="form-select" id="idStatus" bind:value={filter.status}>
-							<option value={null}>Status</option>
-							<option value="open">Active</option>
-							<option value="closed">Completed</option>
+							<option value={null}>{$_('Status')}</option>
+							<option value="{$_('open')}">{$_('Active')}</option>
+							<option value="{$_('closed')}">{$_('Completed')}</option>
 						</select>
 					</Col>
 					<Col lg="2">
 						<select class="form-select" id="idType" bind:value={filter.channel}>
-							<option value={null}>Select Channel</option>
-							<option value="webchat">Live Chat</option>
-							<option value="phone">Phone</option>
-                            <option value="email">Email</option>
+							<option value={null}>{$_('Select Channel')}</option>
+							<option value="{$_('webchat')}">{$_('Live Chat')}</option>
+							<option value="{$_('phone')}">{$_('Phone')}</option>
+                            <option value="{$_('email')}">{$_('Email')}</option>
 						</select>
 					</Col>
 					<Col lg="2">
@@ -213,7 +214,7 @@
 					</Col>
 					<Col lg="1">
 						<Button type="button" color="secondary" class="btn-soft-secondary w-100">
-							<i class="mdi mdi-filter-outline align-middle" /> Filter
+							<i class="mdi mdi-filter-outline align-middle" /> {$_('Filter')}
 						</Button>
 					</Col>
 				</Row>
@@ -223,14 +224,14 @@
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
-								<th scope="col" class="list-title">Title</th>
-								<th scope="col">User Name</th>
-								<th scope="col">Agent</th>
-								<th scope="col">Channel</th>
-								<th scope="col">Posted Date</th>
-								<th scope="col">Last Date</th>
-								<th scope="col">Status</th>
-								<th scope="col">Action</th>
+								<th scope="col" class="list-title">{$_('Title')}</th>
+								<th scope="col">{$_('User Name')}</th>
+								<th scope="col">{$_('Agent')}</th>
+								<th scope="col">{$_('Channel')}</th>
+								<th scope="col">{$_('Posted Date')}</th>
+								<th scope="col">{$_('Last Date')}</th>
+								<th scope="col">{$_('Status')}</th>
+								<th scope="col">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>

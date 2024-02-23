@@ -1,6 +1,7 @@
 <script>
 	import { Col, Container, Row } from '@sveltestrap/sveltestrap';
     import { PUBLIC_COMPANY_NAME } from '$env/static/public'
+    import { _ } from 'svelte-i18n'  
 
 </script>
 
@@ -12,7 +13,7 @@
             </Col>
             <Col sm={6}>
                 <div class="text-sm-end d-none d-sm-block">
-                    Design & Developed by open source community
+                    {$_('Design & Developed by open source community')}
                 </div>
             </Col>
         </Row>

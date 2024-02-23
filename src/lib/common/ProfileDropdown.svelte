@@ -31,7 +31,7 @@
 		<!-- item-->
 		<DropdownItem href="page/user/me"
 			><i class="bx bx-user font-size-16 align-middle me-1" />
-			<span>Profile</span>
+			<span>{$_('Profile')}</span>
 		</DropdownItem>
 		<DropdownItem href="#"
 			><span class="badge bg-success float-end">11</span><i
@@ -41,7 +41,7 @@
 		<DropdownItem divider />
 		<DropdownItem href="#" on:click={logout}>
 			<div>
-				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>Logout</span>
+				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>{$_('Logout')}</span>
 			</div>
 		</DropdownItem>
 	</DropdownMenu>

@@ -1,4 +1,5 @@
 <script>
+	import { _ } from 'svelte-i18n'
 	import Link from 'svelte-link';
 	import {
 		Card,
@@ -26,7 +27,7 @@
 	<Row class="mb-3">
 		<Col xl={3} sm={6}>
 			<div class="mt-2">
-				<h5>My Files</h5>
+				<h5>{$_('My Files')}</h5>
 			</div>
 		</Col>
 		<Col xl={9} sm={6}>
@@ -36,7 +37,7 @@
 						<input
 							type="text"
 							class="form-control bg-light border-light rounded"
-							placeholder="Search..."
+							placeholder="{$_('Search')}..."
 						/>
 						<i class="bx bx-search-alt search-icon" />
 					</div>
@@ -51,9 +52,9 @@
           </DropdownToggle>
 
           <DropdownMenu class="dropdown-menu-end">
-            <DropdownItem >Share Files</DropdownItem>
-            <DropdownItem >Share with me</DropdownItem>
-            <DropdownItem >Other Actions</DropdownItem>
+            <DropdownItem >{$_('Share Files')}</DropdownItem>
+            <DropdownItem >{$_('Share with me')}</DropdownItem>
+            <DropdownItem >{$_('Other Actions')}</DropdownItem>
           </DropdownMenu>
         </Dropdown>
 			</Form>
@@ -74,11 +75,11 @@
                     </DropdownToggle
 									>
 									<DropdownMenu class="dropdown-menu-end">
-										<DropdownItem header>Open</DropdownItem>
-										<DropdownItem >Edit</DropdownItem>
-										<DropdownItem>Rename</DropdownItem>
+										<DropdownItem header>{$_('Open')}</DropdownItem>
+										<DropdownItem >{$_('Edit')}</DropdownItem>
+										<DropdownItem>{$_('Rename')}</DropdownItem>
 										<DropdownItem divider />
-										<DropdownItem>Remove</DropdownItem>
+										<DropdownItem>{$_('Remove')}</DropdownItem>
 									</DropdownMenu>
 								</Dropdown>
 							</div>
@@ -95,7 +96,7 @@
 										</Link>
 									</h5>
 									<p class="text-muted text-truncate mb-0">
-										{myfile.file} Files
+										{myfile.file} {$_('Files')}
 									</p>
 								</div>
 								<div class="align-self-end ms-2">

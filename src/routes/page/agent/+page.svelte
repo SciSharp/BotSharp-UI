@@ -6,6 +6,7 @@
   	import { getAgents } from '$lib/services/agent-service.js';
   	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
+	import { _ } from 'svelte-i18n'
 
   	const firstPage = 1;
 	const pageSize = 12;
@@ -72,8 +73,8 @@
 	}
 </script>
 
-<HeadTitle title="Agent List" />
-<Breadcrumb title="Agent" pagetitle="List" />
+<HeadTitle title="{$_('List')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
 
 <Row>
 	<CardAgent agents={agents.items} />

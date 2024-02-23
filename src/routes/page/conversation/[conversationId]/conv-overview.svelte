@@ -1,6 +1,7 @@
 <script>
     import { Button, Card, CardBody, CardTitle} from '@sveltestrap/sveltestrap';
     import { format } from '$lib/helpers/datetime';
+    import { _ } from 'svelte-i18n'
 
     /** @type {import('$types').ConversationModel} */
     export let conversation;
@@ -19,7 +20,7 @@
                 <div class="d-flex">
                     <i class="bx bx-phone text-primary fs-4"></i>
                     <div class="ms-3">
-                        <h6 class="fs-14 mb-2">Channel</h6>
+                        <h6 class="fs-14 mb-2">{$_('Channel')}</h6>
                         <p class="text-muted fs-14 mb-0">{conversation.channel}</p>
                     </div>
                 </div>
@@ -28,7 +29,7 @@
                 <div class="d-flex">
                     <i class="bx bx-mail-send text-primary fs-4"></i>
                     <div class="ms-3">
-                        <h6 class="fs-14 mb-2">User</h6>
+                        <h6 class="fs-14 mb-2">{$_('User')}</h6>
                         <p class="text-muted fs-14 mb-0">{conversation.user.full_name}</p>
                     </div>
                 </div>
@@ -37,7 +38,7 @@
                 <div class="d-flex">
                     <i class="bx bx-globe text-primary fs-4"></i>
                     <div class="ms-3">
-                        <h6 class="fs-14 mb-2">Status</h6>
+                        <h6 class="fs-14 mb-2">{$_('Status')}</h6>
                         <p class="text-muted fs-14 text-break mb-0">{conversation.status}</p>
                     </div>
                 </div>
@@ -46,7 +47,7 @@
                 <div class="d-flex">
                     <i class="bx bx-map text-primary fs-4"></i>
                     <div class="ms-3">
-                        <h6 class="fs-14 mb-2">Location</h6>
+                        <h6 class="fs-14 mb-2">{$_('Location')}</h6>
                         <p class="text-muted fs-14 mb-0">Oakridge Lane Richardson.</p>
                     </div>
                 </div>

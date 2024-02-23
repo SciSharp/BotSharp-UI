@@ -4,6 +4,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import { refreshAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+  import { _ } from 'svelte-i18n';
 
   let isLoading = false;
   let isComplete = false;
@@ -31,10 +32,10 @@
 </script>
 
 <HeadTitle title="MongoDB" />
-<Breadcrumb title="MongoDB" pagetitle="Setting" />
+<Breadcrumb title="MongoDB" pagetitle="{$_('Setting')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
-<h3>Migrate agents from file repository to MongoDB</h3>
+<h3>{$_('Migrate agents from file repository to MongoDB')}</h3>
 <Button color="primary" on:click={() => refreshAgentData()} disabled={isLoading}>
-  <i class="bx bx-copy" /> Start Migration
+  <i class="bx bx-copy" /> {$_('Start Migration')}
 </Button>
