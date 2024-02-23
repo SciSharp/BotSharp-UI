@@ -80,7 +80,7 @@
 							<Row>
 								<Col xs={6}>
 									<h5 class="font-size-15">125</h5>
-									<p class="text-muted mb-0">{$_('Conversations')}</p>
+									<p class="text-muted mb-0">Conversations</p>
 								</Col>
 								<Col xs={6}>
 									<h5 class="font-size-15">$1245</h5>
@@ -130,7 +130,7 @@
 					<CardBody>
 						<div class="d-flex">
 							<div class="flex-grow-1">
-								<p class="text-muted fw-medium">{$_('Conversations')}</p>
+								<p class="text-muted fw-medium">Conversations</p>
 								<h4 class="mb-0">1,235</h4>
 							</div>
 							<div class="flex-shrink-0 align-self-center">

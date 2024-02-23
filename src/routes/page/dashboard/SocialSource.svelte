@@ -17,7 +17,7 @@
 				<p class="font-16 text-muted mb-2" />
 				<h5>
 					<Link class="text-dark"
-						>Facebook - <span class="text-muted font-16">125 {$_('Conversations')}</span>
+						>Facebook - <span class="text-muted font-16">125 Conversations</span>
 					</Link>
 				</h5>
 				<p class="text-muted">

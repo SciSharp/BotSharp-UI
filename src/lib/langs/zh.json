@@ -384,32 +384,23 @@
   "View Profile":"查看配置文件",
   "Monthly Cost":"每月的成本",
   "This month":"这个月",
-  "From previous period":"从上一期开始",
   "View More":"查看更多",
-  "We craft digital, graphic and dimensional thinking.":"我们制作数字，图形和维度思维。",
   "Total Cost":"总成本",
   "Average Cost":"平均成本",
   "Week":"周",
   "Month":"月",
   "Year":"年",
-  "Token Spent":"令牌花费",
+  "Token Spent":"令牌用量统计",
   "Channel Stats":"通道数据",
-  "Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus tincidunt.":"在偶然的时间点之前，梅塞纳需要一段时间的时间。我的生命是智慧的，我的生命是自由的，我的生命是永恒的。",
   "Learn more":"了解更多",
   "sales":"销售额",
   "Activity":"活动",
-  "Responded to need “Volunteer Activities":"回应需要的“志愿者活动”",
-  "Everyone realizes why a new common language would be desirable...":"每个人都知道为什么需要一种新的通用语言……",
-  "Read more":"阅读更多",
-  "Joined the group “Boardsmanship Forum”":"加入“董事会论坛”小组”",
-  "Responded to need “In-Kind Opportunity”":"回应需求“实物机会”",
-  "Top Client Usage":"顶级客户端使用率",
+  "Top Client Usage":"客户端用量",
   "Logout": "登出",
   "Profile": "配置文件",
   "Notifications": "通知",
   "View All":"查看全部",
   "Your order is placed":"您的订单已经下达",
-  "If several languages coalesce the grammar":"如果几种语言将语法结合起来",
   "min ago":"分钟前",
   "List":"列表",
   "Communication":"沟通",
@@ -438,7 +429,6 @@
   "Provided by BotSharp":"由BotSharp提供",
   "Provided by Pizza AI Assistant":"由Pizza AI Assistant提供",
   "Upgrade Features":"升级功能",
-  "Cum sociis natoque penatibus et":"与社会natoque penatibus等",
   "Upgrade":"升级",
   "Files":"文件",
   "Design":"设计",
@@ -504,13 +494,4 @@
   "Update Date":"更新日期",
   "Create Date":"创建日期",
   "Active now":"正在工作"
-  
-  
-
-
-
-
-  
-
-
 }
