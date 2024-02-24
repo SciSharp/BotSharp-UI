@@ -68,7 +68,7 @@
 						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
 						{/if}
 						{#if !item.is_core}
-						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? $_("Remove") : $_('"Install"')}</button>
+						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
 						{/if}
 					</div>
 				</CardBody>
