@@ -74,26 +74,27 @@
     }
 }
 
+.user-chat-nav-flex {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
 .user-chat-nav {
+    .nav-btn {
+        color: var(--#{$prefix}body-color);
+        height: 40px;
+        width: 40px;
+        line-height: 42px;
+        box-shadow: none;
+        padding: 0;
+        font-size: 16px;
+        background-color: var(--#{$prefix}light);
+        border-radius: 50%;
+        border: none;
+    }
+
     .dropdown {
-        .nav-btn {
-            color: var(--#{$prefix}body-color);
-            height: 40px;
-            width: 40px;
-            line-height: 42px;
-            box-shadow: none;
-            padding: 0;
-            font-size: 16px;
-            background-color: var(--#{$prefix}light);
-            border-radius: 50%;
-            border: none;
-        }
-
-        button {
-            outline: none !important;
-            box-shadow: none !important;
-        }
-
         .state-menu > .dropdown-menu {
             inset: 0px auto auto 0px !important;
         }
