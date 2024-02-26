@@ -24,7 +24,6 @@
 	import { SenderAction, UserRole, RichType } from '$lib/helpers/enums';
 	import RcText from './messageComponents/rc-text.svelte';
 	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
-	import RcMarkdown from './messageComponents/rc-markdown.svelte';
 	import RcButton from './messageComponents/rc-button.svelte';
 	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
