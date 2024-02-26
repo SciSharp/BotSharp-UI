@@ -491,6 +491,10 @@
 			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
 		});
 	}
+
+	function openFullScreen() {
+		window.open($page.url.pathname);
+	}
 </script>
 
 <DialogModal
@@ -534,8 +538,17 @@
 							</div>
 		
 							<div class="col-md-8 col-5">
-								<ul class="list-inline user-chat-nav text-end mb-0">
-									
+								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
+									{#if isLite}
+									<li class="list-inline-item">
+										<button
+											class="btn btn-secondary nav-btn dropdown-toggle"
+											on:click={() => openFullScreen()}
+										>
+											<i class="bx bx-fullscreen" />
+										</button>
+									</li>
+									{/if}
 									<li class="list-inline-item">
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
@@ -569,7 +582,8 @@
 									</li>
 									
 									<li class="list-inline-item d-sm-inline-block">
-										<button type="submit" class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
+										<button
+											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
 										>
 											<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
