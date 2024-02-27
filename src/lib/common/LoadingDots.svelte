@@ -1,5 +1,5 @@
 <script>
-	import { range } from "$lib/helpers/utils";
+	import { range } from "$lib/helpers/utils/common";
 
     /** @type {string} */
 	export let color = '#FF3E00';

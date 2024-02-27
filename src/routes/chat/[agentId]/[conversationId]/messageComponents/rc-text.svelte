@@ -1,4 +1,5 @@
 <script>
+	import FileDropZone from '$lib/common/FileDropZone.svelte';
 	import RcMarkdown from './rc-markdown.svelte';
 
 	/** @type {any} */
@@ -17,3 +18,17 @@
 	{#if message?.function === 'upload_attachments'}
 	{/if}
 {/if} -->
+
+
+
+<div class="file-drop-zone-container">
+	<FileDropZone accept={'jpeg'} />
+</div>
+
+<style>
+	.file-drop-zone-container {
+		margin-top: 2px;
+		max-width: 50vmin;
+		max-height: 10%;
+	}
+</style>

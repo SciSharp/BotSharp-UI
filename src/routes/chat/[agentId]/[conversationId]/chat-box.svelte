@@ -120,8 +120,8 @@
 
 	function initLogView() {
 		isLite = $page.url.searchParams.get('isLite') === 'true';
-		isLoadContentLog = !isLite;
-		isLoadStateLog = !isLite;
+		// isLoadContentLog = !isLite;
+		// isLoadStateLog = !isLite;
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
