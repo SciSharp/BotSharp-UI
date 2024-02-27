@@ -254,8 +254,9 @@ IRichContent.prototype.text;
  * @property {UserModel} sender - The message sender.
  * @property {string} message_id - The message id.
  * @property {string} text - The message content.
- * @property {RichContent} rich_content - Rich content
- * @property {string} data
+ * @property {string} function - The function name.
+ * @property {RichContent} rich_content - Rich content.
+ * @property {string} data - The message data.
  * @property {Date} created_at - The message sent time.
  */
 

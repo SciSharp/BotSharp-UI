@@ -35,7 +35,10 @@
 
 <div class={`log-element p-2 rounded ${logBackground}`} id={`content-log-${data.message_id}`}>
     <div class="log-meta">
-        <b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b>
+        <div><b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b></div>
+        {#if data.message_id}
+        <div><b>{`[MessageId: ${data.message_id}]`}</b></div>
+        {/if}
     </div>
     <br>
     <div class="log-content" class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>

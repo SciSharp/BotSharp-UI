@@ -651,33 +651,36 @@
 										<div class="msg-container">
 											{#if message.rich_content}
 												{#if message.rich_content.message?.rich_type === RichType.Text}
-												<RcText message={message.rich_content.message} />
+												<RcText message={message} richContent={message.rich_content} />
 												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
 												<RcQuickReply
-													message={message.rich_content?.message}
-													displayOptions={message.message_id === lastBotMsgId}
+													message={message}
+													richContent={message.rich_content}
+													displayExtraElements={message.message_id === lastBotMsgId}
 													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else if message.rich_content.message?.rich_type === RichType.Button}
 												<RcButton
-													message={message.rich_content.message}
-													displayOptions={message.message_id === lastBotMsgId}
+													message={message}
+													richContent={message.rich_content}
+													displayExtraElements={message.message_id === lastBotMsgId}
 													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
 												<RcMultiSelect
-													message={message.rich_content.message}
-													displayOptions={message.message_id === lastBotMsgId}
+													message={message}
+													richContent={message.rich_content}
+													displayExtraElements={message.message_id === lastBotMsgId}
 													disableOption={isSendingMsg || isThinking}
 													onConfirm={confirmSelectedOption}
 												/>
 												{:else}
-												<RcText message={message} />
+												<RcText message={message} richContent={message.rich_content} />
 												{/if}
 											{:else}
-											<RcText message={message} />
+											<RcText message={message} richContent={message.rich_content} />
 											{/if}
 
 											<ChatImage message={message} />
