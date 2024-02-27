@@ -141,7 +141,7 @@
                         {#if idx === 0}
                         <label for="value">Value</label>
                         {/if}
-                        <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={100} on:input={(e) => changeValue(e, idx)} />
+                        <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={1000} on:input={(e) => changeValue(e, idx)} />
                     </FormGroup>
                 </div>
                 <div class="state-delete">
