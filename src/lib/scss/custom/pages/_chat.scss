@@ -176,6 +176,10 @@
                     background-color: var(--bs-primary);
                     color: #fff;
                 }
+
+                button {
+                    min-width: 50px;
+                }
             }
         }
 
