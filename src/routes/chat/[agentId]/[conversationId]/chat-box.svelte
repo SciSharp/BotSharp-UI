@@ -46,6 +46,7 @@
 		}
 	};
 	const params = $page.params;
+	const messageLimit = 100;
 	
 	/** @type {string} */
 	let text = "";
@@ -132,6 +133,10 @@
 		const savedMessages = conversationUserMessageStore.get();
 		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
 		const truncateMessages = trimUserSentMessages(allMessages);
+		if (allMessages.length > truncateMessages.length) {
+			sentMsgIdx -= allMessages.length - truncateMessages.length;
+		}
+
 		prevSentMsgs = truncateMessages.map(x => x.text);
 		if (sentMsgIdx - 1 < 0) {
 			sentMsgIdx = 0;
@@ -149,8 +154,7 @@
 
 	/** @param {any[]} messages */
 	function trimUserSentMessages(messages) {
-		const limit = 100;
-		return messages?.slice(-limit) || [];
+		return messages?.slice(-messageLimit) || [];
 	}
 
 	function initLogView() {
@@ -320,8 +324,8 @@
 			e.preventDefault();
 		}
 
-		renewUserSentMessages(text);
 		isSendingMsg = true;
+		renewUserSentMessages(text);
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
 			isSendingMsg = false;
 		}).catch(() => {
