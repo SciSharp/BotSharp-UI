@@ -93,6 +93,10 @@
 	let isLite = false;
 	let isFrame = false;
 
+	/** @type {any} */
+	let contentLogComponent;
+	/** @type {any} */
+	let stateLogComponent;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -532,8 +536,20 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		truncateLogs(messageId);
 		refresh();
 		return true;
+	}
+
+	/** @param {string} messageId */
+	function truncateLogs(messageId) {
+		if (contentLogComponent && contentLogComponent.onDeleteMessage) {
+			contentLogComponent.onDeleteMessage(messageId);
+		}
+		
+		if (stateLogComponent && stateLogComponent.onDeleteMessage) {
+			stateLogComponent.onDeleteMessage(messageId);
+		}
 	}
 
 	/** @param {string} messageId */
@@ -610,7 +626,12 @@
 	<Splitpanes>
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} cleanScreen={cleanStateLogScreen} />
+			<StateLog
+				bind:this={stateLogComponent}
+				stateLogs={stateLogs}
+				closeWindow={toggleStateLog}
+				cleanScreen={cleanStateLogScreen}
+			/>
 		</Pane>
 		{/if}
 		<Pane minSize={20}>
@@ -813,7 +834,12 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} cleanScreen={cleanContentLogScreen} />
+			<ContentLog
+				bind:this={contentLogComponent}
+				contentLogs={contentLogs}
+				closeWindow={toggleContentLog}
+				cleanScreen={cleanContentLogScreen}
+			/>
 		</Pane>
 		{/if}
 	</Splitpanes>
