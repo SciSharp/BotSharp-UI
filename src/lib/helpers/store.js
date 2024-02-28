@@ -2,8 +2,9 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-export const conversationKey = "conversation";
-export const conversationUserStatesKey = "conversation_user_states";
+const conversationKey = "conversation";
+const conversationUserStatesKey = "conversation_user_states";
+const conversationUserMessageKey = "conversation_user_messages";
 
 /** @type {Writable<import('$types').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
@@ -92,3 +93,21 @@ const createConversationUserStateStore = () => {
 };
 
 export const conversationUserStateStore = createConversationUserStateStore();
+
+
+const createConversationUserMessageStore = () => {
+    return {
+        reset: () => {
+            localStorage.removeItem(conversationUserMessageKey);
+        },
+        get: () => {
+            const json = localStorage.getItem(conversationUserMessageKey);
+            return json ? JSON.parse(json) : {};
+        },
+        put: (value) => {
+            localStorage.setItem(conversationUserMessageKey, JSON.stringify(value));
+        }
+    }
+};
+
+export const conversationUserMessageStore = createConversationUserMessageStore();

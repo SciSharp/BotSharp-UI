@@ -15,17 +15,14 @@
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
+	import { conversationStore, conversationUserStateStore, conversationUserMessageStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole, RichType } from '$lib/helpers/enums';
-	import RcText from './messageComponents/rc-text.svelte';
-	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
-	import RcButton from './messageComponents/rc-button.svelte';
-	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
+	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import RichContent from './richContent/rich-content.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -35,7 +32,8 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-
+	import { USER_SENDERS } from '$lib/helpers/constants';
+	
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -48,6 +46,7 @@
 		}
 	};
 	const params = $page.params;
+	const messageLimit = 100;
 	
 	/** @type {string} */
 	let text = "";
@@ -91,7 +90,7 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
-		initPrevSentMessages(dialogs);
+		initUserSentMessages(dialogs);
 		initLogView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
@@ -102,20 +101,60 @@
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		await signalr.start(params.conversationId);
 
-		const scrollElements = document.querySelectorAll('.scrollbar');
-		scrollElements.forEach((item) => {
-			scrollbar = OverlayScrollbars(item, options);
-		});
-
+		const scrollElement = document.querySelector('.chat-scrollbar');
+		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function initPrevSentMessages(dialogs) {
-		if (!!!dialogs) return;
+	function initUserSentMessages(dialogs) {
+		const curConvMessages = dialogs?.filter(x => x.sender?.role != UserRole.Assistant).map(x => {
+			return {
+				conversationId: params.conversationId,
+				text: x.text || ''
+			};
+		}) || [];
 
-		prevSentMsgs = dialogs.filter(x => x.sender?.role != UserRole.Assistant).map(x => x.text || '') || [];
+		const savedMessages = conversationUserMessageStore.get();
+		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
+		const allMessages = [...otherConvMessages, ...curConvMessages];
+		const truncateMessages = trimUserSentMessages(allMessages);
+
+		prevSentMsgs = truncateMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: truncateMessages
+		});
+	}
+
+	/** @param {string} msg */
+	function renewUserSentMessages(msg) {
+		const savedMessages = conversationUserMessageStore.get();
+		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
+		const truncateMessages = trimUserSentMessages(allMessages);
+		if (allMessages.length > truncateMessages.length) {
+			sentMsgIdx -= allMessages.length - truncateMessages.length;
+		}
+
+		prevSentMsgs = truncateMessages.map(x => x.text);
+		if (sentMsgIdx - 1 < 0) {
+			sentMsgIdx = 0;
+		}
+
+		if (sentMsgIdx + 1 > truncateMessages.length) {
+			sentMsgIdx = truncateMessages.length;
+		}
+
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: truncateMessages
+		});
+	}
+
+	/** @param {any[]} messages */
+	function trimUserSentMessages(messages) {
+		return messages?.slice(-messageLimit) || [];
 	}
 
 	function initLogView() {
@@ -126,8 +165,11 @@
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
-		const lastBotMsg = dialogs.findLast(x => x.sender?.role === UserRole.Assistant);
-		return lastBotMsg?.message_id || '';
+		const lastMsg = dialogs.slice(-1)[0];
+		if (lastMsg?.sender?.role === UserRole.Assistant) {
+			return lastMsg?.message_id || '';
+		}
+		return '';
 	}
 
 	async function refresh() {
@@ -217,6 +259,7 @@
 		isSendingMsg = true;
 		const sentText = text;
 		text = "";
+		renewUserSentMessages(sentText);
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
 				isSendingMsg = false;
@@ -281,8 +324,8 @@
 			e.preventDefault();
 		}
 
-		prevSentMsgs = [...prevSentMsgs, text];
 		isSendingMsg = true;
+		renewUserSentMessages(text);
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
 			isSendingMsg = false;
 		}).catch(() => {
@@ -444,6 +487,7 @@
 
 		isSendingMsg = true;
 		isOpenEditMsgModal = false;
+		renewUserSentMessages(editText);
 		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
 			isSendingMsg = false;
 			resetEditMsg();
@@ -458,7 +502,6 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
-		initPrevSentMessages(dialogs);
 		refresh();
 		return true;
 	}
@@ -594,7 +637,7 @@
 						</div>
 					</div>
 		
-					<div class="scrollbar" style="height: 82%">
+					<div class="chat-scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -605,9 +648,9 @@
 								</li>
 								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
-									class={message.sender.id === currentUser.id ? 'right' : ''}>
+									class={USER_SENDERS.includes(message.sender?.role) ? 'right' : ''}>
 									<div class="conversation-list">
-										{#if message.sender.id === currentUser.id}
+										{#if USER_SENDERS.includes(message.sender?.role)}
 										<div class="msg-container">
 											<div
 												class="ctext-wrap"
@@ -649,40 +692,12 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											{#if message.rich_content}
-												{#if message.rich_content.message?.rich_type === RichType.Text}
-												<RcText message={message} richContent={message.rich_content} />
-												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
-												<RcQuickReply
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.Button}
-												<RcButton
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
-												<RcMultiSelect
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else}
-												<RcText message={message} richContent={message.rich_content} />
-												{/if}
-											{:else}
-											<RcText message={message} richContent={message.rich_content} />
-											{/if}
-
+											<RichContent
+												message={message}
+												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
+												disableOption={isSendingMsg || isThinking}
+												onConfirm={confirmSelectedOption}
+											/>
 											<ChatImage message={message} />
 										</div>
 										{/if}
@@ -715,7 +730,9 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded waves-effect waves-light"
-									on:click={startListen}>
+									disabled={isSendingMsg || isThinking}
+									on:click={startListen}
+								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
 								</button>
 							</div>
