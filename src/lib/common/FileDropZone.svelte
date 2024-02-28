@@ -37,219 +37,221 @@
   
     //state
     let state = {
-      isFocused: false,
-      isFileDialogActive: false,
-      isDragActive: false,
-      isDragAccept: false,
-      isDragReject: false,
-      /** @type {any} */
-      draggedFiles: [],
-      /** @type {any} */
-      acceptedFiles: [],
-      /** @type {any} */
-      fileRejections: []
+        isFocused: false,
+        isFileDialogActive: false,
+        isDragActive: false,
+        isDragAccept: false,
+        isDragReject: false,
+        /** @type {any} */
+        draggedFiles: [],
+        /** @type {any} */
+        acceptedFiles: [],
+        /** @type {any} */
+        fileRejections: []
     };
   
     /** @type {any} */
     let rootRef;
   
     function resetState() {
-      state.isFileDialogActive = false;
-      state.isDragActive = false;
-      state.draggedFiles = [];
-      state.acceptedFiles = [];
-      state.fileRejections = [];
+        state.isFileDialogActive = false;
+        state.isDragActive = false;
+        state.draggedFiles = [];
+        state.acceptedFiles = [];
+        state.fileRejections = [];
     }
   
     // Fn for opening the file dialog programmatically
     function openFileDialog() {
-      if (inputElement) {
-        inputElement.value = null; // TODO check if null needs to be set
-        state.isFileDialogActive = true;
-        inputElement.click();
-      }
+        if (inputElement) {
+            inputElement.value = null; // TODO check if null needs to be set
+            state.isFileDialogActive = true;
+            inputElement.click();
+        }
     }
   
     // Cb to open the file dialog when SPACE/ENTER occurs on the dropzone
     /** @param {any} event */
     function onKeyDownCb(event) {
       // Ignore keyboard events bubbling up the DOM tree
-      if (!rootRef || !rootRef.isEqualNode(event.target)) {
-        return;
-      }
-  
-      if (event.keyCode === 32 || event.keyCode === 13) {
-        event.preventDefault();
-        openFileDialog();
-      }
+        if (!rootRef || !rootRef.isEqualNode(event.target)) {
+            return;
+        }
+
+        if (event.keyCode === 32 || event.keyCode === 13) {
+            event.preventDefault();
+            openFileDialog();
+        }
     }
   
     // Update focus state for the dropzone
     function onFocusCb() {
-      state.isFocused = true;
+        state.isFocused = true;
     }
     function onBlurCb() {
-      state.isFocused = false;
+        state.isFocused = false;
     }
   
     // Cb to open the file dialog when click occurs on the dropzone
     function onClickCb() {
-      if (noClick) {
-        return;
-      }
-  
-      // In IE11/Edge the file-browser dialog is blocking, therefore, use setTimeout()
-      // to ensure React can handle state changes
-      // See: https://github.com/react-dropzone/react-dropzone/issues/450
-      if (isIeOrEdge()) {
-        setTimeout(openFileDialog, 0);
-      } else {
-        openFileDialog();
-      }
+        if (noClick) {
+            return;
+        }
+
+        // In IE11/Edge the file-browser dialog is blocking, therefore, use setTimeout()
+        // to ensure React can handle state changes
+        // See: https://github.com/react-dropzone/react-dropzone/issues/450
+        if (isIeOrEdge()) {
+            setTimeout(openFileDialog, 0);
+        } else {
+            openFileDialog();
+        }
     }
   
     /** @param {any} event */
     function onDragEnterCb(event) {
-      event.preventDefault();
-      stopPropagation(event);
-  
-      dragTargetsRef = [...dragTargetsRef, event.target];
-  
-      if (isEvtWithFiles(event)) {
-        Promise.resolve(getFilesFromEvent(event)).then(draggedFiles => {
-          if (isPropagationStopped(event) && !noDragEventsBubbling) {
-            return;
-          }
-  
-          state.draggedFiles = draggedFiles;
-          state.isDragActive = true;
-  
-          dispatch("dragenter", {
-            dragEvent: event
-          });
-        });
-      }
+        console.log('inside drag enter: ', event);
+        event.preventDefault();
+        stopPropagation(event);
+
+        dragTargetsRef = [...dragTargetsRef, event.target];
+
+        if (isEvtWithFiles(event)) {
+            Promise.resolve(getFilesFromEvent(event)).then(draggedFiles => {
+                if (isPropagationStopped(event) && !noDragEventsBubbling) {
+                    return;
+                }
+
+                state.draggedFiles = draggedFiles;
+                state.isDragActive = true;
+
+                dispatch("dragenter", {
+                    dragEvent: event
+                });
+            });
+        }
     }
   
     /** @param {any} event */
     function onDragOverCb(event) {
-      event.preventDefault();
-      stopPropagation(event);
-  
-      if (event.dataTransfer) {
-        try {
-          event.dataTransfer.dropEffect = "copy";
-        } catch {} /* eslint-disable-line no-empty */
-      }
-  
-      if (isEvtWithFiles(event)) {
-        dispatch("dragover", {
-          dragEvent: event
-        });
-      }
-  
-      return false;
+        console.log('inside drag over: ', event);
+        event.preventDefault();
+        stopPropagation(event);
+
+        if (event.dataTransfer) {
+            try {
+                event.dataTransfer.dropEffect = "copy";
+            } catch {} /* eslint-disable-line no-empty */
+        }
+
+        if (isEvtWithFiles(event)) {
+            dispatch("dragover", {
+                dragEvent: event
+            });
+        }
+
+        return false;
     }
   
     /** @param {any} event */
     function onDragLeaveCb(event) {
-      event.preventDefault();
-      stopPropagation(event);
-  
-      // Only deactivate once the dropzone and all children have been left
-      const targets = dragTargetsRef.filter(target => rootRef && rootRef.contains(target));
-      // Make sure to remove a target present multiple times only once
-      // (Firefox may fire dragenter/dragleave multiple times on the same element)
-      const targetIdx = targets.indexOf(event.target);
-      if (targetIdx !== -1) {
-        targets.splice(targetIdx, 1);
-      }
-      dragTargetsRef = targets;
-      if (targets.length > 0) {
-        return;
-      }
-  
-      state.isDragActive = false;
-      state.draggedFiles = [];
-  
-      if (isEvtWithFiles(event)) {
-        dispatch("dragleave", {
-          dragEvent: event
-        });
-      }
+        console.log('inside drag leave: ', event);
+        event.preventDefault();
+        stopPropagation(event);
+
+        // Only deactivate once the dropzone and all children have been left
+        const targets = dragTargetsRef.filter(target => rootRef && rootRef.contains(target));
+        // Make sure to remove a target present multiple times only once
+        // (Firefox may fire dragenter/dragleave multiple times on the same element)
+        const targetIdx = targets.indexOf(event.target);
+        if (targetIdx !== -1) {
+            targets.splice(targetIdx, 1);
+        }
+        dragTargetsRef = targets;
+        if (targets.length > 0) {
+            return;
+        }
+
+        state.isDragActive = false;
+        state.draggedFiles = [];
+
+        if (isEvtWithFiles(event)) {
+            dispatch("dragleave", {
+                dragEvent: event
+            });
+        }
     }
   
     /** @param {any} event */
     function onDropCb(event) {
-      event.preventDefault();
-      stopPropagation(event);
-  
-      dragTargetsRef = [];
-  
-      if (isEvtWithFiles(event)) {
-        dispatch("filedropped", {
-          event
-        });
-        Promise.resolve(getFilesFromEvent(event)).then(files => {
-          if (isPropagationStopped(event) && !noDragEventsBubbling) {
-            return;
-          }
-  
-          /** @type {any[]} */
-          const acceptedFiles = [];
-          /** @type {any[]} */
-          const fileRejections = [];
-  
-          files.forEach(file => {
-            const [accepted, acceptError] = fileAccepted(file, accept);
-            const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
-            if (accepted && sizeMatch) {
-              acceptedFiles.push(file);
-            } else {
-              const errors = [acceptError, sizeError].filter(e => e);
-              fileRejections.push({ file, errors });
-            }
-          });
-  
-          if (!multiple && acceptedFiles.length > 1) {
-            // Reject everything and empty accepted files
-            acceptedFiles.forEach(file => {
-              fileRejections.push({ file, errors: [TOO_MANY_FILES_REJECTION] });
-            });
-            acceptedFiles.splice(0);
-          }
-  
-          // Files dropped keep input in sync
-          if (event.dataTransfer) {
-            inputElement.files = event.dataTransfer.files;
-          }
+        event.preventDefault();
+        stopPropagation(event);
 
+        dragTargetsRef = [];
 
-          state.acceptedFiles = acceptedFiles;
-          state.fileRejections = fileRejections;
-  
-          dispatch("drop", {
-            acceptedFiles,
-            fileRejections,
-            event
-          });
-  
-          if (fileRejections.length > 0) {
-            dispatch("droprejected", {
-              fileRejections,
-              event
+        if (isEvtWithFiles(event)) {
+            dispatch("filedropped", {
+                event
             });
-          }
-  
-          if (acceptedFiles.length > 0) {
-            dispatch("dropaccepted", {
-              acceptedFiles,
-              event
+            Promise.resolve(getFilesFromEvent(event)).then(files => {
+                if (isPropagationStopped(event) && !noDragEventsBubbling) {
+                    return;
+                }
+
+                /** @type {any[]} */
+                const acceptedFiles = [];
+                /** @type {any[]} */
+                const fileRejections = [];
+
+                files.forEach(file => {
+                    const [accepted, acceptError] = fileAccepted(file, accept);
+                    const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
+                    if (accepted && sizeMatch) {
+                        acceptedFiles.push(file);
+                    } else {
+                        const errors = [acceptError, sizeError].filter(e => e);
+                        fileRejections.push({ file, errors });
+                    }
+                });
+
+                if (!multiple && acceptedFiles.length > 1) {
+                    // Reject everything and empty accepted files
+                    acceptedFiles.forEach(file => {
+                        fileRejections.push({ file, errors: [TOO_MANY_FILES_REJECTION] });
+                    });
+                    acceptedFiles.splice(0);
+                }
+
+                // Files dropped keep input in sync
+                if (event.dataTransfer) {
+                    inputElement.files = event.dataTransfer.files;
+                }
+
+                state.acceptedFiles = acceptedFiles;
+                state.fileRejections = fileRejections;
+
+                dispatch("drop", {
+                    acceptedFiles,
+                    fileRejections,
+                    event
+                });
+
+                if (fileRejections.length > 0) {
+                    dispatch("droprejected", {
+                        fileRejections,
+                        event
+                    });
+                }
+
+                if (acceptedFiles.length > 0) {
+                    dispatch("dropaccepted", {
+                        acceptedFiles,
+                        event
+                    });
+                }
             });
-          }
-        });
-      }
-      resetState();
+        }
+        resetState();
     }
   
     $: composeHandler = (/** @type {any} */ fn) => (disabled ? null : fn);
@@ -260,64 +262,64 @@
   
     /** @param {any} event */
     function stopPropagation(event) {
-      if (noDragEventsBubbling) {
-        event.stopPropagation();
-      }
+        if (noDragEventsBubbling) {
+            event.stopPropagation();
+        }
     }
   
     // allow the entire document to be a drag target
     /** @param {any} event */
     function onDocumentDragOver(event) {
-      if (preventDropOnDocument) {
-        event.preventDefault();
-      }
+        if (preventDropOnDocument) {
+            event.preventDefault();
+        }
     }
   
     /** @type {any[]} */
     let dragTargetsRef = [];
     /** @param {any} event */
     function onDocumentDrop(event) {
-      if (!preventDropOnDocument) {
-        return;
-      }
-      if (rootRef && rootRef.contains(event.target)) {
-        // If we intercepted an event for our instance, let it propagate down to the instance's onDrop handler
-        return;
-      }
-      event.preventDefault();
-      dragTargetsRef = [];
+        if (!preventDropOnDocument) {
+            return;
+        }
+        if (rootRef && rootRef.contains(event.target)) {
+            // If we intercepted an event for our instance, let it propagate down to the instance's onDrop handler
+            return;
+        }
+        event.preventDefault();
+        dragTargetsRef = [];
     }
   
     // Update file dialog active state when the window is focused on
     function onWindowFocus() {
-      // Execute the timeout only if the file dialog is opened in the browser
-      if (state.isFileDialogActive) {
-        setTimeout(() => {
-          if (inputElement) {
-            const { files } = inputElement;
-  
-            if (!files.length) {
-              state.isFileDialogActive = false;
-              dispatch("filedialogcancel");
-            }
-          }
-        }, 300);
-      }
+        // Execute the timeout only if the file dialog is opened in the browser
+        if (state.isFileDialogActive) {
+            setTimeout(() => {
+                if (inputElement) {
+                    const { files } = inputElement;
+
+                    if (!files.length) {
+                        state.isFileDialogActive = false;
+                        dispatch("filedialogcancel");
+                    }
+                }
+            }, 300);
+        }
     }
   
     onDestroy(() => {
-      // This is critical for canceling the timeout behaviour on `onWindowFocus()`
-      inputElement = null;
+        // This is critical for canceling the timeout behaviour on `onWindowFocus()`
+        inputElement = null;
     });
   
     /** @param {any} event */
     function onInputElementClick(event) {
-      event.stopPropagation();
+        event.stopPropagation();
     }
 </script>
-  
+
 <svelte:window on:focus={onWindowFocus} on:dragover={onDocumentDragOver} on:drop={onDocumentDrop} />
-  
+
 <div
     bind:this={rootRef}
     tabindex="0"
@@ -334,20 +336,20 @@
     on:drop={composeDragHandler(onDropCb)}
 >
     <input
-      {accept}
-      {multiple}
-      {required}
-      type="file"
-      {name}
-      autocomplete="off"
-      tabindex="-1"
-      on:change={onDropCb}
-      on:click={onInputElementClick}
-      bind:this={inputElement}
-      style="display: none;"
+        {accept}
+        {multiple}
+        {required}
+        type="file"
+        {name}
+        autocomplete="off"
+        tabindex="-1"
+        on:change={onDropCb}
+        on:click={onInputElementClick}
+        bind:this={inputElement}
+        style="display: none;"
     />
     <slot>
-      <p class="drop-text">{dropText}</p>
+        <p class="drop-text">{dropText}</p>
     </slot>
 </div>
   

@@ -1,5 +1,6 @@
 <script>
-	import { RichType } from "$lib/helpers/enums";
+	import FileDropZone from "$lib/common/FileDropZone.svelte";
+    import { RichType } from "$lib/helpers/enums";
 	import RcMarkdown from "./rc-markdown.svelte";
 	import RcOptions from "./rc-options.svelte";
 
@@ -33,4 +34,6 @@
     {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
     <RcOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} />
     {/if}
+
+    <FileDropZone accept="jpeg" />
 {/if}

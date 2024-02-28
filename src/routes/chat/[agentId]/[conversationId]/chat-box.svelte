@@ -118,12 +118,12 @@
 			if (isContentLogClosed) {
 				isLoadContentLog = false;
 			} else {
-				isLoadContentLog = true;
+				isLoadContentLog = false;
 			}
 			if (isStateLogClosed) {
 				isLoadStateLog = false;
 			} else {
-				isLoadStateLog = true;
+				isLoadStateLog = false;
 			}
 		} else {
 			isLoadContentLog = false;
