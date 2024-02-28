@@ -117,12 +117,13 @@
 		const savedMessages = conversationUserMessageStore.get();
 		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
 		const allMessages = [...otherConvMessages, ...curConvMessages];
+		const truncateMessages = trimUserSentMessages(allMessages);
 
-		prevSentMsgs = allMessages.map(x => x.text || '');
+		prevSentMsgs = truncateMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
 		conversationUserMessageStore.put({
 			pointer: sentMsgIdx,
-			messages: allMessages
+			messages: truncateMessages
 		});
 	}
 
@@ -130,9 +131,7 @@
 	function renewUserSentMessages(msg) {
 		const savedMessages = conversationUserMessageStore.get();
 		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
-
-		const limit = 100;
-		const truncateMessages = allMessages.slice(-limit);
+		const truncateMessages = trimUserSentMessages(allMessages);
 		prevSentMsgs = truncateMessages.map(x => x.text);
 		if (sentMsgIdx - 1 < 0) {
 			sentMsgIdx = 0;
@@ -146,6 +145,12 @@
 			pointer: sentMsgIdx,
 			messages: truncateMessages
 		});
+	}
+
+	/** @param {any[]} messages */
+	function trimUserSentMessages(messages) {
+		const limit = 100;
+		return messages?.slice(-limit) || [];
 	}
 
 	function initLogView() {
