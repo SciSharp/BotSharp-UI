@@ -10,7 +10,9 @@
 	import { page } from '$app/stores';
 	import { onMount, tick } from 'svelte';
 	import Link from 'svelte-link';
+	import Viewport from 'svelte-viewport-info'
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
+	import { USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
@@ -32,7 +34,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	import { USER_SENDERS } from '$lib/helpers/constants';
 	
 	const options = {
 		scrollbars: {
@@ -47,6 +48,7 @@
 	};
 	const params = $page.params;
 	const messageLimit = 100;
+	const screenWidthThreshold = 1024;
 	
 	/** @type {string} */
 	let text = "";
@@ -82,16 +84,20 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
+	let isContentLogClosed = false;
+	let isStateLogClosed = false;
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
+	let isFrame = false;
+
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
 		initUserSentMessages(dialogs);
-		initLogView();
+		initChatView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -105,6 +111,25 @@
 		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
+
+	function resizeChatWindow() {
+		isLite = Viewport.Width <= screenWidthThreshold;
+		if (!isLite) {
+			if (isContentLogClosed) {
+				isLoadContentLog = false;
+			} else {
+				isLoadContentLog = true;
+			}
+			if (isStateLogClosed) {
+				isLoadStateLog = false;
+			} else {
+				isLoadStateLog = true;
+			}
+		} else {
+			isLoadContentLog = false;
+			isLoadStateLog = false;
+		}
+	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function initUserSentMessages(dialogs) {
@@ -157,10 +182,9 @@
 		return messages?.slice(-messageLimit) || [];
 	}
 
-	function initLogView() {
-		isLite = $page.url.searchParams.get('isLite') === 'true';
-		isLoadContentLog = !isLite;
-		isLoadStateLog = !isLite;
+	function initChatView() {
+		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -374,6 +398,9 @@
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
+			isContentLogClosed = true;
+		} else {
+			isContentLogClosed = false;
 		}
     }
 
@@ -385,6 +412,9 @@
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
 			stateLogs = [];
+			isStateLogClosed = true;
+		} else {
+			isStateLogClosed = false;
 		}
 	}
 
@@ -510,6 +540,7 @@
 	function directToLog(messageId) {
 		if (!!!messageId || isLite) return;
 
+		highlightChatMessage(messageId);
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (!!contentLogElm) {
@@ -535,10 +566,24 @@
 		});
 	}
 
+	/** @param {string} messageId */
+	function highlightChatMessage(messageId) {
+		const targets = document.querySelectorAll('.user-msg');
+		targets.forEach(elm => {
+			if (elm.id === `user-msg-${messageId}`) {
+				elm.classList.add('bg-primary', 'text-white');
+			} else {
+				elm.classList.remove('bg-primary', 'text-white');
+			}
+		});
+	}
+
 	function openFullScreen() {
 		window.open($page.url.pathname);
 	}
 </script>
+
+<svelte:window on:resize={() => resizeChatWindow()}/>
 
 <DialogModal
 	className="custom-modal"
@@ -582,7 +627,7 @@
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
-									{#if isLite}
+									{#if isFrame}
 									<li class="list-inline-item">
 										<button
 											class="btn btn-secondary nav-btn dropdown-toggle"
@@ -598,10 +643,10 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLoadContentLog}
+												{#if !isLite && !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStateLog || !isOpenAddStateModal}
+												{#if !isLite && (!isLoadStateLog || !isOpenAddStateModal)}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -636,7 +681,7 @@
 							</div>
 						</div>
 					</div>
-		
+
 					<div class="chat-scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
@@ -648,13 +693,14 @@
 								</li>
 								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
-									class={USER_SENDERS.includes(message.sender?.role) ? 'right' : ''}>
+									class:right={USER_SENDERS.includes(message.sender?.role)}>
 									<div class="conversation-list">
 										{#if USER_SENDERS.includes(message.sender?.role)}
 										<div class="msg-container">
 											<div
-												class="ctext-wrap"
-												class:clickable={!isLite}
+												class="ctext-wrap user-msg"
+												class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
+												id={`user-msg-${message.message_id}`}
 												tabindex="0"
 												aria-label="user-msg-to-log"
 												role="link"
@@ -673,6 +719,7 @@
 											</div>
 											<ChatImage message={message} />
 										</div>
+										{#if !isLite}
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
 												<i class="bx bx-dots-vertical-rounded" />
@@ -683,6 +730,7 @@
 												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
+										{/if}
 										{:else}
 										<div class="cicon-wrap">
 											{#if message.sender.role == UserRole.Client}
@@ -723,7 +771,7 @@
 							</ul>
 						</div>
 					</div>
-		
+
 					<div class="chat-input-section" style="height: 8%;">
 						<div class="row">
 							<div class="col-auto">

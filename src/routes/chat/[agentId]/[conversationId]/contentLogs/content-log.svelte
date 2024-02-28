@@ -48,8 +48,7 @@
     });
 
     onDestroy(() => {
-        initLogs = [];
-        contentLogs = [];
+        cleanLogs();
     });
 
     async function refresh() {
@@ -58,7 +57,16 @@
             viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
         }, 200);
     }
-     
+    
+    function cleanLogs() {
+        initLogs = [];
+        contentLogs = [];
+    }
+
+    function handleCleanScreen() {
+        cleanLogs();
+        cleanScreen && cleanScreen();
+    }
 </script>
 
 <div class="chat-log">
@@ -67,7 +75,7 @@
             <button
                 type="button"
                 class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => cleanScreen()}
+                on:click={() => handleCleanScreen()}
             >
                 <i class="bx bx-trash"></i>
             </button>
