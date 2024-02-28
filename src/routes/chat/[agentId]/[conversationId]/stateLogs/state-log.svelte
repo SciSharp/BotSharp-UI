@@ -38,11 +38,8 @@
         const conversationId = $page.params.conversationId;
         initLogs = await GetStateLogs(conversationId);
         
-		const scrollElements = document.querySelectorAll('.state-log-scrollbar');
-		scrollElements.forEach((item) => {
-			scrollbar = OverlayScrollbars(item, options);
-		});
-
+		const scrollElement = document.querySelector('.state-log-scrollbar');
+		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
 
@@ -51,8 +48,7 @@
     });
 
     onDestroy(() => {
-        initLogs = [];
-        stateLogs = [];
+        cleanLogs();
     });
 
     function refresh() {
@@ -60,6 +56,16 @@
             const { viewport } = scrollbar.elements();
             viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
         }, 200);
+    }
+
+    function cleanLogs() {
+        initLogs = [];
+        stateLogs = [];
+    }
+
+    function handleCleanScreen() {
+        cleanLogs();
+        cleanScreen && cleanScreen();
     }
 </script>
 
@@ -76,7 +82,7 @@
             <button
                 type="button"
                 class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => cleanScreen()}
+                on:click={() => handleCleanScreen()}
             >
                 <i class="bx bx-trash"></i>
             </button>

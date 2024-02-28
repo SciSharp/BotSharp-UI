@@ -10,22 +10,21 @@
 	import { page } from '$app/stores';
 	import { onMount, tick } from 'svelte';
 	import Link from 'svelte-link';
+	import Viewport from 'svelte-viewport-info'
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
+	import { USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
+	import { conversationStore, conversationUserStateStore, conversationUserMessageStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole, RichType } from '$lib/helpers/enums';
-	import RcText from './messageComponents/rc-text.svelte';
-	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
-	import RcButton from './messageComponents/rc-button.svelte';
-	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
+	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import RichContent from './richContent/rich-content.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -35,7 +34,7 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-
+	
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -48,6 +47,8 @@
 		}
 	};
 	const params = $page.params;
+	const messageLimit = 100;
+	const screenWidthThreshold = 1024;
 	
 	/** @type {string} */
 	let text = "";
@@ -83,16 +84,20 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
+	let isContentLogClosed = false;
+	let isStateLogClosed = false;
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
+	let isFrame = false;
+
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
-		initPrevSentMessages(dialogs);
-		initLogView();
+		initUserSentMessages(dialogs);
+		initChatView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
@@ -102,32 +107,91 @@
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		await signalr.start(params.conversationId);
 
-		const scrollElements = document.querySelectorAll('.scrollbar');
-		scrollElements.forEach((item) => {
-			scrollbar = OverlayScrollbars(item, options);
-		});
-
+		const scrollElement = document.querySelector('.chat-scrollbar');
+		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
 
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function initPrevSentMessages(dialogs) {
-		if (!!!dialogs) return;
-
-		prevSentMsgs = dialogs.filter(x => x.sender?.role != UserRole.Assistant).map(x => x.text || '') || [];
-		sentMsgIdx = prevSentMsgs.length;
+	function resizeChatWindow() {
+		isLite = Viewport.Width <= screenWidthThreshold;
+		if (!isLite) {
+			if (isContentLogClosed) {
+				isLoadContentLog = false;
+			} else {
+				isLoadContentLog = true;
+			}
+			if (isStateLogClosed) {
+				isLoadStateLog = false;
+			} else {
+				isLoadStateLog = true;
+			}
+		} else {
+			isLoadContentLog = false;
+			isLoadStateLog = false;
+		}
 	}
 
-	function initLogView() {
-		isLite = $page.url.searchParams.get('isLite') === 'true';
-		// isLoadContentLog = !isLite;
-		// isLoadStateLog = !isLite;
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function initUserSentMessages(dialogs) {
+		const curConvMessages = dialogs?.filter(x => x.sender?.role != UserRole.Assistant).map(x => {
+			return {
+				conversationId: params.conversationId,
+				text: x.text || ''
+			};
+		}) || [];
+
+		const savedMessages = conversationUserMessageStore.get();
+		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
+		const allMessages = [...otherConvMessages, ...curConvMessages];
+		const trimmedMessages = trimUserSentMessages(allMessages);
+
+		prevSentMsgs = trimmedMessages.map(x => x.text || '');
+		sentMsgIdx = prevSentMsgs.length;
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: trimmedMessages
+		});
+	}
+
+	/** @param {string} msg */
+	function renewUserSentMessages(msg) {
+		const savedMessages = conversationUserMessageStore.get();
+		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
+		const trimmedMessages = trimUserSentMessages(allMessages);
+		if (allMessages.length > trimmedMessages.length) {
+			sentMsgIdx -= allMessages.length - trimmedMessages.length;
+		}
+
+		if (sentMsgIdx < 0) {
+			sentMsgIdx = 0;
+		} else if (sentMsgIdx > trimmedMessages.length) {
+			sentMsgIdx = trimmedMessages.length;
+		}
+
+		prevSentMsgs = trimmedMessages.map(x => x.text);
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: trimmedMessages
+		});
+	}
+
+	/** @param {any[]} messages */
+	function trimUserSentMessages(messages) {
+		return messages?.slice(-messageLimit) || [];
+	}
+
+	function initChatView() {
+		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
-		const lastBotMsg = dialogs.findLast(x => x.sender?.role === UserRole.Assistant);
-		return lastBotMsg?.message_id || '';
+		const lastMsg = dialogs.slice(-1)[0];
+		if (lastMsg?.sender?.role === UserRole.Assistant) {
+			return lastMsg?.message_id || '';
+		}
+		return '';
 	}
 
 	async function refresh() {
@@ -217,6 +281,7 @@
 		isSendingMsg = true;
 		const sentText = text;
 		text = "";
+		renewUserSentMessages(sentText);
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
 				isSendingMsg = false;
@@ -281,8 +346,8 @@
 			e.preventDefault();
 		}
 
-		prevSentMsgs = [...prevSentMsgs, text];
 		isSendingMsg = true;
+		renewUserSentMessages(text);
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
 			isSendingMsg = false;
 		}).catch(() => {
@@ -331,6 +396,9 @@
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
+			isContentLogClosed = true;
+		} else {
+			isContentLogClosed = false;
 		}
     }
 
@@ -342,6 +410,9 @@
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
 			stateLogs = [];
+			isStateLogClosed = true;
+		} else {
+			isStateLogClosed = false;
 		}
 	}
 
@@ -444,6 +515,7 @@
 
 		isSendingMsg = true;
 		isOpenEditMsgModal = false;
+		renewUserSentMessages(editText);
 		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
 			isSendingMsg = false;
 			resetEditMsg();
@@ -458,7 +530,6 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
-		initPrevSentMessages(dialogs);
 		refresh();
 		return true;
 	}
@@ -467,6 +538,7 @@
 	function directToLog(messageId) {
 		if (!!!messageId || isLite) return;
 
+		highlightChatMessage(messageId);
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (!!contentLogElm) {
@@ -492,10 +564,24 @@
 		});
 	}
 
+	/** @param {string} messageId */
+	function highlightChatMessage(messageId) {
+		const targets = document.querySelectorAll('.user-msg');
+		targets.forEach(elm => {
+			if (elm.id === `user-msg-${messageId}`) {
+				elm.classList.add('bg-primary', 'text-white');
+			} else {
+				elm.classList.remove('bg-primary', 'text-white');
+			}
+		});
+	}
+
 	function openFullScreen() {
 		window.open($page.url.pathname);
 	}
 </script>
+
+<svelte:window on:resize={() => resizeChatWindow()}/>
 
 <DialogModal
 	className="custom-modal"
@@ -539,7 +625,7 @@
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
-									{#if isLite}
+									{#if isFrame}
 									<li class="list-inline-item">
 										<button
 											class="btn btn-secondary nav-btn dropdown-toggle"
@@ -555,10 +641,10 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLoadContentLog}
+												{#if !isLite && !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLoadStateLog || !isOpenAddStateModal}
+												{#if !isLite && (!isLoadStateLog || !isOpenAddStateModal)}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -593,8 +679,8 @@
 							</div>
 						</div>
 					</div>
-		
-					<div class="scrollbar" style="height: 82%">
+
+					<div class="chat-scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -605,13 +691,14 @@
 								</li>
 								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
-									class={message.sender.id === currentUser.id ? 'right' : ''}>
+									class:right={USER_SENDERS.includes(message.sender?.role)}>
 									<div class="conversation-list">
-										{#if message.sender.id === currentUser.id}
+										{#if USER_SENDERS.includes(message.sender?.role)}
 										<div class="msg-container">
 											<div
-												class="ctext-wrap"
-												class:clickable={!isLite}
+												class="ctext-wrap user-msg"
+												class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
+												id={`user-msg-${message.message_id}`}
 												tabindex="0"
 												aria-label="user-msg-to-log"
 												role="link"
@@ -630,6 +717,7 @@
 											</div>
 											<ChatImage message={message} />
 										</div>
+										{#if !isLite}
 										<Dropdown>
 											<DropdownToggle class="dropdown-toggle" tag="span" color="">
 												<i class="bx bx-dots-vertical-rounded" />
@@ -640,6 +728,7 @@
 												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
+										{/if}
 										{:else}
 										<div class="cicon-wrap">
 											{#if message.sender.role == UserRole.Client}
@@ -649,40 +738,12 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											{#if message.rich_content}
-												{#if message.rich_content.message?.rich_type === RichType.Text}
-												<RcText message={message} richContent={message.rich_content} />
-												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
-												<RcQuickReply
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.Button}
-												<RcButton
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
-												<RcMultiSelect
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else}
-												<RcText message={message} richContent={message.rich_content} />
-												{/if}
-											{:else}
-											<RcText message={message} richContent={message.rich_content} />
-											{/if}
-
+											<RichContent
+												message={message}
+												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
+												disableOption={isSendingMsg || isThinking}
+												onConfirm={confirmSelectedOption}
+											/>
 											<ChatImage message={message} />
 										</div>
 										{/if}
@@ -708,14 +769,16 @@
 							</ul>
 						</div>
 					</div>
-		
+
 					<div class="chat-input-section" style="height: 8%;">
 						<div class="row">
 							<div class="col-auto">
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded waves-effect waves-light"
-									on:click={startListen}>
+									disabled={isSendingMsg || isThinking}
+									on:click={startListen}
+								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
 								</button>
 							</div>

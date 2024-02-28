@@ -82,6 +82,7 @@
 
 </script>
 
+{#if localOptions.length > 0}
 <div class="button-group">
     {#each localOptions as option, index}
     <button class="btn btn-outline-primary btn-rounded btn-sm m-1" class:active={!!option.isClicked} disabled={disableOption} on:click={(e) => handleClickOption(e, option.payload, index)}>{option.title}</button>
@@ -90,3 +91,4 @@
     <button class="btn btn-outline-success btn-rounded btn-sm m-1" name="confirm" disabled={disableOption || localOptions.every(x => !!!x.isClicked)} on:click={(e) => handleConfirm(e)}>{confirmBtnText}</button>
     {/if}
 </div>
+{/if}

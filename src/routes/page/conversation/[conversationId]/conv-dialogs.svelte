@@ -5,6 +5,7 @@
     import { onMount } from 'svelte';
 	import { UserRole } from '$lib/helpers/enums';
     import { _ } from 'svelte-i18n'  
+	import { USER_SENDERS } from '$lib/helpers/constants';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -21,8 +22,7 @@
      * @returns {boolean}
     */
     function showInRight(dialog) {
-        const sender = dialog.sender;
-        return sender?.role === UserRole.Admin || sender?.role === UserRole.User || sender?.role === UserRole.Client;
+        return USER_SENDERS.includes(dialog?.sender?.role || '');
     }
 </script>
 
