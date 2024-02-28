@@ -32,8 +32,8 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	import { USER_SENDERS } from '$lib/helpers/constants';
 	
-
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -603,9 +603,9 @@
 								</li>
 								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
-									class={message.sender.id === currentUser.id ? 'right' : ''}>
+									class={USER_SENDERS.includes(message.sender?.role) ? 'right' : ''}>
 									<div class="conversation-list">
-										{#if message.sender.id === currentUser.id}
+										{#if USER_SENDERS.includes(message.sender?.role)}
 										<div class="msg-container">
 											<div
 												class="ctext-wrap"
