@@ -38,11 +38,8 @@
         const conversationId = $page.params.conversationId;
         initLogs = await GetContentLogs(conversationId);
 
-		const scrollElements = document.querySelectorAll('.content-log-scrollbar');
-		scrollElements.forEach((item) => {
-			scrollbar = OverlayScrollbars(item, options);
-		});
-
+		const scrollElement = document.querySelector('.content-log-scrollbar');
+		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
 

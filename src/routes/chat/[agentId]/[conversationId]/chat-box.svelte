@@ -15,7 +15,7 @@
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore } from '$lib/helpers/store.js';
+	import { conversationStore, conversationUserStateStore, conversationUserMessageStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
@@ -89,7 +89,7 @@
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
-		initPrevSentMessages(dialogs);
+		initUserSentMessages(dialogs);
 		initLogView();
 
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
@@ -100,20 +100,46 @@
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		await signalr.start(params.conversationId);
 
-		const scrollElements = document.querySelectorAll('.scrollbar');
-		scrollElements.forEach((item) => {
-			scrollbar = OverlayScrollbars(item, options);
-		});
-
+		const scrollElement = document.querySelector('.chat-scrollbar');
+		scrollbar = OverlayScrollbars(scrollElement, options);
 		refresh();
 	});
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function initPrevSentMessages(dialogs) {
-		if (!!!dialogs) return;
+	function initUserSentMessages(dialogs) {
+		const curConvMessages = dialogs?.filter(x => x.sender?.role != UserRole.Assistant).map(x => {
+			return {
+				conversationId: params.conversationId,
+				text: x.text || ''
+			};
+		}) || [];
 
-		prevSentMsgs = dialogs.filter(x => x.sender?.role != UserRole.Assistant).map(x => x.text || '') || [];
+		const savedMessages = conversationUserMessageStore.get();
+		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
+		const allMessages = [...otherConvMessages, ...curConvMessages];
+
+		prevSentMsgs = allMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: allMessages
+		});
+	}
+
+	/** @param {string} msg */
+	function renewUserSentMessages(msg) {
+		const length = prevSentMsgs.length;
+		prevSentMsgs = [...prevSentMsgs, msg];
+		if (sentMsgIdx >= length) {
+			sentMsgIdx = prevSentMsgs.length;
+		}
+
+		const savedMessages = conversationUserMessageStore.get();
+		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
+		conversationUserMessageStore.put({
+			pointer: sentMsgIdx,
+			messages: allMessages
+		});
 	}
 
 	function initLogView() {
@@ -215,6 +241,7 @@
 		isSendingMsg = true;
 		const sentText = text;
 		text = "";
+		renewUserSentMessages(sentText);
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
 				isSendingMsg = false;
@@ -279,7 +306,7 @@
 			e.preventDefault();
 		}
 
-		prevSentMsgs = [...prevSentMsgs, text];
+		renewUserSentMessages(text);
 		isSendingMsg = true;
 		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
 			isSendingMsg = false;
@@ -442,6 +469,7 @@
 
 		isSendingMsg = true;
 		isOpenEditMsgModal = false;
+		renewUserSentMessages(editText);
 		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
 			isSendingMsg = false;
 			resetEditMsg();
@@ -456,7 +484,6 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
-		initPrevSentMessages(dialogs);
 		refresh();
 		return true;
 	}
@@ -592,7 +619,7 @@
 						</div>
 					</div>
 		
-					<div class="scrollbar" style="height: 82%">
+					<div class="chat-scrollbar" style="height: 82%">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -685,7 +712,9 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded waves-effect waves-light"
-									on:click={startListen}>
+									disabled={isSendingMsg || isThinking}
+									on:click={startListen}
+								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
 								</button>
 							</div>

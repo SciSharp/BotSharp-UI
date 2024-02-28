@@ -26,11 +26,11 @@
 <RcMarkdown text={message?.rich_content?.message?.text || message?.text} />
 
 {#if displayExtraElements}
-    {#if message?.rich_content.message?.rich_type === RichType.QuickReply}
+    {#if message?.rich_content?.message?.rich_type === RichType.QuickReply}
 	<RcOptions options={message?.rich_content?.message?.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} />
-    {:else if message?.rich_content.message?.rich_type === RichType.Button}
+    {:else if message?.rich_content?.message?.rich_type === RichType.Button}
     <RcOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} />
-    {:else if message?.rich_content.message?.rich_type === RichType.MultiSelect}
+    {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
     <RcOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} />
     {/if}
 {/if}
