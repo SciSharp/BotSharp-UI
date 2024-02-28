@@ -156,8 +156,11 @@
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
-		const lastBotMsg = dialogs.findLast(x => x.sender?.role === UserRole.Assistant);
-		return lastBotMsg?.message_id || '';
+		const lastMsg = dialogs.slice(-1)[0];
+		if (lastMsg?.sender?.role === UserRole.Assistant) {
+			return lastMsg?.message_id || '';
+		}
+		return '';
 	}
 
 	async function refresh() {
@@ -682,7 +685,7 @@
 										<div class="msg-container">
 											<RichContent
 												message={message}
-												displayExtraElements={message.message_id === lastBotMsgId}
+												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
 												onConfirm={confirmSelectedOption}
 											/>
