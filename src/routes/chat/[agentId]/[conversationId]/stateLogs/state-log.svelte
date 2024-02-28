@@ -15,6 +15,11 @@
     /** @type {() => void} */
     export let cleanScreen;
 
+    export const onDeleteMessage = (/** @type {string} */ messageId) => {
+        const targetIdx = allLogs.findIndex(x => x.message_id === messageId);
+        allLogs = allLogs.filter((x, idx) => idx < targetIdx);
+    }
+
     // @ts-ignore
     let scrollbar;
     /** @type {any[]} */
