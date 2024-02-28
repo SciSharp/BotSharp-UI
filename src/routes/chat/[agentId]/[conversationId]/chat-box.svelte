@@ -128,17 +128,23 @@
 
 	/** @param {string} msg */
 	function renewUserSentMessages(msg) {
-		const length = prevSentMsgs.length;
-		prevSentMsgs = [...prevSentMsgs, msg];
-		if (sentMsgIdx >= length) {
-			sentMsgIdx = prevSentMsgs.length;
-		}
-
 		const savedMessages = conversationUserMessageStore.get();
 		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
+
+		const limit = 100;
+		const truncateMessages = allMessages.slice(-limit);
+		prevSentMsgs = truncateMessages.map(x => x.text);
+		if (sentMsgIdx - 1 < 0) {
+			sentMsgIdx = 0;
+		}
+
+		if (sentMsgIdx + 1 > truncateMessages.length) {
+			sentMsgIdx = truncateMessages.length;
+		}
+
 		conversationUserMessageStore.put({
 			pointer: sentMsgIdx,
-			messages: allMessages
+			messages: truncateMessages
 		});
 	}
 
