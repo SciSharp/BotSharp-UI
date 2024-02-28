@@ -21,11 +21,8 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole, RichType } from '$lib/helpers/enums';
-	import RcText from './messageComponents/rc-text.svelte';
-	import RcQuickReply from './messageComponents/rc-quick-reply.svelte';
-	import RcButton from './messageComponents/rc-button.svelte';
-	import RcMultiSelect from './messageComponents/rc-multi-select.svelte';
+	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import RichContent from './richContent/rich-content.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -35,6 +32,7 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	
 
 	const options = {
 		scrollbars: {
@@ -649,40 +647,12 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											{#if message.rich_content}
-												{#if message.rich_content.message?.rich_type === RichType.Text}
-												<RcText message={message} richContent={message.rich_content} />
-												{:else if message.rich_content.message?.rich_type === RichType.QuickReply}
-												<RcQuickReply
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.Button}
-												<RcButton
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else if message.rich_content.message?.rich_type === RichType.MultiSelect}
-												<RcMultiSelect
-													message={message}
-													richContent={message.rich_content}
-													displayExtraElements={message.message_id === lastBotMsgId}
-													disableOption={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-												{:else}
-												<RcText message={message} richContent={message.rich_content} />
-												{/if}
-											{:else}
-											<RcText message={message} richContent={message.rich_content} />
-											{/if}
-
+											<RichContent
+												message={message}
+												displayExtraElements={message.message_id === lastBotMsgId}
+												disableOption={isSendingMsg || isThinking}
+												onConfirm={confirmSelectedOption}
+											/>
 											<ChatImage message={message} />
 										</div>
 										{/if}
