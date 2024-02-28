@@ -33,20 +33,24 @@
     }
 </script>
 
-<div class={`log-element p-2 rounded ${logBackground}`} id={`content-log-${data.message_id}`}>
-    <div class="log-meta">
-        <div><b>{`[${data?.name?.length > 0 ? data?.name + ' ' : ''}${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')}]`}</b></div>
-        {#if data.message_id}
-        <div><b>{`[MessageId: ${data.message_id}]`}</b></div>
-        {/if}
+<div class={`log-element p-2 rounded`} id={`content-log-${data.message_id}`}>
+    <div class="log-meta text-secondary">
+        <div>
+            <span class="text-white h4">{`${data?.name?.length > 0 ? data?.name + ' ' : ''}`}</span> 
+            <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
+        </div>        
     </div>
-    <br>
-    <div class="log-content" class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
+    <div class={`p-2 rounded log-content ${logBackground}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
+
     {#if includedSources.includes(data.source)}
-    <Button class='toggle-btn' color="link" on:click={(e) => toggleText(e)}>
+    <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
         {`${is_collapsed ? 'More +' : 'Less -'}`}
     </Button>
     {/if}
+
+    {#if data.message_id}
+    <div>{`MessageId: ${data.message_id}`}</div>
+    {/if}         
 </div>
