@@ -143,13 +143,13 @@
 		const savedMessages = conversationUserMessageStore.get();
 		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
 		const allMessages = [...otherConvMessages, ...curConvMessages];
-		const truncateMessages = trimUserSentMessages(allMessages);
+		const trimmedMessages = trimUserSentMessages(allMessages);
 
-		prevSentMsgs = truncateMessages.map(x => x.text || '');
+		prevSentMsgs = trimmedMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
 		conversationUserMessageStore.put({
 			pointer: sentMsgIdx,
-			messages: truncateMessages
+			messages: trimmedMessages
 		});
 	}
 
@@ -157,23 +157,21 @@
 	function renewUserSentMessages(msg) {
 		const savedMessages = conversationUserMessageStore.get();
 		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
-		const truncateMessages = trimUserSentMessages(allMessages);
-		if (allMessages.length > truncateMessages.length) {
-			sentMsgIdx -= allMessages.length - truncateMessages.length;
+		const trimmedMessages = trimUserSentMessages(allMessages);
+		if (allMessages.length > trimmedMessages.length) {
+			sentMsgIdx -= allMessages.length - trimmedMessages.length;
 		}
 
-		prevSentMsgs = truncateMessages.map(x => x.text);
-		if (sentMsgIdx - 1 < 0) {
+		if (sentMsgIdx < 0) {
 			sentMsgIdx = 0;
+		} else if (sentMsgIdx > trimmedMessages.length) {
+			sentMsgIdx = trimmedMessages.length;
 		}
 
-		if (sentMsgIdx + 1 > truncateMessages.length) {
-			sentMsgIdx = truncateMessages.length;
-		}
-
+		prevSentMsgs = trimmedMessages.map(x => x.text);
 		conversationUserMessageStore.put({
 			pointer: sentMsgIdx,
-			messages: truncateMessages
+			messages: trimmedMessages
 		});
 	}
 
