@@ -39,9 +39,9 @@
 
         conversationId = conversation.id;
         let chatUrl = `chat/${agentId}/${conversationId}`;
-        const isLite = $page.url.searchParams.get('isLite');
-        if (isLite === 'true') {
-            chatUrl = `${chatUrl}?isLite=true`
+        const isFrame = $page.url.searchParams.get('isFrame');
+        if (isFrame === 'true') {
+            chatUrl = `${chatUrl}?isFrame=true`
         }
         window.location.href = chatUrl;
     });

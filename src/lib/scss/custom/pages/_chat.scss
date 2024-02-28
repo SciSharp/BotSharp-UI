@@ -102,14 +102,6 @@
         .dropdown-menu {
             box-shadow: $box-shadow;
             border: 1px solid var(--#{$prefix}border-color);
-
-            li {
-                &:nth-child(-n+2) {
-                    @media (max-width: 1024px) {
-                        display: none;
-                    }
-                }
-            }
         }
     }
 }
@@ -217,9 +209,6 @@
                 padding: 4px;
                 cursor: pointer;
                 color: var(--#{$prefix}secondary-color);
-                @media (max-width: 575.98px) {
-                    display: none;
-                }
             }
 
             .dropdown-menu {
@@ -282,7 +271,7 @@
 
 .chat-input-section {
     border-top: 1px solid var(--#{$prefix}border-color);
-    padding: 2vmin 2% 2vmin 2%;
+    padding: 2vmin 2%;
 }
 
 .chat-input {
@@ -304,12 +293,6 @@
             padding: 0px 4px;
             display: inline-block;
         }
-    }
-}
-
-.chat-send {
-    @media (max-width: 575.98px) {
-        min-width: auto;
     }
 }
 
