@@ -128,6 +128,8 @@
 		} else {
 			isLoadContentLog = false;
 			isLoadStateLog = false;
+			isOpenEditMsgModal = false;
+			isOpenAddStateModal = false;
 		}
 	}
 
@@ -614,19 +616,19 @@
 		<Pane minSize={20}>
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
-					<div class="border-bottom" style="height: 10%; padding: 2%">
+					<div class="border-bottom chat-head" style="height: 10%;">
 						<div class="row">
-							<div class="col-md-4 col-7">
-								<h5 class="font-size-15 m-1">{agent?.name}</h5>
-								<p class="text-muted mb-0">
+							<div class="col-md-4 col-7 head-left">
+								<div class="m-1">{agent?.name}</div>
+								<div class="text-muted mb-0">
 									<i class="mdi mdi-circle text-success align-middle me-1" /> Active now
-								</p>
+								</div>
 							</div>
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
 									{#if isFrame}
-									<li class="list-inline-item">
+									<li class="chat-nav-element">
 										<button
 											class="btn btn-secondary nav-btn dropdown-toggle"
 											on:click={() => openFullScreen()}
@@ -635,7 +637,7 @@
 										</button>
 									</li>
 									{/if}
-									<li class="list-inline-item">
+									<li class="chat-nav-element">
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
@@ -667,7 +669,7 @@
 										</Dropdown>
 									</li>
 									
-									<li class="list-inline-item d-sm-inline-block">
+									<li class="chat-nav-element d-md-inline-block">
 										<button
 											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
@@ -800,7 +802,7 @@
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
 									on:click={sendTextMessage}
-								><span class="d-none d-sm-inline-block me-2">Send</span>
+								><span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />
 								</button>
 							</div>
