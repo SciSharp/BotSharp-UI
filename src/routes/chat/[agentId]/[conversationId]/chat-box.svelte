@@ -84,8 +84,8 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
-	let isContentLogClosed = false;
-	let isStateLogClosed = false;
+	let isContentLogClosed = false; // initial condition
+	let isStateLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
@@ -114,22 +114,22 @@
 	function resizeChatWindow() {
 		isLite = Viewport.Width <= screenWidthThreshold;
 		if (!isLite) {
-			if (isContentLogClosed) {
-				isLoadContentLog = false;
-			} else {
-				isLoadContentLog = true;
-			}
-			if (isStateLogClosed) {
-				isLoadStateLog = false;
-			} else {
-				isLoadStateLog = true;
-			}
+			isLoadContentLog = !isContentLogClosed;
+			isLoadStateLog = !isStateLogClosed;
 		} else {
 			isLoadContentLog = false;
 			isLoadStateLog = false;
 			isOpenEditMsgModal = false;
 			isOpenAddStateModal = false;
 		}
+	}
+
+	function initChatView() {
+		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		// initial condition
+		isContentLogClosed = false;
+		isStateLogClosed = false;
+		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -179,11 +179,6 @@
 	/** @param {any[]} messages */
 	function trimUserSentMessages(messages) {
 		return messages?.slice(-messageLimit) || [];
-	}
-
-	function initChatView() {
-		isFrame = $page.url.searchParams.get('isFrame') === 'true';
-		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
