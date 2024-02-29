@@ -50,7 +50,7 @@
     </Button>
     {/if}
 
-    {#if data.message_id}
+    {#if data.message_id && data.source === ContentLogSource.UserInput}
     <div>{`MessageId: ${data.message_id}`}</div>
     {/if}         
 </div>

@@ -277,6 +277,7 @@ IRichContent.prototype.text;
  * @property {string} message_id - The message id.
  * @property {Object} states - The states content.
  * @property {Date} created_at - The states sent time.
+ * @property {number} expand_level - The object expand level
  */
 
 /** 

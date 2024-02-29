@@ -112,6 +112,10 @@
             height: 100%;
         }
     }
+
+    .big-nav-element {
+
+    }
     
     .dropdown {
         width: 100%;
@@ -355,20 +359,17 @@
                 }
             
                 .log-content {
-                    font-size: 15px;
+                    font-size: 17px;
                     color: white;
 
                     li {
                         margin-top: 5px;
                         margin-bottom: 5px;
-                        .property {
-                            padding-left: 10px;
-                        }
                     }
 
                     span {
                         color: white;
-                        font-size: 15px;
+                        font-size: 16px;
                     }
                 }
 
