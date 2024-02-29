@@ -15,17 +15,8 @@
     /** @type {() => void} */
     export let cleanScreen;
 
-    export const onDeleteMessage = (/** @type {string} */ messageId) => {
-        const targetIdx = allLogs.findIndex(x => x.message_id === messageId);
-        allLogs = allLogs.filter((x, idx) => idx < targetIdx);
-    }
-
     // @ts-ignore
     let scrollbar;
-    /** @type {any[]} */
-    let initLogs = [];
-
-    $: allLogs = [...initLogs, ...stateLogs];
 
     const options = {
 		scrollbars: {
@@ -41,7 +32,7 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        initLogs = await GetStateLogs(conversationId);
+        stateLogs = await GetStateLogs(conversationId);
         
 		const scrollElement = document.querySelector('.state-log-scrollbar');
 		scrollbar = OverlayScrollbars(scrollElement, options);
@@ -64,7 +55,6 @@
     }
 
     function cleanLogs() {
-        initLogs = [];
         stateLogs = [];
     }
 
@@ -94,7 +84,7 @@
         </div>
         <div class="state-log-scrollbar log-list padding-side">
             <ul>
-                {#each allLogs as log}
+                {#each stateLogs as log}
                     <StateLogElement data={log} />
                 {/each}
             </ul>

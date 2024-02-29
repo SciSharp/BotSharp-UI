@@ -15,17 +15,8 @@
     /** @type {() => void} */
     export let cleanScreen;
 
-    export const onDeleteMessage = (/** @type {string} */ messageId) => {
-        const targetIdx = allLogs.findIndex(x => x.message_id === messageId);
-        allLogs = allLogs.filter((x, idx) => idx < targetIdx);
-    }
-
     // @ts-ignore
     let scrollbar;
-    /** @type {import('$types').ConversationContentLogModel[]} */
-    let initLogs = [];
-
-    $: allLogs = [...initLogs, ...contentLogs];
 
     const options = {
 		scrollbars: {
@@ -41,7 +32,7 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        initLogs = await GetContentLogs(conversationId);
+        contentLogs = await GetContentLogs(conversationId);
 
 		const scrollElement = document.querySelector('.content-log-scrollbar');
 		scrollbar = OverlayScrollbars(scrollElement, options);
@@ -64,7 +55,6 @@
     }
     
     function cleanLogs() {
-        initLogs = [];
         contentLogs = [];
     }
 
@@ -72,12 +62,6 @@
         cleanLogs();
         cleanScreen && cleanScreen();
     }
-
-    // /** @param {string} messageId */
-    // function onDeleteMessage(messageId) {
-    //     const targetIdx = allLogs.findIndex(x => x.message_id === messageId);
-    //     allLogs = allLogs.filter((x, idx) => idx < targetIdx);
-    // }
 </script>
 
 <div class="chat-log">
@@ -100,7 +84,7 @@
         </div>
         <div class="content-log-scrollbar log-list padding-side">
             <ul>
-                {#each allLogs as log}
+                {#each contentLogs as log}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>

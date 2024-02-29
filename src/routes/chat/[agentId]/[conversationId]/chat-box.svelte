@@ -84,19 +84,14 @@
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
-	let isContentLogClosed = false;
-	let isStateLogClosed = false;
+	let isContentLogClosed = false; // initial condition
+	let isStateLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
 	let isOpenAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
 	let isFrame = false;
-
-	/** @type {any} */
-	let contentLogComponent;
-	/** @type {any} */
-	let stateLogComponent;
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -119,22 +114,22 @@
 	function resizeChatWindow() {
 		isLite = Viewport.Width <= screenWidthThreshold;
 		if (!isLite) {
-			if (isContentLogClosed) {
-				isLoadContentLog = false;
-			} else {
-				isLoadContentLog = true;
-			}
-			if (isStateLogClosed) {
-				isLoadStateLog = false;
-			} else {
-				isLoadStateLog = true;
-			}
+			isLoadContentLog = !isContentLogClosed;
+			isLoadStateLog = !isStateLogClosed;
 		} else {
 			isLoadContentLog = false;
 			isLoadStateLog = false;
 			isOpenEditMsgModal = false;
 			isOpenAddStateModal = false;
 		}
+	}
+
+	function initChatView() {
+		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		// initial condition
+		isContentLogClosed = false;
+		isStateLogClosed = false;
+		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -184,11 +179,6 @@
 	/** @param {any[]} messages */
 	function trimUserSentMessages(messages) {
 		return messages?.slice(-messageLimit) || [];
-	}
-
-	function initChatView() {
-		isFrame = $page.url.searchParams.get('isFrame') === 'true';
-		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -543,12 +533,22 @@
 
 	/** @param {string} messageId */
 	function truncateLogs(messageId) {
-		if (contentLogComponent && contentLogComponent.onDeleteMessage) {
-			contentLogComponent.onDeleteMessage(messageId);
+		if (isLoadContentLog) {
+			const targetIdx = contentLogs.findIndex(x => x.message_id === messageId);
+			if (targetIdx < 0) {
+				contentLogs = [];
+			} else {
+				contentLogs = contentLogs.filter((x, idx) => idx < targetIdx);
+			}
 		}
 		
-		if (stateLogComponent && stateLogComponent.onDeleteMessage) {
-			stateLogComponent.onDeleteMessage(messageId);
+		if (isLoadStateLog) {
+			const targetIdx = stateLogs.findIndex(x => x.message_id === messageId);
+			if (targetIdx < 0) {
+				stateLogs = [];
+			} else {
+				stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
+			}
 		}
 	}
 
@@ -557,29 +557,8 @@
 		if (!!!messageId || isLite) return;
 
 		highlightChatMessage(messageId);
-		const elements = [];
-		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
-		if (!!contentLogElm) {
-			elements.push({
-				elm: contentLogElm,
-				wrapperName: '.content-log-scrollbar'
-			});
-		}
-		
-		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
-		if (!!stateLogElm) {
-			elements.push({
-				elm: stateLogElm,
-				wrapperName: '.state-log-scrollbar'
-			});
-		}
-
-		elements.forEach(item => {
-			const scrollElement = document.querySelector(item.wrapperName);
-			const logScroll = OverlayScrollbars(scrollElement, options);
-			const { viewport } = logScroll.elements();
-			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
-		});
+		highlightStateLog(messageId);
+		autoScrollToTargetLog(messageId);
 	}
 
 	/** @param {string} messageId */
@@ -591,6 +570,58 @@
 			} else {
 				elm.classList.remove('bg-primary', 'text-white');
 			}
+		});
+	}
+
+	/** @param {string} messageId */
+	function highlightStateLog(messageId) {
+		if (!isLoadStateLog) return;
+
+		stateLogs = stateLogs.map(item => {
+			if (item.message_id === messageId) {
+				item.expand_level = 1;
+			} else {
+				item.expand_level = 0;
+			}
+			return item;
+		});
+		const targets = document.querySelectorAll('.state-log-item');
+		targets.forEach(elm => {
+			const contentElm = elm.querySelector('.log-content');
+			if (!contentElm) return;
+
+			if (elm.id === `state-log-${messageId}`) {
+				contentElm.classList.add('border', 'border-warning', 'rounded', 'p-1');
+			} else {
+				contentElm.classList.remove('border', 'border-warning', 'rounded', 'p-1');
+			}
+		});
+	}
+
+	/** @param {string} messageId */
+	function autoScrollToTargetLog(messageId) {
+		const elements = [];
+		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
+		if (isLoadContentLog && !!contentLogElm) {
+			elements.push({
+				elm: contentLogElm,
+				wrapperName: '.content-log-scrollbar'
+			});
+		}
+		
+		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
+		if (isLoadStateLog && !!stateLogElm) {
+			elements.push({
+				elm: stateLogElm,
+				wrapperName: '.state-log-scrollbar'
+			});
+		}
+
+		elements.forEach(item => {
+			const scrollElement = document.querySelector(item.wrapperName);
+			const logScroll = OverlayScrollbars(scrollElement, options);
+			const { viewport } = logScroll.elements();
+			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
 		});
 	}
 
@@ -627,8 +658,7 @@
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
 			<StateLog
-				bind:this={stateLogComponent}
-				stateLogs={stateLogs}
+				bind:stateLogs={stateLogs}
 				closeWindow={toggleStateLog}
 				cleanScreen={cleanStateLogScreen}
 			/>
@@ -648,17 +678,17 @@
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
-									{#if isFrame}
-									<li class="chat-nav-element">
+									{#if 1}
+									<li class="list-inline-item">
 										<button
-											class="btn btn-secondary nav-btn dropdown-toggle"
+											class="btn btn-secondary btn-rounded btn-sm"
 											on:click={() => openFullScreen()}
 										>
 											<i class="bx bx-fullscreen" />
 										</button>
 									</li>
 									{/if}
-									<li class="chat-nav-element">
+									<li class="list-inline-item">
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
@@ -690,7 +720,7 @@
 										</Dropdown>
 									</li>
 									
-									<li class="chat-nav-element d-md-inline-block">
+									<li class="list-inline-item d-md-inline-block">
 										<button
 											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
@@ -835,8 +865,7 @@
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
 			<ContentLog
-				bind:this={contentLogComponent}
-				contentLogs={contentLogs}
+				bind:contentLogs={contentLogs}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
 			/>
