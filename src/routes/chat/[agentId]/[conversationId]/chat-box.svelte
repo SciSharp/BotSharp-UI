@@ -684,7 +684,7 @@
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
 									{#if 1}
-									<li class="chat-nav-element">
+									<li class="list-inline-item">
 										<button
 											class="btn btn-secondary btn-rounded btn-sm"
 											on:click={() => openFullScreen()}
@@ -693,7 +693,7 @@
 										</button>
 									</li>
 									{/if}
-									<li class="chat-nav-element big-nav-element">
+									<li class="list-inline-item">
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
@@ -725,7 +725,7 @@
 										</Dropdown>
 									</li>
 									
-									<li class="chat-nav-element d-md-inline-block">
+									<li class="list-inline-item d-md-inline-block">
 										<button
 											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
