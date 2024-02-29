@@ -678,7 +678,7 @@
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
-									{#if 1}
+									{#if isFrame}
 									<li class="list-inline-item">
 										<button
 											class="btn btn-secondary btn-rounded btn-sm"
