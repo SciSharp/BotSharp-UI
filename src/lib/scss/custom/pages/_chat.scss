@@ -355,11 +355,6 @@
                         margin-top: 5px;
                         margin-bottom: 5px;
                     }
-
-                    span {
-                        color: white;
-                        font-size: 16px;
-                    }
                 }
 
                 .log-collapse {
@@ -385,6 +380,13 @@
                     color: white;
                     font-size: 15px;
                     padding-left: 0px;
+                }
+            }
+
+            .state-log-item .log-content {
+                span {
+                    color: white;
+                    font-size: 16px;
                 }
             }
         }
