@@ -46,11 +46,11 @@
 
 {#if conversation}
 <Row>
-    <Col class="col-4">
+    <Col style="flex: 40%;">
         <Overview conversation={conversation} />
         <States conversation={conversation} />
     </Col>
-    <Col class="col-8">
+    <Col style="flex: 60%;">
         <Dialog conversation={conversation} />        
     </Col>
 </Row>

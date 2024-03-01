@@ -249,3 +249,18 @@ button:focus {
 .clickable {
   cursor: pointer;
 }
+
+.markdown-container {
+  pre {
+    -ms-overflow-style: none !important;
+  }
+
+  pre::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+}

@@ -1,6 +1,7 @@
 <script>
 	import { Button } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
+    import Markdown from "$lib/common/Markdown.svelte";
     import { replaceNewLine } from '$lib/helpers/http';
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -40,7 +41,7 @@
     }
 </script>
 
-<div class={`log-element p-2 rounded`} id={`content-log-${data.message_id}`}>
+<div class="log-element rounded" style="padding: 3px;" id={`content-log-${data.message_id}`}>
     <div class="log-meta text-secondary">
         <div>
             {#if data?.name?.length > 0}
@@ -59,8 +60,12 @@
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>        
     </div>
-    <div class={`p-2 rounded log-content ${logDisplayStyle}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
-        {@html replaceNewLine(data?.content)}
+    <div
+        class={`rounded log-content ${logDisplayStyle}`}
+        style="padding: 5px 8px;"
+        class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}
+    >
+        <Markdown text={data?.content} />
     </div>
 
     {#if includedSources.includes(data.source)}
