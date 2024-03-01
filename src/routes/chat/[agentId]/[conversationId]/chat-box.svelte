@@ -535,20 +535,12 @@
 	function truncateLogs(messageId) {
 		if (isLoadContentLog) {
 			const targetIdx = contentLogs.findIndex(x => x.message_id === messageId);
-			if (targetIdx < 0) {
-				contentLogs = [];
-			} else {
-				contentLogs = contentLogs.filter((x, idx) => idx < targetIdx);
-			}
+			contentLogs = contentLogs.filter((x, idx) => idx < targetIdx);
 		}
 		
 		if (isLoadStateLog) {
 			const targetIdx = stateLogs.findIndex(x => x.message_id === messageId);
-			if (targetIdx < 0) {
-				stateLogs = [];
-			} else {
-				stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
-			}
+			stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
 		}
 	}
 
@@ -578,14 +570,6 @@
 	function highlightStateLog(messageId) {
 		if (!isLoadStateLog) return;
 
-		stateLogs = stateLogs.map(item => {
-			if (item.message_id === messageId) {
-				item.expand_level = 1;
-			} else {
-				item.expand_level = 0;
-			}
-			return item;
-		});
 		const targets = document.querySelectorAll('.state-log-item');
 		targets.forEach(elm => {
 			const contentElm = elm.querySelector('.log-content');
