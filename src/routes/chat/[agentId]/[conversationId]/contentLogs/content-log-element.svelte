@@ -8,8 +8,7 @@
     /** @type {import('$types').ConversationContentLogModel} */
     export let data;
 
-    let logBackground = '';
-    let logText = '';
+    let logDisplayStyle = '';
     let is_collapsed = true;
     const includedSources = [
         ContentLogSource.Prompt
@@ -17,17 +16,15 @@
 
     $: {
         if (data.source === ContentLogSource.AgentResponse) {
-            logBackground = 'bg-info';
+            logDisplayStyle = 'bg-info';
         } else if (data.source === ContentLogSource.FunctionCall) {
-            logBackground = 'bg-secondary';
+            logDisplayStyle = 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
-            // logBackground = 'bg-danger';
-            logText = 'text-secondary';
+            logDisplayStyle = 'text-secondary';
         } else if (data.source === ContentLogSource.HardRule) {
-            // logBackground = "bg-warning";
-            logText = 'text-warning';
+            logDisplayStyle = 'text-warning';
         } else if (data.source === ContentLogSource.UserInput) {
-            logBackground = "bg-primary";
+            logDisplayStyle = "bg-primary";
         }
     }
 
@@ -45,7 +42,7 @@
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>        
     </div>
-    <div class={`p-2 rounded log-content ${logBackground} ${logText}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
+    <div class={`p-2 rounded log-content ${logDisplayStyle}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
 
@@ -56,6 +53,8 @@
     {/if}
 
     {#if data.message_id && data.source === ContentLogSource.UserInput}
-    <div>{`MessageId: ${data.message_id}`}</div>
+    <div style="margin-top: 10px;">
+        {`MessageId: ${data.message_id}`}
+    </div>
     {/if}         
 </div>
