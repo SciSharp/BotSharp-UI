@@ -6,6 +6,7 @@
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
 	import { USER_SENDERS } from '$lib/helpers/constants';
+	import Markdown from '$lib/common/Markdown.svelte';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -60,9 +61,18 @@
                         <div class="flex-grow-1">
                             <div>
                                 <span>{dialog.sender.full_name}</span>
-                                <p class="fw-bold">{dialog.text}</p>
-                                <span class="text-muted">{utcToLocal(dialog.created_at)}</span>
+                                <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
                             </div>
+                            <div>
+                                <p class="fw-bold">
+                                    <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
+                                </p>
+                            </div>
+                            {#if dialog.message_id}
+                            <div>
+                                <span class="text-muted" style="font-size: 0.7rem;">{`Message id: ${dialog.message_id}`}</span>
+                            </div>
+                            {/if}
                         </div>
                     </div>
                   </li>

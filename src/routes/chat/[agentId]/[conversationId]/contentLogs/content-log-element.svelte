@@ -51,7 +51,7 @@
                 </Link>
                 {:else}
                 <span class="text-white">
-                    {`${data?.name}`}
+                    {data.name}
                 </span>
                 {/if}
             </span>
