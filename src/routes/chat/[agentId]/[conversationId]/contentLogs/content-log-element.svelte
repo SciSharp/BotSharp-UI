@@ -1,6 +1,6 @@
 <script>
 	import { Button } from '@sveltestrap/sveltestrap';
-    import moment from 'moment';
+    import Link from 'svelte-link/src/Link.svelte';
     import { replaceNewLine } from '$lib/helpers/http';
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -33,12 +33,29 @@
         e.preventDefault();
         is_collapsed = !is_collapsed;
     }
+
+    /** @param {string} agentId */
+    function directToAgentDetailPage(agentId) {
+        window.open(`/page/agent/${agentId}`);
+    }
 </script>
 
 <div class={`log-element p-2 rounded`} id={`content-log-${data.message_id}`}>
     <div class="log-meta text-secondary">
         <div>
-            <span class="text-white h4">{`${data?.name?.length > 0 ? data?.name + ' ' : ''}`}</span> 
+            {#if data?.name?.length > 0}
+            <span class="h4">
+                {#if data?.agent_id?.length > 0}
+                <Link class="text-white" on:click={() => directToAgentDetailPage(data.agent_id)}>
+                    {data.name}
+                </Link>
+                {:else}
+                <span class="text-white">
+                    {`${data?.name}`}
+                </span>
+                {/if}
+            </span>
+            {/if}
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>        
     </div>
