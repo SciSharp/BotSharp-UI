@@ -9,6 +9,7 @@
     export let data;
 
     let logBackground = '';
+    let logText = '';
     let is_collapsed = true;
     const includedSources = [
         ContentLogSource.Prompt
@@ -20,9 +21,13 @@
         } else if (data.source === ContentLogSource.FunctionCall) {
             logBackground = 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
-            logBackground = 'bg-danger';
+            // logBackground = 'bg-danger';
+            logText = 'text-secondary';
         } else if (data.source === ContentLogSource.HardRule) {
-            logBackground = "bg-warning";
+            // logBackground = "bg-warning";
+            logText = 'text-warning';
+        } else if (data.source === ContentLogSource.UserInput) {
+            logBackground = "bg-primary";
         }
     }
 
@@ -40,7 +45,7 @@
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>        
     </div>
-    <div class={`p-2 rounded log-content ${logBackground}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
+    <div class={`p-2 rounded log-content ${logBackground} ${logText}`} class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
         {@html replaceNewLine(data?.content)}
     </div>
 

@@ -591,9 +591,9 @@
 			if (!contentElm) return;
 
 			if (elm.id === `state-log-${messageId}`) {
-				contentElm.classList.add('border', 'border-warning', 'rounded', 'p-1');
+				contentElm.classList.add('border', 'border-primary', 'rounded', 'p-1');
 			} else {
-				contentElm.classList.remove('border', 'border-warning', 'rounded', 'p-1');
+				contentElm.classList.remove('border', 'border-primary', 'rounded', 'p-1');
 			}
 		});
 	}
