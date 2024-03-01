@@ -17,8 +17,6 @@
 	}
 </script>
 
-<div class="ctext-wrap">
-	<div class="flex-shrink-0 align-self-center">
-        <span>{@html displayText}</span>
-    </div>
-</div>
+<span class="markdown-container">
+	{@html displayText}
+</span>

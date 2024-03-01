@@ -1,6 +1,6 @@
 <script>
 	import { RichType } from "$lib/helpers/enums";
-	import RcMarkdown from "./rc-markdown.svelte";
+	import Markdown from "$lib/common/Markdown.svelte";
 	import RcOptions from "./rc-options.svelte";
 
     /** @type {any} */
@@ -23,7 +23,11 @@
     }
 </script>
 
-<RcMarkdown text={message?.rich_content?.message?.text || message?.text} />
+<div class="ctext-wrap">
+	<div class="flex-shrink-0 align-self-center">
+        <Markdown text={message?.rich_content?.message?.text || message?.text} />
+    </div>
+</div>
 
 {#if displayExtraElements}
     {#if message?.rich_content?.message?.rich_type === RichType.QuickReply}

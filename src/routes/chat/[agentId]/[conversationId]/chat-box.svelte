@@ -564,11 +564,12 @@
 	/** @param {string} messageId */
 	function highlightChatMessage(messageId) {
 		const targets = document.querySelectorAll('.user-msg');
+		const style = ['bg-primary', 'text-white'];
 		targets.forEach(elm => {
 			if (elm.id === `user-msg-${messageId}`) {
-				elm.classList.add('bg-primary', 'text-white');
+				elm.classList.add(...style);
 			} else {
-				elm.classList.remove('bg-primary', 'text-white');
+				elm.classList.remove(...style);
 			}
 		});
 	}
@@ -590,10 +591,11 @@
 			const contentElm = elm.querySelector('.log-content');
 			if (!contentElm) return;
 
+			const style = ['border', 'border-primary', 'rounded', 'p-1'];
 			if (elm.id === `state-log-${messageId}`) {
-				contentElm.classList.add('border', 'border-primary', 'rounded', 'p-1');
+				contentElm.classList.add(...style);
 			} else {
-				contentElm.classList.remove('border', 'border-primary', 'rounded', 'p-1');
+				contentElm.classList.remove(...style);
 			}
 		});
 	}

@@ -1,9 +1,9 @@
 <script>
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
+    import Link from 'svelte-link/src/Link.svelte';
     import { GetDialogs } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
-	import { UserRole } from '$lib/helpers/enums';
     import { _ } from 'svelte-i18n'  
 	import { USER_SENDERS } from '$lib/helpers/constants';
 
@@ -24,11 +24,24 @@
     function showInRight(dialog) {
         return USER_SENDERS.includes(dialog?.sender?.role || '');
     }
+
+    function directToChat() {
+        window.open(`/chat/${conversation.agent_id}/${conversation.id}`);
+    }
 </script>
 
 <Card>
     <CardBody>
-        <CardTitle class="mb-5 h4">{$_('Dialogs')}</CardTitle>
+        <div style="display: flex; justify-content: space-between;">
+            <div>
+                <CardTitle class="mb-5 h4">{$_('Dialogs')}</CardTitle>
+            </div>
+            <div>
+                <Link class="btn btn-soft-info btn-sm btn-rounded" on:click={() => directToChat()}>
+                    <i class="mdi mdi-chat" />
+                </Link>
+            </div>
+        </div>
         <div class="">
             <ul class="verti-timeline list-unstyled">
                 {#each dialogs as dialog}

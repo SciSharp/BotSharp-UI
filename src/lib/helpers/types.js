@@ -265,6 +265,7 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} name - The sender name.
+ * @property {string} agent_id = The agent id.
  * @property {string} role - The sender role.
  * @property {string} source - The log source.
  * @property {string} content - The log content.
