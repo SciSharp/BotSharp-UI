@@ -2,7 +2,6 @@
 	import { Button } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
     import Markdown from "$lib/common/Markdown.svelte";
-    import { replaceNewLine } from '$lib/helpers/http';
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
 
