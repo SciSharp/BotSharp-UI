@@ -18,7 +18,8 @@ export async function getSettings() {
  */
 export async function getAgents(filter) {
     let url = endpoints.agentListUrl;
-    const response = await axios.get(url, { params: filter,
+    const response = await axios.get(url, {
+        params: filter,
         paramsSerializer: {
             dots: true,
             indexes: null,
@@ -53,4 +54,16 @@ export async function saveAgent(agent) {
 export async function refreshAgents() {
     const url = endpoints.agentRefreshUrl;
     await axios.post(url);
+}
+
+/**
+ * Create agent
+ * @param {import('$types').AgentModel} agent
+ * @returns {Promise<import('$types').AgentModel>}
+ */
+export async function createAgent(agent) {
+    const url = endpoints.agentCreateUrl;
+    const response = await axios.post(url, agent);
+    console.log(response.data);
+    return response.data;
 }
