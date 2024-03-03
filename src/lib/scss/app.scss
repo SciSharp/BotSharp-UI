@@ -253,6 +253,7 @@ button:focus {
 .markdown-container {
   pre {
     -ms-overflow-style: none !important;
+    white-space: pre-wrap;
   }
 
   pre::-webkit-scrollbar {
