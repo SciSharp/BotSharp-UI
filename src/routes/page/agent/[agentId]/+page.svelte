@@ -19,31 +19,45 @@
 
     /** @type {import('$types').AgentModel} */
     let agent;
+    /** @type {any} */
+    let agentFunctionCmp = null;
 
     onMount(async () => {
         agent = await getAgent(params.agentId);
     });
 
     async function handleAgentUpdate() {
+        fetchJsonContent();
         const result = await saveAgent(agent)
+    }
+
+    function fetchJsonContent() {
+        const content = agentFunctionCmp?.fetchContent();
+        const textContent = JSON.parse(content?.text || "{}");
+        const jsonContent = JSON.parse(JSON.stringify(content?.json || {}));
+        agent.functions = textContent?.functions?.length > 0 ? textContent.functions :
+                            (jsonContent?.functions?.length > 0 ? jsonContent?.functions : []);
+        agent.responses = textContent?.responses?.length > 0 ? textContent.responses :
+                            (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []);
+        agent.templates = textContent?.templates?.length > 0 ? textContent.templates :
+                            (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []);
     }
 </script>
 
 <HeadTitle title="{$_('Agent Overview')}" />
-
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
 
 <Row>
     {#if agent}
-    <Col lg={3}>
+    <Col style="flex: 30%;">
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
     </Col>
-    <Col lg={6}>
+    <Col style="flex: 40%;">
         <AgentPrompt agent={agent} />
     </Col>
-    <Col lg={3}>
-        <AgentFunction agent={agent} />
+    <Col style="flex: 30%;">
+        <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
     </Col>    
     {/if}
 </Row>

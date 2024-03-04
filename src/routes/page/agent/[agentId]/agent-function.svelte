@@ -5,10 +5,14 @@
     /** @type {import('$types').AgentModel} */
     export let agent;
 
+    export const fetchContent = () => {
+        return content;
+    }
+
+    /** @type {import('svelte-jsoneditor').Content} */
     let content = {
-        json: {
-        }
-    }  
+        json: {}
+    };
 
     onMount(() => {
         content = {
@@ -20,11 +24,18 @@
         }         
     });
 
-  
+    /**
+	 * @param {import('svelte-jsoneditor').Content} updatedContent
+	 * @param {import('svelte-jsoneditor').Content} previousContent
+     * @param {import('svelte-jsoneditor').OnChangeStatus} status
+	 */
+    function handleChange(updatedContent, previousContent, status) {
+        content = updatedContent;
+    }
 </script>
 
 <div class="my-json-editor">
-    <JSONEditor bind:content />
+    <JSONEditor bind:content={content} onChange={handleChange} />
 </div>
 
 <style>
