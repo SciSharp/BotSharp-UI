@@ -35,7 +35,7 @@
 </script>
 
 <div class="my-json-editor">
-    <JSONEditor bind:content={content} onChange={handleChange} />
+    <JSONEditor content={content} onChange={handleChange} />
 </div>
 
 <style>
