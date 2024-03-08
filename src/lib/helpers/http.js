@@ -77,3 +77,12 @@ export function replaceUrl(url, args) {
 export function replaceNewLine(text) {
     return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
 }
+
+/**
+ * Replace unnecessary markdown
+ * @param {string} text 
+ * @returns string
+ */
+export function replaceMarkdown(text) {
+    return text.replace(/#/g, '\\# ');
+}

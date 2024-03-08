@@ -1,19 +1,21 @@
 <script>
     import { marked } from 'marked';
-    import { replaceNewLine } from '$lib/helpers/http';
+    import { replaceMarkdown, replaceNewLine } from '$lib/helpers/http';
 
     /** @type {string} */
 	export let text;
 
     let displayText = '';
 	$: {
-		const markedText = replaceNewLine(marked(text || '')?.toString());
+		const markedText = replaceNewLine(marked(replaceMarkdown(text || ''))?.toString());
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			displayText = markedText.substring(0, idx);
 		} else {
             displayText = markedText;
         }
+
+		console.log(displayText);
 	}
 </script>
 
