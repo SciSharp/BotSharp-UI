@@ -23,6 +23,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
+	import lodash from "lodash";
 
 	let isLoading = false;
 	let isComplete = false;
@@ -167,8 +168,8 @@
 			const sp = pair?.split('=') || [];
 			if (sp.length > 0) {
 				states.push({
-					key: sp[0],
-					value: sp[1]
+					key: lodash.trim(sp[0]),
+					value: lodash.trim(sp[1])
 				});
 			}
 		});
