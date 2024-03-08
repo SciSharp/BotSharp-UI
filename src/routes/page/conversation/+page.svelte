@@ -23,6 +23,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
+	import lodash from "lodash";
 
 	let isLoading = false;
 	let isComplete = false;
@@ -44,6 +45,9 @@
 
 	/** @type {import('$types').Pagination} */
 	let pager = filter.pager;
+
+	/** @type {string} */
+	let searchStr = '';
 
     onMount(async () => {
 		isLoading = true;
@@ -146,11 +150,31 @@
 	 */
 	function searchConversations(e) {
 		e.preventDefault();
+		const searchStates = handleSearchString();
 		filter = {
 			...filter,
-			pager: { page: firstPage, size: pageSize, count: 0 }
+			pager: { page: firstPage, size: pageSize, count: 0 },
+			states: searchStates
 		};
 		getPagedConversations();
+	}
+
+	function handleSearchString() {
+		const splits = searchStr?.split(';') || [];
+		/** @type {import('$types').KeyValuePair[]} */
+		const states = [];
+
+		splits.forEach(pair => {
+			const sp = pair?.split('=') || [];
+			if (sp.length > 0) {
+				states.push({
+					key: lodash.trim(sp[0]),
+					value: lodash.trim(sp[1])
+				});
+			}
+		});
+
+		return states;
 	}
 </script>
 
@@ -186,7 +210,8 @@
 							type="search"
 							class="form-control"
 							id="searchTableList"
-							placeholder="{$_('Search for ...')}"
+							bind:value={searchStr}
+							placeholder="{$_('Search for states, e.g., key1=value1;key2=value2;')}"
 						/>
 					</Col>
 					<Col lg="2">
@@ -213,7 +238,12 @@
 						<Input type="date" class="form-control" />
 					</Col>
 					<Col lg="1">
-						<Button type="button" color="secondary" class="btn-soft-secondary w-100">
+						<Button
+							type="button"
+							color="secondary"
+							class="btn-soft-secondary w-100"
+							on:click={(e) => searchConversations(e)}
+						>
 							<i class="mdi mdi-filter-outline align-middle" /> {$_('Filter')}
 						</Button>
 					</Col>

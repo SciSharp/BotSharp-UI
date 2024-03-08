@@ -24,6 +24,12 @@
  */
 
 /**
+ * @typedef {Object} KeyValuePair
+ * @property {string} key - The key.
+ * @property {string} value - The value.
+ */
+
+/**
  * @template T
  * @typedef {Object} PagedItems<T>
  * @property {number} count - Row count.
@@ -179,6 +185,7 @@
  * @property {string} [channel] - The conversation channel.
  * @property {string} [status] - The conversation status.
  * @property {string} [taskId] - The task id.
+ * @property {KeyValuePair[]} [states] - The conversation status.
  */
 
 /**
