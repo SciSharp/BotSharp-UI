@@ -9,16 +9,8 @@
 <Card>
     <CardBody class="border-bottom">
         <div class="d-flex">
-            <div class="flex-grow-1 ms-3">
+            <div class="flex-grow-1">
                 <h5 class="fw-semibold">{agent.name}</h5>
-                <ul class="list-unstyled hstack gap-2 mb-0">
-                    <li>
-                        <i class="bx bx-building-house"></i> <span class="text-muted">Themesbrand</span>
-                    </li>
-                    <li>
-                        <i class="bx bx-map"></i> <span class="text-muted">California</span>
-                    </li>
-                </ul>
             </div>
         </div>
     </CardBody>
