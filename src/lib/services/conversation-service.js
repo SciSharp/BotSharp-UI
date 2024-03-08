@@ -33,11 +33,7 @@ export async function getConversation(id) {
  */
 export async function getConversations(filter) {
     let url = endpoints.conversationsUrl;
-    const response = await axios.get(url, { params: filter,
-        paramsSerializer: {
-            dots: true
-        }
-    });
+    const response = await axios.post(url, { ...filter});
     return response.data;
 }
 
