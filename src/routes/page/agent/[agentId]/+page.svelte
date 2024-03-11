@@ -6,7 +6,7 @@
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-
+    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import AgentPrompt from './agent-prompt.svelte';
 	import AgentOverview from './agent-overview.svelte';
     import AgentFunction from './agent-function.svelte';
@@ -16,11 +16,17 @@
     import { onMount } from 'svelte';
     const params = $page.params;
     import { _ } from 'svelte-i18n'  
-
+	
     /** @type {import('$types').AgentModel} */
     let agent;
     /** @type {any} */
     let agentFunctionCmp = null;
+
+    /** @type {boolean} */
+    let isLoading = false;
+    let isComplete = false;
+    let isError = false;
+    const duration = 3000;
 
     onMount(async () => {
         agent = await getAgent(params.agentId);
@@ -28,7 +34,21 @@
 
     async function handleAgentUpdate() {
         fetchJsonContent();
-        const result = await saveAgent(agent)
+        isLoading = true;
+        saveAgent(agent).then(res => {
+            isLoading = false;
+			isComplete = true;
+			setTimeout(() => {
+				isComplete = false;
+			}, duration);
+        }).catch(err => {
+            isLoading = false;
+			isComplete = false;
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+        });
     }
 
     function fetchJsonContent() {
@@ -46,6 +66,7 @@
 
 <HeadTitle title="{$_('Agent Overview')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <Row>
     {#if agent}
