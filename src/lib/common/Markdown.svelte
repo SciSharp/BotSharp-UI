@@ -14,8 +14,6 @@
 		} else {
             displayText = markedText;
         }
-
-		console.log(displayText);
 	}
 </script>
 
