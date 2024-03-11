@@ -20,17 +20,19 @@
 </script>
 
 <div class={`label-container ${className}`} style={`${style}`}>
-    <button class="btn btn-primary btn-rounded btn-sm label-btn">
-        <span class="d-none d-sm-inline-block me-2">
-            {text}
-        </span>
-        <i
-            class="mdi mdi-window-close label-close"
-            role="button"
-            tabindex="0"
-            on:keydown={() => {}}
-            on:click={(e) => handleClose(e, index)}
-        />
+    <button class="btn btn-primary btn-sm label-btn">
+        <div style="display: flex;">
+            <span class="d-none d-sm-inline-block me-2 label-text">
+                {text}
+            </span>
+            <i
+                class="mdi mdi-window-close label-close"
+                role="button"
+                tabindex="0"
+                on:keydown={() => {}}
+                on:click={(e) => handleClose(e, index)}
+            />
+        </div>
     </button>
 </div>
 
@@ -46,9 +48,16 @@
     .label-btn {
         cursor: default;
         font-size: 12px;
+        border-radius: 15px;
+    }
+
+    .label-text {
+        text-align: left;
     }
 
     .label-close {
         cursor: pointer;
+        display: flex;
+        align-items: center;
     }
 </style>
