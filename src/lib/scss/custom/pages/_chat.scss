@@ -412,6 +412,10 @@
 
 .state-form {
     padding-left: 25px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 800px;
+    scrollbar-width: thin;
 
     .state-input {
         flex: 0.45;
