@@ -17,6 +17,9 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Label from '$lib/common/Label.svelte';
+	import StateModal from '$lib/common/StateModal.svelte';
+	import { conversationSearchStateStore } from '$lib/helpers/store';
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
@@ -24,10 +27,12 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import lodash from "lodash";
+	
 
 	let isLoading = false;
 	let isComplete = false;
 	let isError = false;
+	let isOpenSearchStateModal = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
@@ -46,10 +51,13 @@
 	/** @type {import('$types').Pagination} */
 	let pager = filter.pager;
 
-	/** @type {string} */
-	let searchStr = '';
+	/** @type {string[]} */
+	let searchStateStrs = [];
+	/** @type {import('$types').UserStateDetailModel[]} */
+    export let searchStates = [];
 
     onMount(async () => {
+		loadSearchStates();
 		isLoading = true;
 		getPagedConversations().then(res => {
 			isLoading = false;
@@ -150,37 +158,90 @@
 	 */
 	function searchConversations(e) {
 		e.preventDefault();
-		const searchStates = handleSearchString();
+		const states = getSearchStates();
 		filter = {
 			...filter,
 			pager: { page: firstPage, size: pageSize, count: 0 },
-			states: searchStates
+			states: states
 		};
 		getPagedConversations();
 	}
 
-	function handleSearchString() {
-		const splits = searchStr?.split(';') || [];
-		/** @type {import('$types').KeyValuePair[]} */
-		const states = [];
+	function toggleSearchStateModal() {
+		isOpenSearchStateModal = !isOpenSearchStateModal;
+	}
 
-		splits.forEach(pair => {
-			const sp = pair?.split('=') || [];
-			if (sp.length > 0) {
-				states.push({
-					key: lodash.trim(sp[0]),
-					value: lodash.trim(sp[1])
-				});
-			}
+	function handleConfirmStateModal() {
+		handleSearchStates();
+		saveSearchStates();
+		toggleSearchStateModal();
+	}
+
+	function getSearchStates() {
+		return searchStates.map(x => {
+			return {
+				key: x.key.data,
+				value: x.value.data
+			};
 		});
+	}
 
-		return states;
+	function loadSearchStates() {
+		searchStates = conversationSearchStateStore.get();
+		handleSearchStates();
+	}
+
+	function handleSearchStates() {
+		searchStates = searchStates.map(x => {
+			if (!!x.key) x.key.data = lodash.trim(x.key.data);
+			if (!!x.value) x.value.data = lodash.trim(x.value.data)
+			return x;
+		}).sort((a, b) => {
+			const stra = `${!!a.key?.data ? a.key.data : ''} ${!!a.value?.data ? b.value.data : ''}`;
+			const strb = `${!!b.key?.data ? b.key.data : ''} ${!!b.value?.data ? b.value.data : ''}`;
+			if (stra.length != strb.length) {
+				return stra.length - strb.length;
+			}
+			const keya = a.key?.data?.toLowerCase() || '';
+			const keyb = b.key?.data?.toLowerCase() || '';
+			return keya < keyb ? -1 : keya == keyb ? 0 : 1;
+		});
+		searchStateStrs = searchStates.map(x => {
+			let s = '';
+			if (x.key?.data?.length > 0) {
+				s += x.key.data;
+			}
+			if (x.value?.data?.length > 0) {
+				s += '=' + x.value.data;
+			}
+			return s;
+		});
+	}
+
+	function saveSearchStates() {
+		conversationSearchStateStore.put(searchStates);
+	}
+
+	/** @param {string | number} index */
+	function handleCloseLabel(index) {
+		searchStates = searchStates.filter((x, idx) => idx != index);
+		handleSearchStates();
+		saveSearchStates();
 	}
 </script>
 
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
+<StateModal
+	isOpen={isOpenSearchStateModal}
+	validateKey={true}
+	validateValue={false}
+	bind:states={searchStates}
+	toggleModal={toggleSearchStateModal}
+	confirm={handleConfirmStateModal}
+	cancel={toggleSearchStateModal}
+/>
 
 <Row>
 	<Col lg="12">
@@ -192,12 +253,13 @@
 						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical" /></DropdownToggle
-							>
+								<i class="mdi mdi-dots-vertical" /></DropdownToggle>
 							<DropdownMenu>
-								<DropdownItem>{$_('Action')}</DropdownItem>
-								<DropdownItem>{$_('Another action')}</DropdownItem>
-								<DropdownItem>{$_('Something else here')}</DropdownItem>
+								<DropdownItem
+									on:click={() => toggleSearchStateModal()}
+								>
+									{$_('Search States')}
+								</DropdownItem>
 							</DropdownMenu>
 						</Dropdown>
 					</div>
@@ -210,8 +272,7 @@
 							type="search"
 							class="form-control"
 							id="searchTableList"
-							bind:value={searchStr}
-							placeholder="{$_('Search for states, e.g., key1=value1;key2=value2;')}"
+							placeholder="{$_('Search for ...')}"
 						/>
 					</Col>
 					<Col lg="2">
@@ -248,6 +309,11 @@
 						</Button>
 					</Col>
 				</Row>
+				{#if searchStateStrs?.length > 0}
+					{#each searchStateStrs as str, idx (idx)}
+					<Label index={idx} text={str} onClose={handleCloseLabel} />
+					{/each}
+				{/if}
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive">

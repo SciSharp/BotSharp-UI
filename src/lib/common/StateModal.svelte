@@ -1,8 +1,6 @@
 <script>
 	import { Button, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Form, FormGroup } from "@sveltestrap/sveltestrap";
     import _ from "lodash";
-    import { page } from '$app/stores';
-	import { conversationUserStateStore } from "$lib/helpers/store";
 
     /** @type {boolean} */
     export let isOpen;
@@ -23,22 +21,25 @@
     export let cancel;
 
     /** @type {number} */
-    const limit = 10;
-    const params = $page.params;
+    export let limit = 10;
+    
+    /** @type {string} */
+    export let title = "Add states";
+
+    /** @type {boolean} */
+    export let validateKey = true;
+    export let validateValue = true;
 
     /** @type {import('$types').UserStateDetailModel[]} */
-    let states = [];
+    export let states = [];
 
     $: {
         if (isOpen) {
-            const conversationUserStates = conversationUserStateStore.get();
-            if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
-                states = [...conversationUserStates.states];
+            if (states?.length > 0) {
+                states = [...states];
             } else {
                 states = [{ key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
             }
-        } else {
-            states = [];
         }
     }
 
@@ -52,29 +53,19 @@
         states = states.map(state => {
             const key = _.trim(state.key.data);
             const value = _.trim(state.value.data);
-            if (!!!key) {
+            if (!!!key && validateKey) {
                 state.key.isValid = false;
+                isValidForm = isValidForm && state.key.isValid;
             }
 
-            if (!!!value) {
+            if (!!!value && validateValue) {
                 state.value.isValid = false;
+                isValidForm = isValidForm && state.value.isValid;
             }
-
-            isValidForm = isValidForm && state.key.isValid && state.value.isValid;
             return state;
         });
 
         if (!isValidForm) return;
-
-        const cleanStates = states.map(state => {
-            state.key.data = _.trim(state.key.data);
-            state.value.data = _.trim(state.value.data);
-            return state;
-        });
-        conversationUserStateStore.put({
-            conversationId: params.conversationId,
-            states: cleanStates
-        });
         confirm && confirm();
     }
 
@@ -89,7 +80,7 @@
     }
 
     /** @param {number} index */
-    function removeState(index) {
+    function remove(index) {
         states = states.filter((x, idx) => idx !== index);
     }
 
@@ -123,7 +114,7 @@
 </script>
 
 <Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal && toggleModal()}>
-    <ModalHeader>Add states</ModalHeader>
+    <ModalHeader>{title}</ModalHeader>
     <ModalBody>
         <Form class="state-form">
             {#each states as state, idx (idx)}
@@ -149,7 +140,7 @@
                     <Button
                         class="btn btn-sm btn-rounded"
                         color="danger"
-                        on:click={() => removeState(idx)}
+                        on:click={() => remove(idx)}
                     >
                         <i class="mdi mdi-window-close"></i>
                     </Button>

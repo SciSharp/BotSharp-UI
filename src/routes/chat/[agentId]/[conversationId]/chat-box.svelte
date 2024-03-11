@@ -29,11 +29,11 @@
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
-	import StateModal from './addStateModal/state-modal.svelte';
 	import ChatImage from './chatImage/chat-image.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	import StateModal from '$lib/common/StateModal.svelte';
 	
 	const options = {
 		scrollbars: {
@@ -81,13 +81,16 @@
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let stateLogs = [];
 
+	/** @type {import('$types').UserStateDetailModel[]} */
+	let userAddStates = [];
+
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
 	let isContentLogClosed = false; // initial condition
 	let isStateLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
-	let isOpenAddStateModal = false;
+	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
@@ -120,7 +123,7 @@
 			isLoadContentLog = false;
 			isLoadStateLog = false;
 			isOpenEditMsgModal = false;
-			isOpenAddStateModal = false;
+			isOpenUserAddStateModal = false;
 		}
 	}
 
@@ -416,8 +419,31 @@
 		stateLogs = [];
 	}
 
-	function toggleAddStateModal() {
-		isOpenAddStateModal = !isOpenAddStateModal;
+	function toggleUserAddStateModal() {
+		isOpenUserAddStateModal = !isOpenUserAddStateModal;
+		if (isOpenUserAddStateModal) {
+			loadAddStates();
+		}
+	}
+
+	function loadAddStates() {
+		const conversationUserStates = conversationUserStateStore.get();
+		if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
+			userAddStates = [...conversationUserStates.states];
+		} 
+	}
+
+	function handleConfirmUserAddStates() {
+		const cleanStates = userAddStates.map(state => {
+            state.key.data = _.trim(state.key.data);
+            state.value.data = _.trim(state.value.data);
+            return state;
+        });
+        conversationUserStateStore.put({
+            conversationId: params.conversationId,
+            states: cleanStates
+        });
+		toggleUserAddStateModal();
 	}
 
 	function clearAddedStates() {
@@ -619,7 +645,6 @@
 <svelte:window on:resize={() => resizeChatWindow()}/>
 
 <DialogModal
-	className="custom-modal"
 	title={'Edit message'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={toggleEditMsgModal}
@@ -631,11 +656,11 @@
 </DialogModal>
 
 <StateModal
-	className="custom-modal"
-	isOpen={isOpenAddStateModal}
-	toggleModal={toggleAddStateModal}
-	confirm={toggleAddStateModal}
-	cancel={toggleAddStateModal}
+	isOpen={isOpenUserAddStateModal}
+	bind:states={userAddStates}
+	toggleModal={toggleUserAddStateModal}
+	confirm={handleConfirmUserAddStates}
+	cancel={toggleUserAddStateModal}
 />
 
 <HeadTitle title="Chat" addOn='' />
@@ -683,7 +708,7 @@
 												{#if !isLite && !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLite && (!isLoadStateLog || !isOpenAddStateModal)}
+												{#if !isLite && (!isLoadStateLog || !isOpenUserAddStateModal)}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -693,8 +718,8 @@
 															{#if !isLoadStateLog}
 															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 															{/if}
-															{#if !isOpenAddStateModal}
-															<DropdownItem on:click={() => toggleAddStateModal()}>Add States</DropdownItem>
+															{#if !isOpenUserAddStateModal}
+															<DropdownItem on:click={() => toggleUserAddStateModal()}>Add States</DropdownItem>
 															{/if}
 															<DropdownItem on:click={() => clearAddedStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
