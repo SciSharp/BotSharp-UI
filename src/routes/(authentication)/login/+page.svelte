@@ -16,6 +16,7 @@
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import {
 		PUBLIC_SERVICE_URL,
 		PUBLIC_LIVECHAT_HOST,
@@ -59,7 +60,12 @@
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
-			goto('page/dashboard');
+			const redirectUrl = $page.url.searchParams.get('redirect');
+			if (redirectUrl) {
+				window.location.href = decodeURIComponent(redirectUrl);
+			} else {
+				goto('page/dashboard');
+			}
 			isSubmitting = false;
 		});
 		isSubmitting = false;
@@ -146,8 +152,9 @@
 											type="button"
 											id="password-addon"
 											on:click={() => onPasswordToggle()}
-											><i id="password-eye-icon" class="mdi mdi-eye-outline" /></Button
 										>
+											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
+										</Button>
 									</div>
 								</div>
 
@@ -166,8 +173,10 @@
 										color="primary"
 										disabled={isSubmitting}
 										class="waves-effect waves-light"
-										type="submit">{!isSubmitting ? 'Log In' : 'Log In...'}</Button
+										type="submit"
 									>
+										{!isSubmitting ? 'Log In' : 'Log In...'}
+									</Button>
 								</div>
 
 								<div class="mt-4 text-center">
