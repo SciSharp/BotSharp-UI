@@ -312,6 +312,14 @@ IRichContent.prototype.text;
  * @property {number} sender_action - The sender action.
  */
 
+/** 
+ * Conversation message deleted
+ * 
+ * @typedef {Object} ConversationMessageDeleteModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
+ */
+
 /**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
@@ -350,12 +358,18 @@ IRichContent.prototype.text;
  */
 
 /** 
- * Conversation states
+ * Conversation sender action
  * 
  * @callback OnSenderActionGenerated
  * @param {ConversationSenderActionModel} data
  */
 
+/** 
+ * Conversation message deleted
+ * 
+ * @callback OnConversationMessageDeleted
+ * @param {ConversationMessageDeleteModel} data
+ */
 
 // having to export an empty object here is annoying, 
 // but required for vscode to pass on your types. 
