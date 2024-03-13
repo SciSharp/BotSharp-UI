@@ -165,12 +165,16 @@
 	function searchConversations(e) {
 		e.preventDefault();
 		refreshFilter();
+		initFilterPager();
+		getPagedConversations();
+		saveSearchOption();
+	}
+
+	function initFilterPager() {
 		filter = {
 			...filter,
 			pager: { page: firstPage, size: pageSize, count: 0 },
 		};
-		getPagedConversations();
-		saveSearchOption();
 	}
 
 	function toggleSearchStateModal() {
