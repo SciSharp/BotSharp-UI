@@ -186,15 +186,6 @@
 		toggleSearchStateModal();
 	}
 
-	function getSearchStates() {
-		return searchOption.states?.map(x => {
-			return {
-				key: x.key?.data,
-				value: x.value?.data
-			};
-		}) || [];
-	}
-
 	function loadSearchOption() {
 		const savedOption = conversationSearchOptionStore.get();
 		searchOption = {
@@ -214,6 +205,15 @@
 			taskId: searchOption.taskId,
 			states: searchStates
 		};
+	}
+
+	function getSearchStates() {
+		return searchOption.states?.map(x => {
+			return {
+				key: x.key?.data,
+				value: x.value?.data
+			};
+		}) || [];
 	}
 
 	function handleSearchStates() {
