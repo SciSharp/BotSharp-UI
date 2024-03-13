@@ -23,7 +23,7 @@
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
 	import { getAgents } from '$lib/services/agent-service';
-    import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
+	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
