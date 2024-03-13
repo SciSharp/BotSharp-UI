@@ -29,6 +29,11 @@
 		PUBLIC_ALLOW_SIGNUP
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
+	import {
+		conversationSearchOptionStore,
+		conversationUserMessageStore,
+		conversationUserStateStore
+	} from '$lib/helpers/store';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -67,6 +72,7 @@
 				goto('page/dashboard');
 			}
 			isSubmitting = false;
+			resetStorage();
 		});
 		isSubmitting = false;
 	}
@@ -82,6 +88,12 @@
 			var icon = document.getElementById('password-eye-icon');
 			icon.className = 'mdi mdi-eye-outline';
 		}
+	}
+
+	function resetStorage() {
+		conversationUserStateStore.reset();
+		conversationSearchOptionStore.reset();
+		conversationUserMessageStore.reset();
 	}
 </script>
 

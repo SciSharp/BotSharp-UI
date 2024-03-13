@@ -4,7 +4,7 @@ import { browser } from '$app/environment';
 
 const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
-const conversationSearchStatesKey = "conversation_search_states";
+const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
 
 /** @type {Writable<import('$types').UserModel>} */
@@ -95,22 +95,22 @@ const createConversationUserStateStore = () => {
 
 export const conversationUserStateStore = createConversationUserStateStore();
 
-const createConversationSearchStateStore = () => {
+const createConversationSearchOptionStore = () => {
     return {
         reset: () => {
-            localStorage.removeItem(conversationSearchStatesKey);
+            localStorage.removeItem(conversationSearchOptionKey);
         },
         get: () => {
-            const json = localStorage.getItem(conversationSearchStatesKey);
-            return json ? JSON.parse(json) : [];
+            const json = localStorage.getItem(conversationSearchOptionKey);
+            return json ? JSON.parse(json) : {};
         },
         put: (value) => {
-            localStorage.setItem(conversationSearchStatesKey, JSON.stringify(value));
+            localStorage.setItem(conversationSearchOptionKey, JSON.stringify(value));
         }
     }
 };
 
-export const conversationSearchStateStore = createConversationSearchStateStore();
+export const conversationSearchOptionStore = createConversationSearchOptionStore();
 
 
 const createConversationUserMessageStore = () => {

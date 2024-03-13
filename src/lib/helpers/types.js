@@ -181,10 +181,10 @@
 /**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
- * @property {string} [agentId] - The agent id.
- * @property {string} [channel] - The conversation channel.
- * @property {string} [status] - The conversation status.
- * @property {string} [taskId] - The task id.
+ * @property {string?} [agentId] - The agent id.
+ * @property {string?} [channel] - The conversation channel.
+ * @property {string?} [status] - The conversation status.
+ * @property {string?} [taskId] - The task id.
  * @property {KeyValuePair[]} [states] - The conversation status.
  */
 
