@@ -30,6 +30,12 @@
  */
 
 /**
+ * @typedef {Object} IdName
+ * @property {string} id - The id.
+ * @property {string} name - The name.
+ */
+
+/**
  * @template T
  * @typedef {Object} PagedItems<T>
  * @property {number} count - Row count.

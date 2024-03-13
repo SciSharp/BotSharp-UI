@@ -77,7 +77,7 @@
 		};
 
 		filter = {
-      ...filter,
+      		...filter,
 			pager: pager
 		};
 

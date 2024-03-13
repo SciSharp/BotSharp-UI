@@ -22,6 +22,7 @@
 	import { conversationSearchOptionStore } from '$lib/helpers/store';
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
+	import { getAgents } from '$lib/services/agent-service';
     import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -54,8 +55,14 @@
 	/** @type {string[]} */
 	let searchStateStrs = [];
 
-	/** @type {{ channel: string?, status: string?, taskId: string?, states: import('$types').UserStateDetailModel[]}} */
+	/** @type {import('$types').IdName[]} */
+	let agentOptions = [];
+
+	/** 
+	 * @type {{agentId: string?, channel: string?, status: string?, taskId: string?, states: import('$types').UserStateDetailModel[]}}
+	 * */
 	let searchOption = {
+		agentId: null,
 		channel: null,
 		status: null,
 		taskId: null,
@@ -63,7 +70,12 @@
 	};
 
     onMount(async () => {
+		await loadAgentOptions();
 		loadSearchOption();
+		loadConversations();
+    });
+
+	function loadConversations() {
 		isLoading = true;
 		getPagedConversations().then(res => {
 			isLoading = false;
@@ -71,11 +83,21 @@
 			isLoading = false;
 			isError = true;
 		});
-    });
+	}
 
 	async function getPagedConversations() {
 		conversations = await getConversations(filter);
 		refresh();
+	}
+
+	async function loadAgentOptions() {
+		const agents = await getAgents({ pager: { page: 1, size: 100, count: 0 } });
+		agentOptions = agents?.items?.map(x => {
+			return {
+				id: x.id,
+				name: x.name
+			};
+		}) || [];
 	}
 
 	function refresh() {
@@ -200,6 +222,7 @@
 		const searchStates = getSearchStates();
 		filter = {
 			...filter,
+			agentId: searchOption.agentId,
 			channel: searchOption.channel,
 			status: searchOption.status,
 			taskId: searchOption.taskId,
@@ -266,7 +289,12 @@
 	 * @param {string} type
 	 */
 	function changeOption(e, type) {
-		if (type === 'task') {
+		if (type === 'agent') {
+			searchOption = {
+				...searchOption,
+				agentId: e.target.value || null
+			};
+		} else if (type === 'task') {
 			searchOption = {
 				...searchOption,
 				taskId: e.target.value || null
@@ -323,28 +351,28 @@
 			</CardBody>
 			<CardBody class="border-bottom">
 				<Row class="g-3">
-					<Col lg="4">
-						<Input
-							type="search"
-							class="form-control"
-							id="searchTableList"
-							placeholder="{$_('Search for ...')}"
-						/>
+					<Col lg="3">
+						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={(e) => changeOption(e, 'agent')}>
+							<option value={null}>{$_('Select Agent')}</option>
+							{#each agentOptions as op}
+							<option value={`${op.id}`}>{$_(`${op.name}`)}</option>
+							{/each}
+						</select>
 					</Col>
 					<Col lg="2">
 						<select class="form-select" id="idTask" value={searchOption.taskId} on:change={(e) => changeOption(e, 'task')}>
-							<option value={null}>{$_('Task')}</option>
+							<option value={null}>{$_('Select Task')}</option>
 						</select>
 					</Col>					
-					<Col lg="1">
+					<Col lg="2">
 						<select class="form-select" id="idStatus" value={searchOption.status} on:change={(e) => changeOption(e, 'status')}>
-							<option value={null}>{$_('Status')}</option>
+							<option value={null}>{$_('Select Status')}</option>
 							<option value="{$_('open')}">{$_('Active')}</option>
 							<option value="{$_('closed')}">{$_('Completed')}</option>
 						</select>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idType" value={searchOption.channel} on:change={(e) => changeOption(e, 'channel')}>
+						<select class="form-select" id="idChannel" value={searchOption.channel} on:change={(e) => changeOption(e, 'channel')}>
 							<option value={null}>{$_('Select Channel')}</option>
 							<option value="{$_('webchat')}">{$_('Live Chat')}</option>
 							<option value="{$_('phone')}">{$_('Phone')}</option>
