@@ -122,7 +122,9 @@
                 <div class="state-input">
                     <FormGroup>
                         {#if idx === 0}
-                        <label for="key">Key</label>
+                        <label for="key">
+                            {`Key ${validateKey ? '(Required)' : '(Optional)'}`}
+                        </label>
                         {/if}
                         <Input class={`${!state.key.isValid ? 'invalid' : ''}`} placeholder="Enter a key" value={state.key.data} maxlength={50} on:input={(e) => changeKey(e, idx)} />
                     </FormGroup>
@@ -130,7 +132,9 @@
                 <div class="state-input">
                     <FormGroup>
                         {#if idx === 0}
-                        <label for="value">Value</label>
+                        <label for="value">
+                            {`Value ${validateValue ? '(Required)' : '(Optional)'}`}
+                        </label>
                         {/if}
                         <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={1000} on:input={(e) => changeValue(e, idx)} />
                     </FormGroup>
