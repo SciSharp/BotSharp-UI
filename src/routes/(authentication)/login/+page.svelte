@@ -16,6 +16,7 @@
 	import Headtitle from '$lib/common/HeadTitle.svelte';
 	import { getToken } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
 	import {
 		PUBLIC_SERVICE_URL,
 		PUBLIC_LIVECHAT_HOST,
@@ -30,6 +31,11 @@
 		PUBLIC_AUTH_ENABLE_FIND_PWD,
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
+	import {
+		conversationSearchOptionStore,
+		conversationUserMessageStore,
+		conversationUserStateStore
+	} from '$lib/helpers/store';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -61,8 +67,14 @@
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
-			goto('page/dashboard');
+			const redirectUrl = $page.url.searchParams.get('redirect');
+			if (redirectUrl) {
+				window.location.href = decodeURIComponent(redirectUrl);
+			} else {
+				goto('page/dashboard');
+			}
 			isSubmitting = false;
+			resetStorage();
 		});
 		isSubmitting = false;
 	}
@@ -78,6 +90,12 @@
 			var icon = document.getElementById('password-eye-icon');
 			icon.className = 'mdi mdi-eye-outline';
 		}
+	}
+
+	function resetStorage() {
+		conversationUserStateStore.reset();
+		conversationSearchOptionStore.reset();
+		conversationUserMessageStore.reset();
 	}
 </script>
 
@@ -148,8 +166,9 @@
 											type="button"
 											id="password-addon"
 											on:click={() => onPasswordToggle()}
-											><i id="password-eye-icon" class="mdi mdi-eye-outline" /></Button
 										>
+											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
+										</Button>
 									</div>
 								</div>
 
@@ -168,8 +187,10 @@
 										color="primary"
 										disabled={isSubmitting}
 										class="waves-effect waves-light"
-										type="submit">{!isSubmitting ? 'Log In' : 'Log In...'}</Button
+										type="submit"
 									>
+										{!isSubmitting ? 'Log In' : 'Log In...'}
+									</Button>
 								</div>
 								{#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
 								<div class="mt-4 text-center">

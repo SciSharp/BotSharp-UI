@@ -30,6 +30,9 @@ export const signalr = {
   /** @type {import('$types').OnSenderActionGenerated} */
   onSenderActionGenerated: () => {},
 
+  /** @type {import('$types').OnConversationMessageDeleted} */
+  onConversationMessageDeleted: () => {},
+
   // start the connection
   /** @param {string} conversationId */
   async start(conversationId) {
@@ -101,6 +104,12 @@ export const signalr = {
     connection.on('OnSenderActionGenerated', (data) => {
       if (conversationId === data?.conversation_id) {
         this.onSenderActionGenerated(data);
+      }
+    });
+
+    connection.on('OnMessageDeleted', (data) => {
+      if (conversationId === data?.conversation_id) {
+        this.onConversationMessageDeleted(data);
       }
     });
   },

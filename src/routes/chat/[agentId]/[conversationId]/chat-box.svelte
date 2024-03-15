@@ -21,6 +21,7 @@
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
+	import StateModal from '$lib/common/StateModal.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
@@ -33,7 +34,7 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	import StateModal from '$lib/common/StateModal.svelte';
+	
 	
 	const options = {
 		scrollbars: {
@@ -107,6 +108,7 @@
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
+		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
 
 		const scrollElement = document.querySelector('.chat-scrollbar');
@@ -257,7 +259,7 @@
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
 
-	/**  @param {import('$types').ConversationSenderActionModel} data */
+	/** @param {import('$types').ConversationSenderActionModel} data */
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
@@ -266,13 +268,16 @@
 		}
 	}
 
+	/** @param {import('$types').ConversationMessageDeleteModel} data */
+	function onConversationMessageDeleted(data) {
+		if (!!!data?.message_id) return;
+		truncateDialogs(data.message_id);
+	}
+
 	async function newConversationHandler() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		let url = `chat/${params.agentId}/${conversation.id}`;
-		if (isLite) {
-			url = `${url}?isLite=true`;
-		}
+		const url = `chat/${params.agentId}/${conversation.id}`;
 		window.location.href = url;
 	}
 
@@ -422,11 +427,11 @@
 	function toggleUserAddStateModal() {
 		isOpenUserAddStateModal = !isOpenUserAddStateModal;
 		if (isOpenUserAddStateModal) {
-			loadAddStates();
+			loadUserAddStates();
 		}
 	}
 
-	function loadAddStates() {
+	function loadUserAddStates() {
 		const conversationUserStates = conversationUserStateStore.get();
 		if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
 			userAddStates = [...conversationUserStates.states];
@@ -446,7 +451,7 @@
 		toggleUserAddStateModal();
 	}
 
-	function clearAddedStates() {
+	function clearUserAddStates() {
 		// @ts-ignore
 		Swal.fire({
 			title: 'Are you sure?',
@@ -459,6 +464,7 @@
 		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
+				userAddStates = [];
 				conversationUserStateStore.reset();
 			}
 		});
@@ -503,8 +509,6 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
-		const isDeleted = truncateDialogs(messageId);
-		if (!isDeleted) return;
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
@@ -532,9 +536,6 @@
 	}
 
 	async function confirmEditMsg() {
-		const isDeleted = truncateDialogs(truncateMsgId);
-		if (!isDeleted) return;
-
 		isSendingMsg = true;
 		isOpenEditMsgModal = false;
 		renewUserSentMessages(editText);
@@ -642,6 +643,7 @@
 	}
 </script>
 
+
 <svelte:window on:resize={() => resizeChatWindow()}/>
 
 <DialogModal
@@ -721,7 +723,7 @@
 															{#if !isOpenUserAddStateModal}
 															<DropdownItem on:click={() => toggleUserAddStateModal()}>Add States</DropdownItem>
 															{/if}
-															<DropdownItem on:click={() => clearAddedStates()}>Clear States</DropdownItem>
+															<DropdownItem on:click={() => clearUserAddStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
 													</Dropdown>
 												</li>

@@ -19,10 +19,11 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Label from '$lib/common/Label.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
-	import { conversationSearchStateStore } from '$lib/helpers/store';
+	import { conversationSearchOptionStore } from '$lib/helpers/store';
 	import { onMount } from 'svelte';
 	import Link from 'svelte-link';
-    import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
+	import { getAgents } from '$lib/services/agent-service';
+	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
@@ -53,11 +54,28 @@
 
 	/** @type {string[]} */
 	let searchStateStrs = [];
-	/** @type {import('$types').UserStateDetailModel[]} */
-    export let searchStates = [];
+
+	/** @type {import('$types').IdName[]} */
+	let agentOptions = [];
+
+	/** 
+	 * @type {{agentId: string?, channel: string?, status: string?, taskId: string?, states: import('$types').UserStateDetailModel[]}}
+	 * */
+	let searchOption = {
+		agentId: null,
+		channel: null,
+		status: null,
+		taskId: null,
+		states: [],
+	};
 
     onMount(async () => {
-		loadSearchStates();
+		await loadAgentOptions();
+		loadSearchOption();
+		loadConversations();
+    });
+
+	function loadConversations() {
 		isLoading = true;
 		getPagedConversations().then(res => {
 			isLoading = false;
@@ -65,11 +83,21 @@
 			isLoading = false;
 			isError = true;
 		});
-    });
+	}
 
 	async function getPagedConversations() {
 		conversations = await getConversations(filter);
 		refresh();
+	}
+
+	async function loadAgentOptions() {
+		const agents = await getAgents({ pager: { page: 1, size: 100, count: 0 } });
+		agentOptions = agents?.items?.map(x => {
+			return {
+				id: x.id,
+				name: x.name
+			};
+		}) || [];
 	}
 
 	function refresh() {
@@ -158,13 +186,17 @@
 	 */
 	function searchConversations(e) {
 		e.preventDefault();
-		const states = getSearchStates();
+		refreshFilter();
+		initFilterPager();
+		getPagedConversations();
+		saveSearchOption();
+	}
+
+	function initFilterPager() {
 		filter = {
 			...filter,
 			pager: { page: firstPage, size: pageSize, count: 0 },
-			states: states
 		};
-		getPagedConversations();
 	}
 
 	function toggleSearchStateModal() {
@@ -173,30 +205,51 @@
 
 	function handleConfirmStateModal() {
 		handleSearchStates();
-		saveSearchStates();
 		toggleSearchStateModal();
 	}
 
-	function getSearchStates() {
-		return searchStates.map(x => {
-			return {
-				key: x.key.data,
-				value: x.value.data
-			};
-		});
-	}
-
-	function loadSearchStates() {
-		searchStates = conversationSearchStateStore.get();
+	function loadSearchOption() {
+		const savedOption = conversationSearchOptionStore.get();
+		searchOption = {
+			...searchOption,
+			...savedOption
+		};
+		refreshFilter();
 		handleSearchStates();
 	}
 
+	function refreshFilter() {
+		const searchStates = getSearchStates();
+		filter = {
+			...filter,
+			agentId: searchOption.agentId,
+			channel: searchOption.channel,
+			status: searchOption.status,
+			taskId: searchOption.taskId,
+			states: searchStates
+		};
+	}
+
+	function getSearchStates() {
+		return searchOption.states?.map(x => {
+			return {
+				key: x.key?.data,
+				value: x.value?.data
+			};
+		}) || [];
+	}
+
 	function handleSearchStates() {
-		searchStates = searchStates.map(x => {
+		sortSearchStates();
+		buldSearchStateString();
+	}
+
+	function sortSearchStates() {
+		searchOption.states = searchOption.states?.map(x => {
 			if (!!x.key) x.key.data = lodash.trim(x.key.data);
 			if (!!x.value) x.value.data = lodash.trim(x.value.data)
 			return x;
-		}).sort((a, b) => {
+		})?.sort((a, b) => {
 			const stra = `${!!a.key?.data ? a.key.data : ''} ${!!a.value?.data ? b.value.data : ''}`;
 			const strb = `${!!b.key?.data ? b.key.data : ''} ${!!b.value?.data ? b.value.data : ''}`;
 			if (stra.length != strb.length) {
@@ -205,8 +258,11 @@
 			const keya = a.key?.data?.toLowerCase() || '';
 			const keyb = b.key?.data?.toLowerCase() || '';
 			return keya < keyb ? -1 : keya == keyb ? 0 : 1;
-		});
-		searchStateStrs = searchStates.map(x => {
+		}) || [];
+	}
+
+	function buldSearchStateString() {
+		searchStateStrs = searchOption.states.map(x => {
 			let s = '';
 			if (x.key?.data?.length > 0) {
 				s += x.key.data;
@@ -218,15 +274,42 @@
 		});
 	}
 
-	function saveSearchStates() {
-		conversationSearchStateStore.put(searchStates);
+	function saveSearchOption() {
+		conversationSearchOptionStore.put(searchOption);
 	}
 
 	/** @param {string | number} index */
 	function handleCloseLabel(index) {
-		searchStates = searchStates.filter((x, idx) => idx != index);
-		handleSearchStates();
-		saveSearchStates();
+		searchOption.states = searchOption.states.filter((x, idx) => idx != index);
+		buldSearchStateString();
+	}
+
+	/**
+	 * @param {any} e
+	 * @param {string} type
+	 */
+	function changeOption(e, type) {
+		if (type === 'agent') {
+			searchOption = {
+				...searchOption,
+				agentId: e.target.value || null
+			};
+		} else if (type === 'task') {
+			searchOption = {
+				...searchOption,
+				taskId: e.target.value || null
+			};
+		} else if (type === 'channel') {
+			searchOption = {
+				...searchOption,
+				channel: e.target.value || null
+			};
+		} else if (type === 'status') {
+			searchOption = {
+				...searchOption,
+				status: e.target.value || null
+			};
+		}
 	}
 </script>
 
@@ -237,7 +320,7 @@
 	isOpen={isOpenSearchStateModal}
 	validateKey={true}
 	validateValue={false}
-	bind:states={searchStates}
+	bind:states={searchOption.states}
 	toggleModal={toggleSearchStateModal}
 	confirm={handleConfirmStateModal}
 	cancel={toggleSearchStateModal}
@@ -253,7 +336,8 @@
 						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical" /></DropdownToggle>
+								<i class="mdi mdi-dots-vertical" />
+							</DropdownToggle>
 							<DropdownMenu>
 								<DropdownItem
 									on:click={() => toggleSearchStateModal()}
@@ -267,28 +351,28 @@
 			</CardBody>
 			<CardBody class="border-bottom">
 				<Row class="g-3">
-					<Col lg="4">
-						<Input
-							type="search"
-							class="form-control"
-							id="searchTableList"
-							placeholder="{$_('Search for ...')}"
-						/>
+					<Col lg="3">
+						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={(e) => changeOption(e, 'agent')}>
+							<option value={null}>{$_('Select Agent')}</option>
+							{#each agentOptions as op}
+							<option value={`${op.id}`}>{$_(`${op.name}`)}</option>
+							{/each}
+						</select>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idTask" bind:value={filter.taskId}>
-							<option value={null}>{$_('Task')}</option>
+						<select class="form-select" id="idTask" value={searchOption.taskId} on:change={(e) => changeOption(e, 'task')}>
+							<option value={null}>{$_('Select Task')}</option>
 						</select>
 					</Col>					
-					<Col lg="1">
-						<select class="form-select" id="idStatus" bind:value={filter.status}>
-							<option value={null}>{$_('Status')}</option>
+					<Col lg="2">
+						<select class="form-select" id="idStatus" value={searchOption.status} on:change={(e) => changeOption(e, 'status')}>
+							<option value={null}>{$_('Select Status')}</option>
 							<option value="{$_('open')}">{$_('Active')}</option>
 							<option value="{$_('closed')}">{$_('Completed')}</option>
 						</select>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idType" bind:value={filter.channel}>
+						<select class="form-select" id="idChannel" value={searchOption.channel} on:change={(e) => changeOption(e, 'channel')}>
 							<option value={null}>{$_('Select Channel')}</option>
 							<option value="{$_('webchat')}">{$_('Live Chat')}</option>
 							<option value="{$_('phone')}">{$_('Phone')}</option>

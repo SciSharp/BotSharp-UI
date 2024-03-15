@@ -30,6 +30,12 @@
  */
 
 /**
+ * @typedef {Object} IdName
+ * @property {string} id - The id.
+ * @property {string} name - The name.
+ */
+
+/**
  * @template T
  * @typedef {Object} PagedItems<T>
  * @property {number} count - Row count.
@@ -181,10 +187,10 @@
 /**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
- * @property {string} [agentId] - The agent id.
- * @property {string} [channel] - The conversation channel.
- * @property {string} [status] - The conversation status.
- * @property {string} [taskId] - The task id.
+ * @property {string?} [agentId] - The agent id.
+ * @property {string?} [channel] - The conversation channel.
+ * @property {string?} [status] - The conversation status.
+ * @property {string?} [taskId] - The task id.
  * @property {KeyValuePair[]} [states] - The conversation status.
  */
 
@@ -312,6 +318,14 @@ IRichContent.prototype.text;
  * @property {number} sender_action - The sender action.
  */
 
+/** 
+ * Conversation message deleted
+ * 
+ * @typedef {Object} ConversationMessageDeleteModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
+ */
+
 /**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
@@ -350,12 +364,18 @@ IRichContent.prototype.text;
  */
 
 /** 
- * Conversation states
+ * Conversation sender action
  * 
  * @callback OnSenderActionGenerated
  * @param {ConversationSenderActionModel} data
  */
 
+/** 
+ * Conversation message deleted
+ * 
+ * @callback OnConversationMessageDeleted
+ * @param {ConversationMessageDeleteModel} data
+ */
 
 // having to export an empty object here is annoying, 
 // but required for vscode to pass on your types. 
