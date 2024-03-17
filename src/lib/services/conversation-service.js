@@ -71,7 +71,7 @@ export async function sendMessageToHub(agentId, conversationId, message, data = 
         conversationId: conversationId
     });
     const userStates = buildConversationUserStates(conversationId);
-    const totalStates = data?.states != null && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
+    const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
     const response = await axios.post(url, {
         text: message,
         truncateMessageId: data?.truncateMsgId,
