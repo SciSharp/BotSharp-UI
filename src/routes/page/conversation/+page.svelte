@@ -97,7 +97,7 @@
 				id: x.id,
 				name: x.name
 			};
-		}) || [];
+		})?.sort((a, b) => a.name.localeCompare(b.name)) || [];
 	}
 
 	function refresh() {

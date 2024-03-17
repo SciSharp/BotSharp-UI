@@ -360,18 +360,36 @@
 		text = "";
 	}
 
-	/**
-	 * @param {string} payload
-	 */
+	/** @param {string} payload */
 	function confirmSelectedOption(payload) {
 		if (isSendingMsg || isThinking) return;
 
 		isSendingMsg = true;
-		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
+		const postback = buildPostbackMessage(dialogs, payload);
+		sendMessageToHub(params.agentId, params.conversationId, payload, { postback: postback }).then(() => {
 			isSendingMsg = false;
 		}).catch(() => {
 			isSendingMsg = false;
 		});
+	}
+
+	/**
+	 * @param {import('$types').ChatResponseModel[]} dialogs
+	 * @param {string} content
+	 */
+	 function buildPostbackMessage(dialogs, content) {
+		/** @type {import('$types').Postback?} */
+		let postback = null;
+		const lastMsg = dialogs.slice(-1)[0];
+		if (lastMsg?.sender?.role === UserRole.Assistant) {
+			/** @type {import('$types').Postback} */
+			postback = {
+				functionName: lastMsg?.function || null,
+				parentId: lastMsg?.message_id || null,
+				payload: content
+			};
+		}
+		return postback;
 	}
 
 	function endChat() {
@@ -539,7 +557,7 @@
 		isSendingMsg = true;
 		isOpenEditMsgModal = false;
 		renewUserSentMessages(editText);
-		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
+		sendMessageToHub(params.agentId, params.conversationId, editText, { truncateMsgId: truncateMsgId }).then(() => {
 			isSendingMsg = false;
 			resetEditMsg();
 		}).catch(() => {

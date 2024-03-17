@@ -164,7 +164,7 @@
         let steps = task.content.split('\n');
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
-            const response = await sendMessageToHub(task.direct_agent_id, conversation.id, step, '', ['hide_context=true']);
+            const response = await sendMessageToHub(task.direct_agent_id, conversation.id, step, { states: ['hide_context=true'] });
             if (response.text.includes("failed")) {
                 renderMessageNode(step, response, false);
                 break;

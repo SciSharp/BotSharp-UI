@@ -326,6 +326,24 @@ IRichContent.prototype.text;
  * @property {string} message_id - The message id.
  */
 
+/** 
+ * Conversation postback
+ * 
+ * @typedef {Object} Postback
+ * @property {string?} functionName - The function name.
+ * @property {string?} payload - The payload.
+ * @property {string?} parentId - The parent message id.
+ */
+
+/** 
+ * Conversation send message data
+ * 
+ * @typedef {Object} MessageData
+ * @property {string?} [truncateMsgId] - The message id to truncate.
+ * @property {string[]?} [states] - The states input by user.
+ * @property {Postback?} [postback] - The parent message id.
+ */
+
 /**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
