@@ -60,23 +60,23 @@ export async function GetDialogs(conversationId) {
 
 /**
  * send a message to the hub
- * @param {string} agentId The agent id
- * @param {string} conversationId The conversation id
- * @param {string} message The text message sent to CSR
- * @param {string} truncateMsgId The message id to be deleted
- * @param {string[]} states The states to be set
+ * @param {string} agentId - The agent id
+ * @param {string} conversationId - The conversation id
+ * @param {string} message - The text message sent to CSR
+ * @param {import('$types').MessageData?} data - Additional data
  */
-export async function sendMessageToHub(agentId, conversationId, message, truncateMsgId = '', states = []) {
+export async function sendMessageToHub(agentId, conversationId, message, data = null) {
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
         conversationId: conversationId
     });
     const userStates = buildConversationUserStates(conversationId);
-    const totalStates = states?.length > 0 ? [...states, ...userStates] : [...userStates];
+    const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
     const response = await axios.post(url, {
         text: message,
-        truncateMessageId: truncateMsgId,
-        states: totalStates
+        truncateMessageId: data?.truncateMsgId,
+        states: totalStates,
+        postback: data?.postback
     });
     return response.data;
 }
