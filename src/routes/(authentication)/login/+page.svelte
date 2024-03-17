@@ -26,7 +26,9 @@
 		PUBLIC_ADMIN_USERNAME,
 		PUBLIC_ADMIN_PASSWORD,
 		PUBLIC_COMPANY_NAME,
-		PUBLIC_ALLOW_SIGNUP
+		PUBLIC_ALLOW_SIGNUP,
+		PUBLIC_AUTH_ENABLE_SSO,
+		PUBLIC_AUTH_ENABLE_FIND_PWD,
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
 	import {
@@ -190,7 +192,7 @@
 										{!isSubmitting ? 'Log In' : 'Log In...'}
 									</Button>
 								</div>
-
+								{#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
 								<div class="mt-4 text-center">
 									<h5 class="font-size-14 mb-3">Sign in with</h5>
 
@@ -212,12 +214,14 @@
 										</li>
 									</ul>
 								</div>
-
+								{/if}
+								{#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true' }
 								<div class="mt-4 text-center">
-									<Link href="recoverpw" class="text-muted"
-										><i class="mdi mdi-lock me-1" /> Forgot your password?</Link
-									>
+									<Link href="recoverpw" class="text-muted">
+										<i class="mdi mdi-lock me-1" /> Forgot your password?
+									</Link>
 								</div>
+								{/if}
 							</Form>
 						</div>
 					</CardBody>
