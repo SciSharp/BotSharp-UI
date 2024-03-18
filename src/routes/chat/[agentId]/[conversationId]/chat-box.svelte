@@ -281,13 +281,24 @@
 		window.location.href = url;
 	}
 
-    function sendTextMessage() {
+
+    /**
+	 * @param {string} msgText
+	 * @param {import('$types').MessageData?} data
+	 */
+    function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
-		const sentText = text;
-		text = "";
-		renewUserSentMessages(sentText);
+		renewUserSentMessages(msgText);
+
+		const postback = buildPostbackMessage(dialogs, msgText);
+		/** @type {import('$types').MessageData?} */
+		const messageData = {
+			...data,
+			postback: postback
+		};
+		
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 				isSendingMsg = false;
 				resolve(res);
 			}).catch(err => {
@@ -300,10 +311,9 @@
     async function startListen() {
 		microphoneIcon = "microphone";
 		webSpeech.onSpeechToTextDetected = (transcript) => {
-			text = transcript;
-			if (!!!_.trim(text) || isSendingMsg) return;
+			if (!!!_.trim(transcript) || isSendingMsg) return;
 
-			sendTextMessage().then(() => {
+			sendChatMessage(transcript).then(() => {
 				microphoneIcon = "microphone-off";
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
@@ -350,27 +360,20 @@
 			e.preventDefault();
 		}
 
-		isSendingMsg = true;
-		renewUserSentMessages(text);
-		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
-			isSendingMsg = false;
-		}).catch(() => {
-			isSendingMsg = false;
-		});
-		text = "";
+		await sentTextMessage();
 	}
 
 	/** @param {string} payload */
-	function confirmSelectedOption(payload) {
+	async function confirmSelectedOption(payload) {
 		if (isSendingMsg || isThinking) return;
 
-		isSendingMsg = true;
-		const postback = buildPostbackMessage(dialogs, payload);
-		sendMessageToHub(params.agentId, params.conversationId, payload, { postback: postback }).then(() => {
-			isSendingMsg = false;
-		}).catch(() => {
-			isSendingMsg = false;
-		});
+		await sendChatMessage(payload);
+	}
+
+	async function sentTextMessage() {
+		const sentMsg = text;
+		text = '';
+		await sendChatMessage(sentMsg);
 	}
 
 	/**
@@ -381,11 +384,12 @@
 		/** @type {import('$types').Postback?} */
 		let postback = null;
 		const lastMsg = dialogs.slice(-1)[0];
-		if (lastMsg?.sender?.role === UserRole.Assistant) {
-			/** @type {import('$types').Postback} */
+		if (!!lastMsg?.rich_content?.fill_postback
+			&& !!lastMsg?.function
+			&& lastMsg?.sender?.role === UserRole.Assistant) {
 			postback = {
-				functionName: lastMsg?.function || null,
-				parentId: lastMsg?.message_id || null,
+				functionName: lastMsg?.function,
+				parentId: lastMsg?.message_id,
 				payload: content
 			};
 		}
@@ -554,14 +558,10 @@
 	}
 
 	async function confirmEditMsg() {
-		isSendingMsg = true;
 		isOpenEditMsgModal = false;
-		renewUserSentMessages(editText);
-		sendMessageToHub(params.agentId, params.conversationId, editText, { truncateMsgId: truncateMsgId }).then(() => {
-			isSendingMsg = false;
+		sendChatMessage(editText, { truncateMsgId: truncateMsgId }).then(() => {
 			resetEditMsg();
 		}).catch(() => {
-			isSendingMsg = false;
 			resetEditMsg();
 		});
 	}
@@ -883,7 +883,7 @@
 									type="submit"
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
-									on:click={sendTextMessage}
+									on:click={() => sentTextMessage()}
 								><span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />
 								</button>

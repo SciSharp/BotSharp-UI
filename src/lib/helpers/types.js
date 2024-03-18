@@ -258,6 +258,7 @@ IRichContent.prototype.text;
 /**
  * @typedef {Object} RichContent
  * @property {string} messaging_type
+ * @property {boolean} fill_postback
  * @property {IRichContent} message
  */
 
