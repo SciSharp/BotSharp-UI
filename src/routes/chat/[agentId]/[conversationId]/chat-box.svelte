@@ -289,8 +289,16 @@
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
 		renewUserSentMessages(msgText);
+
+		const postback = buildPostbackMessage(dialogs, msgText);
+		/** @type {import('$types').MessageData?} */
+		const messageData = {
+			...data,
+			postback: postback
+		};
+		
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, msgText, !!data ? {...data} : null).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 				isSendingMsg = false;
 				resolve(res);
 			}).catch(err => {
@@ -359,8 +367,7 @@
 	async function confirmSelectedOption(payload) {
 		if (isSendingMsg || isThinking) return;
 
-		const postback = buildPostbackMessage(dialogs, payload);
-		await sendChatMessage(payload, { postback: postback });
+		await sendChatMessage(payload);
 	}
 
 	async function sentTextMessage() {
@@ -377,10 +384,12 @@
 		/** @type {import('$types').Postback?} */
 		let postback = null;
 		const lastMsg = dialogs.slice(-1)[0];
-		if (lastMsg?.sender?.role === UserRole.Assistant) {
+		if (!!lastMsg?.rich_content?.fill_postback
+			&& !!lastMsg?.function
+			&& lastMsg?.sender?.role === UserRole.Assistant) {
 			postback = {
-				functionName: lastMsg?.function || null,
-				parentId: lastMsg?.message_id || null,
+				functionName: lastMsg?.function,
+				parentId: lastMsg?.message_id,
 				payload: content
 			};
 		}
