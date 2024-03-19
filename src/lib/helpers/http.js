@@ -54,10 +54,16 @@ axios.interceptors.response.use(
 
 /** @param {import('axios').InternalAxiosRequestConfig<any>} config */
 function skipLoader(config) {
-    const regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
+    let regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
     if (config.method === 'post' && !!config.data && regex.test(config.url || '')) {
         return true;
     }
+
+    regex = new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g');
+    if (config.method === 'get' && regex.test(config.url || '')) {
+        return true;
+    }
+
     return false;
 }
 

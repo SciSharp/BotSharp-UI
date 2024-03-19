@@ -58,5 +58,8 @@ export const endpoints = {
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,
+
+    // Google geocode api
+    addressUrl: `${host}/address/options`
 }
 

@@ -22,6 +22,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
+	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
@@ -34,7 +35,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	
 	
 	const options = {
 		scrollbars: {
@@ -868,7 +868,12 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg || isThinking} placeholder="Enter Message..." />
+									<ChatTextArea
+										className={'chat-input'}
+										bind:text={text}
+										disabled={isSendingMsg || isThinking}
+										onKeyDown={e => onSendMessage(e)}
+									/>
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">

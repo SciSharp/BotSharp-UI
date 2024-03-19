@@ -110,3 +110,18 @@ export async function deleteConversationMessage(conversationId, messageId) {
     const response = await axios.delete(url);
     return response.data;
 }
+
+
+/**
+ * delete a message in conversation
+ * @param {string} text The user input
+ */
+export async function getAddressOptions(text) {
+    const url = endpoints.addressUrl;
+    const response = await axios.get(url, {
+        params: {
+            address:  text
+        }
+    });
+    return response.data;
+}
