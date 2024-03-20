@@ -22,6 +22,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
+	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
@@ -34,7 +35,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	
 	
 	const options = {
 		scrollbars: {
@@ -69,7 +69,9 @@
 	// @ts-ignore
     let scrollbar;
 	let microphoneIcon = "microphone-off";
-	let lastBotMsgId = '';
+
+	/** @type {import('$types').ChatResponseModel?} */
+	let lastBotMsg;
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -189,16 +191,13 @@
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
 		const lastMsg = dialogs.slice(-1)[0];
-		if (lastMsg?.sender?.role === UserRole.Assistant) {
-			return lastMsg?.message_id || '';
-		}
-		return '';
+		return lastMsg?.sender?.role === UserRole.Assistant ? lastMsg : null;
 	}
 
 	async function refresh() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
-		lastBotMsgId = findLastBotMessage(dialogs);
+		lastBotMsg = findLastBotMessage(dialogs);
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
@@ -824,7 +823,7 @@
 										<div class="msg-container">
 											<RichContent
 												message={message}
-												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
+												displayExtraElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
 												onConfirm={confirmSelectedOption}
 											/>
@@ -868,7 +867,13 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg || isThinking} placeholder="Enter Message..." />
+									<ChatTextArea
+										className={'chat-input'}
+										bind:text={text}
+										disabled={isSendingMsg || isThinking}
+										editor={lastBotMsg?.rich_content?.editor || ''}
+										onKeyDown={e => onSendMessage(e)}
+									/>
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
