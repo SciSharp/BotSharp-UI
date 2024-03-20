@@ -1,9 +1,9 @@
 /** @param {any} node */
-export function clientOutSide(node) {
+export function clickOutside(node) {
 
     const handleClick = (/** @type {any} */ event) => {
         if (!!node && !node.contains(event.target)) {
-            node.dispatchEvent(new CustomEvent('clickOutSide', node));
+            node.dispatchEvent(new CustomEvent('click_outside', node));
         }
     }
 

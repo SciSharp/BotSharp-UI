@@ -69,7 +69,9 @@
 	// @ts-ignore
     let scrollbar;
 	let microphoneIcon = "microphone-off";
-	let lastBotMsgId = '';
+
+	/** @type {import('$types').ChatResponseModel?} */
+	let lastBotMsg;
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -189,16 +191,13 @@
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
 		const lastMsg = dialogs.slice(-1)[0];
-		if (lastMsg?.sender?.role === UserRole.Assistant) {
-			return lastMsg?.message_id || '';
-		}
-		return '';
+		return lastMsg?.sender?.role === UserRole.Assistant ? lastMsg : null;
 	}
 
 	async function refresh() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
-		lastBotMsgId = findLastBotMessage(dialogs);
+		lastBotMsg = findLastBotMessage(dialogs);
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
@@ -824,7 +823,7 @@
 										<div class="msg-container">
 											<RichContent
 												message={message}
-												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
+												displayExtraElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
 												onConfirm={confirmSelectedOption}
 											/>
@@ -872,6 +871,7 @@
 										className={'chat-input'}
 										bind:text={text}
 										disabled={isSendingMsg || isThinking}
+										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
 									/>
 									<div class="chat-input-links" id="tooltip-container">
