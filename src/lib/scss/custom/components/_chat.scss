@@ -4,9 +4,12 @@
     bottom: 100%;
     max-width: 100%;
     z-index: 10;
-    padding: 8px 0px;
+    padding: 3px 0px;
     font-size: 0.8rem;
     border-radius: 5px;
+    max-height: 25em;
+    overflow-y: auto;
+    scrollbar-width: none;
 
     .chat-option-item {
         padding: 5px 15px;
