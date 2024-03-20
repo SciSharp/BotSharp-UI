@@ -53,8 +53,12 @@
                         <th>Profiles</th>
                         <td>
                             {#each agent.profiles as profile}
-                            <input class="form-control" type="text" value={profile} />
-                            <a href={null} class="btn btn-danger">Delete</a>
+                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px;">
+                                <input class="form-control" style="flex: 0.9;" type="text" value={profile} />
+                                <div style="flex: 0.1; display: flex; align-items: center; cursor: pointer; font-size: 18px; color: red;">
+                                    <i class="bx bxs-no-entry " />
+                                </div>
+                            </div>
                             {/each}
                         </td>
                     </tr>
