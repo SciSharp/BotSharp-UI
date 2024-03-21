@@ -36,5 +36,7 @@
     <RcOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} />
     {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
     <RcOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} />
+    {:else if message?.rich_content?.message?.rich_type === RichType.Generic}
+    <RcOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} />
     {/if}
 {/if}

@@ -25,13 +25,40 @@
 
     onMount(() => {
         answers = [];
-        localOptions = options?.map(op => {
-            return {
-                ...op,
-                isClicked: false
-            }
-        }) || [];
+        localOptions = filterOptions(options);
     });
+
+    /** @param {any[]} options */
+    function filterOptions(options) {
+        /** @type {any[]} */
+        let res = [];
+        options?.map(op => {
+            if (!!!op.title || !!!op.payload) {
+                return;
+            }
+
+            if (op.buttons?.length > 0) {
+                // @ts-ignore
+                op.buttons?.map(x => {
+                    if (!!x.title && !!x.payload) {
+                        res.push({
+                            title: x.title,
+                            payload: x.payload,
+                            isClicked: false
+                        });
+                    }
+                });
+            } else {
+                res.push({
+                    title: op.title,
+                    payload: op.payload,
+                    isClicked: false
+                });
+            }
+        });
+
+        return res;
+    }
 
     /**
 	 * @param {any} e
