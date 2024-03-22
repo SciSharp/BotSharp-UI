@@ -22,7 +22,7 @@
             <Table >
                 <tbody>
                     <tr>
-                        <th>Type</th>
+                        <th class="agent-prop-key">Type</th>
                         <td>
                             {#if agent.is_router}
                                 Routing Agent
@@ -30,9 +30,9 @@
                                 Task Agent
                             {/if}
                         </td>
-                    </tr>                    
+                    </tr>
                     <tr>
-                        <th>Visibility</th>
+                        <th class="agent-prop-key">Visibility</th>
                         <td>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.is_public} id="is_public" />
@@ -41,29 +41,26 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>Routable</th>
+                        <th class="agent-prop-key">Routable</th>
                         <td>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.allow_routing} id="allow_routing" />
                                 <label class="form-check-label" for="allow_routing"> Allow </label>
-                            </div>                                
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>Profiles</th>
-                        <td>
-                            {#each agent.profiles as profile}
-                            <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px;">
-                                <input class="form-control" style="flex: 0.9;" type="text" value={profile} />
-                                <div style="flex: 0.1; display: flex; align-items: center; cursor: pointer; font-size: 18px; color: red;">
-                                    <i class="bx bxs-no-entry " />
-                                </div>
                             </div>
-                            {/each}
                         </td>
                     </tr>
                     <tr>
-                        <th>Status</th>
+                        <th class="agent-prop-key">Profiles</th>
+                        <td>
+                            <ul class="agent-profile-container">
+                                {#each agent.profiles as profile}
+                                <li class="profile-name">{profile}</li>
+                                {/each}
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key">Status</th>
                         <td>							
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />
@@ -72,7 +69,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>Created Date</th>
+                        <th class="agent-prop-key">Created Date</th>
                         <td>{format(agent.created_datetime, 'time')}</td>
                     </tr>
                 </tbody>

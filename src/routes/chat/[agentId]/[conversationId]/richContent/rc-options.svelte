@@ -25,11 +25,11 @@
 
     onMount(() => {
         answers = [];
-        localOptions = filterOptions(options);
+        localOptions = collectOptions(options);
     });
 
     /** @param {any[]} options */
-    function filterOptions(options) {
+    function collectOptions(options) {
         /** @type {any[]} */
         let res = [];
         options?.map(op => {

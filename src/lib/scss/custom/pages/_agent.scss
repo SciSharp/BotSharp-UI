@@ -1,0 +1,37 @@
+.agent-prop-key {
+    width: 45%;
+}
+
+.agent-profile-container {
+    padding-left: 20px;
+
+    .profile-name {
+        font-size: 1.1em;
+    }
+}
+
+.routing-rule-container {
+    margin-bottom: 15px;
+
+    .rule-header {
+        margin-top: 5px;
+        margin-bottom: 5px;
+        padding-left: 10px;
+    }
+
+    .rule-title {
+        border: none;
+        padding-bottom: 0;
+    }
+
+    .rule-body {
+        padding: 0px 10px;
+
+        table tbody tr:last-child {
+            border: none;
+            th, td {
+                border: none;
+            }
+        }
+    }
+}
