@@ -2,19 +2,24 @@
     import { createEventDispatcher } from 'svelte'
     import collapse from 'svelte-collapse';
 
+    /** @type {boolean} */
     export let open = true;
+
+    /** @type {number} */
     export let duration = 0.2;
+
+    /** @type {string} */
     export let easing = 'ease';
 
     const dispatch = createEventDispatcher()
 
     function handleToggle () {
-        open = !open
+        open = !open;
         if (open) {
-            dispatch('open')
+            dispatch('open');
         }
         else {
-            dispatch('close')
+            dispatch('close');
         }
     }
 </script>
