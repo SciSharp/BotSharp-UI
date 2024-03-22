@@ -45,7 +45,7 @@
                         <td>
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.allow_routing} id="allow_routing" />
-                                <label class="form-check-label" for="allow_routing"> Allow </label>
+                                <label class="form-check-label" for="allow_routing">Allow</label>
                             </div>
                         </td>
                     </tr>
@@ -64,7 +64,7 @@
                         <td>							
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />
-                                <label class="form-check-label" for="disabled"> Disabled </label>
+                                <label class="form-check-label" for="disabled">Disabled</label>
                             </div>
                         </td>
                     </tr>

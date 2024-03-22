@@ -74,12 +74,13 @@
     {#if agent}
     <Col style="flex: 30%;">
         <AgentOverview agent={agent} />
-        <AgentRouting />
-        
+        <AgentLlmConfig agent={agent} />
+        {#if agent.routing_rules?.length > 0}
+        <AgentRouting agent={agent} />
+        {/if}
     </Col>
     <Col style="flex: 40%;">
         <AgentPrompt agent={agent} />
-        <AgentLlmConfig agent={agent} />
     </Col>
     <Col style="flex: 30%;">
         <AgentFunction bind:this={agentFunctionCmp} agent={agent} />

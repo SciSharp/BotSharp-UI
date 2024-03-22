@@ -2,6 +2,9 @@
 	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
     import CollapsibleCard from 'svelte-collapsible-card';
 
+    /** @type {import('$types').AgentModel} */
+    export let agent;
+
 </script>
 
 <Card>
@@ -10,8 +13,9 @@
             <h5 class="mt-1 mb-3">Routing Rules</h5>
         </div>
 
+        {#each agent.routing_rules as rule, idx (idx)}
         <div class="routing-rule-container">
-            <CollapsibleCard open>
+            <CollapsibleCard>
                 <div slot='header'>
                     <h5 class="rule-header">{`Rule # ${1}`}</h5>
                 </div>
@@ -21,73 +25,40 @@
                             <tbody>
                                 <tr>
                                     <th class="agent-prop-key">Field</th>
-                                    <td>Yes</td>
+                                    <td>{rule.field}</td>
                                 </tr>
                                 <tr>
                                     <th class="agent-prop-key">Description</th>
-                                    <td>Yes</td>
+                                    <td>{rule.description}</td>
                                 </tr>
+                                {#if !!rule.fieldType}
                                 <tr>
                                     <th class="agent-prop-key">Field Type</th>
-                                    <td>Yes</td>
+                                    <td>{rule.fieldType}</td>
                                 </tr>
+                                {/if}
                                 <tr>
                                     <th class="agent-prop-key">Required</th>
-                                    <td>Yes</td>
+                                    <td>{!!rule.required ? `Yes` : `No`}</td>
                                 </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Type</th>
-                                    <td>Yes</td>
-                                </tr>
+                                {#if !!rule.redirectTo}
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td>Yes</td>
+                                    <td>{rule.redirectTo}</td>
                                 </tr>
+                                {/if}
+                                {#if !!rule.type}
+                                <tr>
+                                    <th class="agent-prop-key">Type</th>
+                                    <td>{rule.type}</td>
+                                </tr>
+                                {/if}
                             </tbody>
                         </Table>
                     </div>
                 </div>
             </CollapsibleCard>
         </div>
-
-        <div class="routing-rule-container">
-            <CollapsibleCard open>
-                <div slot='header'>
-                    <h5 class="rule-header">{`Rule # ${2}`}</h5>
-                </div>
-                <div slot='body'>
-                    <div class="table-responsive rule-body">
-                        <Table>
-                            <tbody>
-                                <tr>
-                                    <th class="agent-prop-key">Field</th>
-                                    <td>Yes</td>
-                                </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Description</th>
-                                    <td>Yes</td>
-                                </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Field Type</th>
-                                    <td>Yes</td>
-                                </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Required</th>
-                                    <td>Yes</td>
-                                </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Type</th>
-                                    <td>Yes</td>
-                                </tr>
-                                <tr>
-                                    <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td>Yes</td>
-                                </tr>
-                            </tbody>
-                        </Table>
-                    </div>
-                </div>
-            </CollapsibleCard>
-        </div>
+        {/each}
     </CardBody>
 </Card>
