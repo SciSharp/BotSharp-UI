@@ -9,6 +9,7 @@
     import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import AgentPrompt from './agent-prompt.svelte';
 	import AgentOverview from './agent-overview.svelte';
+    import AgentRouting from './agent-routing.svelte';
     import AgentFunction from './agent-function.svelte';
     import AgentLlmConfig from './agent-llm-config.svelte';
     import { page } from '$app/stores';
@@ -16,6 +17,7 @@
     import { onMount } from 'svelte';
     const params = $page.params;
     import { _ } from 'svelte-i18n'  
+	
 	
     /** @type {import('$types').AgentModel} */
     let agent;
@@ -73,6 +75,9 @@
     <Col style="flex: 30%;">
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
+        {#if agent.routing_rules?.length > 0}
+        <AgentRouting agent={agent} />
+        {/if}
     </Col>
     <Col style="flex: 40%;">
         <AgentPrompt agent={agent} />

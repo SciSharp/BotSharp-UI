@@ -172,6 +172,7 @@
  * @property {string} fieldType
  * @property {boolean} required
  * @property {string} redirectTo
+ * @property {string?} [redirectToAgentName]
  */
 
 /**

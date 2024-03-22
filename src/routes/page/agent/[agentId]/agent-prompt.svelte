@@ -1,5 +1,4 @@
 <script>
-    import Link from 'svelte-link'
     import { Card, CardBody, Col, FormGroup, Label, Input } from '@sveltestrap/sveltestrap';
     
     /** @type {import('$types').AgentModel} */
@@ -21,7 +20,7 @@
                 type="textarea"
                 id="formmessage"
                 class="form-control"
-                rows="3"
+                rows="4"
                 bind:value={agent.description}
                 placeholder="Enter your Message"
             />
