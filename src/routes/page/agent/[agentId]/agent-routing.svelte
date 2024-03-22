@@ -1,6 +1,6 @@
 <script>
+	import CollapsibleCard from "$lib/common/CollapsibleCard.svelte";
 	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
-    import CollapsibleCard from 'svelte-collapsible-card';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -22,7 +22,7 @@
         <div class="routing-rule-container">
             <CollapsibleCard>
                 <div slot='header'>
-                    <h5 class="rule-header">{`Rule # ${1}`}</h5>
+                    <h5 class="rule-header">{`Rule #${idx + 1}`}</h5>
                 </div>
                 <div slot='body'>
                     <div class="table-responsive rule-body">
@@ -50,7 +50,7 @@
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
                                     <td style="cursor: pointer;" on:click={() => redirectToAgent(rule.redirectTo)}>
-                                        {rule.redirectTo}
+                                        {rule.redirectToAgentName}
                                     </td>
                                 </tr>
                                 {/if}

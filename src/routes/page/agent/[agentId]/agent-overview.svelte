@@ -1,9 +1,7 @@
 <script>
-    import Link from 'svelte-link';
     import { Button, Card, CardBody, CardHeader, Col, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
-	import AgentLlmConfig from './agent-llm-config.svelte';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -52,11 +50,11 @@
                     <tr>
                         <th class="agent-prop-key">Profiles</th>
                         <td>
-                            <ul class="agent-profile-container">
+                            <div class="agent-profile-container">
                                 {#each agent.profiles as profile}
-                                <li class="profile-name">{profile}</li>
+                                <div class="profile-name">{profile}</div>
                                 {/each}
-                            </ul>
+                            </div>
                         </td>
                     </tr>
                     <tr>
