@@ -5,6 +5,11 @@
     /** @type {import('$types').AgentModel} */
     export let agent;
 
+    /** @param {string} agentId */
+    function redirectToAgent(agentId) {
+        window.open(`/page/agent/${agentId}`);
+    }
+
 </script>
 
 <Card>
@@ -44,7 +49,9 @@
                                 {#if !!rule.redirectTo}
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td>{rule.redirectTo}</td>
+                                    <td style="cursor: pointer;" on:click={() => redirectToAgent(rule.redirectTo)}>
+                                        {rule.redirectTo}
+                                    </td>
                                 </tr>
                                 {/if}
                                 {#if !!rule.type}
