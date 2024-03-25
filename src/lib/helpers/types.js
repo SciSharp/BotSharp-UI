@@ -346,6 +346,7 @@ IRichContent.prototype.text;
  * @property {string?} [truncateMsgId] - The message id to truncate.
  * @property {string[]?} [states] - The states input by user.
  * @property {Postback?} [postback] - The parent message id.
+ * @property {string?} [payload] - The payload message.
  */
 
 /**

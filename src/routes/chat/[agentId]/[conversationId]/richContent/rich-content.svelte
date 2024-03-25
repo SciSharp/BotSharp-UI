@@ -13,14 +13,15 @@
     /** @type {boolean} */
     export let disableOption = false;
 
-    /** @type {(args0: string) => any} */
+    /** @type {(args0: string, args1: string) => any} */
     export let onConfirm = () => {};
 
     /**
-     * @param {string} answer
+     * @param {string} title
+     * @param {string} payload
 	 */
-    function handleConfirm(answer) {
-        onConfirm && onConfirm(answer);
+    function handleConfirm(title, payload) {
+        onConfirm && onConfirm(title, payload);
     }
 </script>
 
@@ -32,11 +33,11 @@
 
 {#if displayExtraElements}
     {#if message?.rich_content?.message?.rich_type === RichType.QuickReply}
-	<RcOptions options={message?.rich_content?.message?.quick_replies} fillPostback={message?.rich_content?.fill_postback} disableOption={disableOption} onConfirm={handleConfirm} />
+	<RcOptions options={message?.rich_content?.message?.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} />
     {:else if message?.rich_content?.message?.rich_type === RichType.Button}
-    <RcOptions options={message?.rich_content?.message?.buttons} fillPostback={message?.rich_content?.fill_postback} disableOption={disableOption} onConfirm={handleConfirm} />
+    <RcOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} />
     {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
-    <RcOptions options={message?.rich_content?.message?.options} isMultiSelect fillPostback={message?.rich_content?.fill_postback} disableOption={disableOption} onConfirm={handleConfirm} />
+    <RcOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} />
     {:else if message?.rich_content?.message?.rich_type === RichType.Generic}
     <RcGenericOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} />
     {/if}
