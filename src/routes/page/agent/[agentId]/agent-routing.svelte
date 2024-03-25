@@ -32,10 +32,12 @@
                                     <th class="agent-prop-key">Field</th>
                                     <td>{rule.field}</td>
                                 </tr>
+                                {#if !!rule.description}
                                 <tr>
                                     <th class="agent-prop-key">Description</th>
                                     <td>{rule.description}</td>
                                 </tr>
+                                {/if}
                                 {#if !!rule.fieldType}
                                 <tr>
                                     <th class="agent-prop-key">Field Type</th>
