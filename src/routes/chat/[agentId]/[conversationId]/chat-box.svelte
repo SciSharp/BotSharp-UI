@@ -362,11 +362,11 @@
 		await sentTextMessage();
 	}
 
-	/** @param {string} payload */
-	async function confirmSelectedOption(payload) {
+	/** @param {string} answer */
+	async function confirmSelectedOption(answer) {
 		if (isSendingMsg || isThinking) return;
 
-		await sendChatMessage(payload);
+		await sendChatMessage(answer);
 	}
 
 	async function sentTextMessage() {

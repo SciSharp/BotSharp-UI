@@ -188,6 +188,40 @@
                     min-width: 50px;
                 }
             }
+
+            .card-group-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+                margin-top: 10px;
+
+                .card-element {
+                    flex: 1 1 fit-content;
+                    border-radius: 10px;
+                    border-width: 2px;
+                    max-width: 100%;
+                    margin-bottom: 0px;
+
+                    .card-element-title {
+                        font-size: 1.1rem;
+                        font-weight: 700;
+                    }
+
+                    .card-element-subtitle {
+                        font-size: 0.8rem;
+                        font-weight: 500;
+                    }
+
+                    .card-option-group {
+                        margin-top: 5px;
+
+                        .btn {
+                            display: block;
+                            margin-left: 0px !important;
+                        }
+                    }
+                }
+            }
         }
 
         .ctext-wrap {
