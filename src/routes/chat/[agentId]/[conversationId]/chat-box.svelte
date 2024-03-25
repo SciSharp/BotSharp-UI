@@ -289,7 +289,7 @@
 		isSendingMsg = true;
 		renewUserSentMessages(msgText);
 
-		const postback = buildPostbackMessage(dialogs, msgText);
+		const postback = buildPostbackMessage(dialogs, data?.payload || null);
 		/** @type {import('$types').MessageData?} */
 		const messageData = {
 			...data,
@@ -362,11 +362,14 @@
 		await sentTextMessage();
 	}
 
-	/** @param {string} answer */
-	async function confirmSelectedOption(answer) {
+	/** 
+	 * @param {string} title
+	 * @param {string} payload
+	 */
+	async function confirmSelectedOption(title, payload) {
 		if (isSendingMsg || isThinking) return;
 
-		await sendChatMessage(answer);
+		await sendChatMessage(title, { payload: payload });
 	}
 
 	async function sentTextMessage() {
@@ -377,7 +380,7 @@
 
 	/**
 	 * @param {import('$types').ChatResponseModel[]} dialogs
-	 * @param {string} content
+	 * @param {string?} content
 	 */
 	 function buildPostbackMessage(dialogs, content) {
 		/** @type {import('$types').Postback?} */

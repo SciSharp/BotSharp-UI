@@ -7,13 +7,10 @@
     /** @type {boolean} */
     export let disableOption = false;
 
-    /** @type {boolean} */
-    export let fillPostback = false;
-
     /** @type {any[]} */
     export let options = [];
 
-    /** @type {(args0: string) => any} */
+    /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
     /** @type {string} */
@@ -22,12 +19,14 @@
     const separator = '|';
 
     /** @type {string[]} */
-    let answers = [];
+    let titleAnswers = [];
+    /** @type {string[]} */
+    let payloadAnswers = [];
     /** @type {any[]} */
     let localOptions = [];
 
     onMount(() => {
-        answers = [];
+        reset();
         localOptions = collectOptions(options);
     });
 
@@ -53,23 +52,18 @@
         e.preventDefault();
 
         if (!isMultiSelect) {
-            innerConfirm(fillPostback ? option?.payload : option?.title);
+            innerConfirm(option?.title, option?.payload);
         } else {
             localOptions = localOptions.map((op, idx) => {
                 if (idx === index) {
                     op.isClicked = !op.isClicked;
                     if (op.isClicked) {
-                        if (fillPostback) {
-                            answers = [...answers, op.payload];
-                        } else {
-                            answers = [...answers, op.title];
-                        }
+                        titleAnswers = [...titleAnswers, op.title];
+                        payloadAnswers = [...payloadAnswers, op.payload];
                     } else {
-                        if (fillPostback) {
-                            answers = answers.filter(a => a != op.payload);
-                        } else {
-                            answers = answers.filter(a => a != op.title);
-                        }
+                        const targetIdx = titleAnswers.findIndex(a => a == op.title);
+                        titleAnswers = titleAnswers.filter((x, index) => index != targetIdx);
+                        payloadAnswers = payloadAnswers.filter((x, index) => index != targetIdx);
                     }
                 }
                 return op;
@@ -82,21 +76,24 @@
 	 */
     function handleConfirm(e) {
         e.preventDefault();
-        const answer = answers.join(separator);
-        innerConfirm(answer);
+        const titles = titleAnswers.join(separator);
+        const payloads = payloadAnswers.join(separator);
+        innerConfirm(titles, payloads);
     }
 
     /**
-	 * @param {string} answer
+	 * @param {string} title
+     * @param {string} payload
 	 */
-    function innerConfirm(answer) {
-        onConfirm && onConfirm(answer);
+    function innerConfirm(title, payload) {
+        onConfirm && onConfirm(title, payload);
         reset();
     }
 
     function reset() {
         localOptions = [];
-        answers = [];
+        titleAnswers = [];
+        payloadAnswers = [];
     }
 
 </script>

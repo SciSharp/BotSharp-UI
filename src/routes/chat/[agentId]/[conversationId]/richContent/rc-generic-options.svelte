@@ -6,13 +6,10 @@
     /** @type {boolean} */
     export let disableOption = false;
 
-    /** @type {boolean} */
-    export let fillPostback = false;
-
     /** @type {any[]} */
     export let options = [];
 
-    /** @type {(args0: string) => any} */
+    /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
     /** @type {any[]} */
@@ -49,14 +46,15 @@
 	 */
     function handleClickOption(e, option) {
         e.preventDefault();
-        innerConfirm(fillPostback ? option?.payload : option?.title);
+        innerConfirm(option?.title, option?.payload);
     }
 
     /**
-	 * @param {string} answer
+	 * @param {string} title
+     * @param {string} payload
 	 */
-    function innerConfirm(answer) {
-        onConfirm && onConfirm(answer);
+    function innerConfirm(title, payload) {
+        onConfirm && onConfirm(title, payload);
         reset();
     }
 
