@@ -7,6 +7,9 @@
     /** @type {boolean} */
     export let disableOption = false;
 
+    /** @type {boolean} */
+    export let fillPostback = false;
+
     /** @type {any[]} */
     export let options = [];
 
@@ -30,54 +33,43 @@
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        /** @type {any[]} */
-        let res = [];
-        options?.map(op => {
-            if (!!!op.title || !!!op.payload) {
-                return;
-            }
-
-            if (op.buttons?.length > 0) {
-                // @ts-ignore
-                op.buttons?.map(x => {
-                    if (!!x.title && !!x.payload) {
-                        res.push({
-                            title: x.title,
-                            payload: x.payload,
-                            isClicked: false
-                        });
-                    }
-                });
-            } else {
-                res.push({
-                    title: op.title,
-                    payload: op.payload,
-                    isClicked: false
-                });
-            }
-        });
+        const res = options?.map(op => {
+            return {
+                title: op.title,
+                payload: op.payload,
+                isClicked: false
+            };
+        }) || [];
 
         return res;
     }
 
     /**
 	 * @param {any} e
-     * @param {string} payload
+     * @param {any} option
      * @param {number} index
 	 */
-    function handleClickOption(e, payload, index) {
+    function handleClickOption(e, option, index) {
         e.preventDefault();
 
         if (!isMultiSelect) {
-            innerConfirm(payload);
+            innerConfirm(fillPostback ? option?.payload : option?.title);
         } else {
             localOptions = localOptions.map((op, idx) => {
                 if (idx === index) {
                     op.isClicked = !op.isClicked;
                     if (op.isClicked) {
-                        answers = [...answers, op.payload];
+                        if (fillPostback) {
+                            answers = [...answers, op.payload];
+                        } else {
+                            answers = [...answers, op.title];
+                        }
                     } else {
-                        answers = answers.filter(a => a != op.payload);
+                        if (fillPostback) {
+                            answers = answers.filter(a => a != op.payload);
+                        } else {
+                            answers = answers.filter(a => a != op.title);
+                        }
                     }
                 }
                 return op;
@@ -90,15 +82,15 @@
 	 */
     function handleConfirm(e) {
         e.preventDefault();
-        const payload = answers.join(separator);
-        innerConfirm(payload);
+        const answer = answers.join(separator);
+        innerConfirm(answer);
     }
 
     /**
-	 * @param {string} payload
+	 * @param {string} answer
 	 */
-    function innerConfirm(payload) {
-        onConfirm && onConfirm(payload);
+    function innerConfirm(answer) {
+        onConfirm && onConfirm(answer);
         reset();
     }
 
@@ -112,10 +104,24 @@
 {#if localOptions.length > 0}
 <div class="button-group">
     {#each localOptions as option, index}
-    <button class="btn btn-outline-primary btn-rounded btn-sm m-1" class:active={!!option.isClicked} disabled={disableOption} on:click={(e) => handleClickOption(e, option.payload, index)}>{option.title}</button>
+        <button
+            class="btn btn-outline-primary btn-rounded btn-sm m-1"
+            class:active={!!option.isClicked}
+            disabled={disableOption}
+            on:click={(e) => handleClickOption(e, option, index)}
+        >
+            {option.title}
+        </button>
     {/each}
     {#if isMultiSelect}
-    <button class="btn btn-outline-success btn-rounded btn-sm m-1" name="confirm" disabled={disableOption || localOptions.every(x => !!!x.isClicked)} on:click={(e) => handleConfirm(e)}>{confirmBtnText}</button>
+        <button
+            class="btn btn-outline-success btn-rounded btn-sm m-1"
+            name="confirm"
+            disabled={disableOption || localOptions.every(x => !!!x.isClicked)}
+            on:click={(e) => handleConfirm(e)}
+        >
+            {confirmBtnText || 'Continue'}
+        </button>
     {/if}
 </div>
 {/if}
