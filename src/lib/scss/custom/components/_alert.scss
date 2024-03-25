@@ -1,0 +1,20 @@
+.alert-container {
+    position: fixed;
+    top: 10%;
+    left: 35%;
+    right: 35%;
+    z-index: 8888;
+
+    .alert {
+        color: white;
+        text-align: center;
+    }
+
+    .success {
+        background-color: rgba(52, 195, 143, 0.9) !important;
+    }
+    
+    .error {
+        background-color: rgba(244, 106, 106, 0.9) !important;
+    }
+}

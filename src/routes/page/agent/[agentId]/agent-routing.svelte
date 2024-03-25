@@ -28,10 +28,12 @@
                     <div class="table-responsive rule-body">
                         <Table>
                             <tbody>
+                                {#if !!rule.field}
                                 <tr>
                                     <th class="agent-prop-key">Field</th>
                                     <td>{rule.field}</td>
                                 </tr>
+                                {/if}
                                 {#if !!rule.description}
                                 <tr>
                                     <th class="agent-prop-key">Description</th>
@@ -52,7 +54,7 @@
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
                                     <td style="cursor: pointer;" on:click={() => redirectToAgent(rule.redirectTo)}>
-                                        {rule.redirectToAgentName}
+                                        {rule.redirect_to_agent || ''}
                                     </td>
                                 </tr>
                                 {/if}

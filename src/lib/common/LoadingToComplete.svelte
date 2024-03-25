@@ -12,17 +12,22 @@
 </script>
 
 {#if isLoading}
-  <Loader size={spinnerSize} />
+    <Loader size={spinnerSize} />
 {/if}
 
+
 {#if isComplete}
-  <Alert color="success">
-    <div>{successText}</div>
-  </Alert>
+    <div class="alert-container">
+        <Alert class="success">
+            <div>{successText}</div>
+        </Alert>
+    </div>
 {/if}
 
 {#if isError}
-  <Alert color="danger">
-    <div>{errorText}</div>
-  </Alert>
+    <div class="alert-container">
+        <Alert class="error">
+            <div>{errorText}</div>
+        </Alert>
+    </div>
 {/if}
