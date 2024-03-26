@@ -149,6 +149,7 @@
 		}) || [];
 
 		const savedMessages = conversationUserMessageStore.get();
+		// @ts-ignore
 		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
 		const allMessages = [...otherConvMessages, ...curConvMessages];
 		const trimmedMessages = trimUserSentMessages(allMessages);
@@ -273,7 +274,7 @@
 		truncateDialogs(data.message_id);
 	}
 
-	async function newConversationHandler() {
+	async function handleNewConversation() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
 		const url = `chat/${params.agentId}/${conversation.id}`;
@@ -289,7 +290,7 @@
 		isSendingMsg = true;
 		renewUserSentMessages(msgText);
 
-		const postback = buildPostbackMessage(dialogs, data?.payload || null);
+		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		/** @type {import('$types').MessageData?} */
 		const messageData = {
 			...data,
@@ -381,11 +382,19 @@
 	/**
 	 * @param {import('$types').ChatResponseModel[]} dialogs
 	 * @param {string?} content
+	 * @param {string?} [truncateMsgId]
 	 */
-	 function buildPostbackMessage(dialogs, content) {
+	 function buildPostbackMessage(dialogs, content, truncateMsgId) {
 		/** @type {import('$types').Postback?} */
 		let postback = null;
-		const lastMsg = dialogs.slice(-1)[0];
+		let lastMsg = dialogs.slice(-1)[0];
+
+		if (!!truncateMsgId) {
+			const foundIdx = dialogs.findIndex(x => x.message_id === truncateMsgId);
+			const truncatedDialogs = dialogs.filter((x, idx) => idx < foundIdx);
+			lastMsg = truncatedDialogs.slice(-1)[0];
+		}
+
 		if (!!lastMsg?.rich_content?.fill_postback
 			&& !!lastMsg?.function
 			&& lastMsg?.sender?.role === UserRole.Assistant) {
@@ -748,7 +757,7 @@
 													</Dropdown>
 												</li>
 												{/if}
-												<DropdownItem on:click={newConversationHandler}>New Conversation</DropdownItem>
+												<DropdownItem on:click={handleNewConversation}>New Conversation</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 									</li>
