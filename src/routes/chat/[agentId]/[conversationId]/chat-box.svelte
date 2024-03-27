@@ -468,13 +468,16 @@
 		const conversationUserStates = conversationUserStateStore.get();
 		if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
 			userAddStates = [...conversationUserStates.states];
-		} 
+		} else {
+			userAddStates = [];
+		}
 	}
 
 	function handleConfirmUserAddStates() {
 		const cleanStates = userAddStates.map(state => {
             state.key.data = _.trim(state.key.data);
             state.value.data = _.trim(state.value.data);
+			state.active_rounds.data = Number(state.active_rounds.data);
             return state;
         });
         conversationUserStateStore.put({
@@ -689,6 +692,7 @@
 <StateModal
 	isOpen={isOpenUserAddStateModal}
 	bind:states={userAddStates}
+	requireActiveRounds
 	toggleModal={toggleUserAddStateModal}
 	confirm={handleConfirmUserAddStates}
 	cancel={toggleUserAddStateModal}

@@ -90,8 +90,13 @@ function buildConversationUserStates(conversationId) {
     if (!!userStates && userStates.conversationId == conversationId && userStates.states?.length > 0) {
         // @ts-ignore
         const states = userStates.states.map(state => {
-            return `${state.key.data}=${state.value.data}`;
+            return {
+                key: state.key.data,
+                value: state.value.data,
+                active_rounds: state.active_rounds.data || -1
+            };
         });
+        conversationUserStateStore.reset();
         return states;
     }
     return [];
