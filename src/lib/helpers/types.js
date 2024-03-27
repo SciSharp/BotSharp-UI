@@ -303,6 +303,7 @@ IRichContent.prototype.text;
  * @typedef {Object} UserStateDetailModel
  * @property {{data: string, isValid: boolean}} key - The state key.
  * @property {{data: string, isValid: boolean}} value - The state value.
+ * @property {{data: number, isValid: boolean}} active_rounds - The state active rounds.
  */
 
 /** 

@@ -29,20 +29,27 @@
     /** @type {boolean} */
     export let validateKey = true;
     export let validateValue = true;
+    export let requireActiveRounds = false;
 
     /** @type {import('$types').UserStateDetailModel[]} */
     export let states = [];
+
+    /** @type {import('$types').UserStateDetailModel} */
+    const defaultState = {
+        key: { data: '', isValid: true },
+        value: { data: '', isValid: true },
+        active_rounds: { data: -1, isValid: true }
+    };
 
     $: {
         if (isOpen) {
             if (states?.length > 0) {
                 states = [...states];
             } else {
-                states = [{ key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
+                states = [{...JSON.parse(JSON.stringify(defaultState))}];
             }
         }
     }
-
 
     /** @param {any} e */
     function handleConfirm(e) {
@@ -76,7 +83,7 @@
     }
 
     function addState() {
-        states = [...states, { key: { data: '', isValid: true }, value: { data: '', isValid: true } }];
+        states = [...states, {...JSON.parse(JSON.stringify(defaultState))}];
     }
 
     /** @param {number} index */
@@ -111,6 +118,34 @@
             return state;
         });
     }
+
+    /** 
+     * @param {any} e 
+     * @param {number} index
+    */
+    function changeActiveRounds(e, index) {
+        states = states.map((state, idx) => {
+            if (idx === index) {
+                state.active_rounds.isValid = true;
+                state.active_rounds.data = validateActiveRounds(Number(e.target.value) || 0);
+            }
+            return state;
+        });
+    }
+
+    /** @param {number} rounds */
+    function validateActiveRounds(rounds) {
+        let res = rounds;
+        const lowerLimit = -1;
+        const upperLimit = 9999;
+
+        if (rounds <= 0) {
+            res = lowerLimit;
+        } else if (rounds > upperLimit) {
+            res = upperLimit;
+        }
+        return res;
+    }
 </script>
 
 <Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal && toggleModal()}>
@@ -119,7 +154,7 @@
         <Form class="state-form">
             {#each states as state, idx (idx)}
             <Row>
-                <div class="state-input">
+                <div class={`${requireActiveRounds ? 'state-key-input' : 'state-input'}`}>
                     <FormGroup>
                         {#if idx === 0}
                         <label for="key">
@@ -129,7 +164,7 @@
                         <Input class={`${!state.key.isValid ? 'invalid' : ''}`} placeholder="Enter a key" value={state.key.data} maxlength={50} on:input={(e) => changeKey(e, idx)} />
                     </FormGroup>
                 </div>
-                <div class="state-input">
+                <div class={`${requireActiveRounds ? 'state-key-input' : 'state-input'}`}>
                     <FormGroup>
                         {#if idx === 0}
                         <label for="value">
@@ -139,6 +174,18 @@
                         <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={1000} on:input={(e) => changeValue(e, idx)} />
                     </FormGroup>
                 </div>
+                {#if requireActiveRounds}
+                <div class="state-num-input">
+                    <FormGroup>
+                        {#if idx === 0}
+                        <label for="value">
+                            {`Active rounds (Optional)`}
+                        </label>
+                        {/if}
+                        <Input type="number" placeholder="Enter a value" value={state.active_rounds.data} on:input={(e) => changeActiveRounds(e, idx)} />
+                    </FormGroup>
+                </div>
+                {/if}
                 <div class="state-delete">
                     {#if idx !== 0}
                     <Button
