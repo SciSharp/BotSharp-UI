@@ -112,7 +112,7 @@
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
-		signalr.onStateChangeLogGenerated = onStateChangeLogGenerated;
+		signalr.onStateChangeGenerated = onStateChangeGenerated;
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
@@ -263,8 +263,8 @@
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').StateChangeLogModel} log */
-	function onStateChangeLogGenerated(log) {
+	/** @param {import('$types').StateChangeModel} log */
+	function onStateChangeGenerated(log) {
 		if (!isLoadStateLog || log == null) return;
 
 		stateChangeLogs.push({ ...log });

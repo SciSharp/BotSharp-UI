@@ -298,7 +298,7 @@ IRichContent.prototype.text;
  */
 
 /**
- * @typedef {Object} StateChangeLogModel
+ * @typedef {Object} StateChangeModel
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} before_value - The value before change.
@@ -399,8 +399,8 @@ IRichContent.prototype.text;
 /** 
  * Conversation state change log
  * 
- * @callback OnStateChangeLogGenerated
- * @param {StateChangeLogModel} log
+ * @callback OnStateChangeGenerated
+ * @param {StateChangeModel} log
  */
 
 /** 
