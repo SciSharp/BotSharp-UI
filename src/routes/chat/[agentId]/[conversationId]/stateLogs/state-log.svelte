@@ -2,12 +2,16 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import StateLogElement from './state-log-element.svelte';
 	import { page } from '$app/stores';
 	import { GetStateLogs } from '$lib/services/logging-service';
+    import StateLogElement from './state-log-element.svelte';
+	import StateChangeElement from './state-change-element.svelte';
 
     /** @type {any[]} */
     export let stateLogs = [];
+
+    /** @type {any[]} */
+    export let stateChangeLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -15,8 +19,8 @@
     /** @type {() => void} */
     export let cleanScreen;
 
-    // @ts-ignore
-    let scrollbar;
+    /** @type {any} */
+    let scrollbars = [];
 
     const options = {
 		scrollbars: {
@@ -34,8 +38,13 @@
         const conversationId = $page.params.conversationId;
         stateLogs = await GetStateLogs(conversationId);
         
-		const scrollElement = document.querySelector('.state-log-scrollbar');
-		scrollbar = OverlayScrollbars(scrollElement, options);
+        const scrollbarElements = [
+            document.querySelector('.state-log-scrollbar'),
+            document.querySelector('.state-change-scrollbar')
+        ].filter(Boolean);
+        scrollbarElements.forEach(elem => {
+            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
+        });
 		refresh();
 	});
 
@@ -48,10 +57,13 @@
     });
 
     function refresh() {
-        setTimeout(() => {
-            const { viewport } = scrollbar.elements();
-            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-        }, 200);
+        // @ts-ignore
+        scrollbars.forEach(scrollbar => {
+            setTimeout(() => {
+                const { viewport } = scrollbar.elements();
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+            }, 200);
+        });
     }
 
     function cleanLogs() {
@@ -82,7 +94,14 @@
                 <i class="bx bx-trash"></i>
             </button>
         </div>
-        <div class="state-log-scrollbar log-list padding-side">
+        <div class="state-change-scrollbar state-change-log-list log-list padding-side">
+            <ul>
+                {#each stateChangeLogs as log}
+                    <StateChangeElement data={log} />
+                {/each}
+            </ul>
+        </div>
+        <div class="state-log-scrollbar state-log-list log-list padding-side">
             <ul>
                 {#each stateLogs as log}
                     <StateLogElement data={log} />
