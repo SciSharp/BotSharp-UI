@@ -31,7 +31,6 @@
         const isGeneric = message?.rich_content?.message?.rich_type === RichType.Generic;
         // @ts-ignore
         const hasSuboptions = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
-        console.log(isGeneric, hasSuboptions);
         isComplexElement = isGeneric && hasSuboptions;
     }
 </script>
