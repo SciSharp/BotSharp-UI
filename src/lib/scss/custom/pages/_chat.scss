@@ -168,7 +168,7 @@
             max-width: 80%;
             flex: 0 0 fit-content;
 
-            .button-group {
+            .button-group-container {
                 display: flex;
                 flex-wrap: wrap;
 
@@ -186,6 +186,7 @@
 
                 button {
                     min-width: 50px;
+                    text-align: left;
                 }
             }
 
@@ -218,6 +219,7 @@
                         .btn {
                             display: block;
                             margin-left: 0px !important;
+                            text-align: left;
                         }
                     }
                 }

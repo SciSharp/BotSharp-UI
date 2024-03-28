@@ -32,7 +32,7 @@
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        const res = options?.map(op => {
+        const res = options?.filter(op => !!op.title && !!op.payload)?.map(op => {
             return {
                 title: op.title,
                 payload: op.payload,
@@ -99,7 +99,7 @@
 </script>
 
 {#if localOptions.length > 0}
-<div class="button-group">
+<div class="button-group-container">
     {#each localOptions as option, index}
         <button
             class="btn btn-outline-primary btn-rounded btn-sm m-1"
