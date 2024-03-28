@@ -23,7 +23,7 @@
     function collectOptions(options) {
         const res = options?.map(op => {
             // @ts-ignore
-            const options = op.buttons?.map(x => {
+            const options = op.buttons?.filter(op => !!op.title && !!op.payload)?.map(x => {
                 return {
                     title: x.title,
                     payload: x.payload
@@ -69,10 +69,10 @@
         <Card class="card-element">
             <CardBody>
                 {#if !!card.title}
-                <div class="card-element-title">{card.title}</div>
+                <div class="card-element-title mb-3">{card.title}</div>
                 {/if}
                 {#if !!card.subtitle}
-                <div class="card-element-subtitle">{card.subtitle}</div>
+                <div class="card-element-subtitle mb-3">{card.subtitle}</div>
                 {/if}
                 {#if card.options?.length > 0}
                     <div class="card-option-group">

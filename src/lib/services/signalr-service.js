@@ -27,6 +27,9 @@ export const signalr = {
   /** @type {import('$types').OnConversationStateLogGenerated} */
   onConversationStateLogGenerated: () => {},
 
+  /** @type {import('$types').OnStateChangeGenerated} */
+  onStateChangeGenerated: () => {},
+
   /** @type {import('$types').OnSenderActionGenerated} */
   onSenderActionGenerated: () => {},
 
@@ -98,6 +101,13 @@ export const signalr = {
       const jsonData = JSON.parse(log);
       if (conversationId === jsonData?.conversation_id) {
         this.onConversationStateLogGenerated(jsonData);
+      }
+    });
+
+    connection.on('OnStateChangeGenerated', (log) => {
+      const jsonData = JSON.parse(log);
+      if (conversationId === jsonData?.conversation_id) {
+        this.onStateChangeGenerated(jsonData);
       }
     });
 

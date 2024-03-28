@@ -84,6 +84,9 @@
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let stateLogs = [];
 
+	/** @type {import('$types').StateChangeLogModel[]} */
+	let stateChangeLogs = [];
+
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
 
@@ -109,6 +112,7 @@
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
+		signalr.onStateChangeGenerated = onStateChangeGenerated;
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
@@ -259,6 +263,14 @@
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
 
+	/** @param {import('$types').StateChangeModel} log */
+	function onStateChangeGenerated(log) {
+		if (!isLoadStateLog || log == null) return;
+
+		stateChangeLogs.push({ ...log });
+		stateChangeLogs = stateChangeLogs.map(x => { return { ...x }; });
+	}
+
 	/** @param {import('$types').ConversationSenderActionModel} data */
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
@@ -288,6 +300,7 @@
 	 */
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
+		stateChangeLogs = [];
 		renewUserSentMessages(msgText);
 
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
@@ -545,6 +558,7 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
+		stateChangeLogs = [];
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
@@ -705,6 +719,7 @@
 		<Pane size={30} minSize={20} maxSize={50} >
 			<StateLog
 				bind:stateLogs={stateLogs}
+				bind:stateChangeLogs={stateChangeLogs}
 				closeWindow={toggleStateLog}
 				cleanScreen={cleanStateLogScreen}
 			/>

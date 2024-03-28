@@ -168,7 +168,7 @@
             max-width: 80%;
             flex: 0 0 fit-content;
 
-            .button-group {
+            .button-group-container {
                 display: flex;
                 flex-wrap: wrap;
 
@@ -186,6 +186,7 @@
 
                 button {
                     min-width: 50px;
+                    text-align: left;
                 }
             }
 
@@ -218,6 +219,7 @@
                         .btn {
                             display: block;
                             margin-left: 0px !important;
+                            text-align: left;
                         }
                     }
                 }
@@ -369,9 +371,23 @@
             // justify-content: flex-end;
             justify-content: space-between;
         }
+
+        .content-log-list {
+            height: 90vh;
+        }
+
+        .state-change-log-list {
+            height: 35vh;
+            border-bottom-style: solid;
+            border-bottom-color: #fff;
+            border-bottom-width: 5px;
+        }
+
+        .state-log-list {
+            height: 65vh;
+        }
     
         .log-list {
-            height: 90vh;
             .log-element {
                 margin-top: 25px;
                 margin-bottom: 30px;

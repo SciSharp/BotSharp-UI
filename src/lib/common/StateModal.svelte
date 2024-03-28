@@ -139,7 +139,7 @@
         const lowerLimit = -1;
         const upperLimit = 9999;
 
-        if (rounds <= 0) {
+        if (rounds < lowerLimit) {
             res = lowerLimit;
         } else if (rounds > upperLimit) {
             res = upperLimit;

@@ -294,7 +294,16 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {Object} states - The states content.
- * @property {Date} created_at - The states sent time.
+ * @property {Date} created_at - The log sent time.
+ */
+
+/**
+ * @typedef {Object} StateChangeModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
+ * @property {string} before_value - The value before change.
+ * @property {string} after_value - The value after change.
+ * @property {Date} created_at - The log sent time.
  */
 
 /** 
@@ -385,6 +394,13 @@ IRichContent.prototype.text;
  * 
  * @callback OnConversationStateLogGenerated
  * @param {ConversationStateLogModel} log
+ */
+
+/** 
+ * Conversation state change log
+ * 
+ * @callback OnStateChangeGenerated
+ * @param {StateChangeModel} log
  */
 
 /** 

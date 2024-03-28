@@ -82,7 +82,7 @@
                 <i class="mdi mdi-window-close"></i>
             </button>
         </div>
-        <div class="content-log-scrollbar log-list padding-side">
+        <div class="content-log-scrollbar content-log-list log-list padding-side">
             <ul>
                 {#each contentLogs as log}
                     <ContentLogElement data={log} />
