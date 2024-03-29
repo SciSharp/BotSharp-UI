@@ -389,8 +389,8 @@
     
         .log-list {
             .log-element {
-                margin-top: 25px;
-                margin-bottom: 30px;
+                margin-top: 10px;
+                margin-bottom: 15px;
 
                 .log-meta {
                     font-size: 15px;
@@ -431,12 +431,33 @@
                     font-size: 15px;
                     padding-left: 0px;
                 }
+
+                .state-key {
+                    color: var(--bs-primary);
+                }
+                
+                .state-value-container {
+                    display: flex;
+                    flex-wrap: wrap;
+
+                    .state-value {
+                        min-width: 50%;
+                        font-size: 15px;
+                        margin-top: 3px;
+                        margin-bottom: 3px;
+                    }
+                }
             }
 
-            .state-log-item .log-content {
-                span {
-                    color: white;
-                    font-size: 16px;
+            .state-log-item {
+                margin-top: 5px;
+                margin-bottom: 10px;
+
+                .log-content {
+                    span {
+                        color: white;
+                        font-size: 16px;
+                    }
                 }
             }
         }

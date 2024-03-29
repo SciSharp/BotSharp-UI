@@ -4,41 +4,16 @@
     export let data;
 </script>
 
-<div class="log-element state-change-element">
-    <div class="log-meta">
-        <div><b>{`[${data?.name}]`}</b></div>
+<div class="log-element">
+    <div class="log-meta state-key">
+        <div><b>{`${data?.name}`}</b></div>
     </div>
-    <div class="log-content">
-        <div class="transition-word text-secondary">
-            Before
-        </div>
+    <div class="log-content state-value-container">
         <div class="state-value">
             <div>{`${data?.before_value || 'unknown'}`}</div>
         </div>
-        
-        <div class="transition-word text-secondary">
-            After
-        </div>
-        <div class="state-value">
+        <div class="state-value text-warning">
             <div>{`${data?.after_value || 'unknown'}`}</div>
         </div>
     </div>
 </div>
-
-<style>
-    .transition-word {
-        font-size: 12px;
-        font-weight: 600;
-        margin-top: 5px;
-        margin-bottom: 5px;
-    }
-
-    .state-change-element {
-        margin-top: 15px !important;
-        margin-bottom: 15px !important;
-    }
-
-    .state-value {
-        font-size: 15px;
-    }
-</style>
