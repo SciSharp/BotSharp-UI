@@ -76,7 +76,7 @@
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
         {#if agent.routing_rules?.length > 0}
-        <AgentRouting agent={agent} />
+            <AgentRouting agent={agent} />
         {/if}
     </Col>
     <Col style="flex: 40%;">

@@ -32,6 +32,7 @@
                 type="textarea"
                 id="formmessage"
                 class="form-control"
+                style="scrollbar-width: thin;"
                 rows="20"
                 bind:value={agent.instruction}
                 placeholder="Enter your Message"
