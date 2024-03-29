@@ -82,8 +82,9 @@
 /**
  * @typedef {Object} AgentLlmConfig
  * @property {boolean} is_inherit - Inherited from default Agent settings
- * @property {string} provider 
- * @property {string} model
+ * @property {string?} provider 
+ * @property {string?} model
+ * @property {number} max_recursion_depth
  */
 
 /**
