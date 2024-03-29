@@ -4,7 +4,7 @@
     export let data;
 </script>
 
-<div class="log-element">
+<div class="log-element state-change-container">
     <div class="log-meta state-key">
         <div><b>{`${data?.name}`}</b></div>
     </div>
