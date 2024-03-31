@@ -435,7 +435,7 @@
 
             .state-change-container {
                 margin-top: 0px;
-                margin-bottom: 0px;
+                margin-bottom: 5px;
 
                 .state-key {
                     color: var(--bs-primary);
@@ -448,8 +448,10 @@
                     .state-value {
                         min-width: 50%;
                         font-size: 15px;
-                        margin-top: 3px;
-                        margin-bottom: 3px;
+
+                        .active-rounds {
+                            font-size: 12px;
+                        }
                     }
                 }
             }
