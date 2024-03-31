@@ -303,7 +303,9 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} before_value - The value before change.
+ * @property {number?} before_active_rounds - The state active rounds before change.
  * @property {string} after_value - The value after change.
+ * @property {number?} after_active_rounds - The state active rounds after change.
  * @property {Date} created_at - The log sent time.
  */
 

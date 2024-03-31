@@ -95,5 +95,12 @@ export function replaceNewLine(text) {
  * @returns string
  */
 export function replaceMarkdown(text) {
-    return text.replace(/#([\s]*)/g, '\\# ').replace(/\*([\s]*)/g, '\\* ');
+    let res = text.replace(/#([\s]+)/g, '\\# ');
+    
+    let regex = new RegExp('\\*(.*?)\\*', 'g');
+    if (!regex.test(text)) {
+        res = res.replace(/\*([\s]*)/g, '\\* ');
+    }
+
+    return res;
 }
