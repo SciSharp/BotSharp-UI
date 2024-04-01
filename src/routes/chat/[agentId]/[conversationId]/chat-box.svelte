@@ -458,7 +458,7 @@
 			});
 		} else {
 			window.parent.postMessage({ action: "close" }, "*");
-		} 
+		}
 	}
 
 	function toggleContentLog() {
