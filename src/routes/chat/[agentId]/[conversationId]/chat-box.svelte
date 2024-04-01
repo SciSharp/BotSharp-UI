@@ -527,7 +527,6 @@
 			title: 'Are you sure?',
 			text: "You won't be able to revert this!",
 			icon: 'warning',
-			customClass: 'custom-modal',
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
@@ -542,15 +541,24 @@
 
 	/**
 	 * @param {any} e
-	 * @param {string} messageText
+	 * @param {import('$types').ChatResponseModel} message
 	 */
-	function copyMessage(e, messageText) {
+	function resendMessage(e, message) {
 		e.preventDefault();
-		if (!!!text) {
-			text += messageText;
-		} else {
-			text += ' ' + messageText;
-		}
+		// @ts-ignore
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "Send this message again!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, go ahead!',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then(async (result) => {
+			if (result.value) {
+				sendChatMessage(message?.text, { truncateMsgId: message?.message_id });
+			}
+		});
 	}
 
 	/**
@@ -859,12 +867,12 @@
 										</div>
 										{#if !isLite}
 										<Dropdown>
-											<DropdownToggle class="dropdown-toggle" tag="span" color="">
+											<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
 												<i class="bx bx-dots-vertical-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
 												<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
-												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
+												<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
 												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
