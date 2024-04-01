@@ -30,6 +30,9 @@ export const signalr = {
   /** @type {import('$types').OnStateChangeGenerated} */
   onStateChangeGenerated: () => {},
 
+  /** @type {import('$types').OnAgentQueueChanged} */
+  onAgentQueueChanged: () => {},
+
   /** @type {import('$types').OnSenderActionGenerated} */
   onSenderActionGenerated: () => {},
 
@@ -108,6 +111,13 @@ export const signalr = {
       const jsonData = JSON.parse(log);
       if (conversationId === jsonData?.conversation_id) {
         this.onStateChangeGenerated(jsonData);
+      }
+    });
+
+    connection.on('OnAgentQueueChanged', (log) => {
+      const jsonData = JSON.parse(log);
+      if (conversationId === jsonData?.conversation_id) {
+        this.onAgentQueueChanged(jsonData);
       }
     });
 

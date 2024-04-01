@@ -27,8 +27,6 @@
             text = `(active rounds: ${activeRounds})`;
         } else if (activeRounds == 1) {
             text = `(active round: ${activeRounds})`;
-        } else {
-            text = `(active rounds: infinity)`;
         }
 
         return text;
@@ -44,17 +42,21 @@
             <div class="value">
                 {`${data?.before_value || 'unknown'}`}
             </div>
+            {#if !!beforeActiveRoundText}
             <div class="active-rounds">
                 {`${beforeActiveRoundText}`}
             </div>
+            {/if}
         </div>
         <div class="state-value text-warning">
             <div class="value">
                 {`${data?.after_value || 'unknown'}`}
             </div>
+            {#if !!afterActiveRoundText}
             <div class="active-rounds">
                 {`${afterActiveRoundText}`}
             </div>
+            {/if}
         </div>
     </div>
 </div>

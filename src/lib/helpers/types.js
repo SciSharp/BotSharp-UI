@@ -309,6 +309,13 @@ IRichContent.prototype.text;
  * @property {Date} created_at - The log sent time.
  */
 
+/**
+ * @typedef {Object} AgentQueueChangedModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} log - The log content.
+ * @property {Date} created_at - The log sent time.
+ */
+
 /** 
  * Conversation states added by user
  * 
@@ -404,6 +411,13 @@ IRichContent.prototype.text;
  * 
  * @callback OnStateChangeGenerated
  * @param {StateChangeModel} log
+ */
+
+/** 
+ * Agent queue changed log
+ * 
+ * @callback OnAgentQueueChanged
+ * @param {AgentQueueChangedModel} log
  */
 
 /** 
