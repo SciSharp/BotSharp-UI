@@ -66,8 +66,8 @@
 	/** @type {import('$types').UserModel} */
 	export let currentUser;
 
-	// @ts-ignore
-    let scrollbar;
+	/** @type {any[]} */
+    let scrollbars = [];
 	let microphoneIcon = "microphone-off";
 
 	/** @type {import('$types').ChatResponseModel?} */
@@ -121,8 +121,12 @@
 		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
 
-		const scrollElement = document.querySelector('.chat-scrollbar');
-		scrollbar = OverlayScrollbars(scrollElement, options);
+		const scrollbarElements = [
+			document.querySelector('.chat-scrollbar')
+		].filter(Boolean);
+		scrollbarElements.forEach(elem => {
+            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
+        });
 		refresh();
 	});
 
@@ -210,10 +214,13 @@
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
-		setTimeout(() => {
-			const { viewport } = scrollbar.elements();
-			viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-		}, 200);
+		// @ts-ignore
+        scrollbars.forEach(scrollbar => {
+            setTimeout(() => {
+                const { viewport } = scrollbar.elements();
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+            }, 200);
+        });
     }
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -458,6 +465,7 @@
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
+			agentQueueChangeLogs = [];
 			isContentLogClosed = true;
 		} else {
 			isContentLogClosed = false;
@@ -472,6 +480,7 @@
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
 			stateLogs = [];
+			stateChangeLogs = [];
 			isStateLogClosed = true;
 		} else {
 			isStateLogClosed = false;

@@ -7,6 +7,6 @@
 
 <div class="log-element queue-change-container">
     <div class="log-content queue-change-content">
-        <span class="text-warning">{data?.log}</span>
+        <span class="text-danger">{data?.log}</span>
     </div>
 </div>

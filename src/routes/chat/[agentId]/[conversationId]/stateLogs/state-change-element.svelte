@@ -6,6 +6,7 @@
     /** @type {string} */
     let beforeActiveRoundText = '';
     let afterActiveRoundText = '';
+    const defaultKey = '-';
 
     $: {
         beforeActiveRoundText = buildActiveRoundText(data?.before_value, data?.before_active_rounds);
@@ -40,7 +41,7 @@
     <div class="log-content state-value-container">
         <div class="state-value">
             <div class="value">
-                {`${data?.before_value || 'unknown'}`}
+                {`${data?.before_value || defaultKey}`}
             </div>
             {#if !!beforeActiveRoundText}
             <div class="active-rounds">
@@ -50,7 +51,7 @@
         </div>
         <div class="state-value text-warning">
             <div class="value">
-                {`${data?.after_value || 'unknown'}`}
+                {`${data?.after_value || defaultKey}`}
             </div>
             {#if !!afterActiveRoundText}
             <div class="active-rounds">
