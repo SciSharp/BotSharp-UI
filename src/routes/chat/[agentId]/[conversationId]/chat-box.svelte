@@ -84,8 +84,11 @@
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let stateLogs = [];
 
-	/** @type {import('$types').StateChangeLogModel[]} */
+	/** @type {import('$types').StateChangeModel[]} */
 	let stateChangeLogs = [];
+
+	/** @type {import('$types').AgentQueueChangedModel[]} */
+	let agentQueueChangeLogs = [];
 
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
@@ -113,6 +116,7 @@
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
 		signalr.onStateChangeGenerated = onStateChangeGenerated;
+		signalr.onAgentQueueChanged = onAgentQueueChanged;
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
 		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
@@ -271,6 +275,14 @@
 		stateChangeLogs = stateChangeLogs.map(x => { return { ...x }; });
 	}
 
+	/** @param {import('$types').AgentQueueChangedModel} log */
+	function onAgentQueueChanged(log) {
+		if (!isLoadContentLog || log == null) return;
+
+		agentQueueChangeLogs.push({ ...log });
+		agentQueueChangeLogs = agentQueueChangeLogs.map(x => { return { ...x }; });
+	}
+
 	/** @param {import('$types').ConversationSenderActionModel} data */
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
@@ -300,7 +312,7 @@
 	 */
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
-		stateChangeLogs = [];
+		clearEventLogs();
 		renewUserSentMessages(msgText);
 
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
@@ -558,7 +570,7 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
-		stateChangeLogs = [];
+		clearEventLogs();
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
@@ -686,6 +698,11 @@
 
 	function openFullScreen() {
 		window.open($page.url.pathname);
+	}
+
+	function clearEventLogs() {
+		stateChangeLogs = [];
+		agentQueueChangeLogs = [];
 	}
 </script>
 
@@ -933,6 +950,7 @@
 		<Pane size={30} minSize={20} maxSize={50}>
 			<ContentLog
 				bind:contentLogs={contentLogs}
+				bind:agentQueueChangeLogs={agentQueueChangeLogs}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
 			/>
