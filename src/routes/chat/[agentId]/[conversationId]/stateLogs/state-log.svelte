@@ -2,6 +2,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import { page } from '$app/stores';
 	import { GetStateLogs } from '$lib/services/logging-service';
     import StateLogElement from './state-log-element.svelte';
@@ -94,19 +95,28 @@
                 <i class="bx bx-trash"></i>
             </button>
         </div>
-        <div class="state-change-scrollbar state-change-log-list log-list padding-side">
-            <ul>
-                {#each stateChangeLogs as log}
-                    <StateChangeElement data={log} />
-                {/each}
-            </ul>
+        <div class="state-log-section">
+            <Splitpanes horizontal>
+                <Pane size={35} minSize={25} maxSize={75}>
+                    <div class="state-change-scrollbar state-change-log-list log-list padding-side">
+                        <ul>
+                            {#each stateChangeLogs as log}
+                                <StateChangeElement data={log} />
+                            {/each}
+                        </ul>
+                    </div>
+                </Pane>
+                <Pane size={65} minSize={25} maxSize={75}>
+                    <div class="state-log-scrollbar state-log-list log-list padding-side">
+                        <ul>
+                            {#each stateLogs as log}
+                                <StateLogElement data={log} />
+                            {/each}
+                        </ul>
+                    </div>
+                </Pane>
+            </Splitpanes>
         </div>
-        <div class="state-log-scrollbar state-log-list log-list padding-side">
-            <ul>
-                {#each stateLogs as log}
-                    <StateLogElement data={log} />
-                {/each}
-            </ul>
-        </div>
+        
     </div>
 </div>

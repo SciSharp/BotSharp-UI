@@ -368,8 +368,11 @@
             margin-bottom: 10px;
             position: sticky;
             display: flex;
-            // justify-content: flex-end;
             justify-content: space-between;
+        }
+
+        .state-log-section {
+            height: 90vh;
         }
 
         .content-log-list {
@@ -377,14 +380,12 @@
         }
 
         .state-change-log-list {
-            height: 35vh;
-            border-bottom-style: solid;
-            border-bottom-color: #fff;
-            border-bottom-width: 5px;
+            height: 100%;
         }
 
         .state-log-list {
-            height: 65vh;
+            height: 100%;
+            padding-top: 10px;
         }
 
         .queue-change-log-list {
@@ -393,6 +394,8 @@
         }
     
         .log-list {
+            background-color: black;
+
             .log-element {
                 margin-top: 10px;
                 margin-bottom: 15px;
