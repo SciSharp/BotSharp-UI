@@ -1,15 +1,24 @@
 <script>
-
     /** @type {any} */
     export let data;
 
     /** @type {string} */
     let beforeActiveRoundText = '';
     let afterActiveRoundText = '';
+    let beforeDataValue = '';
+    let afterDataValue = '';
+    const defaultValue = '-';
 
     $: {
+        beforeDataValue = buildDataValue(data?.before_value);
+        afterDataValue = buildDataValue(data?.after_value);
         beforeActiveRoundText = buildActiveRoundText(data?.before_value, data?.before_active_rounds);
         afterActiveRoundText = buildActiveRoundText(data?.after_value, data?.after_active_rounds);
+    }
+
+    /** @param {any} value */
+    function buildDataValue(value) {
+        return value || defaultValue;
     }
 
     /**
@@ -33,6 +42,7 @@
     }
 </script>
 
+{#if beforeDataValue != defaultValue || afterDataValue != defaultValue}
 <div class="log-element state-change-container">
     <div class="log-meta state-key">
         <div><b>{`${data?.name}`}</b></div>
@@ -40,7 +50,7 @@
     <div class="log-content state-value-container">
         <div class="state-value">
             <div class="value">
-                {`${data?.before_value || 'unknown'}`}
+                {beforeDataValue}
             </div>
             {#if !!beforeActiveRoundText}
             <div class="active-rounds">
@@ -50,7 +60,7 @@
         </div>
         <div class="state-value text-warning">
             <div class="value">
-                {`${data?.after_value || 'unknown'}`}
+                {afterDataValue}
             </div>
             {#if !!afterActiveRoundText}
             <div class="active-rounds">
@@ -60,3 +70,4 @@
         </div>
     </div>
 </div>
+{/if}

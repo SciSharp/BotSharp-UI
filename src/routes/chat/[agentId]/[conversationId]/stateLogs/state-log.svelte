@@ -80,20 +80,24 @@
 <div class="chat-log">
     <div class="card mb-0 log-background" style="height: 100%;">
         <div class="log-close-btn padding-side">
-            <button
-                type="button"
-                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => closeWindow()}
-            >
-                <i class="mdi mdi-window-close"></i>
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => handleCleanScreen()}
-            >
-                <i class="bx bx-trash"></i>
-            </button>
+            <div>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    on:click={() => closeWindow()}
+                >
+                    <i class="mdi mdi-window-close"></i>
+                </button>
+            </div>
+            <div>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    on:click={() => handleCleanScreen()}
+                >
+                    <i class="bx bx-trash"></i>
+                </button>
+            </div>
         </div>
         <div class="state-log-section">
             <Splitpanes horizontal>
