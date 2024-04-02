@@ -728,13 +728,14 @@
 
 <DialogModal
 	title={'Edit message'}
+	size={'md'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={toggleEditMsgModal}
 	confirm={confirmEditMsg}
 	cancel={toggleEditMsgModal}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
-	<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="3" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
 </DialogModal>
 
 <StateModal
