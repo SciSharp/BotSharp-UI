@@ -45,7 +45,12 @@
 {#if beforeDataValue != defaultValue || afterDataValue != defaultValue}
 <div class="log-element state-change-container">
     <div class="log-meta state-key">
-        <div><b>{`${data?.name}`}</b></div>
+        <div>
+            <span><b>{`${data?.name}`}</b></span>
+            {#if !!data?.source}
+            <span class="state-source">{`(${data?.source})`}</span>
+            {/if}
+        </div>
     </div>
     <div class="log-content state-value-container">
         <div class="state-value">
