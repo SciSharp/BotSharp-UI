@@ -306,6 +306,8 @@ IRichContent.prototype.text;
  * @property {number?} before_active_rounds - The state active rounds before change.
  * @property {string} after_value - The value after change.
  * @property {number?} after_active_rounds - The state active rounds after change.
+ * @property {string} data_type - The state value data type.
+ * @property {string} source - The state source.
  * @property {Date} created_at - The log sent time.
  */
 
