@@ -1,10 +1,12 @@
 <script>
+    // @ts-nocheck
     import { fromEvent } from "file-selector";
     import {
       allFilesAccepted,
       composeEventHandlers,
       fileAccepted,
       fileMatchSize,
+      getBase64,
       isEvtWithFiles,
       isIeOrEdge,
       isPropagationStopped,
@@ -32,7 +34,31 @@
     /** @type {any} */
     export let inputElement = undefined;
     export let required = false;
-    export let dropText = "Drag 'n' drop some files here, or click to select files";
+    export let dropText = "Drag and drop some files here, or click to select files";
+
+    let innerDropText = dropText;
+    let isLoading = false;
+    let isError = false;
+    let isSuccess = false;
+    let reason = '';
+
+    $: {
+        if (isLoading) {
+            innerDropText = "Uploading...";
+            disabled = true;
+        } else if (isSuccess) {
+            innerDropText = "Upload succeeded";
+            disabled = true;
+        } else if (isError) {
+            innerDropText = reason;
+            disabled = true;
+        } else {
+            innerDropText = dropText;
+            disabled = false;
+        }
+    }
+
+    const duration = 3000;
     const dispatch = createEventDispatcher();
   
     //state
@@ -110,7 +136,6 @@
   
     /** @param {any} event */
     function onDragEnterCb(event) {
-        console.log('inside drag enter: ', event);
         event.preventDefault();
         stopPropagation(event);
 
@@ -134,7 +159,6 @@
   
     /** @param {any} event */
     function onDragOverCb(event) {
-        console.log('inside drag over: ', event);
         event.preventDefault();
         stopPropagation(event);
 
@@ -155,7 +179,6 @@
   
     /** @param {any} event */
     function onDragLeaveCb(event) {
-        console.log('inside drag leave: ', event);
         event.preventDefault();
         stopPropagation(event);
 
@@ -203,52 +226,82 @@
                 /** @type {any[]} */
                 const fileRejections = [];
 
+                /** @type {Promise<any>[]} */
+                const promises = [];
+                isLoading = true;
                 files.forEach(file => {
-                    const [accepted, acceptError] = fileAccepted(file, accept);
-                    const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
-                    if (accepted && sizeMatch) {
-                        acceptedFiles.push(file);
-                    } else {
-                        const errors = [acceptError, sizeError].filter(e => e);
-                        fileRejections.push({ file, errors });
+                    promises.push(new Promise((resolve, reject) => {
+                        const [accepted, acceptError] = fileAccepted(file, accept);
+                        const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
+                        getBase64(file).then(res => {
+                            if (accepted && sizeMatch) {
+                                acceptedFiles.push({
+                                    file_name: file.name,
+                                    file_path: file.path,
+                                    url: res
+                                });
+                            } else {
+                                const errors = [acceptError, sizeError].filter(Boolean);
+                                fileRejections.push({ file, errors });
+                            }
+                            resolve('done');
+                        });
+                    }));
+                });
+
+                Promise.all(promises).then(() => {
+                    isLoading = false;
+
+                    if (!multiple && acceptedFiles.length > 1) {
+                        // Reject everything and empty accepted files
+                        acceptedFiles.forEach(file => {
+                            fileRejections.push({ file, errors: [TOO_MANY_FILES_REJECTION] });
+                        });
+                        acceptedFiles.splice(0);
                     }
-                });
 
-                if (!multiple && acceptedFiles.length > 1) {
-                    // Reject everything and empty accepted files
-                    acceptedFiles.forEach(file => {
-                        fileRejections.push({ file, errors: [TOO_MANY_FILES_REJECTION] });
-                    });
-                    acceptedFiles.splice(0);
-                }
+                    // Files dropped keep input in sync
+                    if (event.dataTransfer) {
+                        inputElement.files = event.dataTransfer.files;
+                    }
 
-                // Files dropped keep input in sync
-                if (event.dataTransfer) {
-                    inputElement.files = event.dataTransfer.files;
-                }
+                    state.acceptedFiles = acceptedFiles;
+                    state.fileRejections = fileRejections;
 
-                state.acceptedFiles = acceptedFiles;
-                state.fileRejections = fileRejections;
-
-                dispatch("drop", {
-                    acceptedFiles,
-                    fileRejections,
-                    event
-                });
-
-                if (fileRejections.length > 0) {
-                    dispatch("droprejected", {
+                    dispatch("drop", {
+                        acceptedFiles,
                         fileRejections,
                         event
                     });
-                }
 
-                if (acceptedFiles.length > 0) {
-                    dispatch("dropaccepted", {
-                        acceptedFiles,
-                        event
-                    });
-                }
+                    if (fileRejections.length > 0) {
+                        dispatch("droprejected", {
+                            fileRejections,
+                            event
+                        });
+
+                        isError = true;
+                        reason = fileRejections[0]?.errors[0]?.message || "Upload failed";
+                        setTimeout(() => {
+                            reason = '';
+                            isError = false;
+                        }, duration);
+                    }
+
+                    if (acceptedFiles.length > 0) {
+                        dispatch("dropaccepted", {
+                            acceptedFiles,
+                            event
+                        });
+                    }
+
+                    if (acceptedFiles.length > 0 && fileRejections.length === 0) {
+                        isSuccess = true;
+                        setTimeout(() => {
+                            isSuccess = false;
+                        }, duration);
+                    }
+                });
             });
         }
         resetState();
@@ -324,8 +377,8 @@
     bind:this={rootRef}
     tabindex="0"
     role="button"
-    class="{disableDefaultStyles ? '' : 'dropzone'} {containerClasses}"
-    style={containerStyles}
+    class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
+    style={`${containerStyles}`}
     on:keydown={composeKeyboardHandler(onKeyDownCb)}
     on:focus={composeKeyboardHandler(onFocusCb)}
     on:blur={composeKeyboardHandler(onBlurCb)}
@@ -349,12 +402,12 @@
         style="display: none;"
     />
     <slot>
-        <p class="drop-text">{dropText}</p>
+        <p class={`file-drop-text ${isError ? 'text-danger' : isSuccess ? 'text-success' : ''}`}>{innerDropText}</p>
     </slot>
 </div>
   
 <style>
-    .dropzone {
+    .file-dropzone {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -368,9 +421,12 @@
       color: #bdbdbd;
       outline: none;
       transition: border 0.24s ease-in-out;
+      margin-top: 3px;
+      width: 100%;
+      height: 10rem;
     }
 
-    .drop-text {
+    .file-drop-text {
         margin-top: auto;
         margin-bottom: auto;
     }

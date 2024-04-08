@@ -19,19 +19,19 @@
     /** @type {boolean} */
     let isComplexElement = false;
 
-    /**
-     * @param {string} title
-     * @param {string} payload
-	 */
-    function handleConfirm(title, payload) {
-        onConfirm && onConfirm(title, payload);
-    }
-
     $: {
         const isGeneric = message?.rich_content?.message?.rich_type === RichType.Generic;
         // @ts-ignore
         const hasSuboptions = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
         isComplexElement = isGeneric && hasSuboptions;
+    }
+
+    /**
+     * @param {string} title
+     * @param {string} payload
+	 */
+     function handleConfirm(title, payload) {
+        onConfirm && onConfirm(title, payload);
     }
 </script>
 
@@ -55,6 +55,4 @@
             <RcPlainOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} />
         {/if}
     {/if}
-
-    <FileDropZone accept="jpeg" />
 {/if}

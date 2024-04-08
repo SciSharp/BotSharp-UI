@@ -6,6 +6,7 @@ const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
+const conversationUserAttachmentKey = "conversation_user_attachments";
 
 /** @type {Writable<import('$types').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
@@ -129,3 +130,28 @@ const createConversationUserMessageStore = () => {
 };
 
 export const conversationUserMessageStore = createConversationUserMessageStore();
+
+
+const createConversationUserAttachmentStore = () => {
+    return {
+        reset: (conversationId) => {
+            const key = buildAttachmentKey(conversationId);
+            localStorage.removeItem(key);
+        },
+        get: (conversationId) => {
+            const key = buildAttachmentKey(conversationId);
+            const json = localStorage.getItem(key);
+            return json ? JSON.parse(json) : {};
+        },
+        put: (conversationId, value) => {
+            const key = buildAttachmentKey(conversationId);
+            localStorage.setItem(key, JSON.stringify(value));
+        }
+    }
+};
+
+function buildAttachmentKey(conversationId){
+    return `${conversationUserAttachmentKey}_${conversationId}`;
+}
+
+export const conversationUserAttachmentStore = createConversationUserAttachmentStore();
