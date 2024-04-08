@@ -1,5 +1,4 @@
 <script>
-    import Link from 'svelte-link'
     import { Card, CardBody, Col, FormGroup, Label, Input } from '@sveltestrap/sveltestrap';
     
     /** @type {import('$types').AgentModel} */
@@ -9,16 +8,8 @@
 <Card>
     <CardBody class="border-bottom">
         <div class="d-flex">
-            <div class="flex-grow-1 ms-3">
+            <div class="flex-grow-1">
                 <h5 class="fw-semibold">{agent.name}</h5>
-                <ul class="list-unstyled hstack gap-2 mb-0">
-                    <li>
-                        <i class="bx bx-building-house"></i> <span class="text-muted">Themesbrand</span>
-                    </li>
-                    <li>
-                        <i class="bx bx-map"></i> <span class="text-muted">California</span>
-                    </li>
-                </ul>
             </div>
         </div>
     </CardBody>
@@ -29,7 +20,7 @@
                 type="textarea"
                 id="formmessage"
                 class="form-control"
-                rows="3"
+                rows="4"
                 bind:value={agent.description}
                 placeholder="Enter your Message"
             />
@@ -41,6 +32,7 @@
                 type="textarea"
                 id="formmessage"
                 class="form-control"
+                style="scrollbar-width: thin;"
                 rows="20"
                 bind:value={agent.instruction}
                 placeholder="Enter your Message"

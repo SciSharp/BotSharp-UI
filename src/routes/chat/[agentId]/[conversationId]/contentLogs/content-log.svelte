@@ -5,9 +5,13 @@
 	import ContentLogElement from './content-log-element.svelte';
 	import { page } from '$app/stores';
 	import { GetContentLogs } from '$lib/services/logging-service';
+	import AgentQueueChangeElement from './agent-queue-change-element.svelte';
 
     /** @type {import('$types').ConversationContentLogModel[]} */
     export let contentLogs = [];
+
+    /** @type {import('$types').AgentQueueChangedModel[]} */
+    export let agentQueueChangeLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -15,12 +19,8 @@
     /** @type {() => void} */
     export let cleanScreen;
 
-    // @ts-ignore
-    let scrollbar;
-    /** @type {import('$types').ConversationContentLogModel[]} */
-    let initLogs = [];
-
-    $: allLogs = [...initLogs, ...contentLogs];
+    /** @type {any[]} */
+    let scrollbars = [];
 
     const options = {
 		scrollbars: {
@@ -36,10 +36,16 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        initLogs = await GetContentLogs(conversationId);
+        contentLogs = await GetContentLogs(conversationId);
 
-		const scrollElement = document.querySelector('.content-log-scrollbar');
-		scrollbar = OverlayScrollbars(scrollElement, options);
+        const scrollbarElements = [
+            document.querySelector('.content-log-scrollbar'),
+            document.querySelector('.queue-change-log-scrollbar')
+        ].filter(Boolean);
+        scrollbarElements.forEach(elem => {
+            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
+        });
+
 		refresh();
 	});
 
@@ -52,14 +58,16 @@
     });
 
     async function refresh() {
-        setTimeout(() => {
-            const { viewport } = scrollbar.elements();
-            viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-        }, 200);
+        // @ts-ignore
+        scrollbars.forEach(scrollbar => {
+            setTimeout(() => {
+                const { viewport } = scrollbar.elements();
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+            }, 200);
+        });
     }
     
     function cleanLogs() {
-        initLogs = [];
         contentLogs = [];
     }
 
@@ -72,24 +80,37 @@
 <div class="chat-log">
     <div class="card mb-0 log-background" style="height: 100%;">
         <div class="log-close-btn padding-side">
-            <button
-                type="button"
-                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => handleCleanScreen()}
-            >
-                <i class="bx bx-trash"></i>
-            </button>
-            <button
-                type="button"
-                class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                on:click={() => closeWindow()}
-            >
-                <i class="mdi mdi-window-close"></i>
-            </button>
+            <div>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    on:click={() => handleCleanScreen()}
+                >
+                    <i class="bx bx-trash"></i>
+                </button>
+            </div>
+            
+            <div class="queue-change-log-scrollbar queue-change-log-list log-list">
+                <ul>
+                    {#each agentQueueChangeLogs as log}
+                        <AgentQueueChangeElement data={log} />
+                    {/each}
+                </ul>
+            </div>
+
+            <div>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    on:click={() => closeWindow()}
+                >
+                    <i class="mdi mdi-window-close"></i>
+                </button>
+            </div>
         </div>
-        <div class="content-log-scrollbar log-list padding-side">
+        <div class="content-log-scrollbar content-log-list log-list padding-side">
             <ul>
-                {#each allLogs as log}
+                {#each contentLogs as log}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>

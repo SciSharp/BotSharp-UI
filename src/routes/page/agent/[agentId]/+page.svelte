@@ -6,9 +6,10 @@
 	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-
+    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import AgentPrompt from './agent-prompt.svelte';
 	import AgentOverview from './agent-overview.svelte';
+    import AgentRouting from './agent-routing.svelte';
     import AgentFunction from './agent-function.svelte';
     import AgentLlmConfig from './agent-llm-config.svelte';
     import { page } from '$app/stores';
@@ -16,34 +17,73 @@
     import { onMount } from 'svelte';
     const params = $page.params;
     import { _ } from 'svelte-i18n'  
-
+	
+	
     /** @type {import('$types').AgentModel} */
     let agent;
+    /** @type {any} */
+    let agentFunctionCmp = null;
+
+    /** @type {boolean} */
+    let isLoading = false;
+    let isComplete = false;
+    let isError = false;
+    const duration = 3000;
 
     onMount(async () => {
         agent = await getAgent(params.agentId);
     });
 
     async function handleAgentUpdate() {
-        const result = await saveAgent(agent)
+        fetchJsonContent();
+        isLoading = true;
+        saveAgent(agent).then(res => {
+            isLoading = false;
+			isComplete = true;
+			setTimeout(() => {
+				isComplete = false;
+			}, duration);
+        }).catch(err => {
+            isLoading = false;
+			isComplete = false;
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+        });
+    }
+
+    function fetchJsonContent() {
+        const content = agentFunctionCmp?.fetchContent();
+        const textContent = JSON.parse(content?.text || "{}");
+        const jsonContent = JSON.parse(JSON.stringify(content?.json || {}));
+        agent.functions = textContent?.functions?.length > 0 ? textContent.functions :
+                            (jsonContent?.functions?.length > 0 ? jsonContent?.functions : []);
+        agent.responses = textContent?.responses?.length > 0 ? textContent.responses :
+                            (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []);
+        agent.templates = textContent?.templates?.length > 0 ? textContent.templates :
+                            (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []);
     }
 </script>
 
 <HeadTitle title="{$_('Agent Overview')}" />
-
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 <Row>
     {#if agent}
-    <Col lg={3}>
+    <Col style="flex: 30%;">
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
+        {#if agent.routing_rules?.length > 0}
+            <AgentRouting agent={agent} />
+        {/if}
     </Col>
-    <Col lg={6}>
+    <Col style="flex: 40%;">
         <AgentPrompt agent={agent} />
     </Col>
-    <Col lg={3}>
-        <AgentFunction agent={agent} />
+    <Col style="flex: 30%;">
+        <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
     </Col>    
     {/if}
 </Row>

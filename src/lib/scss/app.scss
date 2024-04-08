@@ -38,6 +38,8 @@ File: Main Css File
 @import "custom/components/demos";
 @import "custom/components/print";
 @import "custom/components/loader";
+@import "custom/components/chat";
+@import "custom/components/alert";
 
 // Plugins
 @import "custom/plugins/custom-scrollbar";
@@ -84,6 +86,7 @@ File: Main Css File
 @import "custom/pages/extras-pages";
 @import "custom/pages/jobs";
 @import "custom/pages/conversation";
+@import "custom/pages/agent";
 
 //RTL
 // @import "custom/rtl/bootstrap-rtl";
@@ -248,4 +251,20 @@ button:focus {
 
 .clickable {
   cursor: pointer;
+}
+
+.markdown-container {
+  pre {
+    -ms-overflow-style: none !important;
+    white-space: pre-wrap;
+  }
+
+  pre::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
 }

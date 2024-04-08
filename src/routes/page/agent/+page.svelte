@@ -1,12 +1,13 @@
 <script>
-	import { Col, Row } from '@sveltestrap/sveltestrap';
+	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import CardAgent from './card-agent.svelte';
-  	import { getAgents } from '$lib/services/agent-service.js';
+  	import { createAgent, getAgents } from '$lib/services/agent-service.js';
   	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n'
+	import { goto } from '$app/navigation';
 
   	const firstPage = 1;
 	const pageSize = 12;
@@ -32,6 +33,17 @@
   	async function getPagedAgents() {
     	agents = await getAgents(filter);
 		refresh();
+	}
+
+	async function createAndEditAgent() {
+		const newAgent = {
+			name: 'New Agent',
+			description: 'New Agent Description',
+			instruction: 'New Agent Instructions',
+		};
+		// @ts-ignore
+		const createdAgent = await createAgent(newAgent);
+		goto(`page/agent/${createdAgent.id}`);
 	}
 
 	function refresh() {
@@ -65,7 +77,7 @@
 		};
 
 		filter = {
-      ...filter,
+      		...filter,
 			pager: pager
 		};
 
@@ -75,6 +87,9 @@
 
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
+<Button class="mb-4" color="primary" on:click={() => createAndEditAgent()}>
+	<i class="bx bx-copy" /> {$_('New Agent')}
+</Button>
 
 <Row>
 	<CardAgent agents={agents.items} />

@@ -39,7 +39,12 @@ axios.interceptors.response.use(
         if (error.response && error.response.status === 401) {
             // Perform actions like redirecting to the login page or refreshing tokens
             // Example: redirect to the login page
-            window.location.href = 'login';
+            const curUrl = window.location.pathname + window.location.search;
+            let loginUrl = 'login';
+            if (curUrl) {
+                loginUrl += `?redirect=${encodeURIComponent(curUrl)}`;
+            }
+            window.location.href = loginUrl;
         }
 
         // Return the error to the calling function
@@ -49,10 +54,16 @@ axios.interceptors.response.use(
 
 /** @param {import('axios').InternalAxiosRequestConfig<any>} config */
 function skipLoader(config) {
-    const regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
+    let regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
     if (config.method === 'post' && !!config.data && regex.test(config.url || '')) {
         return true;
     }
+
+    regex = new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g');
+    if (config.method === 'get' && regex.test(config.url || '')) {
+        return true;
+    }
+
     return false;
 }
 
@@ -76,4 +87,22 @@ export function replaceUrl(url, args) {
  */
 export function replaceNewLine(text) {
     return text.replace(/(?:\r\n|\r|\n)/g, '<br>');
+}
+
+/**
+ * Replace unnecessary markdown
+ * @param {string} text 
+ * @returns {string}
+ */
+export function replaceMarkdown(text) {
+    let res = text.replace(/#([\s]+)/g, '\\# ');
+
+    let regex1 = new RegExp('\\*(.*)\\*', 'g');
+    let regex2 = new RegExp('\\*([\\*]+)\\*', 'g');
+
+    if (!regex1.test(text) || regex2.test(text)) {
+        res = res.replace(/\*/g, '\\*');
+    }
+
+    return res;
 }

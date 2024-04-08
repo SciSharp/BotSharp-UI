@@ -1,29 +1,63 @@
 <script>
-    import { Button, Card, CardBody, CardHeader, Col } from '@sveltestrap/sveltestrap';
+    import { Button, Card, CardBody, CardHeader, Col, Input } from '@sveltestrap/sveltestrap';
     import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
     import { onMount } from 'svelte';
 
     /** @type {string[]} */
-    let options = [];
+    let providers = [];
 
     /** @type {import('$types').AgentModel} */
     export let agent;
 
     /** @type {import('$types').LlmModelSetting[]} */
-    let models = []
+    let models = [];
+
+    const lowerLimit = 1;
+    const upperLimit = 10;
 
     let config = agent.llm_config;
 
     onMount(async () =>{
-        options = await getLlmProviders();
-        models = await getLlmProviderModels(config.provider);
+        providers = await getLlmProviders();
+        providers = ['', ...providers]
+        if (!!config.provider) {
+            models = await getLlmProviderModels(config.provider);
+        }
     });
 
-    /** @param {string} provider */
-    async function handleProviderChanged(provider) {
+    /** @param {any} e */
+    async function changeProvider(e) {
+        const provider = e.target.value;
+        config.provider = provider || null;
+
+        if (!!!provider) {
+            models = [];
+            config.model = null;
+            return;
+        }
+
         config.is_inherit = false;
         models = await getLlmProviderModels(provider);
         config.model = models[0]?.name;
+    }
+
+    /** @param {any} e */
+    function changeModel(e) {
+        config.is_inherit = false;
+        config.model = e.target.value || null;
+    }
+
+    /** @param {any} e */
+    function changeMaxRecursiveDepth(e) {
+        let value = Number(e.target.value) || 0;
+        
+        if (value < lowerLimit) {
+            value = lowerLimit;
+        } else if (value > upperLimit) {
+            value = upperLimit;
+        }
+
+        config.max_recursion_depth = value;
     }
 </script>
 
@@ -38,13 +72,15 @@
         </div>
 
         <div class="mb-3 row">
-            <label class="col-md-3 col-form-label" for="example-large">Provider</label>
-            <div class="col-md-9">
-                <select class="form-select" bind:value={config.provider} on:change={() => handleProviderChanged(config.provider)}>
-                {#each options as option}
-                    <option value={option}>{option}</option>
-                {/each}
-                </select>
+            <label for="example-large" class="col-md-3 col-form-label">
+                Provider
+            </label>
+            <div class="col-md-9 config-item-container">
+                <Input type="select" value={config.provider} on:change={e => changeProvider(e)}>
+                    {#each providers as option}
+                        <option value={option}>{option}</option>
+                    {/each}
+                </Input>
             </div>
         </div>
         
@@ -53,11 +89,20 @@
                 Model
             </label>
             <div class="col-md-9">
-                <select class="form-select" bind:value={config.model} on:change={() => config.is_inherit = false}>
+                <Input type="select" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
                     {#each models as option}
                         <option value={option.name}>{option.name}</option>
                     {/each}
-                </select>                
+                </Input>                
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="example-text-input" class="col-md-3 col-form-label">
+                Maximum recursive depth
+            </label>
+            <div class="col-md-9">
+                <Input type="number" min={lowerLimit} max={upperLimit} style="text-align: center;" value={config.max_recursion_depth} on:change={e => changeMaxRecursiveDepth(e)} />              
             </div>
         </div>
     </CardBody>

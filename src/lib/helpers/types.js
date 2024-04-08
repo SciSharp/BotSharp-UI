@@ -24,6 +24,18 @@
  */
 
 /**
+ * @typedef {Object} KeyValuePair
+ * @property {string} key - The key.
+ * @property {string} value - The value.
+ */
+
+/**
+ * @typedef {Object} IdName
+ * @property {string} id - The id.
+ * @property {string} name - The name.
+ */
+
+/**
  * @template T
  * @typedef {Object} PagedItems<T>
  * @property {number} count - Row count.
@@ -70,8 +82,9 @@
 /**
  * @typedef {Object} AgentLlmConfig
  * @property {boolean} is_inherit - Inherited from default Agent settings
- * @property {string} provider 
- * @property {string} model
+ * @property {string?} provider 
+ * @property {string?} model
+ * @property {number} max_recursion_depth
  */
 
 /**
@@ -160,6 +173,7 @@
  * @property {string} fieldType
  * @property {boolean} required
  * @property {string} redirectTo
+ * @property {string?} [redirect_to_agent]
  */
 
 /**
@@ -175,10 +189,11 @@
 /**
  * @typedef {Object} ConversationFilter
  * @property {Pagination} pager - Pagination
- * @property {string} [agentId] - The agent id.
- * @property {string} [channel] - The conversation channel.
- * @property {string} [status] - The conversation status.
- * @property {string} [taskId] - The task id.
+ * @property {string?} [agentId] - The agent id.
+ * @property {string?} [channel] - The conversation channel.
+ * @property {string?} [status] - The conversation status.
+ * @property {string?} [taskId] - The task id.
+ * @property {KeyValuePair[]} [states] - The conversation status.
  */
 
 /**
@@ -245,6 +260,9 @@ IRichContent.prototype.text;
 /**
  * @typedef {Object} RichContent
  * @property {string} messaging_type
+ * @property {boolean} fill_postback
+ * @property {string} editor
+ * @property {string?} [editor_attributes]
  * @property {IRichContent} message
  */
 
@@ -265,6 +283,7 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} name - The sender name.
+ * @property {string} agent_id = The agent id.
  * @property {string} role - The sender role.
  * @property {string} source - The log source.
  * @property {string} content - The log content.
@@ -276,7 +295,27 @@ IRichContent.prototype.text;
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {Object} states - The states content.
- * @property {Date} created_at - The states sent time.
+ * @property {Date} created_at - The log sent time.
+ */
+
+/**
+ * @typedef {Object} StateChangeModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
+ * @property {string} before_value - The value before change.
+ * @property {number?} before_active_rounds - The state active rounds before change.
+ * @property {string} after_value - The value after change.
+ * @property {number?} after_active_rounds - The state active rounds after change.
+ * @property {string} data_type - The state value data type.
+ * @property {string} source - The state source.
+ * @property {Date} created_at - The log sent time.
+ */
+
+/**
+ * @typedef {Object} AgentQueueChangedModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} log - The log content.
+ * @property {Date} created_at - The log sent time.
  */
 
 /** 
@@ -285,6 +324,7 @@ IRichContent.prototype.text;
  * @typedef {Object} UserStateDetailModel
  * @property {{data: string, isValid: boolean}} key - The state key.
  * @property {{data: string, isValid: boolean}} value - The state value.
+ * @property {{data: number, isValid: boolean}} active_rounds - The state active rounds.
  */
 
 /** 
@@ -302,6 +342,33 @@ IRichContent.prototype.text;
  * @typedef {Object} ConversationSenderActionModel
  * @property {string} conversation_id - The conversation id.
  * @property {number} sender_action - The sender action.
+ */
+
+/** 
+ * Conversation message deleted
+ * 
+ * @typedef {Object} ConversationMessageDeleteModel
+ * @property {string} conversation_id - The conversation id.
+ * @property {string} message_id - The message id.
+ */
+
+/** 
+ * Conversation postback
+ * 
+ * @typedef {Object} Postback
+ * @property {string?} functionName - The function name.
+ * @property {string?} payload - The payload.
+ * @property {string?} parentId - The parent message id.
+ */
+
+/** 
+ * Conversation send message data
+ * 
+ * @typedef {Object} MessageData
+ * @property {string?} [truncateMsgId] - The message id to truncate.
+ * @property {string[]?} [states] - The states input by user.
+ * @property {Postback?} [postback] - The parent message id.
+ * @property {string?} [payload] - The payload message.
  */
 
 /**
@@ -342,12 +409,32 @@ IRichContent.prototype.text;
  */
 
 /** 
- * Conversation states
+ * Conversation state change log
+ * 
+ * @callback OnStateChangeGenerated
+ * @param {StateChangeModel} log
+ */
+
+/** 
+ * Agent queue changed log
+ * 
+ * @callback OnAgentQueueChanged
+ * @param {AgentQueueChangedModel} log
+ */
+
+/** 
+ * Conversation sender action
  * 
  * @callback OnSenderActionGenerated
  * @param {ConversationSenderActionModel} data
  */
 
+/** 
+ * Conversation message deleted
+ * 
+ * @callback OnConversationMessageDeleted
+ * @param {ConversationMessageDeleteModel} data
+ */
 
 // having to export an empty object here is annoying, 
 // but required for vscode to pass on your types. 

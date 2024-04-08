@@ -46,17 +46,17 @@
 
 {#if conversation}
 <Row>
-    <Col class="col-4">
+    <Col style="flex: 40%;">
         <Overview conversation={conversation} />
         <States conversation={conversation} />
     </Col>
-    <Col class="col-8">
+    <Col style="flex: 60%;">
         <Dialog conversation={conversation} />        
     </Col>
 </Row>
 {/if}
 <Row>
     <div class="mb-4">
-        <Button class="btn btn-soft-primary btn-hover rounded" on:click={() => handleConversationDeletion()}><i class="mdi mdi-delete"></i>{$_('Delete Conversation')}</Button>
+        <Button class="btn btn-danger btn-hover rounded" on:click={() => handleConversationDeletion()}><i class="mdi mdi-delete"></i>{$_('Delete Conversation')}</Button>
     </div>
 </Row>

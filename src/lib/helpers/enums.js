@@ -19,7 +19,8 @@ const richType = {
     Text: 'text',
     QuickReply: 'quick_reply',
     Button: 'button_template',
-    MultiSelect: 'multi-select_template'
+    MultiSelect: 'multi-select_template',
+    Generic: 'generic_template'
 }
 export const RichType = Object.freeze(richType);
 
@@ -31,3 +32,14 @@ const contentLogSource = {
     HardRule: "hard rule"
 };
 export const ContentLogSource = Object.freeze(contentLogSource);
+
+const editorType = {
+    None: "none",
+    Text: "text",
+    Address: "address",
+    Phone: "phone",
+    DateTimePicker: "datetime-picker",
+    DateTimeRangePicker: 'datetime-range-picker',
+    Email: 'email'
+};
+export const EditorType = Object.freeze(editorType);

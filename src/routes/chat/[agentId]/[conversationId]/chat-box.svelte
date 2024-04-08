@@ -21,6 +21,8 @@
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
+	import StateModal from '$lib/common/StateModal.svelte';
+	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { SenderAction, UserRole } from '$lib/helpers/enums';
@@ -29,7 +31,6 @@
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
-	import StateModal from './addStateModal/state-modal.svelte';
 	import ChatImage from './chatImage/chat-image.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
@@ -65,10 +66,12 @@
 	/** @type {import('$types').UserModel} */
 	export let currentUser;
 
-	// @ts-ignore
-    let scrollbar;
+	/** @type {any[]} */
+    let scrollbars = [];
 	let microphoneIcon = "microphone-off";
-	let lastBotMsgId = '';
+
+	/** @type {import('$types').ChatResponseModel?} */
+	let lastBotMsg;
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -81,18 +84,26 @@
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let stateLogs = [];
 
+	/** @type {import('$types').StateChangeModel[]} */
+	let stateChangeLogs = [];
+
+	/** @type {import('$types').AgentQueueChangedModel[]} */
+	let agentQueueChangeLogs = [];
+
+	/** @type {import('$types').UserStateDetailModel[]} */
+	let userAddStates = [];
+
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
-	let isContentLogClosed = false;
-	let isStateLogClosed = false;
+	let isContentLogClosed = false; // initial condition
+	let isStateLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
-	let isOpenAddStateModal = false;
+	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
 	let isFrame = false;
-
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -104,33 +115,40 @@
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
+		signalr.onStateChangeGenerated = onStateChangeGenerated;
+		signalr.onAgentQueueChanged = onAgentQueueChanged;
 		signalr.onSenderActionGenerated = onSenderActionGenerated;
+		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
 
-		const scrollElement = document.querySelector('.chat-scrollbar');
-		scrollbar = OverlayScrollbars(scrollElement, options);
+		const scrollbarElements = [
+			document.querySelector('.chat-scrollbar')
+		].filter(Boolean);
+		scrollbarElements.forEach(elem => {
+            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
+        });
 		refresh();
 	});
 
 	function resizeChatWindow() {
 		isLite = Viewport.Width <= screenWidthThreshold;
 		if (!isLite) {
-			if (isContentLogClosed) {
-				isLoadContentLog = false;
-			} else {
-				isLoadContentLog = false;
-			}
-			if (isStateLogClosed) {
-				isLoadStateLog = false;
-			} else {
-				isLoadStateLog = false;
-			}
+			isLoadContentLog = !isContentLogClosed;
+			isLoadStateLog = !isStateLogClosed;
 		} else {
 			isLoadContentLog = false;
 			isLoadStateLog = false;
 			isOpenEditMsgModal = false;
-			isOpenAddStateModal = false;
+			isOpenUserAddStateModal = false;
 		}
+	}
+
+	function initChatView() {
+		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		// initial condition
+		isContentLogClosed = false;
+		isStateLogClosed = false;
+		resizeChatWindow();
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -143,6 +161,7 @@
 		}) || [];
 
 		const savedMessages = conversationUserMessageStore.get();
+		// @ts-ignore
 		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
 		const allMessages = [...otherConvMessages, ...curConvMessages];
 		const trimmedMessages = trimUserSentMessages(allMessages);
@@ -182,31 +201,26 @@
 		return messages?.slice(-messageLimit) || [];
 	}
 
-	function initChatView() {
-		isFrame = $page.url.searchParams.get('isFrame') === 'true';
-		resizeChatWindow();
-	}
-
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
 		const lastMsg = dialogs.slice(-1)[0];
-		if (lastMsg?.sender?.role === UserRole.Assistant) {
-			return lastMsg?.message_id || '';
-		}
-		return '';
+		return lastMsg?.sender?.role === UserRole.Assistant ? lastMsg : null;
 	}
 
 	async function refresh() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
-		lastBotMsgId = findLastBotMessage(dialogs);
+		lastBotMsg = findLastBotMessage(dialogs);
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
-		setTimeout(() => {
-			const { viewport } = scrollbar.elements();
-			viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' }); // set scroll offset
-		}, 200);
+		// @ts-ignore
+        scrollbars.forEach(scrollbar => {
+            setTimeout(() => {
+                const { viewport } = scrollbar.elements();
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+            }, 200);
+        });
     }
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -260,7 +274,23 @@
 		stateLogs = stateLogs.map(x => { return { ...x }; });
 	}
 
-	/**  @param {import('$types').ConversationSenderActionModel} data */
+	/** @param {import('$types').StateChangeModel} log */
+	function onStateChangeGenerated(log) {
+		if (!isLoadStateLog || log == null) return;
+
+		stateChangeLogs.push({ ...log });
+		stateChangeLogs = stateChangeLogs.map(x => { return { ...x }; });
+	}
+
+	/** @param {import('$types').AgentQueueChangedModel} log */
+	function onAgentQueueChanged(log) {
+		if (!isLoadContentLog || log == null) return;
+
+		agentQueueChangeLogs.push({ ...log });
+		agentQueueChangeLogs = agentQueueChangeLogs.map(x => { return { ...x }; });
+	}
+
+	/** @param {import('$types').ConversationSenderActionModel} data */
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
@@ -269,23 +299,38 @@
 		}
 	}
 
-	async function newConversationHandler() {
+	/** @param {import('$types').ConversationMessageDeleteModel} data */
+	function onConversationMessageDeleted(data) {
+		if (!!!data?.message_id) return;
+		truncateDialogs(data.message_id);
+	}
+
+	async function handleNewConversation() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		let url = `chat/${params.agentId}/${conversation.id}`;
-		if (isLite) {
-			url = `${url}?isLite=true`;
-		}
+		const url = `chat/${params.agentId}/${conversation.id}`;
 		window.location.href = url;
 	}
 
-    function sendTextMessage() {
+
+    /**
+	 * @param {string} msgText
+	 * @param {import('$types').MessageData?} data
+	 */
+    function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
-		const sentText = text;
-		text = "";
-		renewUserSentMessages(sentText);
+		clearEventLogs();
+		renewUserSentMessages(msgText);
+
+		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
+		/** @type {import('$types').MessageData?} */
+		const messageData = {
+			...data,
+			postback: postback
+		};
+		
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, sentText).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 				isSendingMsg = false;
 				resolve(res);
 			}).catch(err => {
@@ -298,10 +343,9 @@
     async function startListen() {
 		microphoneIcon = "microphone";
 		webSpeech.onSpeechToTextDetected = (transcript) => {
-			text = transcript;
-			if (!!!_.trim(text) || isSendingMsg) return;
+			if (!!!_.trim(transcript) || isSendingMsg) return;
 
-			sendTextMessage().then(() => {
+			sendChatMessage(transcript).then(() => {
 				microphoneIcon = "microphone-off";
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
@@ -348,28 +392,51 @@
 			e.preventDefault();
 		}
 
-		isSendingMsg = true;
-		renewUserSentMessages(text);
-		sendMessageToHub(params.agentId, params.conversationId, text).then(() => {
-			isSendingMsg = false;
-		}).catch(() => {
-			isSendingMsg = false;
-		});
-		text = "";
+		await sentTextMessage();
+	}
+
+	/** 
+	 * @param {string} title
+	 * @param {string} payload
+	 */
+	async function confirmSelectedOption(title, payload) {
+		if (isSendingMsg || isThinking) return;
+
+		await sendChatMessage(title, { payload: payload });
+	}
+
+	async function sentTextMessage() {
+		const sentMsg = text;
+		text = '';
+		await sendChatMessage(sentMsg);
 	}
 
 	/**
-	 * @param {string} payload
+	 * @param {import('$types').ChatResponseModel[]} dialogs
+	 * @param {string?} content
+	 * @param {string?} [truncateMsgId]
 	 */
-	function confirmSelectedOption(payload) {
-		if (isSendingMsg || isThinking) return;
+	 function buildPostbackMessage(dialogs, content, truncateMsgId) {
+		/** @type {import('$types').Postback?} */
+		let postback = null;
+		let lastMsg = dialogs.slice(-1)[0];
 
-		isSendingMsg = true;
-		sendMessageToHub(params.agentId, params.conversationId, payload).then(() => {
-			isSendingMsg = false;
-		}).catch(() => {
-			isSendingMsg = false;
-		});
+		if (!!truncateMsgId) {
+			const foundIdx = dialogs.findIndex(x => x.message_id === truncateMsgId);
+			const truncatedDialogs = dialogs.filter((x, idx) => idx < foundIdx);
+			lastMsg = truncatedDialogs.slice(-1)[0];
+		}
+
+		if (!!lastMsg?.rich_content?.fill_postback
+			&& !!lastMsg?.function
+			&& lastMsg?.sender?.role === UserRole.Assistant) {
+			postback = {
+				functionName: lastMsg?.function,
+				parentId: lastMsg?.message_id,
+				payload: content
+			};
+		}
+		return postback;
 	}
 
 	function endChat() {
@@ -391,13 +458,14 @@
 			});
 		} else {
 			window.parent.postMessage({ action: "close" }, "*");
-		} 
+		}
 	}
 
 	function toggleContentLog() {
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
+			agentQueueChangeLogs = [];
 			isContentLogClosed = true;
 		} else {
 			isContentLogClosed = false;
@@ -412,6 +480,7 @@
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
 			stateLogs = [];
+			stateChangeLogs = [];
 			isStateLogClosed = true;
 		} else {
 			isStateLogClosed = false;
@@ -422,23 +491,49 @@
 		stateLogs = [];
 	}
 
-	function toggleAddStateModal() {
-		isOpenAddStateModal = !isOpenAddStateModal;
+	function toggleUserAddStateModal() {
+		isOpenUserAddStateModal = !isOpenUserAddStateModal;
+		if (isOpenUserAddStateModal) {
+			loadUserAddStates();
+		}
 	}
 
-	function clearAddedStates() {
+	function loadUserAddStates() {
+		const conversationUserStates = conversationUserStateStore.get();
+		if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
+			userAddStates = [...conversationUserStates.states];
+		} else {
+			userAddStates = [];
+		}
+	}
+
+	function handleConfirmUserAddStates() {
+		const cleanStates = userAddStates.map(state => {
+            state.key.data = _.trim(state.key.data);
+            state.value.data = _.trim(state.value.data);
+			state.active_rounds.data = Number(state.active_rounds.data);
+            return state;
+        });
+        conversationUserStateStore.put({
+            conversationId: params.conversationId,
+            states: cleanStates
+        });
+		toggleUserAddStateModal();
+	}
+
+	function clearUserAddStates() {
 		// @ts-ignore
 		Swal.fire({
 			title: 'Are you sure?',
 			text: "You won't be able to revert this!",
 			icon: 'warning',
-			customClass: 'custom-modal',
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
 		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
+				userAddStates = [];
 				conversationUserStateStore.reset();
 			}
 		});
@@ -446,15 +541,24 @@
 
 	/**
 	 * @param {any} e
-	 * @param {string} messageText
+	 * @param {import('$types').ChatResponseModel} message
 	 */
-	function copyMessage(e, messageText) {
+	function resendMessage(e, message) {
 		e.preventDefault();
-		if (!!!text) {
-			text += messageText;
-		} else {
-			text += ' ' + messageText;
-		}
+		// @ts-ignore
+		Swal.fire({
+			title: 'Are you sure?',
+			text: "Send this message again!",
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes, go ahead!',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then(async (result) => {
+			if (result.value) {
+				sendChatMessage(message?.text, { truncateMsgId: message?.message_id });
+			}
+		});
 	}
 
 	/**
@@ -483,8 +587,7 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
-		const isDeleted = truncateDialogs(messageId);
-		if (!isDeleted) return;
+		clearEventLogs();
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
@@ -512,17 +615,10 @@
 	}
 
 	async function confirmEditMsg() {
-		const isDeleted = truncateDialogs(truncateMsgId);
-		if (!isDeleted) return;
-
-		isSendingMsg = true;
 		isOpenEditMsgModal = false;
-		renewUserSentMessages(editText);
-		sendMessageToHub(params.agentId, params.conversationId, editText, truncateMsgId).then(() => {
-			isSendingMsg = false;
+		sendChatMessage(editText, { truncateMsgId: truncateMsgId }).then(() => {
 			resetEditMsg();
 		}).catch(() => {
-			isSendingMsg = false;
 			resetEditMsg();
 		});
 	}
@@ -532,8 +628,22 @@
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
+		truncateLogs(messageId);
 		refresh();
 		return true;
+	}
+
+	/** @param {string} messageId */
+	function truncateLogs(messageId) {
+		if (isLoadContentLog) {
+			const targetIdx = contentLogs.findIndex(x => x.message_id === messageId);
+			contentLogs = contentLogs.filter((x, idx) => idx < targetIdx);
+		}
+		
+		if (isLoadStateLog) {
+			const targetIdx = stateLogs.findIndex(x => x.message_id === messageId);
+			stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
+		}
 	}
 
 	/** @param {string} messageId */
@@ -541,9 +651,46 @@
 		if (!!!messageId || isLite) return;
 
 		highlightChatMessage(messageId);
+		highlightStateLog(messageId);
+		autoScrollToTargetLog(messageId);
+	}
+
+	/** @param {string} messageId */
+	function highlightChatMessage(messageId) {
+		const targets = document.querySelectorAll('.user-msg');
+		const style = ['bg-primary', 'text-white'];
+		targets.forEach(elm => {
+			if (elm.id === `user-msg-${messageId}`) {
+				elm.classList.add(...style);
+			} else {
+				elm.classList.remove(...style);
+			}
+		});
+	}
+
+	/** @param {string} messageId */
+	function highlightStateLog(messageId) {
+		if (!isLoadStateLog) return;
+
+		const targets = document.querySelectorAll('.state-log-item');
+		targets.forEach(elm => {
+			const contentElm = elm.querySelector('.log-content');
+			if (!contentElm) return;
+
+			const style = ['border', 'border-primary', 'rounded', 'p-1'];
+			if (elm.id === `state-log-${messageId}`) {
+				contentElm.classList.add(...style);
+			} else {
+				contentElm.classList.remove(...style);
+			}
+		});
+	}
+
+	/** @param {string} messageId */
+	function autoScrollToTargetLog(messageId) {
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
-		if (!!contentLogElm) {
+		if (isLoadContentLog && !!contentLogElm) {
 			elements.push({
 				elm: contentLogElm,
 				wrapperName: '.content-log-scrollbar'
@@ -551,7 +698,7 @@
 		}
 		
 		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
-		if (!!stateLogElm) {
+		if (isLoadStateLog && !!stateLogElm) {
 			elements.push({
 				elm: stateLogElm,
 				wrapperName: '.state-log-scrollbar'
@@ -566,43 +713,38 @@
 		});
 	}
 
-	/** @param {string} messageId */
-	function highlightChatMessage(messageId) {
-		const targets = document.querySelectorAll('.user-msg');
-		targets.forEach(elm => {
-			if (elm.id === `user-msg-${messageId}`) {
-				elm.classList.add('bg-primary', 'text-white');
-			} else {
-				elm.classList.remove('bg-primary', 'text-white');
-			}
-		});
-	}
-
 	function openFullScreen() {
 		window.open($page.url.pathname);
 	}
+
+	function clearEventLogs() {
+		stateChangeLogs = [];
+		agentQueueChangeLogs = [];
+	}
 </script>
+
 
 <svelte:window on:resize={() => resizeChatWindow()}/>
 
 <DialogModal
-	className="custom-modal"
 	title={'Edit message'}
+	size={'md'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={toggleEditMsgModal}
 	confirm={confirmEditMsg}
 	cancel={toggleEditMsgModal}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
-	<textarea class="form-control chat-input" rows="10" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="3" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
 </DialogModal>
 
 <StateModal
-	className="custom-modal"
-	isOpen={isOpenAddStateModal}
-	toggleModal={toggleAddStateModal}
-	confirm={toggleAddStateModal}
-	cancel={toggleAddStateModal}
+	isOpen={isOpenUserAddStateModal}
+	bind:states={userAddStates}
+	requireActiveRounds
+	toggleModal={toggleUserAddStateModal}
+	confirm={handleConfirmUserAddStates}
+	cancel={toggleUserAddStateModal}
 />
 
 <HeadTitle title="Chat" addOn='' />
@@ -610,7 +752,12 @@
 	<Splitpanes>
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog stateLogs={stateLogs} closeWindow={toggleStateLog} cleanScreen={cleanStateLogScreen} />
+			<StateLog
+				bind:stateLogs={stateLogs}
+				bind:stateChangeLogs={stateChangeLogs}
+				closeWindow={toggleStateLog}
+				cleanScreen={cleanStateLogScreen}
+			/>
 		</Pane>
 		{/if}
 		<Pane minSize={20}>
@@ -628,16 +775,16 @@
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
 									{#if isFrame}
-									<li class="chat-nav-element">
+									<li class="list-inline-item">
 										<button
-											class="btn btn-secondary nav-btn dropdown-toggle"
+											class="btn btn-secondary btn-rounded btn-sm"
 											on:click={() => openFullScreen()}
 										>
 											<i class="bx bx-fullscreen" />
 										</button>
 									</li>
 									{/if}
-									<li class="chat-nav-element">
+									<li class="list-inline-item">
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
@@ -646,7 +793,7 @@
 												{#if !isLite && !isLoadContentLog}
 												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLite && (!isLoadStateLog || !isOpenAddStateModal)}
+												{#if !isLite && (!isLoadStateLog || !isOpenUserAddStateModal)}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
@@ -656,20 +803,20 @@
 															{#if !isLoadStateLog}
 															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
 															{/if}
-															{#if !isOpenAddStateModal}
-															<DropdownItem on:click={() => toggleAddStateModal()}>Add States</DropdownItem>
+															{#if !isOpenUserAddStateModal}
+															<DropdownItem on:click={() => toggleUserAddStateModal()}>Add States</DropdownItem>
 															{/if}
-															<DropdownItem on:click={() => clearAddedStates()}>Clear States</DropdownItem>
+															<DropdownItem on:click={() => clearUserAddStates()}>Clear States</DropdownItem>
 														</DropdownMenu>
 													</Dropdown>
 												</li>
 												{/if}
-												<DropdownItem on:click={newConversationHandler}>New Conversation</DropdownItem>
+												<DropdownItem on:click={handleNewConversation}>New Conversation</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 									</li>
 									
-									<li class="chat-nav-element d-md-inline-block">
+									<li class="list-inline-item d-md-inline-block">
 										<button
 											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
 											on:click={() => endChat()}
@@ -721,12 +868,12 @@
 										</div>
 										{#if !isLite}
 										<Dropdown>
-											<DropdownToggle class="dropdown-toggle" tag="span" color="">
+											<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
 												<i class="bx bx-dots-vertical-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
 												<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
-												<DropdownItem on:click={(e) => copyMessage(e, message.text)}>Copy</DropdownItem>
+												<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
 												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
@@ -742,7 +889,7 @@
 										<div class="msg-container">
 											<RichContent
 												message={message}
-												displayExtraElements={message.message_id === lastBotMsgId && !isSendingMsg && !isThinking}
+												displayExtraElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
 												onConfirm={confirmSelectedOption}
 											/>
@@ -786,7 +933,13 @@
 							</div>
 							<div class="col">
 								<div class="position-relative">
-									<textarea rows={1} maxlength={500} class="form-control chat-input" bind:value={text} on:keydown={e => onSendMessage(e)} disabled={isSendingMsg || isThinking} placeholder="Enter Message..." />
+									<ChatTextArea
+										className={'chat-input'}
+										bind:text={text}
+										disabled={isSendingMsg || isThinking}
+										editor={lastBotMsg?.rich_content?.editor || ''}
+										onKeyDown={e => onSendMessage(e)}
+									/>
 									<div class="chat-input-links" id="tooltip-container">
 										<ul class="list-inline mb-0">
 											<li class="list-inline-item">
@@ -801,7 +954,7 @@
 									type="submit"
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
-									on:click={sendTextMessage}
+									on:click={() => sentTextMessage()}
 								><span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />
 								</button>
@@ -813,7 +966,12 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog contentLogs={contentLogs} closeWindow={toggleContentLog} cleanScreen={cleanContentLogScreen} />
+			<ContentLog
+				bind:contentLogs={contentLogs}
+				bind:agentQueueChangeLogs={agentQueueChangeLogs}
+				closeWindow={toggleContentLog}
+				cleanScreen={cleanContentLogScreen}
+			/>
 		</Pane>
 		{/if}
 	</Splitpanes>

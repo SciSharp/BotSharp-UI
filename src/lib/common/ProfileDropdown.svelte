@@ -11,7 +11,7 @@
 	function logout() {
 		if (browser){	
 			localStorage.removeItem('user');
-		} 
+		}
 		goto('login');
 	};
 </script>
@@ -39,8 +39,13 @@
 			/> <span key="t-settings">{$_('Settings')}</span>
 		</DropdownItem>
 		<DropdownItem divider />
-		<DropdownItem href="#" on:click={logout}>
-			<div>
+		<DropdownItem href="#">
+			<div
+				role="button"
+				tabindex="0"
+				on:keydown={() => {}}
+				on:click={logout}
+			>
 				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>{$_('Logout')}</span>
 			</div>
 		</DropdownItem>

@@ -1,0 +1,23 @@
+.chat-option-list {
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    max-width: 100%;
+    z-index: 10;
+    padding: 3px 0px;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    max-height: 25em;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    .chat-option-item {
+        padding: 5px 15px;
+        cursor: pointer;
+    }
+    
+    .chat-option-item:hover {
+        background-color: var(--bs-primary);
+        color: white;
+    }
+}

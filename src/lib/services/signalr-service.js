@@ -27,8 +27,17 @@ export const signalr = {
   /** @type {import('$types').OnConversationStateLogGenerated} */
   onConversationStateLogGenerated: () => {},
 
+  /** @type {import('$types').OnStateChangeGenerated} */
+  onStateChangeGenerated: () => {},
+
+  /** @type {import('$types').OnAgentQueueChanged} */
+  onAgentQueueChanged: () => {},
+
   /** @type {import('$types').OnSenderActionGenerated} */
   onSenderActionGenerated: () => {},
+
+  /** @type {import('$types').OnConversationMessageDeleted} */
+  onConversationMessageDeleted: () => {},
 
   // start the connection
   /** @param {string} conversationId */
@@ -98,9 +107,29 @@ export const signalr = {
       }
     });
 
+    connection.on('OnStateChangeGenerated', (log) => {
+      const jsonData = JSON.parse(log);
+      if (conversationId === jsonData?.conversation_id) {
+        this.onStateChangeGenerated(jsonData);
+      }
+    });
+
+    connection.on('OnAgentQueueChanged', (log) => {
+      const jsonData = JSON.parse(log);
+      if (conversationId === jsonData?.conversation_id) {
+        this.onAgentQueueChanged(jsonData);
+      }
+    });
+
     connection.on('OnSenderActionGenerated', (data) => {
       if (conversationId === data?.conversation_id) {
         this.onSenderActionGenerated(data);
+      }
+    });
+
+    connection.on('OnMessageDeleted', (data) => {
+      if (conversationId === data?.conversation_id) {
+        this.onConversationMessageDeleted(data);
       }
     });
   },

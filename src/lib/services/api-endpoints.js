@@ -22,6 +22,7 @@ export const endpoints = {
     agentListUrl: `${host}/agents`,
     agentDetailUrl: `${host}/agent/{id}`,
     agentRefreshUrl: `${host}/refresh-agents`,
+    agentCreateUrl: `${host}/agent`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,
@@ -57,5 +58,8 @@ export const endpoints = {
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,
+
+    // Google geocode api
+    addressUrl: `${host}/address/options`
 }
 
