@@ -10,6 +10,7 @@
   margin: 0;
   position: absolute;
   z-index: 1000;
+  inset: 0px auto auto 0px !important;
 
   &.show {
     top: 100% !important;
