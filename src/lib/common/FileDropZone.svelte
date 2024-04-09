@@ -42,12 +42,15 @@
     let isSuccess = false;
     let reason = '';
 
+    const defaultSuccessMesssage = "Upload succeeded!";
+    const defaultErrorMesssage = "Upload failed!";
+
     $: {
         if (isLoading) {
             innerDropText = "Uploading...";
             disabled = true;
         } else if (isSuccess) {
-            innerDropText = "Upload succeeded";
+            innerDropText = defaultSuccessMesssage;
             disabled = true;
         } else if (isError) {
             innerDropText = reason;
@@ -281,7 +284,7 @@
                         });
 
                         isError = true;
-                        reason = fileRejections[0]?.errors[0]?.message || "Upload failed";
+                        reason = fileRejections[0]?.errors[0]?.message || defaultErrorMesssage;
                         setTimeout(() => {
                             reason = '';
                             isError = false;

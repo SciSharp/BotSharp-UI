@@ -93,6 +93,9 @@
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
 
+	/** @type {any[]} */
+	let conversationFiles = [];
+
 	/** @type {boolean} */
 	let isLoadContentLog = false;
 	let isLoadStateLog = false;
@@ -146,8 +149,8 @@
 	function initChatView() {
 		isFrame = $page.url.searchParams.get('isFrame') === 'true';
 		// initial condition
-		isContentLogClosed = true;
-		isStateLogClosed = true;
+		isContentLogClosed = false;
+		isStateLogClosed = false;
 		resizeChatWindow();
 	}
 
@@ -332,9 +335,11 @@
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 				isSendingMsg = false;
+				resetStorage();
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
+				resetStorage();
 				reject(err);
 			});
 		});
@@ -721,6 +726,11 @@
 		stateChangeLogs = [];
 		agentQueueChangeLogs = [];
 	}
+
+	function resetStorage() {
+		conversationUserAttachmentStore.reset();
+		conversationFiles = [];
+	}
 </script>
 
 
@@ -896,6 +906,7 @@
 											<ChatAttachment
 												displayComponents={message.message_id === lastBotMsg?.message_id}
 												disabled={isSendingMsg || isThinking}
+												bind:files={conversationFiles}
 											/>
 											<ChatImage message={message} />
 										</div>

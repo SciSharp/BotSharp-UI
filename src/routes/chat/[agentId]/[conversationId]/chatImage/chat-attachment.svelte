@@ -2,7 +2,6 @@
     import FileDropZone from "$lib/common/FileDropZone.svelte";
     import FileGallery from "$lib/common/FileGallery.svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
-    import { page } from '$app/stores';
 	import { onMount } from "svelte";
 
     /** @type {boolean} */
@@ -11,23 +10,20 @@
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {any[]} */
+    export let files = [];
+
     onMount(() => {
-        const conversationId = $page.params.conversationId;
-        const savedAttachments = conversationUserAttachmentStore.get(conversationId);
+        const savedAttachments = conversationUserAttachmentStore.get();
         files = savedAttachments.acceptedFiles || [];
     });
-
-    /** @type {any[]} */
-    let files = [];
 
     /** @param {any} e */
     async function handleFileDrop(e) {
         const { acceptedFiles, fileRejections } = e.detail;
-        const conversationId = $page.params.conversationId;
-        const savedAttachments = conversationUserAttachmentStore.get(conversationId);
+        const savedAttachments = conversationUserAttachmentStore.get();
         const newAttachments = [...savedAttachments.acceptedFiles || [], ...acceptedFiles];
-        conversationUserAttachmentStore.put(conversationId, {
-            conversationId: conversationId,
+        conversationUserAttachmentStore.put({
             acceptedFiles: newAttachments
         });
         files = newAttachments;
@@ -36,9 +32,7 @@
     /** @param {number} index */
     function deleteFile(index) {
         files = files?.filter((f, idx) => idx !== index) || [];
-        const conversationId = $page.params.conversationId;
-        conversationUserAttachmentStore.put(conversationId, {
-            conversationId: conversationId,
+        conversationUserAttachmentStore.put({
             acceptedFiles: files
         });
     }

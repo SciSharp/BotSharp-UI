@@ -134,24 +134,17 @@ export const conversationUserMessageStore = createConversationUserMessageStore()
 
 const createConversationUserAttachmentStore = () => {
     return {
-        reset: (conversationId) => {
-            const key = buildAttachmentKey(conversationId);
-            localStorage.removeItem(key);
+        reset: () => {
+            localStorage.removeItem(conversationUserAttachmentKey);
         },
-        get: (conversationId) => {
-            const key = buildAttachmentKey(conversationId);
-            const json = localStorage.getItem(key);
+        get: () => {
+            const json = localStorage.getItem(conversationUserAttachmentKey);
             return json ? JSON.parse(json) : {};
         },
-        put: (conversationId, value) => {
-            const key = buildAttachmentKey(conversationId);
-            localStorage.setItem(key, JSON.stringify(value));
+        put: (value) => {
+            localStorage.setItem(conversationUserAttachmentKey, JSON.stringify(value));
         }
     }
 };
-
-function buildAttachmentKey(conversationId){
-    return `${conversationUserAttachmentKey}_${conversationId}`;
-}
 
 export const conversationUserAttachmentStore = createConversationUserAttachmentStore();
