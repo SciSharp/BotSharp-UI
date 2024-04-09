@@ -24,7 +24,7 @@
 	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
@@ -904,7 +904,7 @@
 												onConfirm={confirmSelectedOption}
 											/>
 											<ChatAttachment
-												displayComponents={message.message_id === lastBotMsg?.message_id}
+												displayComponents={message.message_id === lastBotMsg?.message_id && lastBotMsg?.rich_content?.editor === EditorType.File}
 												disabled={isSendingMsg || isThinking}
 												bind:files={conversationFiles}
 											/>

@@ -31,7 +31,6 @@
         e.stopPropagation();
         onDelete && onDelete(idx);
     }
-
 </script>
 
 {#if files?.length > 0}

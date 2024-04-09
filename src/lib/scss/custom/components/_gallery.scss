@@ -16,13 +16,14 @@
                 color: white;
                 cursor: pointer;
                 z-index: 1000;
-                right: 0;
+                right: 3px;
                 font-size: 1.5em;
             }
 
             .gallery-item-image {
                 width: 100%;
                 height: 100%;
+                border-radius: 10px;
             }
         }
     }

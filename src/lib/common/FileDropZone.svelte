@@ -376,38 +376,41 @@
 
 <svelte:window on:focus={onWindowFocus} on:dragover={onDocumentDragOver} on:drop={onDocumentDrop} />
 
-<div
-    bind:this={rootRef}
-    tabindex="0"
-    role="button"
-    class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
-    style={`${containerStyles}`}
-    on:keydown={composeKeyboardHandler(onKeyDownCb)}
-    on:focus={composeKeyboardHandler(onFocusCb)}
-    on:blur={composeKeyboardHandler(onBlurCb)}
-    on:click={composeHandler(onClickCb)}
-    on:dragenter={composeDragHandler(onDragEnterCb)}
-    on:dragover={composeDragHandler(onDragOverCb)}
-    on:dragleave={composeDragHandler(onDragLeaveCb)}
-    on:drop={composeDragHandler(onDropCb)}
->
-    <input
-        {accept}
-        {multiple}
-        {required}
-        type="file"
-        {name}
-        autocomplete="off"
-        tabindex="-1"
-        on:change={onDropCb}
-        on:click={onInputElementClick}
-        bind:this={inputElement}
-        style="display: none;"
-    />
-    <slot>
-        <p class={`file-drop-text ${isError ? 'text-danger' : isSuccess ? 'text-success' : ''}`}>{innerDropText}</p>
-    </slot>
+<div style="display: block;">
+    <div
+        bind:this={rootRef}
+        tabindex="0"
+        role="button"
+        class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
+        style={`${containerStyles}`}
+        on:keydown={composeKeyboardHandler(onKeyDownCb)}
+        on:focus={composeKeyboardHandler(onFocusCb)}
+        on:blur={composeKeyboardHandler(onBlurCb)}
+        on:click={composeHandler(onClickCb)}
+        on:dragenter={composeDragHandler(onDragEnterCb)}
+        on:dragover={composeDragHandler(onDragOverCb)}
+        on:dragleave={composeDragHandler(onDragLeaveCb)}
+        on:drop={composeDragHandler(onDropCb)}
+    >
+        <input
+            {accept}
+            {multiple}
+            {required}
+            type="file"
+            {name}
+            autocomplete="off"
+            tabindex="-1"
+            on:change={onDropCb}
+            on:click={onInputElementClick}
+            bind:this={inputElement}
+            style="display: none;"
+        />
+        <slot>
+            <p class={`file-drop-text ${isError ? 'text-danger' : isSuccess ? 'text-success' : ''}`}>{innerDropText}</p>
+        </slot>
+    </div>
 </div>
+
   
 <style>
     .file-dropzone {
