@@ -39,6 +39,6 @@
 </script>
 
 {#if displayComponents}
-    <FileDropZone accept="image/*" disabled={disabled} on:drop={e => handleFileDrop(e)} />
+    <FileDropZone accept="image/*" containerStyles={'width: 100%; height: fit-content; min-height: 8rem;'} disabled={disabled} on:drop={e => handleFileDrop(e)} />
     <FileGallery files={files} disabled={disabled} onDelete={deleteFile} />
 {/if}
