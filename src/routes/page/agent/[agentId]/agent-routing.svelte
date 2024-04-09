@@ -20,7 +20,7 @@
 
         {#each agent.routing_rules as rule, idx (idx)}
         <div class="routing-rule-container">
-            <CollapsibleCard>
+            <CollapsibleCard open={idx === 0}>
                 <div slot='header'>
                     <h5 class="rule-header">{`Rule #${idx + 1}`}</h5>
                 </div>
