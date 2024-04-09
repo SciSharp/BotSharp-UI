@@ -33,6 +33,7 @@
 	import { onMount } from 'svelte';
 	import {
 		conversationSearchOptionStore,
+		conversationUserAttachmentStore,
 		conversationUserMessageStore,
 		conversationUserStateStore
 	} from '$lib/helpers/store';
@@ -96,6 +97,7 @@
 		conversationUserStateStore.reset();
 		conversationSearchOptionStore.reset();
 		conversationUserMessageStore.reset();
+		conversationUserAttachmentStore.reset();
 	}
 </script>
 

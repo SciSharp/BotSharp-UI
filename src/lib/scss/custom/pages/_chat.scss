@@ -165,8 +165,9 @@
         }
 
         .msg-container {
-            max-width: 80%;
-            flex: 0 0 fit-content;
+            display: flex;
+            flex-direction: column;
+            width: 80%;
 
             .button-group-container {
                 display: flex;
@@ -247,6 +248,7 @@
 
         .image-wrap {
             margin-top: 2px;
+            width: fit-content;
 
             img {
                 max-width: 25vw;

@@ -40,6 +40,7 @@ const editorType = {
     Phone: "phone",
     DateTimePicker: "datetime-picker",
     DateTimeRangePicker: 'datetime-range-picker',
-    Email: 'email'
+    Email: 'email',
+    File: 'file'
 };
 export const EditorType = Object.freeze(editorType);

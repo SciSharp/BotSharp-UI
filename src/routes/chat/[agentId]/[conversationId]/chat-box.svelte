@@ -9,15 +9,14 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
 	import { onMount, tick } from 'svelte';
-	import Link from 'svelte-link';
-	import Viewport from 'svelte-viewport-info'
+	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import { USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
     import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore, conversationUserMessageStore } from '$lib/helpers/store.js';
+	import { conversationStore, conversationUserStateStore, conversationUserMessageStore, conversationUserAttachmentStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
@@ -25,13 +24,14 @@
 	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { SenderAction, UserRole } from '$lib/helpers/enums';
+	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
 	import ChatImage from './chatImage/chat-image.svelte';
+	import ChatAttachment from './chatImage/chat-attachment.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
@@ -92,6 +92,9 @@
 
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
+
+	/** @type {any[]} */
+	let conversationFiles = [];
 
 	/** @type {boolean} */
 	let isLoadContentLog = false;
@@ -332,9 +335,11 @@
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 				isSendingMsg = false;
+				resetStorage();
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
+				resetStorage();
 				reject(err);
 			});
 		});
@@ -721,6 +726,11 @@
 		stateChangeLogs = [];
 		agentQueueChangeLogs = [];
 	}
+
+	function resetStorage() {
+		conversationUserAttachmentStore.reset();
+		conversationFiles = [];
+	}
 </script>
 
 
@@ -893,6 +903,11 @@
 												disableOption={isSendingMsg || isThinking}
 												onConfirm={confirmSelectedOption}
 											/>
+											<ChatAttachment
+												displayComponents={message.message_id === lastBotMsg?.message_id && lastBotMsg?.rich_content?.editor === EditorType.File}
+												disabled={isSendingMsg || isThinking}
+												bind:files={conversationFiles}
+											/>
 											<ChatImage message={message} />
 										</div>
 										{/if}
@@ -940,13 +955,6 @@
 										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
 									/>
-									<div class="chat-input-links" id="tooltip-container">
-										<ul class="list-inline mb-0">
-											<li class="list-inline-item">
-												<Link href="#"><i class="mdi mdi-file-document-outline" /></Link>
-											</li>
-										</ul>
-									</div>
 								</div>
 							</div>
 							<div class="col-auto">

@@ -1,0 +1,44 @@
+.image-gallery-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 3px;
+
+    .gallery-item {
+        width: 12em;
+        height: 12em;
+
+        .gallery-item-wrapper {
+            position: relative;
+
+            .gallery-item-icon {
+                position: absolute;
+                color: white;
+                cursor: pointer;
+                z-index: 1000;
+                right: 3px;
+                font-size: 1.5em;
+            }
+
+            .gallery-item-image {
+                width: 100%;
+                height: 100%;
+                border-radius: 10px;
+            }
+        }
+    }
+
+    .lite-gallery-item {
+        width: 5em;
+        height: 5em;
+    }
+}
+
+.svelte-lightbox-footer p {
+    display: none;
+}
+
+.item-text {
+    text-align: center;
+    color: white;
+}
