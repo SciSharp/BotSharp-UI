@@ -16,6 +16,9 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
+    /** @type {() => any} */
+    export let refresh = () => {};
+
     /** @type {string} */
     export let confirmBtnText = 'Continue';
 
@@ -33,6 +36,7 @@
     onMount(() => {
         reset();
         collectOptions(options);
+        refresh && refresh();
     });
 
     /** @param {any[]} options */
@@ -130,7 +134,7 @@
 <div class="button-group-container">
     {#each plainOptions as option, index}
         <button
-            class={`btn btn-rounded btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             class:active={!!option.isClicked}
             disabled={disableOption}
             on:click={(e) => handleClickOption(e, option, index)}
@@ -140,7 +144,7 @@
     {/each}
     {#if isMultiSelect}
         <button
-            class="btn btn-outline-success btn-rounded btn-sm m-1"
+            class="btn btn-outline-success btn-sm m-1"
             name="confirm"
             disabled={disableOption || plainOptions.every(x => !!!x.isClicked)}
             on:click={(e) => handleConfirm(e)}
