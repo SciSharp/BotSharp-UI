@@ -14,13 +14,6 @@
     /** @type {(args0: number) => void} */
     export let onDelete = () => {};
 
-    let isLite = false;
-    const screenWidthThreshold = 500;
-
-    $: {
-        isLite = Viewport.Width <= screenWidthThreshold;
-    }
-
     /**
 	 * @param {any} e
 	 * @param {number} idx
@@ -38,7 +31,7 @@
         <svelte:fragment slot="thumbnail">
             <div class="image-gallery-container">
                 {#each files as file, idx (idx)}
-                    <div class={`gallery-item ${isLite ? 'lite-gallery-item' : ''}`}>
+                    <div class={`gallery-item`}>
                         <GalleryThumbnail style="width: 100%; height: 100%; display: flex;" id={idx}>
                             <div class="gallery-item-wrapper">
                                 {#if needDelete}
