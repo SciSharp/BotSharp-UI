@@ -217,6 +217,10 @@
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
+		autoScrollToBottom();
+    }
+
+	function autoScrollToBottom() {
 		// @ts-ignore
         scrollbars.forEach(scrollbar => {
             setTimeout(() => {
@@ -224,7 +228,7 @@
                 viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
             }, 200);
         });
-    }
+	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
@@ -901,6 +905,7 @@
 												message={message}
 												displayExtraElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
+												refresh={autoScrollToBottom}
 												onConfirm={confirmSelectedOption}
 											/>
 											<ChatAttachment

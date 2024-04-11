@@ -2,7 +2,6 @@
 	import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { onMount } from "svelte";
 
-
     /** @type {boolean} */
     export let disableOption = false;
 
@@ -12,16 +11,21 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
+    /** @type {() => any} */
+    export let refresh = () => {};
+
     /** @type {any[]} */
     let cards = [];
 
     onMount(() => {
-        cards = collectOptions(options);
+        reset();
+        collectOptions(options);
+        refresh && refresh();
     });
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        const res = options?.map(op => {
+        cards = options?.map(op => {
             // @ts-ignore
             const options = op.buttons?.filter(op => !!op.title && !!op.payload)?.map(x => {
                 return {
@@ -36,8 +40,6 @@
                 options: options
             };
         }) || [];
-
-        return res;
     }
 
     /**
@@ -78,7 +80,7 @@
                     <div class="card-option-group">
                         {#each card.options as option, i (i)}
                             <button
-                                class="btn btn-outline-primary btn-rounded btn-sm m-1"
+                                class="btn btn-outline-primary btn-sm m-1"
                                 disabled={disableOption}
                                 on:click={(e) => handleClickOption(e, option)}
                             >

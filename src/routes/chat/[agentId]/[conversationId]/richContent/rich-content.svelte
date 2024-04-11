@@ -16,6 +16,9 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm = () => {};
 
+    /** @type {() => any} */
+    export let refresh = () => {};
+
     /** @type {boolean} */
     let isComplexElement = false;
 
@@ -43,16 +46,16 @@
 
 {#if displayExtraElements}
     {#if message?.rich_content?.message?.rich_type === RichType.QuickReply}
-	    <RcPlainOptions options={message?.rich_content?.message?.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} />
+	    <RcPlainOptions options={message?.rich_content?.message?.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
     {:else if message?.rich_content?.message?.rich_type === RichType.Button}
-        <RcPlainOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} />
+        <RcPlainOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
     {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
-        <RcPlainOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} />
+        <RcPlainOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
     {:else if message?.rich_content?.message?.rich_type === RichType.Generic}
         {#if isComplexElement}
-            <RcComplexOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} />
+            <RcComplexOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
         {:else}
-            <RcPlainOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} />
+            <RcPlainOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
         {/if}
     {/if}
 {/if}

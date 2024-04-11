@@ -226,6 +226,7 @@
                 button {
                     min-width: 50px;
                     text-align: left;
+                    border-radius: 10px;
                 }
             }
 
@@ -236,20 +237,27 @@
                 margin-top: 10px;
 
                 .card-element {
-                    flex: 1 1 fit-content;
+                    flex: 1 1 50%;
                     border-radius: 10px;
                     border-width: 2px;
                     max-width: 45%;
                     margin-bottom: 0px;
 
+                    @media (max-width: 620px) {
+                        width: 100%;
+                        max-width: 100%;
+                    }
+
                     .card-element-title {
-                        font-size: 1.1rem;
+                        font-size: 0.8rem;
                         font-weight: 700;
+                        height: 30%;
                     }
 
                     .card-element-subtitle {
-                        font-size: 0.8rem;
+                        font-size: 0.7rem;
                         font-weight: 500;
+                        height: 8%;
                     }
 
                     .card-option-group {
@@ -259,6 +267,7 @@
                             display: block;
                             margin-left: 0px !important;
                             text-align: left;
+                            border-radius: 10px;
                         }
                     }
                 }
