@@ -8,6 +8,11 @@
         width: 8em;
         height: 8em;
 
+        @media (max-width: 500px) {
+            width: 5em;
+            height: 5em;
+        }
+
         .gallery-item-wrapper {
             position: relative;
 
@@ -26,11 +31,6 @@
                 border-radius: 10px;
             }
         }
-    }
-
-    .lite-gallery-item {
-        width: 5em;
-        height: 5em;
     }
 }
 
