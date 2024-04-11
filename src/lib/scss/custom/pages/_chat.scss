@@ -169,6 +169,44 @@
             flex-direction: column;
             width: 80%;
 
+            .video-group-container {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+
+                .video-element-card {
+                    border: none;
+                    box-shadow: none;
+                    flex: 1 1 400px;
+
+                    .card-body {
+                        padding: 0 !important;
+                    }
+
+                    .video-element-title {
+                        font-size: 1.1em;
+                        font-weight: 700;
+                        padding-left: 5px;
+                        padding-top: 10px;
+                        padding-bottom: 10px;
+                        margin-bottom: 5px;
+                        width: 100%;
+                        overflow: hidden;
+                        white-space: nowrap;
+                        text-overflow: ellipsis;
+                    }
+
+                    .video-element-player {
+                        aspect-ratio: 16 / 9;
+
+                        video, iframe {
+                            border-radius: 10px;
+                            height: 100%;
+                        }
+                    }
+                }
+            }
+
             .button-group-container {
                 display: flex;
                 flex-wrap: wrap;

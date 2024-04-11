@@ -24,6 +24,12 @@ const richType = {
 }
 export const RichType = Object.freeze(richType);
 
+const elementType = {
+    Text: "text",
+    Video: "video"
+};
+export const ElementType = Object.freeze(elementType);
+
 const contentLogSource = {
     UserInput: "user input",
     Prompt: "prompt",

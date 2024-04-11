@@ -1,5 +1,8 @@
 <script>
 	import { onMount } from "svelte";
+    import SveltePlayer from "svelte-player";
+    import { Card, CardBody } from "@sveltestrap/sveltestrap";
+    import { ElementType } from "$lib/helpers/enums";
 
     /** @type {boolean} */
     export let isMultiSelect = false;
@@ -23,24 +26,29 @@
     /** @type {string[]} */
     let payloadAnswers = [];
     /** @type {any[]} */
-    let localOptions = [];
+    let plainOptions = [];
+    /** @type {any[]} */
+    let videoOptions = [];
 
     onMount(() => {
         reset();
-        localOptions = collectOptions(options);
+        collectOptions(options);
     });
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        const res = options?.filter(op => !!op.title && !!op.payload)?.map(op => {
+        const innerOptions = options?.filter(op => !!op.title && !!op.payload) || [];
+
+        videoOptions = innerOptions?.filter(op => op.type == ElementType.Video);
+        plainOptions = innerOptions?.filter(op => op.type != ElementType.Video)?.map(op => {
             return {
                 title: op.title,
                 payload: op.payload,
+                is_primary: op.is_primary,
+                is_secondary: op.is_secondary,
                 isClicked: false
             };
         }) || [];
-
-        return res;
     }
 
     /**
@@ -54,7 +62,7 @@
         if (!isMultiSelect) {
             innerConfirm(option?.title, option?.payload);
         } else {
-            localOptions = localOptions.map((op, idx) => {
+            plainOptions = plainOptions.map((op, idx) => {
                 if (idx === index) {
                     op.isClicked = !op.isClicked;
                     if (op.isClicked) {
@@ -91,18 +99,38 @@
     }
 
     function reset() {
-        localOptions = [];
+        plainOptions = [];
+        videoOptions = [];
         titleAnswers = [];
         payloadAnswers = [];
     }
 
 </script>
 
-{#if localOptions.length > 0}
+{#if videoOptions.length > 0}
+<div>
+    <div class="video-group-container">
+        {#each videoOptions as video, index}
+            <Card class="video-element-card">
+                <CardBody>
+                    <div class="video-element-title">
+                        {video.title}
+                    </div>
+                    <div class="video-element-player">
+                        <SveltePlayer url={video.payload} controls />
+                    </div>
+                </CardBody>
+            </Card>
+        {/each}
+    </div>
+</div>
+{/if}
+
+{#if plainOptions.length > 0}
 <div class="button-group-container">
-    {#each localOptions as option, index}
+    {#each plainOptions as option, index}
         <button
-            class="btn btn-outline-primary btn-rounded btn-sm m-1"
+            class={`btn btn-rounded btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             class:active={!!option.isClicked}
             disabled={disableOption}
             on:click={(e) => handleClickOption(e, option, index)}
@@ -114,7 +142,7 @@
         <button
             class="btn btn-outline-success btn-rounded btn-sm m-1"
             name="confirm"
-            disabled={disableOption || localOptions.every(x => !!!x.isClicked)}
+            disabled={disableOption || plainOptions.every(x => !!!x.isClicked)}
             on:click={(e) => handleConfirm(e)}
         >
             {confirmBtnText || 'Continue'}

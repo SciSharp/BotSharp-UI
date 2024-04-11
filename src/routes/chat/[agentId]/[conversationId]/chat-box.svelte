@@ -940,7 +940,7 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded waves-effect waves-light"
-									disabled={isSendingMsg || isThinking}
+									disabled={isSendingMsg || isThinking || lastBotMsg?.rich_content?.editor == EditorType.None}
 									on:click={startListen}
 								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
@@ -951,7 +951,7 @@
 									<ChatTextArea
 										className={'chat-input'}
 										bind:text={text}
-										disabled={isSendingMsg || isThinking}
+										disabled={isSendingMsg || isThinking || lastBotMsg?.rich_content?.editor == EditorType.None}
 										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
 									/>
