@@ -14,7 +14,7 @@
     export let options = [];
 
     /** @type {(args0: string, args1: string) => any} */
-    export let onConfirm;
+    export let onConfirm = () => {};
 
     /** @type {() => any} */
     export let refresh = () => {};
@@ -113,7 +113,7 @@
 
 {#if videoOptions.length > 0}
 <div>
-    <div class="video-group-container">
+    <div class="video-option-container">
         {#each videoOptions as video, index}
             <Card class="video-element-card">
                 <CardBody>

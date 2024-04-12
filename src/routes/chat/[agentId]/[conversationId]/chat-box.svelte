@@ -150,7 +150,7 @@
 		isFrame = $page.url.searchParams.get('isFrame') === 'true';
 		// initial condition
 		isContentLogClosed = false;
-		isStateLogClosed = false;
+		isStateLogClosed = true;
 		resizeChatWindow();
 	}
 
