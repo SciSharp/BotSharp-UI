@@ -66,7 +66,7 @@
 </script>
 
 {#if cards.length > 0}
-    <div class="card-group-container">
+    <div class="complex-option-container">
         {#each cards as card, idx (idx)}
         <Card class="card-element">
             <CardBody>

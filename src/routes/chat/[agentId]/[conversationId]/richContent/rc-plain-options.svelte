@@ -131,7 +131,7 @@
 {/if}
 
 {#if plainOptions.length > 0}
-<div class="button-group-container">
+<div class="plain-option-container">
     {#each plainOptions as option, index}
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}

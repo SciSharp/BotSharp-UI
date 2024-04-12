@@ -18,7 +18,7 @@
 
 {#if isComplete}
     <div class="alert-container">
-        <Alert class="success">
+        <Alert color="success">
             <div>{successText}</div>
         </Alert>
     </div>
@@ -26,7 +26,7 @@
 
 {#if isError}
     <div class="alert-container">
-        <Alert class="error">
+        <Alert color="danger">
             <div>{errorText}</div>
         </Alert>
     </div>
