@@ -1,6 +1,6 @@
 <script>
 	import { Card, CardBody } from "@sveltestrap/sveltestrap";
-    import { onMount } from "svelte";
+    import { getContext, onMount } from "svelte";
 
     /** @type {boolean} */
     export let disableOption = false;
@@ -11,26 +11,29 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
-    /** @type {() => any} */
-    export let refresh = () => {};
-
     /** @type {any[]} */
     let cards = [];
+    /** @type {any[]} */
+    let buttons = [];
+
+    const { autoScrollToBottom }  = getContext('chat-window-context');
 
     onMount(() => {
         reset();
-        collectOptions(options);
-        refresh && refresh();
+        collectOptions(options)
+        autoScrollToBottom?.();
     });
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        cards = options?.map(op => {
+        cards = options?.filter(op => !!op.title || !!op.subtitle)?.map(op => {
             // @ts-ignore
-            const options = op.buttons?.filter(op => !!op.title && !!op.payload)?.map(x => {
+            const options = op.buttons?.filter(x => !!x.title && !!x.payload)?.map(x => {
                 return {
                     title: x.title,
-                    payload: x.payload
+                    payload: x.payload,
+                    is_primary: x.is_primary,
+                    is_secondary: x.is_secondary,
                 };
             }) || [];
 
@@ -39,6 +42,18 @@
                 subtitle: op.subtitle,
                 options: options
             };
+        }) || [];
+
+        buttons = options?.filter(op => !!!op.title && !!!op.subtitle)?.flatMap(op => {
+            // @ts-ignore
+            return op.buttons?.filter(x => !!x.title && !!x.payload)?.map(x => {
+                return {
+                    title: x.title,
+                    payload: x.payload,
+                    is_primary: x.is_primary,
+                    is_secondary: x.is_secondary,
+                };
+            }) || [];;
         }) || [];
     }
 
@@ -66,21 +81,21 @@
 </script>
 
 {#if cards.length > 0}
-    <div class="card-group-container">
+    <div class="complex-option-container">
         {#each cards as card, idx (idx)}
         <Card class="card-element">
-            <CardBody>
+            <CardBody class="card-element-body">
                 {#if !!card.title}
-                <div class="card-element-title mb-3">{card.title}</div>
+                <div class="card-element-title hide-text">{card.title}</div>
                 {/if}
                 {#if !!card.subtitle}
-                <div class="card-element-subtitle mb-3">{card.subtitle}</div>
+                <div class="card-element-subtitle hide-text">{card.subtitle}</div>
                 {/if}
                 {#if card.options?.length > 0}
                     <div class="card-option-group">
                         {#each card.options as option, i (i)}
                             <button
-                                class="btn btn-outline-primary btn-sm m-1"
+                                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
                                 disabled={disableOption}
                                 on:click={(e) => handleClickOption(e, option)}
                             >
@@ -91,6 +106,20 @@
                 {/if}
             </CardBody>
         </Card>
+        {/each}
+    </div>
+{/if}
+
+{#if buttons.length > 0}
+    <div class="plain-option-container" style="margin-top: 5px;">
+        {#each buttons as option, index}
+            <button
+                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                disabled={disableOption}
+                on:click={(e) => handleClickOption(e, option)}
+            >
+                {option.title}
+            </button>
         {/each}
     </div>
 {/if}

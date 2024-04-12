@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from "svelte";
+	import { getContext, onMount } from "svelte";
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
@@ -14,10 +14,7 @@
     export let options = [];
 
     /** @type {(args0: string, args1: string) => any} */
-    export let onConfirm;
-
-    /** @type {() => any} */
-    export let refresh = () => {};
+    export let onConfirm = () => {};
 
     /** @type {string} */
     export let confirmBtnText = 'Continue';
@@ -33,10 +30,12 @@
     /** @type {any[]} */
     let videoOptions = [];
 
+    const { autoScrollToBottom }  = getContext('chat-window-context');
+
     onMount(() => {
         reset();
         collectOptions(options);
-        refresh && refresh();
+        autoScrollToBottom?.();
     });
 
     /** @param {any[]} options */
@@ -113,7 +112,7 @@
 
 {#if videoOptions.length > 0}
 <div>
-    <div class="video-group-container">
+    <div class="video-option-container">
         {#each videoOptions as video, index}
             <Card class="video-element-card">
                 <CardBody>
@@ -131,7 +130,7 @@
 {/if}
 
 {#if plainOptions.length > 0}
-<div class="button-group-container">
+<div class="plain-option-container">
     {#each plainOptions as option, index}
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}

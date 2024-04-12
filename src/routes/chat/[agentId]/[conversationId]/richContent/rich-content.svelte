@@ -8,7 +8,7 @@
     export let message;
 
     /** @type {boolean} */
-    export let displayExtraElements = false;
+    export let displayOptionElements = false;
 
     /** @type {boolean} */
     export let disableOption = false;
@@ -16,17 +16,30 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm = () => {};
 
-    /** @type {() => any} */
-    export let refresh = () => {};
-
     /** @type {boolean} */
     let isComplexElement = false;
+    let isMultiSelect = false;
+
+    /** @type {any[]} */
+    let options = [];
 
     $: {
-        const isGeneric = message?.rich_content?.message?.rich_type === RichType.Generic;
-        // @ts-ignore
-        const hasSuboptions = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
-        isComplexElement = isGeneric && hasSuboptions;
+        if (displayOptionElements) {
+            const richType = message?.rich_content?.message?.rich_type;
+
+            if (richType === RichType.QuickReply) {
+                options = message?.rich_content?.message?.quick_replies;
+            } else if (richType === RichType.Button) {
+                options = message?.rich_content?.message?.buttons;
+            } else if (richType === RichType.MultiSelect) {
+                options = message?.rich_content?.message?.options;
+                isMultiSelect = true;
+            } else if (richType === RichType.Generic) {
+                options = message?.rich_content?.message?.elements;
+                // @ts-ignore
+                isComplexElement = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
+            }
+        }
     }
 
     /**
@@ -44,18 +57,10 @@
     </div>
 </div>
 
-{#if displayExtraElements}
-    {#if message?.rich_content?.message?.rich_type === RichType.QuickReply}
-	    <RcPlainOptions options={message?.rich_content?.message?.quick_replies} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
-    {:else if message?.rich_content?.message?.rich_type === RichType.Button}
-        <RcPlainOptions options={message?.rich_content?.message?.buttons} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
-    {:else if message?.rich_content?.message?.rich_type === RichType.MultiSelect}
-        <RcPlainOptions options={message?.rich_content?.message?.options} isMultiSelect disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
-    {:else if message?.rich_content?.message?.rich_type === RichType.Generic}
-        {#if isComplexElement}
-            <RcComplexOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
-        {:else}
-            <RcPlainOptions options={message?.rich_content?.message?.elements} disableOption={disableOption} onConfirm={handleConfirm} refresh={refresh} />
-        {/if}
+{#if displayOptionElements}
+    {#if !isComplexElement}
+        <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disableOption={disableOption} onConfirm={handleConfirm} />
+    {:else}
+        <RcComplexOptions options={options} disableOption={disableOption} onConfirm={handleConfirm} />
     {/if}
 {/if}
