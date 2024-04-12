@@ -1,6 +1,6 @@
 <script>
 	import { Card, CardBody } from "@sveltestrap/sveltestrap";
-    import { onMount } from "svelte";
+    import { getContext, onMount } from "svelte";
 
     /** @type {boolean} */
     export let disableOption = false;
@@ -11,18 +11,17 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm;
 
-    /** @type {() => any} */
-    export let refresh = () => {};
-
     /** @type {any[]} */
     let cards = [];
     /** @type {any[]} */
     let buttons = [];
 
+    const { autoScrollToBottom }  = getContext('chat-window-context');
+
     onMount(() => {
         reset();
-        collectOptions(options);
-        refresh && refresh();
+        collectOptions(options)
+        autoScrollToBottom?.();
     });
 
     /** @param {any[]} options */

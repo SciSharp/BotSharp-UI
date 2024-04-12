@@ -8,7 +8,7 @@
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
-	import { onMount, tick } from 'svelte';
+	import { onMount, setContext, tick } from 'svelte';
 	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import { USER_SENDERS } from '$lib/helpers/constants';
@@ -107,6 +107,10 @@
 	let isThinking = false;
 	let isLite = false;
 	let isFrame = false;
+
+	setContext('chat-window-context', {
+		autoScrollToBottom: autoScrollToBottom
+	});
 	
 	onMount(async () => {
 		dialogs = await GetDialogs(params.conversationId);
@@ -150,7 +154,7 @@
 		isFrame = $page.url.searchParams.get('isFrame') === 'true';
 		// initial condition
 		isContentLogClosed = false;
-		isStateLogClosed = true;
+		isStateLogClosed = false;
 		resizeChatWindow();
 	}
 
@@ -903,9 +907,8 @@
 										<div class="msg-container">
 											<RichContent
 												message={message}
-												displayExtraElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
+												displayOptionElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
 												disableOption={isSendingMsg || isThinking}
-												refresh={autoScrollToBottom}
 												onConfirm={confirmSelectedOption}
 											/>
 											<ChatAttachment

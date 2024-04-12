@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from "svelte";
+	import { getContext, onMount } from "svelte";
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
@@ -16,9 +16,6 @@
     /** @type {(args0: string, args1: string) => any} */
     export let onConfirm = () => {};
 
-    /** @type {() => any} */
-    export let refresh = () => {};
-
     /** @type {string} */
     export let confirmBtnText = 'Continue';
 
@@ -33,10 +30,12 @@
     /** @type {any[]} */
     let videoOptions = [];
 
+    const { autoScrollToBottom }  = getContext('chat-window-context');
+
     onMount(() => {
         reset();
         collectOptions(options);
-        refresh && refresh();
+        autoScrollToBottom?.();
     });
 
     /** @param {any[]} options */
