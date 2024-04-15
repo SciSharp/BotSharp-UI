@@ -25,7 +25,8 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
-	import RichContent from './richContent/rich-content.svelte';
+	import RichOptions from './richContent/rich-options.svelte';
+	import RcMessage from './richContent/rc-message.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -35,6 +36,7 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	
 	
 	const options = {
 		scrollbars: {
@@ -905,17 +907,20 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											<RichContent
-												message={message}
-												displayOptionElements={message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
-												disableOption={isSendingMsg || isThinking}
-												onConfirm={confirmSelectedOption}
-											/>
-											<ChatAttachment
-												displayComponents={message.message_id === lastBotMsg?.message_id && lastBotMsg?.rich_content?.editor === EditorType.File}
-												disabled={isSendingMsg || isThinking}
-												bind:files={conversationFiles}
-											/>
+											<RcMessage message={message} />
+											{#if message.message_id === lastBotMsg?.message_id && lastBotMsg?.rich_content?.editor === EditorType.File}
+												<ChatAttachment
+													disabled={isSendingMsg || isThinking}
+													bind:files={conversationFiles}
+												/>
+											{/if}
+											{#if message.message_id === lastBotMsg?.message_id && !isSendingMsg && !isThinking}
+												<RichOptions
+													message={message}
+													disabled={isSendingMsg || isThinking}
+													onConfirm={confirmSelectedOption}
+												/>
+											{/if}
 											<ChatImage message={message} />
 										</div>
 										{/if}

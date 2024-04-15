@@ -225,7 +225,6 @@
 
                 button {
                     min-width: 50px;
-                    text-align: left;
                     border-radius: 10px;
                 }
             }
@@ -233,14 +232,14 @@
             .complex-option-container {
                 display: flex;
                 flex-wrap: wrap;
-                gap: 5px;
+                gap: 3px;
                 margin-top: 10px;
 
                 .card-element {
                     flex: 1 1 50%;
                     border-radius: 10px;
                     border-width: 2px;
-                    max-width: 45%;
+                    max-width: calc(50% - 2.5px);
                     margin-bottom: 0px;
 
                     @media (max-width: 620px) {
@@ -271,7 +270,6 @@
                             .btn {
                                 display: block;
                                 margin-left: 0px !important;
-                                text-align: left;
                                 border-radius: 10px;
                             }
                         }
