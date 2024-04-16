@@ -1,9 +1,9 @@
 <script>
-	import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { getContext, onMount } from "svelte";
-
+	import { Card, CardBody } from "@sveltestrap/sveltestrap";
+    
     /** @type {boolean} */
-    export let disableOption = false;
+    export let disabled = false;
 
     /** @type {any[]} */
     export let options = [];
@@ -86,17 +86,17 @@
         <Card class="card-element">
             <CardBody class="card-element-body">
                 {#if !!card.title}
-                <div class="card-element-title hide-text">{card.title}</div>
+                    <div class="card-element-title hide-text">{card.title}</div>
                 {/if}
                 {#if !!card.subtitle}
-                <div class="card-element-subtitle hide-text">{card.subtitle}</div>
+                    <div class="card-element-subtitle hide-text">{card.subtitle}</div>
                 {/if}
                 {#if card.options?.length > 0}
                     <div class="card-option-group">
                         {#each card.options as option, i (i)}
                             <button
                                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                disabled={disableOption}
+                                disabled={disabled}
                                 on:click={(e) => handleClickOption(e, option)}
                             >
                                 {option.title}
@@ -115,7 +115,8 @@
         {#each buttons as option, index}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                disabled={disableOption}
+                style='width: 100%;'
+                disabled={disabled}
                 on:click={(e) => handleClickOption(e, option)}
             >
                 {option.title}

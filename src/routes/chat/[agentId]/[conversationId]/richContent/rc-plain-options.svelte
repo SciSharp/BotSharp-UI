@@ -8,7 +8,10 @@
     export let isMultiSelect = false;
 
     /** @type {boolean} */
-    export let disableOption = false;
+    export let disabled = false;
+
+    /** @type {boolean} */
+    export let expandButton = false;
 
     /** @type {any[]} */
     export let options = [];
@@ -135,7 +138,8 @@
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             class:active={!!option.isClicked}
-            disabled={disableOption}
+            style={`width: ${expandButton ? '100%' : 'fit-content'};`}
+            disabled={disabled}
             on:click={(e) => handleClickOption(e, option, index)}
         >
             {option.title}
@@ -145,7 +149,7 @@
         <button
             class="btn btn-outline-success btn-sm m-1"
             name="confirm"
-            disabled={disableOption || plainOptions.every(x => !!!x.isClicked)}
+            disabled={disabled || plainOptions.every(x => !!!x.isClicked)}
             on:click={(e) => handleConfirm(e)}
         >
             {confirmBtnText || 'Continue'}

@@ -101,7 +101,7 @@
         </div>
         <div class="state-log-section">
             <Splitpanes horizontal>
-                <Pane size={35} minSize={25} maxSize={75}>
+                <Pane size={35} minSize={20} maxSize={80}>
                     <div class="state-change-scrollbar state-change-log-list log-list padding-side">
                         <ul>
                             {#each stateChangeLogs as log}
@@ -110,7 +110,7 @@
                         </ul>
                     </div>
                 </Pane>
-                <Pane size={65} minSize={25} maxSize={75}>
+                <Pane size={65} minSize={20} maxSize={80}>
                     <div class="state-log-scrollbar state-log-list log-list padding-side">
                         <ul>
                             {#each stateLogs as log}

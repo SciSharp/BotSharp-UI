@@ -5,9 +5,6 @@
 	import { onMount } from "svelte";
 
     /** @type {boolean} */
-    export let displayComponents = true;
-
-    /** @type {boolean} */
     export let disabled = false;
 
     /** @type {any[]} */
@@ -38,7 +35,5 @@
     }
 </script>
 
-{#if displayComponents}
-    <FileDropZone accept="image/*" containerStyles={'width: 100%; height: fit-content; min-height: 8rem;'} disabled={disabled} on:drop={e => handleFileDrop(e)} />
-    <FileGallery files={files} disabled={disabled} onDelete={deleteFile} />
-{/if}
+<FileDropZone accept="image/*" containerStyles={'width: 100%; height: fit-content; min-height: 8rem;'} disabled={disabled} on:drop={e => handleFileDrop(e)} />
+<FileGallery files={files} disabled={disabled} onDelete={deleteFile} />
