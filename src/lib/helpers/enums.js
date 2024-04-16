@@ -20,8 +20,7 @@ const richType = {
     QuickReply: 'quick_reply',
     Button: 'button_template',
     MultiSelect: 'multi-select_template',
-    Generic: 'generic_template',
-    Attachment: 'attachment'
+    Generic: 'generic_template'
 }
 export const RichType = Object.freeze(richType);
 

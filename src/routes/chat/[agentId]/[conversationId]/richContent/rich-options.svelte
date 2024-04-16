@@ -1,5 +1,5 @@
 <script>
-	import { RichType } from "$lib/helpers/enums";
+	import { EditorType, ElementType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	
@@ -15,6 +15,7 @@
     /** @type {boolean} */
     let isComplexElement = false;
     let isMultiSelect = false;
+    let expandButton = false;
 
     /** @type {any[]} */
     let options = [];
@@ -34,6 +35,8 @@
             // @ts-ignore
             isComplexElement = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
         }
+
+        expandButton = message?.rich_content?.editor === EditorType.File || options?.some(op => op.type === ElementType.Video);
     }
 
     /**
@@ -46,7 +49,7 @@
 </script>
 
 {#if !isComplexElement}
-    <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disabled={disabled} onConfirm={handleConfirm} />
+    <RcPlainOptions options={options} isMultiSelect={isMultiSelect} expandButton={expandButton} disabled={disabled} onConfirm={handleConfirm} />
 {:else}
     <RcComplexOptions options={options} disabled={disabled} onConfirm={handleConfirm} />
 {/if}

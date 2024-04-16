@@ -10,6 +10,9 @@
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {boolean} */
+    export let expandButton = false;
+
     /** @type {any[]} */
     export let options = [];
 
@@ -135,6 +138,7 @@
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             class:active={!!option.isClicked}
+            style={`width: ${expandButton ? '100%' : 'fit-content'};`}
             disabled={disabled}
             on:click={(e) => handleClickOption(e, option, index)}
         >

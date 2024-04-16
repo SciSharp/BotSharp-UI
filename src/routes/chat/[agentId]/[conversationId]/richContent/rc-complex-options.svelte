@@ -86,10 +86,10 @@
         <Card class="card-element">
             <CardBody class="card-element-body">
                 {#if !!card.title}
-                <div class="card-element-title hide-text">{card.title}</div>
+                    <div class="card-element-title hide-text">{card.title}</div>
                 {/if}
                 {#if !!card.subtitle}
-                <div class="card-element-subtitle hide-text">{card.subtitle}</div>
+                    <div class="card-element-subtitle hide-text">{card.subtitle}</div>
                 {/if}
                 {#if card.options?.length > 0}
                     <div class="card-option-group">
@@ -115,7 +115,7 @@
         {#each buttons as option, index}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                style='text-align: center; width: 100%;'
+                style='width: 100%;'
                 disabled={disabled}
                 on:click={(e) => handleClickOption(e, option)}
             >
