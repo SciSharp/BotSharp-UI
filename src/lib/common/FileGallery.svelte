@@ -1,12 +1,11 @@
 <script>
     import { LightboxGallery, GalleryThumbnail, GalleryImage } from 'svelte-lightbox';
-    import Viewport from 'svelte-viewport-info';
 
     /** @type {any[]} */
     export let files = [];
 
     /** @type {boolean} */
-    export let needDelete = true;
+    export let needDelete = false;
 
     /** @type {boolean} */
     export let disabled = false;
@@ -29,28 +28,26 @@
 {#if files?.length > 0}
     <LightboxGallery transitionDuration={100}>
         <svelte:fragment slot="thumbnail">
-            <div class="image-gallery-container">
-                {#each files as file, idx (idx)}
-                    <div class={`gallery-item`}>
-                        <GalleryThumbnail style="width: 100%; height: 100%; display: flex;" id={idx}>
-                            <div class="gallery-item-wrapper">
-                                {#if needDelete}
-                                    <div
-                                        class="gallery-item-icon"
-                                        tabindex="0"
-                                        role="button"
-                                        on:keydown={() => {}}
-                                        on:click={e => handleDeleteFile(e, idx)}
-                                    >
-                                        <i class="bx bx-trash" />
-                                    </div>
-                                {/if}
-                                <img class="gallery-item-image" src={file.url} alt={''}>
-                            </div>
-                        </GalleryThumbnail>
-                    </div>
-                {/each}
-            </div>
+            {#each files as file, idx (idx)}
+                <div class={`gallery-item`}>
+                    <GalleryThumbnail style="width: 100%; height: 100%; display: flex;" id={idx}>
+                        <div class="gallery-item-wrapper">
+                            {#if needDelete}
+                                <div
+                                    class="gallery-item-icon"
+                                    tabindex="0"
+                                    role="button"
+                                    on:keydown={() => {}}
+                                    on:click={e => handleDeleteFile(e, idx)}
+                                >
+                                    <i class="bx bx-trash" />
+                                </div>
+                            {/if}
+                            <img class="gallery-item-image" src={file.url} alt={''}>
+                        </div>
+                    </GalleryThumbnail>
+                </div>
+            {/each}
         </svelte:fragment>
 
         {#each files as file, idx (idx)}

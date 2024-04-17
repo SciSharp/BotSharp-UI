@@ -376,64 +376,74 @@
 
 <svelte:window on:focus={onWindowFocus} on:dragover={onDocumentDragOver} on:drop={onDocumentDrop} />
 
-<div style="display: block;">
-    <div
-        bind:this={rootRef}
-        tabindex="0"
-        role="button"
-        class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
-        style={`${containerStyles}`}
-        on:keydown={composeKeyboardHandler(onKeyDownCb)}
-        on:focus={composeKeyboardHandler(onFocusCb)}
-        on:blur={composeKeyboardHandler(onBlurCb)}
-        on:click={composeHandler(onClickCb)}
-        on:dragenter={composeDragHandler(onDragEnterCb)}
-        on:dragover={composeDragHandler(onDragOverCb)}
-        on:dragleave={composeDragHandler(onDragLeaveCb)}
-        on:drop={composeDragHandler(onDropCb)}
-    >
-        <input
-            {accept}
-            {multiple}
-            {required}
-            type="file"
-            {name}
-            autocomplete="off"
-            tabindex="-1"
-            on:change={onDropCb}
-            on:click={onInputElementClick}
-            bind:this={inputElement}
-            style="display: none;"
-        />
-        <slot>
-            <p class={`file-drop-text ${isError ? 'text-danger' : isSuccess ? 'text-success' : ''}`}>{innerDropText}</p>
-        </slot>
-    </div>
+
+<div
+    bind:this={rootRef}
+    tabindex="0"
+    role="button"
+    class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
+    style={`${containerStyles}`}
+    on:keydown={composeKeyboardHandler(onKeyDownCb)}
+    on:focus={composeKeyboardHandler(onFocusCb)}
+    on:blur={composeKeyboardHandler(onBlurCb)}
+    on:click={composeHandler(onClickCb)}
+    on:dragenter={composeDragHandler(onDragEnterCb)}
+    on:dragover={composeDragHandler(onDragOverCb)}
+    on:dragleave={composeDragHandler(onDragLeaveCb)}
+    on:drop={composeDragHandler(onDropCb)}
+>
+    <input
+        {accept}
+        {multiple}
+        {required}
+        type="file"
+        {name}
+        autocomplete="off"
+        tabindex="-1"
+        on:change={onDropCb}
+        on:click={onInputElementClick}
+        bind:this={inputElement}
+        style="display: none;"
+    />
+    <slot>
+        <div class="add-file-icon">
+            <i class="bx bxs-image-add" />
+        </div>
+    </slot>
 </div>
+
 
   
 <style>
     .file-dropzone {
-      flex: 1;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      justify-content: center;
       border-width: 2px;
-      border-radius: 2px;
+      border-radius: 10px;
       border-color: #eeeeee;
       border-style: dashed;
       background-color: #fafafa;
       color: #bdbdbd;
       outline: none;
       transition: border 0.24s ease-in-out;
-      margin-top: 3px;
-      width: 100%;
-      height: 10rem;
+      width: 8em;
+      height: 8em;
     }
 
-    .file-drop-text {
-        margin-top: auto;
-        margin-bottom: auto;
+    .add-file-icon {
+        font-size: 3em;
+    }
+
+    @media (max-width: 500px) {
+        .file-dropzone {
+            width: 5em;
+            height: 5em;
+        }
+
+        .add-file-icon {
+            font-size: 2em;
+        }
     }
 </style>

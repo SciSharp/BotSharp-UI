@@ -1,14 +1,14 @@
 <script>
+    import { onMount } from "svelte";
     import FileDropZone from "$lib/common/FileDropZone.svelte";
     import FileGallery from "$lib/common/FileGallery.svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
-	import { onMount } from "svelte";
 
     /** @type {boolean} */
     export let disabled = false;
 
     /** @type {any[]} */
-    export let files = [];
+    let files = [];
 
     onMount(() => {
         const savedAttachments = conversationUserAttachmentStore.get();
@@ -35,5 +35,10 @@
     }
 </script>
 
-<FileDropZone accept="image/*" containerStyles={'width: 100%; height: fit-content; min-height: 8rem;'} disabled={disabled} on:drop={e => handleFileDrop(e)} />
-<FileGallery files={files} disabled={disabled} onDelete={deleteFile} />
+<div style="display: block; margin-top: 3px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 3px;">
+        <FileGallery files={files} disabled={disabled} needDelete onDelete={deleteFile} />
+        <FileDropZone accept="image/*" disabled={disabled} on:drop={e => handleFileDrop(e)} />
+    </div>
+</div>
+
