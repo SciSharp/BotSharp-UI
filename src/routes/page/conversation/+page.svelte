@@ -315,7 +315,7 @@
 
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={'Delete completed!'} />
+<LoadingToComplete isLoading={isLoading} isComplete={true} isError={isError} successText={'Delete completed!'} />
 <StateModal
 	isOpen={isOpenSearchStateModal}
 	validateKey={true}

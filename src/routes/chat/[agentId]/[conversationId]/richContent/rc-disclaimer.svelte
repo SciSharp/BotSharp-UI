@@ -1,9 +1,8 @@
 <script>
-    
-     /** @type {any} */
-     export let message;
+     /** @type {string} */
+     export let content;
 </script>
 
-<div>
-    {'post back message'}
+<div class="msg-disclaimer">
+    {content}
 </div>
