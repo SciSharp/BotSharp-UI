@@ -216,6 +216,7 @@
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 		lastBotMsg = findLastBotMessage(dialogs);
+		assignMessageDisclaimer(dialogs)
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
@@ -230,6 +231,29 @@
                 viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
             }, 200);
         });
+	}
+
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function assignMessageDisclaimer(dialogs) {
+		if (!!!dialogs) return null;
+
+		for (let idx = 0; idx < dialogs.length; idx++) {
+			const curMsg = dialogs[idx];
+			// @ts-ignore
+			if (!curMsg.rich_content?.message?.buttons?.some(op => !!op.post_action_disclaimer)) {
+				continue;
+			}
+
+			const nextMsg = dialogs[idx + 1];
+			if (!!nextMsg) {
+				// @ts-ignore
+				const disclaimerOptions = curMsg.rich_content?.message?.buttons?.filter(op => !!op.post_action_disclaimer) || [];
+				const content = nextMsg?.rich_content?.message?.text || nextMsg?.text;
+				// @ts-ignore
+				const foundOption = disclaimerOptions.find(x => x.title === content);
+				nextMsg.post_action_disclaimer = foundOption?.post_action_disclaimer;
+			}
+		}
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -854,65 +878,62 @@
 									</div>
 								</li>
 								{#each dialogGroup as message}
-								<li id={'test_k' + message.message_id}
-									class:right={USER_SENDERS.includes(message.sender?.role)}>
-									<div class="conv-msg-wrapper">
-										<div class="conv-msg-container">
-											{#if USER_SENDERS.includes(message.sender?.role)}
-											<div class="msg-container">
-												<div
-													class="ctext-wrap user-msg"
-													class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
-													id={`user-msg-${message.message_id}`}
-													tabindex="0"
-													aria-label="user-msg-to-log"
-													role="link"
-													on:keydown={() => {}}
-													on:click={() => directToLog(message.message_id)}
-												>
-													<div>
-														<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-														<div class="text-start">{@html replaceNewLine(message.text)}</div>
-														<p class="chat-time mb-0">
-															<i class="bx bx-time-five align-middle me-1" />
-															<!-- {format(message.created_at, 'short-time')} -->
-															{utcToLocal(message.created_at, 'hh:mm A')}
-														</p>
-													</div>
+								<li id={'test_k' + message.message_id} class:right={USER_SENDERS.includes(message.sender?.role)}>
+									<div class="conv-msg-container">
+										{#if USER_SENDERS.includes(message.sender?.role)}
+										<div class="msg-container">
+											<div
+												class="ctext-wrap user-msg"
+												class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
+												id={`user-msg-${message.message_id}`}
+												tabindex="0"
+												aria-label="user-msg-to-log"
+												role="link"
+												on:keydown={() => {}}
+												on:click={() => directToLog(message.message_id)}
+											>
+												<div>
+													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
+													<div class="text-start">{@html replaceNewLine(message.text)}</div>
+													<p class="chat-time mb-0">
+														<i class="bx bx-time-five align-middle me-1" />
+														<!-- {format(message.created_at, 'short-time')} -->
+														{utcToLocal(message.created_at, 'hh:mm A')}
+													</p>
 												</div>
 											</div>
-												{#if !isLite}
-													<Dropdown>
-														<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
-															<i class="bx bx-dots-vertical-rounded" />
-														</DropdownToggle>
-														<DropdownMenu class="dropdown-menu-end">
-															<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
-															<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
-															<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
-														</DropdownMenu>
-													</Dropdown>
-												{/if}
-											{:else}
-											<div class="cicon-wrap">
-												{#if message.sender.role == UserRole.Client}
-												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
-												{:else}
-												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
-												{/if}
-											</div>
-											<div class="msg-container">
-												<RichContent
-													message={message}
-													lastBotMessage={lastBotMsg}
-													disabled={isSendingMsg || isThinking}
-													onConfirm={confirmSelectedOption}
-												/>
-											</div>
+											{#if !!message.post_action_disclaimer}
+												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
 										</div>
-										{#if USER_SENDERS.includes(message.sender?.role)}
-											<RcDisclaimer message={message} />
+											{#if !isLite}
+												<Dropdown>
+													<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
+														<i class="bx bx-dots-vertical-rounded" />
+													</DropdownToggle>
+													<DropdownMenu class="dropdown-menu-end">
+														<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
+														<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
+														<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
+													</DropdownMenu>
+												</Dropdown>
+											{/if}
+										{:else}
+										<div class="cicon-wrap">
+											{#if message.sender.role == UserRole.Client}
+												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+											{:else}
+												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+											{/if}
+										</div>
+										<div class="msg-container">
+											<RichContent
+												message={message}
+												lastBotMessage={lastBotMsg}
+												disabled={isSendingMsg || isThinking}
+												onConfirm={confirmSelectedOption}
+											/>
+										</div>
 										{/if}
 									</div>
 								</li>
@@ -921,15 +942,13 @@
 
 								{#if isThinking}
 								<li>
-									<div class="conv-msg-wrapper">
-										<div class="conv-msg-container">
-											<div class="cicon-wrap float-start">
-												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
-											</div>
-											<div class="ctext-wrap float-start" style="display: flex;">
-												<div class="flex-shrink-0 align-self-center">
-													<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
-												</div>
+									<div class="conv-msg-container">
+										<div class="cicon-wrap float-start">
+											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+										</div>
+										<div class="ctext-wrap float-start" style="display: flex;">
+											<div class="flex-shrink-0 align-self-center">
+												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 											</div>
 										</div>
 									</div>

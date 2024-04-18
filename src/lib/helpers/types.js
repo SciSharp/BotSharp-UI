@@ -274,6 +274,7 @@ IRichContent.prototype.text;
  * @property {string} text - The message content.
  * @property {string} function - The function name.
  * @property {RichContent} rich_content - Rich content.
+ * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
  * @property {Date} created_at - The message sent time.
  */
