@@ -1,5 +1,5 @@
 <script>
-	import { EditorType, ElementType, RichType } from "$lib/helpers/enums";
+	import { EditorType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import RcMessage from "./rc-message.svelte";
@@ -40,6 +40,8 @@
                 options = message?.rich_content?.message?.elements;
                 // @ts-ignore
                 isComplexElement = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
+            } else if (lastBotMessage?.rich_content?.editor === EditorType.File) {
+                options = message?.rich_content?.message?.buttons;
             }
         }
     }
@@ -56,14 +58,14 @@
 <RcMessage message={message} />
 
 {#if message.message_id === lastBotMessage?.message_id && lastBotMessage?.rich_content?.editor === EditorType.File}
-    <ChatAttachment disabled={disabled} />
+    <ChatAttachment options={options} disabled={disabled} onConfirm={handleConfirm} />
 {/if}
 
 {#if message.message_id !== lastBotMessage?.message_id}
     <FileGallery files={message.files} />
 {/if}
 
-{#if message.message_id === lastBotMessage?.message_id && !disabled}
+{#if message.message_id === lastBotMessage?.message_id && !disabled && lastBotMessage?.rich_content?.editor !== EditorType.File}
     {#if !isComplexElement}
         <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disabled={disabled} onConfirm={handleConfirm} />
     {:else}

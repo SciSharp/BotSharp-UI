@@ -1,0 +1,75 @@
+$attachment-width: 8em;
+$attachment-height: 8em;
+$attachment-width-lite: 5em;
+$attachment-height-lite: 5em;
+$file-screen-max-width: 500px;
+
+.gallery-item {
+    width: $attachment-width;
+    height: $attachment-height;
+
+    @media (max-width: $file-screen-max-width) {
+        width: $attachment-width-lite;
+        height: $attachment-height-lite;
+    }
+
+    .gallery-item-wrapper {
+        position: relative;
+
+        .gallery-item-icon {
+            position: absolute;
+            color: white;
+            cursor: pointer;
+            z-index: 1000;
+            right: 3px;
+            font-size: 1.5em;
+        }
+
+        .gallery-item-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+    }
+}
+
+.svelte-lightbox-footer p {
+    display: none;
+}
+
+.item-text {
+    text-align: center;
+    color: white;
+}
+
+.file-dropzone {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-width: 2px;
+    border-radius: 10px;
+    border-color: #eeeeee;
+    border-style: dashed;
+    background-color: #fafafa;
+    color: #bdbdbd;
+    outline: none;
+    transition: border 0.24s ease-in-out;
+    width: $attachment-width;
+    height: $attachment-width;
+}
+
+.add-file-icon {
+    font-size: 3em;
+}
+
+@media (max-width: $file-screen-max-width) {
+    .file-dropzone {
+        width: $attachment-width-lite;
+        height: $attachment-width-lite;
+    }
+
+    .add-file-icon {
+        font-size: 2em;
+    }
+}

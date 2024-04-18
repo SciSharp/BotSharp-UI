@@ -26,16 +26,15 @@
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
-	import RcMessage from './richContent/rc-message.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
 	import ChatImage from './chatImage/chat-image.svelte';
-	import ChatAttachment from './chatImage/chat-attachment.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
+	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
 	
 	
 	const options = {
@@ -857,60 +856,63 @@
 								{#each dialogGroup as message}
 								<li id={'test_k' + message.message_id}
 									class:right={USER_SENDERS.includes(message.sender?.role)}>
-									<div class="conversation-list">
-										{#if USER_SENDERS.includes(message.sender?.role)}
-										<div class="msg-container">
-											<div
-												class="ctext-wrap user-msg"
-												class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
-												id={`user-msg-${message.message_id}`}
-												tabindex="0"
-												aria-label="user-msg-to-log"
-												role="link"
-												on:keydown={() => {}}
-												on:click={() => directToLog(message.message_id)}
-											>
-												<div>
-													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
-													<div class="text-start">{@html replaceNewLine(message.text)}</div>
-													<p class="chat-time mb-0">
-														<i class="bx bx-time-five align-middle me-1" />
-														<!-- {format(message.created_at, 'short-time')} -->
-														{utcToLocal(message.created_at, 'hh:mm A')}
-													</p>
+									<div class="conv-msg-wrapper">
+										<div class="conv-msg-container">
+											{#if USER_SENDERS.includes(message.sender?.role)}
+											<div class="msg-container">
+												<div
+													class="ctext-wrap user-msg"
+													class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
+													id={`user-msg-${message.message_id}`}
+													tabindex="0"
+													aria-label="user-msg-to-log"
+													role="link"
+													on:keydown={() => {}}
+													on:click={() => directToLog(message.message_id)}
+												>
+													<div>
+														<!--<div class="conversation-name">{message.sender.full_name}</div>-->
+														<div class="text-start">{@html replaceNewLine(message.text)}</div>
+														<p class="chat-time mb-0">
+															<i class="bx bx-time-five align-middle me-1" />
+															<!-- {format(message.created_at, 'short-time')} -->
+															{utcToLocal(message.created_at, 'hh:mm A')}
+														</p>
+													</div>
 												</div>
 											</div>
-											<ChatImage message={message} />
-										</div>
-										{#if !isLite}
-										<Dropdown>
-											<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
-												<i class="bx bx-dots-vertical-rounded" />
-											</DropdownToggle>
-											<DropdownMenu class="dropdown-menu-end">
-												<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
-												<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
-												<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
-											</DropdownMenu>
-										</Dropdown>
-										{/if}
-										{:else}
-										<div class="cicon-wrap">
-											{#if message.sender.role == UserRole.Client}
-											<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+												{#if !isLite}
+													<Dropdown>
+														<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
+															<i class="bx bx-dots-vertical-rounded" />
+														</DropdownToggle>
+														<DropdownMenu class="dropdown-menu-end">
+															<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
+															<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
+															<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
+														</DropdownMenu>
+													</Dropdown>
+												{/if}
 											{:else}
-											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+											<div class="cicon-wrap">
+												{#if message.sender.role == UserRole.Client}
+												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+												{:else}
+												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+												{/if}
+											</div>
+											<div class="msg-container">
+												<RichContent
+													message={message}
+													lastBotMessage={lastBotMsg}
+													disabled={isSendingMsg || isThinking}
+													onConfirm={confirmSelectedOption}
+												/>
+											</div>
 											{/if}
 										</div>
-										<div class="msg-container">
-											<RichContent
-												message={message}
-												lastBotMessage={lastBotMsg}
-												disabled={isSendingMsg || isThinking}
-												onConfirm={confirmSelectedOption}
-											/>
-											<ChatImage message={message} />
-										</div>
+										{#if USER_SENDERS.includes(message.sender?.role)}
+											<RcDisclaimer message={message} />
 										{/if}
 									</div>
 								</li>
@@ -919,13 +921,15 @@
 
 								{#if isThinking}
 								<li>
-									<div class="conversation-list">
-										<div class="cicon-wrap float-start">
-											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
-										</div>
-										<div class="ctext-wrap float-start" style="display: flex;">
-											<div class="flex-shrink-0 align-self-center">
-												<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
+									<div class="conv-msg-wrapper">
+										<div class="conv-msg-container">
+											<div class="cicon-wrap float-start">
+												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+											</div>
+											<div class="ctext-wrap float-start" style="display: flex;">
+												<div class="flex-shrink-0 align-self-center">
+													<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
+												</div>
 											</div>
 										</div>
 									</div>

@@ -411,39 +411,3 @@
         </div>
     </slot>
 </div>
-
-
-  
-<style>
-    .file-dropzone {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border-width: 2px;
-      border-radius: 10px;
-      border-color: #eeeeee;
-      border-style: dashed;
-      background-color: #fafafa;
-      color: #bdbdbd;
-      outline: none;
-      transition: border 0.24s ease-in-out;
-      width: 8em;
-      height: 8em;
-    }
-
-    .add-file-icon {
-        font-size: 3em;
-    }
-
-    @media (max-width: 500px) {
-        .file-dropzone {
-            width: 5em;
-            height: 5em;
-        }
-
-        .add-file-icon {
-            font-size: 2em;
-        }
-    }
-</style>
