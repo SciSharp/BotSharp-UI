@@ -153,8 +153,7 @@
         }
     }
 
-    .conversation-list {
-        margin-bottom: 20px;
+    .conv-msg-container {
         display: flex;
         position: relative;
         width: 100%;
@@ -328,7 +327,7 @@
     }
 
     .right {
-        .conversation-list {
+        .conv-msg-container {
             justify-content: flex-end;
 
             .msg-container {
@@ -344,7 +343,7 @@
             }
 
             &.last-chat {
-                .conversation-list {
+                .conv-msg-container {
                     &:before {
                         right: 0;
                         left: auto;
@@ -355,7 +354,7 @@
     }
 
     .last-chat {
-        .conversation-list {
+        .conv-msg-container {
             &:before {
                 content: "\F0009";
                 font-family: "Material Design Icons";
@@ -600,3 +599,6 @@
     }
 }
 
+.conv-msg-wrapper {
+    margin-bottom: 20px;
+}

@@ -89,7 +89,7 @@
                     <div class="card-element-title hide-text">{card.title}</div>
                 {/if}
                 {#if !!card.subtitle}
-                    <div class="card-element-subtitle hide-text">{card.subtitle}</div>
+                    <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
                 {/if}
                 {#if card.options?.length > 0}
                     <div class="card-option-group">
