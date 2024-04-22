@@ -30,11 +30,22 @@
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        cancelOption = options?.find(op => op.title?.toLowerCase() === 'no');
-        confirmOption = {
-            title: 'Yes, I have uploaded attachments.',
-            payload: 'I have uploaded attachments.'
-        };
+        confirmOption = options?.find(op => op.title?.toLowerCase()?.startsWith("yes"));
+        cancelOption = options?.find(op => op.title?.toLowerCase()?.startsWith("no"));
+        
+        if (!confirmOption) {
+            confirmOption = {
+                title: 'Yes, I have uploaded attachments.',
+                payload: 'I have uploaded attachments.'
+            };
+        }
+
+        if (!cancelOption) {
+            cancelOption = {
+                title: 'No, I do not have attachments to upload.',
+                payload: 'No, I do not have attachments to upload.'
+            };
+        }
     }
 
     /**
@@ -82,7 +93,7 @@
 </div>
 
 <div class="plain-option-container">
-    {#if files?.length > 0}
+    {#if files?.length > 0 && confirmOption}
         <button
             class={`btn btn-sm m-1 ${confirmOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             disabled={disabled}
@@ -90,7 +101,8 @@
         >
             {confirmOption?.title}
         </button>
-    {:else}
+    {/if}
+    {#if files?.length <= 0 && cancelOption}
         <button
             class={`btn btn-sm m-1 ${cancelOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             disabled={disabled}
