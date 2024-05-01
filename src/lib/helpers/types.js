@@ -343,6 +343,7 @@ IRichContent.prototype.text;
  * @typedef {Object} ConversationSenderActionModel
  * @property {string} conversation_id - The conversation id.
  * @property {number} sender_action - The sender action.
+ * @property {string} [indication] - The function indication.
  */
 
 /** 
