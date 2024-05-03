@@ -645,6 +645,7 @@
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
 		clearEventLogs();
+		resetStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
