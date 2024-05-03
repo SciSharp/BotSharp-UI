@@ -43,7 +43,7 @@
                                     <i class="bx bx-trash" />
                                 </div>
                             {/if}
-                            <img class="gallery-item-image" src={file.url} alt={''}>
+                            <img class="gallery-item-image" src={file.file_data} alt={''}>
                         </div>
                     </GalleryThumbnail>
                 </div>
@@ -52,7 +52,7 @@
 
         {#each files as file, idx (idx)}
             <GalleryImage title={file.file_name}>
-                <img src={file.url} alt={''} />
+                <img src={file.file_data} alt={''} />
                 <div class="item-text">{file.file_name}</div>
             </GalleryImage>
         {/each}

@@ -272,6 +272,7 @@ IRichContent.prototype.text;
  * @property {UserModel} sender - The message sender.
  * @property {string} message_id - The message id.
  * @property {string} text - The message content.
+ * @property {string} editor - The message editor.
  * @property {string} function - The function name.
  * @property {RichContent} rich_content - Rich content.
  * @property {string} post_action_disclaimer - The message disclaimer.

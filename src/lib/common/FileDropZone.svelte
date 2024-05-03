@@ -35,8 +35,10 @@
     export let inputElement = undefined;
     export let required = false;
     export let dropText = "Drag and drop some files here, or click to select files";
+    export let fileLimit = 5;
 
     let innerDropText = dropText;
+    let innerDisabled = disabled;
     let isLoading = false;
     let isError = false;
     let isSuccess = false;
@@ -48,16 +50,16 @@
     $: {
         if (isLoading) {
             innerDropText = "Uploading...";
-            disabled = true;
+            innerDisabled = true;
         } else if (isSuccess) {
             innerDropText = defaultSuccessMesssage;
-            disabled = true;
+            innerDisabled = true;
         } else if (isError) {
             innerDropText = reason;
-            disabled = true;
+            innerDisabled = true;
         } else {
             innerDropText = dropText;
-            disabled = false;
+            innerDisabled = disabled;
         }
     }
 
@@ -225,9 +227,9 @@
                 }
 
                 /** @type {any[]} */
-                const acceptedFiles = [];
+                let acceptedFiles = [];
                 /** @type {any[]} */
-                const fileRejections = [];
+                let fileRejections = [];
 
                 /** @type {Promise<any>[]} */
                 const promises = [];
@@ -236,12 +238,14 @@
                     promises.push(new Promise((resolve, reject) => {
                         const [accepted, acceptError] = fileAccepted(file, accept);
                         const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
-                        getBase64(file).then(res => {
+                        getBase64(file).then(data => {
                             if (accepted && sizeMatch) {
                                 acceptedFiles.push({
                                     file_name: file.name,
                                     file_path: file.path,
-                                    url: res
+                                    file_data: data,
+                                    content_type: file.type,
+                                    file_size: file.size
                                 });
                             } else {
                                 const errors = [acceptError, sizeError].filter(Boolean);
@@ -254,6 +258,9 @@
 
                 Promise.all(promises).then(() => {
                     isLoading = false;
+                    if (acceptedFiles.length >= fileLimit) {
+                        acceptedFiles = acceptedFiles.slice(0, Math.max(fileLimit, 0));
+                    }
 
                     if (!multiple && acceptedFiles.length > 1) {
                         // Reject everything and empty accepted files
@@ -310,7 +317,7 @@
         resetState();
     }
   
-    $: composeHandler = (/** @type {any} */ fn) => (disabled ? null : fn);
+    $: composeHandler = (/** @type {any} */ fn) => (innerDisabled ? null : fn);
   
     $: composeKeyboardHandler = (/** @type {any} */ fn) => (noKeyboard ? null : composeHandler(fn));
   

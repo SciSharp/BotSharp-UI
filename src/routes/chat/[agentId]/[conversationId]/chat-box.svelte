@@ -30,7 +30,6 @@
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
-	import ChatImage from './chatImage/chat-image.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
@@ -273,6 +272,22 @@
 		});
 	}
 
+	function getChatFiles() {
+		if (lastBotMsg?.rich_content?.editor !== EditorType.File) {
+			return [];
+		}
+
+		const attachments = conversationUserAttachmentStore.get();
+		const files = attachments?.accepted_files || [];
+		return files.map((/** @type {any} */ f) => {
+			return {
+				...f,
+				conversation_id: params.conversationId,
+				message_id: lastBotMsg?.message_id
+			};
+		});
+	}
+
 
 	/** @param {import('$types').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
@@ -357,22 +372,26 @@
 		isSendingMsg = true;
 		clearEventLogs();
 		renewUserSentMessages(msgText);
-
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		/** @type {import('$types').MessageData?} */
 		const messageData = {
 			...data,
 			postback: postback
 		};
-		
+
+		/** @type {any[]} */
+		let files = [];
+		if (!!!data?.truncateMsgId) {
+			files = getChatFiles();
+		}
+		resetStorage();
+
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
 				isSendingMsg = false;
-				resetStorage();
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
-				resetStorage();
 				reject(err);
 			});
 		});

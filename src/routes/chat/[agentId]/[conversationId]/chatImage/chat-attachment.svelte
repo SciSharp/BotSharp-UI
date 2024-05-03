@@ -15,17 +15,27 @@
 
     /** @type {any[]} */
     let files = [];
-
     /** @type {any} */
     let confirmOption;
     /** @type {any} */
     let cancelOption;
+    /** @type {boolean} */
+    let disableFileDrop = false;
+    /** @type {number} */
+    let fileUploadLimit = 0;
+
+    const fileUpperLimit = 5;
 
     onMount(() => {
         collectOptions(options);
         const savedAttachments = conversationUserAttachmentStore.get();
-        files = savedAttachments.acceptedFiles || [];
+        files = savedAttachments.accepted_files || [];
     });
+
+    $: {
+        disableFileDrop = disabled || files.length >= fileUpperLimit;
+        fileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
+    }
 
 
     /** @param {any[]} options */
@@ -69,9 +79,9 @@
     async function handleFileDrop(e) {
         const { acceptedFiles } = e.detail;
         const savedAttachments = conversationUserAttachmentStore.get();
-        const newAttachments = [...savedAttachments.acceptedFiles || [], ...acceptedFiles];
+        const newAttachments = [...savedAttachments.accepted_files || [], ...acceptedFiles];
         conversationUserAttachmentStore.put({
-            acceptedFiles: newAttachments
+            accepted_files: newAttachments
         });
         files = newAttachments;
     }
@@ -80,7 +90,7 @@
     function deleteFile(index) {
         files = files?.filter((f, idx) => idx !== index) || [];
         conversationUserAttachmentStore.put({
-            acceptedFiles: files
+            accepted_files: files
         });
     }
 </script>
@@ -88,7 +98,7 @@
 <div style="display: block; margin-top: 3px;">
     <div style="display: flex; flex-wrap: wrap; gap: 3px;">
         <FileGallery files={files} disabled={disabled} needDelete onDelete={deleteFile} />
-        <FileDropZone accept="image/*" disabled={disabled} on:drop={e => handleFileDrop(e)} />
+        <FileDropZone accept="image/*" disabled={disableFileDrop} fileLimit={fileUploadLimit} on:drop={e => handleFileDrop(e)} />
     </div>
 </div>
 
