@@ -53,7 +53,9 @@
         {#each files as file, idx (idx)}
             <GalleryImage title={file.file_name}>
                 <img src={file.file_data} alt={''} />
+                {#if !!file.file_name}
                 <div class="item-text">{file.file_name}</div>
+                {/if}
             </GalleryImage>
         {/each}
     </LightboxGallery>

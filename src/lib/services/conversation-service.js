@@ -38,6 +38,17 @@ export async function getConversations(filter) {
 }
 
 /**
+ * Get conversation files
+ * @param {string} conversationId
+ * @param {string} messageId
+ */
+export async function getConversationFiles(conversationId, messageId) {
+    const url = replaceUrl(endpoints.conversationAttachmentUrl, { conversationId: conversationId, messageId: messageId });
+    const response = await axios.get(url);
+    return response?.data;
+}
+
+/**
  * Delete conversation
  * @param {string} conversationId 
  */

@@ -54,13 +54,20 @@ axios.interceptors.response.use(
 
 /** @param {import('axios').InternalAxiosRequestConfig<any>} config */
 function skipLoader(config) {
-    let regex = new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g');
-    if (config.method === 'post' && !!config.data && regex.test(config.url || '')) {
+    const postRegexes = [
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g')
+    ];
+
+    const getRegexes = [
+        new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g')
+    ];
+
+    if (config.method === 'post' && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 
-    regex = new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g');
-    if (config.method === 'get' && regex.test(config.url || '')) {
+    if (config.method === 'get' && getRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 
