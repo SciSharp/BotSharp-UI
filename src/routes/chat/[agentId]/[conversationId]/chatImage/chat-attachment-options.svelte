@@ -1,7 +1,5 @@
 <script>
-    import { onMount } from "svelte";
-    import FileDropZone from "$lib/common/FileDropZone.svelte";
-    import FileGallery from "$lib/common/FileGallery.svelte";
+    import { onDestroy, onMount } from "svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
 
     /** @type {any[]} */
@@ -19,24 +17,20 @@
     let confirmOption;
     /** @type {any} */
     let cancelOption;
-    /** @type {boolean} */
-    let disableFileDrop = false;
-    /** @type {number} */
-    let fileUploadLimit = 0;
 
-    const fileUpperLimit = 5;
+    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+        const savedAttachments = conversationUserAttachmentStore.get();
+        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments.accepted_files || [];
+    });
 
     onMount(() => {
         collectOptions(options);
-        const savedAttachments = conversationUserAttachmentStore.get();
-        files = savedAttachments.accepted_files || [];
-        console.log(files);
+        
     });
 
-    $: {
-        disableFileDrop = disabled || files.length >= fileUpperLimit;
-        fileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
-    }
+    onDestroy(() => {
+        unsubscribe();
+    });
 
 
     /** @param {any[]} options */
@@ -75,33 +69,7 @@
      function innerConfirm(title, payload) {
         onConfirm && onConfirm(title, payload);
     }
-
-    /** @param {any} e */
-    async function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
-        const savedAttachments = conversationUserAttachmentStore.get();
-        const newAttachments = [...savedAttachments.accepted_files || [], ...acceptedFiles];
-        conversationUserAttachmentStore.put({
-            accepted_files: newAttachments
-        });
-        files = newAttachments;
-    }
-
-    /** @param {number} index */
-    function deleteFile(index) {
-        files = files?.filter((f, idx) => idx !== index) || [];
-        conversationUserAttachmentStore.put({
-            accepted_files: files
-        });
-    }
 </script>
-
-<div style="display: block; margin-top: 3px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 3px;">
-        <FileGallery files={files} disabled={disabled} needDelete onDelete={deleteFile} />
-        <FileDropZone accept="image/*" disabled={disableFileDrop} fileLimit={fileUploadLimit} on:drop={e => handleFileDrop(e)} />
-    </div>
-</div>
 
 <div class="plain-option-container">
     {#if files?.length > 0 && confirmOption}

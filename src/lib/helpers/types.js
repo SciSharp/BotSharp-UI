@@ -278,6 +278,7 @@ IRichContent.prototype.text;
  * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
  * @property {Date} created_at - The message sent time.
+ * @property {boolean} is_load_images - Check of the message needs to load images.
  */
 
 /**

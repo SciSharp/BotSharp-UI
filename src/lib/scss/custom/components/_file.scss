@@ -75,3 +75,11 @@ $file-screen-max-width: 500px;
         font-size: 2em;
     }
 }
+
+.chat-file-upload-gallery {
+    margin: 5px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: center;
+}

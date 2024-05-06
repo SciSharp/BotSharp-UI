@@ -133,9 +133,12 @@ export const conversationUserMessageStore = createConversationUserMessageStore()
 
 
 const createConversationUserAttachmentStore = () => {
+    const { subscribe, set } = writable({ accepted_files: [] });
+
     return {
         reset: () => {
             localStorage.removeItem(conversationUserAttachmentKey);
+            set({ accepted_files: [] });
         },
         get: () => {
             const json = localStorage.getItem(conversationUserAttachmentKey);
@@ -143,7 +146,9 @@ const createConversationUserAttachmentStore = () => {
         },
         put: (value) => {
             localStorage.setItem(conversationUserAttachmentKey, JSON.stringify(value));
-        }
+            set(value);
+        },
+        subscribe
     }
 };
 

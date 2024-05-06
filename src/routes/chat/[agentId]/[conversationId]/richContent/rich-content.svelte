@@ -3,7 +3,7 @@
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import RcMessage from "./rc-message.svelte";
-	import ChatAttachment from "../chatImage/chat-attachment.svelte";
+	import ChatAttachmentOptions from "../chatImage/chat-attachment-options.svelte";
 	import FileGallery from "$lib/common/FileGallery.svelte";
 	
     /** @type {any} */
@@ -58,7 +58,7 @@
 <RcMessage message={message} />
 
 {#if message.message_id === lastBotMessage?.message_id && lastBotMessage?.rich_content?.editor === EditorType.File}
-    <ChatAttachment options={options} disabled={disabled} onConfirm={handleConfirm} />
+    <ChatAttachmentOptions options={options} disabled={disabled} onConfirm={handleConfirm} />
 {/if}
 
 {#if message.message_id !== lastBotMessage?.message_id}

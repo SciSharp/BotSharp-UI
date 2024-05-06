@@ -27,24 +27,10 @@
             }) || [];
         });
     });
-
-    $: {
-        // if (files.length === 0) {
-        //     getConversationFiles($page.params.conversationId, message?.message_id).then(data => {
-        //         // @ts-ignore
-        //         files = data?.filter(item => !!item.file_url)?.map(item => {
-        //             return {
-        //                 ...item,
-        //                 file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
-        //             };
-        //         }) || [];
-        //     });
-        // }
-    }
 </script>
 
 <div style="display: block; margin-top: 3px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 3px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end;">
         <FileGallery files={files} />
     </div>
 </div>
