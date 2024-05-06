@@ -282,7 +282,6 @@
 		return files.map((/** @type {any} */ f) => {
 			return {
 				...f,
-				conversation_id: params.conversationId,
 				message_id: lastBotMsg?.message_id
 			};
 		});
@@ -384,16 +383,14 @@
 		if (!!!data?.truncateMsgId) {
 			files = getChatFiles();
 		}
-		// resetStorage();
+		resetStorage();
 
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
 				isSendingMsg = false;
-				resetStorage();
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
-				resetStorage();
 				reject(err);
 			});
 		});
@@ -959,7 +956,7 @@
 												onConfirm={confirmSelectedOption}
 											/>
 											{#if message.rich_content?.editor === EditorType.File && message.message_id != lastBotMsg?.message_id}
-												<ChatImage conversationId={params.conversationId} messageId={message.message_id} />
+												<ChatImage message={message} />
 											{/if}
 										</div>
 										{/if}

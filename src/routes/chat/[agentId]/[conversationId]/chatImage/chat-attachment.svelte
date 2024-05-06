@@ -30,6 +30,7 @@
         collectOptions(options);
         const savedAttachments = conversationUserAttachmentStore.get();
         files = savedAttachments.accepted_files || [];
+        console.log(files);
     });
 
     $: {

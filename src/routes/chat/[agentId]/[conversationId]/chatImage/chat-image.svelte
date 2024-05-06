@@ -3,11 +3,11 @@
 	import FileGallery from '$lib/common/FileGallery.svelte';
 	import { getUserStore } from '$lib/helpers/store';
 	import { getConversationFiles } from '$lib/services/conversation-service';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+    import { page } from '$app/stores';
 	
-    /** @type {string} */
-    export let conversationId;
-    /** @type {string} */
-    export let messageId;
+    /** @type {any} */
+    export let message;
 
     /** @type {any[]} */
     let files = [];
@@ -17,18 +17,29 @@
     onMount(() => {
         const user = getUserStore();
         token = user.token;
-    });
-
-    $: {
-        getConversationFiles(conversationId, messageId).then(data => {
+        getConversationFiles($page.params.conversationId, message?.message_id).then(data => {
             // @ts-ignore
             files = data?.filter(item => !!item.file_url)?.map(item => {
                 return {
                     ...item,
-                    file_data: `${item.file_url}?token=${token}`
+                    file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
                 };
             }) || [];
         });
+    });
+
+    $: {
+        // if (files.length === 0) {
+        //     getConversationFiles($page.params.conversationId, message?.message_id).then(data => {
+        //         // @ts-ignore
+        //         files = data?.filter(item => !!item.file_url)?.map(item => {
+        //             return {
+        //                 ...item,
+        //                 file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
+        //             };
+        //         }) || [];
+        //     });
+        // }
     }
 </script>
 
