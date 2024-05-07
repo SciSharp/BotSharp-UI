@@ -377,6 +377,14 @@
     }
 }
 
+.scroll-bottom-to-top {
+    display: flex;
+    flex-direction: column-reverse;
+    overflow-y: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+}
+
 .chat-input-section {
     border-top: 1px solid var(--#{$prefix}border-color);
     padding: 2vmin 2%;

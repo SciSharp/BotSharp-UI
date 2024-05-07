@@ -138,12 +138,9 @@
 		signalr.onConversationMessageDeleted = onConversationMessageDeleted;
 		await signalr.start(params.conversationId);
 
-		const scrollbarElements = [
+		scrollbars = [
 			document.querySelector('.chat-scrollbar')
 		].filter(Boolean);
-		scrollbarElements.forEach(elem => {
-            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
-        });
 		refresh();
 	});
 
@@ -237,13 +234,11 @@
     }
 
 	function autoScrollToBottom() {
-		// @ts-ignore
-        scrollbars.forEach(scrollbar => {
-            setTimeout(() => {
-                const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
-            }, 200);
-        });
+		scrollbars.forEach(scrollbar => {
+			setTimeout(() => {
+				scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
+			}, 200);
+		})
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -789,9 +784,11 @@
 
 		elements.forEach(item => {
 			const scrollElement = document.querySelector(item.wrapperName);
-			const logScroll = OverlayScrollbars(scrollElement, options);
-			const { viewport } = logScroll.elements();
-			viewport.scrollTo({ top: item.elm.offsetTop, behavior: 'smooth' });
+			if (!!scrollElement && !!item.elm) {
+				const logScroll = OverlayScrollbars(scrollElement, options);
+				const { viewport } = logScroll.elements();
+				viewport.scrollTo({ top: item.elm.offsetTop - 10, behavior: 'smooth' });
+			}
 		});
 	}
 
@@ -915,7 +912,7 @@
 						</div>
 					</div>
 
-					<div class="chat-scrollbar" style="height: 82%">
+					<div class="chat-scrollbar scroll-bottom-to-top" style="height: 82%;">
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
