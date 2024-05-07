@@ -248,7 +248,8 @@
 			}
 
 			const prevMsg = dialogs[idx-1];
-			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '') && prevMsg?.rich_content?.editor === EditorType.File) {
+			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
+				&& prevMsg?.rich_content?.editor === EditorType.File) {
 				curMsg.is_load_images = true;
 			}
 		}
