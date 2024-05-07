@@ -27,7 +27,7 @@
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
 	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
-	import MessageImageGallery from './chatImage/message-image-gallery.svelte';
+	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
 	import ChatImageGallery from './chatImage/chat-image-gallery.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
@@ -941,7 +941,7 @@
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
 											{#if message.is_load_images}
-												<MessageImageGallery message={message} />
+												<MessageImageGallery conversationId={params.conversationId} messageId={message.message_id} />
 											{/if}
 										</div>
 											{#if !isLite}

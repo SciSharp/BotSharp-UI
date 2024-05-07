@@ -83,3 +83,10 @@ $file-screen-max-width: 500px;
     gap: 3px;
     justify-content: flex-start;
 }
+
+.dialog-file-display {
+    .gallery-item {
+        width: $attachment-width-lite;
+        height: $attachment-height-lite;
+    }
+}

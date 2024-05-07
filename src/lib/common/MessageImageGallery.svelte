@@ -4,10 +4,18 @@
 	import { getUserStore } from '$lib/helpers/store';
 	import { getConversationFiles } from '$lib/services/conversation-service';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
-    import { page } from '$app/stores';
 	
-    /** @type {any} */
-    export let message;
+    /** @type {string} */
+    export let conversationId;
+
+    /** @type {string} */
+    export let messageId;
+
+    /** @type {string} */
+    export let galleryClasses = '';
+
+    /** @type {string} */
+    export let galleryStyles = '';
 
     /** @type {any[]} */
     let files = [];
@@ -17,7 +25,7 @@
     onMount(() => {
         const user = getUserStore();
         token = user.token;
-        getConversationFiles($page.params.conversationId, message?.message_id).then(data => {
+        getConversationFiles(conversationId, messageId).then(data => {
             // @ts-ignore
             files = data?.filter(item => !!item.file_url)?.map(item => {
                 return {
@@ -31,7 +39,8 @@
 
 <div>
     <FileGallery
-        containerStyles={'justify-content: flex-end;'}
+        containerClasses={galleryClasses}
+        containerStyles={galleryStyles}
         files={files}
     />
 </div>

@@ -7,6 +7,7 @@
     import { _ } from 'svelte-i18n'  
 	import { USER_SENDERS } from '$lib/helpers/constants';
 	import Markdown from '$lib/common/Markdown.svelte';
+	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -67,6 +68,13 @@
                                 <p class="fw-bold">
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
                                 </p>
+                                {#if USER_SENDERS.includes(dialog?.sender?.role || '')}
+                                <MessageImageGallery
+                                    galleryClasses={'dialog-file-display'}
+                                    conversationId={conversation.id}
+                                    messageId={dialog.message_id}
+                                />
+                                {/if}
                             </div>
                             {#if dialog.message_id}
                             <div>
