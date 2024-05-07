@@ -5,6 +5,18 @@
 		DropdownMenu,
 		DropdownItem,
 	} from '@sveltestrap/sveltestrap';
+	import {
+		conversationStore,
+		conversationUserStateStore,
+		conversationUserMessageStore,
+		conversationUserAttachmentStore
+	} from '$lib/helpers/store.js';
+	import {
+		sendMessageToHub,
+		GetDialogs,
+		deleteConversationMessage,
+		getConversationFiles
+	} from '$lib/services/conversation-service.js';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
@@ -14,9 +26,7 @@
 	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
-    import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore, conversationUserMessageStore, conversationUserAttachmentStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
@@ -37,7 +47,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	
 	
 	const options = {
 		scrollbars: {
@@ -944,8 +953,7 @@
 											{#if message.is_load_images}
 												<MessageImageGallery
 													galleryStyles={'justify-content: flex-end;'}
-													conversationId={params.conversationId}
-													messageId={message.message_id}
+													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id)}
 												/>
 											{/if}
 										</div>

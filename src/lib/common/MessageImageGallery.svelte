@@ -2,20 +2,16 @@
     import { onMount } from 'svelte';
 	import FileGallery from '$lib/common/FileGallery.svelte';
 	import { getUserStore } from '$lib/helpers/store';
-	import { getConversationFiles } from '$lib/services/conversation-service';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
-	
-    /** @type {string} */
-    export let conversationId;
-
-    /** @type {string} */
-    export let messageId;
 
     /** @type {string} */
     export let galleryClasses = '';
 
     /** @type {string} */
     export let galleryStyles = '';
+
+    /** @type {() => Promise<any>} */
+    export let fetchFiles = () => Promise.resolve([]);
 
     /** @type {any[]} */
     let files = [];
@@ -25,7 +21,7 @@
     onMount(() => {
         const user = getUserStore();
         token = user.token;
-        getConversationFiles(conversationId, messageId).then(data => {
+        fetchFiles().then(data => {
             // @ts-ignore
             files = data?.filter(item => !!item.file_url)?.map(item => {
                 return {

@@ -1,7 +1,7 @@
 <script>
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
-    import { GetDialogs } from '$lib/services/conversation-service.js';
+    import { GetDialogs, getConversationFiles } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
@@ -91,8 +91,7 @@
                                 {#if dialog.is_load_images}
                                 <MessageImageGallery
                                     galleryClasses={'dialog-file-display'}
-                                    conversationId={conversation.id}
-                                    messageId={dialog.message_id}
+                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id)}
                                 />
                                 {/if}
                             </div>
