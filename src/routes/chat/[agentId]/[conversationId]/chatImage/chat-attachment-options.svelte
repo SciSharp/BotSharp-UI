@@ -1,7 +1,5 @@
 <script>
-    import { onMount } from "svelte";
-    import FileDropZone from "$lib/common/FileDropZone.svelte";
-    import FileGallery from "$lib/common/FileGallery.svelte";
+    import { onDestroy, onMount } from "svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
 
     /** @type {any[]} */
@@ -15,16 +13,23 @@
 
     /** @type {any[]} */
     let files = [];
-
     /** @type {any} */
     let confirmOption;
     /** @type {any} */
     let cancelOption;
 
+    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+        const savedAttachments = conversationUserAttachmentStore.get();
+        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments.accepted_files || [];
+    });
+
     onMount(() => {
         collectOptions(options);
-        const savedAttachments = conversationUserAttachmentStore.get();
-        files = savedAttachments.acceptedFiles || [];
+        
+    });
+
+    onDestroy(() => {
+        unsubscribe();
     });
 
 
@@ -64,33 +69,7 @@
      function innerConfirm(title, payload) {
         onConfirm && onConfirm(title, payload);
     }
-
-    /** @param {any} e */
-    async function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
-        const savedAttachments = conversationUserAttachmentStore.get();
-        const newAttachments = [...savedAttachments.acceptedFiles || [], ...acceptedFiles];
-        conversationUserAttachmentStore.put({
-            acceptedFiles: newAttachments
-        });
-        files = newAttachments;
-    }
-
-    /** @param {number} index */
-    function deleteFile(index) {
-        files = files?.filter((f, idx) => idx !== index) || [];
-        conversationUserAttachmentStore.put({
-            acceptedFiles: files
-        });
-    }
 </script>
-
-<div style="display: block; margin-top: 3px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 3px;">
-        <FileGallery files={files} disabled={disabled} needDelete onDelete={deleteFile} />
-        <FileDropZone accept="image/*" disabled={disabled} on:drop={e => handleFileDrop(e)} />
-    </div>
-</div>
 
 <div class="plain-option-container">
     {#if files?.length > 0 && confirmOption}

@@ -15,12 +15,14 @@ $file-screen-max-width: 500px;
 
     .gallery-item-wrapper {
         position: relative;
+        width: 100%;
+        height: 100%;
 
         .gallery-item-icon {
             position: absolute;
-            color: white;
+            color: red;
             cursor: pointer;
-            z-index: 1000;
+            z-index: 500;
             right: 3px;
             font-size: 1.5em;
         }
@@ -72,4 +74,12 @@ $file-screen-max-width: 500px;
     .add-file-icon {
         font-size: 2em;
     }
+}
+
+.chat-file-upload-gallery {
+    margin: 5px 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: center;
 }

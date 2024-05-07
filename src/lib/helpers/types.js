@@ -272,11 +272,13 @@ IRichContent.prototype.text;
  * @property {UserModel} sender - The message sender.
  * @property {string} message_id - The message id.
  * @property {string} text - The message content.
+ * @property {string} editor - The message editor.
  * @property {string} function - The function name.
  * @property {RichContent} rich_content - Rich content.
  * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
  * @property {Date} created_at - The message sent time.
+ * @property {boolean} is_load_images - Check of the message needs to load images.
  */
 
 /**

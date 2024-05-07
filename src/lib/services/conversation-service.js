@@ -38,6 +38,17 @@ export async function getConversations(filter) {
 }
 
 /**
+ * Get conversation files
+ * @param {string} conversationId
+ * @param {string} messageId
+ */
+export async function getConversationFiles(conversationId, messageId) {
+    const url = replaceUrl(endpoints.conversationAttachmentUrl, { conversationId: conversationId, messageId: messageId });
+    const response = await axios.get(url);
+    return response?.data;
+}
+
+/**
  * Delete conversation
  * @param {string} conversationId 
  */
@@ -64,8 +75,9 @@ export async function GetDialogs(conversationId) {
  * @param {string} conversationId - The conversation id
  * @param {string} message - The text message sent to CSR
  * @param {import('$types').MessageData?} data - Additional data
+ * @param {any[]} files - The chat files
  */
-export async function sendMessageToHub(agentId, conversationId, message, data = null) {
+export async function sendMessageToHub(agentId, conversationId, message, data = null, files = []) {
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
         conversationId: conversationId
@@ -76,7 +88,8 @@ export async function sendMessageToHub(agentId, conversationId, message, data = 
         text: message,
         truncateMessageId: data?.truncateMsgId,
         states: totalStates,
-        postback: data?.postback
+        postback: data?.postback,
+        files: files
     });
     return response.data;
 }

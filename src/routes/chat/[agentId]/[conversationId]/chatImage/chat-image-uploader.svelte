@@ -1,0 +1,61 @@
+<script>
+    import { onDestroy, onMount } from 'svelte';
+    import FileDropZone from '$lib/common/FileDropZone.svelte';
+	import { conversationUserAttachmentStore } from '$lib/helpers/store';
+	
+
+    /** @type {boolean} */
+    export let disabled = false;
+
+    /** @type {any[]} */
+    let files = [];
+
+    /** @type {boolean} */
+    let disableFileDrop = false;
+
+    /** @type {number} */
+    let fileUploadLimit = 0;
+
+    const fileUpperLimit = 5;
+
+    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+        const savedAttachments = conversationUserAttachmentStore.get();
+        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments.accepted_files || [];
+    });
+
+    onDestroy(() => {
+        unsubscribe();
+    });
+
+    $: {
+        disableFileDrop = disabled || files.length >= fileUpperLimit;
+        fileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
+    }
+
+    /** @param {any} e */
+    async function handleFileDrop(e) {
+        const { acceptedFiles } = e.detail;
+        const savedAttachments = conversationUserAttachmentStore.get();
+        const newAttachments = [...savedAttachments.accepted_files || [], ...acceptedFiles];
+        conversationUserAttachmentStore.put({
+            accepted_files: newAttachments
+        });
+    }
+</script>
+
+<div class="chat-input-links">
+    <ul class="list-inline mb-0">
+        <li class="list-inline-item">
+            <FileDropZone
+                accept="image/*"
+                disableDefaultStyles
+                noDrag
+                disabled={disableFileDrop}
+                fileLimit={fileUploadLimit}
+                on:drop={e => handleFileDrop(e)}
+            >
+                <span><i class="mdi mdi-file-document-outline" /></span>
+            </FileDropZone>
+        </li>
+    </ul>
+</div>

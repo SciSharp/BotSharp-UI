@@ -26,15 +26,17 @@
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
+	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
+	import MessageImageGallery from './chatImage/message-image-gallery.svelte';
+	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
+	import ChatImageGallery from './chatImage/chat-image-gallery.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import StateLog from './stateLogs/state-log.svelte';
-	import ChatImage from './chatImage/chat-image.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
 	
 	
 	const options = {
@@ -217,6 +219,7 @@
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 		lastBotMsg = findLastBotMessage(dialogs);
+		assignLoadImageMessages(dialogs);
 		assignMessageDisclaimer(dialogs)
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
@@ -232,6 +235,29 @@
                 viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
             }, 200);
         });
+	}
+
+	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	function assignLoadImageMessages(dialogs) {
+		if (!!!dialogs) return;
+
+		for (let idx = 0; idx < dialogs.length; idx++) {
+			const curMsg = dialogs[idx];
+			if (!USER_SENDERS.includes(curMsg?.sender?.role || '')) {
+				continue;
+			}
+
+			const botMsgId = dialogs.findLastIndex((x, i) => i < idx && !USER_SENDERS.includes(x.sender?.role || ''));
+			if (botMsgId > -1 && dialogs[botMsgId]?.rich_content?.editor === EditorType.File) {
+				const userMsgs = dialogs.filter(x => x.message_id === curMsg.message_id && USER_SENDERS.includes(x.sender?.role || ''));
+				if (userMsgs?.length > 1) {
+					const userMsg = userMsgs.slice(-1)[0];
+					userMsg.is_load_images = true;
+				} else {
+					curMsg.is_load_images = true;
+				}
+			}
+		}
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -271,6 +297,15 @@
 			}
 			return createDate;
 		});
+	}
+
+	function getChatFiles() {
+		if (lastBotMsg?.rich_content?.editor !== EditorType.File) {
+			return [];
+		}
+
+		const attachments = conversationUserAttachmentStore.get();
+		return attachments?.accepted_files || [];
 	}
 
 
@@ -357,22 +392,26 @@
 		isSendingMsg = true;
 		clearEventLogs();
 		renewUserSentMessages(msgText);
-
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		/** @type {import('$types').MessageData?} */
 		const messageData = {
 			...data,
 			postback: postback
 		};
-		
+
+		/** @type {any[]} */
+		let files = [];
+		if (!!!data?.truncateMsgId) {
+			files = getChatFiles();
+		}
+		resetStorage();
+
 		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
 				isSendingMsg = false;
-				resetStorage();
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
-				resetStorage();
 				reject(err);
 			});
 		});
@@ -626,6 +665,7 @@
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
 		clearEventLogs();
+		resetStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
 	}
 
@@ -896,17 +936,18 @@
 												on:click={() => directToLog(message.message_id)}
 											>
 												<div>
-													<!--<div class="conversation-name">{message.sender.full_name}</div>-->
 													<div class="text-start">{@html replaceNewLine(message.text)}</div>
 													<p class="chat-time mb-0">
 														<i class="bx bx-time-five align-middle me-1" />
-														<!-- {format(message.created_at, 'short-time')} -->
 														{utcToLocal(message.created_at, 'hh:mm A')}
 													</p>
 												</div>
 											</div>
 											{#if !!message.post_action_disclaimer}
 												<RcDisclaimer content={message.post_action_disclaimer} />
+											{/if}
+											{#if message.is_load_images}
+												<MessageImageGallery message={message} />
 											{/if}
 										</div>
 											{#if !isLite}
@@ -951,9 +992,11 @@
 										</div>
 										<div class="msg-container">
 											<div class="ctext-wrap float-start">
-												<span class="chat-indication">
-													{indication}
-												</span>
+												{#if !!indication}
+													<span class="chat-indication">
+														{indication}
+													</span>
+												{/if}
 												<div class="flex-shrink-0 align-self-center" style="display: inline-block;">
 													<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
 												</div>
@@ -963,6 +1006,10 @@
 								</li>
 								{/if}
 							</ul>
+
+							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
+								<ChatImageGallery disabled={isSendingMsg || isThinking} />
+							{/if}
 						</div>
 					</div>
 
@@ -981,12 +1028,15 @@
 							<div class="col">
 								<div class="position-relative">
 									<ChatTextArea
-										className={'chat-input'}
+										className={`chat-input ${lastBotMsg?.rich_content?.editor == EditorType.File ? 'chat-input-image' : ''}`}
 										bind:text={text}
 										disabled={isSendingMsg || isThinking || lastBotMsg?.rich_content?.editor == EditorType.None}
 										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
 									/>
+									{#if lastBotMsg?.rich_content?.editor == EditorType.File}
+										<ChatImageUploader />
+									{/if}
 								</div>
 							</div>
 							<div class="col-auto">
