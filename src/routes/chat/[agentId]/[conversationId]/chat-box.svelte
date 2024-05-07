@@ -787,7 +787,7 @@
 			if (!!scrollElement && !!item.elm) {
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
-				viewport.scrollTo({ top: item.elm.offsetTop - 10, behavior: 'smooth' });
+				viewport.scrollTo({ top: item.elm.offsetTop - 5, behavior: 'smooth' });
 			}
 		});
 	}
