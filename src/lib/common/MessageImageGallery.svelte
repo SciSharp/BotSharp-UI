@@ -21,15 +21,17 @@
     onMount(() => {
         const user = getUserStore();
         token = user.token;
-        fetchFiles().then(data => {
-            // @ts-ignore
-            files = data?.filter(item => !!item.file_url)?.map(item => {
-                return {
-                    ...item,
-                    file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
-                };
-            }) || [];
-        });
+        if (fetchFiles != null && fetchFiles != undefined) {
+            fetchFiles().then(data => {
+                // @ts-ignore
+                files = data?.filter(item => !!item.file_url)?.map(item => {
+                    return {
+                        ...item,
+                        file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
+                    };
+                }) || [];
+            });
+        }
     });
 </script>
 
