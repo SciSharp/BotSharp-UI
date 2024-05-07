@@ -941,7 +941,11 @@
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
 											{#if message.is_load_images}
-												<MessageImageGallery conversationId={params.conversationId} messageId={message.message_id} />
+												<MessageImageGallery
+													galleryStyles={'justify-content: flex-end;'}
+													conversationId={params.conversationId}
+													messageId={message.message_id}
+												/>
 											{/if}
 										</div>
 											{#if !isLite}
