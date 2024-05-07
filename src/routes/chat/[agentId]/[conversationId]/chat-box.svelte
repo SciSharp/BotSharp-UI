@@ -5,18 +5,28 @@
 		DropdownMenu,
 		DropdownItem,
 	} from '@sveltestrap/sveltestrap';
+	import {
+		conversationStore,
+		conversationUserStateStore,
+		conversationUserMessageStore,
+		conversationUserAttachmentStore
+	} from '$lib/helpers/store.js';
+	import {
+		sendMessageToHub,
+		GetDialogs,
+		deleteConversationMessage,
+		getConversationFiles
+	} from '$lib/services/conversation-service.js';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { page } from '$app/stores';
 	import { onMount, setContext, tick } from 'svelte';
 	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import { USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
-    import { sendMessageToHub, GetDialogs, deleteConversationMessage } from '$lib/services/conversation-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import { conversationStore, conversationUserStateStore, conversationUserMessageStore, conversationUserAttachmentStore } from '$lib/helpers/store.js';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
@@ -27,7 +37,7 @@
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
 	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
-	import MessageImageGallery from './chatImage/message-image-gallery.svelte';
+	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
 	import ChatImageGallery from './chatImage/chat-image-gallery.svelte';
 	import ContentLog from './contentLogs/content-log.svelte';
@@ -37,7 +47,6 @@
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
-	
 	
 	const options = {
 		scrollbars: {
@@ -161,7 +170,7 @@
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function initUserSentMessages(dialogs) {
-		const curConvMessages = dialogs?.filter(x => x.sender?.role != UserRole.Assistant).map(x => {
+		const curConvMessages = dialogs?.filter(x => USER_SENDERS.includes(x.sender?.role || '')).map(x => {
 			return {
 				conversationId: params.conversationId,
 				text: x.text || ''
@@ -212,7 +221,7 @@
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
 		const lastMsg = dialogs.slice(-1)[0];
-		return lastMsg?.sender?.role === UserRole.Assistant ? lastMsg : null;
+		return BOT_SENDERS.includes(lastMsg?.sender?.role || '') ? lastMsg : null;
 	}
 
 	async function refresh() {
@@ -247,15 +256,10 @@
 				continue;
 			}
 
-			const botMsgId = dialogs.findLastIndex((x, i) => i < idx && !USER_SENDERS.includes(x.sender?.role || ''));
-			if (botMsgId > -1 && dialogs[botMsgId]?.rich_content?.editor === EditorType.File) {
-				const userMsgs = dialogs.filter(x => x.message_id === curMsg.message_id && USER_SENDERS.includes(x.sender?.role || ''));
-				if (userMsgs?.length > 1) {
-					const userMsg = userMsgs.slice(-1)[0];
-					userMsg.is_load_images = true;
-				} else {
-					curMsg.is_load_images = true;
-				}
+			const prevMsg = dialogs[idx-1];
+			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
+				&& prevMsg?.rich_content?.editor === EditorType.File) {
+				curMsg.is_load_images = true;
 			}
 		}
 	}
@@ -506,7 +510,7 @@
 
 		if (!!lastMsg?.rich_content?.fill_postback
 			&& !!lastMsg?.function
-			&& lastMsg?.sender?.role === UserRole.Assistant) {
+			&& BOT_SENDERS.includes(lastMsg?.sender?.role || '')) {
 			postback = {
 				functionName: lastMsg?.function,
 				parentId: lastMsg?.message_id,
@@ -947,7 +951,10 @@
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
 											{#if message.is_load_images}
-												<MessageImageGallery message={message} />
+												<MessageImageGallery
+													galleryStyles={'justify-content: flex-end;'}
+													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id)}
+												/>
 											{/if}
 										</div>
 											{#if !isLite}

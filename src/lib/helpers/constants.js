@@ -5,3 +5,7 @@ export const USER_SENDERS = [
     UserRole.User,
     UserRole.Client
 ];
+
+export const BOT_SENDERS = [
+    UserRole.Assistant
+];

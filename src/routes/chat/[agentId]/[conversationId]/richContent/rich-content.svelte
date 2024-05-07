@@ -4,7 +4,6 @@
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import RcMessage from "./rc-message.svelte";
 	import ChatAttachmentOptions from "../chatImage/chat-attachment-options.svelte";
-	import FileGallery from "$lib/common/FileGallery.svelte";
 	
     /** @type {any} */
     export let message;
@@ -59,10 +58,6 @@
 
 {#if message.message_id === lastBotMessage?.message_id && lastBotMessage?.rich_content?.editor === EditorType.File}
     <ChatAttachmentOptions options={options} disabled={disabled} onConfirm={handleConfirm} />
-{/if}
-
-{#if message.message_id !== lastBotMessage?.message_id}
-    <FileGallery files={message.files} />
 {/if}
 
 {#if message.message_id === lastBotMessage?.message_id && !disabled && lastBotMessage?.rich_content?.editor !== EditorType.File}

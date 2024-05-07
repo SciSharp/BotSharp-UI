@@ -1,12 +1,14 @@
 <script>
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
-    import { GetDialogs } from '$lib/services/conversation-service.js';
+    import { GetDialogs, getConversationFiles } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
-	import { USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
+    import { EditorType } from '$lib/helpers/enums';
 	import Markdown from '$lib/common/Markdown.svelte';
+	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -16,7 +18,26 @@
 
     onMount(async () => {
         dialogs = await GetDialogs(conversation.id);
+        loadMessageImages(dialogs);
     });
+
+    /** @param {import('$types').ChatResponseModel[]} dialogs */
+    function loadMessageImages(dialogs) {
+        if (!!!dialogs) return;
+
+        for (let idx = 0; idx < dialogs.length; idx++) {
+            const curMsg = dialogs[idx];
+            if (!USER_SENDERS.includes(curMsg?.sender?.role || '')) {
+                continue;
+            }
+
+            const prevMsg = dialogs[idx-1];
+            if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
+                && prevMsg?.rich_content?.editor === EditorType.File) {
+                curMsg.is_load_images = true;
+            }
+        }
+    }
 
     /** 
      * @param {import('$types').ChatResponseModel} dialog
@@ -67,6 +88,12 @@
                                 <p class="fw-bold">
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
                                 </p>
+                                {#if dialog.is_load_images}
+                                <MessageImageGallery
+                                    galleryClasses={'dialog-file-display'}
+                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id)}
+                                />
+                                {/if}
                             </div>
                             {#if dialog.message_id}
                             <div>
