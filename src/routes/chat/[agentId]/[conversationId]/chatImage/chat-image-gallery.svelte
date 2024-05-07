@@ -34,8 +34,11 @@
 </script>
 
 <div>
-    <div class="chat-file-upload-gallery">
-        <FileGallery files={files} disabled={disabled} needDelete onDelete={deleteFile} />
-    </div>
+    <FileGallery
+        containerStyles={'justify-content: center; margin: 5px 10px;'}
+        files={files}
+        disabled={disabled}
+        needDelete
+        onDelete={deleteFile} />
 </div>
 

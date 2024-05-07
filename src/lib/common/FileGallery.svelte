@@ -13,6 +13,15 @@
     /** @type {(args0: number) => void} */
     export let onDelete = () => {};
 
+    /** @type {string} */
+    export let containerClasses = "";
+
+    /** @type {string} */
+    export let containerStyles = "";
+
+    /** @type {boolean} */
+    export let disableDefaultStyles = false;
+
     /**
 	 * @param {any} e
 	 * @param {number} idx
@@ -26,6 +35,10 @@
 </script>
 
 {#if files?.length > 0}
+<div
+    class="{disableDefaultStyles ? '' : 'file-gallery-list'} {containerClasses}"
+    style={`${containerStyles}`}
+>
     <LightboxGallery transitionDuration={100}>
         <svelte:fragment slot="thumbnail">
             {#each files as file, idx (idx)}
@@ -59,4 +72,5 @@
             </GalleryImage>
         {/each}
     </LightboxGallery>
+</div>
 {/if}

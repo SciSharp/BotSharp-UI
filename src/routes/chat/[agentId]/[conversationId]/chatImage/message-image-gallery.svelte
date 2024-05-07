@@ -29,8 +29,9 @@
     });
 </script>
 
-<div style="display: block; margin-top: 3px;">
-    <div style="display: flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end;">
-        <FileGallery files={files} />
-    </div>
+<div>
+    <FileGallery
+        containerStyles={'justify-content: flex-end;'}
+        files={files}
+    />
 </div>
