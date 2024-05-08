@@ -23,7 +23,7 @@
 	import { onMount, setContext, tick } from 'svelte';
 	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, FILE_EDITORS, TEXT_EDITORS, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -36,6 +36,7 @@
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
+	import RcMessage from "./richContent/rc-message.svelte";
 	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
@@ -117,6 +118,15 @@
 	let isThinking = false;
 	let isLite = false;
 	let isFrame = false;
+	let loadEditor = false;
+	let loadTextEditor = false;
+	let loadFileEditor = false;
+
+	$: {
+		loadTextEditor = TEXT_EDITORS.includes(lastBotMsg?.rich_content?.editor || '');
+		loadFileEditor = FILE_EDITORS.includes(lastBotMsg?.rich_content?.editor || '');
+		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
+	}
 
 	setContext('chat-window-context', {
 		autoScrollToBottom: autoScrollToBottom
@@ -663,9 +673,11 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
+		isSendingMsg = true;
 		clearEventLogs();
 		resetStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
+		isSendingMsg = false;
 	}
 
 	/**
@@ -765,12 +777,15 @@
 
 	/** @param {string} messageId */
 	function autoScrollToTargetLog(messageId) {
+		const contentLogWrapper = '.content-log-scrollbar';
+		const stateLogWrapper = '.state-log-scrollbar';
+		const offset = 5;
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (isLoadContentLog && !!contentLogElm) {
 			elements.push({
 				elm: contentLogElm,
-				wrapperName: '.content-log-scrollbar'
+				wrapperName: contentLogWrapper
 			});
 		}
 		
@@ -778,7 +793,7 @@
 		if (isLoadStateLog && !!stateLogElm) {
 			elements.push({
 				elm: stateLogElm,
-				wrapperName: '.state-log-scrollbar'
+				wrapperName: stateLogWrapper
 			});
 		}
 
@@ -787,7 +802,11 @@
 			if (!!scrollElement && !!item.elm) {
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
-				viewport.scrollTo({ top: item.elm.offsetTop - 5, behavior: 'smooth' });
+				let offsetTop = item.elm.offsetTop;
+				if (item.wrapperName === stateLogWrapper) {
+					offsetTop -= offset;
+				}
+				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
 		});
 	}
@@ -846,7 +865,7 @@
 		<Pane minSize={20}>
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
-					<div class="border-bottom chat-head" style="height: 10%;">
+					<div class="border-bottom chat-head">
 						<div class="row">
 							<div class="col-md-4 col-7 head-left">
 								<div class="m-1">{agent?.name}</div>
@@ -912,7 +931,7 @@
 						</div>
 					</div>
 
-					<div class="chat-scrollbar scroll-bottom-to-top" style="height: 82%;">
+					<div class={`chat-scrollbar chat-content scroll-bottom-to-top ${!loadEditor ? 'chat-content-expand' : ''}`}>
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -975,12 +994,7 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											<RichContent
-												message={message}
-												lastBotMessage={lastBotMsg}
-												disabled={isSendingMsg || isThinking}
-												onConfirm={confirmSelectedOption}
-											/>
+											<RcMessage message={message} />
 										</div>
 										{/if}
 									</div>
@@ -1014,45 +1028,54 @@
 							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
 								<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{/if}
+							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
+								<RichContent
+									message={lastBotMsg}
+									disabled={isSendingMsg || isThinking}
+									onConfirm={confirmSelectedOption}
+								/>
+							{/if}
+							
 						</div>
 					</div>
 
-					<div class="chat-input-section" style="height: 8%;">
+					<div class={`chat-input-section ${!loadEditor ? 'chat-input-hide' : ''}`}>
 						<div class="row">
-							<div class="col-auto">
-								<button
-									type="submit"
-									class="btn btn-primary btn-rounded waves-effect waves-light"
-									disabled={isSendingMsg || isThinking || lastBotMsg?.rich_content?.editor == EditorType.None}
-									on:click={startListen}
-								>
-									<i class="mdi mdi-{microphoneIcon} md-36" />
-								</button>
-							</div>
-							<div class="col">
-								<div class="position-relative">
-									<ChatTextArea
-										className={`chat-input ${lastBotMsg?.rich_content?.editor == EditorType.File ? 'chat-input-image' : ''}`}
-										bind:text={text}
-										disabled={isSendingMsg || isThinking || lastBotMsg?.rich_content?.editor == EditorType.None}
-										editor={lastBotMsg?.rich_content?.editor || ''}
-										onKeyDown={e => onSendMessage(e)}
-									/>
-									{#if lastBotMsg?.rich_content?.editor == EditorType.File}
-										<ChatImageUploader />
-									{/if}
+							{#if loadTextEditor}
+								<div class="col-auto">
+									<button
+										type="submit"
+										class="btn btn-primary btn-rounded waves-effect waves-light"
+										disabled={isSendingMsg || isThinking}
+										on:click={startListen}
+									>
+										<i class="mdi mdi-{microphoneIcon} md-36" />
+									</button>
 								</div>
-							</div>
-							<div class="col-auto">
-								<button
-									type="submit"
-									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
-									on:click={() => sentTextMessage()}
-								><span class="d-none d-md-inline-block me-2">Send</span>
-									<i class="mdi mdi-send" />
-								</button>
-							</div>
+								<div class="col">
+									<div class="position-relative">
+										<ChatTextArea
+											className={`chat-input`}
+											bind:text={text}
+											disabled={isSendingMsg || isThinking}
+											editor={lastBotMsg?.rich_content?.editor || ''}
+											onKeyDown={e => onSendMessage(e)}
+										/>
+									</div>
+								</div>
+								<div class="col-auto">
+									<button
+										type="submit"
+										class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
+										disabled={!!!_.trim(text) || isSendingMsg || isThinking}
+										on:click={() => sentTextMessage()}
+									><span class="d-none d-md-inline-block me-2">Send</span>
+										<i class="mdi mdi-send" />
+									</button>
+								</div>
+							{:else if loadFileEditor}
+								<ChatImageUploader />
+							{/if}
 						</div>
 					</div>
 				</div>

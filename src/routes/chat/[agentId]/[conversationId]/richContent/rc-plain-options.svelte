@@ -112,7 +112,7 @@
 
 {#if videoOptions.length > 0}
 <div>
-    <div class="video-option-container">
+    <div class="video-option-container center-option">
         {#each videoOptions as video, index}
             <Card class="video-element-card">
                 <CardBody>
@@ -130,7 +130,7 @@
 {/if}
 
 {#if plainOptions.length > 0}
-<div class="plain-option-container">
+<div class="plain-option-container center-option">
     {#each plainOptions as option, index}
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
