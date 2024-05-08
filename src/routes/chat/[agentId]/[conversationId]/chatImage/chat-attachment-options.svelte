@@ -71,7 +71,7 @@
     }
 </script>
 
-<div class="plain-option-container">
+<div class="plain-option-container center-option">
     {#if files?.length > 0 && confirmOption}
         <button
             class={`btn btn-sm m-1 ${confirmOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}

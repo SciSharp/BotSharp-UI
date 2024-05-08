@@ -36,6 +36,7 @@
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './richContent/rich-content.svelte';
+	import RcMessage from "./richContent/rc-message.svelte";
 	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
@@ -663,9 +664,11 @@
 
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
+		isSendingMsg = true;
 		clearEventLogs();
 		resetStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
+		isSendingMsg = false;
 	}
 
 	/**
@@ -765,12 +768,15 @@
 
 	/** @param {string} messageId */
 	function autoScrollToTargetLog(messageId) {
+		const contentLogWrapper = '.content-log-scrollbar';
+		const stateLogWrapper = '.state-log-scrollbar';
+		const offset = 5;
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (isLoadContentLog && !!contentLogElm) {
 			elements.push({
 				elm: contentLogElm,
-				wrapperName: '.content-log-scrollbar'
+				wrapperName: contentLogWrapper
 			});
 		}
 		
@@ -778,7 +784,7 @@
 		if (isLoadStateLog && !!stateLogElm) {
 			elements.push({
 				elm: stateLogElm,
-				wrapperName: '.state-log-scrollbar'
+				wrapperName: stateLogWrapper
 			});
 		}
 
@@ -787,7 +793,11 @@
 			if (!!scrollElement && !!item.elm) {
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
-				viewport.scrollTo({ top: item.elm.offsetTop - 5, behavior: 'smooth' });
+				let offsetTop = item.elm.offsetTop;
+				if (item.wrapperName === stateLogWrapper) {
+					offsetTop -= offset;
+				}
+				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
 		});
 	}
@@ -975,12 +985,7 @@
 											{/if}
 										</div>
 										<div class="msg-container">
-											<RichContent
-												message={message}
-												lastBotMessage={lastBotMsg}
-												disabled={isSendingMsg || isThinking}
-												onConfirm={confirmSelectedOption}
-											/>
+											<RcMessage message={message} />
 										</div>
 										{/if}
 									</div>
@@ -1014,6 +1019,16 @@
 							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
 								<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{/if}
+							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
+								<div>
+									<RichContent
+										message={lastBotMsg}
+										disabled={isSendingMsg || isThinking}
+										onConfirm={confirmSelectedOption}
+									/>
+								</div>
+							{/if}
+							
 						</div>
 					</div>
 

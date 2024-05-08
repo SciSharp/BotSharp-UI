@@ -168,114 +168,6 @@
             display: flex;
             flex-direction: column;
             width: 80%;
-
-            .video-option-container {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 5px;
-
-                .video-element-card {
-                    border: none;
-                    box-shadow: none;
-                    flex: 1 1 300px;
-
-                    .card-body {
-                        padding: 0 !important;
-                    }
-
-                    .video-element-title {
-                        font-size: 1.1em;
-                        font-weight: 700;
-                        padding-left: 5px;
-                        padding-top: 10px;
-                        padding-bottom: 10px;
-                        margin-bottom: 5px;
-                        width: 100%;
-                        overflow: hidden;
-                        white-space: nowrap;
-                        text-overflow: ellipsis;
-                    }
-
-                    .video-element-player {
-                        aspect-ratio: 16 / 9;
-
-                        video, iframe {
-                            border-radius: 10px;
-                            height: 100%;
-                        }
-                    }
-                }
-            }
-
-            .plain-option-container {
-                display: flex;
-                flex-wrap: wrap;
-
-                .btn:not([name="confirm"]) {
-                    &:hover {
-                        background-color: #fff;
-                        color: var(--bs-primary);
-                    }
-                }
-
-                .btn.active:hover {
-                    background-color: var(--bs-primary);
-                    color: #fff;
-                }
-
-                button {
-                    min-width: 50px;
-                    border-radius: 10px;
-                }
-            }
-
-            .complex-option-container {
-                display: flex;
-                flex-wrap: wrap;
-                gap: 3px;
-                margin-top: 10px;
-
-                .card-element {
-                    flex: 1 1 50%;
-                    border-radius: 10px;
-                    border-width: 2px;
-                    max-width: calc(50% - 2.5px);
-                    margin-bottom: 0px;
-
-                    @media (max-width: 620px) {
-                        width: 100%;
-                        max-width: 100%;
-                    }
-
-                    .card-element-body {
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: space-evenly;
-                        gap: 5px;
-                        padding: 10px 15px;
-
-                        .card-element-title {
-                            font-size: 0.8rem;
-                            font-weight: 700;
-                        }
-    
-                        .card-element-subtitle {
-                            font-size: 0.7rem;
-                            font-weight: 500;
-                        }
-    
-                        .card-option-group {
-                            margin-top: 5px;
-    
-                            .btn {
-                                display: block;
-                                margin-left: 0px !important;
-                                border-radius: 10px;
-                            }
-                        }
-                    }
-                }
-            }
         }
 
         .ctext-wrap {
@@ -628,4 +520,117 @@
     font-size: 0.85em;
     font-weight: 500;
     color: var(--bs-secondary)
+}
+
+.center-option {
+    justify-content: center;
+    padding: 0px 10px;
+}
+
+.video-option-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+
+    .video-element-card {
+        border: none;
+        box-shadow: none;
+        flex: 1 1 300px;
+
+        .card-body {
+            padding: 0 !important;
+        }
+
+        .video-element-title {
+            font-size: 1.1em;
+            font-weight: 700;
+            padding-left: 5px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            margin-bottom: 5px;
+            width: 100%;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .video-element-player {
+            aspect-ratio: 16 / 9;
+
+            video, iframe {
+                border-radius: 10px;
+                height: 100%;
+            }
+        }
+    }
+}
+
+.plain-option-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    .btn:not([name="confirm"]) {
+        &:hover {
+            background-color: #fff;
+            color: var(--bs-primary);
+        }
+    }
+
+    .btn.active:hover {
+        background-color: var(--bs-primary);
+        color: #fff;
+    }
+
+    button {
+        min-width: 50px;
+        border-radius: 10px;
+    }
+}
+
+.complex-option-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 10px;
+
+    .card-element {
+        flex: 1 1 50%;
+        border-radius: 10px;
+        border-width: 2px;
+        max-width: calc(50% - 2.5px);
+        margin-bottom: 0px;
+
+        @media (max-width: 620px) {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .card-element-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            gap: 5px;
+            padding: 10px 15px;
+
+            .card-element-title {
+                font-size: 0.8rem;
+                font-weight: 700;
+            }
+
+            .card-element-subtitle {
+                font-size: 0.7rem;
+                font-weight: 500;
+            }
+
+            .card-option-group {
+                margin-top: 5px;
+
+                .btn {
+                    display: block;
+                    margin-left: 0px !important;
+                    border-radius: 10px;
+                }
+            }
+        }
+    }
 }

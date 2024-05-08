@@ -115,7 +115,6 @@
         {#each buttons as option, index}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                style='width: 100%;'
                 disabled={disabled}
                 on:click={(e) => handleClickOption(e, option)}
             >
