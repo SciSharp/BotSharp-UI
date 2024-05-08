@@ -43,7 +43,7 @@
     }
 </script>
 
-<div class="chat-input-links">
+<div class="chat-file-editor">
     <ul class="list-inline mb-0">
         <li class="list-inline-item">
             <FileDropZone

@@ -77,11 +77,20 @@
 .chat-head {
     font-size: 1.1em;
     padding: 2vmin 2%;
+    height: 10%;
 
     .head-left {
         display: flex;
         flex-direction: column;
     }
+}
+
+.chat-content {
+    height: 82%;
+}
+
+.chat-content-expand {
+    height: 98%;
 }
 
 .user-chat-nav-flex {
@@ -280,6 +289,12 @@
 .chat-input-section {
     border-top: 1px solid var(--#{$prefix}border-color);
     padding: 2vmin 2%;
+    height: 8%;
+}
+
+.chat-input-hide {
+    display: none;
+    height: 2%;
 }
 
 .chat-input {
@@ -290,10 +305,7 @@
     padding-right: 1rem;
 }
 
-.chat-input-image {
-    padding-right: 4em;
-}
-
+// obsolete
 .chat-input-links {
     position: absolute;
     right: 3px;
@@ -303,6 +315,20 @@
     li {
         span {
             font-size: 16px;
+            line-height: 36px;
+            padding: 0px 4px;
+            display: inline-block;
+            color: var(--bs-primary);
+        }
+    }
+}
+
+.chat-file-editor {
+    text-align: center;
+
+    li {
+        span {
+            font-size: 200%;
             line-height: 36px;
             padding: 0px 4px;
             display: inline-block;
