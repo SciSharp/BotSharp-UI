@@ -871,7 +871,7 @@
 							<div class="col-md-4 col-7 head-left">
 								<div class="m-1">{agent?.name}</div>
 								<div class="text-muted mb-0">
-									<i class="mdi mdi-circle text-success align-middle me-1" /> Active now
+									<i class="mdi mdi-circle text-success align-middle me-1" /> {currentUser?.user_name || ''}
 								</div>
 							</div>
 		
