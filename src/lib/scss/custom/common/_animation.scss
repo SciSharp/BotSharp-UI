@@ -1,0 +1,17 @@
+.css-animation {
+    animation-duration: 0.8s;
+    animation-fill-mode: both;
+}
+
+.fade-in-from-none {
+    animation-name: fadeInFromNone;
+}
+
+@keyframes fadeInFromNone {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}

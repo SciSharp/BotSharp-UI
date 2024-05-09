@@ -1040,7 +1040,7 @@
 						</div>
 					</div>
 
-					<div class={`chat-input-section ${!loadEditor ? 'chat-input-hide' : ''}`}>
+					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
 							{#if loadTextEditor}
 								<div class="col-auto">
