@@ -54,7 +54,7 @@
                 fileLimit={fileUploadLimit}
                 on:drop={e => handleFileDrop(e)}
             >
-                <span><i class="mdi mdi-file-document-outline" /></span>
+                <span><i class="bx bx-image-add" /></span>
             </FileDropZone>
         </li>
     </ul>

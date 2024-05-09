@@ -304,16 +304,20 @@
     padding-right: 1rem;
 }
 
+.chat-uploader {
+    padding-right: 3em;
+}
+
 // obsolete
 .chat-input-links {
     position: absolute;
     right: 3px;
-    top: 50%;
+    top: 55%;
     transform: translateY(-50%);
     width: 3em;
     li {
         span {
-            font-size: 16px;
+            font-size: 160% !important;
             line-height: 36px;
             padding: 0px 4px;
             display: inline-block;
