@@ -123,8 +123,9 @@
 	let loadFileEditor = false;
 
 	$: {
-		loadTextEditor = TEXT_EDITORS.includes(lastBotMsg?.rich_content?.editor || '');
-		loadFileEditor = FILE_EDITORS.includes(lastBotMsg?.rich_content?.editor || '');
+		const editor = lastBotMsg?.rich_content?.editor || '';
+		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
+		loadFileEditor = FILE_EDITORS.includes(editor);
 		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
 	}
 
