@@ -1042,41 +1042,42 @@
 
 					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
-							{#if loadTextEditor}
-								<div class="col-auto">
-									<button
-										type="submit"
-										class="btn btn-primary btn-rounded waves-effect waves-light"
+							<div class="col-auto">
+								<button
+									type="submit"
+									class="btn btn-primary btn-rounded waves-effect waves-light"
+									disabled={isSendingMsg || isThinking}
+									on:click={startListen}
+								>
+									<i class="mdi mdi-{microphoneIcon} md-36" />
+								</button>
+							</div>
+							<div class="col">
+								<div class="position-relative">
+									<ChatTextArea
+										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
+										bind:text={text}
 										disabled={isSendingMsg || isThinking}
-										on:click={startListen}
-									>
-										<i class="mdi mdi-{microphoneIcon} md-36" />
-									</button>
+										editor={lastBotMsg?.rich_content?.editor || ''}
+										onKeyDown={e => onSendMessage(e)}
+									/>
+									{#if loadFileEditor}
+										<div class="chat-input-links">
+											<ChatImageUploader />
+										</div>
+									{/if}
 								</div>
-								<div class="col">
-									<div class="position-relative">
-										<ChatTextArea
-											className={`chat-input`}
-											bind:text={text}
-											disabled={isSendingMsg || isThinking}
-											editor={lastBotMsg?.rich_content?.editor || ''}
-											onKeyDown={e => onSendMessage(e)}
-										/>
-									</div>
-								</div>
-								<div class="col-auto">
-									<button
-										type="submit"
-										class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-										disabled={!!!_.trim(text) || isSendingMsg || isThinking}
-										on:click={() => sentTextMessage()}
-									><span class="d-none d-md-inline-block me-2">Send</span>
-										<i class="mdi mdi-send" />
-									</button>
-								</div>
-							{:else if loadFileEditor}
-								<ChatImageUploader />
-							{/if}
+							</div>
+							<div class="col-auto">
+								<button
+									type="submit"
+									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
+									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
+									on:click={() => sentTextMessage()}
+								><span class="d-none d-md-inline-block me-2">Send</span>
+									<i class="mdi mdi-send" />
+								</button>
+							</div>
 						</div>
 					</div>
 				</div>
