@@ -779,8 +779,7 @@
 	/** @param {string} messageId */
 	function autoScrollToTargetLog(messageId) {
 		const contentLogWrapper = '.content-log-scrollbar';
-		const stateLogWrapper = '.state-log-scrollbar';
-		const offset = 5;
+		const stateLogWrapper = '.conv-state-log-scrollbar';
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (isLoadContentLog && !!contentLogElm) {
@@ -803,11 +802,7 @@
 			if (!!scrollElement && !!item.elm) {
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
-				let offsetTop = item.elm.offsetTop;
-				// if (item.wrapperName === stateLogWrapper) {
-				// 	offsetTop -= offset;
-				// }
-				offsetTop -= offset + 10;
+				const offsetTop = item.elm.offsetTop;
 				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
 		});
