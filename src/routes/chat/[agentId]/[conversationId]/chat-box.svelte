@@ -804,9 +804,10 @@
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
 				let offsetTop = item.elm.offsetTop;
-				if (item.wrapperName === stateLogWrapper) {
-					offsetTop -= offset;
-				}
+				// if (item.wrapperName === stateLogWrapper) {
+				// 	offsetTop -= offset;
+				// }
+				offsetTop -= offset + 10;
 				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
 		});
