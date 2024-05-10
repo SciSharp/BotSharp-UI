@@ -346,6 +346,7 @@
     .log-flex {
         display: flex;
         flex-direction: column;
+        height: 100%;
     }
 
     .log-header {
@@ -376,18 +377,18 @@
             justify-content: space-between;
         }
 
-        .state-log-section {
-            height: 90vh;
-        }
+        // .state-log-section {
+        //     height: 90vh;
+        // }
 
-        .state-change-log-list {
-            height: 100%;
-        }
+        // .state-change-log-list {
+        //     height: 100%;
+        // }
 
-        .state-log-list {
-            height: 100%;
-            padding-top: 10px;
-        }
+        // .state-log-list {
+        //     height: 100%;
+        //     padding-top: 10px;
+        // }
     
         .log-list {
             background-color: black;

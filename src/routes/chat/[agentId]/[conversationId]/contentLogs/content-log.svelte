@@ -1,13 +1,16 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onDestroy, onMount, tick } from 'svelte';
-	import ContentLogElement from './content-log-element.svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { GetContentLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+    import ContentLogElement from './content-log-element.svelte';
 	import AgentQueueChangeElement from './agent-queue-change-element.svelte';
+
+    const contentLogTab = 1;
+    const agentQueueLogTab = 2;
 
     /** @type {import('$types').ConversationContentLogModel[]} */
     export let contentLogs = [];
@@ -23,10 +26,7 @@
 
     /** @type {any[]} */
     let scrollbars = [];
-    let selectedTab = 1;
-
-    const contentLogTab = 1;
-    const agentQueueLogTab = 2;
+    let selectedTab = contentLogTab;
 
     const options = {
 		scrollbars: {
@@ -87,7 +87,7 @@
 </script>
 
 <div class="chat-log">
-    <div class="card mb-0 log-background log-flex" style="height: 100%;">
+    <div class="card mb-0 log-background log-flex">
         <div class="log-close-btn padding-side log-header">
             <div>
                 <button
