@@ -54,7 +54,7 @@
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
-		refresh();
+		scrollToBottom();
 	});
 
     afterUpdate(() => {
