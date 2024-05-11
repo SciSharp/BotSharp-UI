@@ -92,6 +92,7 @@
         height: 100%;
         border: none !important;
         color: white !important;
+        background-color: var(--bs-secondary);
         font-weight: 500;
         font-size: 1.2em;
     }
