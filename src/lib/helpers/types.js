@@ -302,7 +302,7 @@ IRichContent.prototype.text;
  */
 
 /**
- * @typedef {Object} StateChangeModel
+ * @typedef {Object} MessageStateLogModel
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} before_value - The value before change.
@@ -315,7 +315,7 @@ IRichContent.prototype.text;
  */
 
 /**
- * @typedef {Object} AgentQueueChangedModel
+ * @typedef {Object} AgentQueueLogModel
  * @property {string} conversation_id - The conversation id.
  * @property {string} log - The log content.
  * @property {Date} created_at - The log sent time.
@@ -416,14 +416,14 @@ IRichContent.prototype.text;
  * Conversation state change log
  * 
  * @callback OnStateChangeGenerated
- * @param {StateChangeModel} log
+ * @param {MessageStateLogModel} log
  */
 
 /** 
  * Agent queue changed log
  * 
  * @callback OnAgentQueueChanged
- * @param {AgentQueueChangedModel} log
+ * @param {AgentQueueLogModel} log
  */
 
 /** 

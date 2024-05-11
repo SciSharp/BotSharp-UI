@@ -13,10 +13,10 @@
     const msgStateLogTab = 2;
 
     /** @type {any[]} */
-    export let stateLogs = [];
+    export let convStateLogs = [];
 
     /** @type {any[]} */
-    export let stateChangeLogs = [];
+    export let msgStateLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -42,7 +42,7 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        stateLogs = await GetStateLogs(conversationId);
+        convStateLogs = await GetStateLogs(conversationId);
         
         const scrollbarElements = [
             document.querySelector('.conv-state-log-scrollbar'),
@@ -77,12 +77,17 @@
     }
 
     function cleanLogs() {
-        stateLogs = [];
+        convStateLogs = [];
     }
 
     function handleCleanScreen() {
         cleanLogs();
         cleanScreen && cleanScreen();
+    }
+
+    /** @param {number} tab */
+    function handleTabClick(tab) {
+        selectedTab = tab;
     }
 </script>
 
@@ -108,17 +113,17 @@
                 </button>
             </div>
         </div>
-        <div class="conv-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab != convStateLogTab}>
+        <div class="conv-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== convStateLogTab}>
             <ul>
-                {#each stateLogs as log}
+                {#each convStateLogs as log}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="msg-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab != msgStateLogTab}>
+        <div class="msg-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== msgStateLogTab}>
             <ul>
-                {#each stateChangeLogs as log}
+                {#each msgStateLogs as log}
                     <MessageStateLogElement data={log} />
                 {/each}
             </ul>
@@ -130,17 +135,19 @@
                     navBtnId={'conv-state-log-tab'}
                     dataBsTarget={'#conv-state-log-tab-pane'}
                     ariaControls={'conv-state-log-tab-pane'}
-                    active={selectedTab == convStateLogTab}
                     navBtnText={'Conversation States'}
-                    onClick={() => selectedTab = convStateLogTab}
+                    disabled={selectedTab === convStateLogTab}
+                    active={selectedTab === convStateLogTab}
+                    onClick={() => handleTabClick(convStateLogTab)}
                 />
                 <NavItem
                     navBtnId={'msg-state-log-tab'}
                     dataBsTarget={'#msg-state-log-tab-pane'}
                     ariaControls={'msg-state-log-tab-pane'}
-                    active={selectedTab == msgStateLogTab}
                     navBtnText={'Message States'}
-                    onClick={() => selectedTab = msgStateLogTab}
+                    disabled={selectedTab === msgStateLogTab}
+                    active={selectedTab === msgStateLogTab}
+                    onClick={() => handleTabClick(msgStateLogTab)}
                 />
             </NavBar>
         </div>

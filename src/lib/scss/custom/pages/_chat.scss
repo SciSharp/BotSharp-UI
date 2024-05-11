@@ -428,6 +428,7 @@
             .state-change-container {
                 margin-top: 0px;
                 margin-bottom: 5px;
+                padding-left: 10px;
 
                 .state-key {
                     color: var(--bs-primary);
@@ -459,7 +460,7 @@
 
                 .log-content {
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin-top: 2px;
                     margin-bottom: 2px;
                 }

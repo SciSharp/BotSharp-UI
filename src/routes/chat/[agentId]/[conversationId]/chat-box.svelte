@@ -96,13 +96,13 @@
 	let contentLogs = [];
 
 	/** @type {import('$types').ConversationStateLogModel[]} */
-	let stateLogs = [];
+	let convStateLogs = [];
 
-	/** @type {import('$types').StateChangeModel[]} */
-	let stateChangeLogs = [];
+	/** @type {import('$types').MessageStateLogModel[]} */
+	let msgStateLogs = [];
 
-	/** @type {import('$types').AgentQueueChangedModel[]} */
-	let agentQueueChangeLogs = [];
+	/** @type {import('$types').AgentQueueLogModel[]} */
+	let agentQueueLogs = [];
 
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
@@ -349,24 +349,25 @@
 	/** @param {import('$types').ConversationStateLogModel} log */
 	function onConversationStateLogGenerated(log) {
 		if (!isLoadStateLog) return;
-		stateLogs.push({ ...log });
-		stateLogs = stateLogs.map(x => { return { ...x }; });
+
+		convStateLogs.push({ ...log });
+		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').StateChangeModel} log */
+	/** @param {import('$types').MessageStateLogModel} log */
 	function onStateChangeGenerated(log) {
 		if (!isLoadStateLog || log == null) return;
 
-		stateChangeLogs.push({ ...log });
-		stateChangeLogs = stateChangeLogs.map(x => { return { ...x }; });
+		msgStateLogs.push({ ...log });
+		msgStateLogs = msgStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').AgentQueueChangedModel} log */
+	/** @param {import('$types').AgentQueueLogModel} log */
 	function onAgentQueueChanged(log) {
 		if (!isLoadContentLog || log == null) return;
 
-		agentQueueChangeLogs.push({ ...log });
-		agentQueueChangeLogs = agentQueueChangeLogs.map(x => { return { ...x }; });
+		agentQueueLogs.push({ ...log });
+		agentQueueLogs = agentQueueLogs.map(x => { return { ...x }; });
 	}
 
 	/** @param {import('$types').ConversationSenderActionModel} data */
@@ -552,7 +553,7 @@
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
-			agentQueueChangeLogs = [];
+			agentQueueLogs = [];
 			isContentLogClosed = true;
 		} else {
 			isContentLogClosed = false;
@@ -566,8 +567,8 @@
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
-			stateLogs = [];
-			stateChangeLogs = [];
+			convStateLogs = [];
+			msgStateLogs = [];
 			isStateLogClosed = true;
 		} else {
 			isStateLogClosed = false;
@@ -575,7 +576,7 @@
 	}
 
 	function cleanStateLogScreen() {
-		stateLogs = [];
+		convStateLogs = [];
 	}
 
 	function toggleUserAddStateModal() {
@@ -731,8 +732,8 @@
 		}
 		
 		if (isLoadStateLog) {
-			const targetIdx = stateLogs.findIndex(x => x.message_id === messageId);
-			stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
+			const targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
+			convStateLogs = convStateLogs.filter((x, idx) => idx < targetIdx);
 		}
 	}
 
@@ -813,8 +814,8 @@
 	}
 
 	function clearEventLogs() {
-		stateChangeLogs = [];
-		agentQueueChangeLogs = [];
+		msgStateLogs = [];
+		agentQueueLogs = [];
 	}
 
 	function resetStorage() {
@@ -852,8 +853,8 @@
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
 			<StateLog
-				bind:stateLogs={stateLogs}
-				bind:stateChangeLogs={stateChangeLogs}
+				bind:convStateLogs={convStateLogs}
+				bind:msgStateLogs={msgStateLogs}
 				closeWindow={toggleStateLog}
 				cleanScreen={cleanStateLogScreen}
 			/>
@@ -1083,7 +1084,7 @@
 		<Pane size={30} minSize={20} maxSize={50}>
 			<ContentLog
 				bind:contentLogs={contentLogs}
-				bind:agentQueueChangeLogs={agentQueueChangeLogs}
+				bind:agentQueueLogs={agentQueueLogs}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
 			/>

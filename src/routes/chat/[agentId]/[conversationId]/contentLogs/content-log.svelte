@@ -1,13 +1,13 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { GetContentLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     import ContentLogElement from './content-log-element.svelte';
-	import AgentQueueChangeElement from './agent-queue-change-element.svelte';
+	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 
     const contentLogTab = 1;
     const agentQueueLogTab = 2;
@@ -15,8 +15,8 @@
     /** @type {import('$types').ConversationContentLogModel[]} */
     export let contentLogs = [];
 
-    /** @type {import('$types').AgentQueueChangedModel[]} */
-    export let agentQueueChangeLogs = [];
+    /** @type {import('$types').AgentQueueLogModel[]} */
+    export let agentQueueLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -26,6 +26,7 @@
 
     /** @type {any[]} */
     let scrollbars = [];
+    /** @type {number} */
     let selectedTab = contentLogTab;
 
     const options = {
@@ -53,6 +54,10 @@
         });
 		refresh();
 	});
+
+    beforeUpdate(() => {
+        // console.log('before update: ', tabs);
+    });
 
     afterUpdate(() => {
         refresh();
@@ -84,6 +89,12 @@
         cleanLogs();
         cleanScreen && cleanScreen();
     }
+
+    
+    /** @param {number} tab */
+    function handleTabClick(tab) {
+        selectedTab = tab;
+    }
 </script>
 
 <div class="chat-log">
@@ -109,7 +120,7 @@
             </div>
         </div>
 
-        <div class="content-log-scrollbar log-list padding-side log-content" class:hide={selectedTab != contentLogTab}>
+        <div class="content-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== contentLogTab}>
             <ul>
                 {#each contentLogs as log}
                     <ContentLogElement data={log} />
@@ -117,10 +128,10 @@
             </ul>
         </div>
 
-        <div class="queue-change-log-scrollbar log-list log-content" class:hide={selectedTab != agentQueueLogTab}>
+        <div class="queue-change-log-scrollbar log-list log-content" class:hide={selectedTab !== agentQueueLogTab}>
             <ul>
-                {#each agentQueueChangeLogs as log}
-                    <AgentQueueChangeElement data={log} />
+                {#each agentQueueLogs as log}
+                    <AgentQueueLogElement data={log} />
                 {/each}
             </ul>
         </div>
@@ -131,17 +142,19 @@
                     navBtnId={'content-log-tab'}
                     dataBsTarget={'#content-log-tab-pane'}
                     ariaControls={'content-log-tab-pane'}
-                    active={selectedTab == contentLogTab}
                     navBtnText={'Content Log'}
-                    onClick={() => selectedTab = contentLogTab}
+                    disabled={selectedTab === contentLogTab}
+                    active={selectedTab === contentLogTab}
+                    onClick={() => handleTabClick(contentLogTab)}
                 />
                 <NavItem
                     navBtnId={'agent-queue-log-tab'}
                     dataBsTarget={'#agent-queue-log-tab-pane'}
                     ariaControls={'agent-queue-log-tab-pane'}
-                    active={selectedTab == agentQueueLogTab}
                     navBtnText={'Agent Queue'}
-                    onClick={() => selectedTab = agentQueueLogTab}
+                    disabled={selectedTab === agentQueueLogTab}
+                    active={selectedTab === agentQueueLogTab}
+                    onClick={() => handleTabClick(agentQueueLogTab)}
                 />
             </NavBar>
         </div>

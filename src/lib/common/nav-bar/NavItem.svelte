@@ -93,9 +93,10 @@
         border: none !important;
         color: white !important;
         font-weight: 500;
+        font-size: 1.2em;
     }
 
     .tab-btn.active {
-        color: var(--bs-primary) !important;
+        background-color: var(--bs-primary) !important;
     }
 </style>
