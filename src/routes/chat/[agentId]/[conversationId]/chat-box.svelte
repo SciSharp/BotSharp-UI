@@ -121,6 +121,7 @@
 	let loadEditor = false;
 	let loadTextEditor = false;
 	let loadFileEditor = false;
+	let autoScrollLog = false;
 
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -134,10 +135,11 @@
 	});
 	
 	onMount(async () => {
+		autoScrollLog = true;
 		dialogs = await GetDialogs(params.conversationId);
 		initUserSentMessages(dialogs);
 		initChatView();
-
+		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
@@ -153,6 +155,7 @@
 			document.querySelector('.chat-scrollbar')
 		].filter(Boolean);
 		refresh();
+		autoScrollLog = false;
 	});
 
 	function resizeChatWindow() {
@@ -401,6 +404,7 @@
 	 */
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
+		autoScrollLog = true;
 		clearEventLogs();
 		renewUserSentMessages(msgText);
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
@@ -420,9 +424,11 @@
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
 				isSendingMsg = false;
+				autoScrollLog = false;
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
+				autoScrollLog = false;
 				reject(err);
 			});
 		});
@@ -855,6 +861,7 @@
 			<StateLog
 				bind:convStateLogs={convStateLogs}
 				bind:msgStateLogs={msgStateLogs}
+				autoScroll={autoScrollLog}
 				closeWindow={toggleStateLog}
 				cleanScreen={cleanStateLogScreen}
 			/>
@@ -1085,6 +1092,7 @@
 			<ContentLog
 				bind:contentLogs={contentLogs}
 				bind:agentQueueLogs={agentQueueLogs}
+				autoScroll={autoScrollLog}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
 			/>

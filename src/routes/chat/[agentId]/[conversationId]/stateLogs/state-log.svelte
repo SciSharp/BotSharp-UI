@@ -18,6 +18,9 @@
     /** @type {any[]} */
     export let msgStateLogs = [];
 
+    /** @type {boolean} */
+    export let autoScroll = false;
+
     /** @type {() => void} */
     export let closeWindow;
 
@@ -63,7 +66,9 @@
     });
 
     function refresh() {
-        scrollToBottom();
+        if (autoScroll) {
+            scrollToBottom();
+        }
     }
 
     function scrollToBottom() {

@@ -1,7 +1,7 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { GetContentLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
@@ -17,6 +17,9 @@
 
     /** @type {import('$types').AgentQueueLogModel[]} */
     export let agentQueueLogs = [];
+
+    /** @type {boolean} */
+    export let autoScroll = false;
 
     /** @type {() => void} */
     export let closeWindow;
@@ -55,10 +58,6 @@
 		refresh();
 	});
 
-    beforeUpdate(() => {
-        // console.log('before update: ', tabs);
-    });
-
     afterUpdate(() => {
         refresh();
     });
@@ -68,7 +67,9 @@
     });
 
     function refresh() {
-        scrollToBottom();
+        if (autoScroll) {
+            scrollToBottom();
+        }
     }
 
     function scrollToBottom() {
