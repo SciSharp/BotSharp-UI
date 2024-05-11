@@ -96,13 +96,13 @@
 	let contentLogs = [];
 
 	/** @type {import('$types').ConversationStateLogModel[]} */
-	let stateLogs = [];
+	let convStateLogs = [];
 
-	/** @type {import('$types').StateChangeModel[]} */
-	let stateChangeLogs = [];
+	/** @type {import('$types').MessageStateLogModel[]} */
+	let msgStateLogs = [];
 
-	/** @type {import('$types').AgentQueueChangedModel[]} */
-	let agentQueueChangeLogs = [];
+	/** @type {import('$types').AgentQueueLogModel[]} */
+	let agentQueueLogs = [];
 
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
@@ -121,6 +121,7 @@
 	let loadEditor = false;
 	let loadTextEditor = false;
 	let loadFileEditor = false;
+	let autoScrollLog = false;
 
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -134,10 +135,11 @@
 	});
 	
 	onMount(async () => {
+		autoScrollLog = true;
 		dialogs = await GetDialogs(params.conversationId);
 		initUserSentMessages(dialogs);
 		initChatView();
-
+		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
@@ -153,6 +155,7 @@
 			document.querySelector('.chat-scrollbar')
 		].filter(Boolean);
 		refresh();
+		autoScrollLog = false;
 	});
 
 	function resizeChatWindow() {
@@ -349,24 +352,25 @@
 	/** @param {import('$types').ConversationStateLogModel} log */
 	function onConversationStateLogGenerated(log) {
 		if (!isLoadStateLog) return;
-		stateLogs.push({ ...log });
-		stateLogs = stateLogs.map(x => { return { ...x }; });
+
+		convStateLogs.push({ ...log });
+		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').StateChangeModel} log */
+	/** @param {import('$types').MessageStateLogModel} log */
 	function onStateChangeGenerated(log) {
 		if (!isLoadStateLog || log == null) return;
 
-		stateChangeLogs.push({ ...log });
-		stateChangeLogs = stateChangeLogs.map(x => { return { ...x }; });
+		msgStateLogs.push({ ...log });
+		msgStateLogs = msgStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').AgentQueueChangedModel} log */
+	/** @param {import('$types').AgentQueueLogModel} log */
 	function onAgentQueueChanged(log) {
 		if (!isLoadContentLog || log == null) return;
 
-		agentQueueChangeLogs.push({ ...log });
-		agentQueueChangeLogs = agentQueueChangeLogs.map(x => { return { ...x }; });
+		agentQueueLogs.push({ ...log });
+		agentQueueLogs = agentQueueLogs.map(x => { return { ...x }; });
 	}
 
 	/** @param {import('$types').ConversationSenderActionModel} data */
@@ -400,6 +404,7 @@
 	 */
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
+		autoScrollLog = true;
 		clearEventLogs();
 		renewUserSentMessages(msgText);
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
@@ -419,9 +424,11 @@
 		return new Promise((resolve, reject) => {
 			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
 				isSendingMsg = false;
+				autoScrollLog = false;
 				resolve(res);
 			}).catch(err => {
 				isSendingMsg = false;
+				autoScrollLog = false;
 				reject(err);
 			});
 		});
@@ -552,7 +559,7 @@
 		isLoadContentLog = !isLoadContentLog;
 		if (!isLoadContentLog) {
 			contentLogs = [];
-			agentQueueChangeLogs = [];
+			agentQueueLogs = [];
 			isContentLogClosed = true;
 		} else {
 			isContentLogClosed = false;
@@ -566,8 +573,8 @@
 	function toggleStateLog() {
 		isLoadStateLog = !isLoadStateLog;
 		if (!isLoadStateLog) {
-			stateLogs = [];
-			stateChangeLogs = [];
+			convStateLogs = [];
+			msgStateLogs = [];
 			isStateLogClosed = true;
 		} else {
 			isStateLogClosed = false;
@@ -575,7 +582,7 @@
 	}
 
 	function cleanStateLogScreen() {
-		stateLogs = [];
+		convStateLogs = [];
 	}
 
 	function toggleUserAddStateModal() {
@@ -731,8 +738,8 @@
 		}
 		
 		if (isLoadStateLog) {
-			const targetIdx = stateLogs.findIndex(x => x.message_id === messageId);
-			stateLogs = stateLogs.filter((x, idx) => idx < targetIdx);
+			const targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
+			convStateLogs = convStateLogs.filter((x, idx) => idx < targetIdx);
 		}
 	}
 
@@ -779,8 +786,7 @@
 	/** @param {string} messageId */
 	function autoScrollToTargetLog(messageId) {
 		const contentLogWrapper = '.content-log-scrollbar';
-		const stateLogWrapper = '.state-log-scrollbar';
-		const offset = 5;
+		const stateLogWrapper = '.conv-state-log-scrollbar';
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
 		if (isLoadContentLog && !!contentLogElm) {
@@ -803,10 +809,7 @@
 			if (!!scrollElement && !!item.elm) {
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
-				let offsetTop = item.elm.offsetTop;
-				if (item.wrapperName === stateLogWrapper) {
-					offsetTop -= offset;
-				}
+				const offsetTop = item.elm.offsetTop;
 				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
 		});
@@ -817,8 +820,8 @@
 	}
 
 	function clearEventLogs() {
-		stateChangeLogs = [];
-		agentQueueChangeLogs = [];
+		msgStateLogs = [];
+		agentQueueLogs = [];
 	}
 
 	function resetStorage() {
@@ -856,8 +859,9 @@
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
 			<StateLog
-				bind:stateLogs={stateLogs}
-				bind:stateChangeLogs={stateChangeLogs}
+				bind:convStateLogs={convStateLogs}
+				bind:msgStateLogs={msgStateLogs}
+				autoScroll={autoScrollLog}
 				closeWindow={toggleStateLog}
 				cleanScreen={cleanStateLogScreen}
 			/>
@@ -1087,7 +1091,8 @@
 		<Pane size={30} minSize={20} maxSize={50}>
 			<ContentLog
 				bind:contentLogs={contentLogs}
-				bind:agentQueueChangeLogs={agentQueueChangeLogs}
+				bind:agentQueueLogs={agentQueueLogs}
+				autoScroll={autoScrollLog}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
 			/>

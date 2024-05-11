@@ -343,6 +343,20 @@
 .chat-log {
     height: 100vh;
 
+    .log-flex {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .log-header {
+        flex: 5%;
+    }
+
+    .log-content {
+        flex: 90%
+    }
+
     .padding-side {
         padding-left: 20px;
         padding-right: 20px;
@@ -361,28 +375,6 @@
             position: sticky;
             display: flex;
             justify-content: space-between;
-            height: 7vh;
-        }
-
-        .state-log-section {
-            height: 90vh;
-        }
-
-        .content-log-list {
-            height: 90vh;
-        }
-
-        .state-change-log-list {
-            height: 100%;
-        }
-
-        .state-log-list {
-            height: 100%;
-            padding-top: 10px;
-        }
-
-        .queue-change-log-list {
-            width: 100%;
         }
     
         .log-list {
@@ -436,6 +428,7 @@
             .state-change-container {
                 margin-top: 0px;
                 margin-bottom: 5px;
+                padding-left: 10px;
 
                 .state-key {
                     color: var(--bs-primary);
@@ -463,10 +456,11 @@
             .queue-change-container {
                 margin-top: 0px;
                 margin-bottom: 0px;
+                padding: 0px 10px;
 
                 .log-content {
                     text-align: center;
-                    font-size: 14px;
+                    font-size: 18px;
                     margin-top: 2px;
                     margin-bottom: 2px;
                 }

@@ -2,17 +2,24 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-    import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import { page } from '$app/stores';
 	import { GetStateLogs } from '$lib/services/logging-service';
-    import StateLogElement from './state-log-element.svelte';
-	import StateChangeElement from './state-change-element.svelte';
+    import NavBar from '$lib/common/nav-bar/NavBar.svelte';
+    import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+    import ConversationStateLogElement from './conversation-state-log-element.svelte';
+	import MessageStateLogElement from './message-state-log-element.svelte';
+
+    const convStateLogTab = 1;
+    const msgStateLogTab = 2;
 
     /** @type {any[]} */
-    export let stateLogs = [];
+    export let convStateLogs = [];
 
     /** @type {any[]} */
-    export let stateChangeLogs = [];
+    export let msgStateLogs = [];
+
+    /** @type {boolean} */
+    export let autoScroll = false;
 
     /** @type {() => void} */
     export let closeWindow;
@@ -22,6 +29,7 @@
 
     /** @type {any} */
     let scrollbars = [];
+    let selectedTab = convStateLogTab;
 
     const options = {
 		scrollbars: {
@@ -37,11 +45,11 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        stateLogs = await GetStateLogs(conversationId);
+        convStateLogs = await GetStateLogs(conversationId);
         
         const scrollbarElements = [
-            document.querySelector('.state-log-scrollbar'),
-            document.querySelector('.state-change-scrollbar')
+            document.querySelector('.conv-state-log-scrollbar'),
+            document.querySelector('.msg-state-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
@@ -58,6 +66,12 @@
     });
 
     function refresh() {
+        if (autoScroll) {
+            scrollToBottom();
+        }
+    }
+
+    function scrollToBottom() {
         // @ts-ignore
         scrollbars.forEach(scrollbar => {
             setTimeout(() => {
@@ -68,18 +82,23 @@
     }
 
     function cleanLogs() {
-        stateLogs = [];
+        convStateLogs = [];
     }
 
     function handleCleanScreen() {
         cleanLogs();
         cleanScreen && cleanScreen();
     }
+
+    /** @param {number} tab */
+    function handleTabClick(tab) {
+        selectedTab = tab;
+    }
 </script>
 
 <div class="chat-log">
-    <div class="card mb-0 log-background" style="height: 100%;">
-        <div class="log-close-btn padding-side">
+    <div class="card mb-0 log-background log-flex">
+        <div class="log-close-btn padding-side log-header">
             <div>
                 <button
                     type="button"
@@ -99,28 +118,43 @@
                 </button>
             </div>
         </div>
-        <div class="state-log-section">
-            <Splitpanes horizontal>
-                <Pane size={35} minSize={20} maxSize={80}>
-                    <div class="state-change-scrollbar state-change-log-list log-list padding-side">
-                        <ul>
-                            {#each stateChangeLogs as log}
-                                <StateChangeElement data={log} />
-                            {/each}
-                        </ul>
-                    </div>
-                </Pane>
-                <Pane size={65} minSize={20} maxSize={80}>
-                    <div class="state-log-scrollbar state-log-list log-list padding-side">
-                        <ul>
-                            {#each stateLogs as log}
-                                <StateLogElement data={log} />
-                            {/each}
-                        </ul>
-                    </div>
-                </Pane>
-            </Splitpanes>
+        <div class="conv-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== convStateLogTab}>
+            <ul>
+                {#each convStateLogs as log}
+                    <ConversationStateLogElement data={log} />
+                {/each}
+            </ul>
         </div>
-        
+
+        <div class="msg-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== msgStateLogTab}>
+            <ul>
+                {#each msgStateLogs as log}
+                    <MessageStateLogElement data={log} />
+                {/each}
+            </ul>
+        </div>
+
+        <div class="log-header">
+            <NavBar id={'state-log-container'}>
+                <NavItem
+                    navBtnId={'conv-state-log-tab'}
+                    dataBsTarget={'#conv-state-log-tab-pane'}
+                    ariaControls={'conv-state-log-tab-pane'}
+                    navBtnText={'Conversation States'}
+                    disabled={selectedTab === convStateLogTab}
+                    active={selectedTab === convStateLogTab}
+                    onClick={() => handleTabClick(convStateLogTab)}
+                />
+                <NavItem
+                    navBtnId={'msg-state-log-tab'}
+                    dataBsTarget={'#msg-state-log-tab-pane'}
+                    ariaControls={'msg-state-log-tab-pane'}
+                    navBtnText={'Message States'}
+                    disabled={selectedTab === msgStateLogTab}
+                    active={selectedTab === msgStateLogTab}
+                    onClick={() => handleTabClick(msgStateLogTab)}
+                />
+            </NavBar>
+        </div>
     </div>
 </div>

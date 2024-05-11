@@ -6,7 +6,7 @@
 </script>
 
 <div class="log-element queue-change-container">
-    <div class="log-content queue-change-content">
+    <div class="log-content">
         <span class="text-danger">{data?.log}</span>
     </div>
 </div>
