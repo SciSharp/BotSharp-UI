@@ -8,25 +8,44 @@
 		Row,
 	} from '@sveltestrap/sveltestrap';
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
-	import { goto } from '$app/navigation';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+	import "sweetalert2/src/sweetalert2.scss";
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;
-	
-	/** 
+
+	/**
 	 * @param {string} id
+	 * @param {string} name
 	 * @param {boolean} enable
-	*/
-	async function handlePluginStatus(id, enable) {
-		if (enable) {
-			await installPlugin(id);
-		} else {
-			await removePlugin(id);
-		}
-		
-		// refresh page
-		const path = window.location.pathname;
-		goto('').then(() => goto(path));
+	 */
+	function handlePluginStatus(id, name, enable) {
+		// @ts-ignore
+		Swal.fire({
+			title: 'Are you sure?',
+			text: `We will ${enable ? 'install' : 'remove'} ${name}.`,
+			icon: 'warning',
+			showCancelButton: true,
+			confirmButtonText: 'Yes',
+			cancelButtonText: 'No'
+		// @ts-ignore
+		}).then((result) => {
+			if (result.value) {
+				if (enable) {
+					installPlugin(id).then(() => {
+						refresh();
+					});
+				} else {
+					removePlugin(id).then(() => {
+						refresh();
+					})
+				}
+			}
+		});
+	}
+
+	function refresh() {
+		window.location.reload();
 	}
 </script>
 
@@ -68,7 +87,7 @@
 						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
 						{/if}
 						{#if !item.is_core}
-						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
+						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
 						{/if}
 					</div>
 				</CardBody>
