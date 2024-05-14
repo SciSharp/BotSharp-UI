@@ -350,11 +350,19 @@
     }
 
     .log-header {
-        flex: 5%;
+        flex: 2%;
     }
 
     .log-content {
-        flex: 90%
+        flex: 96%
+    }
+
+    .log-footer {
+        flex: 2%;
+    }
+
+    .nav-group {
+        margin: 0px 3px;
     }
 
     .padding-side {
@@ -371,7 +379,8 @@
         background-color: black;
 
         .log-close-btn {
-            margin-top: 1.2rem;
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
             position: sticky;
             display: flex;
             justify-content: space-between;

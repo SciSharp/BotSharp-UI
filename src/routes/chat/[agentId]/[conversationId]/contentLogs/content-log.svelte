@@ -137,7 +137,7 @@
             </ul>
         </div>
 
-        <div class="log-header">
+        <div class="log-footer nav-group">
             <NavBar id={'content-log-container'}>
                 <NavItem
                     navBtnId={'content-log-tab'}

@@ -91,13 +91,11 @@
         width: 100%;
         height: 100%;
         border: none !important;
-        color: white !important;
-        background-color: var(--bs-secondary);
+        color: white;
         font-weight: 500;
-        font-size: 1.2em;
     }
 
     .tab-btn.active {
-        background-color: var(--bs-primary) !important;
+        color: var(--bs-primary);
     }
 </style>
