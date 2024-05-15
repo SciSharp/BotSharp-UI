@@ -41,7 +41,7 @@
 
 </script>
 
-<HeadTitle title={conversation?.title} />
+<HeadTitle title={conversation?.title || 'Not found'} />
 <Breadcrumb title="{$_('Conversation')}" pagetitle="{$_('Conversation Detail')}" />
 
 {#if conversation}
