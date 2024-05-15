@@ -54,9 +54,9 @@
         <Dialog conversation={conversation} />        
     </Col>
 </Row>
-{/if}
 <Row>
     <div class="mb-4">
         <Button class="btn btn-danger btn-hover rounded" on:click={() => handleConversationDeletion()}><i class="mdi mdi-delete"></i>{$_('Delete Conversation')}</Button>
     </div>
 </Row>
+{/if}

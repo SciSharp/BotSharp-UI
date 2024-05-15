@@ -126,12 +126,17 @@
 	let loadTextEditor = false;
 	let loadFileEditor = false;
 	let autoScrollLog = false;
+	let disableAction = false;
 
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
 		loadFileEditor = FILE_EDITORS.includes(editor);
 		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
+	}
+
+	$: {
+		disableAction = currentUser?.role !== UserRole.Admin && currentUser?.id !== conversationUser?.id;
 	}
 
 	setContext('chat-window-context', {
@@ -913,12 +918,26 @@
 														</DropdownToggle>
 														<DropdownMenu>
 															{#if !isLoadStateLog}
-															<DropdownItem on:click={() => toggleStateLog()}>View States</DropdownItem>
+															<DropdownItem
+																on:click={() => toggleStateLog()}
+															>
+																View States
+															</DropdownItem>
 															{/if}
 															{#if !isOpenUserAddStateModal}
-															<DropdownItem on:click={() => toggleUserAddStateModal()}>Add States</DropdownItem>
+															<DropdownItem
+																disabled={disableAction}
+																on:click={() => toggleUserAddStateModal()}
+															>
+																Add States
+															</DropdownItem>
 															{/if}
-															<DropdownItem on:click={() => clearUserAddStates()}>Clear States</DropdownItem>
+															<DropdownItem
+																disabled={disableAction}
+																on:click={() => clearUserAddStates()}
+															>
+																Clear States
+															</DropdownItem>
 														</DropdownMenu>
 													</Dropdown>
 												</li>
@@ -931,6 +950,7 @@
 									<li class="list-inline-item d-md-inline-block">
 										<button
 											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
+											disabled={disableAction}
 											on:click={() => endChat()}
 										>
 											<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
@@ -985,7 +1005,7 @@
 										</div>
 											{#if !isLite}
 												<Dropdown>
-													<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking}>
+													<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking || disableAction}>
 														<i class="bx bx-dots-vertical-rounded" />
 													</DropdownToggle>
 													<DropdownMenu class="dropdown-menu-end">
@@ -1036,7 +1056,7 @@
 							</ul>
 
 							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
-								<ChatImageGallery disabled={isSendingMsg || isThinking} />
+								<ChatImageGallery disabled={isSendingMsg || isThinking || disableAction} />
 							{/if}
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
@@ -1055,7 +1075,7 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded waves-effect waves-light"
-									disabled={isSendingMsg || isThinking}
+									disabled={isSendingMsg || isThinking || disableAction}
 									on:click={startListen}
 								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
@@ -1066,13 +1086,13 @@
 									<ChatTextArea
 										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
 										bind:text={text}
-										disabled={isSendingMsg || isThinking}
+										disabled={isSendingMsg || isThinking || disableAction}
 										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
 									/>
 									{#if loadFileEditor}
 										<div class="chat-input-links">
-											<ChatImageUploader />
+											<ChatImageUploader disabled={disableAction} />
 										</div>
 									{/if}
 								</div>
@@ -1081,7 +1101,7 @@
 								<button
 									type="submit"
 									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
-									disabled={!!!_.trim(text) || isSendingMsg || isThinking}
+									disabled={!!!_.trim(text) || isSendingMsg || isThinking || disableAction}
 									on:click={() => sentTextMessage()}
 								><span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />

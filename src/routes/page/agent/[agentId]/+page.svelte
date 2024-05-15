@@ -89,6 +89,6 @@
 </Row>
 <Row>
     <div class="hstack gap-2 my-4">
-        <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>{$_('Save Agent')}</Button>
+        <Button class="btn btn-soft-primary" disabled={!agent?.editable} on:click={handleAgentUpdate}>{$_('Save Agent')}</Button>
     </div>
 </Row>
