@@ -121,7 +121,7 @@
             </div>
         </div>
 
-        <div class="content-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== contentLogTab}>
+        <div class="content-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== contentLogTab}>
             <ul>
                 {#each contentLogs as log}
                     <ContentLogElement data={log} />
@@ -129,7 +129,7 @@
             </ul>
         </div>
 
-        <div class="queue-change-log-scrollbar log-list log-content" class:hide={selectedTab !== agentQueueLogTab}>
+        <div class="queue-change-log-scrollbar log-list log-body" class:hide={selectedTab !== agentQueueLogTab}>
             <ul>
                 {#each agentQueueLogs as log}
                     <AgentQueueLogElement data={log} />

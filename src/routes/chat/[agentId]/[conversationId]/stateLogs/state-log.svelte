@@ -118,7 +118,7 @@
                 </button>
             </div>
         </div>
-        <div class="conv-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== convStateLogTab}>
+        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
             <ul>
                 {#each convStateLogs as log}
                     <ConversationStateLogElement data={log} />
@@ -126,7 +126,7 @@
             </ul>
         </div>
 
-        <div class="msg-state-log-scrollbar log-list padding-side log-content" class:hide={selectedTab !== msgStateLogTab}>
+        <div class="msg-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== msgStateLogTab}>
             <ul>
                 {#each msgStateLogs as log}
                     <MessageStateLogElement data={log} />
