@@ -27,6 +27,17 @@ export async function getConversation(id) {
 }
 
 /**
+ * Get conversation user
+ * @param {string} id
+ * @returns {Promise<import('$types').UserModel>}
+ */
+export async function getConversationUser(id) {
+    let url = replaceUrl(endpoints.conversationUserUrl, {conversationId: id});
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * Get conversation list
  * @param {import('$types').ConversationFilter} filter
  * @returns {Promise<import('$types').PagedItems<import('$types').ConversationModel>>}
