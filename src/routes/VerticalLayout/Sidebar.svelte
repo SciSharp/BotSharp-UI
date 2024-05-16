@@ -107,7 +107,6 @@
 						let activeLinks = 0;
 						const links = menu.nextElementSibling.querySelectorAll('li a');
 						links.forEach((x) => (activeLinks += Number(x.classList.contains('mm-active'))));
-						console.log(activeLinks)
 						if (activeLinks > 0) {
 							menu.classList.add('mm-active');
 						}
