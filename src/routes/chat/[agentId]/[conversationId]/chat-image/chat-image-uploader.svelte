@@ -54,7 +54,9 @@
                 fileLimit={fileUploadLimit}
                 on:drop={e => handleFileDrop(e)}
             >
-                <span><i class="bx bx-image-add" /></span>
+                <slot>
+                    <span><i class="bx bx-image-add" /></span>
+                </slot>
             </FileDropZone>
         </li>
     </ul>
