@@ -36,16 +36,17 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
-	import RichContent from './richContent/rich-content.svelte';
-	import RcMessage from "./richContent/rc-message.svelte";
-	import RcDisclaimer from './richContent/rc-disclaimer.svelte';
+	import { loadFileGallery } from '$lib/helpers/utils/gallery';
+	import RichContent from './rich-content/rich-content.svelte';
+	import RcMessage from "./rich-content/rc-message.svelte";
+	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
-	import ChatImageUploader from './chatImage/chat-image-uploader.svelte';
-	import ChatImageGallery from './chatImage/chat-image-gallery.svelte';
-	import ContentLog from './contentLogs/content-log.svelte';
+	import ChatImageUploader from './chat-image/chat-image-uploader.svelte';
+	import ChatImageGallery from './chat-image/chat-image-gallery.svelte';
+	import ContentLog from './content-log/content-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import StateLog from './stateLogs/state-log.svelte';
+	import StateLog from './state-log/state-log.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
@@ -272,7 +273,7 @@
 
 			const prevMsg = dialogs[idx-1];
 			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
-				&& prevMsg?.rich_content?.editor === EditorType.File) {
+				&& loadFileGallery(prevMsg)) {
 				curMsg.is_load_images = true;
 			}
 		}
@@ -318,12 +319,12 @@
 	}
 
 	function getChatFiles() {
-		if (lastBotMsg?.rich_content?.editor !== EditorType.File) {
-			return [];
+		if (loadFileGallery(lastBotMsg)) {
+			const attachments = conversationUserAttachmentStore.get();
+			return attachments?.accepted_files || [];
 		}
-
-		const attachments = conversationUserAttachmentStore.get();
-		return attachments?.accepted_files || [];
+		
+		return [];
 	}
 
 
@@ -1035,7 +1036,7 @@
 								{/if}
 							</ul>
 
-							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
+							{#if loadFileGallery(lastBotMsg)}
 								<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{/if}
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
@@ -1045,7 +1046,6 @@
 									onConfirm={confirmSelectedOption}
 								/>
 							{/if}
-							
 						</div>
 					</div>
 

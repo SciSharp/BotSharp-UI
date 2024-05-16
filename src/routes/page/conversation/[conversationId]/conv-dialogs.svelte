@@ -6,9 +6,9 @@
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
 	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
-    import { EditorType } from '$lib/helpers/enums';
 	import Markdown from '$lib/common/Markdown.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
+	import { loadFileGallery } from '$lib/helpers/utils/gallery';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -33,7 +33,7 @@
 
             const prevMsg = dialogs[idx-1];
             if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
-                && prevMsg?.rich_content?.editor === EditorType.File) {
+                && loadFileGallery(prevMsg)) {
                 curMsg.is_load_images = true;
             }
         }

@@ -27,7 +27,8 @@ export const RichType = Object.freeze(richType);
 
 const elementType = {
     Text: "text",
-    Video: "video"
+    Video: "video",
+    File: "file"
 };
 export const ElementType = Object.freeze(elementType);
 

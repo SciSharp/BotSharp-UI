@@ -2,9 +2,9 @@
 	import { EditorType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
-	import ChatAttachmentOptions from "../chatImage/chat-attachment-options.svelte";
+	import ChatAttachmentOptions from "../chat-image/chat-attachment-options.svelte";
 	
-    /** @type {any} */
+    /** @type {import('$types').ChatResponseModel?} */
     export let message;
 
     /** @type {boolean} */
@@ -17,7 +17,7 @@
     let isComplexElement = false;
     let isMultiSelect = false;
 
-    /** @type {any[]} */
+    /** @type {any[] | undefined} */
     let options = [];
 
     $: {

@@ -2,7 +2,7 @@
     import { onDestroy, onMount } from "svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
 
-    /** @type {any[]} */
+    /** @type {any[] | undefined} */
     export let options;
 
     /** @type {boolean} */
@@ -33,7 +33,7 @@
     });
 
 
-    /** @param {any[]} options */
+    /** @param {any[] | undefined} options */
     function collectOptions(options) {
         confirmOption = options?.find(op => op.title?.toLowerCase()?.startsWith("yes"));
         cancelOption = options?.find(op => op.title?.toLowerCase()?.startsWith("no"));

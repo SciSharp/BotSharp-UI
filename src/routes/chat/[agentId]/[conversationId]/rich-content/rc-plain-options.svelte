@@ -3,6 +3,7 @@
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
+	import ChatImageUploader from "../chat-image/chat-image-uploader.svelte";
 
     /** @type {boolean} */
     export let isMultiSelect = false;
@@ -20,6 +21,10 @@
     export let confirmBtnText = 'Continue';
 
     const separator = '|';
+    const specialElementTypes = [
+        ElementType.Video,
+        ElementType.File
+    ];
 
     /** @type {string[]} */
     let titleAnswers = [];
@@ -29,6 +34,8 @@
     let plainOptions = [];
     /** @type {any[]} */
     let videoOptions = [];
+    /** @type {any} */
+    let fileOption;
 
     const { autoScrollToBottom }  = getContext('chat-window-context');
 
@@ -43,7 +50,8 @@
         const innerOptions = options?.filter(op => !!op.title && !!op.payload) || [];
 
         videoOptions = innerOptions?.filter(op => op.type == ElementType.Video);
-        plainOptions = innerOptions?.filter(op => op.type != ElementType.Video)?.map(op => {
+        fileOption = innerOptions?.find(op => op.type == ElementType.File);
+        plainOptions = innerOptions?.filter(op => !specialElementTypes.includes(op.type))?.map(op => {
             return {
                 title: op.title,
                 payload: op.payload,
@@ -129,7 +137,7 @@
 </div>
 {/if}
 
-{#if plainOptions.length > 0}
+{#if plainOptions.length > 0 || !!fileOption}
 <div class="plain-option-container center-option">
     {#each plainOptions as option, index}
         <button
@@ -150,6 +158,13 @@
         >
             {confirmBtnText || 'Continue'}
         </button>
+    {/if}
+    {#if !!fileOption}
+        <ChatImageUploader>
+            <span style="position: relative; top: 3px;">
+                <i class="bx bx-image-add" />
+            </span>
+        </ChatImageUploader>
     {/if}
 </div>
 {/if}
