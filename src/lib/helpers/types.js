@@ -237,6 +237,42 @@ IRichContent.prototype.rich_type;
 IRichContent.prototype.text;
 
 /**
+ * The options of the rich content.
+ *
+ * @name options
+ * @type {any[]}
+ * @instance
+ */
+IRichContent.prototype.options;
+
+/**
+ * The buttons of the rich content.
+ *
+ * @name buttons
+ * @type {any[]}
+ * @instance
+ */
+IRichContent.prototype.buttons;
+
+/**
+ * The elements of the rich content.
+ *
+ * @name elements
+ * @type {any[]}
+ * @instance
+ */
+IRichContent.prototype.elements;
+
+/**
+ * The quick replies of the rich content.
+ *
+ * @name quick_replies
+ * @type {any[]}
+ * @instance
+ */
+IRichContent.prototype.quick_replies;
+
+/**
  * @typedef {Object} TextMessage
  * @property {string} text
  * @property {string} rich_type 

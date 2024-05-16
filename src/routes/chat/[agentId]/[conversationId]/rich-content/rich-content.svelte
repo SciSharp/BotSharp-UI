@@ -4,7 +4,7 @@
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import ChatAttachmentOptions from "../chat-image/chat-attachment-options.svelte";
 	
-    /** @type {any} */
+    /** @type {import('$types').ChatResponseModel?} */
     export let message;
 
     /** @type {boolean} */
@@ -17,7 +17,7 @@
     let isComplexElement = false;
     let isMultiSelect = false;
 
-    /** @type {any[]} */
+    /** @type {any[] | undefined} */
     let options = [];
 
     $: {

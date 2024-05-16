@@ -36,6 +36,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { loadFileGallery } from '$lib/helpers/utils/gallery';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -272,7 +273,7 @@
 
 			const prevMsg = dialogs[idx-1];
 			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
-				&& prevMsg?.rich_content?.editor === EditorType.File) {
+				&& loadFileGallery(prevMsg)) {
 				curMsg.is_load_images = true;
 			}
 		}
@@ -318,12 +319,12 @@
 	}
 
 	function getChatFiles() {
-		if (lastBotMsg?.rich_content?.editor !== EditorType.File) {
-			return [];
+		if (loadFileGallery(lastBotMsg)) {
+			const attachments = conversationUserAttachmentStore.get();
+			return attachments?.accepted_files || [];
 		}
-
-		const attachments = conversationUserAttachmentStore.get();
-		return attachments?.accepted_files || [];
+		
+		return [];
 	}
 
 
@@ -1035,7 +1036,7 @@
 								{/if}
 							</ul>
 
-							{#if lastBotMsg?.rich_content?.editor === EditorType.File}
+							{#if loadFileGallery(lastBotMsg)}
 								<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{/if}
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
@@ -1045,7 +1046,6 @@
 									onConfirm={confirmSelectedOption}
 								/>
 							{/if}
-							
 						</div>
 					</div>
 

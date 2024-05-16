@@ -1,7 +1,7 @@
 <script>
 	import FileGallery from "$lib/common/FileGallery.svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
-	import { afterUpdate, getContext, onDestroy, onMount } from "svelte";
+	import { afterUpdate, getContext, onDestroy } from "svelte";
 
     /** @type {boolean} */
     export let disabled = false;
@@ -41,4 +41,3 @@
         needDelete
         onDelete={deleteFile} />
 </div>
-
