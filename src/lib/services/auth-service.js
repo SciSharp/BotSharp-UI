@@ -5,9 +5,10 @@ import axios from 'axios';
 /**
  * @param {string} email
  * @param {string} password
- * @param {function} onSucceed()
+ * @param {function} onSucceed
+ * @param {function} onError
  */
-export async function getToken(email, password, onSucceed) {
+export async function getToken(email, password, onSucceed, onError) {
     const credentials = btoa(`${email}:${password}`);
     const headers = {
         Authorization: `Basic ${credentials}`,
@@ -20,8 +21,9 @@ export async function getToken(email, password, onSucceed) {
         if (response.ok) {
             return response.json();
         } else {
-            alert(response.statusText);
-            return false
+            console.log(response.statusText);
+            onError();
+            return false;
         }
     }).then(result => {
         if (!result) {
@@ -33,7 +35,9 @@ export async function getToken(email, password, onSucceed) {
         userStore.set(user);
         onSucceed();
     })
-    .catch(error => alert(error.message));
+    .catch(() => {
+        onError();
+    });
 }
 
 /**
