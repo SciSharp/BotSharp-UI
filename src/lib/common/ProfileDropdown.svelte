@@ -5,9 +5,10 @@
 	import { _ } from 'svelte-i18n';
 	
 	/**
-	 * @type {{ full_name: any; }}
+	 * @type {any}
 	 */
-	 export let user;
+	export let user;
+
 	function logout() {
 		if (browser){	
 			localStorage.removeItem('user');
@@ -23,7 +24,7 @@
 		class="btn header-item waves-effect"
 		id="page-header-user-dropdown"
 	>
-		<img class="rounded-circle header-profile-user" src='images/users/user-dummy.jpg' alt="Header Avatar" />
+		<img class="rounded-circle header-profile-user" src={user?.avatar} alt="" onerror="this.onerror=null; this.src='images/users/user-dummy.jpg'" />
 		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
 		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
 	</DropdownToggle>

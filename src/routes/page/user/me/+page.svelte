@@ -1,25 +1,38 @@
 <script>
-	import { PUBLIC_BRAND_NAME, PUBLIC_LOGIN_IMAGE } from '$env/static/public';
+	import { onMount } from 'svelte';
+	import { PUBLIC_BRAND_NAME } from '$env/static/public';
 	import { Row, Col, Card, CardBody, CardTitle, Table } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import { onMount } from 'svelte';
+	import FileDropZone from '$lib/common/FileDropZone.svelte';
 	import { myInfo } from '$lib/services/auth-service';
 	import { _ } from 'svelte-i18n';
-
+	
 	/** @type {import('$types').UserModel} */
 	let currentUser;
 	let isLoading = false;
+	let avatar = '';
+
 	onMount(async () => {
 		isLoading = true;
 		await myInfo()
 			.then((data) => {
 				currentUser = data;
+				avatar = data?.avatar || '';
 			})
 			.finally(() => {
 				isLoading = false;
 			});
 	});
+
+	/** @param {any} e */
+    async function handleFileDrop(e) {
+        const { acceptedFiles } = e.detail;
+		const file = acceptedFiles[0];
+		if (!!!file) return;
+
+		avatar = file.file_data;
+    }
 </script>
 
 <HeadTitle title="{$_('My Profile')}" />
@@ -41,11 +54,22 @@
 				<Row>
 					<Col sm={4}>
 						<div class="avatar-md profile-user-wid mb-4">
-							<img
-								src="images/users/user-dummy.jpg"
-								alt="avatar"
-								class="img-thumbnail rounded-circle"
-							/>
+							<FileDropZone
+								accept="image/*"
+								disableDefaultStyles
+								containerStyles={'width: 100%; height: 100%;'}
+								noDrag
+								fileLimit={1}
+								on:drop={e => handleFileDrop(e)}
+							>
+								<img
+									src={avatar}
+									alt=""
+									onerror="this.onerror=null; this.src='images/users/user-dummy.jpg'"
+									class="img-thumbnail rounded-circle"
+									style="width: 100%; height: 100%;"
+								/>
+							</FileDropZone>
 						</div>
 						<h5 class="font-size-15 text-truncate">{currentUser?.full_name}</h5>
 						<p class="text-muted mb-0 text-truncate">{currentUser?.role ?? 'Role: N/A'}</p>

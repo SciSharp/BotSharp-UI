@@ -39,5 +39,6 @@
         files={files}
         disabled={disabled}
         needDelete
-        onDelete={deleteFile} />
+        onDelete={deleteFile}
+    />
 </div>
