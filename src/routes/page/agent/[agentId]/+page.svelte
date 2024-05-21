@@ -130,10 +130,12 @@
         <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
     </Col>    
 </Row>
-<Row>
-    <div class="hstack gap-2 my-4">
-        <Button class="btn btn-soft-primary" disabled={!agent?.editable} on:click={updateCurrentAgent}>{$_('Save Agent')}</Button>
-        <Button class="btn btn-danger" disabled={!agent?.editable} on:click={deleteCurrentAgent}>{$_('Delete Agent')}</Button>
-    </div>
-</Row>
+    {#if !!agent?.editable}
+    <Row>
+        <div class="hstack gap-2 my-4">
+            <Button class="btn btn-soft-primary" on:click={updateCurrentAgent}>{$_('Save Agent')}</Button>
+            <Button class="btn btn-danger" on:click={deleteCurrentAgent}>{$_('Delete Agent')}</Button>
+        </div>
+    </Row>
+    {/if}
 {/if}
