@@ -11,7 +11,7 @@
 	 export let user;
 	function logout() {
 		if (browser){	
-			resetLocalStorage();
+			resetLocalStorage(true);
 		}
 		goto('login');
 	};
