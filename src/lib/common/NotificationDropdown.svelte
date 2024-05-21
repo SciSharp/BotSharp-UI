@@ -37,12 +37,12 @@
 					<h6 class="m-0">{$_('Notifications')}</h6>
 				</div>
 				<div class="col-auto">
-					<Link href="#!" class="small">{$_('View All')}</Link>
+					<Link class="small" disabled>{$_('View All')}</Link>
 				</div>
 			</div>
 		</div>
 			<div style="max-height: 230px;" id="notification">
-			<Link href="javascript: void(0);" class="text-reset notification-item">
+				<Link href="javascript: void(0);" class="text-reset notification-item" disabled>
 					<div class="d-flex">
 						<div class="avatar-xs me-3">
 							<span class="avatar-title bg-primary rounded-circle font-size-16">

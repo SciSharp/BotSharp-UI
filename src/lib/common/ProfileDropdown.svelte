@@ -1,5 +1,6 @@
 <script>
 	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
+	import { resetLocalStorage } from '$lib/helpers/store';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n';
@@ -10,7 +11,7 @@
 	 export let user;
 	function logout() {
 		if (browser){	
-			localStorage.removeItem('user');
+			resetLocalStorage();
 		}
 		goto('login');
 	};
@@ -29,14 +30,14 @@
 	</DropdownToggle>
 	<DropdownMenu end>
 		<!-- item-->
-		<DropdownItem href="page/user/me"
-			><i class="bx bx-user font-size-16 align-middle me-1" />
+		<DropdownItem href="page/user/me">
+			<i class="bx bx-user font-size-16 align-middle me-1" />
 			<span>{$_('Profile')}</span>
 		</DropdownItem>
-		<DropdownItem href="#"
-			><span class="badge bg-success float-end">11</span><i
-				class="bx bx-wrench font-size-16 align-middle me-1"
-			/> <span key="t-settings">{$_('Settings')}</span>
+		<DropdownItem href="#" disabled>
+			<span class="badge bg-success float-end">11</span>
+			<i class="bx bx-wrench font-size-16 align-middle me-1"/>
+			<span key="t-settings">{$_('Settings')}</span>
 		</DropdownItem>
 		<DropdownItem divider />
 		<DropdownItem href="#">
