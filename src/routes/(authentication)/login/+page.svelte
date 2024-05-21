@@ -40,6 +40,7 @@
 	let status = '';
 	let isSubmitting = false;
 	let isRememberMe = false;
+
 	onMount(() => {
 		const userName = localStorage.getItem('user_name');
 		isRememberMe = userName !== null;
@@ -64,12 +65,23 @@
 			msg = 'Authentication success';
 			status = 'success';
 			const redirectUrl = $page.url.searchParams.get('redirect');
+			isSubmitting = false;
+			resetStorage();
 			if (redirectUrl) {
 				window.location.href = decodeURIComponent(redirectUrl);
 			} else {
 				goto('page/dashboard');
 			}
+		}, () => {
 			isSubmitting = false;
+			isOpen = true;
+			status = 'danger';
+			msg = 'Incorrect user name or password.'
+			setTimeout(() => {
+				isOpen = false;
+				status = '';
+				msg = '';
+			}, 3000);
 			resetLocalStorage();
 		});
 		isSubmitting = false;
@@ -77,6 +89,8 @@
 
 	function onPasswordToggle() {
 		var x = document.getElementById('user-password');
+		if (!x) return;
+
 		if (x.type === 'password') {
 			x.type = 'text';
 			var icon = document.getElementById('password-eye-icon');
@@ -135,6 +149,7 @@
 										class="form-control"
 										id="username"
 										placeholder="Enter username"
+										disabled={isSubmitting}
 										bind:value={username}
 									/>
 								</div>
@@ -147,6 +162,7 @@
 											class="form-control"
 											id="user-password"
 											placeholder="Enter password"
+											disabled={isSubmitting}
 											aria-label="Password"
 											aria-describedby="password-addon"
 											bind:value={password}
@@ -155,6 +171,7 @@
 											color="light"
 											type="button"
 											id="password-addon"
+											disabled={isSubmitting}
 											on:click={() => onPasswordToggle()}
 										>
 											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
@@ -167,6 +184,7 @@
 										class="form-check-input"
 										type="checkbox"
 										id="remember-check"
+										disabled={isSubmitting}
 										bind:checked={isRememberMe}
 									/>
 									<Label class="form-check-label" for="remember-check">Remember me</Label>
@@ -188,26 +206,38 @@
 
 									<ul class="list-inline">
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me" class="social-list-item bg-primary text-white border-primary">
+											<Link
+												class="social-list-item bg-primary text-white border-primary"
+												href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+												disabled={isSubmitting}
+											>
 												<i class="mdi mdi-github" />
-											</a>
+											</Link>
 										</li>		
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me" class="social-list-item bg-primary text-white border-primary">
+											<Link
+												class="social-list-item bg-primary text-white border-primary"
+												href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+												disabled={isSubmitting}
+											>
 												<i class="mdi mdi-cloud" />
-											</a>
+											</Link>
 										</li>									
 										<li class="list-inline-item">
-											<a href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me" class="social-list-item bg-danger text-white border-danger">
+											<Link
+												class="social-list-item bg-danger text-white border-danger"
+												href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+												disabled={isSubmitting}
+											>
 												<i class="mdi mdi-google" />
-											</a>
+											</Link>
 										</li>
 									</ul>
 								</div>
 								{/if}
 								{#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true' }
 								<div class="mt-4 text-center">
-									<Link href="recoverpw" class="text-muted">
+									<Link href="recoverpw" class="text-muted" disabled={isSubmitting}>
 										<i class="mdi mdi-lock me-1" /> Forgot your password?
 									</Link>
 								</div>
@@ -219,7 +249,7 @@
 				<div class="mt-5 text-center">
 					<p hidden={!(PUBLIC_ALLOW_SIGNUP === 'true')}>
 						Don&apos;t have an account ?
-						<Link href="register" class="fw-medium text-primary">Signup now</Link>
+						<Link href="register" class="fw-medium text-primary" disabled={isSubmitting}>Signup now</Link>
 					</p>
 					<p>
 						© {new Date().getFullYear()}
