@@ -66,7 +66,7 @@
 			status = 'success';
 			const redirectUrl = $page.url.searchParams.get('redirect');
 			isSubmitting = false;
-			resetStorage();
+			resetLocalStorage();
 			if (redirectUrl) {
 				window.location.href = decodeURIComponent(redirectUrl);
 			} else {
@@ -82,7 +82,6 @@
 				status = '';
 				msg = '';
 			}, 3000);
-			resetLocalStorage();
 		});
 		isSubmitting = false;
 	}
