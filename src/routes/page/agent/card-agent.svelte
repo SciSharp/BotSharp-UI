@@ -66,20 +66,20 @@
             {format(agent.updated_datetime, 'short-date')}
           </li>
           <li class="list-inline-item me-1">
-            <a href= "page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank">
+            <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-wrench" /> {$_('Build')}
-            </a>
+            </Link>
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1">
-            <a href= "page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank">
+            <Link href="page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-book-open" /> {$_('Train')}
-            </a>
+            </Link>
           </li>
           <li class="list-inline-item me-1">
-            <a href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
+            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> {$_('Test')}
-            </a>
+            </Link>
           </li>
           {/if}
         </ul>

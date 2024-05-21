@@ -6,9 +6,13 @@
   	import { createAgent, getAgents } from '$lib/services/agent-service.js';
   	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
+	import { UserRole } from '$lib/helpers/enums';
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
-
+	import { myInfo } from '$lib/services/auth-service';
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+    import "sweetalert2/src/sweetalert2.scss";
+	
   	const firstPage = 1;
 	const pageSize = 12;
 
@@ -26,8 +30,12 @@
 	/** @type {import('$types').Pagination} */
 	let pager = filter.pager;
 
+	/** @type {import('$types').UserModel} */
+	let user;
+
 	onMount(async () => {
 		await getPagedAgents();
+		user = await myInfo();
 	});
 
   	async function getPagedAgents() {
@@ -35,7 +43,24 @@
 		refresh();
 	}
 
-	async function createAndEditAgent() {
+	function createNewAgent() {
+		// @ts-ignore
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Are you sure you want to create a new agent?",
+            icon: 'warning',
+            showCancelButton: true,
+			cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        // @ts-ignore
+        }).then(async (result) => {
+            if (result.value) {
+                await handleCreateNewAgent();
+            }
+        });
+	}
+
+	async function handleCreateNewAgent() {
 		const newAgent = {
 			name: 'New Agent',
 			description: 'New Agent Description',
@@ -87,9 +112,12 @@
 
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
-<Button class="mb-4" color="primary" on:click={() => createAndEditAgent()}>
+
+{#if !!user && user.role == UserRole.Admin}
+<Button class="mb-4" color="primary" on:click={() => createNewAgent()}>
 	<i class="bx bx-copy" /> {$_('New Agent')}
 </Button>
+{/if}
 
 <Row>
 	<CardAgent agents={agents.items} />
