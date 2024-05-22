@@ -2,11 +2,11 @@
 	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { userStore } from '$lib/helpers/store';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { _ } from 'svelte-i18n';
 	
-	/**
-	 * @type {any}
-	 */
+	/** @type {any} */
 	export let user;
 
 	function logout() {
@@ -15,6 +15,11 @@
 		}
 		goto('login');
 	};
+
+	/** @param {any} e */
+	function handleAvatarLoad(e) {
+		e.target.src = 'images/users/user-dummy.jpg';
+	}
 </script>
 
 <Dropdown class="d-inline-block">
@@ -24,7 +29,12 @@
 		class="btn header-item waves-effect"
 		id="page-header-user-dropdown"
 	>
-		<img class="rounded-circle header-profile-user" src={user?.avatar} alt="" onerror="this.onerror=null; this.src='images/users/user-dummy.jpg'" />
+		<img
+			class="rounded-circle header-profile-user"
+			src={`${PUBLIC_SERVICE_URL}${user?.avatar}?access_token=${$userStore?.token}`}
+			alt=""
+			on:error={e => handleAvatarLoad(e)}
+		/>
 		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
 		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
 	</DropdownToggle>

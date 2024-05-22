@@ -5,20 +5,20 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import FileDropZone from '$lib/common/FileDropZone.svelte';
-	import { myInfo } from '$lib/services/auth-service';
+	import { myInfo, uploadUserAvatar } from '$lib/services/auth-service';
 	import { _ } from 'svelte-i18n';
+	import { userStore } from '$lib/helpers/store';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	
 	/** @type {import('$types').UserModel} */
 	let currentUser;
 	let isLoading = false;
-	let avatar = '';
 
 	onMount(async () => {
 		isLoading = true;
 		await myInfo()
 			.then((data) => {
 				currentUser = data;
-				avatar = data?.avatar || '';
 			})
 			.finally(() => {
 				isLoading = false;
@@ -31,8 +31,14 @@
 		const file = acceptedFiles[0];
 		if (!!!file) return;
 
-		avatar = file.file_data;
+		await uploadUserAvatar(file);
+		window.location.reload();
     }
+
+	/** @param {any} e */
+	function handleAvatarLoad(e) {
+		e.target.src = 'images/users/user-dummy.jpg';
+	}
 </script>
 
 <HeadTitle title="{$_('My Profile')}" />
@@ -63,11 +69,11 @@
 								on:drop={e => handleFileDrop(e)}
 							>
 								<img
-									src={avatar}
+									src={`${PUBLIC_SERVICE_URL}${currentUser?.avatar}?access_token=${$userStore?.token}`}
 									alt=""
-									onerror="this.onerror=null; this.src='images/users/user-dummy.jpg'"
 									class="img-thumbnail rounded-circle"
 									style="width: 100%; height: 100%;"
+									on:error={e => handleAvatarLoad(e)}
 								/>
 							</FileDropZone>
 						</div>
