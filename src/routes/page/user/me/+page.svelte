@@ -66,6 +66,7 @@
 								disableDefaultStyles
 								containerStyles={'width: 100%; height: 100%;'}
 								noDrag
+								multiple={false}
 								fileLimit={1}
 								on:drop={e => handleFileDrop(e)}
 							>
