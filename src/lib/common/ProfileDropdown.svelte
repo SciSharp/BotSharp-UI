@@ -5,6 +5,7 @@
 	import { userStore } from '$lib/helpers/store';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { _ } from 'svelte-i18n';
+	import { buildUrl } from '$lib/helpers/utils/common';
 	
 	/** @type {any} */
 	export let user;
@@ -31,7 +32,7 @@
 	>
 		<img
 			class="rounded-circle header-profile-user"
-			src={`${PUBLIC_SERVICE_URL}${user?.avatar}?access_token=${$userStore?.token}`}
+			src={`${buildUrl(PUBLIC_SERVICE_URL, user?.avatar)}?access_token=${$userStore?.token}`}
 			alt=""
 			on:error={e => handleAvatarLoad(e)}
 		/>

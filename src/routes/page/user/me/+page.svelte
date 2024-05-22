@@ -9,6 +9,7 @@
 	import { _ } from 'svelte-i18n';
 	import { userStore } from '$lib/helpers/store';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+	import { buildUrl } from '$lib/helpers/utils/common';
 	
 	/** @type {import('$types').UserModel} */
 	let currentUser;
@@ -69,7 +70,7 @@
 								on:drop={e => handleFileDrop(e)}
 							>
 								<img
-									src={`${PUBLIC_SERVICE_URL}${currentUser?.avatar}?access_token=${$userStore?.token}`}
+									src={`${buildUrl(PUBLIC_SERVICE_URL, currentUser?.avatar || '').href}?access_token=${$userStore?.token}`}
 									alt=""
 									class="img-thumbnail rounded-circle"
 									style="width: 100%; height: 100%;"
