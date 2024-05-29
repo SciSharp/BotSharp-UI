@@ -49,6 +49,15 @@ export async function saveAgent(agent) {
 }
 
 /**
+ * Delete agent detail
+ * @param {string} agentId
+ */
+export async function deleteAgent(agentId) {
+    let url = endpoints.agentDetailUrl.replace("{id}", agentId);
+    await axios.delete(url);
+}
+
+/**
  * Refresh agent data
  */
 export async function refreshAgents() {

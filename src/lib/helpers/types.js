@@ -129,6 +129,7 @@
  * @property {Object[]} responses
  * @property {RoutingRule[]} routing_rules
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
+ * @property {boolean} editable
  */
 
 /**

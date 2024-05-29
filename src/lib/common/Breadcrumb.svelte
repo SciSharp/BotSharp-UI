@@ -13,7 +13,7 @@
 			<div class="page-title-right">
 				<ol class="breadcrumb m-0">
 					<BreadcrumbItem>
-						<Link href="#">{title}</Link>
+						<Link disabled>{title}</Link>
 					</BreadcrumbItem>
 					<BreadcrumbItem active>
 						{pagetitle}

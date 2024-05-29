@@ -13,10 +13,12 @@
     import AgentFunction from './agent-function.svelte';
     import AgentLlmConfig from './agent-llm-config.svelte';
     import { page } from '$app/stores';
-    import { getAgent, saveAgent } from '$lib/services/agent-service.js';
+    import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
-    const params = $page.params;
     import { _ } from 'svelte-i18n'  
+    import Swal from 'sweetalert2/dist/sweetalert2.js';
+    import "sweetalert2/src/sweetalert2.scss";
+	import { goto } from '$app/navigation';
 	
 	
     /** @type {import('$types').AgentModel} */
@@ -28,13 +30,32 @@
     let isLoading = false;
     let isComplete = false;
     let isError = false;
+
     const duration = 3000;
+    const params = $page.params;
 
     onMount(async () => {
         agent = await getAgent(params.agentId);
     });
 
-    async function handleAgentUpdate() {
+    function updateCurrentAgent() {
+        // @ts-ignore
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Are you sure you want to update these changes?",
+            icon: 'warning',
+            showCancelButton: true,
+			cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        // @ts-ignore
+        }).then(async (result) => {
+            if (result.value) {
+                handleAgentUpdate();
+            }
+        });
+    }
+
+    function handleAgentUpdate() {
         fetchJsonContent();
         isLoading = true;
         saveAgent(agent).then(res => {
@@ -64,14 +85,37 @@
         agent.templates = textContent?.templates?.length > 0 ? textContent.templates :
                             (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []);
     }
+
+    function deleteCurrentAgent() {
+        // @ts-ignore
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "Are you sure you want to delete this agent?",
+            icon: 'warning',
+            showCancelButton: true,
+			cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        // @ts-ignore
+        }).then(async (result) => {
+            if (result.value) {
+                handleAgentDelete();
+            }
+        });
+    }
+
+    function handleAgentDelete() {
+        deleteAgent(agent?.id).then(res => {
+            goto(`page/agent`);
+        });
+    }
 </script>
 
 <HeadTitle title="{$_('Agent Overview')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
+{#if agent}
 <Row>
-    {#if agent}
     <Col style="flex: 30%;">
         <AgentOverview agent={agent} />
         <AgentLlmConfig agent={agent} />
@@ -85,10 +129,13 @@
     <Col style="flex: 30%;">
         <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
     </Col>    
+</Row>
+    {#if !!agent?.editable}
+    <Row>
+        <div class="hstack gap-2 my-4">
+            <Button class="btn btn-soft-primary" on:click={updateCurrentAgent}>{$_('Save Agent')}</Button>
+            <Button class="btn btn-danger" on:click={deleteCurrentAgent}>{$_('Delete Agent')}</Button>
+        </div>
+    </Row>
     {/if}
-</Row>
-<Row>
-    <div class="hstack gap-2 my-4">
-        <Button class="btn btn-soft-primary" on:click={handleAgentUpdate}>{$_('Save Agent')}</Button>
-    </div>
-</Row>
+{/if}

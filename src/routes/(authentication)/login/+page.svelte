@@ -31,12 +31,7 @@
 		PUBLIC_AUTH_ENABLE_FIND_PWD,
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
-	import {
-		conversationSearchOptionStore,
-		conversationUserAttachmentStore,
-		conversationUserMessageStore,
-		conversationUserStateStore
-	} from '$lib/helpers/store';
+	import { resetLocalStorage } from '$lib/helpers/store';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -71,7 +66,7 @@
 			status = 'success';
 			const redirectUrl = $page.url.searchParams.get('redirect');
 			isSubmitting = false;
-			resetStorage();
+			resetLocalStorage();
 			if (redirectUrl) {
 				window.location.href = decodeURIComponent(redirectUrl);
 			} else {
@@ -104,13 +99,6 @@
 			var icon = document.getElementById('password-eye-icon');
 			icon.className = 'mdi mdi-eye-outline';
 		}
-	}
-
-	function resetStorage() {
-		conversationUserStateStore.reset();
-		conversationSearchOptionStore.reset();
-		conversationUserMessageStore.reset();
-		conversationUserAttachmentStore.reset();
 	}
 </script>
 

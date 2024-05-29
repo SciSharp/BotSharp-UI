@@ -153,3 +153,16 @@ const createConversationUserAttachmentStore = () => {
 };
 
 export const conversationUserAttachmentStore = createConversationUserAttachmentStore();
+
+
+export function resetLocalStorage(resetUser = false) {
+    conversationUserStateStore.reset();
+    conversationSearchOptionStore.reset();
+    conversationUserMessageStore.reset();
+    conversationUserAttachmentStore.reset();
+    localStorage.removeItem('conversation');
+
+    if (resetUser) {
+        localStorage.removeItem('user');
+    }
+}
