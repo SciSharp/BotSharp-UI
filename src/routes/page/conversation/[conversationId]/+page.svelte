@@ -15,7 +15,7 @@
     const params = $page.params;
 
     /** @type {import('$types').ConversationModel} */
-    export let conversation;
+    let conversation;
 
     onMount(async () => {
         conversation = await getConversation(params.conversationId);

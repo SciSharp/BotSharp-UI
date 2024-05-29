@@ -1,15 +1,20 @@
 <script>
-	import { PUBLIC_BRAND_NAME, PUBLIC_LOGIN_IMAGE } from '$env/static/public';
+	import { onMount } from 'svelte';
+	import { PUBLIC_BRAND_NAME } from '$env/static/public';
 	import { Row, Col, Card, CardBody, CardTitle, Table } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import { onMount } from 'svelte';
-	import { myInfo } from '$lib/services/auth-service';
+	import FileDropZone from '$lib/common/FileDropZone.svelte';
+	import { myInfo, uploadUserAvatar } from '$lib/services/auth-service';
 	import { _ } from 'svelte-i18n';
-
+	import { userStore } from '$lib/helpers/store';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+	import { buildUrl } from '$lib/helpers/utils/common';
+	
 	/** @type {import('$types').UserModel} */
 	let currentUser;
 	let isLoading = false;
+
 	onMount(async () => {
 		isLoading = true;
 		await myInfo()
@@ -20,6 +25,21 @@
 				isLoading = false;
 			});
 	});
+
+	/** @param {any} e */
+    async function handleFileDrop(e) {
+        const { acceptedFiles } = e.detail;
+		const file = acceptedFiles[0];
+		if (!!!file) return;
+
+		await uploadUserAvatar(file);
+		window.location.reload();
+    }
+
+	/** @param {any} e */
+	function handleAvatarLoad(e) {
+		e.target.src = 'images/users/user-dummy.jpg';
+	}
 </script>
 
 <HeadTitle title="{$_('My Profile')}" />
@@ -41,11 +61,23 @@
 				<Row>
 					<Col sm={4}>
 						<div class="avatar-md profile-user-wid mb-4">
-							<img
-								src="images/users/user-dummy.jpg"
-								alt="avatar"
-								class="img-thumbnail rounded-circle"
-							/>
+							<FileDropZone
+								accept="image/*"
+								disableDefaultStyles
+								containerStyles={'width: 100%; height: 100%;'}
+								noDrag
+								multiple={false}
+								fileLimit={1}
+								on:drop={e => handleFileDrop(e)}
+							>
+								<img
+									src={`${buildUrl(PUBLIC_SERVICE_URL, currentUser?.avatar || '').href}?access_token=${$userStore?.token}`}
+									alt=""
+									class="img-thumbnail rounded-circle"
+									style="width: 100%; height: 100%;"
+									on:error={e => handleAvatarLoad(e)}
+								/>
+							</FileDropZone>
 						</div>
 						<h5 class="font-size-15 text-truncate">{currentUser?.full_name}</h5>
 						<p class="text-muted mb-0 text-truncate">{currentUser?.role ?? 'Role: N/A'}</p>

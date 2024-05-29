@@ -66,7 +66,7 @@ export async function myInfo() {
  * @param {string} lastName
  * @param {string} email
  * @param {string} password
- * @param {function} onSucceed()
+ * @param {function} onSucceed
  */
 export async function register(firstName, lastName, email, password, onSucceed) {
     let data = JSON.stringify({
@@ -91,4 +91,12 @@ export async function register(firstName, lastName, email, password, onSucceed) 
         }
     })
     .catch(error => alert(error.message));
+}
+
+/**
+ * @param {import('$types').FileModel} file
+ */
+export async function uploadUserAvatar(file) {
+    const response = await axios.post(endpoints.userAvatarUrl, { ...file });
+    return response?.data;
 }

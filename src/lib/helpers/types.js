@@ -413,6 +413,13 @@ IRichContent.prototype.quick_replies;
  */
 
 /**
+ * @typedef {Object} FileModel
+ * @property {string} file_name - The plugin full name.
+ * @property {string} file_data - The plugin name.
+ * @property {string} file_url - Row count.
+ */
+
+/**
  * Invoked when a new conersation is created.
  * This callback type is called `requestCallback` and is displayed as a global symbol.
  *

@@ -3,18 +3,25 @@
 	import { resetLocalStorage } from '$lib/helpers/store';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
+	import { userStore } from '$lib/helpers/store';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { _ } from 'svelte-i18n';
+	import { buildUrl } from '$lib/helpers/utils/common';
 	
-	/**
-	 * @type {{ full_name: any; }}
-	 */
-	 export let user;
+	/** @type {any} */
+	export let user;
+
 	function logout() {
 		if (browser){	
 			resetLocalStorage(true);
 		}
 		goto('login');
 	};
+
+	/** @param {any} e */
+	function handleAvatarLoad(e) {
+		e.target.src = 'images/users/user-dummy.jpg';
+	}
 </script>
 
 <Dropdown class="d-inline-block">
@@ -24,7 +31,12 @@
 		class="btn header-item waves-effect"
 		id="page-header-user-dropdown"
 	>
-		<img class="rounded-circle header-profile-user" src='images/users/user-dummy.jpg' alt="Header Avatar" />
+		<img
+			class="rounded-circle header-profile-user"
+			src={`${buildUrl(PUBLIC_SERVICE_URL, user?.avatar)}?access_token=${$userStore?.token}`}
+			alt=""
+			on:error={e => handleAvatarLoad(e)}
+		/>
 		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
 		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
 	</DropdownToggle>

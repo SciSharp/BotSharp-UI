@@ -6,6 +6,7 @@ export const endpoints = {
     tokenUrl: `${host}/token`,
     myInfoUrl: `${host}/user/me`,
     usrCreationUrl: `${host}/user`,
+    userAvatarUrl: `${host}/user/avatar`,
     
     // setting
     settingListUrl: `${host}/settings`,

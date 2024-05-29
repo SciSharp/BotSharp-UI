@@ -1,8 +1,8 @@
 <script>
     import { onMount } from 'svelte';
 	import FileGallery from '$lib/common/FileGallery.svelte';
-	import { getUserStore } from '$lib/helpers/store';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+	import { userStore } from '$lib/helpers/store';
 
     /** @type {string} */
     export let galleryClasses = '';
@@ -19,15 +19,13 @@
     let token = "";
 
     onMount(() => {
-        const user = getUserStore();
-        token = user.token;
         if (fetchFiles != null && fetchFiles != undefined) {
             fetchFiles().then(data => {
                 // @ts-ignore
                 files = data?.filter(item => !!item.file_url)?.map(item => {
                     return {
                         ...item,
-                        file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${token}`
+                        file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
                     };
                 }) || [];
             });
