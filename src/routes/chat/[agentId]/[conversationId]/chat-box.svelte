@@ -1051,9 +1051,7 @@
 								{/if}
 							</ul>
 
-							{#if loadFileGallery(lastBotMsg) || loadLocalFiles()}
-								<ChatImageGallery disabled={isSendingMsg || isThinking} />
-							{/if}
+							<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
