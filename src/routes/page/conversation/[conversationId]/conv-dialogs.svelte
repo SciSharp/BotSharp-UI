@@ -32,7 +32,7 @@
             }
 
             const prevMsg = dialogs[idx-1];
-            if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
+            if (!!!prevMsg || BOT_SENDERS.includes(prevMsg?.sender?.role || '')
                 && loadFileGallery(prevMsg)) {
                 curMsg.is_load_images = true;
             }
@@ -88,7 +88,7 @@
                                 <p class="fw-bold">
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
                                 </p>
-                                {#if dialog.is_load_images}
+                                {#if dialog.is_load_images || showInRight(dialog)}
                                 <MessageImageGallery
                                     galleryClasses={'dialog-file-display'}
                                     fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id)}

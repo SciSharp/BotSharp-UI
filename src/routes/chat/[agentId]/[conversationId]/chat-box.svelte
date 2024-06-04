@@ -36,7 +36,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
-	import { loadFileGallery } from '$lib/helpers/utils/gallery';
+	import { loadFileGallery, loadLocalFiles } from '$lib/helpers/utils/gallery';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -125,14 +125,13 @@
 	let isFrame = false;
 	let loadEditor = false;
 	let loadTextEditor = false;
-	let loadFileEditor = false;
+	let loadFileEditor = true;
 	let autoScrollLog = false;
 	let disableAction = false;
 
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
-		loadFileEditor = FILE_EDITORS.includes(editor);
 		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
 	}
 
@@ -277,7 +276,7 @@
 			}
 
 			const prevMsg = dialogs[idx-1];
-			if (!!prevMsg && BOT_SENDERS.includes(prevMsg?.sender?.role || '')
+			if (!!!prevMsg || BOT_SENDERS.includes(prevMsg?.sender?.role || '')
 				&& loadFileGallery(prevMsg)) {
 				curMsg.is_load_images = true;
 			}
@@ -324,12 +323,8 @@
 	}
 
 	function getChatFiles() {
-		if (loadFileGallery(lastBotMsg)) {
-			const attachments = conversationUserAttachmentStore.get();
-			return attachments?.accepted_files || [];
-		}
-		
-		return [];
+		const attachments = conversationUserAttachmentStore.get();
+		return attachments?.accepted_files || [];
 	}
 
 
@@ -997,7 +992,7 @@
 											{#if !!message.post_action_disclaimer}
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
-											{#if message.is_load_images}
+											{#if message.is_load_images || USER_SENDERS.includes(message.sender?.role)}
 												<MessageImageGallery
 													galleryStyles={'justify-content: flex-end;'}
 													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id)}
@@ -1056,9 +1051,7 @@
 								{/if}
 							</ul>
 
-							{#if loadFileGallery(lastBotMsg)}
-								<ChatImageGallery disabled={isSendingMsg || isThinking} />
-							{/if}
+							<ChatImageGallery disabled={isSendingMsg || isThinking} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
@@ -1092,7 +1085,7 @@
 									/>
 									{#if loadFileEditor}
 										<div class="chat-input-links">
-											<ChatImageUploader disabled={disableAction} />
+											<ChatImageUploader disabled={disableAction} onFileDrop={() => refresh()} />
 										</div>
 									{/if}
 								</div>
