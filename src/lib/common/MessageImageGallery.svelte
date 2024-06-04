@@ -15,8 +15,6 @@
 
     /** @type {any[]} */
     let files = [];
-    /** @type {string} */
-    let token = "";
 
     onMount(() => {
         if (fetchFiles != null && fetchFiles != undefined) {

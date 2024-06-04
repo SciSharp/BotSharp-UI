@@ -7,6 +7,9 @@
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {() => void} */
+    export let onFileDrop = () => {};
+
     /** @type {any[]} */
     let files = [];
 
@@ -40,6 +43,7 @@
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });
+        onFileDrop?.();
     }
 </script>
 
