@@ -111,7 +111,7 @@
 {/if}
 
 {#if buttons.length > 0}
-    <div class="plain-option-container" style="margin-top: 5px;">
+    <div class="plain-option-container center-option" style="margin-top: 5px;">
         {#each buttons as option, index}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
