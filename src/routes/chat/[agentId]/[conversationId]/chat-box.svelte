@@ -323,13 +323,6 @@
 	}
 
 	function getChatFiles() {
-		// if (!!!lastBotMsg || loadFileGallery(lastBotMsg)) {
-		// 	const attachments = conversationUserAttachmentStore.get();
-		// 	return attachments?.accepted_files || [];
-		// }
-		
-		// return [];
-
 		const attachments = conversationUserAttachmentStore.get();
 		return attachments?.accepted_files || [];
 	}
