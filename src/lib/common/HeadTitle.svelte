@@ -1,7 +1,7 @@
 <script>
 	import {PUBLIC_FAVICON_URL, PUBLIC_BRAND_NAME} from '$env/static/public'
 	export let title = 'Home';
-	export let addOn = 'Admin & Dashboard';
+	export let addOn = 'Dashboard';
 </script>
 
 <svelte:head>
