@@ -9,6 +9,7 @@
 	import Markdown from '$lib/common/Markdown.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import { loadFileGallery } from '$lib/helpers/utils/gallery';
+	import { FileSourceType } from '$lib/helpers/enums';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -91,7 +92,7 @@
                                 {#if dialog.is_load_images || showInRight(dialog)}
                                 <MessageImageGallery
                                     galleryClasses={'dialog-file-display'}
-                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id)}
+                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, FileSourceType.User)}
                                 />
                                 {/if}
                             </div>

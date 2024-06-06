@@ -35,7 +35,7 @@
 	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
-	import { EditorType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import { loadFileGallery, loadLocalFiles } from '$lib/helpers/utils/gallery';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
@@ -995,7 +995,7 @@
 											{#if message.is_load_images || USER_SENDERS.includes(message.sender?.role)}
 												<MessageImageGallery
 													galleryStyles={'justify-content: flex-end;'}
-													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id)}
+													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
 												/>
 											{/if}
 										</div>

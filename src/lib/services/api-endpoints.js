@@ -42,7 +42,7 @@ export const endpoints = {
     conversationCountUrl: `${host}/conversations/count`,
     conversationDeletionUrl: `${host}/conversation/{conversationId}`,
     conversationDetailUrl: `${host}/conversation/{conversationId}`,
-    conversationAttachmentUrl: `${host}/conversation/{conversationId}/files/{messageId}`,
+    conversationAttachmentUrl: `${host}/conversation/{conversationId}/files/{messageId}/{source}`,
     conversationUserUrl: `${host}/conversation/{conversationId}/user`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     conversationMessageDeletionUrl: `${host}/conversation/{conversationId}/message/{messageId}`,
