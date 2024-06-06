@@ -51,7 +51,7 @@
     <ul class="list-inline mb-0">
         <li class="list-inline-item">
             <FileDropZone
-                accept="image/*"
+                accept="image/*,.pdf"
                 disableDefaultStyles
                 noDrag
                 disabled={disableFileDrop}

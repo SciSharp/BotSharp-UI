@@ -179,3 +179,10 @@ export function getBase64(file) {
     reader.onerror = error => reject(error);
   });
 }
+
+export const PDF_ICON = 'images/icons/pdf_icon.jpg';
+
+/** @param {string | undefined} file */
+export function isPdf(file) {
+  return file?.endsWith('pdf') || false;
+}
