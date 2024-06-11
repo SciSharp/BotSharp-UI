@@ -338,7 +338,7 @@
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
 								<i class="mdi mdi-dots-vertical" />
 							</DropdownToggle>
-							<DropdownMenu>
+							<DropdownMenu class="conv-state-search-menu">
 								<DropdownItem
 									on:click={() => toggleSearchStateModal()}
 								>

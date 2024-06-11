@@ -82,7 +82,7 @@
                         </div>
                         <div class="flex-grow-1">
                             <div>
-                                <span>{dialog.sender.full_name}</span>
+                                <span>{dialog.sender?.full_name || dialog.sender?.user_name || 'Unkown'}</span>
                                 <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
                             </div>
                             <div>

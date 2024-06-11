@@ -64,7 +64,7 @@
 		const newAgent = {
 			name: 'New Agent',
 			description: 'New Agent Description',
-			instruction: 'New Agent Instructions',
+			instruction: 'New Agent Instructions'
 		};
 		// @ts-ignore
 		const createdAgent = await createAgent(newAgent);
@@ -113,7 +113,7 @@
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
 
-{#if !!user && user.role == UserRole.Admin}
+{#if !!user}
 <Button class="mb-4" color="primary" on:click={() => createNewAgent()}>
 	<i class="bx bx-copy" /> {$_('New Agent')}
 </Button>

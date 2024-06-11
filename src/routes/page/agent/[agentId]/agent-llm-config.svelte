@@ -78,7 +78,7 @@
             <div class="col-md-9 config-item-container">
                 <Input type="select" value={config.provider} on:change={e => changeProvider(e)}>
                     {#each providers as option}
-                        <option value={option}>{option}</option>
+                        <option value={option} selected={option == config.provider}>{option}</option>
                     {/each}
                 </Input>
             </div>
@@ -91,7 +91,7 @@
             <div class="col-md-9">
                 <Input type="select" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
                     {#each models as option}
-                        <option value={option.name}>{option.name}</option>
+                        <option value={option.name} selected={option.name == config.model}>{option.name}</option>
                     {/each}
                 </Input>                
             </div>

@@ -10,7 +10,7 @@
 
 {#each agents as agent}
   <Col xl="4" sm="6">
-    <Card>
+    <Card style={"height: 95%;"}>
       <CardBody>
         <div class="d-flex">
           <div class="avatar-md me-4">
