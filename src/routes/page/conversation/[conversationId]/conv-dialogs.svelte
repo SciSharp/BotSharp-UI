@@ -9,6 +9,7 @@
 	import Markdown from '$lib/common/Markdown.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import { loadFileGallery } from '$lib/helpers/utils/gallery';
+	import { FileSourceType } from '$lib/helpers/enums';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -81,7 +82,7 @@
                         </div>
                         <div class="flex-grow-1">
                             <div>
-                                <span>{dialog.sender.full_name}</span>
+                                <span>{dialog.sender?.full_name || dialog.sender?.user_name || 'Unkown'}</span>
                                 <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
                             </div>
                             <div>
@@ -91,7 +92,7 @@
                                 {#if dialog.is_load_images || showInRight(dialog)}
                                 <MessageImageGallery
                                     galleryClasses={'dialog-file-display'}
-                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id)}
+                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, FileSourceType.User)}
                                 />
                                 {/if}
                             </div>

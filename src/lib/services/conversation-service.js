@@ -52,9 +52,10 @@ export async function getConversations(filter) {
  * Get conversation files
  * @param {string} conversationId
  * @param {string} messageId
+ * @param {string} source
  */
-export async function getConversationFiles(conversationId, messageId) {
-    const url = replaceUrl(endpoints.conversationAttachmentUrl, { conversationId: conversationId, messageId: messageId });
+export async function getConversationFiles(conversationId, messageId, source) {
+    const url = replaceUrl(endpoints.conversationAttachmentUrl, { conversationId: conversationId, messageId: messageId, source: source });
     const response = await axios.get(url);
     return response?.data;
 }

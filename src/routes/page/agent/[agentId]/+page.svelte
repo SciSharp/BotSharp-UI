@@ -58,6 +58,8 @@
     function handleAgentUpdate() {
         fetchJsonContent();
         isLoading = true;
+        agent.description = agent.description || '';
+        agent.instruction = agent.instruction || '';
         saveAgent(agent).then(res => {
             isLoading = false;
 			isComplete = true;

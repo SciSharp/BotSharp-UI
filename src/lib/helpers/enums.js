@@ -52,3 +52,9 @@ const editorType = {
     File: 'file'
 };
 export const EditorType = Object.freeze(editorType);
+
+const fileSourceType = {
+    User: 'user',
+    Bot: 'bot'
+};
+export const FileSourceType = Object.freeze(fileSourceType);
