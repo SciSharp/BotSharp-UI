@@ -64,7 +64,8 @@
 		const newAgent = {
 			name: 'New Agent',
 			description: 'New Agent Description',
-			instruction: 'New Agent Instructions'
+			instruction: 'New Agent Instructions',
+			isPublic: true
 		};
 		// @ts-ignore
 		const createdAgent = await createAgent(newAgent);
