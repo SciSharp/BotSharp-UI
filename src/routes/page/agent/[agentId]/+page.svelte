@@ -58,8 +58,12 @@
     function handleAgentUpdate() {
         fetchJsonContent();
         isLoading = true;
-        agent.description = agent.description || '';
-        agent.instruction = agent.instruction || '';
+        agent = {
+            ...agent,
+            description: agent.description || '',
+            instruction: agent.instruction || '',
+            profiles: agent.profiles?.filter(x => x?.trim()?.length > 0) || []
+        };
         saveAgent(agent).then(res => {
             isLoading = false;
 			isComplete = true;
@@ -119,7 +123,7 @@
 {#if agent}
 <Row>
     <Col style="flex: 30%;">
-        <AgentOverview agent={agent} />
+        <AgentOverview agent={agent} profiles={agent.profiles || []} />
         <AgentLlmConfig agent={agent} />
         {#if agent.routing_rules?.length > 0}
             <AgentRouting agent={agent} />
@@ -135,8 +139,8 @@
     {#if !!agent?.editable}
     <Row>
         <div class="hstack gap-2 my-4">
-            <Button class="btn btn-soft-primary" on:click={updateCurrentAgent}>{$_('Save Agent')}</Button>
-            <Button class="btn btn-danger" on:click={deleteCurrentAgent}>{$_('Delete Agent')}</Button>
+            <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>
+            <Button class="btn btn-danger" on:click={() => deleteCurrentAgent()}>{$_('Delete Agent')}</Button>
         </div>
     </Row>
     {/if}
