@@ -1078,6 +1078,7 @@
 								<div class="position-relative">
 									<ChatTextArea
 										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
+										maxLength={4096}
 										bind:text={text}
 										disabled={isSendingMsg || isThinking || disableAction}
 										editor={lastBotMsg?.rich_content?.editor || ''}
