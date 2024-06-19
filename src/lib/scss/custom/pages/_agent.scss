@@ -3,7 +3,8 @@
 }
 
 .agent-profile-container {
-    width: 50%;
+    width: fit-content;
+    max-width: 100%;
     .profile-name {
         font-size: 1.1em;
     }
