@@ -9,7 +9,7 @@
     /** @type {string[]} */
     export let profiles = [];
 
-    const profileLimit = 5;
+    const profileLimit = 10;
 
     function addProfile() {
         if (!!!agent) return;
