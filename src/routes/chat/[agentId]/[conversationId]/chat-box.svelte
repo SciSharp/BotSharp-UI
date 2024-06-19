@@ -16,7 +16,8 @@
 		GetDialogs,
 		deleteConversationMessage,
 		getConversationFiles,
-		getConversationUser
+		getConversationUser,
+		uploadConversationFiles
 	} from '$lib/services/conversation-service.js';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -415,29 +416,44 @@
 		renewUserSentMessages(msgText);
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		/** @type {import('$types').MessageData?} */
-		const messageData = {
+		let messageData = {
 			...data,
 			postback: postback
 		};
 
 		/** @type {any[]} */
 		let files = [];
-		if (!!!data?.truncateMsgId) {
+		if (!!!messageData?.inputMessageId) {
 			files = getChatFiles();
 		}
 		resetStorage();
 
-		return new Promise((resolve, reject) => {
-			sendMessageToHub(params.agentId, params.conversationId, msgText, messageData, files).then(res => {
-				isSendingMsg = false;
-				autoScrollLog = false;
-				resolve(res);
-			}).catch(err => {
-				isSendingMsg = false;
-				autoScrollLog = false;
-				reject(err);
+		if (files?.length > 0 && !!!messageData.inputMessageId) {
+			return new Promise((resolve, reject) => {
+				uploadConversationFiles(params.agentId, params.conversationId, files).then(resMessageId => {
+					messageData = { ...messageData, inputMessageId: resMessageId };
+					sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+						resolve(res);
+					}).catch(err => {
+						reject(err);
+					}).finally(() => {
+						isSendingMsg = false;
+						autoScrollLog = false;
+					});
+				});
 			});
-		});
+		} else {
+			return new Promise((resolve, reject) => {
+				sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+					resolve(res);
+				}).catch(err => {
+					reject(err);
+				}).finally(() => {
+					isSendingMsg = false;
+					autoScrollLog = false;
+				});
+			});
+		}
     }
 
     async function startListen() {
@@ -656,7 +672,9 @@
 		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
-				sendChatMessage(message?.text, { truncateMsgId: message?.message_id });
+				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
+					sendChatMessage(message?.text, { inputMessageId: resMessageId });
+				});
 			}
 		});
 	}
@@ -719,10 +737,12 @@
 
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
-		sendChatMessage(editText, { truncateMsgId: truncateMsgId }).then(() => {
-			resetEditMsg();
-		}).catch(() => {
-			resetEditMsg();
+		deleteConversationMessage(params.conversationId, truncateMsgId, true).then(resMessageId => {
+			sendChatMessage(editText, { inputMessageId: resMessageId }).then(() => {
+				resetEditMsg();
+			}).catch(() => {
+				resetEditMsg();
+			});
 		});
 	}
 

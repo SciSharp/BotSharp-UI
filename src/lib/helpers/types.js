@@ -408,7 +408,8 @@ IRichContent.prototype.quick_replies;
  * Conversation send message data
  * 
  * @typedef {Object} MessageData
- * @property {string?} [truncateMsgId] - The message id to truncate.
+ * @property {string?} [truncateMsgId] - The truncated message.
+ * @property {string?} [inputMessageId] - The input message.
  * @property {string[]?} [states] - The states input by user.
  * @property {Postback?} [postback] - The parent message id.
  * @property {string?} [payload] - The payload message.
