@@ -141,7 +141,7 @@ export async function deleteConversationMessage(conversationId, messageId, isNew
     return new Promise((resolve, reject) => {
         axios.delete(url, {
             data: {
-                is_new_message: isNewMessage
+                is_new_message: isNewMessage || false
             }
         }).then(response => {
             resolve(response.data);
