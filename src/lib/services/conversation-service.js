@@ -87,9 +87,8 @@ export async function GetDialogs(conversationId) {
  * @param {string} conversationId - The conversation id
  * @param {string} message - The text message sent to CSR
  * @param {import('$types').MessageData?} data - Additional data
- * @param {any[]} files - The chat files
  */
-export async function sendMessageToHub(agentId, conversationId, message, data = null, files = []) {
+export async function sendMessageToHub(agentId, conversationId, message, data = null) {
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
         conversationId: conversationId
@@ -98,10 +97,9 @@ export async function sendMessageToHub(agentId, conversationId, message, data = 
     const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
     const response = await axios.post(url, {
         text: message,
-        truncateMessageId: data?.truncateMsgId,
         states: totalStates,
         postback: data?.postback,
-        files: files
+        input_message_id: data?.inputMessageId
     });
     return response.data;
 }
@@ -130,17 +128,47 @@ function buildConversationUserStates(conversationId) {
 /**
  * delete a message in conversation
  * @param {string} conversationId The conversation id
- * @param {string} messageId The text message sent to CSR
+ * @param {string} messageId The target message id to delete
+ * @param {boolean} isNewMessage If sending a new message while deleting a message
+ * @returns {Promise<string>}
  */
-export async function deleteConversationMessage(conversationId, messageId) {
+export async function deleteConversationMessage(conversationId, messageId, isNewMessage = false) {
     let url = replaceUrl(endpoints.conversationMessageDeletionUrl, {
         conversationId: conversationId,
         messageId: messageId
     });
-    const response = await axios.delete(url);
-    return response.data;
+
+    return new Promise((resolve, reject) => {
+        axios.delete(url, {
+            data: {
+                is_new_message: isNewMessage || false
+            }
+        }).then(response => {
+            resolve(response.data);
+        }).catch(err => {
+            reject(err)
+        });
+    });
 }
 
+
+/**
+ * upload conversation files
+ * @param {string} agentId The agent id
+ * @param {string} converationId The conversation id
+ * @param {any[]} files The conversation files
+ * @returns {Promise<string>}
+ */
+export async function uploadConversationFiles(agentId, converationId, files) {
+    let url = replaceUrl(endpoints.fileUploadUrl, {
+        agentId: agentId,
+        conversationId: converationId
+    });
+    const response = await axios.post(url, {
+        files: files
+    });
+    return response.data;
+}
 
 /**
  * delete a message in conversation
