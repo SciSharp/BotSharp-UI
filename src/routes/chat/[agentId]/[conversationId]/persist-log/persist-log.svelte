@@ -3,20 +3,20 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { GetStateLogs } from '$lib/services/logging-service';
+	import { GetContentLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-    import ConversationStateLogElement from './conversation-state-log-element.svelte';
-	import MessageStateLogElement from './message-state-log-element.svelte';
+    import ContentLogElement from './content-log-element.svelte';
+	import ConversationStateLogElement from './conversation-state-log-element.svelte';
 
-    const convStateLogTab = 1;
-    const msgStateLogTab = 2;
+    const contentLogTab = 1;
+    const conversationStateLogTab = 2;
 
-    /** @type {any[]} */
+    /** @type {import('$types').ConversationContentLogModel[]} */
+    export let contentLogs = [];
+
+    /** @type {import('$types').ConversationStateLogModel[]} */
     export let convStateLogs = [];
-
-    /** @type {any[]} */
-    export let msgStateLogs = [];
 
     /** @type {boolean} */
     export let autoScroll = false;
@@ -27,9 +27,10 @@
     /** @type {() => void} */
     export let cleanScreen;
 
-    /** @type {any} */
+    /** @type {any[]} */
     let scrollbars = [];
-    let selectedTab = convStateLogTab;
+    /** @type {number} */
+    let selectedTab = contentLogTab;
 
     const options = {
 		scrollbars: {
@@ -45,11 +46,11 @@
 
     onMount(async () => {
         const conversationId = $page.params.conversationId;
-        convStateLogs = await GetStateLogs(conversationId);
-        
+        contentLogs = await GetContentLogs(conversationId);
+
         const scrollbarElements = [
-            document.querySelector('.conv-state-log-scrollbar'),
-            document.querySelector('.msg-state-log-scrollbar')
+            document.querySelector('.content-log-scrollbar'),
+            document.querySelector('.conv-state-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
@@ -80,9 +81,9 @@
             }, 200);
         });
     }
-
+    
     function cleanLogs() {
-        convStateLogs = [];
+        contentLogs = [];
     }
 
     function handleCleanScreen() {
@@ -90,6 +91,7 @@
         cleanScreen && cleanScreen();
     }
 
+    
     /** @param {number} tab */
     function handleTabClick(tab) {
         selectedTab = tab;
@@ -103,56 +105,60 @@
                 <button
                     type="button"
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                    on:click={() => closeWindow()}
+                    on:click={() => handleCleanScreen()}
                 >
-                    <i class="mdi mdi-window-close"></i>
+                    <i class="bx bx-trash"></i>
                 </button>
             </div>
             <div>
                 <button
                     type="button"
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                    on:click={() => handleCleanScreen()}
+                    on:click={() => closeWindow()}
                 >
-                    <i class="bx bx-trash"></i>
+                    <i class="mdi mdi-window-close"></i>
                 </button>
             </div>
         </div>
-        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
+
+        <div class="content-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== contentLogTab}>
             <ul>
+                {#each contentLogs as log}
+                    <ContentLogElement data={log} />
+                {/each}
+            </ul>
+        </div>
+
+        <div class="conv-state-log-scrollbar log-list log-body" class:hide={selectedTab !== conversationStateLogTab}>
+            <ul>
+                <!-- {#each agentQueueLogs as log}
+                    <AgentQueueLogElement data={log} />
+                {/each} -->
                 {#each convStateLogs as log}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="msg-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== msgStateLogTab}>
-            <ul>
-                {#each msgStateLogs as log}
-                    <MessageStateLogElement data={log} />
-                {/each}
-            </ul>
-        </div>
-
         <div class="log-footer nav-group">
-            <NavBar id={'state-log-container'}>
+            <NavBar id={'persist-log-container'}>
+                <NavItem
+                    navBtnId={'content-log-tab'}
+                    dataBsTarget={'#content-log-tab-pane'}
+                    ariaControls={'content-log-tab-pane'}
+                    navBtnText={'Content Log'}
+                    disabled={selectedTab === contentLogTab}
+                    active={selectedTab === contentLogTab}
+                    onClick={() => handleTabClick(contentLogTab)}
+                />
                 <NavItem
                     navBtnId={'conv-state-log-tab'}
                     dataBsTarget={'#conv-state-log-tab-pane'}
                     ariaControls={'conv-state-log-tab-pane'}
                     navBtnText={'Conversation States'}
-                    disabled={selectedTab === convStateLogTab}
-                    active={selectedTab === convStateLogTab}
-                    onClick={() => handleTabClick(convStateLogTab)}
-                />
-                <NavItem
-                    navBtnId={'msg-state-log-tab'}
-                    dataBsTarget={'#msg-state-log-tab-pane'}
-                    ariaControls={'msg-state-log-tab-pane'}
-                    navBtnText={'Message States'}
-                    disabled={selectedTab === msgStateLogTab}
-                    active={selectedTab === msgStateLogTab}
-                    onClick={() => handleTabClick(msgStateLogTab)}
+                    disabled={selectedTab === conversationStateLogTab}
+                    active={selectedTab === conversationStateLogTab}
+                    onClick={() => handleTabClick(conversationStateLogTab)}
                 />
             </NavBar>
         </div>

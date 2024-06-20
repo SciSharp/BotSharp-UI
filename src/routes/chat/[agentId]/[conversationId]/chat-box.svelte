@@ -25,7 +25,7 @@
 	import { onMount, setContext, tick } from 'svelte';
 	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import { BOT_SENDERS, FILE_EDITORS, TEXT_EDITORS, USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, TEXT_EDITORS, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -37,17 +37,17 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
-	import { loadFileGallery, loadLocalFiles } from '$lib/helpers/utils/gallery';
+	import { loadFileGallery } from '$lib/helpers/utils/gallery';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
 	import ChatImageUploader from './chat-image/chat-image-uploader.svelte';
 	import ChatImageGallery from './chat-image/chat-image-gallery.svelte';
-	import ContentLog from './content-log/content-log.svelte';
+	import PersistLog from './persist-log/persist-log.svelte';
+	import InstantLog from './instant-log/instant-log.svelte';
 	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import StateLog from './state-log/state-log.svelte';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
 	import moment from 'moment';
@@ -884,7 +884,7 @@
 	<Splitpanes>
 		{#if isLoadStateLog}
 		<Pane size={30} minSize={20} maxSize={50} >
-			<StateLog
+			<InstantLog
 				bind:convStateLogs={convStateLogs}
 				bind:msgStateLogs={msgStateLogs}
 				autoScroll={autoScrollLog}
@@ -1128,9 +1128,9 @@
 		</Pane>
 		{#if isLoadContentLog}
 		<Pane size={30} minSize={20} maxSize={50}>
-			<ContentLog
+			<PersistLog
 				bind:contentLogs={contentLogs}
-				bind:agentQueueLogs={agentQueueLogs}
+				bind:convStateLogs={convStateLogs}
 				autoScroll={autoScrollLog}
 				closeWindow={toggleContentLog}
 				cleanScreen={cleanContentLogScreen}
