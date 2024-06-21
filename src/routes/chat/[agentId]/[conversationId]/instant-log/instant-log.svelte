@@ -9,17 +9,11 @@
     import ConversationStateLogElement from '../persist-log/conversation-state-log-element.svelte';
 	import MessageStateLogElement from './message-state-log-element.svelte';
 
-    const convStateLogTab = 1;
-    const msgStateLogTab = 2;
-
-    /** @type {any[]} */
-    export let convStateLogs = [];
-
     /** @type {any[]} */
     export let msgStateLogs = [];
 
-    /** @type {boolean} */
-    export let autoScroll = false;
+    /** @type {any[]} */
+    export let agentQueueLogs = [];
 
     /** @type {() => void} */
     export let closeWindow;
@@ -29,7 +23,6 @@
 
     /** @type {any} */
     let scrollbars = [];
-    let selectedTab = convStateLogTab;
 
     const options = {
 		scrollbars: {
@@ -44,11 +37,7 @@
 	};
 
     onMount(async () => {
-        const conversationId = $page.params.conversationId;
-        convStateLogs = await GetStateLogs(conversationId);
-        
         const scrollbarElements = [
-            document.querySelector('.conv-state-log-scrollbar'),
             document.querySelector('.msg-state-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
@@ -66,9 +55,7 @@
     });
 
     function refresh() {
-        if (autoScroll) {
-            scrollToBottom();
-        }
+        scrollToBottom();
     }
 
     function scrollToBottom() {
@@ -82,17 +69,12 @@
     }
 
     function cleanLogs() {
-        convStateLogs = [];
+        msgStateLogs = [];
     }
 
     function handleCleanScreen() {
         cleanLogs();
         cleanScreen && cleanScreen();
-    }
-
-    /** @param {number} tab */
-    function handleTabClick(tab) {
-        selectedTab = tab;
     }
 </script>
 
@@ -118,15 +100,15 @@
                 </button>
             </div>
         </div>
-        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
+        <!-- <div class="log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
             <ul>
                 {#each convStateLogs as log}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
-        </div>
+        </div> -->
 
-        <div class="msg-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== msgStateLogTab}>
+        <div class="msg-state-log-scrollbar log-list padding-side log-body">
             <ul>
                 {#each msgStateLogs as log}
                     <MessageStateLogElement data={log} />
@@ -134,27 +116,6 @@
             </ul>
         </div>
 
-        <div class="log-footer nav-group">
-            <NavBar id={'state-log-container'}>
-                <NavItem
-                    navBtnId={'conv-state-log-tab'}
-                    dataBsTarget={'#conv-state-log-tab-pane'}
-                    ariaControls={'conv-state-log-tab-pane'}
-                    navBtnText={'Conversation States'}
-                    disabled={selectedTab === convStateLogTab}
-                    active={selectedTab === convStateLogTab}
-                    onClick={() => handleTabClick(convStateLogTab)}
-                />
-                <NavItem
-                    navBtnId={'msg-state-log-tab'}
-                    dataBsTarget={'#msg-state-log-tab-pane'}
-                    ariaControls={'msg-state-log-tab-pane'}
-                    navBtnText={'Message States'}
-                    disabled={selectedTab === msgStateLogTab}
-                    active={selectedTab === msgStateLogTab}
-                    onClick={() => handleTabClick(msgStateLogTab)}
-                />
-            </NavBar>
-        </div>
+        <div class="log-footer nav-group"></div>
     </div>
 </div>

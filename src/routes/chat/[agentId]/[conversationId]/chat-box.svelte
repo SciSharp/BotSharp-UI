@@ -114,10 +114,10 @@
     let conversationUser;
 
 	/** @type {boolean} */
-	let isLoadContentLog = false;
-	let isLoadStateLog = false;
-	let isContentLogClosed = false; // initial condition
-	let isStateLogClosed = false; // initial condition
+	let isLoadPersistLog = false;
+	let isLoadInstantLog = false;
+	let isPersistLogClosed = false; // initial condition
+	let isInstantLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
 	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
@@ -172,11 +172,11 @@
 	function resizeChatWindow() {
 		isLite = Viewport.Width <= screenWidthThreshold;
 		if (!isLite) {
-			isLoadContentLog = !isContentLogClosed;
-			isLoadStateLog = !isStateLogClosed;
+			isLoadPersistLog = !isPersistLogClosed;
+			isLoadInstantLog = !isInstantLogClosed;
 		} else {
-			isLoadContentLog = false;
-			isLoadStateLog = false;
+			isLoadPersistLog = false;
+			isLoadInstantLog = false;
 			isOpenEditMsgModal = false;
 			isOpenUserAddStateModal = false;
 		}
@@ -185,8 +185,8 @@
 	function initChatView() {
 		isFrame = $page.url.searchParams.get('isFrame') === 'true';
 		// initial condition
-		isContentLogClosed = false;
-		isStateLogClosed = false;
+		isPersistLogClosed = false;
+		isInstantLogClosed = false;
 		resizeChatWindow();
 	}
 
@@ -351,14 +351,14 @@
 
 	/** @param {import('$types').ConversationContentLogModel} log */
 	function onConversationContentLogGenerated(log) {
-		if (!isLoadContentLog) return;
+		if (!isLoadPersistLog) return;
 		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
 	/** @param {import('$types').ConversationStateLogModel} log */
 	function onConversationStateLogGenerated(log) {
-		if (!isLoadStateLog) return;
+		if (!isLoadPersistLog) return;
 
 		convStateLogs.push({ ...log });
 		convStateLogs = convStateLogs.map(x => { return { ...x }; });
@@ -366,7 +366,7 @@
 
 	/** @param {import('$types').MessageStateLogModel} log */
 	function onStateChangeGenerated(log) {
-		if (!isLoadStateLog || log == null) return;
+		if (!isLoadInstantLog || log == null) return;
 
 		msgStateLogs.push({ ...log });
 		msgStateLogs = msgStateLogs.map(x => { return { ...x }; });
@@ -374,7 +374,7 @@
 
 	/** @param {import('$types').AgentQueueLogModel} log */
 	function onAgentQueueChanged(log) {
-		if (!isLoadContentLog || log == null) return;
+		if (!isLoadInstantLog || log == null) return;
 
 		agentQueueLogs.push({ ...log });
 		agentQueueLogs = agentQueueLogs.map(x => { return { ...x }; });
@@ -577,34 +577,40 @@
 		}
 	}
 
-	function toggleContentLog() {
-		isLoadContentLog = !isLoadContentLog;
-		if (!isLoadContentLog) {
-			contentLogs = [];
-			agentQueueLogs = [];
-			isContentLogClosed = true;
-		} else {
-			isContentLogClosed = false;
+	function openLogs() {
+		if (!isLoadPersistLog) {
+			isLoadPersistLog = true;
+			isPersistLogClosed = false;
 		}
+
+		if (!isLoadInstantLog) {
+			isLoadInstantLog = true;
+			isInstantLogClosed = false;
+		}
+	}
+
+	function closePersistLog() {
+		isLoadPersistLog = false;
+		contentLogs = [];
+		convStateLogs = [];
+		isPersistLogClosed = true;
     }
 
-	function cleanContentLogScreen() {
+	function cleanPersistLogScreen() {
 		contentLogs = [];
-	}
-
-	function toggleStateLog() {
-		isLoadStateLog = !isLoadStateLog;
-		if (!isLoadStateLog) {
-			convStateLogs = [];
-			msgStateLogs = [];
-			isStateLogClosed = true;
-		} else {
-			isStateLogClosed = false;
-		}
-	}
-
-	function cleanStateLogScreen() {
 		convStateLogs = [];
+	}
+
+	function closeInstantLog() {
+		isLoadInstantLog = false;
+		msgStateLogs = [];
+		agentQueueLogs = [];
+		isInstantLogClosed = true;
+	}
+
+	function cleanInstantLogScreen() {
+		msgStateLogs = [];
+		agentQueueLogs = [];
 	}
 
 	function toggleUserAddStateModal() {
@@ -758,13 +764,11 @@
 
 	/** @param {string} messageId */
 	function truncateLogs(messageId) {
-		if (isLoadContentLog) {
-			const targetIdx = contentLogs.findIndex(x => x.message_id === messageId);
+		if (isLoadPersistLog) {
+			let targetIdx = contentLogs.findIndex(x => x.message_id === messageId);
 			contentLogs = contentLogs.filter((x, idx) => idx < targetIdx);
-		}
-		
-		if (isLoadStateLog) {
-			const targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
+
+			targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
 			convStateLogs = convStateLogs.filter((x, idx) => idx < targetIdx);
 		}
 	}
@@ -793,7 +797,7 @@
 
 	/** @param {string} messageId */
 	function highlightStateLog(messageId) {
-		if (!isLoadStateLog) return;
+		if (!isLoadInstantLog) return;
 
 		const targets = document.querySelectorAll('.state-log-item');
 		targets.forEach(elm => {
@@ -815,7 +819,7 @@
 		const stateLogWrapper = '.conv-state-log-scrollbar';
 		const elements = [];
 		const contentLogElm = document.querySelector(`#content-log-${messageId}`);
-		if (isLoadContentLog && !!contentLogElm) {
+		if (isLoadPersistLog && !!contentLogElm) {
 			elements.push({
 				elm: contentLogElm,
 				wrapperName: contentLogWrapper
@@ -823,7 +827,7 @@
 		}
 		
 		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
-		if (isLoadStateLog && !!stateLogElm) {
+		if (isLoadPersistLog && !!stateLogElm) {
 			elements.push({
 				elm: stateLogElm,
 				wrapperName: stateLogWrapper
@@ -882,14 +886,13 @@
 <HeadTitle title="Chat" addOn='' />
 <div class="d-lg-flex">
 	<Splitpanes>
-		{#if isLoadStateLog}
+		{#if isLoadInstantLog}
 		<Pane size={30} minSize={20} maxSize={50} >
 			<InstantLog
-				bind:convStateLogs={convStateLogs}
 				bind:msgStateLogs={msgStateLogs}
-				autoScroll={autoScrollLog}
-				closeWindow={toggleStateLog}
-				cleanScreen={cleanStateLogScreen}
+				bind:agentQueueLogs={agentQueueLogs}
+				closeWindow={closeInstantLog}
+				cleanScreen={cleanInstantLogScreen}
 			/>
 		</Pane>
 		{/if}
@@ -899,9 +902,9 @@
 					<div class="border-bottom chat-head">
 						<div class="row">
 							<div class="col-md-4 col-7 head-left">
-								<div class="m-1">{agent?.name}</div>
+								<div class="m-1">{agent?.name || 'Unkown'}</div>
 								<div class="text-muted mb-0">
-									<i class="mdi mdi-circle text-success align-middle me-1" /> {conversationUser?.full_name || ''}
+									<i class="mdi mdi-circle text-success align-middle me-1" /> {conversationUser?.full_name || conversationUser?.user_name || ''}
 								</div>
 							</div>
 		
@@ -923,23 +926,23 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLite && !isLoadContentLog}
-												<DropdownItem on:click={() => toggleContentLog()}>View Log</DropdownItem>
+												{#if !isLite && (!isLoadPersistLog || !isLoadInstantLog)}
+												<DropdownItem on:click={() => openLogs()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLite && (!isLoadStateLog || !isOpenUserAddStateModal)}
+												{#if !isLite && (!isLoadInstantLog || !isOpenUserAddStateModal)}
 												<li>
 													<Dropdown direction="right" class="state-menu">
 														<DropdownToggle caret class="dropdown-item">
 															States
 														</DropdownToggle>
 														<DropdownMenu>
-															{#if !isLoadStateLog}
+															<!-- {#if !isLoadInstantLog}
 															<DropdownItem
-																on:click={() => toggleStateLog()}
+																on:click={() => toggleInstantLog()}
 															>
 																View States
 															</DropdownItem>
-															{/if}
+															{/if} -->
 															{#if !isOpenUserAddStateModal}
 															<DropdownItem
 																disabled={disableAction}
@@ -993,7 +996,7 @@
 										<div class="msg-container">
 											<div
 												class="ctext-wrap user-msg"
-												class:clickable={!isLite && (isLoadContentLog || isLoadStateLog)}
+												class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
 												id={`user-msg-${message.message_id}`}
 												tabindex="0"
 												aria-label="user-msg-to-log"
@@ -1126,14 +1129,14 @@
 				</div>
 			</div>
 		</Pane>
-		{#if isLoadContentLog}
+		{#if isLoadPersistLog}
 		<Pane size={30} minSize={20} maxSize={50}>
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
 				autoScroll={autoScrollLog}
-				closeWindow={toggleContentLog}
-				cleanScreen={cleanContentLogScreen}
+				closeWindow={closePersistLog}
+				cleanScreen={cleanPersistLogScreen}
 			/>
 		</Pane>
 		{/if}

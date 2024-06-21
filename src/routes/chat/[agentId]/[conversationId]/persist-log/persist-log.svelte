@@ -3,7 +3,7 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { GetContentLogs } from '$lib/services/logging-service';
+	import { GetContentLogs, GetStateLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     import ContentLogElement from './content-log-element.svelte';
@@ -47,6 +47,7 @@
     onMount(async () => {
         const conversationId = $page.params.conversationId;
         contentLogs = await GetContentLogs(conversationId);
+        convStateLogs = await GetStateLogs(conversationId);
 
         const scrollbarElements = [
             document.querySelector('.content-log-scrollbar'),
@@ -84,6 +85,7 @@
     
     function cleanLogs() {
         contentLogs = [];
+        convStateLogs = [];
     }
 
     function handleCleanScreen() {
@@ -129,11 +131,8 @@
             </ul>
         </div>
 
-        <div class="conv-state-log-scrollbar log-list log-body" class:hide={selectedTab !== conversationStateLogTab}>
+        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== conversationStateLogTab}>
             <ul>
-                <!-- {#each agentQueueLogs as log}
-                    <AgentQueueLogElement data={log} />
-                {/each} -->
                 {#each convStateLogs as log}
                     <ConversationStateLogElement data={log} />
                 {/each}
