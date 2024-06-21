@@ -2,18 +2,17 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { GetStateLogs } from '$lib/services/logging-service';
-    import NavBar from '$lib/common/nav-bar/NavBar.svelte';
-    import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-    import ConversationStateLogElement from '../persist-log/conversation-state-log-element.svelte';
 	import MessageStateLogElement from './message-state-log-element.svelte';
+	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 
     /** @type {any[]} */
     export let msgStateLogs = [];
 
     /** @type {any[]} */
     export let agentQueueLogs = [];
+
+    /** @type {boolean} */
+    export let autoScroll = false;
 
     /** @type {() => void} */
     export let closeWindow;
@@ -23,6 +22,13 @@
 
     /** @type {any} */
     let scrollbars = [];
+
+    /** @type {boolean} */
+    let closeMsgStateLog = false;
+    let closeAgentQueueLog = false;
+
+    const msgStateLogTab = 1;
+    const agentQueueLogTab = 2;
 
     const options = {
 		scrollbars: {
@@ -38,7 +44,8 @@
 
     onMount(async () => {
         const scrollbarElements = [
-            document.querySelector('.msg-state-log-scrollbar')
+            document.querySelector('.msg-state-log-scrollbar'),
+            document.querySelector('.agent-queue-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
@@ -55,6 +62,10 @@
     });
 
     function refresh() {
+        // if (autoScroll) {
+        //     closeMsgStateLog = true;
+        //     closeAgentQueueLog = true;
+        // }
         scrollToBottom();
     }
 
@@ -70,11 +81,23 @@
 
     function cleanLogs() {
         msgStateLogs = [];
+        agentQueueLogs = [];
     }
 
     function handleCleanScreen() {
         cleanLogs();
         cleanScreen && cleanScreen();
+    }
+
+    /**
+	 * @param {number} type
+	 */
+    function closeLog(type) {
+        if (type === msgStateLogTab) {
+            closeMsgStateLog = true;
+        } else if (type === agentQueueLogTab) {
+            closeAgentQueueLog = true;
+        }
     }
 </script>
 
@@ -100,22 +123,50 @@
                 </button>
             </div>
         </div>
-        <!-- <div class="log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
-            <ul>
-                {#each convStateLogs as log}
-                    <ConversationStateLogElement data={log} />
-                {/each}
-            </ul>
-        </div> -->
-
-        <div class="msg-state-log-scrollbar log-list padding-side log-body">
-            <ul>
-                {#each msgStateLogs as log}
-                    <MessageStateLogElement data={log} />
-                {/each}
-            </ul>
+        <div class="log-body instant-log-body">
+            <div class="log-list instant-log-section" class:hide={closeMsgStateLog}>
+                <div class="close-icon">
+                    <span
+                        style="float: right;"
+                        role="link"
+                        tabindex="-1"
+                        on:keydown={() => {}}
+                        on:click={() => closeLog(msgStateLogTab)}
+                    >
+                        <i class="mdi mdi-window-close"></i>
+                    </span>
+                </div>
+                <div class="msg-state-log-scrollbar padding-side" >
+                    <ul>
+                        {#each msgStateLogs as log}
+                            <MessageStateLogElement data={log} />
+                        {/each}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="log-list instant-log-section" class:hide={closeAgentQueueLog}>
+                <div class="close-icon">
+                    <span
+                        style="float: right;"
+                        role="link"
+                        tabindex="-1"
+                        on:keydown={() => {}}
+                        on:click={() => closeLog(agentQueueLogTab)}
+                    >
+                        <i class="mdi mdi-window-close"></i>
+                    </span>
+                </div>
+                <div class="agent-queue-log-scrollbar padding-side">
+                    <ul>
+                        {#each agentQueueLogs as log}
+                            <AgentQueueLogElement data={log} />
+                        {/each}
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <div class="log-footer nav-group"></div>
+        
+        <div class="log-footer"></div>
     </div>
 </div>

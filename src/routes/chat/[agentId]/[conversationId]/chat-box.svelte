@@ -891,6 +891,7 @@
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
+				autoScroll={autoScrollLog}
 				closeWindow={closeInstantLog}
 				cleanScreen={cleanInstantLogScreen}
 			/>
