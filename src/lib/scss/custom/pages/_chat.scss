@@ -287,8 +287,11 @@
 }
 
 .chat-input-section {
-    padding: 2vmin 2%;
+    padding: 0 2%;
     height: 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .chat-input-hide {
