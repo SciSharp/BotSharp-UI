@@ -385,7 +385,10 @@
                 font-size: 20px;
                 color: red;
                 padding: 0 5px;
-                cursor: pointer;
+                
+                i {
+                    cursor: pointer;
+                }
             }
         }
     }
