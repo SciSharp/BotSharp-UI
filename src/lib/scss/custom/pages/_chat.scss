@@ -373,13 +373,13 @@
 
         .instant-log-section {
             border-radius: 10px;
-            border: solid 3px yellow;
-            margin: 0px 30px;
-            flex: 0.5;
+            background-color: var(--bs-primary) !important;
+            margin: 0px 60px;
+            flex: 0 0 500px;
             display: flex;
             flex-direction: column;
-            height: 350px;
-            min-height: 350px;
+            height: 500px;
+            min-height: 500px;
 
             .close-icon {
                 font-size: 20px;
@@ -469,7 +469,7 @@
                 padding-left: 10px;
 
                 .state-key {
-                    color: var(--bs-primary);
+                    // color: var(--bs-primary);
                 }
 
                 .state-source {

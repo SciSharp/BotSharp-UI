@@ -23,10 +23,6 @@
     /** @type {any} */
     let scrollbars = [];
 
-    /** @type {boolean} */
-    let closeMsgStateLog = false;
-    let closeAgentQueueLog = false;
-
     const msgStateLogTab = 1;
     const agentQueueLogTab = 2;
 
@@ -62,11 +58,9 @@
     });
 
     function refresh() {
-        // if (autoScroll) {
-        //     closeMsgStateLog = true;
-        //     closeAgentQueueLog = true;
-        // }
-        scrollToBottom();
+        if (autoScroll) {
+            scrollToBottom();
+        }
     }
 
     function scrollToBottom() {
@@ -90,13 +84,13 @@
     }
 
     /**
-	 * @param {number} type
+	 * @param {number} logType
 	 */
-    function closeLog(type) {
-        if (type === msgStateLogTab) {
-            closeMsgStateLog = true;
-        } else if (type === agentQueueLogTab) {
-            closeAgentQueueLog = true;
+    function closeLog(logType) {
+        if (logType === msgStateLogTab) {
+            msgStateLogs = [];
+        } else if (logType === agentQueueLogTab) {
+            agentQueueLogs = [];
         }
     }
 </script>
@@ -124,7 +118,7 @@
             </div>
         </div>
         <div class="log-body instant-log-body">
-            <div class="log-list instant-log-section" class:hide={closeMsgStateLog}>
+            <div class="log-list instant-log-section" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
                 <div class="close-icon">
                     <span
                         style="float: right;"
@@ -145,7 +139,7 @@
                 </div>
             </div>
             
-            <div class="log-list instant-log-section" class:hide={closeAgentQueueLog}>
+            <div class="log-list instant-log-section" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
                         style="float: right;"
