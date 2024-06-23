@@ -3,20 +3,20 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
-	import { GetContentLogs } from '$lib/services/logging-service';
+	import { GetContentLogs, GetStateLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     import ContentLogElement from './content-log-element.svelte';
-	import AgentQueueLogElement from './agent-queue-log-element.svelte';
+	import ConversationStateLogElement from './conversation-state-log-element.svelte';
 
     const contentLogTab = 1;
-    const agentQueueLogTab = 2;
+    const conversationStateLogTab = 2;
 
     /** @type {import('$types').ConversationContentLogModel[]} */
     export let contentLogs = [];
 
-    /** @type {import('$types').AgentQueueLogModel[]} */
-    export let agentQueueLogs = [];
+    /** @type {import('$types').ConversationStateLogModel[]} */
+    export let convStateLogs = [];
 
     /** @type {boolean} */
     export let autoScroll = false;
@@ -47,10 +47,11 @@
     onMount(async () => {
         const conversationId = $page.params.conversationId;
         contentLogs = await GetContentLogs(conversationId);
+        convStateLogs = await GetStateLogs(conversationId);
 
         const scrollbarElements = [
             document.querySelector('.content-log-scrollbar'),
-            document.querySelector('.queue-change-log-scrollbar')
+            document.querySelector('.conv-state-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
@@ -84,6 +85,7 @@
     
     function cleanLogs() {
         contentLogs = [];
+        convStateLogs = [];
     }
 
     function handleCleanScreen() {
@@ -129,16 +131,16 @@
             </ul>
         </div>
 
-        <div class="queue-change-log-scrollbar log-list log-body" class:hide={selectedTab !== agentQueueLogTab}>
+        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== conversationStateLogTab}>
             <ul>
-                {#each agentQueueLogs as log}
-                    <AgentQueueLogElement data={log} />
+                {#each convStateLogs as log}
+                    <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
         <div class="log-footer nav-group">
-            <NavBar id={'content-log-container'}>
+            <NavBar id={'persist-log-container'}>
                 <NavItem
                     navBtnId={'content-log-tab'}
                     dataBsTarget={'#content-log-tab-pane'}
@@ -149,13 +151,13 @@
                     onClick={() => handleTabClick(contentLogTab)}
                 />
                 <NavItem
-                    navBtnId={'agent-queue-log-tab'}
-                    dataBsTarget={'#agent-queue-log-tab-pane'}
-                    ariaControls={'agent-queue-log-tab-pane'}
-                    navBtnText={'Agent Queue'}
-                    disabled={selectedTab === agentQueueLogTab}
-                    active={selectedTab === agentQueueLogTab}
-                    onClick={() => handleTabClick(agentQueueLogTab)}
+                    navBtnId={'conv-state-log-tab'}
+                    dataBsTarget={'#conv-state-log-tab-pane'}
+                    ariaControls={'conv-state-log-tab-pane'}
+                    navBtnText={'Conversation States'}
+                    disabled={selectedTab === conversationStateLogTab}
+                    active={selectedTab === conversationStateLogTab}
+                    onClick={() => handleTabClick(conversationStateLogTab)}
                 />
             </NavBar>
         </div>

@@ -287,8 +287,11 @@
 }
 
 .chat-input-section {
-    padding: 2vmin 2%;
+    padding: 0 2%;
     height: 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
 }
 
 .chat-input-hide {
@@ -359,6 +362,35 @@
 
     .log-footer {
         flex: 2%;
+    }
+
+    .instant-log-body {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        overflow-y: scroll;
+        scrollbar-width: none;
+
+        .instant-log-section {
+            border-radius: 10px;
+            background-color: var(--bs-primary) !important;
+            margin: 0px 60px;
+            flex: 0 0 500px;
+            display: flex;
+            flex-direction: column;
+            height: 500px;
+            min-height: 500px;
+
+            .close-icon {
+                font-size: 20px;
+                color: red;
+                padding: 0 5px;
+                
+                i {
+                    cursor: pointer;
+                }
+            }
+        }
     }
 
     .nav-group {
@@ -440,7 +472,7 @@
                 padding-left: 10px;
 
                 .state-key {
-                    color: var(--bs-primary);
+                    // color: var(--bs-primary);
                 }
 
                 .state-source {
@@ -463,8 +495,8 @@
             }
 
             .queue-change-container {
-                margin-top: 0px;
-                margin-bottom: 0px;
+                margin-top: 10px;
+                margin-bottom: 10px;
                 padding: 0px 10px;
 
                 .log-content {

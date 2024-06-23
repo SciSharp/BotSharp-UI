@@ -2,21 +2,14 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { GetStateLogs } from '$lib/services/logging-service';
-    import NavBar from '$lib/common/nav-bar/NavBar.svelte';
-    import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-    import ConversationStateLogElement from './conversation-state-log-element.svelte';
 	import MessageStateLogElement from './message-state-log-element.svelte';
-
-    const convStateLogTab = 1;
-    const msgStateLogTab = 2;
-
-    /** @type {any[]} */
-    export let convStateLogs = [];
+	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 
     /** @type {any[]} */
     export let msgStateLogs = [];
+
+    /** @type {any[]} */
+    export let agentQueueLogs = [];
 
     /** @type {boolean} */
     export let autoScroll = false;
@@ -29,7 +22,9 @@
 
     /** @type {any} */
     let scrollbars = [];
-    let selectedTab = convStateLogTab;
+
+    const msgStateLogTab = 1;
+    const agentQueueLogTab = 2;
 
     const options = {
 		scrollbars: {
@@ -44,12 +39,9 @@
 	};
 
     onMount(async () => {
-        const conversationId = $page.params.conversationId;
-        convStateLogs = await GetStateLogs(conversationId);
-        
         const scrollbarElements = [
-            document.querySelector('.conv-state-log-scrollbar'),
-            document.querySelector('.msg-state-log-scrollbar')
+            document.querySelector('.msg-state-log-scrollbar'),
+            document.querySelector('.agent-queue-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
@@ -82,7 +74,8 @@
     }
 
     function cleanLogs() {
-        convStateLogs = [];
+        msgStateLogs = [];
+        agentQueueLogs = [];
     }
 
     function handleCleanScreen() {
@@ -90,9 +83,15 @@
         cleanScreen && cleanScreen();
     }
 
-    /** @param {number} tab */
-    function handleTabClick(tab) {
-        selectedTab = tab;
+    /**
+	 * @param {number} logType
+	 */
+    function closeLog(logType) {
+        if (logType === msgStateLogTab) {
+            msgStateLogs = [];
+        } else if (logType === agentQueueLogTab) {
+            agentQueueLogs = [];
+        }
     }
 </script>
 
@@ -118,43 +117,50 @@
                 </button>
             </div>
         </div>
-        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== convStateLogTab}>
-            <ul>
-                {#each convStateLogs as log}
-                    <ConversationStateLogElement data={log} />
-                {/each}
-            </ul>
+        <div class="log-body instant-log-body">
+            <div class="log-list instant-log-section" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
+                <div class="close-icon">
+                    <span
+                        style="float: right;"
+                        role="link"
+                        tabindex="-1"
+                        on:keydown={() => {}}
+                        on:click={() => closeLog(msgStateLogTab)}
+                    >
+                        <i class="mdi mdi-window-close"></i>
+                    </span>
+                </div>
+                <div class="msg-state-log-scrollbar padding-side" >
+                    <ul>
+                        {#each msgStateLogs as log}
+                            <MessageStateLogElement data={log} />
+                        {/each}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="log-list instant-log-section" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
+                <div class="close-icon">
+                    <span
+                        style="float: right;"
+                        role="link"
+                        tabindex="-1"
+                        on:keydown={() => {}}
+                        on:click={() => closeLog(agentQueueLogTab)}
+                    >
+                        <i class="mdi mdi-window-close"></i>
+                    </span>
+                </div>
+                <div class="agent-queue-log-scrollbar padding-side">
+                    <ul>
+                        {#each agentQueueLogs as log}
+                            <AgentQueueLogElement data={log} />
+                        {/each}
+                    </ul>
+                </div>
+            </div>
         </div>
-
-        <div class="msg-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== msgStateLogTab}>
-            <ul>
-                {#each msgStateLogs as log}
-                    <MessageStateLogElement data={log} />
-                {/each}
-            </ul>
-        </div>
-
-        <div class="log-footer nav-group">
-            <NavBar id={'state-log-container'}>
-                <NavItem
-                    navBtnId={'conv-state-log-tab'}
-                    dataBsTarget={'#conv-state-log-tab-pane'}
-                    ariaControls={'conv-state-log-tab-pane'}
-                    navBtnText={'Conversation States'}
-                    disabled={selectedTab === convStateLogTab}
-                    active={selectedTab === convStateLogTab}
-                    onClick={() => handleTabClick(convStateLogTab)}
-                />
-                <NavItem
-                    navBtnId={'msg-state-log-tab'}
-                    dataBsTarget={'#msg-state-log-tab-pane'}
-                    ariaControls={'msg-state-log-tab-pane'}
-                    navBtnText={'Message States'}
-                    disabled={selectedTab === msgStateLogTab}
-                    active={selectedTab === msgStateLogTab}
-                    onClick={() => handleTabClick(msgStateLogTab)}
-                />
-            </NavBar>
-        </div>
+        
+        <div class="log-footer"></div>
     </div>
 </div>
