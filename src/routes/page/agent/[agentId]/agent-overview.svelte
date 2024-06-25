@@ -3,6 +3,7 @@
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { onMount } from 'svelte';
+	import { getAgentTools } from '$lib/services/agent-service';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -20,12 +21,10 @@
     const toolLimit = 10;
 
     onMount(() => {
-        toolOptions = [
-            "",
-            "file-analyzer",
-            "image-generator",
-            "test"
-        ];
+        getAgentTools().then(data => {
+            const tools = data?.filter(x => x?.trim()?.length > 0) || [];
+            toolOptions = ["", ...tools];
+        });
     });
 
     function addProfile() {

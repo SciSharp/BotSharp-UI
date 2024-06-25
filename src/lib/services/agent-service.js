@@ -73,6 +73,15 @@ export async function refreshAgents() {
 export async function createAgent(agent) {
     const url = endpoints.agentCreateUrl;
     const response = await axios.post(url, agent);
-    console.log(response.data);
+    return response.data;
+}
+
+/**
+ * Get agent tools
+ * @returns {Promise<string[]>}
+ */
+export async function getAgentTools() {
+    const url = endpoints.agentToolsUrl;
+    const response = await axios.get(url);
     return response.data;
 }
