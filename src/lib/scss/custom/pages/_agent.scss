@@ -2,11 +2,41 @@
     width: 45%;
 }
 
-.agent-profile-container {
-    width: fit-content;
+.agent-prop-list-container {
+    width: 85%;
     max-width: 100%;
-    .profile-name {
-        font-size: 1.1em;
+
+    .edit-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 5px;
+        margin-left: -0.75rem;
+
+        .edit-text-box {
+            flex: 0.9;
+            border: none;
+        }
+
+        .delete-icon {
+            flex: 0.1;
+            display: flex;
+            align-items: center;
+
+            i {
+                cursor: pointer;
+                font-size: 18px;
+                color: red;
+            }
+        }
+    }
+    
+    .list-add {
+        font-size: 20px;
+
+        i {
+            cursor: pointer;
+        }
     }
 }
 
