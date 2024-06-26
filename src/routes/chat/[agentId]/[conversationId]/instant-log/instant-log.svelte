@@ -107,38 +107,8 @@
                     <i class="mdi mdi-window-close"></i>
                 </button>
             </div>
-            <div>
-                <button
-                    type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                    on:click={() => handleCleanScreen()}
-                >
-                    <i class="bx bx-trash"></i>
-                </button>
-            </div>
         </div>
         <div class="log-body instant-log-body">
-            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
-                <div class="close-icon">
-                    <span
-                        style="float: right;"
-                        role="link"
-                        tabindex="-1"
-                        on:keydown={() => {}}
-                        on:click={() => closeLog(msgStateLogTab)}
-                    >
-                        <i class="mdi mdi-window-close"></i>
-                    </span>
-                </div>
-                <div class="msg-state-log-scrollbar padding-side" >
-                    <ul>
-                        {#each msgStateLogs as log}
-                            <MessageStateLogElement data={log} />
-                        {/each}
-                    </ul>
-                </div>
-            </div>
-            
             <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
@@ -155,6 +125,27 @@
                     <ul>
                         {#each agentQueueLogs as log}
                             <AgentQueueLogElement data={log} />
+                        {/each}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
+                <div class="close-icon">
+                    <span
+                        style="float: right;"
+                        role="link"
+                        tabindex="-1"
+                        on:keydown={() => {}}
+                        on:click={() => closeLog(msgStateLogTab)}
+                    >
+                        <i class="mdi mdi-window-close"></i>
+                    </span>
+                </div>
+                <div class="msg-state-log-scrollbar padding-side" >
+                    <ul>
+                        {#each msgStateLogs as log}
+                            <MessageStateLogElement data={log} />
                         {/each}
                     </ul>
                 </div>
