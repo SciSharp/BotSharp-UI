@@ -24,6 +24,7 @@ export const endpoints = {
     agentDetailUrl: `${host}/agent/{id}`,
     agentRefreshUrl: `${host}/refresh-agents`,
     agentCreateUrl: `${host}/agent`,
+    agentToolsUrl: `${host}/agent/tools`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,

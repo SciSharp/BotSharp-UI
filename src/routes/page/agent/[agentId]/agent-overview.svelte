@@ -1,7 +1,9 @@
 <script>
-    import { Button, Card, CardBody, CardHeader, Col, Table } from '@sveltestrap/sveltestrap';
+    import { Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
+	import { onMount } from 'svelte';
+	import { getAgentTools } from '$lib/services/agent-service';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -9,7 +11,21 @@
     /** @type {string[]} */
     export let profiles = [];
 
+    /** @type {string[]} */
+    export let tools = [];
+
+    /** @type {string[]} */
+    let toolOptions = [];
+
     const profileLimit = 10;
+    const toolLimit = 10;
+
+    onMount(() => {
+        getAgentTools().then(data => {
+            const tools = data?.filter(x => x?.trim()?.length > 0) || [];
+            toolOptions = ["", ...tools];
+        });
+    });
 
     function addProfile() {
         if (!!!agent) return;
@@ -24,6 +40,21 @@
     function removeProfile(index) {
         profiles = profiles.filter((x, idx) => idx !== index);
         agent.profiles = profiles;
+    }
+
+    function addTool() {
+        if (!!!agent) return;
+
+        tools = [...tools, ''];
+        agent.tools = tools;
+    }
+
+    /**
+	 * @param {number} index
+	 */
+    function removeTool(index) {
+        tools = tools.filter((x, idx) => idx !== index);
+        agent.tools = tools;
     }
 
     function chatWithAgent() {
@@ -86,19 +117,19 @@
                     <tr>
                         <th class="agent-prop-key">Profiles</th>
                         <td>
-                            <div class="agent-profile-container">
+                            <div class="agent-prop-list-container">
                                 {#each profiles as profile, index}
-                                <div style="display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 5px;">
+                                <div class="edit-wrapper">
                                     <input
-                                        class="form-control"
-                                        style="flex: 0.9; border: none; padding-left: 0px;"
+                                        class="form-control edit-text-box"
                                         type="text"
                                         placeholder="Typing here..."
-                                        bind:value={profile} maxlength={30} />
-                                    <div style="flex: 0.1; display: flex; align-items: center;">
+                                        maxlength={30}
+                                        bind:value={profile}
+                                    />
+                                    <div class="delete-icon">
                                         <i
                                             class="bx bxs-no-entry"
-                                            style="cursor: pointer; font-size: 18px; color: red;"
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
@@ -108,14 +139,49 @@
                                 </div>
                                 {/each}
                                 {#if profiles?.length < profileLimit}
-                                <div style="font-size: 20px;">
+                                <div class="list-add">
                                     <i
                                         class="bx bx bx-list-plus"
-                                        style="cursor: pointer;"
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
                                         on:click={() => addProfile()}
+                                    />
+                                </div>
+                                {/if}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key">Tools</th>
+                        <td>
+                            <div class="agent-prop-list-container">
+                                {#each tools as tool, index}
+                                <div class="edit-wrapper">
+                                    <Input type="select" class="edit-text-box" bind:value={tool}>
+                                        {#each toolOptions as option}
+                                            <option selected={tool === option}>{option}</option>
+                                        {/each}
+                                    </Input>
+                                    <div class="delete-icon">
+                                        <i
+                                            class="bx bxs-no-entry"
+                                            role="link"
+                                            tabindex="0"
+                                            on:keydown={() => {}}
+                                            on:click={() => removeTool(index)}
+                                        />
+                                    </div>
+                                </div>
+                                {/each}
+                                {#if tools?.length < toolLimit}
+                                <div class="list-add">
+                                    <i
+                                        class="bx bx bx-list-plus"
+                                        role="link"
+                                        tabindex="0"
+                                        on:keydown={() => {}}
+                                        on:click={() => addTool()}
                                     />
                                 </div>
                                 {/if}
