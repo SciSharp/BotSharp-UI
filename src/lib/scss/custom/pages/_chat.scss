@@ -375,11 +375,8 @@
             border-radius: 10px;
             border: 1px solid var(--bs-secondary);
             margin: 0px 60px;
-            flex: 0 0 400px;
             display: flex;
             flex-direction: column;
-            height: 400px;
-            min-height: 400px;
 
             .close-icon {
                 font-size: 20px;
@@ -390,6 +387,18 @@
                     cursor: pointer;
                 }
             }
+        }
+
+        .instant-log-sec-lg {
+            flex: 0 0 $log-sec-height-lg;
+            height: $log-sec-height-lg;
+            min-height: $log-sec-height-lg;
+        }
+
+        .instant-log-sec-sm {
+            flex: 0 0 $log-sec-height-sm;
+            height: $log-sec-height-sm;
+            min-height: $log-sec-height-sm;
         }
     }
 

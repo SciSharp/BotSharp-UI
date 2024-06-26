@@ -118,7 +118,7 @@
             </div>
         </div>
         <div class="log-body instant-log-body">
-            <div class="log-list instant-log-section" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
+            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
                 <div class="close-icon">
                     <span
                         style="float: right;"
@@ -139,7 +139,7 @@
                 </div>
             </div>
             
-            <div class="log-list instant-log-section" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
+            <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
                         style="float: right;"
