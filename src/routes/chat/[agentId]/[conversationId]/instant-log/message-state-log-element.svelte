@@ -48,7 +48,7 @@
         <div>
             <span><b>{`${data?.name}`}</b></span>
             {#if !!data?.source}
-            <span class="state-source">{`(${data?.source})`}</span>
+            <span class="state-source text-secondary">{`${data?.source}`}</span>
             {/if}
         </div>
     </div>
