@@ -4,6 +4,10 @@
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import MessageStateLogElement from './message-state-log-element.svelte';
 	import AgentQueueLogElement from './agent-queue-log-element.svelte';
+	import ChatAgentInfo from '../agent-info/chat-agent-info.svelte';
+
+    /** @type {import('$types').AgentModel} */
+	export let agent;
 
     /** @type {any[]} */
     export let msgStateLogs = [];
@@ -109,6 +113,11 @@
             </div>
         </div>
         <div class="log-body instant-log-body">
+            <div class="log-list instant-log-section">
+                <div class="chat-agent-info padding-side">
+                    <ChatAgentInfo agent={agent} />
+                </div>
+            </div>
             <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
@@ -129,7 +138,6 @@
                     </ul>
                 </div>
             </div>
-
             <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
                 <div class="close-icon">
                     <span

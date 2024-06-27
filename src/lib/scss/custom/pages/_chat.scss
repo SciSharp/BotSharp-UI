@@ -387,6 +387,15 @@
                     cursor: pointer;
                 }
             }
+
+            .chat-agent-info {
+                .chat-agent-row {
+                    margin: 8px 0px;
+                    color: white;
+                    font-size: 14px;
+                    text-align: center;
+                }
+            }
         }
 
         .instant-log-sec-lg {
@@ -510,7 +519,7 @@
 
                 .log-content {
                     text-align: center;
-                    font-size: 18px;
+                    font-size: 15px;
                     margin-top: 2px;
                     margin-bottom: 2px;
                 }
