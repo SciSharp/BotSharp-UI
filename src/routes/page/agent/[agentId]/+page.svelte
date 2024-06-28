@@ -34,8 +34,13 @@
     const duration = 3000;
     const params = $page.params;
 
-    onMount(async () => {
-        agent = await getAgent(params.agentId);
+    onMount(() => {
+        isLoading = true;
+        getAgent(params.agentId).then(data => {
+            agent = data;
+        }).finally(() => {
+            isLoading = false;
+        });
     });
 
     function updateCurrentAgent() {
