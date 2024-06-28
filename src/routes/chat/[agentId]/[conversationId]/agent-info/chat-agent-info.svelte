@@ -23,7 +23,7 @@
         <div>
             <span>
                 {agent?.profiles?.length || 0} {agent?.profiles?.length > 1 ? 'profiles' : 'profile'}{!!agent?.profiles ? ', ' : ''}
-                {agent?.functions?.length || 0} {agent?.functions?.length > 1 ? 'functions' : 'function'}{!!agent?.functions > 0 ? ', ' : ''}
+                {agent?.functions?.length || 0} {agent?.functions?.length > 1 ? 'functions' : 'function'}{!!agent?.functions ? ', ' : ''}
                 {agent?.templates?.length || 0} {agent?.templates?.length > 1 ? 'templates' : 'template'}
             </span>
         </div>
