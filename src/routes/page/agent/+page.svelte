@@ -1,20 +1,24 @@
 <script>
+	import { onMount } from 'svelte';
 	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import CardAgent from './card-agent.svelte';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
   	import { createAgent, getAgents } from '$lib/services/agent-service.js';
-  	import { onMount } from 'svelte';
+  	import { myInfo } from '$lib/services/auth-service';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
-	import { UserRole } from '$lib/helpers/enums';
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
-	import { myInfo } from '$lib/services/auth-service';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
     import "sweetalert2/src/sweetalert2.scss";
 	
+	
   	const firstPage = 1;
 	const pageSize = 12;
+
+	/** @type {boolean} */
+    let isLoading = false;
 
 	/** @type {import('$types').PagedItems<import('$types').AgentModel>} */
   	let agents = { items: [], count: 0 };
@@ -34,13 +38,20 @@
 	let user;
 
 	onMount(async () => {
-		await getPagedAgents();
 		user = await myInfo();
+		getPagedAgents();
 	});
 
-  	async function getPagedAgents() {
-    	agents = await getAgents(filter);
-		refresh();
+  	function getPagedAgents() {
+		isLoading = true;
+    	getAgents(filter).then(data => {
+			agents = data;
+		}).catch(() => {
+			agents = { items: [], count: 0 };
+		}).finally(() => {
+			refresh();
+			isLoading = false;
+		});
 	}
 
 	function createNewAgent() {
@@ -113,6 +124,7 @@
 
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
+<LoadingToComplete isLoading={isLoading} />
 
 {#if !!user}
 <Button class="mb-4" color="primary" on:click={() => createNewAgent()}>
