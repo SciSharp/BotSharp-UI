@@ -21,9 +21,6 @@
     /** @type {() => void} */
     export let closeWindow;
 
-    /** @type {() => void} */
-    export let cleanScreen;
-
     /** @type {any} */
     let scrollbars = [];
 
@@ -80,11 +77,6 @@
     function cleanLogs() {
         msgStateLogs = [];
         agentQueueLogs = [];
-    }
-
-    function handleCleanScreen() {
-        cleanLogs();
-        cleanScreen && cleanScreen();
     }
 
     /**

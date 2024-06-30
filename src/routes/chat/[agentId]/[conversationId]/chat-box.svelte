@@ -894,7 +894,6 @@
 				agent={agent}
 				autoScroll={autoScrollLog}
 				closeWindow={closeInstantLog}
-				cleanScreen={cleanInstantLogScreen}
 			/>
 		</Pane>
 		{/if}

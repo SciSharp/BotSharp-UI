@@ -389,6 +389,12 @@
             }
 
             .chat-agent-info {
+                overflow-y: scroll;
+                scrollbar-width: none;
+                flex: 0 0 fit-content;
+                height: fit-content;
+                max-height: $log-sec-height-md;
+
                 .chat-agent-row {
                     margin: 8px 0px;
                     color: white;
@@ -488,10 +494,6 @@
                 margin-top: 0px;
                 margin-bottom: 5px;
                 padding-left: 10px;
-
-                .state-key {
-                    // color: var(--bs-primary);
-                }
 
                 .state-source {
                     font-size: 12px;
