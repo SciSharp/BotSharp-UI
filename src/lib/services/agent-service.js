@@ -77,11 +77,11 @@ export async function createAgent(agent) {
 }
 
 /**
- * Get agent tools
+ * Get agent utilities
  * @returns {Promise<string[]>}
  */
-export async function getAgentTools() {
-    const url = endpoints.agentToolsUrl;
+export async function getAgentUtilities() {
+    const url = endpoints.agentUtilitiesUrl;
     const response = await axios.get(url);
     return response.data;
 }

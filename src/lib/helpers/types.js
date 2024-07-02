@@ -122,7 +122,7 @@
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
- * @property {string[]} tools - The agent tools.
+ * @property {string[]} utilities - The agent utilities.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.

@@ -3,7 +3,7 @@
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { onMount } from 'svelte';
-	import { getAgentTools } from '$lib/services/agent-service';
+	import { getAgentUtilities } from '$lib/services/agent-service';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
@@ -12,18 +12,18 @@
     export let profiles = [];
 
     /** @type {string[]} */
-    export let tools = [];
+    export let utilities = [];
 
     /** @type {string[]} */
-    let toolOptions = [];
+    let utilityOptions = [];
 
     const profileLimit = 10;
-    const toolLimit = 10;
+    const utilityLimit = 10;
 
     onMount(() => {
-        getAgentTools().then(data => {
-            const tools = data?.filter(x => x?.trim()?.length > 0) || [];
-            toolOptions = ["", ...tools];
+        getAgentUtilities().then(data => {
+            const list = data?.filter(x => x?.trim()?.length > 0) || [];
+            utilityOptions = ["", ...list];
         });
     });
 
@@ -42,19 +42,19 @@
         agent.profiles = profiles;
     }
 
-    function addTool() {
+    function addUtility() {
         if (!!!agent) return;
 
-        tools = [...tools, ''];
-        agent.tools = tools;
+        utilities = [...utilities, ''];
+        agent.utilities = utilities;
     }
 
     /**
 	 * @param {number} index
 	 */
-    function removeTool(index) {
-        tools = tools.filter((x, idx) => idx !== index);
-        agent.tools = tools;
+    function removeUtility(index) {
+        utilities = utilities.filter((x, idx) => idx !== index);
+        agent.utilities = utilities;
     }
 
     function chatWithAgent() {
@@ -153,14 +153,14 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Tools</th>
+                        <th class="agent-prop-key">Utilities</th>
                         <td>
                             <div class="agent-prop-list-container">
-                                {#each tools as tool, index}
+                                {#each utilities as utility, index}
                                 <div class="edit-wrapper">
-                                    <Input type="select" class="edit-text-box" bind:value={tool}>
-                                        {#each toolOptions as option}
-                                            <option selected={tool === option}>{option}</option>
+                                    <Input type="select" class="edit-text-box" bind:value={utility}>
+                                        {#each utilityOptions as option}
+                                            <option selected={utility === option}>{option}</option>
                                         {/each}
                                     </Input>
                                     <div class="delete-icon">
@@ -169,19 +169,19 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => removeTool(index)}
+                                            on:click={() => removeUtility(index)}
                                         />
                                     </div>
                                 </div>
                                 {/each}
-                                {#if tools?.length < toolLimit}
+                                {#if utilities?.length < utilityLimit}
                                 <div class="list-add">
                                     <i
                                         class="bx bx bx-list-plus"
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
-                                        on:click={() => addTool()}
+                                        on:click={() => addUtility()}
                                     />
                                 </div>
                                 {/if}
