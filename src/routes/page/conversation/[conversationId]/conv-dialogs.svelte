@@ -89,12 +89,10 @@
                                 <p class="fw-bold">
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
                                 </p>
-                                {#if dialog.is_load_images || showInRight(dialog)}
                                 <MessageImageGallery
                                     galleryClasses={'dialog-file-display'}
-                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, FileSourceType.User)}
+                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
                                 />
-                                {/if}
                             </div>
                             {#if dialog.message_id}
                             <div>
