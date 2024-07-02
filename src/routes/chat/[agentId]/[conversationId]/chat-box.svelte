@@ -250,7 +250,6 @@
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 		lastBotMsg = findLastBotMessage(dialogs);
-		assignLoadImageMessages(dialogs);
 		assignMessageDisclaimer(dialogs)
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
@@ -264,24 +263,6 @@
 				scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
 			}, 200);
 		})
-	}
-
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
-	function assignLoadImageMessages(dialogs) {
-		if (!!!dialogs) return;
-
-		for (let idx = 0; idx < dialogs.length; idx++) {
-			const curMsg = dialogs[idx];
-			if (!USER_SENDERS.includes(curMsg?.sender?.role || '')) {
-				continue;
-			}
-
-			const prevMsg = dialogs[idx-1];
-			if (!!!prevMsg || BOT_SENDERS.includes(prevMsg?.sender?.role || '')
-				&& loadFileGallery(prevMsg)) {
-				curMsg.is_load_images = true;
-			}
-		}
 	}
 
 	/** @param {import('$types').ChatResponseModel[]} dialogs */
@@ -1016,12 +997,10 @@
 											{#if !!message.post_action_disclaimer}
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
-											{#if message.is_load_images || USER_SENDERS.includes(message.sender?.role)}
-												<MessageImageGallery
-													galleryStyles={'justify-content: flex-end;'}
-													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
-												/>
-											{/if}
+											<MessageImageGallery
+												galleryStyles={'justify-content: flex-end;'}
+												fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
+											/>
 										</div>
 											{#if !isLite}
 												<Dropdown>
@@ -1045,6 +1024,10 @@
 										</div>
 										<div class="msg-container">
 											<RcMessage message={message} />
+											<MessageImageGallery
+												galleryStyles={'justify-content: flex-start;'}
+												fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
+											/>
 										</div>
 										{/if}
 									</div>
