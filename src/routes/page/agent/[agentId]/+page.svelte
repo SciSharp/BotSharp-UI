@@ -129,7 +129,7 @@
 {#if agent}
 <Row>
     <Col style="flex: 30%;">
-        <AgentOverview agent={agent} profiles={agent.profiles || []} tools={agent.tools || []} />
+        <AgentOverview agent={agent} profiles={agent.profiles || []} utilities={agent.utilities || []} />
         <AgentLlmConfig agent={agent} />
         {#if agent.routing_rules?.length > 0}
             <AgentRouting agent={agent} />
