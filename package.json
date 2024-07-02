@@ -6,6 +6,7 @@
 		"node": ">=18.0.0"
 	},
 	"scripts": {
+		"start": "npm run open-browser && vite",
 		"dev": "npm run open-browser && vite dev",
 		"open-browser": "start http://localhost:5015/",
 		"build": "vite build",
