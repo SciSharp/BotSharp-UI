@@ -13,7 +13,7 @@
             class="text-primary fw-bold"
             on:click={() => directToAgentPage(agent?.id)}
         >
-            <span style="cursor: pointer;">{agent?.name || ''}</span>
+            <span class="clickable">{agent?.name || ''}</span>
         </h3>
     </div>
     <div class="chat-agent-row">
