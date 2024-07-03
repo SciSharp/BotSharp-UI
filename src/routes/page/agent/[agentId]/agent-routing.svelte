@@ -1,15 +1,10 @@
 <script>
 	import CollapsibleCard from "$lib/common/CollapsibleCard.svelte";
+	import { directToAgentPage } from "$lib/helpers/utils/common";
 	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
 
     /** @type {import('$types').AgentModel} */
     export let agent;
-
-    /** @param {string} agentId */
-    function redirectToAgent(agentId) {
-        window.open(`/page/agent/${agentId}`);
-    }
-
 </script>
 
 <Card>
@@ -53,7 +48,7 @@
                                 {#if !!rule.redirectTo}
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td style="cursor: pointer;" on:click={() => redirectToAgent(rule.redirectTo)}>
+                                    <td style="cursor: pointer;" on:click={() => directToAgentPage(rule.redirectTo)}>
                                         {rule.redirect_to_agent || ''}
                                     </td>
                                 </tr>

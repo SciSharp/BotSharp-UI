@@ -4,6 +4,7 @@
     import Markdown from "$lib/common/Markdown.svelte";
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
+	import { directToAgentPage } from '$lib/helpers/utils/common';
 
     /** @type {import('$types').ConversationContentLogModel} */
     export let data;
@@ -33,11 +34,6 @@
         e.preventDefault();
         is_collapsed = !is_collapsed;
     }
-
-    /** @param {string} agentId */
-    function directToAgentDetailPage(agentId) {
-        window.open(`/page/agent/${agentId}`);
-    }
 </script>
 
 <div class="log-element rounded" style="padding: 3px;" id={`content-log-${data.message_id}`}>
@@ -46,7 +42,7 @@
             {#if data?.name?.length > 0}
             <span class="h4">
                 {#if data?.agent_id?.length > 0}
-                <Link class="text-white" on:click={() => directToAgentDetailPage(data.agent_id)}>
+                <Link class="text-white" on:click={() => directToAgentPage(data.agent_id)}>
                     {data.name}
                 </Link>
                 {:else}
