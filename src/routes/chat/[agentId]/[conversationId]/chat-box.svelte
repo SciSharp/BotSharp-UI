@@ -312,21 +312,30 @@
 
 	/** @param {import('$types').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
-		dialogs.push(message);
+		dialogs.push({
+			...message,
+			is_chat_message: true
+		});
 		refresh();
 		text = "";
     }
 
     /** @param {import('$types').ChatResponseModel} message */
     function onMessageReceivedFromCsr(message) {
-		dialogs.push(message);
+		dialogs.push({
+			...message,
+			is_chat_message: true
+		});
 		refresh();
     }
 
     /** @param {import('$types').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
 		// webSpeech.utter(message.text);
-		dialogs.push(message);
+		dialogs.push({
+			...message,
+			is_chat_message: true
+		});
 		refresh();
     }
 
@@ -997,10 +1006,12 @@
 											{#if !!message.post_action_disclaimer}
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
-											<MessageImageGallery
-												galleryStyles={'justify-content: flex-end;'}
-												fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
-											/>
+											{#if !!message.is_chat_message || !!message.has_message_files}
+												<MessageImageGallery
+													galleryStyles={'justify-content: flex-end;'}
+													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
+												/>
+											{/if}
 										</div>
 											{#if !isLite}
 												<Dropdown>
@@ -1024,10 +1035,12 @@
 										</div>
 										<div class="msg-container">
 											<RcMessage message={message} />
-											<MessageImageGallery
-												galleryStyles={'justify-content: flex-start;'}
-												fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
-											/>
+											{#if !!message.is_chat_message || !!message.has_message_files}
+												<MessageImageGallery
+													galleryStyles={'justify-content: flex-start;'}
+													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
+												/>
+											{/if}
 										</div>
 										{/if}
 									</div>

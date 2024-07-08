@@ -70,18 +70,23 @@
 	};
 
     onMount(async () => {
-		await loadAgentOptions();
-		loadSearchOption();
-		loadConversations();
+		isLoading = true;
+		Promise.all([
+			loadAgentOptions(),
+			loadSearchOption(),
+			loadConversations()])
+		.finally(() => {
+			isLoading = false
+		});
     });
 
 	function loadConversations() {
-		isLoading = true;
-		getPagedConversations().then(res => {
-			isLoading = false;
-		}).catch(error => {
-			isLoading = false;
-			isError = true;
+		return new Promise((resolve, reject) => {
+			getPagedConversations().then(res => {
+				resolve(res);
+			}).catch((error) => {
+				reject(error);
+			});
 		});
 	}
 
@@ -90,14 +95,21 @@
 		refresh();
 	}
 
-	async function loadAgentOptions() {
-		const agents = await getAgents({ pager: { page: 1, size: 100, count: 0 } });
-		agentOptions = agents?.items?.map(x => {
-			return {
-				id: x.id,
-				name: x.name
-			};
-		})?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+	function loadAgentOptions() {
+		return new Promise((resolve, reject) => {
+			getAgents({ pager: { page: 1, size: 100, count: 0 } }).then(res => {
+				agentOptions = res?.items?.map(x => {
+					return {
+						id: x.id,
+						name: x.name
+					};
+				})?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+				resolve(agentOptions);
+			}).catch((error) => {
+				agentOptions = [];
+				reject(error);
+			});
+		});
 	}
 
 	function refresh() {
@@ -209,13 +221,16 @@
 	}
 
 	function loadSearchOption() {
-		const savedOption = conversationSearchOptionStore.get();
-		searchOption = {
-			...searchOption,
-			...savedOption
-		};
-		refreshFilter();
-		handleSearchStates();
+		return new Promise((resolve, reject) => {
+			const savedOption = conversationSearchOptionStore.get();
+			searchOption = {
+				...searchOption,
+				...savedOption
+			};
+			refreshFilter();
+			handleSearchStates();
+			resolve(searchOption);
+		});
 	}
 
 	function refreshFilter() {
