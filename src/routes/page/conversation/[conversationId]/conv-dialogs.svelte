@@ -19,26 +19,7 @@
 
     onMount(async () => {
         dialogs = await GetDialogs(conversation.id);
-        loadMessageImages(dialogs);
     });
-
-    /** @param {import('$types').ChatResponseModel[]} dialogs */
-    function loadMessageImages(dialogs) {
-        if (!!!dialogs) return;
-
-        for (let idx = 0; idx < dialogs.length; idx++) {
-            const curMsg = dialogs[idx];
-            if (!USER_SENDERS.includes(curMsg?.sender?.role || '')) {
-                continue;
-            }
-
-            const prevMsg = dialogs[idx-1];
-            if (!!!prevMsg || BOT_SENDERS.includes(prevMsg?.sender?.role || '')
-                && loadFileGallery(prevMsg)) {
-                curMsg.is_load_images = true;
-            }
-        }
-    }
 
     /** 
      * @param {import('$types').ChatResponseModel} dialog
@@ -89,10 +70,12 @@
                                 <p class="fw-bold">
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
                                 </p>
-                                <MessageImageGallery
-                                    galleryClasses={'dialog-file-display'}
-                                    fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
-                                />
+                                {#if !!dialog.has_message_files}
+                                    <MessageImageGallery
+                                        galleryClasses={'dialog-file-display'}
+                                        fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
+                                    />
+                                {/if}
                             </div>
                             {#if dialog.message_id}
                             <div>
