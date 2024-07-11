@@ -23,7 +23,7 @@
             console.log("login as existing account.");
         } else if($page.url.searchParams.has('token')) {
             let token = $page.url.searchParams.get('token');
-            setToken(token);
+            await setToken(token);
         } else {
             await getToken("guest@gmail.com", "123456", () => {
                 console.log("login as guest.");

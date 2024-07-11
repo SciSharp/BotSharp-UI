@@ -44,9 +44,10 @@ export async function getToken(email, password, onSucceed, onError) {
  * Set token from exteranl
  * @param {string} token
  */
-export function setToken(token) {
+export async function setToken(token) {
     let user = getUserStore();
     user.token = token;
+    userStore.set(user);
 }
 
 /**
