@@ -318,6 +318,8 @@ IRichContent.prototype.quick_replies;
  * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
  * @property {Date} created_at - The message sent time.
+ * @property {boolean} has_message_files
+ * @property {boolean} is_chat_message
  */
 
 /**
