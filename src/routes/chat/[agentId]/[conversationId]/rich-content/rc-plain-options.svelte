@@ -47,7 +47,7 @@
 
     /** @param {any[]} options */
     function collectOptions(options) {
-        const innerOptions = options?.filter(op => !!op.title && !!op.payload) || [];
+        const innerOptions = options?.filter(op => !!op.title) || [];
 
         videoOptions = innerOptions?.filter(op => op.type == ElementType.Video);
         fileOption = innerOptions?.find(op => op.type == ElementType.File);
@@ -78,7 +78,9 @@
                     op.isClicked = !op.isClicked;
                     if (op.isClicked) {
                         titleAnswers = [...titleAnswers, op.title];
-                        payloadAnswers = [...payloadAnswers, op.payload];
+                        if (!!op.payload) {
+                            payloadAnswers = [...payloadAnswers, op.payload];
+                        }
                     } else {
                         const targetIdx = titleAnswers.findIndex(a => a == op.title);
                         titleAnswers = titleAnswers.filter((x, index) => index != targetIdx);

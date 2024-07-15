@@ -28,7 +28,7 @@
     function collectOptions(options) {
         cards = options?.filter(op => !!op.title || !!op.subtitle)?.map(op => {
             // @ts-ignore
-            const options = op.buttons?.filter(x => !!x.title && !!x.payload)?.map(x => {
+            const options = op.buttons?.filter(x => !!x.title)?.map(x => {
                 return {
                     title: x.title,
                     payload: x.payload,
@@ -46,7 +46,7 @@
 
         buttons = options?.filter(op => !!!op.title && !!!op.subtitle)?.flatMap(op => {
             // @ts-ignore
-            return op.buttons?.filter(x => !!x.title && !!x.payload)?.map(x => {
+            return op.buttons?.filter(x => !!x.title)?.map(x => {
                 return {
                     title: x.title,
                     payload: x.payload,
