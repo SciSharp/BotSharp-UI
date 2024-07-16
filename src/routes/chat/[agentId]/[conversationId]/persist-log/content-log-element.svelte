@@ -11,6 +11,7 @@
 
     let logDisplayStyle = '';
     let is_collapsed = true;
+    const unknownAgent = "Uknown";
     const includedSources = [
         ContentLogSource.Prompt
     ];
@@ -39,19 +40,17 @@
 <div class="log-element rounded" style="padding: 3px;" id={`content-log-${data.message_id}`}>
     <div class="log-meta text-secondary">
         <div>
-            {#if data?.name?.length > 0}
             <span class="h4">
-                {#if data?.agent_id?.length > 0}
+            {#if data?.agent_id?.length > 0}
                 <Link class="text-white" on:click={() => directToAgentPage(data.agent_id)}>
-                    {data.name}
+                    {data.name || unknownAgent}
                 </Link>
-                {:else}
+            {:else}
                 <span class="text-white">
-                    {data.name}
+                    {data.name || unknownAgent}
                 </span>
-                {/if}
-            </span>
             {/if}
+            </span>
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>        
     </div>
