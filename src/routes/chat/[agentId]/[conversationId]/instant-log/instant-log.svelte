@@ -105,11 +105,13 @@
             </div>
         </div>
         <div class="log-body instant-log-body">
+            {#if !!agent}
             <div class="log-list instant-log-section">
                 <div class="chat-agent-info padding-side">
                     <ChatAgentInfo agent={agent} />
                 </div>
             </div>
+            {/if}
             <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
