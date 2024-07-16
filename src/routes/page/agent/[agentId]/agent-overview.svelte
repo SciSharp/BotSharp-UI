@@ -1,8 +1,9 @@
 <script>
+    import { onMount } from 'svelte';
     import { Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
-	import { onMount } from 'svelte';
+	import { AgentType } from '$lib/helpers/enums';
 	import { getAgentUtilities } from '$lib/services/agent-service';
 
     /** @type {import('$types').AgentModel} */
@@ -89,10 +90,16 @@
                     <tr>
                         <th class="agent-prop-key">Type</th>
                         <td>
-                            {#if agent.is_router}
+                            {#if agent.type == AgentType.Routing}
                                 Routing Agent
-                            {:else}
+                            {:else if agent.type == AgentType.Evaluating}
+                                Evaluation Agent
+                            {:else if agent.type == AgentType.Static}
+                                Static Agent
+                            {:else if agent.type == AgentType.Task}
                                 Task Agent
+                            {:else}
+                                Unkown
                             {/if}
                         </td>
                     </tr>

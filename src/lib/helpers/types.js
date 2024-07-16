@@ -118,7 +118,6 @@
  * @property {boolean} disabled
  * @property {boolean} is_public
  * @property {boolean} is_host
- * @property {boolean} is_router
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
