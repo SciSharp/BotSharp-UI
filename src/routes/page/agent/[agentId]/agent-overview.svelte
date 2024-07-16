@@ -1,10 +1,10 @@
 <script>
+    import { onMount } from 'svelte';
     import { Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
-	import { onMount } from 'svelte';
-	import { getAgentUtilities } from '$lib/services/agent-service';
 	import { AgentType } from '$lib/helpers/enums';
+	import { getAgentUtilities } from '$lib/services/agent-service';
 
     /** @type {import('$types').AgentModel} */
     export let agent;
