@@ -58,3 +58,11 @@ const fileSourceType = {
     Bot: 'bot'
 };
 export const FileSourceType = Object.freeze(fileSourceType);
+
+const agentType = {
+    Routing: 'routing',
+    Task: 'task',
+    Static: 'static',
+    Evaluating: 'evaluating'
+};
+export const AgentType = Object.freeze(agentType);
