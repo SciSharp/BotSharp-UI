@@ -61,7 +61,8 @@ function skipLoader(config) {
 
     const getRegexes = [
         new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g')
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g')
     ];
 
     if (config.method === 'post' && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
