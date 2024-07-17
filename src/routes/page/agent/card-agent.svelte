@@ -3,6 +3,7 @@
   import { Badge, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
   import { format } from '$lib/helpers/datetime';
   import { _ } from 'svelte-i18n';
+	import { LERNER_ID } from "$lib/helpers/constants";
 
   /** @type {import('$types').AgentModel[]} */
   export let agents;
@@ -72,7 +73,7 @@
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1">
-            <Link href="page/agent/{agent.id}/train" class="btn btn-primary btn-sm" target="_blank" disabled>
+            <Link href={`/chat/${LERNER_ID}`} class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-book-open" /> {$_('Train')}
             </Link>
           </li>

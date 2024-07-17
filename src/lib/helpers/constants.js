@@ -22,3 +22,6 @@ export const TEXT_EDITORS = [
 export const FILE_EDITORS = [
     EditorType.File
 ];
+
+export const LERNER_ID = "01acc3e5-0af7-49e6-ad7a-a760bd12dc40";
+export const TRAINING_MODE = "training";

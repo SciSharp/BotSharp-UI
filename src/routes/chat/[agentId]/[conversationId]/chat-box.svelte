@@ -25,7 +25,7 @@
 	import { onMount, setContext, tick } from 'svelte';
 	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
-	import { BOT_SENDERS, TEXT_EDITORS, USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -130,6 +130,9 @@
 	let autoScrollLog = false;
 	let disableAction = false;
 
+	/** @type {string} */
+	let mode = '';
+
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
@@ -184,6 +187,7 @@
 
 	function initChatView() {
 		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		mode = $page.url.searchParams.get('mode') || '';
 		// initial condition
 		isPersistLogClosed = false;
 		isInstantLogClosed = false;
@@ -394,6 +398,9 @@
 		window.location.href = url;
 	}
 
+	function handleSaveKnowledge() {
+		sendChatMessage("Save knowledge");
+	}
 
     /**
 	 * @param {string} msgText
@@ -952,14 +959,17 @@
 													</Dropdown>
 												</li>
 												{/if}
-												<DropdownItem on:click={handleNewConversation}>New Conversation</DropdownItem>
+												<DropdownItem on:click={() => handleNewConversation()}>New Conversation</DropdownItem>
+												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
+												<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
+												{/if}
 											</DropdownMenu>
 										</Dropdown>
 									</li>
 									
 									<li class="list-inline-item d-md-inline-block">
 										<button
-											class="btn btn-primary btn-rounded btn-sm chat-send waves-effect waves-light"
+											class={`btn btn-rounded btn-sm chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 											disabled={disableAction}
 											on:click={() => endChat()}
 										>
@@ -1087,7 +1097,7 @@
 							<div class="col-auto">
 								<button
 									type="submit"
-									class="btn btn-primary btn-rounded waves-effect waves-light"
+									class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 									disabled={isSendingMsg || isThinking || disableAction}
 									on:click={startListen}
 								>
@@ -1114,7 +1124,7 @@
 							<div class="col-auto">
 								<button
 									type="submit"
-									class="btn btn-primary btn-rounded chat-send waves-effect waves-light"
+									class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking || disableAction}
 									on:click={() => sentTextMessage()}
 								><span class="d-none d-md-inline-block me-2">Send</span>
