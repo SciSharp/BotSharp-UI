@@ -42,7 +42,7 @@
                     <Col sm="8">
                         {#if showHomeImage}
                         <div class="maintenance-img" transition:fade={{ delay: 300, duration: 500 }}>
-                        <img src={PUBLIC_HOME_IMAGE} alt="" style="width: 25vw;" />
+                        <img src={PUBLIC_HOME_IMAGE} alt="" style="max-width: 25vw;" />
                         </div>
                         {/if}
                     </Col>

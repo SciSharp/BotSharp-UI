@@ -1026,7 +1026,7 @@
 												</Dropdown>
 											{/if}
 										{:else}
-										<div class="cicon-wrap">
+										<div class="cicon-wrap align-content-end">
 											{#if message.sender.role == UserRole.Client}
 												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
 											{:else}

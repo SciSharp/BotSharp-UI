@@ -19,11 +19,12 @@
 
     onMount(async () => {
         let user = getUserStore();
-        if (user.token) {
-            console.log("login as existing account.");
-        } else if($page.url.searchParams.has('token')) {
+        if ($page.url.searchParams.has('token')) {
             let token = $page.url.searchParams.get('token');
+            console.log("login as explicit token in query.");
             await setToken(token);
+        } else if (user.token) {
+            console.log("login as existing account.");
         } else {
             await getToken("guest@gmail.com", "123456", () => {
                 console.log("login as guest.");
