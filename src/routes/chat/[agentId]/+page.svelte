@@ -8,6 +8,7 @@
     import { getToken, setToken } from '$lib/services/auth-service.js'
     import { getUserStore } from '$lib/helpers/store.js';
     import { conversationStore, getConversationStore } from '$lib/helpers/store.js';
+	import { LERNER_ID, TRAINING_MODE } from '$lib/helpers/constants';
 
     const params = $page.params;
     
@@ -40,10 +41,21 @@
 
         conversationId = conversation.id;
         let chatUrl = `chat/${agentId}/${conversationId}`;
+        let query = "";
+
+        if (agentId === LERNER_ID) {
+            query += `mode=${TRAINING_MODE}`;
+        }
+
         const isFrame = $page.url.searchParams.get('isFrame');
         if (isFrame === 'true') {
-            chatUrl = `${chatUrl}?isFrame=true`
+            query += "isFrame=true";
         }
+
+        if (!!query) {
+            chatUrl = `${chatUrl}?${query}`;
+        }
+
         window.location.href = chatUrl;
     });
 </script>
