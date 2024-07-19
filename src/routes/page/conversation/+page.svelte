@@ -336,9 +336,9 @@
 	validateKey={true}
 	validateValue={false}
 	bind:states={searchOption.states}
-	toggleModal={toggleSearchStateModal}
-	confirm={handleConfirmStateModal}
-	cancel={toggleSearchStateModal}
+	toggleModal={() => toggleSearchStateModal()}
+	confirm={() => handleConfirmStateModal()}
+	cancel={() => toggleSearchStateModal()}
 />
 
 <Row>
@@ -410,7 +410,7 @@
 				</Row>
 				{#if searchStateStrs?.length > 0}
 					{#each searchStateStrs as str, idx (idx)}
-					<Label index={idx} text={str} onClose={handleCloseLabel} />
+					<Label index={idx} text={str} onClose={(index) => handleCloseLabel(index)} />
 					{/each}
 				{/if}
 			</CardBody>
@@ -464,7 +464,7 @@
 						</tbody>
 					</Table>
 				</div>
-				<TablePagination pagination={pager} pageTo={pageTo} />
+				<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
 			</CardBody>
 		</Card>
 	</Col>

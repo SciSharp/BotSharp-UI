@@ -863,9 +863,9 @@
 	title={'Edit message'}
 	size={'md'}
 	isOpen={isOpenEditMsgModal}
-	toggleModal={toggleEditMsgModal}
-	confirm={confirmEditMsg}
-	cancel={toggleEditMsgModal}
+	toggleModal={() => toggleEditMsgModal()}
+	confirm={() => confirmEditMsg()}
+	cancel={() => toggleEditMsgModal()}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="3" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
@@ -875,9 +875,9 @@
 	isOpen={isOpenUserAddStateModal}
 	bind:states={userAddStates}
 	requireActiveRounds
-	toggleModal={toggleUserAddStateModal}
-	confirm={handleConfirmUserAddStates}
-	cancel={toggleUserAddStateModal}
+	toggleModal={() => toggleUserAddStateModal()}
+	confirm={() => handleConfirmUserAddStates()}
+	cancel={() => toggleUserAddStateModal()}
 />
 
 <HeadTitle title="Chat" addOn='' />
@@ -890,7 +890,7 @@
 				bind:agentQueueLogs={agentQueueLogs}
 				agent={agent}
 				autoScroll={autoScrollLog}
-				closeWindow={closeInstantLog}
+				closeWindow={() => closeInstantLog()}
 			/>
 		</Pane>
 		{/if}
@@ -1086,7 +1086,7 @@
 								<RichContent
 									message={lastBotMsg}
 									disabled={isSendingMsg || isThinking}
-									onConfirm={confirmSelectedOption}
+									onConfirm={(title, payload) => confirmSelectedOption(title, payload)}
 								/>
 							{/if}
 						</div>
@@ -1142,8 +1142,8 @@
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
 				autoScroll={autoScrollLog}
-				closeWindow={closePersistLog}
-				cleanScreen={cleanPersistLogScreen}
+				closeWindow={() => closePersistLog()}
+				cleanScreen={() => cleanPersistLogScreen()}
 			/>
 		</Pane>
 		{/if}
