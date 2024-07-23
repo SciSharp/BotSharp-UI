@@ -782,7 +782,7 @@
 	/** @param {string} messageId */
 	function highlightChatMessage(messageId) {
 		const targets = document.querySelectorAll('.user-msg');
-		const style = ['bg-primary', 'text-white'];
+		const style = ['bg-danger', 'text-white'];
 		targets.forEach(elm => {
 			if (elm.id === `user-msg-${messageId}`) {
 				elm.classList.add(...style);
@@ -996,22 +996,22 @@
 										{#if USER_SENDERS.includes(message.sender?.role)}
 										<div class="msg-container">
 											<div
-												class="ctext-wrap user-msg"
-												class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
-												id={`user-msg-${message.message_id}`}
 												tabindex="0"
 												aria-label="user-msg-to-log"
 												role="link"
 												on:keydown={() => {}}
 												on:click={() => directToLog(message.message_id)}
 											>
-												<div>
-													<div class="text-start fw-bold text-secondary">{@html replaceNewLine(message.text)}</div>
-													<p class="chat-time mb-0">
-														<i class="bx bx-time-five align-middle me-1" />
-														{utcToLocal(message.created_at, 'hh:mm A')}
-													</p>
+												<div class="ctext-wrap user-msg" 
+													class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
+													id={`user-msg-${message.message_id}`}
+												>
+													<div class="text-start fw-bold">{@html replaceNewLine(message.text)}</div>
 												</div>
+												<p class="chat-time mb-0 float-end">
+													<i class="bx bx-time-five align-middle me-1" />
+													{utcToLocal(message.created_at, 'hh:mm A')}
+												</p>
 											</div>
 											{#if !!message.post_action_disclaimer}
 												<RcDisclaimer content={message.post_action_disclaimer} />
