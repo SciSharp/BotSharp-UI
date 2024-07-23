@@ -17,6 +17,6 @@
 	}
 </script>
 
-<span class="markdown-container">
+<span class="markdown-container text-white">
 	{@html displayText}
 </span>

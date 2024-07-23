@@ -1006,7 +1006,7 @@
 												on:click={() => directToLog(message.message_id)}
 											>
 												<div>
-													<div class="text-start">{@html replaceNewLine(message.text)}</div>
+													<div class="text-start fw-bold text-secondary">{@html replaceNewLine(message.text)}</div>
 													<p class="chat-time mb-0">
 														<i class="bx bx-time-five align-middle me-1" />
 														{utcToLocal(message.created_at, 'hh:mm A')}
