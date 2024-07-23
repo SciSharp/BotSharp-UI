@@ -1038,9 +1038,9 @@
 										{:else}
 										<div class="cicon-wrap align-content-end">
 											{#if message.sender.role == UserRole.Client}
-												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-xs" alt="avatar">
+												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -30px;" alt="avatar">
 											{:else}
-												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -30px;" alt="avatar">
 											{/if}
 										</div>
 										<div class="msg-container">
