@@ -37,7 +37,6 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
-	import { loadFileGallery } from '$lib/helpers/utils/gallery';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -46,10 +45,10 @@
 	import ChatImageGallery from './chat-image/chat-image-gallery.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	import _ from "lodash";
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Swal from 'sweetalert2/dist/sweetalert2.js';
 	import "sweetalert2/src/sweetalert2.scss";
+	import _ from "lodash";
 	import moment from 'moment';
 	
 	const options = {
@@ -89,6 +88,8 @@
 
 	/** @type {import('$types').ChatResponseModel?} */
 	let lastBotMsg;
+	/** @type {import('$types').ChatResponseModel?} */
+	let lastMsg;
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -100,6 +101,9 @@
 
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let convStateLogs = [];
+
+	/** @type {import('$types').ConversationStateLogModel} */
+	let latestStateLog;
 
 	/** @type {import('$types').MessageStateLogModel[]} */
 	let msgStateLogs = [];
@@ -254,6 +258,7 @@
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
 		lastBotMsg = findLastBotMessage(dialogs);
+		lastMsg = dialogs.slice(-1)[0];
 		assignMessageDisclaimer(dialogs)
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
@@ -354,6 +359,7 @@
 	function onConversationStateLogGenerated(log) {
 		if (!isLoadPersistLog) return;
 
+		latestStateLog = log;
 		convStateLogs.push({ ...log });
 		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
@@ -603,11 +609,6 @@
 		msgStateLogs = [];
 		agentQueueLogs = [];
 		isInstantLogClosed = true;
-	}
-
-	function cleanInstantLogScreen() {
-		msgStateLogs = [];
-		agentQueueLogs = [];
 	}
 
 	function toggleUserAddStateModal() {
@@ -888,6 +889,7 @@
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
+				latestStateLog={latestStateLog?.message_id === lastMsg?.message_id ? latestStateLog : null}
 				agent={agent}
 				autoScroll={autoScrollLog}
 				closeWindow={() => closeInstantLog()}
@@ -1099,7 +1101,7 @@
 									type="submit"
 									class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 									disabled={isSendingMsg || isThinking || disableAction}
-									on:click={startListen}
+									on:click={() => startListen()}
 								>
 									<i class="mdi mdi-{microphoneIcon} md-36" />
 								</button>
@@ -1127,7 +1129,8 @@
 									class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking || disableAction}
 									on:click={() => sentTextMessage()}
-								><span class="d-none d-md-inline-block me-2">Send</span>
+								>
+									<span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send" />
 								</button>
 							</div>
@@ -1141,6 +1144,7 @@
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
+				bind:lastestStateLog={latestStateLog}
 				autoScroll={autoScrollLog}
 				closeWindow={() => closePersistLog()}
 				cleanScreen={() => cleanPersistLogScreen()}

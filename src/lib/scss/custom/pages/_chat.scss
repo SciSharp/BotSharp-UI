@@ -379,6 +379,13 @@
             display: flex;
             flex-direction: column;
 
+            .latest-state-log {
+                padding: 8px;
+                .root {
+                    display: none;
+                }
+            }
+
             .close-icon {
                 font-size: 20px;
                 color: red;
@@ -409,6 +416,12 @@
             flex: 0 0 $log-sec-height-lg;
             height: $log-sec-height-lg;
             min-height: $log-sec-height-lg;
+        }
+
+        .instant-log-sec-md {
+            flex: 0 0 $log-sec-height-md;
+            height: $log-sec-height-md;
+            min-height: $log-sec-height-md;
         }
 
         .instant-log-sec-sm {

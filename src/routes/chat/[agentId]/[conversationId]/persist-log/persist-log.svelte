@@ -18,6 +18,9 @@
     /** @type {import('$types').ConversationStateLogModel[]} */
     export let convStateLogs = [];
 
+    /** @type {import('$types').ConversationStateLogModel?} */
+    export let lastestStateLog = null;
+
     /** @type {boolean} */
     export let autoScroll = false;
 
@@ -48,6 +51,7 @@
         const conversationId = $page.params.conversationId;
         contentLogs = await GetContentLogs(conversationId);
         convStateLogs = await GetStateLogs(conversationId);
+        lastestStateLog = convStateLogs.slice(-1)[0];
 
         const scrollbarElements = [
             document.querySelector('.content-log-scrollbar'),
@@ -92,7 +96,6 @@
         cleanLogs();
         cleanScreen && cleanScreen();
     }
-
     
     /** @param {number} tab */
     function handleTabClick(tab) {
