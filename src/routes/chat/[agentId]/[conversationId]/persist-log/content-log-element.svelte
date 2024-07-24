@@ -14,7 +14,8 @@
     let is_collapsed = true;
     const unknownAgent = "Uknown";
     const includedSources = [
-        ContentLogSource.Prompt
+        ContentLogSource.Prompt,
+        ContentLogSource.AgentResponse
     ];
 
     $: {
@@ -59,16 +60,17 @@
     <div
         class={`rounded log-content ${logDisplayStyle}`}
         style="padding: 5px 8px;"
-        class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}
     >
-        <Markdown containerClasses={logTextStyle} text={data?.content} />
-    </div>
+        <div class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
+            <Markdown containerClasses={logTextStyle} text={data?.content} />
+        </div>
 
-    {#if includedSources.includes(data.source)}
-    <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
-        {`${is_collapsed ? 'More +' : 'Less -'}`}
-    </Button>
-    {/if}
+        {#if includedSources.includes(data.source)}
+        <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
+            {`${is_collapsed ? 'More +' : 'Less -'}`}
+        </Button>
+        {/if}
+    </div>
 
     {#if data.message_id && data.source === ContentLogSource.UserInput}
     <div style="margin-top: 10px;">

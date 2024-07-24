@@ -117,13 +117,6 @@
                 </div>
             </div>
             {/if}
-            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!latestStateLog}>
-                <div class="latest-state-log-scrollbar latest-state-log">
-                    <div>
-                        <LatestStateLog data={latestStateLog} />
-                    </div>
-                </div>
-            </div>
             <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
                 <div class="close-icon">
                     <span
@@ -162,6 +155,13 @@
                             <MessageStateLogElement data={log} />
                         {/each}
                     </ul>
+                </div>
+            </div>
+            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!latestStateLog}>
+                <div class="latest-state-log-scrollbar latest-state-log">
+                    <div>
+                        <LatestStateLog data={latestStateLog} />
+                    </div>
                 </div>
             </div>
         </div>

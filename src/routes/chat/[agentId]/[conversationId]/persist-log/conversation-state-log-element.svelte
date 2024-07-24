@@ -7,7 +7,11 @@
 
 <div class="log-element state-log-item" id={`state-log-${data.message_id}`}>
     <div class="log-content">
-        <JSONTree value={data?.states || {}} />
+        <JSONTree
+            value={data?.states || {}}
+            --json-tree-property-color="white"
+            --json-tree-string-color="var(--bs-info)"
+        />
     </div>
     {#if data.message_id}
     <div style="margin-top: 10px;">
