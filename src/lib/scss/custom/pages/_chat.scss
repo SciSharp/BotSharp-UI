@@ -223,7 +223,7 @@
             .dropdown-menu {
                 box-shadow: $box-shadow;
                 border: 1px solid var(--#{$prefix}border-color);
-                top: 50% !important;
+                top: 10px !important;
             }
         }
 
@@ -369,15 +369,22 @@
         display: flex;
         flex-direction: column;
         gap: 20px;
+        padding: 0px 20px;
         overflow-y: scroll;
         scrollbar-width: none;
 
         .instant-log-section {
             border-radius: 10px;
             border: 1px solid var(--bs-secondary);
-            margin: 0px 60px;
             display: flex;
             flex-direction: column;
+
+            .latest-state-log {
+                padding: 8px;
+                .root {
+                    display: none;
+                }
+            }
 
             .close-icon {
                 font-size: 20px;
@@ -409,6 +416,12 @@
             flex: 0 0 $log-sec-height-lg;
             height: $log-sec-height-lg;
             min-height: $log-sec-height-lg;
+        }
+
+        .instant-log-sec-md {
+            flex: 0 0 $log-sec-height-md;
+            height: $log-sec-height-md;
+            min-height: $log-sec-height-md;
         }
 
         .instant-log-sec-sm {
@@ -467,10 +480,10 @@
 
                 .log-collapse {
                     overflow-y: hidden;
-                    height: 10%;
+                    height: 200px;
                     display: -webkit-box;
                     -webkit-box-orient: vertical;
-                    -webkit-line-clamp: 5;
+                    -webkit-line-clamp: 10;
                 }
                 
                 .divider {
@@ -533,7 +546,6 @@
 
                 .log-content {
                     span {
-                        color: white;
                         font-size: 16px;
                     }
                 }

@@ -5,6 +5,7 @@
 	import MessageStateLogElement from './message-state-log-element.svelte';
 	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 	import ChatAgentInfo from '../agent-info/chat-agent-info.svelte';
+	import LatestStateLog from './latest-state-log.svelte';
 
     /** @type {import('$types').AgentModel} */
 	export let agent;
@@ -14,6 +15,9 @@
 
     /** @type {any[]} */
     export let agentQueueLogs = [];
+
+    /** @type {import('$types').ConversationStateLogModel?} */
+    export let latestStateLog = null;
 
     /** @type {boolean} */
     export let autoScroll = false;
@@ -41,6 +45,7 @@
 
     onMount(async () => {
         const scrollbarElements = [
+            document.querySelector('.latest-state-log-scrollbar'),
             document.querySelector('.msg-state-log-scrollbar'),
             document.querySelector('.agent-queue-log-scrollbar')
         ].filter(Boolean);
@@ -150,6 +155,13 @@
                             <MessageStateLogElement data={log} />
                         {/each}
                     </ul>
+                </div>
+            </div>
+            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!latestStateLog}>
+                <div class="latest-state-log-scrollbar latest-state-log">
+                    <div>
+                        <LatestStateLog data={latestStateLog} />
+                    </div>
                 </div>
             </div>
         </div>
