@@ -10,6 +10,7 @@
     export let data;
 
     let logDisplayStyle = '';
+    let logTextStyle = '';
     let is_collapsed = true;
     const unknownAgent = "Uknown";
     const includedSources = [
@@ -18,7 +19,8 @@
 
     $: {
         if (data.source === ContentLogSource.AgentResponse) {
-            logDisplayStyle = 'bg-info';
+            logDisplayStyle = 'border border-secondary';
+            logTextStyle = 'text-info';
         } else if (data.source === ContentLogSource.FunctionCall) {
             logDisplayStyle = 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
@@ -59,7 +61,7 @@
         style="padding: 5px 8px;"
         class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}
     >
-        <Markdown text={data?.content} />
+        <Markdown containerClasses={logTextStyle} text={data?.content} />
     </div>
 
     {#if includedSources.includes(data.source)}

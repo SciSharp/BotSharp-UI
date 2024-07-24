@@ -5,6 +5,9 @@
     /** @type {string} */
 	export let text;
 
+	/** @type {string} */
+	export let containerClasses = "";
+
     let displayText = '';
 	$: {
 		const markedText = replaceNewLine(marked(replaceMarkdown(text || ''))?.toString());
@@ -17,6 +20,6 @@
 	}
 </script>
 
-<span class="markdown-container text-white">
+<span class={`markdown-container ${containerClasses || 'text-white'}`}>
 	{@html displayText}
 </span>
