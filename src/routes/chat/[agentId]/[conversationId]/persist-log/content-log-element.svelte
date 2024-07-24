@@ -20,7 +20,7 @@
     $: {
         if (data.source === ContentLogSource.AgentResponse) {
             logDisplayStyle = 'border border-secondary';
-            logTextStyle = 'text-info';
+            logTextStyle = 'text-primary';
         } else if (data.source === ContentLogSource.FunctionCall) {
             logDisplayStyle = 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
