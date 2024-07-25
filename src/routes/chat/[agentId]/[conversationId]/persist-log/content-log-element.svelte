@@ -45,11 +45,11 @@
         <div>
             <span class="h4">
             {#if data?.agent_id?.length > 0}
-                <Link class="btn btn-outline-secondary mb-1" on:click={() => directToAgentPage(data.agent_id)}>
+                <Link class="text-white text-decoration-underline" on:click={() => directToAgentPage(data.agent_id)}>
                     {data.name || unknownAgent}
                 </Link>
             {:else}
-                <span class="btn btn-outline-secondary mb-1">
+                <span class="text-white">
                     {data.name || unknownAgent}
                 </span>
             {/if}
