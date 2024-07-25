@@ -768,6 +768,7 @@
 
 			targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
 			convStateLogs = convStateLogs.filter((x, idx) => idx < targetIdx);
+			latestStateLog = convStateLogs.slice(-1)[0];
 		}
 	}
 

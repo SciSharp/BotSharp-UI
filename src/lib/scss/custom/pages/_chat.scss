@@ -480,7 +480,9 @@
 
                 .log-collapse {
                     overflow-y: hidden;
-                    height: 200px;
+                    height: fit-content;
+                    min-height: 100px;
+                    max-height: 200px;
                     display: -webkit-box;
                     -webkit-box-orient: vertical;
                     -webkit-line-clamp: 10;
