@@ -65,6 +65,7 @@
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
+	const maxTextLength = 4096;
 	
 	/** @type {string} */
 	let text = "";
@@ -870,7 +871,7 @@
 	cancel={() => toggleEditMsgModal()}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
-	<textarea class="form-control chat-input" rows="3" maxlength={500} bind:value={editText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="3" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
 </DialogModal>
 
 <StateModal
@@ -1111,7 +1112,7 @@
 								<div class="position-relative">
 									<ChatTextArea
 										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
-										maxLength={4096}
+										maxLength={maxTextLength}
 										bind:text={text}
 										disabled={isSendingMsg || isThinking || disableAction}
 										editor={lastBotMsg?.rich_content?.editor || ''}
