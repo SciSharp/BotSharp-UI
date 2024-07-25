@@ -157,7 +157,7 @@
                     </ul>
                 </div>
             </div>
-            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!latestStateLog}>
+            <div class="log-list instant-log-section instant-log-sec-md" class:hide={!latestStateLog}>
                 <div class="latest-state-log-scrollbar latest-state-log">
                     <div>
                         <LatestStateLog data={latestStateLog} />
