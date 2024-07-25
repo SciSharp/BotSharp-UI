@@ -2,6 +2,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
+    import { fade } from 'svelte/transition';
 	import MessageStateLogElement from './message-state-log-element.svelte';
 	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 	import ChatAgentInfo from '../agent-info/chat-agent-info.svelte';
@@ -19,9 +20,6 @@
     /** @type {import('$types').ConversationStateLogModel?} */
     export let latestStateLog = null;
 
-    /** @type {boolean} */
-    export let autoScroll = false;
-
     /** @type {() => void} */
     export let closeWindow;
 
@@ -30,6 +28,9 @@
 
     const msgStateLogTab = 1;
     const agentQueueLogTab = 2;
+    const duration = 500;
+    const inDuration = 500;
+    const outDuration = 50;
 
     const options = {
 		scrollbars: {
@@ -43,18 +44,6 @@
 		}
 	};
 
-    onMount(async () => {
-        const scrollbarElements = [
-            document.querySelector('.latest-state-log-scrollbar'),
-            document.querySelector('.msg-state-log-scrollbar'),
-            document.querySelector('.agent-queue-log-scrollbar')
-        ].filter(Boolean);
-        scrollbarElements.forEach(elem => {
-            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
-        });
-		scrollToBottom();
-	});
-
     afterUpdate(() => {
         refresh();
     });
@@ -64,12 +53,19 @@
     });
 
     function refresh() {
-        if (autoScroll) {
-            scrollToBottom();
-        }
+        scrollToBottom();
     }
 
     function scrollToBottom() {
+        const scrollbarElements = [
+            document.querySelector('.latest-state-log-scrollbar'),
+            document.querySelector('.msg-state-log-scrollbar'),
+            document.querySelector('.agent-queue-log-scrollbar')
+        ].filter(Boolean);
+        scrollbarElements.forEach(elem => {
+            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
+        });
+
         // @ts-ignore
         scrollbars.forEach(scrollbar => {
             setTimeout(() => {
@@ -82,6 +78,7 @@
     function cleanLogs() {
         msgStateLogs = [];
         agentQueueLogs = [];
+        latestStateLog = null;
     }
 
     /**
@@ -111,13 +108,22 @@
         </div>
         <div class="log-body instant-log-body">
             {#if !!agent}
-            <div class="log-list instant-log-section">
+            <div
+                class="log-list instant-log-section"
+                transition:fade={{ duration: duration }}
+            >
                 <div class="chat-agent-info padding-side">
                     <ChatAgentInfo agent={agent} />
                 </div>
             </div>
             {/if}
-            <div class="log-list instant-log-section instant-log-sec-sm" class:hide={!!!agentQueueLogs || agentQueueLogs?.length === 0}>
+
+            {#if !!agentQueueLogs && agentQueueLogs?.length > 0}
+            <div
+                class="log-list instant-log-section instant-log-sec-sm"
+                in:fade={{ duration: inDuration }}
+                out:fade={{ duration: outDuration }}
+            >
                 <div class="close-icon">
                     <span
                         style="float: right;"
@@ -137,7 +143,14 @@
                     </ul>
                 </div>
             </div>
-            <div class="log-list instant-log-section instant-log-sec-lg" class:hide={!!!msgStateLogs || msgStateLogs?.length === 0}>
+            {/if}
+
+            {#if !!msgStateLogs && msgStateLogs?.length > 0}
+            <div
+                class="log-list instant-log-section instant-log-sec-lg"
+                in:fade={{ duration: inDuration }}
+                out:fade={{ duration: outDuration }}
+            >
                 <div class="close-icon">
                     <span
                         style="float: right;"
@@ -157,13 +170,20 @@
                     </ul>
                 </div>
             </div>
-            <div class="log-list instant-log-section instant-log-sec-md" class:hide={!latestStateLog}>
+            {/if}
+            {#if latestStateLog}
+            <div
+                class="log-list instant-log-section instant-log-sec-md"
+                in:fade={{ duration: inDuration }}
+                out:fade={{ duration: outDuration }}
+            >
                 <div class="latest-state-log-scrollbar latest-state-log">
                     <div>
                         <LatestStateLog data={latestStateLog} />
                     </div>
                 </div>
             </div>
+            {/if}
         </div>
         
         <div class="log-footer"></div>
