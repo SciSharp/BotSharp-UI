@@ -871,7 +871,7 @@
 	cancel={() => toggleEditMsgModal()}
 	disableConfirmBtn={!!!_.trim(editText)}
 >
-	<textarea class="form-control chat-input" rows="3" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="5" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
 </DialogModal>
 
 <StateModal
@@ -938,13 +938,6 @@
 															States
 														</DropdownToggle>
 														<DropdownMenu>
-															<!-- {#if !isLoadInstantLog}
-															<DropdownItem
-																on:click={() => toggleInstantLog()}
-															>
-																View States
-															</DropdownItem>
-															{/if} -->
 															{#if !isOpenUserAddStateModal}
 															<DropdownItem
 																disabled={disableAction}

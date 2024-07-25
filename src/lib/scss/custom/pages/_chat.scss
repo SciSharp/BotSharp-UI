@@ -306,6 +306,7 @@
     border-color: var(--#{$prefix}light) !important;
     resize: none;
     padding-right: 1rem;
+    scrollbar-width: none;
 }
 
 .chat-uploader {
@@ -381,9 +382,6 @@
 
             .latest-state-log {
                 padding: 8px;
-                .root {
-                    display: none;
-                }
             }
 
             .close-icon {
