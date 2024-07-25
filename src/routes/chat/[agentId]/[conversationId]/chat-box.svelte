@@ -103,7 +103,7 @@
 	/** @type {import('$types').ConversationStateLogModel[]} */
 	let convStateLogs = [];
 
-	/** @type {import('$types').ConversationStateLogModel} */
+	/** @type {import('$types').ConversationStateLogModel?} */
 	let latestStateLog;
 
 	/** @type {import('$types').MessageStateLogModel[]} */
@@ -416,7 +416,7 @@
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
 		autoScrollLog = true;
-		clearEventLogs();
+		clearInstantLogs();		
 		renewUserSentMessages(msgText);
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		/** @type {import('$types').MessageData?} */
@@ -711,7 +711,7 @@
 	/** @param {string} messageId */
 	async function handleDeleteMessage(messageId) {
 		isSendingMsg = true;
-		clearEventLogs();
+		clearInstantLogs();
 		resetStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
 		isSendingMsg = false;
@@ -849,9 +849,10 @@
 		window.open($page.url.pathname);
 	}
 
-	function clearEventLogs() {
+	function clearInstantLogs() {
 		msgStateLogs = [];
 		agentQueueLogs = [];
+		latestStateLog = null;
 	}
 
 	function resetStorage() {
@@ -893,7 +894,6 @@
 				bind:agentQueueLogs={agentQueueLogs}
 				latestStateLog={latestStateLog?.message_id === lastMsg?.message_id ? latestStateLog : null}
 				agent={agent}
-				autoScroll={autoScrollLog}
 				closeWindow={() => closeInstantLog()}
 			/>
 		</Pane>
