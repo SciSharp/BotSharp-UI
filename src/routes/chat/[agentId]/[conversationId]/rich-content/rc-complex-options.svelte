@@ -40,6 +40,7 @@
             return {
                 title: op.title,
                 subtitle: op.subtitle,
+                image_url: op.image_url,
                 options: options
             };
         }) || [];
@@ -87,6 +88,13 @@
             <CardBody class="card-element-body">
                 {#if !!card.title}
                     <div class="card-element-title hide-text">{card.title}</div>
+                {/if}
+                {#if !!card.image_url}
+                    <div class="avatar-md">
+                        <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
+                            <img src={card.image_url} alt="" height="60" class="rounded-circle">
+                        </span>
+                    </div>
                 {/if}
                 {#if !!card.subtitle}
                     <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
