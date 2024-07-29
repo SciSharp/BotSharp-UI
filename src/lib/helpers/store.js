@@ -133,20 +133,20 @@ export const conversationUserMessageStore = createConversationUserMessageStore()
 
 
 const createConversationUserAttachmentStore = () => {
+    let data = { accepted_files: [] };
     const { subscribe, set } = writable({ accepted_files: [] });
 
     return {
         reset: () => {
-            localStorage.removeItem(conversationUserAttachmentKey);
-            set({ accepted_files: [] });
+            data = { accepted_files: [] };
+            set({ ...data });
         },
         get: () => {
-            const json = localStorage.getItem(conversationUserAttachmentKey);
-            return json ? JSON.parse(json) : {};
+            return data;
         },
         put: (value) => {
-            localStorage.setItem(conversationUserAttachmentKey, JSON.stringify(value));
-            set(value);
+            data = { ...value };
+            set(data);
         },
         subscribe
     }
