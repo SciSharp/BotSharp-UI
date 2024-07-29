@@ -1,7 +1,7 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, onDestroy } from 'svelte';
     import { fade } from 'svelte/transition';
 	import MessageStateLogElement from './message-state-log-element.svelte';
 	import AgentQueueLogElement from './agent-queue-log-element.svelte';
@@ -28,9 +28,9 @@
 
     const msgStateLogTab = 1;
     const agentQueueLogTab = 2;
-    const duration = 500;
-    const inDuration = 500;
-    const outDuration = 50;
+    const duration = 800;
+    const inDuration = 800;
+    const outDuration = 80;
 
     const options = {
 		scrollbars: {
