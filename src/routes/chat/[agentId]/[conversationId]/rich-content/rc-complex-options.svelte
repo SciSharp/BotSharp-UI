@@ -1,5 +1,6 @@
 <script>
     import { getContext, onMount } from "svelte";
+    import { fade } from 'svelte/transition';
 	import { Card, CardBody } from "@sveltestrap/sveltestrap";
     
     /** @type {boolean} */
@@ -15,6 +16,8 @@
     let cards = [];
     /** @type {any[]} */
     let buttons = [];
+
+    const duration = 1000;
 
     const { autoScrollToBottom }  = getContext('chat-window-context');
 
@@ -81,48 +84,51 @@
     }
 </script>
 
-{#if cards.length > 0}
+{#if cards}
     <div class="complex-option-container">
         {#each cards as card, idx (idx)}
-        <Card class="card-element">
-            <CardBody class="card-element-body">
-                {#if !!card.title}
-                    <div class="card-element-title hide-text">{card.title}</div>
-                {/if}
-                {#if !!card.image_url}
-                    <div class="avatar-md">
-                        <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-                            <img src={card.image_url} alt="" height="60" class="rounded-circle">
-                        </span>
-                    </div>
-                {/if}
-                {#if !!card.subtitle}
-                    <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
-                {/if}
-                {#if card.options?.length > 0}
-                    <div class="card-option-group">
-                        {#each card.options as option, i (i)}
-                            <button
-                                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                disabled={disabled}
-                                on:click={(e) => handleClickOption(e, option)}
-                            >
-                                {option.title}
-                            </button>
-                        {/each}
-                    </div>
-                {/if}
-            </CardBody>
-        </Card>
+            <div class="card-element" in:fade={{ duration: duration }}>
+                <Card>
+                    <CardBody class="card-element-body">
+                        {#if !!card.title}
+                            <div class="card-element-title hide-text">{card.title}</div>
+                        {/if}
+                        {#if !!card.image_url}
+                            <div class="avatar-md">
+                                <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
+                                    <img src={card.image_url} alt="" height="60" class="rounded-circle">
+                                </span>
+                            </div>
+                        {/if}
+                        {#if !!card.subtitle}
+                            <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
+                        {/if}
+                        {#if card.options?.length > 0}
+                            <div class="card-option-group">
+                                {#each card.options as option, i (i)}
+                                    <button
+                                        class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                                        disabled={disabled}
+                                        on:click={(e) => handleClickOption(e, option)}
+                                    >
+                                        {option.title}
+                                    </button>
+                                {/each}
+                            </div>
+                        {/if}
+                    </CardBody>
+                </Card>
+            </div>
         {/each}
     </div>
 {/if}
 
-{#if buttons.length > 0}
+{#if buttons}
     <div class="plain-option-container center-option" style="margin-top: 5px;">
         {#each buttons as option, index}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                in:fade={{ duration: duration }}
                 disabled={disabled}
                 on:click={(e) => handleClickOption(e, option)}
             >

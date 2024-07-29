@@ -1,5 +1,6 @@
 <script>
 	import { getContext, onMount } from "svelte";
+    import { fade } from 'svelte/transition';
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
@@ -20,6 +21,7 @@
     /** @type {string} */
     export let confirmBtnText = 'Continue';
 
+    const duration = 1000;
     const separator = '|';
     const specialElementTypes = [
         ElementType.Video,
@@ -50,7 +52,7 @@
         const innerOptions = options?.filter(op => !!op.title) || [];
 
         videoOptions = innerOptions?.filter(op => op.type == ElementType.Video);
-        fileOption = innerOptions?.find(op => op.type == ElementType.File);
+        fileOption = options?.find(op => op.type == ElementType.File);
         plainOptions = innerOptions?.filter(op => !specialElementTypes.includes(op.type))?.map(op => {
             return {
                 title: op.title,
@@ -120,11 +122,11 @@
 
 </script>
 
-{#if videoOptions.length > 0}
-<div>
-    <div class="video-option-container center-option">
-        {#each videoOptions as video, index}
-            <Card class="video-element-card">
+{#if videoOptions}
+<div class="video-option-container center-option">
+    {#each videoOptions as video, index}
+        <div class="video-element-card" in:fade={{ duration: duration }}>
+            <Card>
                 <CardBody>
                     <div class="video-element-title">
                         {video.title}
@@ -134,36 +136,38 @@
                     </div>
                 </CardBody>
             </Card>
-        {/each}
-    </div>
+        </div>
+    {/each}
 </div>
 {/if}
 
-{#if plainOptions.length > 0 || !!fileOption}
+{#if plainOptions || fileOption}
 <div class="plain-option-container center-option">
     {#each plainOptions as option, index}
         <button
             class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             class:active={!!option.isClicked}
             disabled={disabled}
+            in:fade={{ duration: duration }}
             on:click={(e) => handleClickOption(e, option, index)}
         >
             {option.title}
         </button>
     {/each}
-    {#if isMultiSelect}
+    {#if plainOptions && isMultiSelect}
         <button
             class="btn btn-outline-success btn-sm m-1"
             name="confirm"
+            in:fade={{ duration: duration }}
             disabled={disabled || plainOptions.every(x => !!!x.isClicked)}
             on:click={(e) => handleConfirm(e)}
         >
             {confirmBtnText || 'Continue'}
         </button>
     {/if}
-    {#if !!fileOption}
+    {#if fileOption}
         <ChatImageUploader>
-            <span style="position: relative; top: 3px;">
+            <span style="position: relative; top: 3px;" in:fade={{ duration: duration }}>
                 <i class="bx bx-image-add" />
             </span>
         </ChatImageUploader>
