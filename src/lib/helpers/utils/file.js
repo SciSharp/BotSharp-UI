@@ -181,8 +181,14 @@ export function getBase64(file) {
 }
 
 export const PDF_ICON = 'images/icons/pdf_icon.jpg';
+export const EXCEL_ICON = 'images/icons/excel_icon.png';
 
 /** @param {string | undefined} file */
 export function isPdf(file) {
   return file?.endsWith('pdf') || false;
+}
+
+/** @param {string | undefined} file */
+export function isExcel(file) {
+  return file?.endsWith('csv') || file?.endsWith('xls') || file?.endsWith('xlsx') || false;
 }
