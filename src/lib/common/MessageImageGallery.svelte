@@ -21,9 +21,10 @@
             fetchFiles().then(data => {
                 // @ts-ignore
                 files = data?.filter(item => !!item.file_url)?.map(item => {
+                    const isExternalUrl = /^(https?:\/\/)/.test(item.file_url);
                     return {
                         ...item,
-                        file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
+                        file_data: isExternalUrl ? item.file_url : `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
                     };
                 }) || [];
             });
