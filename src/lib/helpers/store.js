@@ -133,20 +133,15 @@ export const conversationUserMessageStore = createConversationUserMessageStore()
 
 
 const createConversationUserAttachmentStore = () => {
-    let data = { accepted_files: [] };
     const { subscribe, set } = writable({ accepted_files: [] });
 
     return {
         reset: () => {
-            data = { accepted_files: [] };
+            const data = { accepted_files: [] };
             set({ ...data });
         },
-        get: () => {
-            return data;
-        },
         put: (value) => {
-            data = { ...value };
-            set(data);
+            set(value);
         },
         subscribe
     }

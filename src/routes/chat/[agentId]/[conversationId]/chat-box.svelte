@@ -315,8 +315,7 @@
 	}
 
 	function getChatFiles() {
-		const attachments = conversationUserAttachmentStore.get();
-		return attachments?.accepted_files || [];
+		return $conversationUserAttachmentStore?.accepted_files || [];
 	}
 
 
