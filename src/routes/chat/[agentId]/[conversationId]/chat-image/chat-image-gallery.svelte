@@ -39,6 +39,6 @@
         files={files}
         disabled={disabled}
         needDelete
-        onDelete={deleteFile}
+        onDelete={(index) => deleteFile(index)}
     />
 </div>

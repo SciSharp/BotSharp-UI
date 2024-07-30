@@ -20,7 +20,7 @@
     let fileUploadLimit = 0;
 
     const fileUpperLimit = 5;
-    const accept = "image/*,.pdf,.xlsx,.xls,.csv";
+    const accept = "image/*,.pdf,.xlsx,.xls,.csv,.wav,.mp3";
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
         const savedAttachments = $conversationUserAttachmentStore;

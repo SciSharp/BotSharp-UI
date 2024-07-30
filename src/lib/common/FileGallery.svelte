@@ -1,5 +1,5 @@
 <script>
-	import { EXCEL_ICON, PDF_ICON, isExcel, isPdf } from '$lib/helpers/utils/file';
+	import { AUDIO_ICON, EXCEL_ICON, PDF_ICON, isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
     import { LightboxGallery, GalleryThumbnail, GalleryImage } from 'svelte-lightbox';
 
     /** @type {any[]} */
@@ -61,6 +61,8 @@
                                 <img class="gallery-item-image" src={PDF_ICON} alt={''}>
                             {:else if isExcel(file.file_type || file.file_name)}
                                 <img class="gallery-item-image" src={EXCEL_ICON} alt={''}>
+                            {:else if isAudio(file.file_type || file.file_name)}
+                                <img class="gallery-item-image" src={AUDIO_ICON} alt={''}>
                             {:else}
                                 <img class="gallery-item-image" src={file.file_data} alt={''}>
                             {/if}
@@ -76,6 +78,8 @@
                     <img src={PDF_ICON} alt={''} />
                 {:else if isExcel(file.file_type || file.file_name)}
                     <img src={EXCEL_ICON} alt={''} />
+                {:else if isAudio(file.file_type || file.file_name)}
+                    <img src={AUDIO_ICON} alt={''} />
                 {:else}
                     <img src={file.file_data} alt={''} />
                 {/if}
