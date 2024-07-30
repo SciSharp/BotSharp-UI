@@ -12,8 +12,8 @@
     const { autoScrollToBottom }  = getContext('chat-window-context');
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
-        const savedAttachments = conversationUserAttachmentStore.get();
-        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments.accepted_files || [];
+        const savedAttachments = $conversationUserAttachmentStore;
+        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
     });
 
     afterUpdate(() => {
