@@ -5,10 +5,9 @@
     import { utcToLocal } from '$lib/helpers/datetime';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
-	import { BOT_SENDERS, USER_SENDERS } from '$lib/helpers/constants';
+	import { USER_SENDERS } from '$lib/helpers/constants';
 	import Markdown from '$lib/common/Markdown.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
-	import { loadFileGallery } from '$lib/helpers/utils/gallery';
 	import { FileSourceType } from '$lib/helpers/enums';
 
     /** @type {import('$types').ChatResponseModel[]} */

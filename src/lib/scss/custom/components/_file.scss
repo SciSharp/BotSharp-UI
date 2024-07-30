@@ -84,9 +84,28 @@ $file-screen-max-width: 500px;
     justify-content: flex-start;
 }
 
+.audio-gallery-list {
+    margin: 5px 0px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: flex-start;
+    width: inherit;
+
+    .aplayer {
+        margin: 0 !important;
+        width: 100%;
+    }
+}
+
 .dialog-file-display {
     .gallery-item {
         width: $attachment-width-lite;
         height: $attachment-height-lite;
+    }
+
+    .aplayer {
+        margin: 0 !important;
+        width: 80%;
     }
 }
