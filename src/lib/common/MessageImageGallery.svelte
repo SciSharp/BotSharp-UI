@@ -3,7 +3,7 @@
 	import FileGallery from '$lib/common/FileGallery.svelte';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { userStore } from '$lib/helpers/store';
-
+	
     /** @type {string} */
     export let galleryClasses = '';
 
@@ -20,21 +20,21 @@
         if (fetchFiles != null && fetchFiles != undefined) {
             fetchFiles().then(data => {
                 // @ts-ignore
-                files = data?.filter(item => !!item.file_url)?.map(item => {
+                const validFiles = data?.filter(item => !!item.file_url) || [];
+                // @ts-ignore
+                files = validFiles.map(item => {
                     return {
                         ...item,
                         file_data: `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
                     };
-                }) || [];
+                });
             });
         }
     });
 </script>
 
-<div>
-    <FileGallery
-        containerClasses={galleryClasses}
-        containerStyles={galleryStyles}
-        files={files}
-    />
-</div>
+<FileGallery
+    containerClasses={galleryClasses}
+    containerStyles={galleryStyles}
+    files={files}
+/>
