@@ -137,15 +137,10 @@ const createConversationUserAttachmentStore = () => {
 
     return {
         reset: () => {
-            localStorage.removeItem(conversationUserAttachmentKey);
-            set({ accepted_files: [] });
-        },
-        get: () => {
-            const json = localStorage.getItem(conversationUserAttachmentKey);
-            return json ? JSON.parse(json) : {};
+            const data = { accepted_files: [] };
+            set({ ...data });
         },
         put: (value) => {
-            localStorage.setItem(conversationUserAttachmentKey, JSON.stringify(value));
             set(value);
         },
         subscribe
