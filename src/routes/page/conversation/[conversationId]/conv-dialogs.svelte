@@ -56,18 +56,18 @@
                           : "bx-right-arrow-circle"}
                       />
                     </div>
-                    <div class="d-flex">
-                        <div class="flex-shrink-0 me-3">
+                    <div class="d-flex" style="gap: 10px;">
+                        <div class="flex-shrink-0">
                             <i class={"bx " + (showInRight(dialog) ? "bx-user" : "bx-bot") + " h2 text-primary"}></i>
                         </div>
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1" style="min-width: 200px;">
                             <div>
                                 <span>{dialog.sender?.full_name || dialog.sender?.user_name || 'Unkown'}</span>
                                 <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
                             </div>
                             <div>
                                 <p class="fw-bold">
-                                    <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} />
+                                    <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} containerClasses={'text-primary'} />
                                 </p>
                                 {#if !!dialog.has_message_files}
                                     <MessageImageGallery
