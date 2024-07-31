@@ -1,6 +1,4 @@
 <script>
-  import Aplayer from 'svelte-aplayer/dist/svelte/svelte-aplayer.es.js'
-  import 'svelte-aplayer/dist/svelte/style.css'
   import { AUDIO_ICON } from '$lib/helpers/utils/file';
   import { afterUpdate, onMount } from 'svelte';
 
@@ -38,9 +36,5 @@
 <div
   class="{disableDefaultStyles ? '' : 'audio-gallery-list'} {containerClasses}"
   style={`${containerStyles}`}
-><Aplayer mutex audio={
-  {name:'君の知らない物語',
-  artist: 'supercell',
-  cover: 'https://blog-static.fengkx.top/svelte-aplayer/bakemonogatari-ed.jpg',
-  url: "https://blog-static.fengkx.top/svelte-aplayer/bakemonogatari-ed.mp3"}} />
+>
 </div>
