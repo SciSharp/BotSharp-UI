@@ -20,6 +20,7 @@
     let fileUploadLimit = 0;
 
     const fileUpperLimit = 5;
+    const accept = "image/*,.pdf,.xlsx,.xls,.csv,.wav,.mp3";
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
         const savedAttachments = $conversationUserAttachmentStore;
@@ -38,7 +39,7 @@
     /** @param {any} e */
     async function handleFileDrop(e) {
         const { acceptedFiles } = e.detail;
-        const savedAttachments = $conversationUserAttachmentStore;
+        const savedAttachments = conversationUserAttachmentStore.get();
         const newAttachments = [...savedAttachments.accepted_files || [], ...acceptedFiles];
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
@@ -51,7 +52,7 @@
     <ul class="list-inline mb-0">
         <li class="list-inline-item">
             <FileDropZone
-                accept="image/*,.pdf"
+                accept={accept}
                 disableDefaultStyles
                 noDrag
                 disabled={disableFileDrop}
