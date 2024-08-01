@@ -40,7 +40,7 @@
     async function handleFileDrop(e) {
         const { acceptedFiles } = e.detail;
         const savedAttachments = $conversationUserAttachmentStore;
-        const newAttachments = [...savedAttachments.accepted_files || [], ...acceptedFiles];
+        const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });
