@@ -1,6 +1,7 @@
 <script>
   import { AUDIO_ICON } from '$lib/helpers/utils/file';
   import { afterUpdate, onMount } from 'svelte';
+	import AudioPlayer from './audio-player/AudioPlayer.svelte';
 
   /** @type {any[]} */
   export let files = [];
@@ -33,8 +34,11 @@
 </script>
 
 
+{#if audios?.length > 0}
 <div
   class="{disableDefaultStyles ? '' : 'audio-gallery-list'} {containerClasses}"
   style={`${containerStyles}`}
 >
+  <AudioPlayer mutex audio={audios} />
 </div>
+{/if}
