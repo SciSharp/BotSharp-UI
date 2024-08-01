@@ -43,7 +43,7 @@
     wtBufTime,
   } = useAudioStore(dispatch);
 
-  /** @type {{ name: string, artist?: string, url: string, covrer: string, theme?: string }[]} */
+  /** @type {{ name: string, artist?: string, url: string, cover: string, theme?: string }[]} */
   export let audio;
 
   /** @type {"list" | "random"} */
@@ -169,7 +169,7 @@
       setBufTime();
     });
     player.addEventListener("canplay", () => {
-        setBufTime();
+      setBufTime();
     });
     player.addEventListener("durationchange", () => {
       $duration = player.duration;
@@ -247,9 +247,9 @@
         const randomIdx = Math.floor(audios.length * Math.random());
         let targetIdx = 0;
         if (randomIdx === $playList.playingIndex) {
-            targetIdx = nextIdx;
+          targetIdx = nextIdx;
         } else {
-            targetIdx = randomIdx;
+          targetIdx = randomIdx;
         }
         const promise = buildNextSongPromise(targetIdx);
         promise.then(() => play());
@@ -346,7 +346,7 @@
           viewBox="0 0 16 31"
         >
           <path
-              d="M15.552 15.168q0.448 0.32 0.448 0.832 0 0.448-0.448 0.768l-13.696 8.512q-0.768 0.512-1.312 0.192t-0.544-1.28v-16.448q0-0.96 0.544-1.28t1.312 0.192z"
+            d="M15.552 15.168q0.448 0.32 0.448 0.832 0 0.448-0.448 0.768l-13.696 8.512q-0.768 0.512-1.312 0.192t-0.544-1.28v-16.448q0-0.96 0.544-1.28t1.312 0.192z"
           />
         </svg>
       </div>
