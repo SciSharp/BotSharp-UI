@@ -50,6 +50,7 @@
 	import "sweetalert2/src/sweetalert2.scss";
 	import _ from "lodash";
 	import moment from 'moment';
+	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
 	
 	const options = {
 		scrollbars: {
@@ -432,9 +433,21 @@
 		resetStorage();
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
+			const filePayload = buildFilePayload(files);
 			return new Promise((resolve, reject) => {
 				uploadConversationFiles(params.agentId, params.conversationId, files).then(resMessageId => {
 					messageData = { ...messageData, inputMessageId: resMessageId };
+					if (!!filePayload) {
+						messageData = {
+							...messageData,
+							// @ts-ignore
+							postback: {
+								...postback,
+								payload: `${postback?.payload || msgText || ''} ${filePayload}`
+							}
+						};
+					}
+
 					sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
@@ -447,14 +460,39 @@
 			});
 		} else {
 			return new Promise((resolve, reject) => {
-				sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
-					resolve(res);
-				}).catch(err => {
-					reject(err);
-				}).finally(() => {
-					isSendingMsg = false;
-					autoScrollLog = false;
-				});
+				if (!!messageData?.inputMessageId) {
+					getConversationFiles(params.conversationId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
+						const filePayload = buildFilePayload(retFiles);
+						if (!!filePayload) {
+							messageData = {
+								...messageData,
+								// @ts-ignore
+								postback: {
+									...postback,
+									payload: `${postback?.payload || msgText || ''} ${filePayload}`
+								}
+							};
+						}
+
+						sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+							resolve(res);
+						}).catch(err => {
+							reject(err);
+						}).finally(() => {
+							isSendingMsg = false;
+							autoScrollLog = false;
+						});
+					});
+				} else {
+					sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+						resolve(res);
+					}).catch(err => {
+						reject(err);
+					}).finally(() => {
+						isSendingMsg = false;
+						autoScrollLog = false;
+					});
+				}
 			});
 		}
     }
@@ -556,6 +594,35 @@
 			};
 		}
 		return postback;
+	}
+
+	/**
+	 * @param {any[]} files
+	 */
+	function buildFilePayload(files) {
+		if (!files) return '';
+
+		const excelCount = files.filter(x => isExcel(x.file_type || x.file_name)).length;
+		const pdfCount = files.filter(x => isPdf(x.file_type || x.file_name)).length;
+		const audioCount = files.filter(x => isAudio(x.file_type || x.file_name)).length;
+		const imageCount = files.length - excelCount - pdfCount - audioCount;
+
+		let prefix = 'I uploaded ';
+		let fileStrs = [];
+
+		if (imageCount > 0) {
+			fileStrs.push(`${imageCount} image ${imageCount > 1 ? 'files' : 'file'}`);
+		}
+		if (pdfCount > 0) {
+			fileStrs.push(`${pdfCount} pdf ${pdfCount > 1 ? 'files' : 'file'}`);
+		}
+		if (excelCount > 0) {
+			fileStrs.push(`${excelCount} excel ${excelCount > 1 ? 'files' : 'file'}`);
+		}
+		if (audioCount > 0) {
+			fileStrs.push(`${audioCount} audio ${audioCount > 1 ? 'files' : 'file'}`);
+		}
+		return prefix + fileStrs.join(' and ');
 	}
 
 	function endChat() {
@@ -836,8 +903,10 @@
 		elements.forEach(item => {
 			const scrollElement = document.querySelector(item.wrapperName);
 			if (!!scrollElement && !!item.elm) {
+				// @ts-ignore
 				const logScroll = OverlayScrollbars(scrollElement, options);
 				const { viewport } = logScroll.elements();
+				// @ts-ignore
 				const offsetTop = item.elm.offsetTop;
 				viewport.scrollTo({ top: offsetTop, behavior: 'smooth' });
 			}
