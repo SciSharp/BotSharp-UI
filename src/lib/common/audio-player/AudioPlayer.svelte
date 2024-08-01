@@ -6,7 +6,7 @@
   } from "./store";
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
   import { onDestroy, onMount, createEventDispatcher } from "svelte";
-  import { propsBool, isMobile } from "./utils";
+  import { propsBool } from "./utils";
   import { get_current_component } from "svelte/internal";
 
   import {
@@ -315,7 +315,6 @@
   class="aplayer"
   class:aplayer-withlist={$audioList.length > 1}
   class:aplayer-narrow={mini}
-  class:aplayer-mobile={isMobile}
 >
   <div class="aplayer-body ">
     <!-- svelte-ignore a11y-click-events-have-key-events -->

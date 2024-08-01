@@ -1,4 +1,3 @@
-
 /**
  * @param {number} second
  */
@@ -8,14 +7,6 @@ export function secondToTime(second) {
     const min = Math.floor((second - hour * 3600) / 60);
     const sec = Math.floor(second - hour * 3600 - min * 60);
     return (hour > 0 ? [hour, min, sec] : [min, sec]).map(add0).join(":");
-};
-  
-export const isServer = typeof window === "undefined";
-export const isMobile = !isServer && /mobile/i.test(window.navigator.userAgent);
-export const nameMap = {
-    dragStart: isMobile ? "touchstart" : "mousedown",
-    dragMove: isMobile ? "touchmove" : "mousemove",
-    dragEnd: isMobile ? "touchend" : "mouseup",
 };
 
 /**
