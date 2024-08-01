@@ -16,3 +16,10 @@ export function directToAgentPage(agentId) {
         
     window.open(`/page/agent/${agentId}`);
 }
+
+/** @param {string} url */
+export function isExternalUrl(url) {
+    if (!url) return false;
+
+    return /^(https?:\/\/)/.test(url)
+}

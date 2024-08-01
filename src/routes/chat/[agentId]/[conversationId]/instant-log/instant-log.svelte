@@ -63,6 +63,7 @@
             document.querySelector('.agent-queue-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
+            // @ts-ignore
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
 
