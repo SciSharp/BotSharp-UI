@@ -7,7 +7,7 @@
     import { _ } from 'svelte-i18n'  
 	import { USER_SENDERS } from '$lib/helpers/constants';
 	import Markdown from '$lib/common/Markdown.svelte';
-	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
+	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
 
     /** @type {import('$types').ChatResponseModel[]} */
@@ -70,7 +70,7 @@
                                     <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} containerClasses={'text-primary'} />
                                 </p>
                                 {#if !!dialog.has_message_files}
-                                    <MessageImageGallery
+                                    <MessageFileGallery
                                         galleryClasses={'dialog-file-display'}
                                         fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
                                     />
