@@ -444,7 +444,7 @@
 							// @ts-ignore
 							postback: {
 								...postback,
-								payload: `${postback?.payload || msgText || ''} ${filePayload}`
+								payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
 							}
 						};
 					}
@@ -470,7 +470,7 @@
 								// @ts-ignore
 								postback: {
 									...postback,
-									payload: `${postback?.payload || msgText || ''} ${filePayload}`
+									payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
 								}
 							};
 						}
@@ -623,7 +623,7 @@
 		if (audioCount > 0) {
 			fileStrs.push(`${audioCount} audio ${audioCount > 1 ? 'files' : 'file'}`);
 		}
-		return prefix + fileStrs.join(' and ');
+		return prefix + fileStrs.join(' and ') + '.';
 	}
 
 	function endChat() {
