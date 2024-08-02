@@ -4,7 +4,7 @@
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
-	import ChatImageUploader from "../chat-image/chat-image-uploader.svelte";
+	import ChatImageUploader from "../chat-util/chat-image-uploader.svelte";
 
     /** @type {boolean} */
     export let isMultiSelect = false;

@@ -1,7 +1,7 @@
 <script>
   import {
     initPlayer,
-    instances,
+    stopAll,
     useAudioStore
   } from "./store";
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
@@ -43,7 +43,7 @@
     wtBufTime,
   } = useAudioStore(dispatch);
 
-  /** @type {{ name: string, artist?: string, url: string, cover: string, theme?: string }[]} */
+  /** @type {import('$types').AudioFileModel[]} */
   export let audio;
 
   /** @type {"list" | "random"} */
@@ -218,7 +218,7 @@
 
   const play = () => {
     if (mutex) {
-      instances.forEach((audio) => audio.pause());
+      stopAll();
     }
 
     if (player) {

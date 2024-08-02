@@ -7,7 +7,7 @@ const config = {
 	// preprocess: vitePreprocess(),
 	kit: {
 		alias: {
-			$types: './src/lib/helpers/types.js',
+			$types: './src/lib/helpers/types/types.js'
 		},
 
 		// for static deployment

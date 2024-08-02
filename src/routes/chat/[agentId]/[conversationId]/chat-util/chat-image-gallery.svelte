@@ -6,7 +6,7 @@
     /** @type {boolean} */
     export let disabled = false;
 
-    /** @type {any[]} */
+    /** @type {import('$types').TextFileModel[]} */
     let files = [];
 
     const { autoScrollToBottom }  = getContext('chat-window-context');
@@ -33,12 +33,10 @@
     }
 </script>
 
-<div>
-    <FileGallery
-        containerStyles={'justify-content: center; margin: 5px 10px;'}
-        files={files}
-        disabled={disabled}
-        needDelete
-        onDelete={(index) => deleteFile(index)}
-    />
-</div>
+<FileGallery
+    containerStyles={'justify-content: center; margin: 5px 10px;'}
+    files={files}
+    disabled={disabled}
+    needDelete
+    onDelete={(index) => deleteFile(index)}
+/>

@@ -336,3 +336,13 @@
         transform: rotate(360deg);
     }
 }
+
+
+
+.chat-speaker-container {
+    font-size: 20px;
+    color: var(--bs-primary);
+    span {
+        cursor: pointer;
+    }
+}

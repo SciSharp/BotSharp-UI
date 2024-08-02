@@ -1,8 +1,12 @@
 import { derived, writable } from "svelte/store";
 import { secondToTime } from "./utils";
+import { speechVoices } from "$lib/services/web-speech";
 
 /** @type {HTMLAudioElement[]} */
 export const instances = [];
+
+/** @type {import('$types').SpeechModel[]} */
+export const speechInstances = [];
 
 /**
  * @param {HTMLAudioElement} player
@@ -11,6 +15,28 @@ export const instances = [];
 export function initPlayer(player, dispatch) {
   instances.push(player);
   bindAudioEvent(player, dispatch);
+}
+
+/** @param {import('$types').SpeechModel} speech */
+export function initSpeech(speech) {
+  const foundVoice = speech.synth.getVoices().find(x => speechVoices.includes(x.name));
+  if (foundVoice) {
+    speech.utterThis.voice = foundVoice;
+  }
+
+  speech.utterThis.pitch = 1;
+  speech.utterThis.rate = 1;
+  speech.synth.cancel();
+  speechInstances.push(speech);
+}
+
+export function stopAll() {
+  if (instances?.length > 0) {
+    instances.forEach(player => player.pause());
+  }
+  if (speechInstances?.length > 0) {
+    speechInstances.forEach(sp => sp.stop());
+  }
 }
 
 /**
