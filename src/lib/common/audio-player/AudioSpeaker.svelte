@@ -1,5 +1,5 @@
 <script>
-	import { initSpeech, speechInstances, stopAll } from "$lib/common/audio-player/store";
+	import { initSpeech, stopAll } from "$lib/common/audio-player/store";
 	import { onMount } from "svelte";
 
   /** @type {string} */
