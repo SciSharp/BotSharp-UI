@@ -43,7 +43,7 @@
                         artist: '',
                         url: isExternalUrl(item.file_url) ? item.file_url : `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
                     };
-                });;
+                });
             });
         }
     });
