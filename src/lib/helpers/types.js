@@ -214,6 +214,26 @@
  * @property {Date} created_time - The conversation created time.
  */
 
+
+// File models
+/**
+ * @typedef {Object} TextFileModel
+ * @property {string} file_name - The file name.
+ * @property {string} [file_type] - The file type.
+ * @property {string} file_data - The file data or url.
+ */
+
+/**
+ * @typedef {Object} AudioFileModel
+ * @property {string} name - The audio name.
+ * @property {string} [artist] - The audio author.
+ * @property {string} cover - The audio cover.
+ * @property {string} url - The audio url.
+ * @property {string} [theme] - The audio theme.
+ */
+
+
+
 /**
  * @interface
  * @class

@@ -43,7 +43,7 @@
     wtBufTime,
   } = useAudioStore(dispatch);
 
-  /** @type {{ name: string, artist?: string, url: string, cover: string, theme?: string }[]} */
+  /** @type {import('$types').AudioFileModel[]} */
   export let audio;
 
   /** @type {"list" | "random"} */
