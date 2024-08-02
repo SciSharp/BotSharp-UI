@@ -236,6 +236,7 @@
 // Speech
 /**
  * @typedef {Object} SpeechModel
+ * @property {string} [id]
  * @property {SpeechSynthesis} synth
  * @property {SpeechSynthesisUtterance} utterThis
  * @property {() => void} stop

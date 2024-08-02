@@ -23,10 +23,6 @@ export function initSpeech(speech) {
   if (foundVoice) {
     speech.utterThis.voice = foundVoice;
   }
-
-  speech.utterThis.pitch = 1;
-  speech.utterThis.rate = 1;
-  speech.synth.cancel();
   speechInstances.push(speech);
 }
 

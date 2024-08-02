@@ -1,5 +1,5 @@
 <script>
-	import { initSpeech, stopAll } from "$lib/common/audio-player/store";
+	import { initSpeech, speechInstances, stopAll } from "$lib/common/audio-player/store";
 	import { onMount } from "svelte";
 
   /** @type {string} */
@@ -24,9 +24,14 @@
   let speech;
 
   onMount(() => {
+    const utterThis = new SpeechSynthesisUtterance();
+    utterThis.pitch = 1;
+    utterThis.rate = 1;
+    utterThis.onend = (e) => { stop(); };
+
     speech = {
       synth: window?.speechSynthesis,
-      utterThis: new SpeechSynthesisUtterance(),
+      utterThis: utterThis,
       stop: () => stop()
     };
     initSpeech(speech);
@@ -65,15 +70,12 @@
 <div
   class="{disableDefaultStyles ? '' : 'chat-speaker-container'} {containerClasses}"
   style={`${containerStyles}`}
-  on:click={() => speak()}
 >
-  {#if !speaking}
-    <span>
+  <span on:click={() => speak()}>
+    {#if !speaking}
       <i class="bx bx-volume" />
-    </span>
-  {:else}
-    <span>
+    {:else}
       <i class="bx bx-volume-full" />
-    </span>
-  {/if}
+    {/if}
+  </span>
 </div>
