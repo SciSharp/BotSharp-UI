@@ -15,7 +15,7 @@ const utterThis = new SpeechSynthesisUtterance();
 utterThis.pitch = 1;
 utterThis.rate = 1;
 
-export const speechVoices = [
+export const SPEECH_VOICES = [
     "Microsoft Michelle Online (Natural) - English (United States)",
     "Google US English"
 ];
@@ -45,7 +45,7 @@ function setVoiceSynthesis() {
     if (utterThis.voice == null) {
         const voices = synth.getVoices();
         for (let i = 0; i < voices.length; i++) {
-            if (speechVoices.includes(voices[i].name)) {
+            if (SPEECH_VOICES.includes(voices[i].name)) {
               utterThis.voice = voices[i];
               console.log(voices[i].name);
               break;

@@ -1,6 +1,6 @@
 import { derived, writable } from "svelte/store";
 import { secondToTime } from "./utils";
-import { speechVoices } from "$lib/services/web-speech";
+import { SPEECH_VOICES } from "$lib/services/web-speech";
 
 /** @type {HTMLAudioElement[]} */
 export const instances = [];
@@ -19,14 +19,10 @@ export function initPlayer(player, dispatch) {
 
 /** @param {import('$types').SpeechModel} speech */
 export function initSpeech(speech) {
-  const foundVoice = speech.synth.getVoices().find(x => speechVoices.includes(x.name));
+  const foundVoice = speech.synth.getVoices().find(x => SPEECH_VOICES.includes(x.name));
   if (foundVoice) {
     speech.utterThis.voice = foundVoice;
   }
-
-  speech.utterThis.pitch = 1;
-  speech.utterThis.rate = 1;
-  speech.synth.cancel();
   speechInstances.push(speech);
 }
 
