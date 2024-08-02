@@ -1,7 +1,7 @@
 <script>
   import {
     initPlayer,
-    instances,
+    stopAll,
     useAudioStore
   } from "./store";
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
@@ -218,7 +218,7 @@
 
   const play = () => {
     if (mutex) {
-      instances.forEach((audio) => audio.pause());
+      stopAll();
     }
 
     if (player) {

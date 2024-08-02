@@ -34,15 +34,17 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
 	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
+	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
+	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
 	import { EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
-	import ChatImageUploader from './chat-image/chat-image-uploader.svelte';
-	import ChatImageGallery from './chat-image/chat-image-gallery.svelte';
+	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
+	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
@@ -50,7 +52,6 @@
 	import "sweetalert2/src/sweetalert2.scss";
 	import _ from "lodash";
 	import moment from 'moment';
-	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
 	
 	const options = {
 		scrollbars: {
@@ -1103,13 +1104,14 @@
 										{:else}
 										<div class="cicon-wrap align-content-end">
 											{#if message.sender.role == UserRole.Client}
-												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -30px;" alt="avatar">
+												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 											{:else}
-												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -30px;" alt="avatar">
+												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 											{/if}
 										</div>
 										<div class="msg-container">
 											<RcMessage message={message} />
+											<AudioSpeaker text={message?.rich_content?.message?.text || message?.text} />
 											{#if !!message.is_chat_message || !!message.has_message_files}
 												<MessageImageGallery
 													galleryStyles={'justify-content: flex-start;'}

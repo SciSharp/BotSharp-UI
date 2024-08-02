@@ -233,6 +233,14 @@
  */
 
 
+// Speech
+/**
+ * @typedef {Object} SpeechModel
+ * @property {SpeechSynthesis} synth
+ * @property {SpeechSynthesisUtterance} utterThis
+ * @property {() => void} stop
+ */
+
 
 /**
  * @interface

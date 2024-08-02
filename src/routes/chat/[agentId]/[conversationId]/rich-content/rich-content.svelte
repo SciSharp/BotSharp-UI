@@ -2,7 +2,7 @@
 	import { EditorType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
-	import ChatAttachmentOptions from "../chat-image/chat-attachment-options.svelte";
+	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
 	
     /** @type {import('$types').ChatResponseModel?} */
     export let message;

@@ -5,7 +5,7 @@
 		Row,
 	} from '@sveltestrap/sveltestrap';
 
-    /** @type {import('$lib/helpers/types').Pagination} */    
+    /** @type {import('$types').Pagination} */    
     export let pagination = { page: 1, size: 10, count: 0 };
     /** @type {(pageNum: number) => void} */  
     export let pageTo;

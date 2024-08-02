@@ -20,6 +20,6 @@
   class="{disableDefaultStyles ? '' : 'audio-gallery-list'} {containerClasses}"
   style={`${containerStyles}`}
 >
-  <AudioPlayer mutex audio={audios} />
+  <AudioPlayer audio={audios} />
 </div>
 {/if}

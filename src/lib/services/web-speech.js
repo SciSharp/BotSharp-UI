@@ -1,8 +1,6 @@
 // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API
-const SpeechRecognition =
-  window.SpeechRecognition || window.webkitSpeechRecognition;
-const SpeechRecognitionEvent =
-  window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognitionEvent = window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
 
 const recognition = new SpeechRecognition();
 recognition.continuous = false;
@@ -16,6 +14,11 @@ const synth = window.speechSynthesis;
 const utterThis = new SpeechSynthesisUtterance();
 utterThis.pitch = 1;
 utterThis.rate = 1;
+
+export const speechVoices = [
+    "Microsoft Michelle Online (Natural) - English (United States)",
+    "Google US English"
+];
 
 export const webSpeech = {
       /** @type {import('$types').OnSpeechToTextDetected} */
@@ -31,6 +34,10 @@ export const webSpeech = {
         setVoiceSynthesis();
         utterThis.text = transcript
         synth.speak(utterThis);
+    },
+
+    stop() {
+        synth.cancel();
     }
 }
 
@@ -38,8 +45,7 @@ function setVoiceSynthesis() {
     if (utterThis.voice == null) {
         const voices = synth.getVoices();
         for (let i = 0; i < voices.length; i++) {
-            if (voices[i].name === "Microsoft Michelle Online (Natural) - English (United States)" ||
-                voices[i].name === "Google US English") {
+            if (speechVoices.includes(voices[i].name)) {
               utterThis.voice = voices[i];
               console.log(voices[i].name);
               break;
@@ -48,16 +54,17 @@ function setVoiceSynthesis() {
     }
 }
 
-recognition.onresult = (event) => {
+recognition.onresult = (/** @type {any} */ event) => {
     const text = event.results[0][0].transcript;
     console.log(`Confidence: ${text} ${event.results[0][0].confidence}`);
     webSpeech.onSpeechToTextDetected(text);
 };
 
-recognition.onnomatch = (event) => {
+recognition.onnomatch = (/** @type {any} */ event) => {
     console.log("I didn't recognize that color.");
 };
 
-recognition.onerror = (event) => {
+recognition.onerror = (/** @type {any} */ event) => {
     console.log(`Error occurred in recognition: ${event.error}`);
 };
+
