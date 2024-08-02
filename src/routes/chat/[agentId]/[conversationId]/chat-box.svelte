@@ -42,7 +42,7 @@
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
-	import MessageImageGallery from '$lib/common/MessageImageGallery.svelte';
+	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
 	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
@@ -1083,7 +1083,7 @@
 												<RcDisclaimer content={message.post_action_disclaimer} />
 											{/if}
 											{#if !!message.is_chat_message || !!message.has_message_files}
-												<MessageImageGallery
+												<MessageFileGallery
 													galleryStyles={'justify-content: flex-end;'}
 													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
 												/>
@@ -1113,7 +1113,7 @@
 											<RcMessage message={message} />
 											<AudioSpeaker text={message?.rich_content?.message?.text || message?.text} />
 											{#if !!message.is_chat_message || !!message.has_message_files}
-												<MessageImageGallery
+												<MessageFileGallery
 													galleryStyles={'justify-content: flex-start;'}
 													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
 												/>
