@@ -71,6 +71,7 @@
                                 </p>
                                 {#if !!dialog.has_message_files}
                                     <MessageFileGallery
+                                        messageId={dialog?.message_id}
                                         galleryClasses={'dialog-file-display'}
                                         fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
                                     />

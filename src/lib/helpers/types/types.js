@@ -236,10 +236,16 @@
 // Speech
 /**
  * @typedef {Object} SpeechModel
- * @property {string} [id]
+ * @property {string} id
  * @property {SpeechSynthesis} synth
  * @property {SpeechSynthesisUtterance} utterThis
  * @property {() => void} stop
+ */
+
+/**
+ * @typedef {Object} AudioModel
+ * @property {string} id
+ * @property {HTMLAudioElement} player
  */
 
 

@@ -13,6 +13,9 @@
     /** @type {string} */
     export let galleryStyles = '';
 
+    /** @type {string} */
+    export let messageId;
+
     /** @type {() => Promise<any>} */
     export let fetchFiles = () => Promise.resolve([]);
 
@@ -56,6 +59,7 @@
     files={textFiles}
 />
 <AudioGallery
+    id={messageId}
     containerClasses={galleryClasses}
     containerStyles={galleryStyles}
     audios={audioFiles}

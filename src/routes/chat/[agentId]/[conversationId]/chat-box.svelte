@@ -1084,6 +1084,7 @@
 											{/if}
 											{#if !!message.is_chat_message || !!message.has_message_files}
 												<MessageFileGallery
+													messageId={message?.message_id}
 													galleryStyles={'justify-content: flex-end;'}
 													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
 												/>
@@ -1111,9 +1112,13 @@
 										</div>
 										<div class="msg-container">
 											<RcMessage message={message} />
-											<AudioSpeaker text={message?.rich_content?.message?.text || message?.text} />
+											<AudioSpeaker
+												id={message?.message_id} 
+												text={message?.rich_content?.message?.text || message?.text}
+											/>
 											{#if !!message.is_chat_message || !!message.has_message_files}
 												<MessageFileGallery
+													messageId={message?.message_id}
 													galleryStyles={'justify-content: flex-start;'}
 													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
 												/>

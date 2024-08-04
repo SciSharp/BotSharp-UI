@@ -2,6 +2,7 @@
   import {
     initPlayer,
     stopAll,
+    clearAudioInstantce,
     useAudioStore
   } from "./store";
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
@@ -45,6 +46,9 @@
 
   /** @type {import('$types').AudioFileModel[]} */
   export let audio;
+
+  /** @type {string} */
+  export let id;
 
   /** @type {"list" | "random"} */
   export let order = 'list';
@@ -182,11 +186,12 @@
 
   onDestroy(() => {
     dispatch("destroy");
+    clearAudioInstantce(id);
   });
 
   const init = () => {
     const audioPlayer = document.createElement("audio");
-    initPlayer(audioPlayer, dispatch);
+    initPlayer({ id: id, player: audioPlayer }, dispatch);
     isShowList = !propsBool($$props, "list_folded") && $audioList.length > 1;
     volume = Math.max(volume, 0);
     volume = Math.min(volume, 1);
