@@ -2,19 +2,19 @@ import { derived, writable } from "svelte/store";
 import { secondToTime } from "./utils";
 import { SPEECH_VOICES } from "$lib/services/web-speech";
 
-/** @type {HTMLAudioElement[]} */
-export const instances = [];
+/** @type {import('$types').AudioModel[]} */
+export const audioInstances = [];
 
 /** @type {import('$types').SpeechModel[]} */
 export const speechInstances = [];
 
 /**
- * @param {HTMLAudioElement} player
+ * @param {import('$types').AudioModel} audio
  * @param {(name: string, detail?: any) => void} dispatch
  */
-export function initPlayer(player, dispatch) {
-  instances.push(player);
-  bindAudioEvent(player, dispatch);
+export function initPlayer(audio, dispatch) {
+  audioInstances.push(audio);
+  bindAudioEvent(audio.player, dispatch);
 }
 
 /** @param {import('$types').SpeechModel} speech */
@@ -26,9 +26,31 @@ export function initSpeech(speech) {
   speechInstances.push(speech);
 }
 
+/** @param {string} id */
+export function clearAudioInstantce(id) {
+  const foundIdx = audioInstances.findIndex(x => x.id === id);
+  if (foundIdx > -1) {
+    if (!audioInstances[foundIdx].player?.paused) {
+      audioInstances[foundIdx].player?.pause();
+    }
+    audioInstances.splice(foundIdx, 1);
+  }
+}
+
+/** @param {string} id */
+export function clearSpeakerInstantce(id) {
+  const foundIdx = speechInstances.findIndex(x => x.id === id);
+  if (foundIdx > -1) {
+    if (speechInstances[foundIdx].isSpeaking()) {
+      speechInstances[foundIdx].stop();
+    }
+    speechInstances.splice(foundIdx, 1);
+  }
+}
+
 export function stopAll() {
-  if (instances?.length > 0) {
-    instances.forEach(player => player.pause());
+  if (audioInstances?.length > 0) {
+    audioInstances.forEach(audio => audio.player?.pause());
   }
   if (speechInstances?.length > 0) {
     speechInstances.forEach(sp => sp.stop());

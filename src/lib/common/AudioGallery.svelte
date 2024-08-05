@@ -5,6 +5,9 @@
   export let audios = [];
 
   /** @type {string} */
+  export let id;
+
+  /** @type {string} */
   export let containerClasses = "";
 
   /** @type {string} */
@@ -20,6 +23,6 @@
   class="{disableDefaultStyles ? '' : 'audio-gallery-list'} {containerClasses}"
   style={`${containerStyles}`}
 >
-  <AudioPlayer audio={audios} />
+  <AudioPlayer id={id} audio={audios} />
 </div>
 {/if}

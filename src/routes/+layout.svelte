@@ -17,6 +17,7 @@
 	 */
 	let isLoading;
 	onMount(() => {
+		window?.speechSynthesis?.cancel();
 		const subscribe = loaderStore.subscribe(value => {
 			isLoading = value;
 		});

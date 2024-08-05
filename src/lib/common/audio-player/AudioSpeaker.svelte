@@ -1,9 +1,12 @@
 <script>
-	import { initSpeech, stopAll } from "$lib/common/audio-player/store";
-	import { onMount } from "svelte";
+	import { initSpeech, stopAll, clearSpeakerInstantce } from "$lib/common/audio-player/store";
+	import { onMount, onDestroy } from "svelte";
 
   /** @type {string} */
   export let text;
+
+  /** @type {string} */
+  export let id;
 
   /** @type {boolean} */
   export let mutex = true;
@@ -30,9 +33,11 @@
     utterThis.onend = (e) => { stop(); };
 
     speech = {
+      id: id,
       synth: window?.speechSynthesis,
       utterThis: utterThis,
-      stop: () => stop()
+      stop: () => stop(),
+      isSpeaking: () => isSpeaking()
     };
     initSpeech(speech);
   });
@@ -59,10 +64,18 @@
 
   const stop = () => {
     speaking = false;
-    if (speech?.synth) {
+    if (speech?.synth && speech.synth.speaking) {
       speech.synth.cancel();
     }
   }
+
+  const isSpeaking = () => {
+    return speaking;
+  }
+
+  onDestroy(() => {
+    clearSpeakerInstantce(id);
+  });
 </script>
 
 <!-- svelte-ignore a11y-click-events-have-key-events -->
