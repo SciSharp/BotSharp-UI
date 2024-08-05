@@ -240,6 +240,7 @@
  * @property {SpeechSynthesis} synth
  * @property {SpeechSynthesisUtterance} utterThis
  * @property {() => void} stop
+ * @property {() => boolean} isSpeaking
  */
 
 /**

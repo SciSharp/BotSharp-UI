@@ -36,7 +36,8 @@
       id: id,
       synth: window?.speechSynthesis,
       utterThis: utterThis,
-      stop: () => stop()
+      stop: () => stop(),
+      isSpeaking: () => isSpeaking()
     };
     initSpeech(speech);
   });
@@ -68,8 +69,11 @@
     }
   }
 
+  const isSpeaking = () => {
+    return speaking;
+  }
+
   onDestroy(() => {
-    console.log('inside audio speaker ondestroy ', id);
     clearSpeakerInstantce(id);
   });
 </script>

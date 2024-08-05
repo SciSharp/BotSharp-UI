@@ -28,17 +28,23 @@ export function initSpeech(speech) {
 
 /** @param {string} id */
 export function clearAudioInstantce(id) {
-  const foundAudioIdx = audioInstances.findIndex(x => x.id === id);
-  if (foundAudioIdx > -1) {
-    audioInstances.splice(foundAudioIdx);
+  const foundIdx = audioInstances.findIndex(x => x.id === id);
+  if (foundIdx > -1) {
+    if (!audioInstances[foundIdx].player?.paused) {
+      audioInstances[foundIdx].player?.pause();
+    }
+    audioInstances.splice(foundIdx, 1);
   }
 }
 
 /** @param {string} id */
 export function clearSpeakerInstantce(id) {
-  const foundSpeechIdx = speechInstances.findIndex(x => x.id === id);
-  if (foundSpeechIdx > -1) {
-    speechInstances.splice(foundSpeechIdx);
+  const foundIdx = speechInstances.findIndex(x => x.id === id);
+  if (foundIdx > -1) {
+    if (speechInstances[foundIdx].isSpeaking()) {
+      speechInstances[foundIdx].stop();
+    }
+    speechInstances.splice(foundIdx, 1);
   }
 }
 

@@ -601,7 +601,7 @@
 	 * @param {any[]} files
 	 */
 	function buildFilePayload(files) {
-		if (!files) return '';
+		if (!files || files.length === 0) return '';
 
 		const excelCount = files.filter(x => isExcel(x.file_type || x.file_name)).length;
 		const pdfCount = files.filter(x => isPdf(x.file_type || x.file_name)).length;
