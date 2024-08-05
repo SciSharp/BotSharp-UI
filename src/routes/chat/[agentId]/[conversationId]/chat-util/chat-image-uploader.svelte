@@ -20,6 +20,7 @@
     let fileUploadLimit = 0;
 
     const fileUpperLimit = 5;
+    const fileMaxSize = 10 * 1024 * 1024;
     const accept = "image/*,.pdf,.xlsx,.xls,.csv,.wav,.mp3";
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
@@ -57,6 +58,7 @@
                 noDrag
                 disabled={disableFileDrop}
                 fileLimit={fileUploadLimit}
+                maxSize={fileMaxSize}
                 on:drop={e => handleFileDrop(e)}
             >
                 <slot>

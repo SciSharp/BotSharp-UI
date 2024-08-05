@@ -1,6 +1,6 @@
 <script>
   import {
-    initPlayer,
+    initAudio,
     stopAll,
     clearAudioInstantce,
     useAudioStore
@@ -8,7 +8,7 @@
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
   import { onDestroy, onMount, createEventDispatcher } from "svelte";
   import { propsBool } from "./utils";
-  import { get_current_component } from "svelte/internal";
+  import { v4 as uuidv4 } from 'uuid';
 
   import {
     soundUnmuted,
@@ -21,7 +21,6 @@
     loopNone,
   } from "./svg";
 
-  const component = get_current_component();
   const svelteDispatch = createEventDispatcher();
 
   /**
@@ -30,7 +29,6 @@
    */
   function dispatch(name, detail = null) {
     svelteDispatch(name, detail);
-    component.dispatchEvent && component.dispatchEvent(new CustomEvent(name, !!detail ? { detail } : undefined));
   };
 
   const {
@@ -48,7 +46,7 @@
   export let audio;
 
   /** @type {string} */
-  export let id;
+  export let id = uuidv4();
 
   /** @type {"list" | "random"} */
   export let order = 'list';
@@ -185,13 +183,14 @@
   });
 
   onDestroy(() => {
-    dispatch("destroy");
     clearAudioInstantce(id);
+    dispatch("destroy");
   });
 
   const init = () => {
     const audioPlayer = document.createElement("audio");
-    initPlayer({ id: id, player: audioPlayer }, dispatch);
+    id = id || uuidv4();
+    initAudio({ id: id, player: audioPlayer }, dispatch);
     isShowList = !propsBool($$props, "list_folded") && $audioList.length > 1;
     volume = Math.max(volume, 0);
     volume = Math.min(volume, 1);

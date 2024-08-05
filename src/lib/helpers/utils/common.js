@@ -2,6 +2,8 @@ export function range(size = 3, startAt = 0) {
     return [...Array(size).keys()].map((i) => i + startAt);
 };
 
+export const durationUnitRegex = /[a-zA-Z]/;
+
 /**
  * @param {string} baseUrl
  * @param {string} relativePath

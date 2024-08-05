@@ -1,14 +1,14 @@
 <script>
+    import { onMount } from 'svelte';
+    import { _ } from 'svelte-i18n'  
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
     import { GetDialogs, getConversationFiles } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
-    import { onMount } from 'svelte';
-    import { _ } from 'svelte-i18n'  
 	import { USER_SENDERS } from '$lib/helpers/constants';
-	import Markdown from '$lib/common/Markdown.svelte';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
+	import ConvDialogElement from './conv-dialog-element.svelte';
 
     /** @type {import('$types').ChatResponseModel[]} */
     let dialogs = [];
@@ -66,9 +66,7 @@
                                 <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
                             </div>
                             <div>
-                                <p class="fw-bold">
-                                    <Markdown text={dialog?.rich_content?.message?.text || dialog?.text} containerClasses={'text-primary'} />
-                                </p>
+                                <ConvDialogElement dialog={dialog} />
                                 {#if !!dialog.has_message_files}
                                     <MessageFileGallery
                                         messageId={dialog?.message_id}
