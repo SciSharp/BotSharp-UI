@@ -33,7 +33,7 @@
         }
     }
 
-     /** @param {any} e */
+    /** @param {any} e */
     function toggleText(e) {
         e.preventDefault();
         is_collapsed = !is_collapsed;

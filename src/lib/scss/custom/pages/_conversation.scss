@@ -12,3 +12,11 @@
 .conv-state-search-menu {
     inset: auto 0px auto auto !important;
 }
+
+.text-collapse {
+    overflow-y: hidden;
+    height: fit-content;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
+}

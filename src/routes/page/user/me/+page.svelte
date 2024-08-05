@@ -15,6 +15,8 @@
 	let currentUser;
 	let isLoading = false;
 
+	const fileMaxSize = 10 * 1024 * 1024;
+
 	onMount(async () => {
 		isLoading = true;
 		await myInfo()
@@ -68,6 +70,7 @@
 								noDrag
 								multiple={false}
 								fileLimit={1}
+								maxSize={fileMaxSize}
 								on:drop={e => handleFileDrop(e)}
 							>
 								<img
