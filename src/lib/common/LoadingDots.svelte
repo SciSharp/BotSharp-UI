@@ -1,29 +1,41 @@
 <script>
-	import { range } from "$lib/helpers/utils/common";
+	import { durationUnitRegex, range } from "$lib/helpers/utils/common";
 
     /** @type {string} */
 	export let color = '#FF3E00';
+
     /** @type {string} */
 	export let unit = 'px';
+
     /** @type {string} */
 	export let duration = '1.5s';
+
 	/** @type {string | number} */
 	export let size = '60';
+
     /** @type {boolean} */
 	export let pause = false;
+
     /** @type {'dot' | 'cube'} */
     export let shape = 'dot';
+
     /** @type {number} */
     export let count = 3;
+
     /** @type {string | number} */
 	export let gap = '10';
 
-    const unitRegex = /[a-zA-Z]/;
-    const durationUnit = duration.match(unitRegex)?.[0] ?? 's';
-	const durationNum = duration.replace(unitRegex, '');
+	/** @type {string} */
+	export let containerClasses = '';
+	
+	/** @type {string} */
+	export let containerStyles = '';
+
+    const durationUnit = duration.match(durationUnitRegex)?.[0] ?? 's';
+	const durationNum = duration.replace(durationUnitRegex, '');
 </script>
 
-<div class="loading-wrapper" style="--size: {size}{unit}; --color: {color}; --duration: {duration}; --count: {count}; --gap: {gap}{unit}">
+<div class={`loading-wrapper ${containerClasses}`} style="--size: {size}{unit}; --color: {color}; --duration: {duration}; --count: {count}; --gap: {gap}{unit};  {containerStyles}">
 	{#each range(count, 0) as version}
 		<div
 			class={`animation ${shape === 'cube' ? 'cube' : 'dot'}`}

@@ -2,6 +2,7 @@
 	import { initSpeech, stopAll, clearSpeakerInstantce } from "$lib/common/audio-player/store";
 	import { onMount, onDestroy } from "svelte";
   import { v4 as uuidv4 } from 'uuid';
+	import Stretch from "../Stretch.svelte";
 
   /** @type {string} */
   export let text;
@@ -86,11 +87,11 @@
   class="{disableDefaultStyles ? '' : 'chat-speaker-container'} {containerClasses}"
   style={`${containerStyles}`}
 >
-  <span on:click={() => speak()}>
+  <span style="display: inline-block;" on:click={() => speak()}>
     {#if !speaking}
-      <i class="bx bx-volume" />
-    {:else}
       <i class="bx bx-volume-full" />
+    {:else}
+      <Stretch unit='px' size='5' gap='5' color="var(--bs-primary)" />
     {/if}
   </span>
 </div>
