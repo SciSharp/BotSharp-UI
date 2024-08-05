@@ -12,7 +12,7 @@ export const speechInstances = [];
  * @param {import('$types').AudioModel} audio
  * @param {(name: string, detail?: any) => void} dispatch
  */
-export function initPlayer(audio, dispatch) {
+export function initAudio(audio, dispatch) {
   audioInstances.push(audio);
   bindAudioEvent(audio.player, dispatch);
 }

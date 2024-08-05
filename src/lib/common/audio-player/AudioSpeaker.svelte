@@ -1,12 +1,13 @@
 <script>
 	import { initSpeech, stopAll, clearSpeakerInstantce } from "$lib/common/audio-player/store";
 	import { onMount, onDestroy } from "svelte";
+  import { v4 as uuidv4 } from 'uuid';
 
   /** @type {string} */
   export let text;
 
   /** @type {string} */
-  export let id;
+  export let id = uuidv4();
 
   /** @type {boolean} */
   export let mutex = true;
@@ -31,6 +32,7 @@
     utterThis.pitch = 1;
     utterThis.rate = 1;
     utterThis.onend = (e) => { stop(); };
+    id = id || uuidv4();
 
     speech = {
       id: id,
