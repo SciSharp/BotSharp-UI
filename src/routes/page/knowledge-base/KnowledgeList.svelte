@@ -33,9 +33,8 @@
     <Table class="table align-middle table-nowrap table-hover mb-0">
       <thead>
         <tr>
-          <th scope="col">{$_('Name')}</th>
-          <th scope="col">{$_('Date modified')}</th>
-          <th scope="col" colSpan="2"> {$_('Size')} </th>
+          <th scope="col">{$_('Question')}</th>
+          <th scope="col">{$_('Answer')}</th>
         </tr>
       </thead>
       <tbody>
@@ -48,7 +47,6 @@
               </Link>
             </td>
             <td>{recentfile.date}</td>
-            <td>{recentfile.size} KB</td>
             <td>
               <Dropdown>
                 <DropdownToggle

@@ -2,10 +2,7 @@
 	import { Card, CardBody } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import UploadDocument from "./upload-document.svelte";
-	import FileLeftBar from './FileLeftBar.svelte';
 	import KnowledgeList from "./KnowledgeList.svelte";
-	import Storage from "./Storage.svelte";
 	import { _ } from 'svelte-i18n'
 </script>
 
@@ -25,5 +22,4 @@
 			</div>
 		</div>
 	</div>
-	<Storage />
 </div>
