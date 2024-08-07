@@ -31,7 +31,7 @@ export function clearAudioInstantce(id) {
   const foundIdx = audioInstances.findIndex(x => x.id === id);
   if (foundIdx > -1) {
     if (!audioInstances[foundIdx].player?.paused) {
-      audioInstances[foundIdx].player?.pause();
+      audioInstances[foundIdx].stop();
     }
     audioInstances.splice(foundIdx, 1);
   }
@@ -41,7 +41,7 @@ export function clearAudioInstantce(id) {
 export function clearSpeakerInstantce(id) {
   const foundIdx = speechInstances.findIndex(x => x.id === id);
   if (foundIdx > -1) {
-    if (speechInstances[foundIdx].isSpeaking()) {
+    if (speechInstances[foundIdx].isPlaying()) {
       speechInstances[foundIdx].stop();
     }
     speechInstances.splice(foundIdx, 1);
@@ -50,10 +50,18 @@ export function clearSpeakerInstantce(id) {
 
 export function stopAll() {
   if (audioInstances?.length > 0) {
-    audioInstances.forEach(audio => audio.player?.pause());
+    audioInstances.forEach(audio => {
+      if (!audio.player?.paused) {
+        audio.stop();
+      }
+    });
   }
   if (speechInstances?.length > 0) {
-    speechInstances.forEach(sp => sp.stop());
+    speechInstances.forEach(sp => {
+      if (sp.isPlaying()) {
+        sp.stop();
+      }
+    });
   }
 }
 
