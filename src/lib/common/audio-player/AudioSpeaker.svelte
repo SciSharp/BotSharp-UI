@@ -40,7 +40,7 @@
       synth: window?.speechSynthesis,
       utterThis: utterThis,
       stop: () => stop(),
-      isSpeaking: () => isSpeaking()
+      isPlaying: () => isSpeaking()
     };
     initSpeech(speech);
   });
@@ -61,7 +61,7 @@
     if (speaking) {
       utter(text);
     } else {
-      speech.synth.cancel();
+      stop();
     }
   }
 

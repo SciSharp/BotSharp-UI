@@ -190,11 +190,13 @@
   const init = () => {
     const audioPlayer = document.createElement("audio");
     id = id || uuidv4();
-    initAudio({ id: id, player: audioPlayer }, dispatch);
+    initAudio({
+      id: id,
+      player: audioPlayer,
+      stop: () => player?.pause()
+    }, dispatch);
     isShowList = !propsBool($$props, "list_folded") && $audioList.length > 1;
-    volume = Math.max(volume, 0);
-    volume = Math.min(volume, 1);
-    audioPlayer.volume = volume;
+    audioPlayer.volume = Math.min(Math.max(volume, 0), 1);
     return audioPlayer;
   }
 
@@ -230,7 +232,7 @@
         player.play().catch((err) => {
           console.error(err);
         });
-      }, 500);
+      }, 350);
     }
   };
 
