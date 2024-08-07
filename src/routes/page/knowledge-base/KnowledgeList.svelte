@@ -21,11 +21,11 @@
 
 <div class="mt-4">
   <div class="d-flex flex-wrap">
-    <h5 class="font-size-16 me-3">{$_('Recent Files')}</h5>
+    <h5 class="font-size-16 me-3">{$_('Knowledges')}</h5>
 
-    <div class="ms-auto">
+    <!-- <div class="ms-auto">
       <Link to="#" class="fw-medium text-reset">{$_('View All')}</Link>
-    </div>
+    </div> -->
   </div>
   <hr class="mt-2" />
 
