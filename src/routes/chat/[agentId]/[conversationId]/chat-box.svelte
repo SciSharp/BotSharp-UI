@@ -35,7 +35,6 @@
 	import StateModal from '$lib/common/StateModal.svelte';
 	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
-	import MessageAudioPlayer from '$lib/common/audio-player/MessageAudioPlayer.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
@@ -1113,11 +1112,10 @@
 										</div>
 										<div class="msg-container">
 											<RcMessage message={message} />
-											<!-- <AudioSpeaker
+											<AudioSpeaker
 												id={message?.message_id} 
 												text={message?.rich_content?.message?.text || message?.text}
-											/> -->
-											<MessageAudioPlayer />
+											/>
 											{#if !!message.is_chat_message || !!message.has_message_files}
 												<MessageFileGallery
 													messageId={message?.message_id}
