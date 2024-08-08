@@ -68,7 +68,7 @@
             description: agent.description || '',
             instruction: agent.instruction || '',
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
-            tools: agent.tools?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || []
+            utilities: agent.utilities?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || []
         };
         saveAgent(agent).then(res => {
             isLoading = false;
