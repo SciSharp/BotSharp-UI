@@ -31,15 +31,15 @@
                 // @ts-ignore
                 const validFiles = data?.filter(item => !!item.file_url) || [];
                 // @ts-ignore
-                textFiles = validFiles.filter(item => !isAudio(item.file_type)).map(item => {
+                textFiles = validFiles.filter(item => !isAudio(item.file_extension)).map(item => {
                     return {
                         file_name: item.file_name,
-                        file_type: item.file_type,
+                        file_extension: item.file_extension,
                         file_data: isExternalUrl(item.file_url) ? item.file_url : `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
                     };
                 });
                 // @ts-ignore
-                audioFiles = validFiles.filter(item => isAudio(item.file_type)).map(item => {
+                audioFiles = validFiles.filter(item => isAudio(item.file_extension)).map(item => {
                     return {
                         name: item.file_name,
                         cover: AUDIO_ICON,

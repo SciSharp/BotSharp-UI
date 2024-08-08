@@ -603,9 +603,9 @@
 	function buildFilePayload(files) {
 		if (!files || files.length === 0) return '';
 
-		const excelCount = files.filter(x => isExcel(x.file_type || x.file_name)).length;
-		const pdfCount = files.filter(x => isPdf(x.file_type || x.file_name)).length;
-		const audioCount = files.filter(x => isAudio(x.file_type || x.file_name)).length;
+		const excelCount = files.filter(x => isExcel(x.file_extension || x.file_name)).length;
+		const pdfCount = files.filter(x => isPdf(x.file_extension || x.file_name)).length;
+		const audioCount = files.filter(x => isAudio(x.file_extension || x.file_name)).length;
 		const imageCount = files.length - excelCount - pdfCount - audioCount;
 
 		let prefix = 'I uploaded ';
