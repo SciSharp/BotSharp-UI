@@ -57,11 +57,11 @@
                                     <i class="bx bx-trash" />
                                 </div>
                             {/if}
-                            {#if isPdf(file.file_type || file.file_name)}
+                            {#if isPdf(file.file_extension || file.file_name)}
                                 <img class="gallery-item-image" src={PDF_ICON} alt={''}>
-                            {:else if isExcel(file.file_type || file.file_name)}
+                            {:else if isExcel(file.file_extension || file.file_name)}
                                 <img class="gallery-item-image" src={EXCEL_ICON} alt={''}>
-                            {:else if isAudio(file.file_type || file.file_name)}
+                            {:else if isAudio(file.file_extension || file.file_name)}
                                 <img class="gallery-item-image" src={AUDIO_ICON} alt={''}>
                             {:else}
                                 <img class="gallery-item-image" src={file.file_data} alt={''}>
@@ -74,11 +74,11 @@
 
         {#each files as file, idx (idx)}
             <GalleryImage title={file.file_name}>
-                {#if isPdf(file.file_type || file.file_name)}
+                {#if isPdf(file.file_extension || file.file_name)}
                     <img src={PDF_ICON} alt={''} />
-                {:else if isExcel(file.file_type || file.file_name)}
+                {:else if isExcel(file.file_extension || file.file_name)}
                     <img src={EXCEL_ICON} alt={''} />
-                {:else if isAudio(file.file_type || file.file_name)}
+                {:else if isAudio(file.file_extension || file.file_name)}
                     <img src={AUDIO_ICON} alt={''} />
                 {:else}
                     <img src={file.file_data} alt={''} />
