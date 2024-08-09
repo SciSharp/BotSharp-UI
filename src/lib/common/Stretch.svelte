@@ -44,18 +44,19 @@
 
 <style>
 	.stretch-wrapper {
-    position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: fit-content;
+		position: relative;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		width: fit-content;
 		height: calc(var(--size));
-    gap: var(--gap);
-    margin-top: calc(var(--size) * 3);
-    margin-bottom: calc(var(--size) * 3);
+		gap: var(--gap);
+		margin-top: calc(var(--size) * 3);
+		margin-bottom: calc(var(--size) * 3);
 	}
+
 	.rect {
-    width: calc(var(--size) / 1.2);
+    	width: calc(var(--size) / 1.2);
 		height: calc(var(--size) * 5);
 		display: inline-block;
 		transform: scaleY(0.2);

@@ -219,7 +219,7 @@
 /**
  * @typedef {Object} TextFileModel
  * @property {string} file_name - The file name.
- * @property {string} [file_type] - The file type.
+ * @property {string} [file_extension] - The file extension.
  * @property {string} file_data - The file data or url.
  */
 
