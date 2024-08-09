@@ -1,10 +1,8 @@
 <script>
     import { _ } from 'svelte-i18n';
-    import { uploadDocument } from '$lib/services/knowledge-base-service';
-    import {
-      Input,
-      Button,
-    } from "@sveltestrap/sveltestrap";
+    import { uploadKnowledge } from '$lib/services/knowledge-base-service';
+    import { Input, Button } from "@sveltestrap/sveltestrap";
+    import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 
     /** @type {FileList} */
     let files;
@@ -21,18 +19,18 @@
 
     async function handleFileUpload() {
         for (const file of files) {
-			    await uploadDocument(file);
-		    }
+            await uploadKnowledge(KNOWLEDGE_COLLECTION, file);
+        }
     }
 </script>
 
 <div class="input-group">
-  <Input
-      type="file"
-      bind:files
-      class="form-control"
-      aria-describedby="inputGroupFileAddon04"
-      aria-label="{$_('Upload')}"
-  />
-  <Button color="primary" id="inputGroupFileAddon04" disabled={!files} on:click={() => handleFileUpload()}>{$_('Upload')}</Button>
+    <Input
+        type="file"
+        bind:files
+        class="form-control"
+        aria-describedby="inputGroupFileAddon04"
+        aria-label="{$_('Upload')}"
+    />
+    <Button color="primary" id="inputGroupFileAddon04" disabled={!files} on:click={() => handleFileUpload()}>{$_('Upload')}</Button>
 </div>

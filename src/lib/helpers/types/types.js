@@ -217,6 +217,13 @@
 
 // File models
 /**
+ * @typedef {Object} FileModel
+ * @property {string} file_name - The file name.
+ * @property {string} file_data - The file data.
+ * @property {string} file_url - The file url.
+ */
+
+/**
  * @typedef {Object} TextFileModel
  * @property {string} file_name - The file name.
  * @property {string} [file_extension] - The file extension.
@@ -453,12 +460,38 @@ IRichContent.prototype.quick_replies;
  * @property {string?} [payload] - The payload message.
  */
 
+// Knowledgebase
 /**
- * @typedef {Object} FileModel
- * @property {string} file_name - The plugin full name.
- * @property {string} file_data - The plugin name.
- * @property {string} file_url - Row count.
+ * @typedef {Object} SearchKnowledgeRequest
+ * @property {string} text - The text.
+ * @property {string} [fields] - Data fields.
+ * @property {number} [limit] - Data limit.
+ * @property {number} [confidence] - Confidence.
+ * @property {boolean} [with_vector] - Include vector or not.
  */
+
+/**
+ * @typedef {Object} KnowledgeFilter
+ * @property {string} [start_id] - The start id.
+ * @property {number} size - Page size.
+ * @property {boolean} [with_vector] - Include vector or not.
+ */
+
+/**
+ * @typedef {Object} KnowledgeRetrivalViewModel
+ * @property {object} data- The knowledge data.
+ * @property {number} score - The knowledge score.
+ * @property {number[]} [vector] - The knowledge vector.
+ */
+
+/**
+ * @typedef {Object} KnowledgeCollectionDataViewModel
+ * @property {string} id - The knowledge data id.
+ * @property {string} question - The question.
+ * @property {string} answer - The answer.
+ * @property {number[]} [vector] - The knowledge vector.
+ */
+
 
 /**
  * Invoked when a new conersation is created.

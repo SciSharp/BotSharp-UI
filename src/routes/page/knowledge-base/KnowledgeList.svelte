@@ -1,20 +1,19 @@
 <script>
+  import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
-  import Link from "svelte-link";
-  import {
-    Table,
-    DropdownMenu,
-    DropdownToggle,
-    Dropdown,
-  } from "@sveltestrap/sveltestrap";
+  import { Table } from "@sveltestrap/sveltestrap";
+	import { searchKnowledge } from '$lib/services/knowledge-base-service';
+	import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 
-  const recentfile = [
+  onMount(() => {
+    searchKnowledge(KNOWLEDGE_COLLECTION, { text: "employees in Lessen" });
+  });
+
+  const files = [
     {
-      id: 1,
-      icon: "mdi mdi-file-document font-size-16 align-middle text-primary me-2",
-      file: "index.html",
-      date: "12-10-2020, 09:45",
-      size: "09",
+      id: 'sdfsdf',
+      question: "this is a question.",
+      answer: "this is an answer"
     },
   ];
 </script>
@@ -22,10 +21,6 @@
 <div class="mt-4">
   <div class="d-flex flex-wrap">
     <h5 class="font-size-16 me-3">{$_('Knowledges')}</h5>
-
-    <!-- <div class="ms-auto">
-      <Link to="#" class="fw-medium text-reset">{$_('View All')}</Link>
-    </div> -->
   </div>
   <hr class="mt-2" />
 
@@ -35,36 +30,20 @@
         <tr>
           <th scope="col">{$_('Question')}</th>
           <th scope="col">{$_('Answer')}</th>
+          <th />
         </tr>
       </thead>
       <tbody>
-        {#each recentfile as recentfile}
+        {#each files as file}
           <tr>
             <td>
-              <Link to="#" class="text-dark fw-medium">
-                <i class={recentfile.icon} />
-                {recentfile.file}
-              </Link>
+              {file.question}
             </td>
-            <td>{recentfile.date}</td>
             <td>
-              <Dropdown>
-                <DropdownToggle
-                  color=""
-                  class="font-size-16 text-muted dropdown-toggle"
-                  tag="div"
-                >
-                  <i class="mdi mdi-dots-horizontal" />
-                </DropdownToggle>
-
-                <DropdownMenu direction="right" class="dropdown-menu-end">
-                  <Link class="dropdown-item" to="#">{$_('Open')}</Link>
-                  <Link class="dropdown-item" to="#">{$_('Edit')}</Link>
-                  <Link class="dropdown-item" to="#">{$_('Rename')}</Link>
-                  <div class="dropdown-divider" />
-                  <Link class="dropdown-item" to="#">{$_('Remove')}</Link>
-                </DropdownMenu>
-              </Dropdown>
+              {file.answer}
+            </td>
+            <td>
+              
             </td>
           </tr>
         {/each}
