@@ -29,7 +29,7 @@
 
     <div class="result-score">
       <div class="result-key fw-bold text-primary">{'Score:'}</div>
-      <div>{item?.score?.toFixed(score_places)}</div>
+      <div>{item?.score?.toFixed(score_places) || 'unknown'}</div>
     </div>
   {:else}
     <!-- svelte-ignore a11y-no-static-element-interactions -->
