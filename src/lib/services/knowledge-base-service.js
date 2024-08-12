@@ -1,14 +1,16 @@
+import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
 /**
- * @param {string} collection
  * @param {import('$types').SearchKnowledgeRequest} request
+ * @param {string | null} [collection]
+ * @returns {Promise<import('$types').KnowledgeRetrivalViewModel[]>}
  */
-export async function searchKnowledge(collection, request) {
+export async function searchKnowledge(request, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseSearchUrl, {
-        collection: collection
+        collection: collection || KNOWLEDGE_COLLECTION
     });
 
     const body = {
@@ -20,13 +22,13 @@ export async function searchKnowledge(collection, request) {
 }
 
 /**
- * @param {string} collection
  * @param {import('$types').KnowledgeFilter} filter
+ * @param {string | null} [collection]
  * @returns {Promise<import('$types').KnowledgeCollectionDataResult>}
  */
-export async function getKnowledgeData(collection, filter) {
+export async function getKnowledgeData(filter, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseDataListUrl, {
-        collection: collection
+        collection: collection || KNOWLEDGE_COLLECTION
     });
 
     const response = await axios.post(url, { ...filter });
@@ -35,13 +37,13 @@ export async function getKnowledgeData(collection, filter) {
 
 
 /**
- * @param {string} collection
  * @param {string} id
+ * @param {string | null} [collection]
  * @returns {Promise<boolean>}
  */
-export async function deleteKnowledgeData(collection, id) {
+export async function deleteKnowledgeData(id, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseDeleteDataUrl, {
-        collection: collection,
+        collection: collection || KNOWLEDGE_COLLECTION,
         id: id
     });
 
@@ -52,14 +54,14 @@ export async function deleteKnowledgeData(collection, id) {
 
 /**
  * Upload document to knowledge base.
- * @param {string} collection
  * @param {File} file
- * @param {number | undefined} [startPageNum]
- * @param {number | undefined} [endPageNum]
+ * @param {string | null} [collection]
+ * @param {number | null} [startPageNum]
+ * @param {number | null} [endPageNum]
  */
-export async function uploadKnowledge(collection, file, startPageNum, endPageNum) {
+export async function uploadKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
     const url = replaceUrl(endpoints.knowledgeBaseUploadUrl, {
-        collection: collection
+        collection: collection || KNOWLEDGE_COLLECTION
     });
 
     const formData = new FormData();

@@ -3,12 +3,11 @@
   import { _ } from 'svelte-i18n';
   import { Table, Button } from "@sveltestrap/sveltestrap";
 	import { getKnowledgeData } from '$lib/services/knowledge-base-service';
-	import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Loader from '$lib/common/Loader.svelte';
 	import KnowledgeItem from './knowledge-item.svelte';
 
-  const page_size = 1;
+  const page_size = 8;
   const duration = 2000;
 
   /** @type {import('$types').KnowledgeCollectionDataViewModel[]} */
@@ -33,7 +32,7 @@
   /** @param {string | null} [startId] */
   function getKnowledgeListData(startId = null) {
     return new Promise((resolve, reject) => {
-      getKnowledgeData(KNOWLEDGE_COLLECTION, { size: page_size, start_id: startId }).then(res => {
+      getKnowledgeData({ size: page_size, start_id: startId }).then(res => {
         const newItems = res.items || [];
         items = [ ...items, ...newItems ];
         next_id = res.next_id;

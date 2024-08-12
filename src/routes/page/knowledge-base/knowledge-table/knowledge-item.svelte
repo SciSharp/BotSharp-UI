@@ -1,5 +1,4 @@
 <script>
-  import { KNOWLEDGE_COLLECTION } from "$lib/helpers/constants";
 	import { deleteKnowledgeData } from "$lib/services/knowledge-base-service";
   import { Button } from "@sveltestrap/sveltestrap";
   import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -26,7 +25,7 @@
     // @ts-ignore
     }).then(async (result) => {
         if (result.value) {
-          deleteKnowledgeData(KNOWLEDGE_COLLECTION, id).then(res => {
+          deleteKnowledgeData(id).then(res => {
             if (res) {
               onDataDeleted?.(id, res);
             }

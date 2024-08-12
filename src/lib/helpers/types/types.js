@@ -479,7 +479,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} KnowledgeRetrivalViewModel
- * @property {object} data- The knowledge data.
+ * @property {any} data - The knowledge data.
  * @property {number} score - The knowledge score.
  * @property {number[]} [vector] - The knowledge vector.
  */
