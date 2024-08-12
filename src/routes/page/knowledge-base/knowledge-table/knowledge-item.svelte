@@ -1,6 +1,7 @@
 <script>
 	import { deleteKnowledgeData } from "$lib/services/knowledge-base-service";
   import { Button } from "@sveltestrap/sveltestrap";
+  import { fly } from 'svelte/transition';
   import Swal from 'sweetalert2/dist/sweetalert2.js';
   import "sweetalert2/src/sweetalert2.scss";
 
@@ -44,7 +45,7 @@
   }
 </script>
 
-<tr>
+<tr in:fly={{ y: -5, duration: 800 }}>
   <td class="knowledge-text">
     <div class="ellipsis">{data?.question || ''}</div>
   </td>
@@ -78,7 +79,7 @@
 </tr>
 
 {#if open}
-<tr in:fade={}>
+<tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
   <td colspan="3">
     <div class="knowledge-detail">
       <ul>
