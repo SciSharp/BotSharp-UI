@@ -1,6 +1,6 @@
 <script>
 	import { _ } from 'svelte-i18n';
-	import { Button, Card, CardBody } from '@sveltestrap/sveltestrap';
+	import { Button, Card, CardBody, Tooltip } from '@sveltestrap/sveltestrap';
 	import { fly } from 'svelte/transition';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -34,6 +34,15 @@
 			</div>
 		{/if}
 	</Button>
+
+	{#if show_demo}
+		<div class="btn-icon demo-tip" id="demo-tooltip">
+			<i class="bx bx-info-circle" />
+		</div>
+		<Tooltip target="demo-tooltip" placement="right">
+			<span>Click "Search" or press "Enter"</span>
+		</Tooltip>
+	{/if}
 </div>
 
 <div class="d-xl-flex">

@@ -127,7 +127,7 @@
     </Table>
 
     {#if isLoadingMore}
-      <div class="data-loader mt-4">
+      <div class="knowledge-loader mt-4">
         <Loader size={25} disableDefaultStyles />
       </div>
     {:else if !!next_id && items?.length > 0}

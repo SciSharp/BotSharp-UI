@@ -2,8 +2,11 @@
 	import { searchKnowledge } from "$lib/services/knowledge-base-service";
   import { Button } from "@sveltestrap/sveltestrap";
 	import KnowledgeSearchList from "./knowledge-search-list.svelte";
+  import _ from "lodash";
 
   let text = "";
+  let is_searching = false;
+  let search_done = false;
   const max_length = 4096;
   const confidence = 0.5;
 
@@ -12,19 +15,30 @@
 
   function search() {
     search_results = [];
+    is_searching = true;
+    search_done = false;
     searchKnowledge({
-      text: text,
+      text: _.trim(text),
       confidence: confidence
     }).then(res => {
       search_results = res || [];
+    }).finally(() => {
+      is_searching = false;
+      search_done = true;
     });
   }
 
   /** @param {KeyboardEvent} e */
   function pressKey(e) {
-    if (e.key == 'Enter') {
-      search();
-    }
+    if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!_.trim(text) || is_searching) {
+			return;
+		}
+
+		if (e.key === 'Enter') {
+			e.preventDefault();
+		}
+
+    search();
   }
 </script>
 
@@ -33,6 +47,7 @@
     class='form-control search-textarea'
     rows={5}
     maxlength={max_length}
+    disabled={is_searching}
     placeholder={'Please type something here...'}
     bind:value={text}
     on:keydown={(e) => pressKey(e)}
@@ -44,14 +59,16 @@
   <div class="mt-2 text-end">
     <Button
       color="primary"
-      disabled={!text || text?.length === 0}
+      disabled={!text || _.trim(text).length === 0 || is_searching}
       on:click={() => search()}
     >
       {'Search'}
     </Button>
   </div>
 
-  {#if search_results.length !== 0}
-    <KnowledgeSearchList list={search_results} />
-  {/if}
+  <KnowledgeSearchList
+    list={search_results}
+    isSearching={is_searching}
+    searchDone={search_done}
+  />
 </div>

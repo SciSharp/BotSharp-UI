@@ -1,15 +1,23 @@
 .knowledge-demo-btn {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    
     .btn-content {
         display: flex;
         justify-content: center;
         gap: 3px;
         flex-wrap: wrap;
+    }
 
-        .btn-icon {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
+    .btn-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .demo-tip {
+        font-size: 18px;
     }
 }
 
@@ -37,10 +45,10 @@
 
         .result-item {
             margin: 5px 0px;
-            font-size: 12px;
+            font-size: 15px;
 
             .result-key {
-                font-size: 15px;
+                font-size: 17px;
             }
 
             .result-content {
@@ -97,7 +105,7 @@
     }
 }
 
-.data-loader {
+.knowledge-loader {
     display: flex;
     justify-content: center;
 }
