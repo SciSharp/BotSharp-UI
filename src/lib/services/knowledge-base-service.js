@@ -19,7 +19,35 @@ export async function searchKnowledge(collection, request) {
     return response.data;
 }
 
+/**
+ * @param {string} collection
+ * @param {import('$types').KnowledgeFilter} filter
+ * @returns {Promise<import('$types').KnowledgeCollectionDataResult>}
+ */
+export async function getKnowledgeData(collection, filter) {
+    const url = replaceUrl(endpoints.knowledgeBaseDataListUrl, {
+        collection: collection
+    });
 
+    const response = await axios.post(url, { ...filter });
+    return response.data;
+}
+
+
+/**
+ * @param {string} collection
+ * @param {string} id
+ * @returns {Promise<boolean>}
+ */
+export async function deleteKnowledgeData(collection, id) {
+    const url = replaceUrl(endpoints.knowledgeBaseDeleteDataUrl, {
+        collection: collection,
+        id: id
+    });
+
+    const response = await axios.delete(url);
+    return response.data;
+}
 
 
 /**

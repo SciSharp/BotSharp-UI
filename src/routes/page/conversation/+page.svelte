@@ -21,7 +21,6 @@
 	import StateModal from '$lib/common/StateModal.svelte';
 	import { conversationSearchOptionStore } from '$lib/helpers/store';
 	import { onMount } from 'svelte';
-	import Link from 'svelte-link';
 	import { getAgents } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -347,7 +346,12 @@
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('Conversation List')}</h5>
 					<div class="flex-shrink-0">
-						<Link class="btn btn-light" on:click={(e) => searchConversations(e)}><i class="mdi mdi-magnify" /></Link>
+						<Button
+							class="btn btn-light"
+							on:click={(e) => searchConversations(e)}
+						>
+							<i class="mdi mdi-magnify" />
+						</Button>
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
 								<i class="mdi mdi-dots-vertical" />
@@ -442,17 +446,26 @@
 								<td>
 									<ul class="list-unstyled hstack gap-1 mb-0">
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-											<Link href="page/conversation/{conv.id}" class="btn btn-sm btn-soft-primary">
-                                                <i class="mdi mdi-eye-outline" />
-                                            </Link>
+											<Button
+												class="btn btn-sm btn-soft-primary"
+												on:click={() => window.open(`page/conversation/${conv.id}`)}
+											>
+												<i class="mdi mdi-eye-outline" />
+											</Button>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
-											<Link href="chat/{conv.agent_id}/{conv.id}" target="_blank" class="btn btn-sm btn-soft-info">
+											<Button
+												class="btn btn-sm btn-soft-info"
+												on:click={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
+											>
                                                 <i class="mdi mdi-chat" />
-                                            </Link>
+                                            </Button>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-											<Button on:click={() => openDeleteModal(conv.id)} class="btn btn-sm btn-soft-danger">
+											<Button
+												class="btn btn-sm btn-soft-danger"
+												on:click={() => openDeleteModal(conv.id)}
+											>
                                                 <i class="mdi mdi-delete-outline" />
                                             </Button>
 										</li>

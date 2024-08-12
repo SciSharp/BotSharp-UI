@@ -472,7 +472,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} KnowledgeFilter
- * @property {string} [start_id] - The start id.
+ * @property {string | null} [start_id] - The start id.
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
  */
@@ -490,6 +490,13 @@ IRichContent.prototype.quick_replies;
  * @property {string} question - The question.
  * @property {string} answer - The answer.
  * @property {number[]} [vector] - The knowledge vector.
+ */
+
+/**
+ * @typedef {Object} KnowledgeCollectionDataResult
+ * @property {number} count - The total data count.
+ * @property {KnowledgeCollectionDataViewModel[]} items - The data items.
+ * @property {string} [next_id] - The next id.
  */
 
 

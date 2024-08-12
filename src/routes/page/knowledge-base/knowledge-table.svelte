@@ -1,0 +1,145 @@
+<script>
+  import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
+  import { Table, Button } from "@sveltestrap/sveltestrap";
+	import { getKnowledgeData } from '$lib/services/knowledge-base-service';
+	import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Loader from '$lib/common/Loader.svelte';
+	import KnowledgeItem from './knowledge-item.svelte';
+
+  const page_size = 1;
+  const duration = 2000;
+
+  /** @type {import('$types').KnowledgeCollectionDataViewModel[]} */
+  let items = [];
+
+  /** @type {string | null | undefined} */
+  let next_id;
+
+  /** @type {boolean} */
+  let isLoading = false;
+  let isLocalLoading = false;
+  let isComplete = false;
+  let isError = false;
+
+  let successText = "Done";
+  let errorText = "Error";
+
+  onMount(() => {
+    initData();
+  });
+
+  /** @param {string | null} [startId] */
+  function getKnowledgeListData(startId = null) {
+    return new Promise((resolve, reject) => {
+      getKnowledgeData(KNOWLEDGE_COLLECTION, { size: page_size, start_id: startId }).then(res => {
+        const newItems = res.items || [];
+        items = [ ...items, ...newItems ];
+        next_id = res.next_id;
+        resolve(res);
+      }).catch(err => {
+        console.log(err);
+        reject(err);
+      });
+    });
+  }
+
+
+  /**
+   * @param {boolean} isLocal
+   * @param {string | null} [startId]
+   */
+  function initData(startId = null, isLocal = false, ) {
+    toggleLoader(isLocal);
+    getKnowledgeListData(startId).catch(err => {
+      isError = true;
+      setTimeout(() => {
+        isError = false;
+      }, 2000);
+    }).finally(() => {
+      toggleLoader(isLocal);
+    });
+  }
+
+  /** @param {boolean} isLocal */
+  function toggleLoader(isLocal) {
+    if (isLocal) {
+      isLocalLoading = !isLocalLoading;
+    } else {
+      isLoading = !isLoading;
+    }
+  }
+
+  function loadMore() {
+    initData(next_id, true);
+  }
+
+  /**
+	 * @param {string} id
+	 * @param {boolean} isSuccess
+	 */
+  function afterDataDeleted(id, isSuccess) {
+    if (isSuccess) {
+      isComplete = true;
+      successText = "Knowledge has been deleted!";
+      setTimeout(() => {
+        isComplete = false;
+      }, duration);
+      items = items?.filter(x => x.id !== id) || [];
+    } else {
+      isError = true;
+      errorText = "Error when deleting knowledge!";
+      setTimeout(() => {
+        isError = false;
+      }, duration);
+    }
+  }
+</script>
+
+<LoadingToComplete
+  isLoading={isLoading}
+  isComplete={isComplete}
+  isError={isError}
+  successText={successText}
+  errorText={errorText}
+/>
+
+<div class="mt-4">
+  <div class="d-flex flex-wrap">
+    <h5 class="font-size-16 me-3">{$_('Knowledges')}</h5>
+  </div>
+  <hr class="mt-2" />
+
+  <div class="table-responsive knowledge-table">
+    <Table class="table align-middle table-nowrap table-hover mb-0">
+      <thead>
+        <tr>
+          <th scope="col">{$_('Question')}</th>
+          <th scope="col">{$_('Answer')}</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {#each items as item}
+          <KnowledgeItem data={item} onDataDeleted={(id, isSuccess) => afterDataDeleted(id, isSuccess)} />
+        {/each}
+      </tbody>
+    </Table>
+
+    {#if isLocalLoading}
+      <div class="data-loader mt-4">
+        <Loader size={25} disableDefaultStyles />
+      </div>
+    {:else if !!next_id && items?.length > 0}
+      <div class="load-more mt-4 text-center">
+        <Button
+          class="btn btn-soft-primary"
+          on:click={() => loadMore()}
+        >
+          {'Load more'}
+        </Button>
+      </div>
+    {/if}
+  </div>
+</div>

@@ -2,7 +2,7 @@
 	import { Card, CardBody } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import KnowledgeList from "./KnowledgeList.svelte";
+	import KnowledgeTable from "./knowledge-table.svelte";
 	import { _ } from 'svelte-i18n';
 </script>
 
@@ -15,7 +15,7 @@
 			<div class="w-100">
 				<Card>
 					<CardBody>
-                  		<KnowledgeList />
+                  		<KnowledgeTable />
 					</CardBody>
 				</Card>
 			</div>
