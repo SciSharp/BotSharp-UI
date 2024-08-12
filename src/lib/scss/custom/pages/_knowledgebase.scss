@@ -1,12 +1,24 @@
 .knowledge-table {
     overflow: hidden;
+
+    .knowledge-text {
+        width: 40%;
+        max-width: 50px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .knowledge-op {
+        width: 20%;
+
+        .knowledge-op-list {
+            justify-content: center;
+        }
+    }
 }
 
 .data-loader {
     display: flex;
     justify-content: center;
-}
-
-.load-more {
-    // text-align: center;
 }

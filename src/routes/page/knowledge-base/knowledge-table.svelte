@@ -19,7 +19,7 @@
 
   /** @type {boolean} */
   let isLoading = false;
-  let isLocalLoading = false;
+  let isLoadingMore = false;
   let isComplete = false;
   let isError = false;
 
@@ -65,7 +65,7 @@
   /** @param {boolean} isLocal */
   function toggleLoader(isLocal) {
     if (isLocal) {
-      isLocalLoading = !isLocalLoading;
+      isLoadingMore = !isLoadingMore;
     } else {
       isLoading = !isLoading;
     }
@@ -127,12 +127,12 @@
       </tbody>
     </Table>
 
-    {#if isLocalLoading}
+    {#if isLoadingMore}
       <div class="data-loader mt-4">
         <Loader size={25} disableDefaultStyles />
       </div>
     {:else if !!next_id && items?.length > 0}
-      <div class="load-more mt-4 text-center">
+      <div class="mt-4 text-center">
         <Button
           class="btn btn-soft-primary"
           on:click={() => loadMore()}

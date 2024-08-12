@@ -1,6 +1,5 @@
 <script>
-	import Loader from "$lib/common/Loader.svelte";
-import { KNOWLEDGE_COLLECTION } from "$lib/helpers/constants";
+  import { KNOWLEDGE_COLLECTION } from "$lib/helpers/constants";
 	import { deleteKnowledgeData } from "$lib/services/knowledge-base-service";
   import { Button } from "@sveltestrap/sveltestrap";
   import Swal from 'sweetalert2/dist/sweetalert2.js';
@@ -40,14 +39,14 @@ import { KNOWLEDGE_COLLECTION } from "$lib/helpers/constants";
 </script>
 
 <tr>
-  <td>
+  <td class="knowledge-text">
     {data?.question || ''}
   </td>
-  <td>
+  <td class="knowledge-text">
     {data?.answer || ''}
   </td>
-  <td>
-    <ul class="list-unstyled hstack gap-1 mb-0">
+  <td class="knowledge-op">
+    <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op">
       <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
         <Button class="btn btn-sm btn-soft-primary">
           <i class="mdi mdi-eye-outline" />
