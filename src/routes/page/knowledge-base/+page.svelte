@@ -8,7 +8,7 @@
 	import KnowledgeSearch from './knowledge-search/knowledge-search.svelte';
 
 	const duration = 500;
-	let show_demo = true;
+	let show_demo = false;
 
 	function toggleDemo() {
 		show_demo = !show_demo;
@@ -41,8 +41,8 @@
 	<div class="w-100">
 		{#if show_demo}
 			<div
-				in:fly={{ y: -50, duration: duration }}
-				out:fly={{ y: -50, duration: duration }}
+				in:fly={{ y: -15, duration: duration }}
+				out:fly={{ y: -15, duration: duration }}
 			>
 				<KnowledgeSearch />
 			</div>

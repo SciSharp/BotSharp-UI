@@ -45,7 +45,7 @@
     {data?.answer || ''}
   </td>
   <td class="knowledge-op">
-    <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op">
+    <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
       <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
         <Button class="btn btn-sm btn-soft-primary">
           <i class="mdi mdi-eye-outline" />
