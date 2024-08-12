@@ -59,7 +59,10 @@ export const endpoints = {
     loggingStateLogUrl: `${host}/logger/conversation/{conversationId}/state-log`,
     
     // knowledge base
-    knowledgeBaseUploadUrl: `${host}/knowledge-base/upload`,
+    knowledgeBaseUploadUrl: `${host}/knowledge/{collection}/upload`,
+    knowledgeBaseDataListUrl: `${host}/knowledge/{collection}/data`,
+    knowledgeBaseSearchUrl: `${host}/knowledge/{collection}/search`,
+    knowledgeBaseDeleteDataUrl: `${host}/knowledge/{collection}/data/{id}`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

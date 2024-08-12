@@ -56,7 +56,9 @@ axios.interceptors.response.use(
 function skipLoader(config) {
     const postRegexes = [
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/agent', 'g')
+        new RegExp('http(s*)://(.*?)/agent', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/data', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g')
     ];
 
     const getRegexes = [

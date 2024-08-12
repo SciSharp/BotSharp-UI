@@ -42,21 +42,21 @@
 						<i class="bx bx-search-alt search-icon" />
 					</div>
 				</div>
-        <Dropdown>
-          <DropdownToggle
-            color=""
-            class="btn btn-link text-muted dropdown-toggle mt-n2 headerbtn"
-            tag="div"
-          >
-            <i class="mdi mdi-dots-vertical font-size-20" />
-          </DropdownToggle>
+				<Dropdown>
+					<DropdownToggle
+						color=""
+						class="btn btn-link text-muted dropdown-toggle mt-n2 headerbtn"
+						tag="div"
+					>
+						<i class="mdi mdi-dots-vertical font-size-20" />
+					</DropdownToggle>
 
-          <DropdownMenu class="dropdown-menu-end">
-            <DropdownItem >{$_('Share Files')}</DropdownItem>
-            <DropdownItem >{$_('Share with me')}</DropdownItem>
-            <DropdownItem >{$_('Other Actions')}</DropdownItem>
-          </DropdownMenu>
-        </Dropdown>
+					<DropdownMenu class="dropdown-menu-end">
+						<DropdownItem >{$_('Share Files')}</DropdownItem>
+						<DropdownItem >{$_('Share with me')}</DropdownItem>
+						<DropdownItem >{$_('Other Actions')}</DropdownItem>
+					</DropdownMenu>
+				</Dropdown>
 			</Form>
 		</Col>
 	</Row>
@@ -71,9 +71,8 @@
 							<div class="float-end ms-2">
 								<Dropdown>
 									<DropdownToggle class="font-size-16 text-muted" color="" tag="div" >
-                    <i class="mdi mdi-dots-horizontal" />
-                    </DropdownToggle
-									>
+										<i class="mdi mdi-dots-horizontal" />
+									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
 										<DropdownItem header>{$_('Open')}</DropdownItem>
 										<DropdownItem >{$_('Edit')}</DropdownItem>

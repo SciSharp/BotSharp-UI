@@ -1,0 +1,111 @@
+.knowledge-demo-btn {
+    display: flex;
+    justify-content: flex-start;
+    gap: 10px;
+    
+    .btn-content {
+        display: flex;
+        justify-content: center;
+        gap: 3px;
+        flex-wrap: wrap;
+    }
+
+    .btn-icon {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .demo-tip {
+        font-size: 18px;
+    }
+}
+
+.knowledge-search-container {
+    .search-textarea {
+        border-radius: 5px;
+        border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
+        scrollbar-width: thin;
+    }
+
+    .text-count {
+        margin-top: 2px;
+        font-size: 10px;
+    }
+
+    .knowledge-search-result-container {
+        .list-open {
+            list-style-type: disclosure-open;
+        }
+
+        .list-closed {
+            list-style-type: disclosure-closed;
+        }
+
+        .result-item {
+            margin: 5px 0px;
+            font-size: 15px;
+
+            .result-key {
+                font-size: 17px;
+            }
+
+            .result-content {
+                word-break: normal;
+            }
+
+            .result-score {
+                margin-top: 5px;
+            }
+        }
+    }
+}
+
+.knowledge-table {
+    overflow: hidden;
+
+    .knowledge-text {
+        width: 40%;
+        max-width: 50px;
+
+        .ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .knowledge-op {
+        width: 20%;
+
+        .knowledge-op-list {
+            justify-content: center;
+        }
+    }
+
+    .knowledge-detail {
+        padding: 2px 5px;
+        border-radius: 3px;
+        border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
+
+        ul {
+            margin: 15px 0px;
+            list-style-type: square;
+
+            li {
+                margin: 5px 0px;
+            }
+        }
+
+        .wrappable {
+            white-space: wrap !important;
+        }
+    }
+}
+
+.knowledge-loader {
+    display: flex;
+    justify-content: center;
+}
