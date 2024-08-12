@@ -19,7 +19,7 @@
       <div>
         <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div class="result-key fw-bold text-primary">
-          <span class="togglable" on:click={() => toggleItem()}>
+          <span class="clickable" on:click={() => toggleItem()}>
             {'Answer:'}
           </span>
         </div>
@@ -33,8 +33,8 @@
     </div>
   {:else}
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div class="result-key togglable fw-bold text-primary">
-      <span class="togglable" on:click={() => toggleItem()}>
+    <div class="result-key fw-bold text-primary">
+      <span class="clickable" on:click={() => toggleItem()}>
         {'Answer...'}
       </span>
     </div>

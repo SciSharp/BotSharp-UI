@@ -4,8 +4,8 @@
 	import KnowledgeSearchList from "./knowledge-search-list.svelte";
 
   let text = "";
-  let disableInput = false;
-  let max_length = 4096;
+  const max_length = 4096;
+  const confidence = 0.5;
 
   /** @type {import('$types').KnowledgeRetrivalViewModel[]} */
   let search_results = [];
@@ -13,7 +13,8 @@
   function search() {
     search_results = [];
     searchKnowledge({
-      text: text
+      text: text,
+      confidence: confidence
     }).then(res => {
       search_results = res || [];
     });
@@ -32,7 +33,6 @@
     class='form-control search-textarea'
     rows={5}
     maxlength={max_length}
-    disabled={disableInput}
     placeholder={'Please type something here...'}
     bind:value={text}
     on:keydown={(e) => pressKey(e)}
@@ -44,7 +44,7 @@
   <div class="mt-2 text-end">
     <Button
       color="primary"
-      disabled={!text || text?.length === 0 || disableInput}
+      disabled={!text || text?.length === 0}
       on:click={() => search()}
     >
       {'Search'}

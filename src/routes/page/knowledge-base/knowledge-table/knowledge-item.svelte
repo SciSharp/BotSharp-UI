@@ -10,6 +10,13 @@
   /** @type {(id: string, isSuccess: boolean) => void} */
   export let onDataDeleted = (id, isSuccess) => {};
 
+  /** @type {boolean} */
+  let open = false;
+
+  function toggleItem() {
+    open = !open;
+  }
+
   /** @param {string} id */
   function deleteKnowledge(id) {
     if (!id) return;
@@ -39,16 +46,23 @@
 
 <tr>
   <td class="knowledge-text">
-    {data?.question || ''}
+    <div class="ellipsis">{data?.question || ''}</div>
   </td>
   <td class="knowledge-text">
-    {data?.answer || ''}
+    <div class="ellipsis">{data?.answer || ''}</div>
   </td>
   <td class="knowledge-op">
     <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
       <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-        <Button class="btn btn-sm btn-soft-primary">
-          <i class="mdi mdi-eye-outline" />
+        <Button
+          class="btn btn-sm btn-soft-primary"
+          on:click={() => toggleItem()}
+        >
+          {#if open}
+            <i class="bx bx-hide" />
+          {:else}
+            <i class="mdi mdi-eye-outline" />
+          {/if}
         </Button>
       </li>
       <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -62,3 +76,26 @@
     </ul>
   </td>
 </tr>
+
+{#if open}
+<tr in:fade={}>
+  <td colspan="3">
+    <div class="knowledge-detail">
+      <ul>
+        {#if data?.question}
+        <li>
+          <div class="wrappable fw-bold text-primary">Question:</div>
+          <div class="wrappable">{data?.question || ''}</div>
+        </li>
+        {/if}
+        {#if data?.answer}
+        <li>
+          <div class="wrappable fw-bold text-primary">Answer:</div>
+          <div class="wrappable">{data?.answer || ''}</div>
+        </li>
+        {/if}
+      </ul>
+    </div>
+  </td>
+</tr>
+{/if}

@@ -16,8 +16,8 @@
 .knowledge-search-container {
     .search-textarea {
         border-radius: 5px;
-        background-color: var(--#{$prefix}light) !important;
         border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
         scrollbar-width: thin;
     }
 
@@ -33,10 +33,6 @@
 
         .list-closed {
             list-style-type: disclosure-closed;
-        }
-
-        .togglable {
-            cursor: pointer;
         }
 
         .result-item {
@@ -64,9 +60,12 @@
     .knowledge-text {
         width: 40%;
         max-width: 50px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+
+        .ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 
     .knowledge-op {
@@ -74,6 +73,26 @@
 
         .knowledge-op-list {
             justify-content: center;
+        }
+    }
+
+    .knowledge-detail {
+        padding: 2px 5px;
+        border-radius: 3px;
+        border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
+
+        ul {
+            margin: 15px 0px;
+            list-style-type: square;
+
+            li {
+                margin: 5px 0px;
+            }
+        }
+
+        .wrappable {
+            white-space: wrap !important;
         }
     }
 }
