@@ -1,6 +1,7 @@
 <script>
 	import { searchKnowledge } from "$lib/services/knowledge-base-service";
   import { Button } from "@sveltestrap/sveltestrap";
+  import LoadingDots from "$lib/common/LoadingDots.svelte";
 	import KnowledgeSearchList from "./knowledge-search-list.svelte";
   import _ from "lodash";
 
@@ -66,9 +67,15 @@
     </Button>
   </div>
 
-  <KnowledgeSearchList
-    list={search_results}
-    isSearching={is_searching}
-    searchDone={search_done}
-  />
+  {#if is_searching}
+    <div class="knowledge-loader mt-4">
+      <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+    </div>
+  {:else if search_results?.length > 0}
+    <KnowledgeSearchList list={search_results} />
+  {:else if search_done}
+    <div class="mt-2">
+      <h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
+    </div>
+  {/if}
 </div>

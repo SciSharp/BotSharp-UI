@@ -35,6 +35,10 @@
     }
 
     .knowledge-search-result-container {
+        li::marker {
+            color: var(--bs-secondary)
+        }
+
         .list-open {
             list-style-type: disclosure-open;
         }
