@@ -6,8 +6,10 @@
     import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import KnowledgeTable from "./knowledge-table/knowledge-table.svelte";
 	import KnowledgeSearch from './knowledge-search/knowledge-search.svelte';
+	import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 
 	let show_demo = false;
+	let collection = KNOWLEDGE_COLLECTION;
 
 	function toggleDemo() {
 		show_demo = !show_demo;
@@ -52,14 +54,14 @@
 				in:fly={{ y: -10, duration: 500 }}
 				out:fly={{ y: -10, duration: 200 }}
 			>
-				<KnowledgeSearch />
+				<KnowledgeSearch bind:collection={collection} />
 			</div>
 		{/if}
 		<div class="d-md-flex">
 			<div class="w-100">
 				<Card>
 					<CardBody>
-                  		<KnowledgeTable />
+                  		<KnowledgeTable bind:collection={collection} />
 					</CardBody>
 				</Card>
 			</div>

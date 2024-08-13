@@ -1,14 +1,20 @@
 <script>
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
-  import { Table, Button } from "@sveltestrap/sveltestrap";
-	import { getKnowledgeData } from '$lib/services/knowledge-base-service';
+  import { Table, Button, Input } from "@sveltestrap/sveltestrap";
+	import { getKnowledgeCollections, getKnowledgeData } from '$lib/services/knowledge-base-service';
+  import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Loader from '$lib/common/Loader.svelte';
 	import KnowledgeItem from './knowledge-item.svelte';
 
   const page_size = 8;
   const duration = 2000;
+
+  export let collection = KNOWLEDGE_COLLECTION;
+
+  /** @type {string[]} */
+  let collections = [];
 
   /** @type {import('$types').KnowledgeCollectionDataViewModel[]} */
   let items = [];
@@ -26,15 +32,38 @@
   let errorText = "Error";
 
   onMount(() => {
-    initData();
+    getCollections().then(() => {
+      initData(null, true);
+    });
   });
 
-  /** @param {string | null} [startId] */
-  function getKnowledgeListData(startId = null) {
+  function getCollections() {
     return new Promise((resolve, reject) => {
-      getKnowledgeData({ size: page_size, start_id: startId }).then(res => {
+      getKnowledgeCollections().then(res => {
+        collections = res || [ KNOWLEDGE_COLLECTION ];
+        collection = collections[0];
+        resolve(res);
+      }).catch(err => {
+        collections = [ KNOWLEDGE_COLLECTION ];
+        collection = collections[0];
+        reject(err);
+      })
+    });
+  }
+
+  /**
+   * @param {string | null} [startId]
+   * @param {boolean} reset
+   */
+  function getKnowledgeListData(startId = null, reset = false) {
+    return new Promise((resolve, reject) => {
+      getKnowledgeData({ size: page_size, start_id: startId }, collection).then(res => {
         const newItems = res.items || [];
-        items = [ ...items, ...newItems ];
+        if (reset) {
+          items = [ ...newItems ];
+        } else {
+          items = [ ...items, ...newItems ];
+        }
         next_id = res.next_id;
         resolve(res);
       }).catch(err => {
@@ -46,19 +75,26 @@
 
 
   /**
-   * @param {boolean} isLocal
    * @param {string | null} [startId]
+   * @param {boolean} reset
+   * @param {boolean} isLocal
    */
-  function initData(startId = null, isLocal = false, ) {
-    toggleLoader(isLocal);
-    getKnowledgeListData(startId).catch(err => {
-      isError = true;
-      setTimeout(() => {
-        isError = false;
-      }, 2000);
-    }).finally(() => {
+  function initData(startId = null, reset = false, isLocal = false) {
+    return new Promise((resolve, reject) => {
       toggleLoader(isLocal);
+      getKnowledgeListData(startId, reset).then(res => {
+        resolve(res);
+      }).catch(err => {
+        isError = true;
+        setTimeout(() => {
+          isError = false;
+        }, 2000);
+        reject(err);
+      }).finally(() => {
+        toggleLoader(isLocal);
+      });
     });
+    
   }
 
   /** @param {boolean} isLocal */
@@ -71,7 +107,7 @@
   }
 
   function loadMore() {
-    initData(next_id, true);
+    initData(next_id, false, true);
   }
 
   /**
@@ -94,6 +130,14 @@
       }, duration);
     }
   }
+
+  /** @param {any} e */
+  function selectCollection(e) {
+    const value = e.target.value;
+    collection = value;
+    next_id = null;
+    initData(null, true);
+  }
 </script>
 
 <LoadingToComplete
@@ -104,10 +148,20 @@
   errorText={errorText}
 />
 
-<div class="mt-4">
-  <div class="d-flex flex-wrap">
-    <h5 class="font-size-16 me-3">{$_('Knowledges')}</h5>
+<div class="mt-2">
+  <div class="d-flex flex-wrap mb-3 knowledge-table-header">
+    <h5 class="font-size-16 knowledge-header-text">
+      <div>{$_('Knowledges')}</div>
+    </h5>
+    <div class="knowledge-dropdown">
+      <Input type="select" on:change={(e) => selectCollection(e)}>
+        {#each collections as option, idx (idx)}
+          <option value={option} selected={idx === 0}>{option}</option>
+        {/each}
+      </Input>
+    </div>
   </div>
+
   <hr class="mt-2" />
 
   <div class="table-responsive knowledge-table">

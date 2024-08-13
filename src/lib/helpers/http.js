@@ -64,7 +64,11 @@ function skipLoader(config) {
     const getRegexes = [
         new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g')
+        new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collections', 'g'),
+        new RegExp('http(s*)://(.*?)/setting/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/user/me', 'g'),
+        new RegExp('http(s*)://(.*?)/plugin/menu', 'g')
     ];
 
     if (config.method === 'post' && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
@@ -72,6 +76,7 @@ function skipLoader(config) {
     }
 
     if (config.method === 'get' && getRegexes.some(regex => regex.test(config.url || ''))) {
+        console.log(config.url);
         return true;
     }
 
