@@ -4,6 +4,15 @@ import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
 /**
+ * @returns {Promise<string[]>}
+ */
+export async function getKnowledgeCollections() {
+    const url = endpoints.knowledgeBaseCollectionsUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * @param {import('$types').SearchKnowledgeRequest} request
  * @param {string | null} [collection]
  * @returns {Promise<import('$types').KnowledgeRetrivalViewModel[]>}

@@ -2,13 +2,17 @@
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
   import { Table, Button } from "@sveltestrap/sveltestrap";
-	import { getKnowledgeData } from '$lib/services/knowledge-base-service';
+	import { getKnowledgeCollections, getKnowledgeData } from '$lib/services/knowledge-base-service';
+  import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Loader from '$lib/common/Loader.svelte';
 	import KnowledgeItem from './knowledge-item.svelte';
 
   const page_size = 8;
   const duration = 2000;
+
+  /** @type {string[]} */
+  let collections = [];
 
   /** @type {import('$types').KnowledgeCollectionDataViewModel[]} */
   let items = [];
@@ -25,14 +29,32 @@
   let successText = "Done";
   let errorText = "Error";
 
+  let selectedCollection = KNOWLEDGE_COLLECTION;
+
   onMount(() => {
-    initData();
+    getCollections().then(() => {
+      initData();
+    });
   });
+
+  function getCollections() {
+    return new Promise((resolve, reject) => {
+      getKnowledgeCollections().then(res => {
+        collections = res || [ KNOWLEDGE_COLLECTION ];
+        selectedCollection = collections[0];
+        resolve(res);
+      }).catch(err => {
+        collections = [ KNOWLEDGE_COLLECTION ];
+        selectedCollection = collections[0];
+        reject(err);
+      })
+    });
+  }
 
   /** @param {string | null} [startId] */
   function getKnowledgeListData(startId = null) {
     return new Promise((resolve, reject) => {
-      getKnowledgeData({ size: page_size, start_id: startId }).then(res => {
+      getKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
         const newItems = res.items || [];
         items = [ ...items, ...newItems ];
         next_id = res.next_id;
@@ -49,16 +71,22 @@
    * @param {boolean} isLocal
    * @param {string | null} [startId]
    */
-  function initData(startId = null, isLocal = false, ) {
-    toggleLoader(isLocal);
-    getKnowledgeListData(startId).catch(err => {
-      isError = true;
-      setTimeout(() => {
-        isError = false;
-      }, 2000);
-    }).finally(() => {
+  function initData(startId = null, isLocal = false) {
+    return new Promise((resolve, reject) => {
       toggleLoader(isLocal);
+      getKnowledgeListData(startId).then(res => {
+        resolve(res);
+      }).catch(err => {
+        isError = true;
+        setTimeout(() => {
+          isError = false;
+        }, 2000);
+        reject(err);
+      }).finally(() => {
+        toggleLoader(isLocal);
+      });
     });
+    
   }
 
   /** @param {boolean} isLocal */
