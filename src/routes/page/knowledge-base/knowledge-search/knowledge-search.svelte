@@ -3,7 +3,10 @@
   import { Button } from "@sveltestrap/sveltestrap";
   import LoadingDots from "$lib/common/LoadingDots.svelte";
 	import KnowledgeSearchList from "./knowledge-search-list.svelte";
+  import { KNOWLEDGE_COLLECTION } from "$lib/helpers/constants";
   import _ from "lodash";
+
+  export let collection = KNOWLEDGE_COLLECTION;
 
   let text = "";
   let is_searching = false;
@@ -21,7 +24,7 @@
     searchKnowledge({
       text: _.trim(text),
       confidence: confidence
-    }).then(res => {
+    }, collection).then(res => {
       search_results = res || [];
     }).finally(() => {
       is_searching = false;

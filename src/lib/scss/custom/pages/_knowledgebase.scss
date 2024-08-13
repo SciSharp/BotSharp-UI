@@ -66,6 +66,19 @@
     }
 }
 
+.knowledge-table-header {
+    justify-content: space-between;
+
+    .knowledge-header-text {
+        margin-bottom: 0px !important;
+        padding: 0.47rem 0.75rem;
+    }
+
+    .knowledge-dropdown {
+        width: 30%;
+    }
+}
+
 .knowledge-table {
     overflow: hidden;
 
