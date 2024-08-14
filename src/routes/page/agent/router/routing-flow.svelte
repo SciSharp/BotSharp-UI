@@ -30,7 +30,7 @@
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
-        const response = await getAgents(filter, true);
+        const response = await getAgents(filter);
         agents = response?.items || [];
 
         const container = document.getElementById("drawflow");
@@ -185,7 +185,7 @@
         includeTaskAgent = !includeTaskAgent;
         filter.type = includeTaskAgent ? "task" : "none";
         filter.type += includeStaticAgent ? ",static" : ",none";
-        const response = await getAgents(filter, true);
+        const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
     }
@@ -194,7 +194,7 @@
         includeStaticAgent = !includeStaticAgent;
         filter.type = includeTaskAgent ? "task" : "none";
         filter.type += includeStaticAgent ? ",static" : ",none";
-        const response = await getAgents(filter, true);
+        const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
     }

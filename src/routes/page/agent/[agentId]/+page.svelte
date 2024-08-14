@@ -37,7 +37,10 @@
     onMount(() => {
         isLoading = true;
         getAgent(params.agentId).then(data => {
-            agent = data;
+            agent = {
+                ...data,
+                llm_config: data.llm_config || {}
+            };
         }).finally(() => {
             isLoading = false;
         });

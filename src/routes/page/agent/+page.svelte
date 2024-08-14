@@ -44,7 +44,7 @@
 
   	function getPagedAgents() {
 		isLoading = true;
-    	getAgents(filter, true).then(data => {
+    	getAgents(filter).then(data => {
 			agents = data;
 		}).catch(() => {
 			agents = { items: [], count: 0 };

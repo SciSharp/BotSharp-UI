@@ -75,13 +75,37 @@
 }
 
 .chat-head {
-    font-size: 1.1em;
+    font-size: 16px;
     padding: 2vmin 2%;
     height: 10%;
 
-    .head-left {
-        display: flex;
-        flex-direction: column;
+    .chat-row {
+        height: 100%;
+
+        .chat-head-info {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+
+            .chat-head-agent {
+                flex: 0.5;
+                display: flex;
+                gap: 10px;
+                width: fit-content;
+                height: 50%;
+
+                .chat-head-agent-icon {
+                    height: 80%;
+                }
+            }
+
+            .chat-head-user {
+                flex: 0.5;
+                display: flex;
+                gap: 5px;
+                width: fit-content;
+            }
+        }
     }
 }
 

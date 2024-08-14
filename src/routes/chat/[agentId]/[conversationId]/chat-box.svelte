@@ -971,11 +971,21 @@
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
 					<div class="border-bottom chat-head">
-						<div class="row">
-							<div class="col-md-4 col-7 head-left">
-								<div class="m-1">{agent?.name || 'Unkown'}</div>
-								<div class="text-muted mb-0">
-									<i class="mdi mdi-circle text-success align-middle me-1" /> {conversationUser?.full_name || conversationUser?.user_name || ''}
+						<div class="row chat-row">
+							<div class="col-md-4 col-7 chat-head-info">
+								<div class="chat-head-agent">
+									{#if agent?.icon_url}
+									<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
+									{/if}
+									<div class="chat-head-agent-name">{agent?.name || 'Unkown'}</div>
+								</div>
+								<div class="text-muted mb-0 chat-head-user">
+									<div>
+										<i class="mdi mdi-circle text-success align-middle" />
+									</div>
+									<div>
+										<span>{conversationUser?.full_name || conversationUser?.user_name || ''}</span>
+									</div>
 								</div>
 							</div>
 		
@@ -1144,7 +1154,7 @@
 													</span>
 												{/if}
 												<div class="flex-shrink-0 align-self-center" style="display: inline-block;">
-													<LoadingDots duration={'1s'} size={10} color={'var(--bs-primary)'} />
+													<LoadingDots duration={'1s'} size={10} gap={5} color={'var(--bs-primary)'} />
 												</div>
 											</div>
 										</div>

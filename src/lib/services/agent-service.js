@@ -14,15 +14,13 @@ export async function getSettings() {
 /**
  * Get agent list
  * @param {import('$types').AgentFilter} filter
- * @param {boolean} useHook
  * @returns {Promise<import('$types').PagedItems<import('$types').AgentModel>>}
  */
-export async function getAgents(filter, useHook = false) {
+export async function getAgents(filter) {
     let url = endpoints.agentListUrl;
     const response = await axios.get(url, {
         params: {
-            ...filter,
-            useHook: useHook || false
+            ...filter
         },
         paramsSerializer: {
             dots: true,
