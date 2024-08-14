@@ -76,7 +76,6 @@ function skipLoader(config) {
     }
 
     if (config.method === 'get' && getRegexes.some(regex => regex.test(config.url || ''))) {
-        console.log(config.url);
         return true;
     }
 

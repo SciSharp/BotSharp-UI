@@ -278,4 +278,8 @@ button:focus {
   a {
     color: white;
   }
+
+  ul {
+    list-style-position: inside !important;
+  }
 }
