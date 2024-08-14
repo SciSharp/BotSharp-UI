@@ -3,7 +3,6 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import { _ } from 'svelte-i18n';
     import {
-		Button,
 		Card,
 		CardBody,
 		CardText,
@@ -57,7 +56,7 @@
         <CardTitle class="h4">{$_('System & Plugin Settings')}</CardTitle>
         <p class="card-title-desc"></p>
 
-        <Nav tabs class="nav-tabs-custom nav-justified">
+        <Nav tabs class="nav-tabs-default nav-justified">
             {#each settings as tab}
             <NavItem id={tab}>
                 <NavLink

@@ -21,7 +21,7 @@
                 responses: agent.responses,
                 templates: agent.templates
             }
-        }         
+        };
     });
 
     /**
@@ -40,8 +40,8 @@
 
 <style>
     .my-json-editor {
-      /* define a custom theme color */
-      --jse-theme-color: var(--bs-primary);
-      --jse-theme-color-highlight: #687177;
+        /* define a custom theme color */
+        --jse-theme-color: var(--bs-primary);
+        --jse-theme-color-highlight: #687177;
     }
 </style>

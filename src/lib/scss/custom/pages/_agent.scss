@@ -40,6 +40,37 @@
     }
 }
 
+.agent-detail-sections {
+    .section-min-width {
+        min-width: 200px;
+    }
+
+    .agent-detail-section {
+        height: 800px;
+        margin-top: 10px;
+
+        @media (max-width: 423px) {
+            height: fit-content;
+        }
+    
+        .agent-prompt-container {
+            height: 100%;
+    
+            .agent-prompt-header {
+                background-color: white;
+                padding: 20px;
+            }
+        }
+    }
+}
+
+
+
+.agent-detail-overflow {
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
 .routing-rule-container {
     .rule-header {
         margin-top: 5px;

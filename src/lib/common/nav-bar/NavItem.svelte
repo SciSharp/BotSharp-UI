@@ -65,7 +65,7 @@
     role={containerRole}
 >
     <button
-        class="{disableDefaultNavBtnStyles ? '' : 'nav-link tab-btn'} {navBtnClasses}"
+        class="{disableDefaultNavBtnStyles ? '' : 'tab-btn nav-link'} {navBtnClasses}"
         class:active={active}
         style={`${navBtnStyles}`}
         id={navBtnId}

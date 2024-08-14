@@ -19,12 +19,13 @@
 }
 
 
-.nav-tabs-custom {
+.nav-tabs-default {
   border-bottom: 2px solid var(--#{$prefix}border-color);
 
   .nav-item {
     position: relative;
     color: var(--#{$prefix}body-color);
+
     .nav-link {
       border: none;
 
@@ -40,13 +41,49 @@
         transform: scale(0);
       }
 
-      &.active{
+      &.active {
         color: $primary;
-        &:after{
+
+        &:after {
           transform: scale(1);
         }
       }
+    }
+  }
+}
 
+.nav-tabs-secondary {
+  border-bottom: 2px solid var(--#{$prefix}border-color);
+
+  .nav-item {
+    position: relative;
+    border-radius: 3px;
+    
+    .nav-link {
+      border: none;
+      color: var(--#{$prefix}secondary);
+      text-transform: capitalize;
+
+      &::after {
+        content: "";
+        background: $secondary;
+        height: 2px;
+        position: absolute;
+        width: 100%;
+        left: 0;
+        bottom: -1px;
+        transition: all 250ms ease 0s;
+        transform: scale(0);
+      }
+
+      &.active {
+        color: $primary;
+
+        &:after {
+          background: $primary;
+          transform: scale(1);
+        }
+      }
     }
   }
 }
@@ -54,7 +91,7 @@
 
 // vertical nav
 
-.vertical-nav{
+.vertical-nav {
   .nav{
       .nav-link{
           padding: 24px 16px;

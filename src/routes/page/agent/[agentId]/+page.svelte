@@ -70,6 +70,7 @@
             ...agent,
             description: agent.description || '',
             instruction: agent.instruction || '',
+            channel_instructions: agent.channel_instructions || [],
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || []
         };
@@ -130,27 +131,37 @@
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 {#if agent}
-<Row>
-    <Col style="flex: 30%;">
-        <AgentOverview agent={agent} profiles={agent.profiles || []} utilities={agent.utilities || []} />
-        <AgentLlmConfig agent={agent} />
-        {#if agent.routing_rules?.length > 0}
-            <AgentRouting agent={agent} />
-        {/if}
-    </Col>
-    <Col style="flex: 40%;">
-        <AgentPrompt agent={agent} />
-    </Col>
-    <Col style="flex: 30%;">
-        <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
-    </Col>    
-</Row>
-    {#if !!agent?.editable}
-    <Row>
-        <div class="hstack gap-2 my-4">
-            <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>
-            <Button class="btn btn-danger" on:click={() => deleteCurrentAgent()}>{$_('Delete Agent')}</Button>
-        </div>
+    <Row class="agent-detail-sections">
+        <Col class="section-min-width" style="flex: 30%;">
+            <div class="agent-detail-section agent-detail-overflow">
+                <AgentOverview agent={agent} profiles={agent.profiles || []} utilities={agent.utilities || []} />
+            </div>
+        </Col>
+        <Col class="section-min-width" style="flex: 40%; ">
+            <div class="agent-detail-section">
+                <AgentPrompt agent={agent} />
+            </div>
+        </Col>
+        <Col class="section-min-width" style="flex: 30%;">
+            <div class="agent-detail-section agent-detail-overflow">
+                <AgentLlmConfig agent={agent} />
+                {#if agent.routing_rules?.length > 0}
+                    <AgentRouting agent={agent} />
+                {/if}
+            </div>
+        </Col>
     </Row>
+
+    <Row class="mt-3">
+        <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
+    </Row>
+
+    {#if !!agent?.editable}
+        <Row>
+            <div class="hstack gap-2 my-4">
+                <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>
+                <Button class="btn btn-danger" on:click={() => deleteCurrentAgent()}>{$_('Delete Agent')}</Button>
+            </div>
+        </Row>
     {/if}
 {/if}

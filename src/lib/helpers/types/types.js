@@ -88,6 +88,12 @@
  */
 
 /**
+ * @typedef {Object} ChannelInstruction
+ * @property {string} channel 
+ * @property {string} instruction
+ */
+
+/**
  * @typedef {Object} LlmModelSetting
  * @property {string} name
  * @property {string} type
@@ -115,6 +121,7 @@
  * @property {string} description - Agent description.
  * @property {string} type - Agent type
  * @property {string} instruction - System prompt
+ * @property {ChannelInstruction[]} channel_instructions - Channel instructions
  * @property {boolean} disabled
  * @property {boolean} is_public
  * @property {boolean} is_host
