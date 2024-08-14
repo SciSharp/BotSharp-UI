@@ -17,7 +17,7 @@
 </script>
 
 <ul
-    class="{disableDefaultStyles ? '' : 'nav nav-tabs nav-tabs-custom nav-justified nav-container'} {containerClasses}"
+    class="nav nav-tabs {disableDefaultStyles ? '' : 'nav-tabs-default nav-container'} {containerClasses}"
     style={`${containerStyles}`}
     id={id}
     role={role}
