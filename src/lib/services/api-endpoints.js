@@ -59,11 +59,11 @@ export const endpoints = {
     loggingStateLogUrl: `${host}/logger/conversation/{conversationId}/state-log`,
     
     // knowledge base
-    knowledgeBaseCollectionsUrl: `${host}/knowledge/collections`,
-    knowledgeBaseDataListUrl: `${host}/knowledge/{collection}/data`,
-    knowledgeBaseSearchUrl: `${host}/knowledge/{collection}/search`,
-    knowledgeBaseDeleteDataUrl: `${host}/knowledge/{collection}/data/{id}`,
-    knowledgeBaseUploadUrl: `${host}/knowledge/{collection}/upload`,
+    vectorKnowledgeCollectionsUrl: `${host}/knowledge/vector/collections`,
+    vectorKnowledgeDataListUrl: `${host}/knowledge/vector/{collection}/data`,
+    vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
+    vectorKnowledgeDeleteUrl: `${host}/knowledge/vector/{collection}/data/{id}`,
+    vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

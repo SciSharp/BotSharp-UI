@@ -10,7 +10,7 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
-	import { getKnowledgeCollections, getKnowledgeData, searchKnowledge } from '$lib/services/knowledge-base-service';
+	import { getVectorKnowledgeCollections, getVectorKnowledgeData, searchVectorKnowledge } from '$lib/services/knowledge-base-service';
 	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
 	
 	
@@ -60,7 +60,7 @@
 		isSearching = true;
 		searchDone = false;
 		isFromSearch = false;
-		searchKnowledge({
+		searchVectorKnowledge({
 			text: util.trim(text),
 			confidence: confidence
 		}, selectedCollection).then(res => {
@@ -99,7 +99,7 @@
 	// Knowledge list data
 	function getCollections() {
 		return new Promise((resolve, reject) => {
-			getKnowledgeCollections().then(res => {
+			getVectorKnowledgeCollections().then(res => {
 				const retCollections = res || [];
 				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : retCollections;
 				selectedCollection = collections[0];
@@ -118,7 +118,7 @@
 	 */
 	function getKnowledgeListData(startId = null, reset = false) {
 		return new Promise((resolve, reject) => {
-			getKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
+			getVectorKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
 				const newItems = res.items || [];
 				if (reset) {
 					items = [ ...newItems ];

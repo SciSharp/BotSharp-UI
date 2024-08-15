@@ -6,8 +6,8 @@ import axios from 'axios';
 /**
  * @returns {Promise<string[]>}
  */
-export async function getKnowledgeCollections() {
-    const url = endpoints.knowledgeBaseCollectionsUrl;
+export async function getVectorKnowledgeCollections() {
+    const url = endpoints.vectorKnowledgeCollectionsUrl;
     const response = await axios.get(url);
     return response.data;
 }
@@ -17,8 +17,8 @@ export async function getKnowledgeCollections() {
  * @param {string | null} [collection]
  * @returns {Promise<import('$types').KnowledgeSearchViewModel[]>}
  */
-export async function searchKnowledge(request, collection = null) {
-    const url = replaceUrl(endpoints.knowledgeBaseSearchUrl, {
+export async function searchVectorKnowledge(request, collection = null) {
+    const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
@@ -31,8 +31,8 @@ export async function searchKnowledge(request, collection = null) {
  * @param {string | null} [collection]
  * @returns {Promise<import('$types').KnowledgeSearchPageResult>}
  */
-export async function getKnowledgeData(filter, collection = null) {
-    const url = replaceUrl(endpoints.knowledgeBaseDataListUrl, {
+export async function getVectorKnowledgeData(filter, collection = null) {
+    const url = replaceUrl(endpoints.vectorKnowledgeDataListUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
@@ -46,8 +46,8 @@ export async function getKnowledgeData(filter, collection = null) {
  * @param {string | null} [collection]
  * @returns {Promise<boolean>}
  */
-export async function deleteKnowledgeData(id, collection = null) {
-    const url = replaceUrl(endpoints.knowledgeBaseDeleteDataUrl, {
+export async function deleteVectorKnowledgeData(id, collection = null) {
+    const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION,
         id: id
     });
@@ -64,8 +64,8 @@ export async function deleteKnowledgeData(id, collection = null) {
  * @param {number | null} [startPageNum]
  * @param {number | null} [endPageNum]
  */
-export async function uploadKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
-    const url = replaceUrl(endpoints.knowledgeBaseUploadUrl, {
+export async function uploadVectorKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
+    const url = replaceUrl(endpoints.vectorKnowledgeUploadUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 

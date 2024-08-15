@@ -1,6 +1,6 @@
 <script>
     import { _ } from 'svelte-i18n';
-    import { uploadKnowledge } from '$lib/services/knowledge-base-service';
+    import { uploadVectorKnowledge } from '$lib/services/knowledge-base-service';
     import { Input, Button } from "@sveltestrap/sveltestrap";
 
     /** @type {FileList} */
@@ -18,7 +18,7 @@
 
     async function handleFileUpload() {
         for (const file of files) {
-            await uploadKnowledge(file);
+            await uploadVectorKnowledge(file);
         }
     }
 </script>

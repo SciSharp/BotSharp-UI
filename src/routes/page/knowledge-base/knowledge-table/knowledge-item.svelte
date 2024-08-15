@@ -2,7 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
-    import { deleteKnowledgeData } from "$lib/services/knowledge-base-service";
+    import { deleteVectorKnowledgeData } from "$lib/services/knowledge-base-service";
     import Swal from 'sweetalert2/dist/sweetalert2.js';
     import "sweetalert2/src/sweetalert2.scss";
 	import Loader from "$lib/common/Loader.svelte";
@@ -37,7 +37,7 @@
         }).then(async (result) => {
             if (result.value) {
                 isLoading = true;
-                deleteKnowledgeData(id).then(res => {
+                deleteVectorKnowledgeData(id).then(res => {
                 if (res) {
                     dispatchDeleteEvent(id, res);
                     isLoading = false;
