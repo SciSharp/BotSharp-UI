@@ -9,7 +9,7 @@
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
+	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import { getKnowledgeCollections, getKnowledgeData, searchKnowledge } from '$lib/services/knowledge-base-service';
 	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
 	
@@ -20,7 +20,7 @@
 	const confidence = 0.5;
 	
 	let show_demo = false;
-	let selectedCollection = KNOWLEDGE_COLLECTION;
+	let selectedCollection = DEFAULT_KNOWLEDGE_COLLECTION;
 	let text = "";
 	let isSearching = false;
 	let searchDone = false;
@@ -97,11 +97,11 @@
 		return new Promise((resolve, reject) => {
 			getKnowledgeCollections().then(res => {
 				const retCollections = res || [];
-				collections = retCollections.length === 0 ? [ KNOWLEDGE_COLLECTION ] : retCollections;
+				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : retCollections;
 				selectedCollection = collections[0];
 				resolve(res);
 			}).catch(err => {
-				collections = [ KNOWLEDGE_COLLECTION ];
+				collections = [ DEFAULT_KNOWLEDGE_COLLECTION ];
 				selectedCollection = collections[0];
 				reject(err);
 			});
