@@ -96,7 +96,8 @@
 	function getCollections() {
 		return new Promise((resolve, reject) => {
 			getKnowledgeCollections().then(res => {
-				collections = res || [ KNOWLEDGE_COLLECTION ];
+				const retCollections = res || [];
+				collections = retCollections.length === 0 ? [ KNOWLEDGE_COLLECTION ] : retCollections;
 				selectedCollection = collections[0];
 				resolve(res);
 			}).catch(err => {
