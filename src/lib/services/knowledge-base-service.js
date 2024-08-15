@@ -15,25 +15,21 @@ export async function getKnowledgeCollections() {
 /**
  * @param {import('$types').SearchKnowledgeRequest} request
  * @param {string | null} [collection]
- * @returns {Promise<import('$types').KnowledgeRetrivalViewModel[]>}
+ * @returns {Promise<import('$types').KnowledgeSearchViewModel[]>}
  */
 export async function searchKnowledge(request, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseSearchUrl, {
         collection: collection || KNOWLEDGE_COLLECTION
     });
 
-    const body = {
-        ...request,
-        fields: request.fields || ["text", "answer"]
-    };
-    const response = await axios.post(url, { ...body });
+    const response = await axios.post(url, { ...request });
     return response.data;
 }
 
 /**
  * @param {import('$types').KnowledgeFilter} filter
  * @param {string | null} [collection]
- * @returns {Promise<import('$types').KnowledgeCollectionDataResult>}
+ * @returns {Promise<import('$types').KnowledgeSearchPageResult>}
  */
 export async function getKnowledgeData(filter, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseDataListUrl, {

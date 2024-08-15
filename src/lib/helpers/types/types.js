@@ -471,7 +471,7 @@ IRichContent.prototype.quick_replies;
 /**
  * @typedef {Object} SearchKnowledgeRequest
  * @property {string} text - The text.
- * @property {string} [fields] - Data fields.
+ * @property {string[]} [fields] - Data fields.
  * @property {number} [limit] - Data limit.
  * @property {number} [confidence] - Confidence.
  * @property {boolean} [with_vector] - Include vector or not.
@@ -485,24 +485,17 @@ IRichContent.prototype.quick_replies;
  */
 
 /**
- * @typedef {Object} KnowledgeRetrivalViewModel
- * @property {any} data - The knowledge data.
- * @property {number} score - The knowledge score.
- * @property {number[]} [vector] - The knowledge vector.
- */
-
-/**
- * @typedef {Object} KnowledgeCollectionDataViewModel
+ * @typedef {Object} KnowledgeSearchViewModel
  * @property {string} id - The knowledge data id.
- * @property {string} question - The question.
- * @property {string} answer - The answer.
+ * @property {any} data - The knowledge data.
+ * @property {number} [score] - The knowledge score.
  * @property {number[]} [vector] - The knowledge vector.
  */
 
 /**
- * @typedef {Object} KnowledgeCollectionDataResult
+ * @typedef {Object} KnowledgeSearchPageResult
  * @property {number} count - The total data count.
- * @property {KnowledgeCollectionDataViewModel[]} items - The data items.
+ * @property {KnowledgeSearchViewModel[]} items - The data items.
  * @property {string} [next_id] - The next id.
  */
 

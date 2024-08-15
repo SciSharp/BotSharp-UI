@@ -5,7 +5,7 @@
   import Swal from 'sweetalert2/dist/sweetalert2.js';
   import "sweetalert2/src/sweetalert2.scss";
 
-  /** @type {import('$types').KnowledgeCollectionDataViewModel} */
+  /** @type {import('$types').KnowledgeSearchViewModel} */
   export let data;
 
   /** @type {(id: string, isSuccess: boolean) => void} */
@@ -47,10 +47,10 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
   <td class="knowledge-text">
-    <div class="ellipsis">{data?.question || ''}</div>
+    <div class="ellipsis">{data?.data?.question || data?.data?.text || ''}</div>
   </td>
   <td class="knowledge-text">
-    <div class="ellipsis">{data?.answer || ''}</div>
+    <div class="ellipsis">{data?.data?.answer || ''}</div>
   </td>
   <td class="knowledge-op">
     <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
@@ -83,16 +83,22 @@
   <td colspan="3">
     <div class="knowledge-detail">
       <ul>
-        {#if data?.question}
+        {#if data?.data?.question || data?.data?.text}
         <li>
           <div class="wrappable fw-bold text-primary">Question:</div>
-          <div class="wrappable">{data?.question || ''}</div>
+          <div class="wrappable">{data?.data?.question || data?.data?.text || ''}</div>
         </li>
         {/if}
-        {#if data?.answer}
+        {#if data?.data?.answer}
         <li>
           <div class="wrappable fw-bold text-primary">Answer:</div>
-          <div class="wrappable">{data?.answer || ''}</div>
+          <div class="wrappable">{data?.data?.answer || ''}</div>
+        </li>
+        {/if}
+        {#if data?.score}
+        <li>
+          <div class="wrappable fw-bold text-primary">Score:</div>
+          <div class="wrappable">{data?.score?.toFixed(3)}</div>
         </li>
         {/if}
       </ul>
