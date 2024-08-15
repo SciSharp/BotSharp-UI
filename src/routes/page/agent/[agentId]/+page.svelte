@@ -132,28 +132,26 @@
 
 {#if agent}
     <Row class="agent-detail-sections">
-        <Col class="section-min-width" style="flex: 30%;">
-            <div class="agent-detail-section agent-detail-overflow">
+        <Col class="section-min-width agent-overview" style="flex: 35%;">
+            <div class="agent-detail-section">
                 <AgentOverview agent={agent} profiles={agent.profiles || []} utilities={agent.utilities || []} />
             </div>
-        </Col>
-        <Col class="section-min-width" style="flex: 40%; ">
+
             <div class="agent-detail-section">
-                <AgentPrompt agent={agent} />
-            </div>
-        </Col>
-        <Col class="section-min-width" style="flex: 30%;">
-            <div class="agent-detail-section agent-detail-overflow">
                 <AgentLlmConfig agent={agent} />
                 {#if agent.routing_rules?.length > 0}
                     <AgentRouting agent={agent} />
                 {/if}
             </div>
         </Col>
-    </Row>
-
-    <Row class="mt-3">
-        <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
+        <Col class="section-min-width" style="flex: 65%;">
+            <div class="agent-detail-section">
+                <AgentPrompt agent={agent} />
+            </div>
+            <div class="agent-detail-section">
+                <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
+            </div>
+        </Col>
     </Row>
 
     {#if !!agent?.editable}

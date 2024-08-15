@@ -42,13 +42,10 @@
 
 .agent-detail-sections {
     .section-min-width {
-        min-width: 200px;
+        min-width: 300px;
     }
 
     .agent-detail-section {
-        height: 800px;
-        margin-top: 10px;
-
         @media (max-width: 423px) {
             height: fit-content;
         }
