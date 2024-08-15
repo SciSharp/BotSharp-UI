@@ -14,7 +14,7 @@
 	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
 	
 	
-	const page_size = 2;
+	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
 	const confidence = 0.5;
@@ -165,11 +165,11 @@
 		initData(nextId, false, true);
 	}
 
-	/**
-	 * @param {string} id
-	 * @param {boolean} isSuccess
-	 */
-	function afterKnowledgeDeleted(id, isSuccess) {
+	/** @param {any} e */
+	function afterKnowledgeDeleted(e) {
+		const id = e.detail.id;
+		const isSuccess = e.detail.isSuccess;
+
 		if (isSuccess) {
 			isComplete = true;
 			successText = "Knowledge has been deleted!";
@@ -325,7 +325,7 @@
 									</thead>
 									<tbody>
 										{#each items as item}
-											<KnowledgeItem data={item} onDataDeleted={(id, isSuccess) => afterKnowledgeDeleted(id, isSuccess)} />
+											<KnowledgeItem data={item} on:delete={(e) => afterKnowledgeDeleted(e)} />
 										{/each}
 									</tbody>
 								</Table>
