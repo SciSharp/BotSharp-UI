@@ -137,7 +137,7 @@
 	 * @param {boolean} isLocal
 	 */
 	function initData(startId = null, reset = false, isLocal = false) {
-	return new Promise((resolve, reject) => {
+		return new Promise((resolve, reject) => {
 			toggleLoader(isLocal);
 			getKnowledgeListData(startId, reset).then(res => {
 				resolve(res);
@@ -188,11 +188,10 @@
 	}
 
 	/** @param {any} e */
-	function selectCollection(e) {
+	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
-		nextId = null;
-		initData(nextId, true);
+		reset();
 	}
 </script>
 
@@ -305,7 +304,7 @@
 									<div>{$_('Knowledges')}</div>
 								</h5>
 								<div class="knowledge-dropdown">
-									<Input type="select" on:change={(e) => selectCollection(e)}>
+									<Input type="select" on:change={(e) => changeCollection(e)}>
 										{#each collections as option, idx (idx)}
 											<option value={option} selected={idx === 0}>{option}</option>
 										{/each}
