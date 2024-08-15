@@ -26,4 +26,4 @@ export const FILE_EDITORS = [
 export const LERNER_ID = "01acc3e5-0af7-49e6-ad7a-a760bd12dc40";
 export const TRAINING_MODE = "training";
 
-export const KNOWLEDGE_COLLECTION = "BotSharp";
+export const DEFAULT_KNOWLEDGE_COLLECTION = "BotSharp";

@@ -1,4 +1,4 @@
-import { KNOWLEDGE_COLLECTION } from '$lib/helpers/constants.js';
+import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
@@ -19,7 +19,7 @@ export async function getKnowledgeCollections() {
  */
 export async function searchKnowledge(request, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseSearchUrl, {
-        collection: collection || KNOWLEDGE_COLLECTION
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
     const response = await axios.post(url, { ...request });
@@ -33,7 +33,7 @@ export async function searchKnowledge(request, collection = null) {
  */
 export async function getKnowledgeData(filter, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseDataListUrl, {
-        collection: collection || KNOWLEDGE_COLLECTION
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
     const response = await axios.post(url, { ...filter });
@@ -48,7 +48,7 @@ export async function getKnowledgeData(filter, collection = null) {
  */
 export async function deleteKnowledgeData(id, collection = null) {
     const url = replaceUrl(endpoints.knowledgeBaseDeleteDataUrl, {
-        collection: collection || KNOWLEDGE_COLLECTION,
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION,
         id: id
     });
 
@@ -66,7 +66,7 @@ export async function deleteKnowledgeData(id, collection = null) {
  */
 export async function uploadKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
     const url = replaceUrl(endpoints.knowledgeBaseUploadUrl, {
-        collection: collection || KNOWLEDGE_COLLECTION
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
     const formData = new FormData();
