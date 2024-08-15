@@ -24,6 +24,7 @@
 	let text = "";
 	let isSearching = false;
 	let searchDone = false;
+	let isFromSearch = false;
 	let successText = "Done";
 	let errorText = "Error";
 
@@ -58,11 +59,13 @@
 		items = [];
 		isSearching = true;
 		searchDone = false;
+		isFromSearch = false;
 		searchKnowledge({
 			text: util.trim(text),
 			confidence: confidence
 		}, selectedCollection).then(res => {
 			items = res || [];
+			isFromSearch = true;
 		}).finally(() => {
 			isSearching = false;
 			searchDone = true;
@@ -88,6 +91,7 @@
 		nextId = null;
 		isSearching = false;
 		searchDone = false;
+		isFromSearch = false;
 		initData(nextId, true);
 	}
 
@@ -324,8 +328,8 @@
 										</tr>
 									</thead>
 									<tbody>
-										{#each items as item}
-											<KnowledgeItem data={item} on:delete={(e) => afterKnowledgeDeleted(e)} />
+										{#each items as item, idx (idx)}
+											<KnowledgeItem data={item} open={isFromSearch && idx === 0} on:delete={(e) => afterKnowledgeDeleted(e)} />
 										{/each}
 									</tbody>
 								</Table>

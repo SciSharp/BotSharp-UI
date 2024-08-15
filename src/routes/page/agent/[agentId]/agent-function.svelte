@@ -1,5 +1,5 @@
 <script>
-    import { JSONEditor } from 'svelte-jsoneditor';
+    import { JSONEditor, Mode } from 'svelte-jsoneditor';
     import { onMount } from 'svelte';
 
     /** @type {import('$types').AgentModel} */
@@ -35,7 +35,7 @@
 </script>
 
 <div class="my-json-editor">
-    <JSONEditor content={content} onChange={handleChange} />
+    <JSONEditor mode={Mode.table} content={content} onChange={handleChange} />
 </div>
 
 <style>

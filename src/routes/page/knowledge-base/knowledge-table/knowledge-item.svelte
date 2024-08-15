@@ -13,7 +13,8 @@
     export let data;
 
     /** @type {boolean} */
-    let open = false;
+    export let open = false;
+
     let isLoading = false;
 
     function toggleItem() {
@@ -102,28 +103,28 @@
 {#if open}
 <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
     <td colspan="3">
-    <div class="knowledge-detail">
-        <ul>
-        {#if data?.data?.question || data?.data?.text}
-            <li>
-                <div class="wrappable fw-bold text-primary">Question:</div>
-                <div class="wrappable">{data?.data?.question || data?.data?.text || ''}</div>
-            </li>
-        {/if}
-        {#if data?.data?.answer}
-            <li>
-                <div class="wrappable fw-bold text-primary">Answer:</div>
-                <div class="wrappable">{data?.data?.answer || ''}</div>
-            </li>
-        {/if}
-        {#if data?.score}
-            <li>
-                <div class="wrappable fw-bold text-primary">Score:</div>
-                <div class="wrappable">{data?.score?.toFixed(3)}</div>
-            </li>
-        {/if}
-        </ul>
-    </div>
+        <div class="knowledge-detail">
+            <ul>
+            {#if data?.data?.question || data?.data?.text}
+                <li>
+                    <div class="wrappable fw-bold text-primary">Question:</div>
+                    <div class="wrappable">{data?.data?.question || data?.data?.text || ''}</div>
+                </li>
+            {/if}
+            {#if data?.data?.answer}
+                <li>
+                    <div class="wrappable fw-bold text-primary">Answer:</div>
+                    <div class="wrappable">{data?.data?.answer || ''}</div>
+                </li>
+            {/if}
+            {#if data?.score}
+                <li>
+                    <div class="wrappable fw-bold text-primary">Score:</div>
+                    <div class="wrappable">{data?.score?.toFixed(3)}</div>
+                </li>
+            {/if}
+            </ul>
+        </div>
     </td>
 </tr>
 {/if}
