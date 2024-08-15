@@ -1,7 +1,11 @@
 .knowledge-demo-btn {
     display: flex;
-    justify-content: flex-start;
-    gap: 10px;
+    justify-content: space-between;
+
+    .demo-btn {
+        display: flex;
+        gap: 10px;
+    }
     
     .btn-content {
         display: flex;
@@ -15,10 +19,27 @@
         flex-direction: column;
         justify-content: center;
     }
+}
 
-    .demo-tip {
-        font-size: 18px;
+.demo-tooltip-icon {
+    font-size: 18px;
+}
+
+.demo-tooltip-note {
+    .tooltip-inner {
+        max-width: fit-content;
     }
+
+    ul {
+        text-align: left !important;
+        margin-bottom: 0px !important;
+        padding-left: 1rem !important;
+
+        li {
+            margin: 3px 0px;
+        }
+    }
+    
 }
 
 .knowledge-search-container {
@@ -75,7 +96,7 @@
     }
 
     .knowledge-dropdown {
-        width: 30%;
+        width: 20%;
     }
 }
 
