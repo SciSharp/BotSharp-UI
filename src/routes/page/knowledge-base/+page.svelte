@@ -14,7 +14,7 @@
 	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
 	
 	
-	const page_size = 1;
+	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
 	const confidence = 0.5;
