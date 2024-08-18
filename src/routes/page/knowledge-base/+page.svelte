@@ -338,7 +338,7 @@
 									<div class="knowledge-loader mt-4">
 										<Loader size={25} disableDefaultStyles />
 									</div>
-								{:else if !!nextId && items?.length > 0}
+								{:else if !!nextId}
 									<div class="mt-4 text-center">
 										<Button
 											class="btn btn-soft-primary"
