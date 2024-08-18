@@ -14,7 +14,7 @@
 	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
 	
 	
-	const page_size = 8;
+	const page_size = 1;
   	const duration = 2000;
 	const maxLength = 4096;
 	const confidence = 0.5;
@@ -338,7 +338,7 @@
 									<div class="knowledge-loader mt-4">
 										<Loader size={25} disableDefaultStyles />
 									</div>
-								{:else if !!nextId && items?.length > 0}
+								{:else if !!nextId}
 									<div class="mt-4 text-center">
 										<Button
 											class="btn btn-soft-primary"
