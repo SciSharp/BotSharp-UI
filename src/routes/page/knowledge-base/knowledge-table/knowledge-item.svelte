@@ -69,9 +69,6 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class="knowledge-text">
-        <div class="ellipsis">{data?.id || ''}</div>
-    </td>
-    <td class="knowledge-text">
         <div class="ellipsis">{data?.data?.question || data?.data?.text || ''}</div>
     </td>
     <td class="knowledge-text">
@@ -127,6 +124,13 @@
                 </li>
             {/if}
             </ul>
+            {#if data?.id}
+                <ul class="knwoledge-id">
+                    <div class="wrappable text-secondary">
+                        <span>(<span>Id: {data?.id || ''}</span>)</span>
+                    </div>
+                </ul>
+            {/if}
         </div>
     </td>
 </tr>
