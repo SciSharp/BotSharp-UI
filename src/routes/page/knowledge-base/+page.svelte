@@ -322,7 +322,6 @@
 								<Table class="table align-middle table-nowrap table-hover mb-0">
 									<thead>
 										<tr>
-											<th scope="col">{$_('Id')}</th>
 											<th scope="col">{$_('Question')}</th>
 											<th scope="col">{$_('Answer')}</th>
 											<th></th>

@@ -104,7 +104,7 @@
     overflow: hidden;
 
     .knowledge-text {
-        width: 30%;
+        width: 40%;
         max-width: 50px;
 
         .ellipsis {
@@ -139,6 +139,11 @@
 
         .wrappable {
             white-space: wrap !important;
+        }
+
+        .knwoledge-id {
+            font-size: 10px;
+            margin: 5px 0px;
         }
     }
 }
