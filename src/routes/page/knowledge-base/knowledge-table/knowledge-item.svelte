@@ -69,6 +69,9 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class="knowledge-text">
+        <div class="ellipsis">{data?.id || ''}</div>
+    </td>
+    <td class="knowledge-text">
         <div class="ellipsis">{data?.data?.question || data?.data?.text || ''}</div>
     </td>
     <td class="knowledge-text">
