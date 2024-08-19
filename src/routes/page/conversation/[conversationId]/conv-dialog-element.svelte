@@ -19,7 +19,7 @@
   class:text-collapse={!!is_collapsed}
 >
   <Markdown
-    containerClasses={'text-primary'}
+    containerClasses={'dialog-item-text'}
     text={dialog?.rich_content?.message?.text || dialog?.text}
   />
 </div>

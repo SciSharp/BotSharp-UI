@@ -13,6 +13,14 @@
     inset: auto 0px auto auto !important;
 }
 
+.dialog-item-text {
+    color: $primary !important;
+
+    a {
+        color: $primary !important;
+    }
+}
+
 .text-collapse {
     overflow-y: hidden;
     height: fit-content;
