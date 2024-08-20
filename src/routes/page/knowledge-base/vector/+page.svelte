@@ -30,7 +30,7 @@
 	const maxLength = 4096;
     const regex = "[0-9\.]+";
 	
-	let showDemo = true;
+	let showDemo = false;
 	let selectedCollection = DEFAULT_KNOWLEDGE_COLLECTION;
 	let text = "";
 	let isSearching = false;
