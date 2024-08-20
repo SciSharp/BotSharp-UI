@@ -1,25 +1,36 @@
 <script>
 	import { onMount } from 'svelte';
+    import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import { Button, Card, CardBody, Input, Table, Tooltip } from '@sveltestrap/sveltestrap';
-	import { fly } from 'svelte/transition';
+	import {
+        Button,
+        Card,
+        CardBody,
+        Input,
+        Table,
+        Tooltip
+    } from '@sveltestrap/sveltestrap';
+    import {
+        getVectorKnowledgeCollections,
+        getVectorKnowledgeData,
+        searchVectorKnowledge
+    } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
-	import { getVectorKnowledgeCollections, getVectorKnowledgeData, searchVectorKnowledge } from '$lib/services/knowledge-base-service';
-	import KnowledgeItem from './knowledge-table/knowledge-item.svelte';
+	import VectorItem from './vector-table/vector-item.svelte';
 	
 	
 	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
-	const confidence = 0.5;
+    const regex = "[0-9\.]+";
 	
-	let show_demo = false;
+	let showDemo = false;
 	let selectedCollection = DEFAULT_KNOWLEDGE_COLLECTION;
 	let text = "";
 	let isSearching = false;
@@ -27,6 +38,7 @@
 	let isFromSearch = false;
 	let successText = "Done";
 	let errorText = "Error";
+    let confidence = '0.5';
 
 	/** @type {import('$types').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -52,7 +64,7 @@
 
 	// Search knowledge
 	function toggleDemo() {
-		show_demo = !show_demo;
+		showDemo = !showDemo;
 	}
 
 	function search() {
@@ -62,7 +74,7 @@
 		isFromSearch = false;
 		searchVectorKnowledge({
 			text: util.trim(text),
-			confidence: confidence
+			confidence: !isNaN(Number(confidence)) ? Number(confidence) : 0
 		}, selectedCollection).then(res => {
 			items = res || [];
 			isFromSearch = true;
@@ -94,6 +106,20 @@
 		isFromSearch = false;
 		initData(nextId, true);
 	}
+
+    /** @param {any} e */
+    function validateConfidence(e) {
+        var reg = new RegExp(regex, 'g');
+        if (!reg.test(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+    /** @param {any} e */
+    function changeConfidence(e) {
+        const value = e.target.value;
+        confidence = !isNaN(value) && Number(value) >= 0 ? Number(value).toFixed(2) : '0.0';
+    }
 
 
 	// Knowledge list data
@@ -199,8 +225,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Knowledge Manager')}" />
-<Breadcrumb pagetitle="{$_('Knowledge Manager')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title="{$_('Vector Knowledge')}" />
+<Breadcrumb pagetitle="{$_('Vector Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -213,23 +239,23 @@
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
 		<Button
-			color={`${show_demo ? 'danger' : 'primary'}`}
+			color={`${showDemo ? 'danger' : 'primary'}`}
 			on:click={() => toggleDemo()}
 		>
-			{#if !show_demo}
+			{#if !showDemo}
 				<div class="btn-content">
 					<div class="btn-icon"><i class="bx bx-search-alt" /></div>
-					<div>{'Search knowledge'}</div>
+					<div>{'Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
 					<span class="btn-icon"><i class="bx bx-hide" /></span>
-					<span>{'Hide search'}</span>
+					<span>{'Hide'}</span>
 				</div>
 			{/if}
 		</Button>
 
-		{#if show_demo}
+		{#if showDemo}
 			<div class="btn-icon demo-tooltip-icon" id="demo-tooltip">
 				<i class="bx bx-info-circle" />
 			</div>
@@ -257,7 +283,7 @@
 
 <div class="d-xl-flex">
 	<div class="w-100">
-		{#if show_demo}
+		{#if showDemo}
 			<div
 				in:fly={{ y: -10, duration: 500 }}
 				out:fly={{ y: -10, duration: 200 }}
@@ -268,7 +294,7 @@
 						rows={5}
 						maxlength={maxLength}
 						disabled={isSearching}
-						placeholder={'Please type something here...'}
+						placeholder={'Start searching here...'}
 						bind:value={text}
 						on:keydown={(e) => pressKey(e)}
 					/>
@@ -276,15 +302,31 @@
 						{text?.length || 0}/{maxLength}
 					</div>
 				
-					<div class="mt-2 text-end">
-						<Button
-							color="primary"
-							disabled={!text || util.trim(text).length === 0 || isSearching}
-							on:click={() => search()}
-						>
-							{'Search'}
-						</Button>
-					</div>
+                    <div class="mt-2 knowledge-search-footer">
+                        <div class="confidence-input">
+                            <span class="confidence-text fw-bold">
+                                {'Confidence:'}
+                            </span>
+                            <span class="confidence-box">
+                                <Input
+                                    type="text"
+                                    class="text-center"
+                                    bind:value={confidence}
+                                    on:keydown={(e) => validateConfidence(e)}
+                                    on:blur={(e) => changeConfidence(e)}
+                                />
+                            </span>
+                        </div>
+                        <div>
+                            <Button
+                                color="primary"
+                                disabled={!text || util.trim(text).length === 0 || isSearching}
+                                on:click={() => search()}
+                            >
+                                {'Search'}
+                            </Button>
+                        </div>
+                    </div>
 				
 					{#if isSearching}
 						<div class="knowledge-loader mt-4">
@@ -329,7 +371,7 @@
 									</thead>
 									<tbody>
 										{#each items as item, idx (idx)}
-											<KnowledgeItem data={item} open={isFromSearch && idx === 0} on:delete={(e) => afterKnowledgeDeleted(e)} />
+                                            <VectorItem data={item} open={isFromSearch && idx === 0} on:delete={(e) => afterKnowledgeDeleted(e)} />
 										{/each}
 									</tbody>
 								</Table>

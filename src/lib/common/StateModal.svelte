@@ -1,5 +1,15 @@
 <script>
-	import { Button, Input, Modal, ModalBody, ModalFooter, ModalHeader, Row, Form, FormGroup } from "@sveltestrap/sveltestrap";
+	import {
+        Button,
+        Input,
+        Modal,
+        ModalBody,
+        ModalFooter,
+        ModalHeader,
+        Row,
+        Form,
+        FormGroup
+    } from "@sveltestrap/sveltestrap";
     import _ from "lodash";
 
     /** @type {boolean} */
