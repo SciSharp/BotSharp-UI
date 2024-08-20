@@ -48,6 +48,7 @@
         border-color: var(--#{$prefix}light) !important;
         background-color: var(--#{$prefix}light) !important;
         scrollbar-width: thin;
+        resize: none;
     }
 
     .text-count {
@@ -55,34 +56,32 @@
         font-size: 10px;
     }
 
-    .knowledge-search-result-container {
-        li::marker {
-            color: var(--bs-secondary)
+    .knowledge-search-footer {
+        display: flex;
+        justify-content: space-between;
+
+        .confidence-input {
+            display: flex;
+            gap: 5px;
+
+            .confidence-text {
+                padding: 0.47rem 0px;
+                font-size: 12px;
+            }
+
+            .confidence-box {
+                width: 40%;
+            }
+        }
+    }
+
+    .graph-searh-result-container {
+        .graph-result-header {
+            font-size: 17px;
         }
 
-        .list-open {
-            list-style-type: disclosure-open;
-        }
-
-        .list-closed {
-            list-style-type: disclosure-closed;
-        }
-
-        .result-item {
-            margin: 5px 0px;
+        .graph-result-body {
             font-size: 15px;
-
-            .result-key {
-                font-size: 17px;
-            }
-
-            .result-content {
-                word-break: normal;
-            }
-
-            .result-score {
-                margin-top: 5px;
-            }
         }
     }
 }

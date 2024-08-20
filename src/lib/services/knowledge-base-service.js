@@ -89,3 +89,15 @@ export async function uploadVectorKnowledge(file, collection = null, startPageNu
     const response = await axios.post(url, formData, config);
     return response.data;
 }
+
+
+/**
+ * @param {string} text
+ * @param {string } method
+ * @returns {Promise<any>}
+ */
+export async function searchGraphKnowledge(text, method = "local") {
+    const url = endpoints.graphKnowledgeSearchUrl;
+    const response = await axios.post(url, { query: text, method: method });
+    return response.data;
+}

@@ -197,13 +197,7 @@
 
 	const getPathUrl = () => {
 		const path = $page.url.pathname;
-		// return path?.startsWith('/') ? path.substring(1) : path;
-		if (path) {
-        if (path.startsWith('/') && !path.startsWith('/page/knowledge-base')) {
-            return path.substring(1);
-        }
-    }
-    return path;
+		return path?.startsWith('/') ? path.substring(1) : path;
 	};
 </script>
 

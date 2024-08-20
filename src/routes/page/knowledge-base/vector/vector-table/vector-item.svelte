@@ -120,7 +120,7 @@
             {#if data?.score}
                 <li>
                     <div class="wrappable fw-bold text-primary">Score:</div>
-                    <div class="wrappable">{data?.score?.toFixed(3)}</div>
+                    <div class="wrappable">{data?.score?.toFixed(6)}</div>
                 </li>
             {/if}
             </ul>
