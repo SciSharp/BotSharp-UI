@@ -74,7 +74,7 @@
 		isFromSearch = false;
 		searchVectorKnowledge({
 			text: util.trim(text),
-			confidence: !isNaN(Number(confidence)) ? Number(confidence) : 0
+			confidence: Number(validateConfidenceNumber(confidence))
 		}, selectedCollection).then(res => {
 			items = res || [];
 			isFromSearch = true;
@@ -108,17 +108,31 @@
 	}
 
     /** @param {any} e */
-    function validateConfidence(e) {
+    function validateConfidenceInput(e) {
         var reg = new RegExp(regex, 'g');
         if (!reg.test(e.key)) {
             e.preventDefault();
         }
     }
 
+	/** @param {string} value */
+	function validateConfidenceNumber(value) {
+		const num = Number(value);
+
+		if (isNaN(num) || num < 0) {
+			confidence = '0.0';
+		} else if (num >= 1) {
+			confidence = '1.0';
+		} else {
+			confidence = num.toFixed(2);
+		}
+		return confidence;
+	}
+
     /** @param {any} e */
     function changeConfidence(e) {
         const value = e.target.value;
-        confidence = !isNaN(value) && Number(value) >= 0 ? Number(value).toFixed(2) : '0.0';
+		validateConfidenceNumber(value);
     }
 
 
@@ -312,7 +326,7 @@
                                     type="text"
                                     class="text-center"
                                     bind:value={confidence}
-                                    on:keydown={(e) => validateConfidence(e)}
+                                    on:keydown={(e) => validateConfidenceInput(e)}
                                     on:blur={(e) => changeConfidence(e)}
                                 />
                             </span>
