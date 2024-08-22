@@ -61,7 +61,7 @@
             >
                 <div class="knowledge-search-container mb-4">
                     <textarea
-                        class='form-control search-textarea'
+                        class='form-control knowledge-textarea'
                         rows={5}
                         maxlength={maxLength}
                         disabled={isSearching}

@@ -55,8 +55,8 @@ const config = {
 				"/chat",
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",
-				"/page/knowledge-base/vector",
-				"/page/knowledge-base/graph"
+				"/page/knowledge-base/qna",
+				"/page/knowledge-base/relations"
 			]
 		}
 	},

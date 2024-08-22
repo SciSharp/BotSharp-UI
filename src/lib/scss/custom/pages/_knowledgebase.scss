@@ -42,15 +42,15 @@
     
 }
 
-.knowledge-search-container {
-    .search-textarea {
-        border-radius: 5px;
-        border-color: var(--#{$prefix}light) !important;
-        background-color: var(--#{$prefix}light) !important;
-        scrollbar-width: thin;
-        resize: none;
-    }
+.knowledge-textarea {
+    border-radius: 5px;
+    border-color: var(--#{$prefix}light) !important;
+    background-color: var(--#{$prefix}light) !important;
+    scrollbar-width: thin;
+    resize: none;
+}
 
+.knowledge-search-container {
     .text-count {
         margin-top: 2px;
         font-size: 10px;
@@ -126,6 +126,7 @@
         border-radius: 3px;
         border-color: var(--#{$prefix}light) !important;
         background-color: var(--#{$prefix}light) !important;
+        position: relative;
 
         ul {
             margin: 15px 0px;
@@ -144,10 +145,42 @@
             font-size: 10px;
             margin: 5px 0px;
         }
+
+        .edit-btn {
+            position: absolute;
+            right: 10px;
+            bottom: 10px;
+        }
     }
 }
 
 .knowledge-loader {
     display: flex;
     justify-content: center;
+}
+
+.vector-edit-container {
+    .modal-title {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+
+        .collection-value {
+            font-size: 15px;
+        }
+    }
+
+    .edit-group {
+        display: flex;
+        flex-direction: column;
+
+        .textarea-label {
+            font-size: 15px;
+        }
+
+        .text-count {
+            margin-top: 2px;
+            font-size: 10px;
+        }
+    }
 }

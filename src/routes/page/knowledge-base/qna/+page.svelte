@@ -23,6 +23,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import VectorItem from './vector-table/vector-item.svelte';
+	import VectorItemEdit from './vector-table/vector-item-edit.svelte';
 	
 	
 	const page_size = 8;
@@ -49,11 +50,18 @@
 	/** @type {string | null | undefined} */
 	let nextId;
 
+	/** @type {string} */
+	let editCollection;
+
+	/** @type {import('$types').KnowledgeSearchViewModel} */
+	let editItem;
+
 	/** @type {boolean} */
 	let isLoading = false;
 	let isLoadingMore = false;
 	let isComplete = false;
 	let isError = false;
+	let isOpenEdit = false;
 
 	onMount(() => {
     	getCollections().then(() => {
@@ -211,7 +219,7 @@
 	}
 
 	/** @param {any} e */
-	function afterKnowledgeDeleted(e) {
+	function onKnowledgeDeleted(e) {
 		const id = e.detail.id;
 		const isSuccess = e.detail.isSuccess;
 
@@ -232,6 +240,30 @@
 	}
 
 	/** @param {any} e */
+	function onKnowledgeEdit(e) {
+		isOpenEdit = true;
+		editCollection = e.detail.collection;
+		editItem = e.detail.item;
+	}
+
+	function toggleEditModal() {
+		isOpenEdit = !isOpenEdit;
+		if (!isOpenEdit) {
+			resetEditData();
+		}
+	}
+
+	function confirmEdit() {
+		resetEditData();
+		reset();
+	}
+
+	function resetEditData() {
+		editCollection = '';
+		editItem = { id: "", data: null };
+	}
+
+	/** @param {any} e */
 	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
@@ -249,6 +281,18 @@
 	successText={successText}
 	errorText={errorText}
 />
+
+{#if isOpenEdit}
+	<VectorItemEdit
+		className={'vector-edit-container'}
+		collection={editCollection}
+		item={editItem}
+		open={isOpenEdit}
+		toggleModal={() => isOpenEdit = !isOpenEdit}
+		confirm={() => confirmEdit()}
+		cancel={() => toggleEditModal()}
+	/>
+{/if}
 
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
@@ -304,7 +348,7 @@
 			>
 				<div class="knowledge-search-container mb-4">
 					<textarea
-						class='form-control search-textarea'
+						class='form-control knowledge-textarea'
 						rows={5}
 						maxlength={maxLength}
 						disabled={isSearching}
@@ -347,7 +391,7 @@
 							<LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
 						</div>
 					{:else if searchDone && (!items || items.length === 0)}
-						<div class="mt-2">
+						<div class="mt-4">
 							<h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
 						</div>
 					{/if}
@@ -385,7 +429,13 @@
 									</thead>
 									<tbody>
 										{#each items as item, idx (idx)}
-                                            <VectorItem data={item} open={isFromSearch && idx === 0} on:delete={(e) => afterKnowledgeDeleted(e)} />
+                                            <VectorItem
+												collection={selectedCollection}
+												item={item}
+												open
+												on:delete={(e) => onKnowledgeDeleted(e)}
+												on:edit={(e) => onKnowledgeEdit(e)}
+											/>
 										{/each}
 									</tbody>
 								</Table>
