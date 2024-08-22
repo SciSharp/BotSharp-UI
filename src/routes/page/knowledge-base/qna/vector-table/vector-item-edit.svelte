@@ -34,7 +34,7 @@
     export let toggleModal;
 
 
-    /** @type {() => void} */
+    /** @type {(item: any) => void} */
     export let confirm;
 
     /** @type {() => void} */
@@ -54,6 +54,10 @@
     }
 
     onMount(() => {
+        init();
+    });
+
+    function init() {
         question = {
             ...question,
             text: item?.data?.text || item?.data?.question || ''
@@ -61,20 +65,28 @@
 
         answer = {
             ...answer,
-            text: item?.data?.text || item?.data?.question || ''
+            text: item?.data?.answer || ''
         };
-    });
+    }
 
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
-        confirm && confirm();
+
+        const newItem = {
+            ...item,
+            data: {
+                text: question.text,
+                answer: answer.text
+            }
+        };
+        confirm?.(newItem);
     }
 
     /** @param {any} e */
     function handleCancel(e) {
         e.preventDefault();
-        cancel && cancel();
+        cancel?.();
     }
 
 </script>

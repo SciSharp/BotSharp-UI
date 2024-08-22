@@ -253,9 +253,19 @@
 		}
 	}
 
-	function confirmEdit() {
+	/** @param {any} e */
+	function confirmEdit(e) {
+		const found = items?.find(x => x.id == e.id);
+		if (found) {
+			found.data = {
+				...found.data,
+				text: e.data?.text || '',
+				answer: e.data?.answer || ''
+			};
+			items = [ ...items ];
+		}
+		isOpenEdit = false;
 		resetEditData();
-		reset();
 	}
 
 	function resetEditData() {
@@ -289,7 +299,7 @@
 		item={editItem}
 		open={isOpenEdit}
 		toggleModal={() => isOpenEdit = !isOpenEdit}
-		confirm={() => confirmEdit()}
+		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleEditModal()}
 	/>
 {/if}
