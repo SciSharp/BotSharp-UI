@@ -239,8 +239,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Vector Knowledge')}" />
-<Breadcrumb pagetitle="{$_('Vector Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title="{$_('Q&A Knowledge')}" />
+<Breadcrumb pagetitle="{$_('Q&A Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
 	isLoading={isLoading}
