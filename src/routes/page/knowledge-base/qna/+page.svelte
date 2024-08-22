@@ -255,17 +255,22 @@
 
 	/** @param {any} e */
 	function confirmEdit(e) {
-		const found = items?.find(x => x.id == e.id);
+		refreshItems(e);
+		resetEditData();
+		isOpenEdit = false;
+	}
+
+	/** @param {any} newItem */
+	function refreshItems(newItem) {
+		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
 			found.data = {
 				...found.data,
-				text: e.data?.text || '',
-				answer: e.data?.answer || ''
+				text: newItem.data?.text || '',
+				answer: newItem.data?.answer || ''
 			};
 			items = [ ...items ];
 		}
-		isOpenEdit = false;
-		resetEditData();
 	}
 
 	function resetEditData() {
