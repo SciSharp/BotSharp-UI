@@ -60,8 +60,9 @@ export const endpoints = {
     
     // knowledge base
     vectorKnowledgeCollectionsUrl: `${host}/knowledge/vector/collections`,
-    vectorKnowledgeDataListUrl: `${host}/knowledge/vector/{collection}/data`,
+    vectorKnowledgePageDataUrl: `${host}/knowledge/vector/{collection}/page`,
     vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
+    vectorKnowledgeCreateUrl: `${host}/knowledge/vector/{collection}/create`,
     vectorKnowledgeUpdateUrl: `${host}/knowledge/vector/{collection}/update`,
     vectorKnowledgeDeleteUrl: `${host}/knowledge/vector/{collection}/data/{id}`,
     vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,

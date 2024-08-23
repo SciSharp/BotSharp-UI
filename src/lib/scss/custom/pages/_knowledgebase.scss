@@ -13,12 +13,13 @@
         gap: 3px;
         flex-wrap: wrap;
     }
+}
 
-    .btn-icon {
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
+.knowledge-btn-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: 15px;
 }
 
 .demo-tooltip-icon {

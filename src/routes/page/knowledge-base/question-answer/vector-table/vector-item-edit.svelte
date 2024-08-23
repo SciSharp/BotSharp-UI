@@ -12,7 +12,7 @@
     } from "@sveltestrap/sveltestrap";
     import _ from "lodash";
 
-    /** @type {import('$types').KnowledgeSearchViewModel} */
+    /** @type {import('$types').KnowledgeSearchViewModel | null} */
     export let item;
 
     /** @type {string} */
@@ -25,14 +25,13 @@
     export let className = "";
 
     /** @type {string} */
-    export let title = "Edit knowledge";
+    export let title;
 
     /** @type {string} */
     export let size = 'xl';
 
     /** @type {() => void} */
     export let toggleModal;
-
 
     /** @type {(item: any) => void} */
     export let confirm;

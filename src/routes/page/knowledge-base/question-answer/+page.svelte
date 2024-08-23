@@ -13,8 +13,9 @@
     } from '@sveltestrap/sveltestrap';
     import {
         getVectorKnowledgeCollections,
-        getVectorKnowledgeData,
+        getPagedVectorKnowledgeData,
         searchVectorKnowledge,
+		createVectorKnowledgeData,
 		updateVectorKnowledgeData,
 		deleteVectorKnowledgeData
     } from '$lib/services/knowledge-base-service';
@@ -55,8 +56,11 @@
 	/** @type {string} */
 	let editCollection;
 
-	/** @type {import('$types').KnowledgeSearchViewModel} */
+	/** @type {import('$types').KnowledgeSearchViewModel | null} */
 	let editItem;
+
+	/** @type {string} */
+	let editModalTitle = "Edit knowledge";
 
 	/** @type {boolean} */
 	let isLoading = false;
@@ -108,13 +112,14 @@
 		search();
 	}
 
-	function reset() {
+	/** @param {boolean} skipLoader */
+	function reset(skipLoader = false) {
 		text = "";
 		nextId = null;
 		isSearching = false;
 		searchDone = false;
 		isFromSearch = false;
-		initData(nextId, true);
+		initData(nextId, true, false, skipLoader);
 	}
 
     /** @param {any} e */
@@ -168,7 +173,7 @@
 	 */
 	function getKnowledgeListData(startId = null, reset = false) {
 		return new Promise((resolve, reject) => {
-			getVectorKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
+			getPagedVectorKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
 				const newItems = res.items || [];
 				if (reset) {
 					items = [ ...newItems ];
@@ -189,10 +194,12 @@
 	 * @param {string | null} [startId]
 	 * @param {boolean} reset
 	 * @param {boolean} isLocal
+	 * @param {boolean} skipLoader
 	 */
-	function initData(startId = null, reset = false, isLocal = false) {
+	function initData(startId = null, reset = false, isLocal = false, skipLoader = false) {
 		return new Promise((resolve, reject) => {
-			toggleLoader(isLocal);
+			if (!skipLoader) toggleLoader(isLocal);
+			
 			getKnowledgeListData(startId, reset).then(res => {
 				resolve(res);
 			}).catch(err => {
@@ -202,7 +209,7 @@
 				}, 2000);
 				reject(err);
 			}).finally(() => {
-				toggleLoader(isLocal);
+				if (!skipLoader) toggleLoader(isLocal);
 			});
 		});
 	}
@@ -221,7 +228,7 @@
 	}
 
 	/** @param {any} e */
-	function onKnowledgeDeleted(e) {
+	function onKnowledgeDelete(e) {
 		const id = e.detail.id;
 		isLoading = true;
 		deleteVectorKnowledgeData(id, selectedCollection).then(res => {
@@ -247,10 +254,18 @@
 	}
 
 	/** @param {any} e */
-	function onKnowledgeUpdated(e) {
-		isOpenEdit = true;
+	function onKnowledgeUpdate(e) {
+		editModalTitle = "Edit knowledge";
 		editCollection = e.detail.collection;
 		editItem = e.detail.item;
+		isOpenEdit = true;
+	}
+
+	function onKnowledgeCreate() {
+		editModalTitle = "Create knowledge";
+		editCollection = selectedCollection;
+		editItem = null;
+		isOpenEdit = true;
 	}
 
 	function toggleEditModal() {
@@ -261,32 +276,58 @@
 	}
 
 	/** @param {any} e */
-	function confirmUpdate(e) {
+	function confirmEdit(e) {
 		isLoading = true;
-		updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, selectedCollection).then(res => {
-			if (res) {
-				isComplete = true;
-				refreshItems(e);
+		isOpenEdit = false;
+
+		if (!!editItem) {
+			updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, editCollection).then(res => {
+				if (res) {
+					isComplete = true;
+					refreshItems(e);
+					resetEditData();
+					successText = "Knowledge has been updated!";
+					setTimeout(() => {
+						isComplete = false;
+					}, duration);
+				} else {
+					throw new Error('error when updating vector knowledge!');
+				}
+			}).catch(() => {
 				resetEditData();
-				isOpenEdit = false;
-				successText = "Knowledge has been updated!";
+				isError = true;
+				errorText = "Error when updating knowledge!";
 				setTimeout(() => {
-					isComplete = false;
+					isError = false;
 				}, duration);
-			} else {
-				throw new Error('error when updating vector knowledge!');
-			}
-		}).catch(() => {
-			isError = true;
-			resetEditData();
-			isOpenEdit = false;
-			errorText = "Error when updating knowledge!";
-			setTimeout(() => {
-				isError = false;
-			}, duration);
-		}).finally(() => {
-			isLoading = false;
-		});
+			}).finally(() => {
+				isLoading = false;
+			});
+		} else {
+			createVectorKnowledgeData(e.data?.text, e.data?.answer, editCollection).then(res => {
+				if (res) {
+					isComplete = true;
+					refreshItems(e);
+					resetEditData();
+					reset(true);
+					successText = "Knowledge has been created!";
+					setTimeout(() => {
+						isComplete = false;
+					}, duration);
+				} else {
+					throw new Error('error when creating vector knowledge!');
+				}
+			}).catch(() => {
+				resetEditData();
+				isError = true;
+				errorText = "Error when creating knowledge!";
+				setTimeout(() => {
+					isError = false;
+				}, duration);
+			}).finally(() => {
+				isLoading = false;
+			});
+		}
 	}
 
 	/** @param {any} newItem */
@@ -304,7 +345,7 @@
 
 	function resetEditData() {
 		editCollection = '';
-		editItem = { id: "", data: null };
+		editItem = null;
 	}
 
 	/** @param {any} e */
@@ -329,11 +370,12 @@
 {#if isOpenEdit}
 	<VectorItemEdit
 		className={'vector-edit-container'}
+		title={editModalTitle}
 		collection={editCollection}
 		item={editItem}
 		open={isOpenEdit}
 		toggleModal={() => isOpenEdit = !isOpenEdit}
-		confirm={(e) => confirmUpdate(e)}
+		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleEditModal()}
 	/>
 {/if}
@@ -346,19 +388,19 @@
 		>
 			{#if !showDemo}
 				<div class="btn-content">
-					<div class="btn-icon"><i class="bx bx-search-alt" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
 					<div>{'Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
-					<span class="btn-icon"><i class="bx bx-hide" /></span>
+					<span class="knowledge-btn-icon"><i class="bx bx-hide" /></span>
 					<span>{'Hide'}</span>
 				</div>
 			{/if}
 		</Button>
 
 		{#if showDemo}
-			<div class="btn-icon demo-tooltip-icon" id="demo-tooltip">
+			<div class="knowledge-btn-icon demo-tooltip-icon" id="demo-tooltip">
 				<i class="bx bx-info-circle" />
 			</div>
 			<Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
@@ -376,7 +418,7 @@
 			on:click={() => reset()}
 		>
 			<div class="btn-content">
-				<div class="btn-icon"><i class="bx bx-reset" /></div>
+				<div class="knowledge-btn-icon"><i class="bx bx-reset" /></div>
 				<div>{'Reset'}</div>
 			</div>
 		</Button>
@@ -448,9 +490,23 @@
 					<CardBody>
 						<div class="mt-2">
 							<div class="d-flex flex-wrap mb-3 knowledge-table-header">
-								<h5 class="font-size-16 knowledge-header-text">
-									<div>{$_('Knowledges')}</div>
-								</h5>
+								<div class="d-flex">
+									<h5 class="font-size-16 knowledge-header-text">
+										<div>{$_('Knowledges')}</div>
+									</h5>
+									<!-- svelte-ignore a11y-click-events-have-key-events -->
+									<!-- svelte-ignore a11y-no-static-element-interactions -->
+									<div
+										class="knowledge-btn-icon clickable text-primary"
+										style="justify-content: flex-start;"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Add knowledge"
+										on:click={() => onKnowledgeCreate()}
+									>
+										<i class="bx bx-add-to-queue" />
+									</div>
+								</div>
 								<div class="knowledge-dropdown">
 									<Input type="select" on:change={(e) => changeCollection(e)}>
 										{#each collections as option, idx (idx)}
@@ -477,8 +533,8 @@
 												collection={selectedCollection}
 												item={item}
 												open={isFromSearch && idx === 0}
-												on:delete={(e) => onKnowledgeDeleted(e)}
-												on:update={(e) => onKnowledgeUpdated(e)}
+												on:delete={(e) => onKnowledgeDelete(e)}
+												on:update={(e) => onKnowledgeUpdate(e)}
 											/>
 										{/each}
 									</tbody>

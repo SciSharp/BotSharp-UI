@@ -31,12 +31,34 @@ export async function searchVectorKnowledge(request, collection) {
  * @param {string} collection
  * @returns {Promise<import('$types').KnowledgeSearchPageResult>}
  */
-export async function getVectorKnowledgeData(filter, collection) {
-    const url = replaceUrl(endpoints.vectorKnowledgeDataListUrl, {
+export async function getPagedVectorKnowledgeData(filter, collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
     const response = await axios.post(url, { ...filter });
+    return response.data;
+}
+
+/**
+ * @param {string} text
+ * @param {string} answer
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function createVectorKnowledgeData(text, answer, collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+    });
+
+    const request = {
+        text: text,
+        payload: {
+            answer: answer
+        }
+    };
+
+    const response = await axios.post(url, { ...request });
     return response.data;
 }
 
@@ -55,7 +77,6 @@ export async function updateVectorKnowledgeData(id, text, answer, collection) {
     const request = {
         id: id,
         text: text,
-        answer: answer,
         payload: {
             answer: answer
         }
