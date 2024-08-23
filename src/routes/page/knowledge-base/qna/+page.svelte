@@ -240,7 +240,7 @@
 	}
 
 	/** @param {any} e */
-	function onKnowledgeEdit(e) {
+	function onKnowledgeUpdated(e) {
 		isOpenEdit = true;
 		editCollection = e.detail.collection;
 		editItem = e.detail.item;
@@ -254,7 +254,7 @@
 	}
 
 	/** @param {any} e */
-	function confirmEdit(e) {
+	function confirmUpdate(e) {
 		refreshItems(e);
 		resetEditData();
 		isOpenEdit = false;
@@ -304,7 +304,7 @@
 		item={editItem}
 		open={isOpenEdit}
 		toggleModal={() => isOpenEdit = !isOpenEdit}
-		confirm={(e) => confirmEdit(e)}
+		confirm={(e) => confirmUpdate(e)}
 		cancel={() => toggleEditModal()}
 	/>
 {/if}
@@ -447,9 +447,9 @@
                                             <VectorItem
 												collection={selectedCollection}
 												item={item}
-												open
+												open={isFromSearch && idx === 0}
 												on:delete={(e) => onKnowledgeDeleted(e)}
-												on:edit={(e) => onKnowledgeEdit(e)}
+												on:update={(e) => onKnowledgeUpdated(e)}
 											/>
 										{/each}
 									</tbody>

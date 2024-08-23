@@ -65,8 +65,8 @@
         });
     }
 
-    function clickEdit() {
-        svelteDispatch("edit", {
+    function editKnowledge() {
+        svelteDispatch("update", {
             collection: collection,
             item: item
         });
@@ -96,6 +96,15 @@
                     {:else}
                         <i class="mdi mdi-eye-outline" />
                     {/if}
+                </Button>
+            </li>
+            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                <Button
+                    class="btn btn-sm btn-soft-warning"
+                    on:click={() => editKnowledge()}
+                >
+                    <!-- <i class="mdi mdi-delete-outline" /> -->
+                    <i class="bx bxs-edit" />
                 </Button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -141,14 +150,6 @@
                     </div>
                 </ul>
             {/if}
-            <div class="edit-btn">
-                <Button
-                    class="btn btn-sm btn-soft-warning"
-                    on:click={() => clickEdit()}
-                >
-                    Edit
-                </Button>
-            </div>
         </div>
     </td>
 </tr>

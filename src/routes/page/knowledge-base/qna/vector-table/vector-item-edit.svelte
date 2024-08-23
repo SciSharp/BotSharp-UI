@@ -43,8 +43,8 @@
 
     let question = {
         text: '',
-        rows: 2,
-        maxLength: 1028
+        rows: 3,
+        maxLength: 4096
     };
 
     let answer = {
