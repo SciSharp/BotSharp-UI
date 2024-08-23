@@ -14,10 +14,10 @@ export async function getVectorKnowledgeCollections() {
 
 /**
  * @param {import('$types').SearchKnowledgeRequest} request
- * @param {string | null} [collection]
+ * @param {string} collection
  * @returns {Promise<import('$types').KnowledgeSearchViewModel[]>}
  */
-export async function searchVectorKnowledge(request, collection = null) {
+export async function searchVectorKnowledge(request, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
@@ -28,11 +28,11 @@ export async function searchVectorKnowledge(request, collection = null) {
 
 /**
  * @param {import('$types').KnowledgeFilter} filter
- * @param {string | null} [collection]
+ * @param {string} collection
  * @returns {Promise<import('$types').KnowledgeSearchPageResult>}
  */
-export async function getVectorKnowledgeData(filter, collection = null) {
-    const url = replaceUrl(endpoints.vectorKnowledgeDataListUrl, {
+export async function getPagedVectorKnowledgeData(filter, collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
     });
 
@@ -40,13 +40,59 @@ export async function getVectorKnowledgeData(filter, collection = null) {
     return response.data;
 }
 
+/**
+ * @param {string} text
+ * @param {string} answer
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function createVectorKnowledgeData(text, answer, collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+    });
+
+    const request = {
+        text: text,
+        payload: {
+            answer: answer
+        }
+    };
+
+    const response = await axios.post(url, { ...request });
+    return response.data;
+}
 
 /**
  * @param {string} id
- * @param {string | null} [collection]
+ * @param {string} text
+ * @param {string} answer
+ * @param {string} collection
  * @returns {Promise<boolean>}
  */
-export async function deleteVectorKnowledgeData(id, collection = null) {
+export async function updateVectorKnowledgeData(id, text, answer, collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
+        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+    });
+
+    const request = {
+        id: id,
+        text: text,
+        payload: {
+            answer: answer
+        }
+    };
+
+    const response = await axios.put(url, { ...request });
+    return response.data;
+}
+
+
+/**
+ * @param {string} id
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function deleteVectorKnowledgeData(id, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
         collection: collection || DEFAULT_KNOWLEDGE_COLLECTION,
         id: id

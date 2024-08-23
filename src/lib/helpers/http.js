@@ -57,8 +57,10 @@ function skipLoader(config) {
     const postRegexes = [
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/agent', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/data', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g')
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/page', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g')
     ];
 
     const getRegexes = [
@@ -71,7 +73,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/plugin/menu', 'g')
     ];
 
-    if (config.method === 'post' && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
+    if ((config.method === 'post' || config.method === "put") && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 

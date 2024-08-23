@@ -2,7 +2,6 @@
     import { createEventDispatcher } from "svelte";
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
-    import { deleteVectorKnowledgeData } from "$lib/services/knowledge-base-service";
     import Swal from 'sweetalert2/dist/sweetalert2.js';
     import "sweetalert2/src/sweetalert2.scss";
 	import Loader from "$lib/common/Loader.svelte";
@@ -10,7 +9,10 @@
     const svelteDispatch = createEventDispatcher();
 
     /** @type {import('$types').KnowledgeSearchViewModel} */
-    export let data;
+    export let item;
+
+    /** @type {string} */
+    export let collection;
 
     /** @type {boolean} */
     export let open = false;
@@ -36,29 +38,17 @@
         // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
-                isLoading = true;
-                deleteVectorKnowledgeData(id).then(res => {
-                if (res) {
-                    dispatchDeleteEvent(id, res);
-                    isLoading = false;
-                }
-                }).catch(() => {
-                    dispatchDeleteEvent(id, false);
-                    isLoading = false;
+                svelteDispatch("delete", {
+                    id: id,
                 });
             }
         });
     }
 
-    
-    /**
-	 * @param {string} id
-	 * @param {boolean} isSuccess
-	 */
-    function dispatchDeleteEvent(id, isSuccess) {
-        svelteDispatch("delete", {
-            id: id,
-            isSuccess: isSuccess
+    function editKnowledge() {
+        svelteDispatch("update", {
+            collection: collection,
+            item: item
         });
     }
 </script>
@@ -69,10 +59,10 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class="knowledge-text">
-        <div class="ellipsis">{data?.data?.question || data?.data?.text || ''}</div>
+        <div class="ellipsis">{item?.data?.question || item?.data?.text || ''}</div>
     </td>
     <td class="knowledge-text">
-        <div class="ellipsis">{data?.data?.answer || ''}</div>
+        <div class="ellipsis">{item?.data?.answer || ''}</div>
     </td>
     <td class="knowledge-op">
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
@@ -88,10 +78,19 @@
                     {/if}
                 </Button>
             </li>
+            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
+                <Button
+                    class="btn btn-sm btn-soft-warning"
+                    on:click={() => editKnowledge()}
+                >
+                    <!-- <i class="mdi mdi-delete-outline" /> -->
+                    <i class="bx bxs-edit" />
+                </Button>
+            </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                 <Button
                     class="btn btn-sm btn-soft-danger"
-                    on:click={() => deleteKnowledge(data?.id)}
+                    on:click={() => deleteKnowledge(item?.id)}
                 >
                     <i class="mdi mdi-delete-outline" />
                 </Button>
@@ -105,29 +104,29 @@
     <td colspan="3">
         <div class="knowledge-detail">
             <ul>
-            {#if data?.data?.question || data?.data?.text}
+            {#if item?.data?.question || item?.data?.text}
                 <li>
                     <div class="wrappable fw-bold text-primary">Question:</div>
-                    <div class="wrappable">{data?.data?.question || data?.data?.text || ''}</div>
+                    <div class="wrappable">{item?.data?.question || item?.data?.text || ''}</div>
                 </li>
             {/if}
-            {#if data?.data?.answer}
+            {#if item?.data?.answer}
                 <li>
                     <div class="wrappable fw-bold text-primary">Answer:</div>
-                    <div class="wrappable">{data?.data?.answer || ''}</div>
+                    <div class="wrappable">{item?.data?.answer || ''}</div>
                 </li>
             {/if}
-            {#if data?.score}
+            {#if item?.score}
                 <li>
                     <div class="wrappable fw-bold text-primary">Score:</div>
-                    <div class="wrappable">{data?.score?.toFixed(6)}</div>
+                    <div class="wrappable">{item?.score?.toFixed(6)}</div>
                 </li>
             {/if}
             </ul>
-            {#if data?.id}
+            {#if item?.id}
                 <ul class="knwoledge-id">
                     <div class="wrappable text-secondary">
-                        <span>(<span>Id: {data?.id || ''}</span>)</span>
+                        <span>(<span>Id: {item?.id || ''}</span>)</span>
                     </div>
                 </ul>
             {/if}

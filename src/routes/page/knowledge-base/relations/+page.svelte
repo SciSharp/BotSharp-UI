@@ -49,8 +49,8 @@
 </script>
 
 
-<HeadTitle title="{$_('Graph Knowledge')}" />
-<Breadcrumb pagetitle="{$_('Graph Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title="{$_('Relation Knowledge')}" />
+<Breadcrumb pagetitle="{$_('Relation Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <div class="d-xl-flex">
 	<div class="w-100">
@@ -61,7 +61,7 @@
             >
                 <div class="knowledge-search-container mb-4">
                     <textarea
-                        class='form-control search-textarea'
+                        class='form-control knowledge-textarea'
                         rows={5}
                         maxlength={maxLength}
                         disabled={isSearching}
