@@ -62,6 +62,7 @@ export const endpoints = {
     vectorKnowledgeCollectionsUrl: `${host}/knowledge/vector/collections`,
     vectorKnowledgeDataListUrl: `${host}/knowledge/vector/{collection}/data`,
     vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
+    vectorKnowledgeUpdateUrl: `${host}/knowledge/vector/{collection}/update`,
     vectorKnowledgeDeleteUrl: `${host}/knowledge/vector/{collection}/data/{id}`,
     vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,
     graphKnowledgeSearchUrl: `${host}/knowledge/graph/search`,

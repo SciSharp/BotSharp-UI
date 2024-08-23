@@ -12,9 +12,11 @@
         Tooltip
     } from '@sveltestrap/sveltestrap';
     import {
+	deleteVectorKnowledgeData,
         getVectorKnowledgeCollections,
         getVectorKnowledgeData,
-        searchVectorKnowledge
+        searchVectorKnowledge,
+		updateVectorKnowledgeData
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -221,22 +223,27 @@
 	/** @param {any} e */
 	function onKnowledgeDeleted(e) {
 		const id = e.detail.id;
-		const isSuccess = e.detail.isSuccess;
-
-		if (isSuccess) {
-			isComplete = true;
-			successText = "Knowledge has been deleted!";
-			setTimeout(() => {
-				isComplete = false;
-			}, duration);
-			items = items?.filter(x => x.id !== id) || [];
-		} else {
+		isLoading = true;
+		deleteVectorKnowledgeData(id, selectedCollection).then(res => {
+			if (res) {
+				isComplete = true;
+				successText = "Knowledge has been deleted!";
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+				items = items?.filter(x => x.id !== id) || [];
+			} else {
+				throw new Error('error when deleting vector knowledge!');
+			}
+		}).catch(() => {
 			isError = true;
 			errorText = "Error when deleting knowledge!";
 			setTimeout(() => {
 				isError = false;
 			}, duration);
-		}
+		}).finally(() => {
+			isLoading = false;
+		});
 	}
 
 	/** @param {any} e */
@@ -255,9 +262,31 @@
 
 	/** @param {any} e */
 	function confirmUpdate(e) {
-		refreshItems(e);
-		resetEditData();
-		isOpenEdit = false;
+		isLoading = true;
+		updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, selectedCollection).then(res => {
+			if (res) {
+				isComplete = true;
+				refreshItems(e);
+				resetEditData();
+				isOpenEdit = false;
+				successText = "Knowledge has been updated!";
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+			} else {
+				throw new Error('error when updating vector knowledge!');
+			}
+		}).catch(() => {
+			isError = true;
+			resetEditData();
+			isOpenEdit = false;
+			errorText = "Error when updating knowledge!";
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		}).finally(() => {
+			isLoading = false;
+		});
 	}
 
 	/** @param {any} newItem */

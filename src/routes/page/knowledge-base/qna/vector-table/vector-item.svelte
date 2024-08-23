@@ -39,29 +39,10 @@
         // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
-                isLoading = true;
-                deleteVectorKnowledgeData(id, collection).then(res => {
-                    if (res) {
-                        dispatchDeleteEvent(id, res);
-                        isLoading = false;
-                    }
-                }).catch(() => {
-                    dispatchDeleteEvent(id, false);
-                    isLoading = false;
+                svelteDispatch("delete", {
+                    id: id,
                 });
             }
-        });
-    }
-
-    
-    /**
-	 * @param {string} id
-	 * @param {boolean} isSuccess
-	 */
-    function dispatchDeleteEvent(id, isSuccess) {
-        svelteDispatch("delete", {
-            id: id,
-            isSuccess: isSuccess
         });
     }
 
