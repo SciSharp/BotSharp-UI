@@ -2,7 +2,6 @@
     import { createEventDispatcher } from "svelte";
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
-    import { deleteVectorKnowledgeData } from "$lib/services/knowledge-base-service";
     import Swal from 'sweetalert2/dist/sweetalert2.js';
     import "sweetalert2/src/sweetalert2.scss";
 	import Loader from "$lib/common/Loader.svelte";
