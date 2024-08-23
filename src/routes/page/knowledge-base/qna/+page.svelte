@@ -12,11 +12,11 @@
         Tooltip
     } from '@sveltestrap/sveltestrap';
     import {
-	deleteVectorKnowledgeData,
         getVectorKnowledgeCollections,
         getVectorKnowledgeData,
         searchVectorKnowledge,
-		updateVectorKnowledgeData
+		updateVectorKnowledgeData,
+		deleteVectorKnowledgeData
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
