@@ -21,3 +21,27 @@
         color: white;
     }
 }
+
+.chat-util-container {
+    display: flex;
+    gap: 20px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    position: absolute;
+    bottom: 100% !important;
+    height: fit-content;
+    width: 100%;
+    z-index: 99;
+    padding: 10px 15px;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    max-height: 25em;
+    overflow-y: auto;
+    scrollbar-width: none;
+    background-color: rgb(250, 250, 230);
+}
+
+.chat-util-item {
+    text-align: center;
+    font-size: 30px;
+}

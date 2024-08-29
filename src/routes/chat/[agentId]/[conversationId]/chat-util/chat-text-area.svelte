@@ -1,5 +1,5 @@
 <script>
-	import { clickOutside } from "$lib/helpers/directives";
+	import { clickoutsideDirective } from "$lib/helpers/directives";
 	import { EditorType } from "$lib/helpers/enums";
 	import { getAddressOptions } from "$lib/services/conversation-service";
     import _ from "lodash";
@@ -31,6 +31,10 @@
     /** @type {(args0: any) => void} */
     export let onKeyDown = () => {}
 
+    /** @type {boolean} */
+    export let loadUtils = false;
+
+
     /** @type {number} */
     let timeout;
 
@@ -46,7 +50,16 @@
     /** @param {any} e */
     function handleClickOutside(e) {
         e.preventDefault();
-        options = [];
+
+        const curNode = e.detail.currentNode;
+        const targetNode = e.detail.targetNode;
+
+        if (!curNode?.contains(targetNode)) {
+            options = [];
+            loadUtils = false;
+        } else if (targetNode.contains(textArea)) {
+            loadUtils = false;
+        }
     }
 
     /** @param {any} e */
@@ -92,20 +105,25 @@
 </script>
 
 
-<div use:clickOutside on:click_outside={handleClickOutside}>
+<div use:clickoutsideDirective on:clickoutside={handleClickOutside}>
     {#if options?.length > 0}
     <ul class="dropdown-menu chat-option-list">
         {#each options as option, idx (idx)}
             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
             <li
                 class="chat-option-item"
-                on:keydown={() => {}}
                 on:click={() => handleOptionClick(option)}
             >
                 {option}
             </li>
         {/each}
     </ul>
+    {/if}
+    {#if loadUtils && options.length === 0}
+    <div class="chat-util-container">
+        <slot />
+    </div>
     {/if}
     <textarea
         class={`form-control ${className}`}

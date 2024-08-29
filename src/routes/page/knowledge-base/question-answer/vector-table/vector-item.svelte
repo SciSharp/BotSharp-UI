@@ -2,8 +2,7 @@
     import { createEventDispatcher } from "svelte";
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
-    import Swal from 'sweetalert2/dist/sweetalert2.js';
-    import "sweetalert2/src/sweetalert2.scss";
+    import Swal from 'sweetalert2';
 	import Loader from "$lib/common/Loader.svelte";
 
     const svelteDispatch = createEventDispatcher();
@@ -27,15 +26,14 @@
     function deleteKnowledge(id) {
         if (!id) return;
 
-        // @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
             text: "Are you sure you want to delete this knowledge?",
             icon: 'warning',
+            customClass: { confirmButton: 'danger-background' },
             showCancelButton: true,
             cancelButtonText: 'No',
             confirmButtonText: 'Yes'
-        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 svelteDispatch("delete", {
@@ -83,7 +81,6 @@
                     class="btn btn-sm btn-soft-warning"
                     on:click={() => editKnowledge()}
                 >
-                    <!-- <i class="mdi mdi-delete-outline" /> -->
                     <i class="bx bxs-edit" />
                 </Button>
             </li>

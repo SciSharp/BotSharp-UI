@@ -1,9 +1,14 @@
 /** @param {any} node */
-export function clickOutside(node) {
+export function clickoutsideDirective(node) {
 
     const handleClick = (/** @type {any} */ event) => {
-        if (!!node && !node.contains(event.target)) {
-            node.dispatchEvent(new CustomEvent('click_outside', node));
+        if (node) {
+            node.dispatchEvent(new CustomEvent('clickoutside', {
+                detail: {
+                    currentNode: node,
+                    targetNode: event.target
+                }
+            }));
         }
     }
 

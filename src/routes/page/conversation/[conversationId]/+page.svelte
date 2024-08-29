@@ -8,8 +8,7 @@
     import { getConversation, deleteConversation } from '$lib/services/conversation-service.js';
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
-    import Swal from 'sweetalert2/dist/sweetalert2.js';
-    import "sweetalert2/src/sweetalert2.scss";
+    import Swal from 'sweetalert2'
     import { _ } from 'svelte-i18n'  
 
     const params = $page.params;
@@ -30,7 +29,6 @@
             showCancelButton: true,
             customClass: 'custom-modal',
             confirmButtonText: 'Yes, delete it!'
-        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 await deleteConversation(conversation.id);

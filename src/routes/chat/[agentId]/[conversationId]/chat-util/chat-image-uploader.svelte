@@ -10,6 +10,12 @@
     /** @type {() => void} */
     export let onFileDrop = () => {};
 
+    /** @type {string} */
+    export let containerClasses = "";
+
+    /** @type {string} */
+    export let containerStyles = "";
+
     /** @type {any[]} */
     let files = [];
 
@@ -49,22 +55,21 @@
     }
 </script>
 
-<div class="chat-file-editor">
-    <ul class="list-inline mb-0">
-        <li class="list-inline-item">
-            <FileDropZone
-                accept={accept}
-                disableDefaultStyles
-                noDrag
-                disabled={disableFileDrop}
-                fileLimit={fileUploadLimit}
-                maxSize={fileMaxSize}
-                on:drop={e => handleFileDrop(e)}
-            >
-                <slot>
-                    <span><i class="bx bx-image-add" /></span>
-                </slot>
-            </FileDropZone>
-        </li>
-    </ul>
+<div
+    class={`${containerClasses}`}
+    style={`${containerStyles}`}
+>
+    <FileDropZone
+        accept={accept}
+        disableDefaultStyles
+        noDrag
+        disabled={disableFileDrop}
+        fileLimit={fileUploadLimit}
+        maxSize={fileMaxSize}
+        on:drop={e => handleFileDrop(e)}
+    >
+        <slot>
+            <span><i class="bx bx-image-add" /></span>
+        </slot>
+    </FileDropZone>
 </div>

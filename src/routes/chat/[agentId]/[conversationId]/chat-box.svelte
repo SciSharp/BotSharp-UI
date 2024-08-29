@@ -1,4 +1,5 @@
 <script>
+	import ChatUtil from './chat-util/chat-util.svelte';
 	import {
 		Dropdown,
 		DropdownToggle,
@@ -33,7 +34,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
-	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
+	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -45,14 +46,15 @@
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
 	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
+	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 	import _ from "lodash";
 	import moment from 'moment';
 	
+
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -136,6 +138,7 @@
 	let loadFileEditor = true;
 	let autoScrollLog = false;
 	let disableAction = false;
+	let loadChatUtils = false;
 
 	/** @type {string} */
 	let mode = '';
@@ -637,7 +640,6 @@
 				showCancelButton: true,
 				confirmButtonText: 'Yes',
 				cancelButtonText: 'No'
-			// @ts-ignore
 			}).then((result) => {
 				if (result.value) {
 					window.close();
@@ -718,7 +720,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				userAddStates = [];
@@ -741,7 +742,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, go ahead!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
@@ -767,7 +767,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				await handleDeleteMessage(messageId);
@@ -926,6 +925,11 @@
 
 	function resetStorage() {
 		conversationUserAttachmentStore.reset();
+	}
+
+	// to do
+	function openBigMessageModal() {
+		isOpenEditMsgModal = true;
 	}
 </script>
 
@@ -1194,13 +1198,29 @@
 										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
 										maxLength={maxTextLength}
 										bind:text={text}
+										bind:loadUtils={loadChatUtils}
 										disabled={isSendingMsg || isThinking || disableAction}
 										editor={lastBotMsg?.rich_content?.editor || ''}
 										onKeyDown={e => onSendMessage(e)}
-									/>
-									{#if loadFileEditor}
+									>
+										{#if loadFileEditor}
+											<ChatImageUploader
+												containerClasses={'line-align-center text-primary chat-util-item'}
+												disabled={disableAction}
+												onFileDrop={() => refresh()}
+											/>
+										{/if}
+										{#if !isLite}
+											<ChatBigMessage
+												containerClasses={'line-align-center text-primary chat-util-item'}
+												disabled={disableAction}
+												on:click={() => {}}
+											/>
+										{/if}
+									</ChatTextArea>
+									{#if loadFileEditor || isLite}
 										<div class="chat-input-links">
-											<ChatImageUploader disabled={disableAction} onFileDrop={() => refresh()} />
+											<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
 										</div>
 									{/if}
 								</div>

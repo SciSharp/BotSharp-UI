@@ -16,8 +16,7 @@
     import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
-    import Swal from 'sweetalert2/dist/sweetalert2.js';
-    import "sweetalert2/src/sweetalert2.scss";
+    import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	
 	
@@ -47,7 +46,6 @@
     });
 
     function updateCurrentAgent() {
-        // @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
             text: "Are you sure you want to update these changes?",
@@ -55,7 +53,6 @@
             showCancelButton: true,
 			cancelButtonText: 'No',
             confirmButtonText: 'Yes'
-        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 handleAgentUpdate();
@@ -103,7 +100,6 @@
     }
 
     function deleteCurrentAgent() {
-        // @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
             text: "Are you sure you want to delete this agent?",
@@ -111,7 +107,6 @@
             showCancelButton: true,
 			cancelButtonText: 'No',
             confirmButtonText: 'Yes'
-        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 handleAgentDelete();

@@ -3,8 +3,7 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-    import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 	import {
         Button,
         Card,
@@ -35,7 +34,7 @@
 	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
-    const regex = "[0-9\.]+";
+    const numberRegex = "[0-9\.]+";
 	const enableVector = true;
 	
 	let showDemo = true;
@@ -193,8 +192,8 @@
 
     /** @param {any} e */
     function validateConfidenceInput(e) {
-        var reg = new RegExp(regex, 'g');
-        if (!reg.test(e.key)) {
+        var reg = new RegExp(numberRegex, 'g');
+        if (e.key !== 'Backspace' && !reg.test(e.key)) {
             e.preventDefault();
         }
     }
@@ -216,9 +215,8 @@
     /** @param {any} e */
     function changeConfidence(e) {
         const value = e.target.value;
-		validateConfidenceNumber(value);
+		confidence = value;
     }
-
 
 	// Knowledge list data
 	function getCollections() {
@@ -355,7 +353,7 @@
 				}, duration);
 				items = items?.filter(x => x.id !== id) || [];
 			} else {
-				throw new Error('error when deleting vector knowledge!');
+				throw 'error when deleting vector knowledge!';
 			}
 		}).catch(() => {
 			isError = true;
@@ -406,7 +404,7 @@
 						isComplete = false;
 					}, duration);
 				} else {
-					throw new Error('error when updating vector knowledge!');
+					throw 'error when updating vector knowledge!';
 				}
 			}).catch(() => {
 				resetEditData();
@@ -430,7 +428,7 @@
 						isComplete = false;
 					}, duration);
 				} else {
-					throw new Error('error when creating vector knowledge!');
+					throw 'error when creating vector knowledge!';
 				}
 			}).catch(() => {
 				resetEditData();
@@ -466,25 +464,28 @@
 	}
 
 	function deleteCollection() {
-		// @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
-            text: `Are you sure you want to delete collection ${selectedCollection}?`,
+            text: `Are you sure you want to delete collection "${selectedCollection}"?`,
             icon: 'warning',
+			customClass: { confirmButton: 'danger-background' },
             showCancelButton: true,
             cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        // @ts-ignore
+            confirmButtonText: 'Yes',
         }).then(async (result) => {
             if (result.value) {
 				isLoading = true;
                 deleteVectorCollection(selectedCollection).then(res => {
-					successText = "Collection has been deleted!";
-					isComplete = true;
-					setTimeout(() => {
-						isComplete = false;
-					}, duration);
-					initPage();
+					if (res) {
+						successText = "Collection has been deleted!";
+						isComplete = true;
+						setTimeout(() => {
+							isComplete = false;
+						}, duration);
+						initPage();
+					} else {
+						throw 'Error when deleting vector collection';
+					}
 				}).catch(() => {
 					errorText = "Failed to delete collection."
 					isError = true;
@@ -555,7 +556,6 @@
 		{/if}
 	</div>
 	
-
 	<div class="reset-btn">
 		<Button
 			on:click={() => reset()}
@@ -616,7 +616,7 @@
 								/>
 							</div>
 							<div class="line-align-center input-text fw-bold">
-								<span>{'Text search'}</span>
+								<span>{'Keyword search'}</span>
 							</div>
 						</div>
                         <div class="line-align-center">
@@ -673,13 +673,18 @@
 											{/each}
 										</Input>
 									</div>
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
-									<div class="line-align-center collection-delete-btn text-danger">
-										<!-- svelte-ignore a11y-click-events-have-key-events -->
-										<i
-											class="bx bx-no-entry clickable"
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Delete collection"
+									>
+										<Button
+											class="btn btn-sm btn-danger"
 											on:click={() => deleteCollection()}
-										/>
+										>
+											<i class="mdi mdi-delete-outline" />
+										</Button>
 									</div>
 								</div>
 							</div>
