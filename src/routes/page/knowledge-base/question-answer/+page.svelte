@@ -3,6 +3,8 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
+	import Swal from 'sweetalert2/dist/sweetalert2.js';
+    import "sweetalert2/src/sweetalert2.scss";
 	import {
         Button,
         Card,
@@ -17,6 +19,7 @@
         searchVectorKnowledge,
 		createVectorKnowledgeData,
 		updateVectorKnowledgeData,
+		deleteVectorCollection,
 		deleteVectorKnowledgeData
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
@@ -29,7 +32,7 @@
 	import VectorItemEdit from './vector-table/vector-item-edit.svelte';
 	
 	
-	const page_size = 1;
+	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
     const regex = "[0-9\.]+";
@@ -88,13 +91,21 @@
 	};
 
 	onMount(() => {
+		initData();
+	});
+
+	function initData() {
+		isLoading = true;
     	getCollections().then(() => {
 			getData({
 				...defaultParams,
-				isReset: true
-			});
+				isReset: true,
+				skipLoader: true
+			}).finally(() => isLoading = false);
+		}).finally(() => {
+			isLoading = false;
 		});
-	});
+	}
 
 
 	// Search knowledge
@@ -151,19 +162,34 @@
 
 	/** @param {boolean} skipLoader */
 	function reset(skipLoader = false) {
+		resetStates();
+		getData({
+			...defaultParams,
+			startId: null,
+			isReset: true,
+			skipLoader: skipLoader
+		});
+	}
+
+	function initPage() {
+		resetStates();
+    	initData();
+	}
+
+	function resetEditData() {
+		editCollection = '';
+		editItem = null;
+	}
+
+	function resetStates() {
 		text = "";
 		nextId = null;
 		isSearching = false;
 		searchDone = false;
 		isFromSearch = false;
 		textSearch = false;
-		getData({
-			...defaultParams,
-			startId: nextId,
-			isReset: true,
-			skipLoader: skipLoader
-		});
 	}
+
 
     /** @param {any} e */
     function validateConfidenceInput(e) {
@@ -199,7 +225,7 @@
 		return new Promise((resolve, reject) => {
 			getVectorKnowledgeCollections().then(res => {
 				const retCollections = res || [];
-				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : retCollections;
+				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : [ ...retCollections ];
 				selectedCollection = collections[0];
 				resolve(res);
 			}).catch(err => {
@@ -432,16 +458,44 @@
 		}
 	}
 
-	function resetEditData() {
-		editCollection = '';
-		editItem = null;
-	}
-
 	/** @param {any} e */
 	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
 		reset();
+	}
+
+	function deleteCollection() {
+		// @ts-ignore
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Are you sure you want to delete collection ${selectedCollection}?`,
+            icon: 'warning',
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        // @ts-ignore
+        }).then(async (result) => {
+            if (result.value) {
+				isLoading = true;
+                deleteVectorCollection(selectedCollection).then(res => {
+					successText = "Collection has been deleted!";
+					isComplete = true;
+					setTimeout(() => {
+						isComplete = false;
+					}, duration);
+					initPage();
+				}).catch(() => {
+					errorText = "Failed to delete collection."
+					isError = true;
+					setTimeout(() => {
+						isError = false;
+					}, duration);
+				}).finally(() => {
+					isLoading = false;
+				});
+            }
+        });
 	}
 </script>
 
@@ -611,12 +665,22 @@
 										<i class="bx bx-add-to-queue" />
 									</div>
 								</div>
-								<div class="knowledge-dropdown">
-									<Input type="select" on:change={(e) => changeCollection(e)}>
-										{#each collections as option, idx (idx)}
-											<option value={option} selected={idx === 0}>{option}</option>
-										{/each}
-									</Input>
+								<div class="knowledge-dropdown-container">
+									<div class="line-align-center knowledge-dropdown">
+										<Input type="select" on:change={(e) => changeCollection(e)}>
+											{#each collections as option, idx (idx)}
+												<option value={option} selected={option === selectedCollection}>{option}</option>
+											{/each}
+										</Input>
+									</div>
+									<!-- svelte-ignore a11y-no-static-element-interactions -->
+									<div class="line-align-center collection-delete-btn text-danger">
+										<!-- svelte-ignore a11y-click-events-have-key-events -->
+										<i
+											class="bx bx-no-entry clickable"
+											on:click={() => deleteCollection()}
+										/>
+									</div>
 								</div>
 							</div>
 						  

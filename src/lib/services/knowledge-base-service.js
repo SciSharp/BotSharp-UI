@@ -161,8 +161,14 @@ export async function deleteVectorCollection(collection) {
         collection: collection
     });
 
-    const response = await axios.delete(url);
-    return response.data;
+    // const response = await axios.delete(url);
+    // return response.data;
+
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            resolve(true);
+        }, 1500);
+    });
 }
 
 

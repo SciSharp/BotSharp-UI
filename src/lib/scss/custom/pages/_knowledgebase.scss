@@ -113,8 +113,24 @@
         padding: 0.47rem 0.75rem;
     }
 
-    .knowledge-dropdown {
+    .knowledge-dropdown-container {
         width: 20%;
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+
+        .knowledge-dropdown {
+            width: 100%;
+        }
+
+        select {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+
+        .collection-delete-btn {
+            font-size: 15px;
+        }
     }
 }
 
