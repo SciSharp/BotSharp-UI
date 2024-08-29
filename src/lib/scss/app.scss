@@ -260,6 +260,17 @@ button:focus {
   cursor: pointer;
 }
 
+.line-align-center {
+  display: flex;
+  flex-direction: column;
+  justify-content:center;
+}
+
+.disable-outline {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 .markdown-container {
   pre {
     -ms-overflow-style: none !important;

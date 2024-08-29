@@ -482,6 +482,7 @@ IRichContent.prototype.quick_replies;
  * @property {string | null} [start_id] - The start id.
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
+ * @property {{ key: string, value: string }[]} [search_pairs] - Search pairs.
  */
 
 /**

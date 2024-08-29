@@ -67,7 +67,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/collections', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g'),
         new RegExp('http(s*)://(.*?)/setting/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/user/me', 'g'),
         new RegExp('http(s*)://(.*?)/plugin/menu', 'g')

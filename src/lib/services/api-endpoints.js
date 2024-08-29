@@ -66,6 +66,8 @@ export const endpoints = {
     vectorKnowledgeUpdateUrl: `${host}/knowledge/vector/{collection}/update`,
     vectorKnowledgeDeleteUrl: `${host}/knowledge/vector/{collection}/data/{id}`,
     vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,
+    vectorCollectionCreateUrl: `${host}/knowledge/vector/{collection}/create-collection/{dimension}`,
+    vectorCollectionDeleteUrl: `${host}/knowledge/vector/{collection}/delete-collection`,
     graphKnowledgeSearchUrl: `${host}/knowledge/graph/search`,
 
     // chathub 

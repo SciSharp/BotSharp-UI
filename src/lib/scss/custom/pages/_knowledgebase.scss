@@ -59,19 +59,37 @@
 
     .knowledge-search-footer {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
 
-        .confidence-input {
+        .search-input {
             display: flex;
             gap: 5px;
+        }
 
-            .confidence-text {
-                padding: 0.47rem 0px;
-                font-size: 12px;
+        .confidence-box {
+            width: 40%;
+        }
+
+        .input-text {
+            padding: 0.47rem 0px;
+            font-size: 14px;
+        }
+
+        .search-toggle {
+            height: 100%;
+            width: 35px;
+
+            .form-switch {
+                padding: 0px;
             }
 
-            .confidence-box {
-                width: 40%;
+            input {
+                margin: 0px;
+                height: 100%;
+                width: 100%;
+                outline: none !important;
+                box-shadow: none !important;
             }
         }
     }

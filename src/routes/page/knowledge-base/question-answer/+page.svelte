@@ -29,12 +29,13 @@
 	import VectorItemEdit from './vector-table/vector-item-edit.svelte';
 	
 	
-	const page_size = 8;
+	const page_size = 1;
   	const duration = 2000;
 	const maxLength = 4096;
     const regex = "[0-9\.]+";
+	const enableVector = true;
 	
-	let showDemo = false;
+	let showDemo = true;
 	let selectedCollection = DEFAULT_KNOWLEDGE_COLLECTION;
 	let text = "";
 	let isSearching = false;
@@ -50,7 +51,7 @@
 	/** @type {string[]} */
 	let collections = [];
 
-	/** @type {string | null | undefined} */
+	/** @type {string | null | undefined } */
 	let nextId;
 
 	/** @type {string} */
@@ -68,10 +69,30 @@
 	let isComplete = false;
 	let isError = false;
 	let isOpenEdit = false;
+	let textSearch = false;
+
+	/** @type {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * isLocalLoading: boolean,
+	 * skipLoader: boolean,
+	 * useSearhPair: boolean
+	 * }}
+	*/
+	const defaultParams = {
+		startId: null,
+		isReset: false,
+		isLocalLoading: false,
+		skipLoader: false,
+		useSearhPair: false
+	};
 
 	onMount(() => {
     	getCollections().then(() => {
-			initData(null, true);
+			getData({
+				...defaultParams,
+				isReset: true
+			});
 		});
 	});
 
@@ -86,17 +107,33 @@
 		isSearching = true;
 		searchDone = false;
 		isFromSearch = false;
-		searchVectorKnowledge({
-			text: util.trim(text),
-			confidence: Number(validateConfidenceNumber(confidence))
-		}, selectedCollection).then(res => {
-			items = res || [];
-			isFromSearch = true;
-		}).finally(() => {
-			isSearching = false;
-			searchDone = true;
-			nextId = null;
-		});
+
+		if (textSearch) {
+			getData({
+				...defaultParams,
+				isReset: true,
+				skipLoader: true,
+				useSearhPair: true
+			}).then(() => {
+				isFromSearch = true;
+			}).finally(() => {
+				isSearching = false;
+				searchDone = true;
+			});
+		} else {
+			searchVectorKnowledge({
+				text: util.trim(text),
+				confidence: Number(validateConfidenceNumber(confidence)),
+				with_vector: enableVector
+			}, selectedCollection).then(res => {
+				items = res || [];
+				isFromSearch = true;
+			}).finally(() => {
+				isSearching = false;
+				searchDone = true;
+				nextId = null;
+			});
+		}
 	}
 
 	/** @param {KeyboardEvent} e */
@@ -119,7 +156,13 @@
 		isSearching = false;
 		searchDone = false;
 		isFromSearch = false;
-		initData(nextId, true, false, skipLoader);
+		textSearch = false;
+		getData({
+			...defaultParams,
+			startId: nextId,
+			isReset: true,
+			skipLoader: skipLoader
+		});
 	}
 
     /** @param {any} e */
@@ -168,14 +211,33 @@
 	}
 
 	/**
-	 * @param {string | null} [startId]
-	 * @param {boolean} reset
+	 * @param {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * useSearhPair: boolean }} params
 	 */
-	function getKnowledgeListData(startId = null, reset = false) {
+	function getKnowledgeListData(params = {
+		startId: null,
+		isReset: false,
+		useSearhPair: false
+	}) {
 		return new Promise((resolve, reject) => {
-			getPagedVectorKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
+			const filter = {
+				size: page_size,
+				start_id: params.startId,
+				with_vector: enableVector,
+				search_pairs: params.useSearhPair ? [
+					{ key: "text", value: text },
+					{ key: "answer", value: text }
+				] : []
+			};
+
+			getPagedVectorKnowledgeData(
+				filter,
+				selectedCollection
+			).then(res => {
 				const newItems = res.items || [];
-				if (reset) {
+				if (params.isReset) {
 					items = [ ...newItems ];
 				} else {
 					items = [ ...items, ...newItems ];
@@ -191,16 +253,26 @@
 
 
 	/**
-	 * @param {string | null} [startId]
-	 * @param {boolean} reset
-	 * @param {boolean} isLocal
-	 * @param {boolean} skipLoader
+	 * @param {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * isLocalLoading: boolean,
+	 * skipLoader: boolean,
+	 * useSearhPair: boolean }} params
 	 */
-	function initData(startId = null, reset = false, isLocal = false, skipLoader = false) {
+	function getData(params = {
+		startId: null,
+		isReset: false,
+		isLocalLoading: false,
+		skipLoader: false,
+		useSearhPair: false
+	}) {
 		return new Promise((resolve, reject) => {
-			if (!skipLoader) toggleLoader(isLocal);
+			if (!params.skipLoader) toggleLoader(params.isLocalLoading);
 			
-			getKnowledgeListData(startId, reset).then(res => {
+			getKnowledgeListData({
+				...params
+			}).then(res => {
 				resolve(res);
 			}).catch(err => {
 				isError = true;
@@ -209,14 +281,14 @@
 				}, 2000);
 				reject(err);
 			}).finally(() => {
-				if (!skipLoader) toggleLoader(isLocal);
+				if (!params.skipLoader) toggleLoader(params.isLocalLoading);
 			});
 		});
 	}
 
-	/** @param {boolean} isLocal */
-	function toggleLoader(isLocal) {
-		if (isLocal) {
+	/** @param {boolean} isLocalLoading */
+	function toggleLoader(isLocalLoading) {
+		if (isLocalLoading) {
 			isLoadingMore = !isLoadingMore;
 		} else {
 			isLoading = !isLoading;
@@ -224,7 +296,24 @@
 	}
 
 	function loadMore() {
-		initData(nextId, false, true);
+		let params = { ...defaultParams };
+
+		if (textSearch) {
+			params = {
+				...params,
+				startId: nextId || null,
+				isLocalLoading: true,
+				useSearhPair: true
+			};
+		} else {
+			params = {
+				...params,
+				startId: nextId || null,
+				isLocalLoading: true,
+			};
+		}
+
+		getData(params);
 	}
 
 	/** @param {any} e */
@@ -447,28 +536,43 @@
 					</div>
 				
                     <div class="mt-2 knowledge-search-footer">
-                        <div class="confidence-input">
-                            <span class="confidence-text fw-bold">
-                                {'Confidence:'}
-                            </span>
-                            <span class="confidence-box">
+                        <div class="search-input">
+                            <div class="line-align-center input-text fw-bold">
+                                <span>{'Confidence:'}</span>
+                            </div>
+                            <div class="line-align-center confidence-box">
                                 <Input
                                     type="text"
                                     class="text-center"
+									disabled={textSearch}
                                     bind:value={confidence}
                                     on:keydown={(e) => validateConfidenceInput(e)}
                                     on:blur={(e) => changeConfidence(e)}
                                 />
-                            </span>
+                            </div>
                         </div>
-                        <div>
-                            <Button
-                                color="primary"
-                                disabled={!text || util.trim(text).length === 0 || isSearching}
-                                on:click={() => search()}
-                            >
-                                {'Search'}
-                            </Button>
+						<div class="search-input">
+							<div class="line-align-center input-text fw-bold">
+								<span>{'Similarity search'}</span>
+							</div>
+							<div class="line-align-center input-text search-toggle">
+								<Input
+									type="switch"
+									bind:checked={textSearch}
+								/>
+							</div>
+							<div class="line-align-center input-text fw-bold">
+								<span>{'Text search'}</span>
+							</div>
+						</div>
+                        <div class="line-align-center">
+							<Button
+								color="primary"
+								disabled={!text || util.trim(text).length === 0 || isSearching}
+								on:click={() => search()}
+							>
+								{'Search'}
+							</Button>
                         </div>
                     </div>
 				

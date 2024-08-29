@@ -126,7 +126,15 @@
             {#if item?.id}
                 <ul class="knwoledge-id">
                     <div class="wrappable text-secondary">
-                        <span>(<span>Id: {item?.id || ''}</span>)</span>
+                        <span>
+                            <span>(</span>
+                            <span>Id: {item?.id || ''}</span>
+                            {#if item?.vector}
+                                <span>,&nbsp</span>
+                                <span>Vector dimension: {item?.vector?.length}</span>
+                            {/if}
+                            <span>)</span>
+                        </span>
                     </div>
                 </ul>
             {/if}
