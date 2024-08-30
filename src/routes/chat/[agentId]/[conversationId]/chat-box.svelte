@@ -74,6 +74,7 @@
 	/** @type {string} */
 	let text = "";
 	let editText = "";
+	let bigText = "";
 	let truncateMsgId = "";
 	let indication = "";
 
@@ -128,6 +129,7 @@
 	let isPersistLogClosed = false; // initial condition
 	let isInstantLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
+	let isOpenBigMsgModal = false;
 	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
@@ -928,8 +930,17 @@
 	}
 
 	// to do
-	function openBigMessageModal() {
-		isOpenEditMsgModal = true;
+	function toggleBigMessageModal() {
+		isOpenBigMsgModal = !isOpenBigMsgModal;
+		if (!isOpenBigMsgModal) {
+			bigText = '';
+		}
+	}
+
+	function sendBigMessage() {
+		isOpenBigMsgModal = !isOpenBigMsgModal;
+		sendChatMessage(bigText);
+		bigText = '';
 	}
 </script>
 
@@ -946,6 +957,18 @@
 	disableConfirmBtn={!!!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="5" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
+</DialogModal>
+
+<DialogModal
+	title={'Add message'}
+	size={'xl'}
+	isOpen={isOpenBigMsgModal}
+	toggleModal={() => toggleBigMessageModal()}
+	confirm={() => sendBigMessage()}
+	cancel={() => toggleBigMessageModal()}
+	disableConfirmBtn={!!!_.trim(bigText)}
+>
+	<textarea class="form-control chat-input" rows="15" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
 </DialogModal>
 
 <StateModal
@@ -1214,7 +1237,7 @@
 											<ChatBigMessage
 												containerClasses={'line-align-center text-primary chat-util-item'}
 												disabled={disableAction}
-												on:click={() => {}}
+												on:click={() => toggleBigMessageModal()}
 											/>
 										{/if}
 									</ChatTextArea>
