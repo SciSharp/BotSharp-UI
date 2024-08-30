@@ -939,8 +939,9 @@
 
 	function sendBigMessage() {
 		isOpenBigMsgModal = !isOpenBigMsgModal;
-		sendChatMessage(bigText);
+		const text = bigText;
 		bigText = '';
+		sendChatMessage(text);
 	}
 </script>
 
