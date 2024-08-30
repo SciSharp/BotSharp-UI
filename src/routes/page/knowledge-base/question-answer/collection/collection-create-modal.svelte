@@ -59,6 +59,11 @@
         dimension = 1536;
     }
 
+    function toggle() {
+        reset();
+        toggleModal?.();
+    }
+
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
@@ -77,15 +82,15 @@
 
 </script>
 
-<Modal class={className} fade size={size} isOpen={open} toggle={() => toggleModal && toggleModal()}>
-    <ModalHeader class="knwoledge-edit-header">
+<Modal class={className} fade size={size} isOpen={open} toggle={() => toggle()}>
+    <ModalHeader>
         <div>{title}</div>
     </ModalHeader>
     <ModalBody>
-        <Form class="knowledge-edit-form">
+        <Form>
             <Row>
-                <FormGroup class="edit-group">
-                    <label class="fw-bold textarea-label" for="collection">{`Collection name: `}</label>
+                <FormGroup>
+                    <label class="fw-bold" for="collection">{`Collection name: `}</label>
                     <Input
                         type="text"
                         maxlength={maxLength}
@@ -98,8 +103,8 @@
                 </FormGroup>
             </Row>
             <Row>
-                <FormGroup class="edit-group">
-                    <label class="fw-bold textarea-label" for="dimension">{`Vector dimension: `}</label>
+                <FormGroup>
+                    <label class="fw-bold" for="dimension">{`Vector dimension: `}</label>
                     <Input
                         type="number"
                         class="text-center"
@@ -107,6 +112,9 @@
                         min={minDimension}
                         step={step}
                     />
+                    <div class="text-secondary text-count">
+                        {'* The value must be larger than zero.'}
+                    </div>
                 </FormGroup>
             </Row>
         </Form>
