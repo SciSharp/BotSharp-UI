@@ -38,7 +38,7 @@
                     class="bx bx-plus-circle clickable"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
-                    title="Open utils"
+                    title="More"
                     on:click={() => clickIcon()}
                 />
             </span>
