@@ -1,7 +1,5 @@
 <script>
 	import { clickoutsideDirective } from "$lib/helpers/directives";
-	import { EditorType } from "$lib/helpers/enums";
-	import { getAddressOptions } from "$lib/services/conversation-service";
     import _ from "lodash";
 
     /** @type {string} */
@@ -16,35 +14,38 @@
     /** @type {number} */
     export let maxLength = 500;
 
-    /** @type {number} */
-    export let optionLimit = 5;
-
     /** @type {boolean} */
     export let disabled = false;
 
     /** @type {string} */
     export let placeholder = "Enter Message...";
 
-    /** @type {string} */
-    export let editor;
+    /** @type {(args0: any) => void} */
+    export let onTextInput = () => {};
 
     /** @type {(args0: any) => void} */
-    export let onKeyDown = () => {}
+    export let onKeyDown = () => {};
+
+    /** @type {(args0: any) => void} */
+    export let onFocus = () => {};
+
+    /** @type {(option: string) => void} */
+    export let onOptionClick = () => {};
 
     /** @type {boolean} */
     export let loadUtils = false;
 
-
-    /** @type {number} */
-    let timeout;
-
     /** @type {string[]} */
-    let options = [];
+    export let options = [];
+
 
     /** @type {HTMLTextAreaElement} */
     let textArea;
 
-    const delay = 500;
+    /** @type {boolean} */
+    let showOptions = false;
+
+    $: showOptions = options?.length > 0;
 
 
     /** @param {any} e */
@@ -64,50 +65,33 @@
 
     /** @param {any} e */
     function handleKeyDown(e) {
-        onKeyDown && onKeyDown(e);
+        onKeyDown?.(e);
     }
 
-    function handleFocus() {
-        options = [];
+    /** @param {any} e */
+    function handleFocus(e) {
+        onFocus?.(e);
     }
     
     /** @param {string} option */
     function handleOptionClick(option) {
-        options = [];
-        text = option;
         if (textArea) {
             textArea.focus();
         }
+
+        onOptionClick?.(option);
     }
 
     /** @param {any} e */
-    function handleTextChange(e) {
-        const value = e.target.value;
-        if (!!!_.trim(value)) {
-            return;
-        }
-
-        clearTimeout(timeout);
-        options = [];
-        if (editor === EditorType.Address) {
-            timeout = setTimeout(() => {
-                // @ts-ignore
-                getAddressOptions(value).then(res => {
-                    // @ts-ignore
-                    const data = res?.results?.map(x => x.formatted_address) || [];
-                    options = data.filter(Boolean).slice(0, optionLimit);
-                }).catch(err => {
-                    options = [];
-                });
-            }, delay);
-        }
+    function handleTextInput(e) {
+        onTextInput?.(e);
     }
 </script>
 
 
 <div use:clickoutsideDirective on:clickoutside={handleClickOutside}>
-    {#if options?.length > 0}
-    <ul class="dropdown-menu chat-option-list">
+    {#if showOptions}
+    <ul class="dropdown-menu chat-option-list chat-util-common">
         {#each options as option, idx (idx)}
             <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -120,8 +104,8 @@
         {/each}
     </ul>
     {/if}
-    {#if loadUtils && options.length === 0}
-    <div class="chat-util-container">
+    {#if loadUtils}
+    <div class="chat-util-container chat-util-common">
         <slot />
     </div>
     {/if}
@@ -133,8 +117,8 @@
         placeholder={placeholder}
         bind:this={textArea}
         bind:value={text}
-        on:input={e => handleTextChange(e)}
+        on:input={e => handleTextInput(e)}
         on:keydown={e => handleKeyDown(e)}
-        on:focus={() => handleFocus()}
+        on:focus={e => handleFocus(e)}
     />
 </div>

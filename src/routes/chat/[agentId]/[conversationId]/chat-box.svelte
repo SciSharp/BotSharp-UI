@@ -1,5 +1,13 @@
 <script>
-	import ChatUtil from './chat-util/chat-util.svelte';
+	import { onMount, setContext, tick } from 'svelte';
+	import { Pane, Splitpanes } from 'svelte-splitpanes';
+	import Viewport from 'svelte-viewport-info';
+	import { page } from '$app/stores';
+	import Swal from 'sweetalert2';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
+	import _ from "lodash";
+	import moment from 'moment';
 	import {
 		Dropdown,
 		DropdownToggle,
@@ -18,13 +26,9 @@
 		deleteConversationMessage,
 		getConversationFiles,
 		getConversationUser,
-		uploadConversationFiles
+		uploadConversationFiles,
+		getAddressOptions
 	} from '$lib/services/conversation-service.js';
-	import 'overlayscrollbars/overlayscrollbars.css';
-    import { OverlayScrollbars } from 'overlayscrollbars';
-	import { page } from '$app/stores';
-	import { onMount, setContext, tick } from 'svelte';
-	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
@@ -44,17 +48,14 @@
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
+	import ChatUtil from './chat-util/chat-util.svelte';
 	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
 	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import Swal from 'sweetalert2';
-	import _ from "lodash";
-	import moment from 'moment';
 	
-
+	
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -66,21 +67,11 @@
 			pointers: ['mouse', 'touch', 'pen']
 		}
 	};
+
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
 	const maxTextLength = 4096;
-	
-	/** @type {string} */
-	let text = "";
-	let editText = "";
-	let bigText = "";
-	let truncateMsgId = "";
-	let indication = "";
-
-	/** @type {string[]} */
-	let prevSentMsgs = [];
-	let sentMsgIdx = 0;
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -88,12 +79,30 @@
 	/** @type {import('$types').UserModel} */
 	export let currentUser;
 
+	/** @type {string} */
+	let text = "";
+	let editText = "";
+	let bigText = "";
+	let truncateMsgId = "";
+	let indication = "";
+	let mode = '';
+
+	/** @type {number} */
+	let messageInputTimeout;
+	let sentMsgIdx = 0;
+
+	/** @type {string[]} */
+	let prevSentMsgs = [];
+	/** @type {string[]} */
+	let chatUtilOptions = [];
+	
 	/** @type {any[]} */
     let scrollbars = [];
 	let microphoneIcon = "microphone-off";
 
 	/** @type {import('$types').ChatResponseModel?} */
 	let lastBotMsg;
+
 	/** @type {import('$types').ChatResponseModel?} */
 	let lastMsg;
 
@@ -137,18 +146,15 @@
 	let isFrame = false;
 	let loadEditor = false;
 	let loadTextEditor = false;
-	let loadFileEditor = true;
 	let autoScrollLog = false;
 	let disableAction = false;
 	let loadChatUtils = false;
 
-	/** @type {string} */
-	let mode = '';
-
+	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
-		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
+		loadEditor = !isSendingMsg && !isThinking && loadTextEditor;
 	}
 
 	$: {
@@ -558,6 +564,35 @@
 		await sentTextMessage();
 	}
 
+	/** @param {any} e */
+    function handleMessageInput(e) {
+        const value = e.target.value;
+        if (!!!_.trim(value)) {
+            return;
+        }
+
+        clearTimeout(messageInputTimeout);
+        chatUtilOptions = [];
+        if (lastBotMsg?.rich_content?.editor === EditorType.Address) {
+            messageInputTimeout = setTimeout(() => {
+                // @ts-ignore
+                getAddressOptions(value).then(res => {
+                    // @ts-ignore
+                    const data = res?.results?.map(x => x.formatted_address) || [];
+                    chatUtilOptions = data.filter(Boolean).slice(0, 5);
+                }).catch(() => {
+                    chatUtilOptions = [];
+                });
+            }, 500);
+        }
+    }
+
+	/** @param {string} option */
+	function handleChatOptionClick(option) {
+		chatUtilOptions = [];
+		text = option;
+	}
+
 	/** 
 	 * @param {string} title
 	 * @param {string} payload
@@ -929,7 +964,6 @@
 		conversationUserAttachmentStore.reset();
 	}
 
-	// to do
 	function toggleBigMessageModal() {
 		isOpenBigMsgModal = !isOpenBigMsgModal;
 		if (!isOpenBigMsgModal) {
@@ -958,6 +992,9 @@
 	disableConfirmBtn={!!!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="5" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
+	<div class="text-secondary text-end text-count">
+		<div>{`${(editText?.length || 0)}/${maxTextLength}`}</div>
+	</div>
 </DialogModal>
 
 <DialogModal
@@ -969,7 +1006,10 @@
 	cancel={() => toggleBigMessageModal()}
 	disableConfirmBtn={!!!_.trim(bigText)}
 >
-	<textarea class="form-control chat-input" rows="15" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
+	<div class="text-secondary text-end text-count">
+		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
+	</div>
 </DialogModal>
 
 <StateModal
@@ -1219,21 +1259,22 @@
 							<div class="col">
 								<div class="position-relative">
 									<ChatTextArea
-										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
+										className={`chat-input chat-uploader`}
 										maxLength={maxTextLength}
+										disabled={isSendingMsg || isThinking || disableAction}
 										bind:text={text}
 										bind:loadUtils={loadChatUtils}
-										disabled={isSendingMsg || isThinking || disableAction}
-										editor={lastBotMsg?.rich_content?.editor || ''}
+										bind:options={chatUtilOptions}
+										onTextInput={e => handleMessageInput(e)}
 										onKeyDown={e => onSendMessage(e)}
+										onFocus={e => chatUtilOptions = []}
+										onOptionClick={op => handleChatOptionClick(op)}
 									>
-										{#if loadFileEditor}
-											<ChatImageUploader
-												containerClasses={'line-align-center text-primary chat-util-item'}
-												disabled={disableAction}
-												onFileDrop={() => refresh()}
-											/>
-										{/if}
+										<ChatImageUploader
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											onFileDrop={() => refresh()}
+										/>
 										{#if !isLite}
 											<ChatBigMessage
 												containerClasses={'line-align-center text-primary chat-util-item'}
@@ -1242,11 +1283,9 @@
 											/>
 										{/if}
 									</ChatTextArea>
-									{#if loadFileEditor || isLite}
-										<div class="chat-input-links">
-											<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
-										</div>
-									{/if}
+									<div class="chat-input-links">
+										<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
+									</div>
 								</div>
 							</div>
 							<div class="col-auto">
