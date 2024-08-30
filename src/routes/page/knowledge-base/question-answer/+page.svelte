@@ -551,6 +551,7 @@
 	<VectorItemEditModal
 		className={'vector-edit-container'}
 		title={editModalTitle}
+		size={'lg'}
 		collection={editCollection}
 		item={editItem}
 		open={isOpenEditKnowledge}
