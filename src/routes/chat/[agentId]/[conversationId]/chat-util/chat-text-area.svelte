@@ -8,6 +8,12 @@
     /** @type {string} */
     export let text;
 
+    /** @type {boolean} */
+    export let loadUtils = false;
+
+    /** @type {string[]} */
+    export let options = [];
+
     /** @type {number} */
     export let rows = 1;
 
@@ -31,12 +37,6 @@
 
     /** @type {(option: string) => void} */
     export let onOptionClick = () => {};
-
-    /** @type {boolean} */
-    export let loadUtils = false;
-
-    /** @type {string[]} */
-    export let options = [];
 
 
     /** @type {HTMLTextAreaElement} */
