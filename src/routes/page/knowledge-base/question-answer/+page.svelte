@@ -19,7 +19,8 @@
 		createVectorKnowledgeData,
 		updateVectorKnowledgeData,
 		deleteVectorCollection,
-		deleteVectorKnowledgeData
+		deleteVectorKnowledgeData,
+		createVectorCollection
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -28,7 +29,8 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import VectorItem from './vector-table/vector-item.svelte';
-	import VectorItemEdit from './vector-table/vector-item-edit.svelte';
+	import VectorItemEditModal from './vector-table/vector-item-edit-modal.svelte';
+	import CollectionCreateModal from './collection/collection-create-modal.svelte';
 	
 	
 	const page_size = 8;
@@ -70,7 +72,8 @@
 	let isLoadingMore = false;
 	let isComplete = false;
 	let isError = false;
-	let isOpenEdit = false;
+	let isOpenEditKnowledge = false;
+	let isOpenCreateCollection = false;
 	let textSearch = false;
 
 	/** @type {{
@@ -371,19 +374,19 @@
 		editModalTitle = "Edit knowledge";
 		editCollection = e.detail.collection;
 		editItem = e.detail.item;
-		isOpenEdit = true;
+		isOpenEditKnowledge = true;
 	}
 
 	function onKnowledgeCreate() {
 		editModalTitle = "Create knowledge";
 		editCollection = selectedCollection;
 		editItem = null;
-		isOpenEdit = true;
+		isOpenEditKnowledge = true;
 	}
 
-	function toggleEditModal() {
-		isOpenEdit = !isOpenEdit;
-		if (!isOpenEdit) {
+	function toggleKnowledgeEditModal() {
+		isOpenEditKnowledge = !isOpenEditKnowledge;
+		if (!isOpenEditKnowledge) {
 			resetEditData();
 		}
 	}
@@ -391,7 +394,7 @@
 	/** @param {any} e */
 	function confirmEdit(e) {
 		isLoading = true;
-		isOpenEdit = false;
+		isOpenEditKnowledge = false;
 
 		if (!!editItem) {
 			updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, editCollection).then(res => {
@@ -463,6 +466,39 @@
 		reset();
 	}
 
+	function toggleCollectionCreate() {
+		isOpenCreateCollection = !isOpenCreateCollection;
+	}
+
+	/** @param {{
+	 * collection: string,
+	 * dimension: number
+	 * }} data
+	*/
+	function confirmCollectionCreate(data) {
+		toggleCollectionCreate();
+		createVectorCollection(data.collection, data.dimension).then(res => {
+			if (res) {
+				successText = "Collection has been created!";
+				isComplete = true;
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+				initPage();
+			} else {
+				throw 'Error when creating collection';
+			}
+		}).catch(() => {
+			errorText = "Failed to create collection."
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		}).finally(() => {
+			isLoading = false;
+		});
+	}
+
 	function deleteCollection() {
         Swal.fire({
             title: 'Are you sure?',
@@ -511,18 +547,26 @@
 	errorText={errorText}
 />
 
-{#if isOpenEdit}
-	<VectorItemEdit
+{#if isOpenEditKnowledge}
+	<VectorItemEditModal
 		className={'vector-edit-container'}
 		title={editModalTitle}
 		collection={editCollection}
 		item={editItem}
-		open={isOpenEdit}
-		toggleModal={() => isOpenEdit = !isOpenEdit}
+		open={isOpenEditKnowledge}
+		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
-		cancel={() => toggleEditModal()}
+		cancel={() => toggleKnowledgeEditModal()}
 	/>
 {/if}
+
+<CollectionCreateModal
+	title={'Create new collection'}
+	open={isOpenCreateCollection}
+	toggleModal={() => toggleCollectionCreate()}
+	confirm={e => confirmCollectionCreate(e)}
+	cancel={() => toggleCollectionCreate()}
+/>
 
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
@@ -665,8 +709,8 @@
 										<i class="bx bx-add-to-queue" />
 									</div>
 								</div>
-								<div class="knowledge-dropdown-container">
-									<div class="line-align-center knowledge-dropdown">
+								<div class="collection-dropdown-container">
+									<div class="line-align-center collection-dropdown">
 										<Input type="select" on:change={(e) => changeCollection(e)}>
 											{#each collections as option, idx (idx)}
 												<option value={option} selected={option === selectedCollection}>{option}</option>
@@ -677,13 +721,26 @@
 										class="line-align-center"
 										data-bs-toggle="tooltip"
 										data-bs-placement="top"
+										title="Add collection"
+									>
+										<Button
+											class="btn btn-sm btn-soft-primary collection-action-btn"
+											on:click={() => toggleCollectionCreate()}
+										>
+											<i class="mdi mdi-plus" />
+										</Button>
+									</div>
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
 										title="Delete collection"
 									>
 										<Button
-											class="btn btn-sm btn-danger"
+											class="btn btn-sm btn-soft-danger collection-action-btn"
 											on:click={() => deleteCollection()}
 										>
-											<i class="mdi mdi-delete-outline" />
+											<i class="mdi mdi-minus" />
 										</Button>
 									</div>
 								</div>

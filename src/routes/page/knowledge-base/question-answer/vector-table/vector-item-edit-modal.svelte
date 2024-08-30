@@ -28,7 +28,7 @@
     export let title;
 
     /** @type {string} */
-    export let size = 'xl';
+    export let size = 'md';
 
     /** @type {() => void} */
     export let toggleModal;
