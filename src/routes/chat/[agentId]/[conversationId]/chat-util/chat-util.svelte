@@ -36,6 +36,9 @@
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <i
                     class="bx bx-plus-circle clickable"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Open utils"
                     on:click={() => clickIcon()}
                 />
             </span>

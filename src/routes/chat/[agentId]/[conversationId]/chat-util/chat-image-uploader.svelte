@@ -69,7 +69,14 @@
         on:drop={e => handleFileDrop(e)}
     >
         <slot>
-            <span><i class="bx bx-image-add" /></span>
+            <span>
+                <i
+                    class="bx bx-image-add"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Upload files"
+                />
+            </span>
         </slot>
     </FileDropZone>
 </div>

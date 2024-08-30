@@ -29,6 +29,9 @@
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <i
             class="bx bx-zoom-in clickable"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Open large text area"
             on:click={() => clickIcon()}
         />
     </span>
