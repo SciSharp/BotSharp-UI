@@ -634,7 +634,7 @@
 						{text?.length || 0}/{maxLength}
 					</div>
 				
-                    <div class="mt-2 knowledge-search-footer">
+                    <div class="mt-3 knowledge-search-footer">
                         <div class="search-input">
                             <div class="line-align-center input-text fw-bold">
                                 <span>{'Confidence:'}</span>
@@ -676,18 +676,18 @@
                     </div>
 				
 					{#if isSearching}
-						<div class="knowledge-loader mt-4">
+						<div class="knowledge-loader mt-5">
 							<LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
 						</div>
 					{:else if searchDone && (!items || items.length === 0)}
-						<div class="mt-4">
+						<div class="mt-5">
 							<h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
 						</div>
 					{/if}
 			  	</div>
 			</div>
 		{/if}
-		<div class="d-md-flex">
+		<div class="d-md-flex mt-5">
 			<div class="w-100">
 				<Card>
 					<CardBody>
