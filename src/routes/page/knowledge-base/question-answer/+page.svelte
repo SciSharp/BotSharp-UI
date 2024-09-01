@@ -578,12 +578,12 @@
 			{#if !showDemo}
 				<div class="btn-content">
 					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
-					<div>{'Search'}</div>
+					<div>{'Start Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
 					<span class="knowledge-btn-icon"><i class="bx bx-hide" /></span>
-					<span>{'Hide'}</span>
+					<span>{'Hide Search'}</span>
 				</div>
 			{/if}
 		</Button>
