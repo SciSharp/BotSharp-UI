@@ -148,7 +148,7 @@
 	let loadTextEditor = false;
 	let autoScrollLog = false;
 	let disableAction = false;
-	let loadChatUtils = true;
+	let loadChatUtils = false;
 
 	
 	$: {
@@ -1285,40 +1285,25 @@
 										>
 											<span>
 												<i
-													class="mdi mdi-image-plus"
+													class="bx bx-image-add"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload image"
+													title="Upload images"
 												/>
 											</span>
 										</ChatFileUploader>
 										<ChatFileUploader
-											accept={'.pdf'}
+											accept={'.pdf,.xlsx,.xls,.csv'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
 											disabled={disableAction}
 											on:filedroped={() => refresh()}
 										>
 											<span>
 												<i
-													class="mdi mdi-file-pdf"
+													class="bx bxs-folder-open"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload pdf"
-												/>
-											</span>
-										</ChatFileUploader>
-										<ChatFileUploader
-											accept={'.xlsx,.xls,.csv'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={disableAction}
-											on:filedroped={() => refresh()}
-										>
-											<span>
-												<i
-													class="mdi mdi-microsoft-excel"
-													data-bs-toggle="tooltip"
-													data-bs-placement="top"
-													title="Upload excel"
+													title="Upload pdf, excel files"
 												/>
 											</span>
 										</ChatFileUploader>
@@ -1330,10 +1315,10 @@
 										>
 											<span>
 												<i
-													class="mdi mdi-file-music"
+													class="bx bxs-music"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload audio"
+													title="Upload audios"
 												/>
 											</span>
 										</ChatFileUploader>

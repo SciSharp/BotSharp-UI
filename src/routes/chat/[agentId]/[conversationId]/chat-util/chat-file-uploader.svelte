@@ -8,6 +8,8 @@
     /** @type {string} */
     export let accept;
 
+    export let fileMaxSize = 10 * 1024 * 1024;
+
     /** @type {boolean} */
     export let disabled = false;
 
@@ -24,10 +26,10 @@
     let disableFileDrop = false;
 
     /** @type {number} */
-    let fileUploadLimit = 0;
+    let localFileUploadLimit = 0;
 
     const fileUpperLimit = 5;
-    const fileMaxSize = 10 * 1024 * 1024;
+    
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
         const savedAttachments = $conversationUserAttachmentStore;
@@ -40,7 +42,7 @@
 
     $: {
         disableFileDrop = disabled || files.length >= fileUpperLimit;
-        fileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
+        localFileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
     }
 
     /** @param {any} e */
@@ -64,7 +66,7 @@
         disableDefaultStyles
         noDrag
         disabled={disableFileDrop}
-        fileLimit={fileUploadLimit}
+        fileLimit={localFileUploadLimit}
         maxSize={fileMaxSize}
         on:drop={e => handleFileDrop(e)}
     >
