@@ -49,8 +49,8 @@
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import ChatUtil from './chat-util/chat-util.svelte';
-	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
-	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
+	import ChatFileUploader from './chat-util/chat-file-uploader.svelte';
+	import ChatFileGallery from './chat-util/chat-file-gallery.svelte';
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
@@ -148,7 +148,7 @@
 	let loadTextEditor = false;
 	let autoScrollLog = false;
 	let disableAction = false;
-	let loadChatUtils = false;
+	let loadChatUtils = true;
 
 	
 	$: {
@@ -1233,7 +1233,7 @@
 								{/if}
 							</ul>
 
-							<ChatImageGallery disabled={isSendingMsg || isThinking} />
+							<ChatFileGallery disabled={isSendingMsg || isThinking} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
@@ -1270,11 +1270,6 @@
 										onFocus={e => chatUtilOptions = []}
 										onOptionClick={op => handleChatOptionClick(op)}
 									>
-										<ChatImageUploader
-											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={disableAction}
-											onFileDrop={() => refresh()}
-										/>
 										{#if !isLite}
 											<ChatBigMessage
 												containerClasses={'line-align-center text-primary chat-util-item'}
@@ -1282,6 +1277,66 @@
 												on:click={() => toggleBigMessageModal()}
 											/>
 										{/if}
+										<ChatFileUploader
+											accept={'.png,.jpg,.jpeg'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="mdi mdi-image-plus"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload image"
+												/>
+											</span>
+										</ChatFileUploader>
+										<ChatFileUploader
+											accept={'.pdf'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="mdi mdi-file-pdf"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload pdf"
+												/>
+											</span>
+										</ChatFileUploader>
+										<ChatFileUploader
+											accept={'.xlsx,.xls,.csv'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="mdi mdi-microsoft-excel"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload excel"
+												/>
+											</span>
+										</ChatFileUploader>
+										<ChatFileUploader
+											accept={'.wav,.mp3'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="mdi mdi-file-music"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload audio"
+												/>
+											</span>
+										</ChatFileUploader>
 									</ChatTextArea>
 									<div class="chat-input-links">
 										<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />

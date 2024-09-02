@@ -1,14 +1,15 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, createEventDispatcher } from 'svelte';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
 	import { conversationUserAttachmentStore } from '$lib/helpers/store';
+
+    const svelteDispatch = createEventDispatcher();
 	
+    /** @type {string} */
+    export let accept;
 
     /** @type {boolean} */
     export let disabled = false;
-
-    /** @type {() => void} */
-    export let onFileDrop = () => {};
 
     /** @type {string} */
     export let containerClasses = "";
@@ -27,7 +28,6 @@
 
     const fileUpperLimit = 5;
     const fileMaxSize = 10 * 1024 * 1024;
-    const accept = "image/*,.pdf,.xlsx,.xls,.csv,.wav,.mp3";
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
         const savedAttachments = $conversationUserAttachmentStore;
@@ -51,7 +51,7 @@
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });
-        onFileDrop?.();
+        svelteDispatch('filedroped');
     }
 </script>
 

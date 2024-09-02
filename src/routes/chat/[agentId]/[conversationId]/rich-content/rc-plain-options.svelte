@@ -4,7 +4,7 @@
     import SveltePlayer from "svelte-player";
     import { Card, CardBody } from "@sveltestrap/sveltestrap";
     import { ElementType } from "$lib/helpers/enums";
-	import ChatImageUploader from "../chat-util/chat-image-uploader.svelte";
+	import ChatFileUploader from "../chat-util/chat-file-uploader.svelte";
 
     /** @type {boolean} */
     export let isMultiSelect = false;
@@ -166,11 +166,11 @@
         </button>
     {/if}
     {#if fileOption}
-        <ChatImageUploader>
+        <ChatFileUploader accept=".png,.jpg,.jpeg,.pdf,.xlsx,.xls,.csv,.wav,.mp3">
             <span style="position: relative; top: 3px;" in:fade={{ duration: duration }}>
                 <i class="bx bx-image-add" />
             </span>
-        </ChatImageUploader>
+        </ChatFileUploader>
     {/if}
 </div>
 {/if}

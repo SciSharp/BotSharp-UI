@@ -24,14 +24,15 @@
     class={`${containerClasses}`}
     style={`${containerStyles}`}
 >
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
     <span>
+        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <!-- svelte-ignore a11y-click-events-have-key-events -->
         <i
             class="bx bx-zoom-in clickable"
+            style="padding-top: 12px;"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
-            title="Open large text area"
+            title="Zoom in"
             on:click={() => clickIcon()}
         />
     </span>
