@@ -19,21 +19,21 @@
 	/** @type {boolean} */
     let isLoading = false;
 
-	/** @type {import('$types').PagedItems<import('$types').AgentModel>} */
+	/** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>} */
   	let agents = { items: [], count: 0 };
 
-	/** @type {import('$types').AgentFilter} */
+	/** @type {import('$agentTypes').AgentFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-	/** @type {import('$types').AgentFilter} */
+	/** @type {import('$agentTypes').AgentFilter} */
 	let filter = { ... initFilter };
 
-	/** @type {import('$types').Pagination} */
+	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
-	/** @type {import('$types').UserModel} */
+	/** @type {import('$userTypes').UserModel} */
 	let user;
 
 	onMount(async () => {

@@ -2,7 +2,7 @@
     import Drawflow from 'drawflow';
     import 'drawflow/dist/drawflow.min.css';
     import '$lib/drawflow/drawflow.css';
-    import { onMount, createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
     import { newConversation } from '$lib/services/conversation-service';
     import { conversationStore } from '$lib/helpers/store.js';
     import { getAgentTaskDetail } from '$lib/services/task-service';
@@ -12,10 +12,10 @@
     import { page } from '$app/stores';
 	import { replaceNewLine } from '$lib/helpers/http';
 
-    /** @type {import('$types').AgentTaskModel} */
+    /** @type {import('$agentTypes').AgentTaskModel} */
     let task;
 
-    /** @type {import('$types').AgentTemplate[]} */
+    /** @type {import('$agentTypes').AgentTemplate[]} */
     let taskNodes = [];
 
     /** @type {Drawflow} */

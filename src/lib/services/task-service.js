@@ -4,8 +4,8 @@ import axios from 'axios';
 
 /**
  * Get agent list
- * @param {import('$types').AgentTaskFilter} filter
- * @returns {Promise<import('$types').PagedItems<import('$types').AgentTaskViewModel>>}
+ * @param {import('$agentTypes').AgentTaskFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$agentTypes').AgentTaskModel>>}
  */
 export async function getAgentTasks(filter) {
     const response = await axios.get(endpoints.agentTaskListUrl, { params: filter,
@@ -21,7 +21,7 @@ export async function getAgentTasks(filter) {
  * Get task detail
  * @param {string} agentId 
  * @param {string} taskid 
- * @returns {Promise<import('$types').AgentTaskModel>}
+ * @returns {Promise<import('$agentTypes').AgentTaskModel>}
  */
 export async function getAgentTaskDetail(agentId, taskid) {
     const url = replaceUrl(endpoints.agentTaskDetailUrl, { agentId: agentId, taskId: taskid });

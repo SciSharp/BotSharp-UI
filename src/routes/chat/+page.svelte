@@ -6,12 +6,12 @@
     import { getAgents } from '$lib/services/agent-service.js'
     
     const params = $page.params;
-    /** @type {import('$types').AgentFilter} */
+    /** @type {import('$agentTypes').AgentFilter} */
     const filter = {
         pager: { page: 1, size: 10, count: 0 }
     };
 
-    /** @type {import('$types').AgentModel[]} */
+    /** @type {import('$agentTypes').AgentModel[]} */
     let agents = [];
     let agentId = 'undefined';
 

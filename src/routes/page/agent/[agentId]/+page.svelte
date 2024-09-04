@@ -20,7 +20,7 @@
 	import { goto } from '$app/navigation';
 	
 	
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     let agent;
     /** @type {any} */
     let agentFunctionCmp = null;

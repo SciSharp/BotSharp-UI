@@ -1,7 +1,7 @@
 <script>
 	import AudioPlayer from './audio-player/AudioPlayer.svelte';
 
-  /** @type {import('$types').AudioFileModel[]} */
+  /** @type {import('$fileTypes').AudioFileModel[]} */
   export let audios = [];
 
   /** @type {string} */

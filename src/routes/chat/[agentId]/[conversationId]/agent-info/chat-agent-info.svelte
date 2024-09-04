@@ -1,7 +1,7 @@
 <script>
 	import { directToAgentPage } from '$lib/helpers/utils/common';
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
 	export let agent;
 </script>
 

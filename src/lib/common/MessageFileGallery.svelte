@@ -19,10 +19,10 @@
     /** @type {() => Promise<any>} */
     export let fetchFiles = () => Promise.resolve([]);
 
-    /** @type {import('$types').TextFileModel[]} */
+    /** @type {import('$fileTypes').TextFileModel[]} */
     let textFiles = [];
 
-    /** @type {import('$types').AudioFileModel[]} */
+    /** @type {import('$fileTypes').AudioFileModel[]} */
     let audioFiles = [];
 
     onMount(() => {

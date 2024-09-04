@@ -5,7 +5,7 @@
   import { _ } from 'svelte-i18n';
 	import { LERNER_ID } from "$lib/helpers/constants";
 
-  /** @type {import('$types').AgentModel[]} */
+  /** @type {import('$agentTypes').AgentModel[]} */
   export let agents;
 </script>
 

@@ -7,11 +7,11 @@ const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
 
-/** @type {Writable<import('$types').UserModel>} */
+/** @type {Writable<import('$userTypes').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
 
 /**
- * @returns {Writable<import('$types').UserModel>}
+ * @returns {Writable<import('$userTypes').UserModel>}
  */
 export function getUserStore() {
     if (browser) {

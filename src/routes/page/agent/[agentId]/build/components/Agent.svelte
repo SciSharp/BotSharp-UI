@@ -3,7 +3,7 @@
 	import { Node, Anchor } from 'svelvet';
 	import { generateInput, generateOutput } from 'svelvet';
 
-	/** @type import('$types').AgentModel */
+	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
 
     /** 

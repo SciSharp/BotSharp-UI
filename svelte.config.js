@@ -7,7 +7,15 @@ const config = {
 	// preprocess: vitePreprocess(),
 	kit: {
 		alias: {
-			$types: './src/lib/helpers/types/types.js'
+			$types: './src/lib/helpers/types/types.js',
+			$agentTypes: './src/lib/helpers/types/agentTypes.js',
+			$conversationTypes: './src/lib/helpers/types/conversationTypes.js',
+			$knowledgeTypes: './src/lib/helpers/types/knowledgeTypes.js',
+			$fileTypes: './src/lib/helpers/types/fileTypes.js',
+			$audioTypes: './src/lib/helpers/types/audioTypes.js',
+			$userTypes: './src/lib/helpers/types/userTypes.js',
+			$commonTypes: './src/lib/helpers/types/commonTypes.js',
+			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
 		},
 
 		// for static deployment

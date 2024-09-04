@@ -3,7 +3,7 @@
 	import Link from 'svelte-link';  
     import { _ } from 'svelte-i18n'  
 
-    /** @type {import('$types').Pagination} */    
+    /** @type {import('$commonTypes').Pagination} */    
     export let pagination;
     /** @type {(pageNum: number) => void} */  
     export let pageTo;

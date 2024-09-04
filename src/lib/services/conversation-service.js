@@ -29,7 +29,7 @@ export async function getConversation(id) {
 /**
  * Get conversation user
  * @param {string} id
- * @returns {Promise<import('$types').UserModel>}
+ * @returns {Promise<import('$userTypes').UserModel>}
  */
 export async function getConversationUser(id) {
     let url = replaceUrl(endpoints.conversationUserUrl, {conversationId: id});
@@ -40,7 +40,7 @@ export async function getConversationUser(id) {
 /**
  * Get conversation list
  * @param {import('$types').ConversationFilter} filter
- * @returns {Promise<import('$types').PagedItems<import('$types').ConversationModel>>}
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$types').ConversationModel>>}
  */
 export async function getConversations(filter) {
     let url = endpoints.conversationsUrl;

@@ -2,7 +2,7 @@
 	import { AUDIO_ICON, EXCEL_ICON, PDF_ICON, isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
     import { LightboxGallery, GalleryThumbnail, GalleryImage } from 'svelte-lightbox';
 
-    /** @type {import('$types').TextFileModel[]} */
+    /** @type {import('$fileTypes').TextFileModel[]} */
     export let files = [];
 
     /** @type {boolean} */

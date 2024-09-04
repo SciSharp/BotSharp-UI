@@ -73,10 +73,10 @@
 	const screenWidthThreshold = 1024;
 	const maxTextLength = 4096;
 	
-	/** @type {import('$types').AgentModel} */
+	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
 
-	/** @type {import('$types').UserModel} */
+	/** @type {import('$userTypes').UserModel} */
 	export let currentUser;
 
 	/** @type {string} */
@@ -129,7 +129,7 @@
 	/** @type {import('$types').UserStateDetailModel[]} */
 	let userAddStates = [];
 
-	/** @type {import('$types').UserModel} */
+	/** @type {import('$userTypes').UserModel} */
     let conversationUser;
 
 	/** @type {boolean} */

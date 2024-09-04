@@ -11,18 +11,18 @@
 	const firstPage = 1;
 	const pageSize = 12;
 
-	/** @type {import('$types').PagedItems<import('$types').PluginDefModel>} */
+	/** @type {import('$commonTypes').PagedItems<import('$pluginTypes').PluginDefModel>} */
     let plugins = { items: [], count: 0 };
 
-	/** @type {import('$types').PluginFilter} */
+	/** @type {import('$pluginTypes').PluginFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-    /** @type {import('$types').PluginFilter} */
+    /** @type {import('$pluginTypes').PluginFilter} */
     let filter = { ... initFilter };
 
-	/** @type {import('$types').Pagination} */
+	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
     onMount(async () => {
@@ -77,7 +77,7 @@
 		getPagedPlugins();
 	}
 
-	/** @param {import('$types').PluginDefModel} plugin */
+	/** @param {import('$pluginTypes').PluginDefModel} plugin */
 	function getIconUrl(plugin) {
 		if (plugin.is_core) {
 			return 'images/logo.png';

@@ -35,7 +35,7 @@
 	const firstPage = 1;
 	const pageSize = 10;
 
-    /** @type {import('$types').PagedItems<import('$types').ConversationModel>} */
+    /** @type {import('$commonTypes').PagedItems<import('$types').ConversationModel>} */
     let conversations = { count: 0, items: [] };
 
 	/** @type {import('$types').ConversationFilter} */
@@ -46,13 +46,13 @@
     /** @type {import('$types').ConversationFilter} */
     let filter = { ... initFilter };
 
-	/** @type {import('$types').Pagination} */
+	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
 	/** @type {string[]} */
 	let searchStateStrs = [];
 
-	/** @type {import('$types').IdName[]} */
+	/** @type {import('$commonTypes').IdName[]} */
 	let agentOptions = [];
 
 	/** 

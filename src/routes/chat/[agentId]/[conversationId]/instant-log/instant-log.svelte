@@ -8,7 +8,7 @@
 	import ChatAgentInfo from '../agent-info/chat-agent-info.svelte';
 	import LatestStateLog from './latest-state-log.svelte';
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
 	export let agent;
 
     /** @type {any[]} */

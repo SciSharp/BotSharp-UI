@@ -8,10 +8,10 @@
 	import { getPluginMenu } from '$lib/services/plugin-service';
 	import { myInfo } from '$lib/services/auth-service';
 
-	/** @type {import('$types').PluginMenuDefModel[]} */
+	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
 	let menu;
 	/**
-	 * @type {import("$types").UserModel}
+	 * @type {import("$userTypes").UserModel}
 	 */
 	let user;
 

@@ -3,7 +3,7 @@
 	import { directToAgentPage } from "$lib/helpers/utils/common";
 	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 </script>
 

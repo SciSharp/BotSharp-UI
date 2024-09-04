@@ -2,7 +2,7 @@
     import { JSONEditor, Mode } from 'svelte-jsoneditor';
     import { onMount } from 'svelte';
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
     export const fetchContent = () => {

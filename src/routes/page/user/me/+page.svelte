@@ -11,7 +11,7 @@
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { buildUrl } from '$lib/helpers/utils/common';
 	
-	/** @type {import('$types').UserModel} */
+	/** @type {import('$userTypes').UserModel} */
 	let currentUser;
 	let isLoading = false;
 

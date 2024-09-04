@@ -10,7 +10,7 @@
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
 	import Swal from 'sweetalert2';
 
-    /** @type {import('$types').PluginDefModel[]} */
+    /** @type {import('$pluginTypes').PluginDefModel[]} */
     export let plugins;
 
 	/**
