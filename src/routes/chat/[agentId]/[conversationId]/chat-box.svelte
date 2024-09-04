@@ -1,4 +1,13 @@
 <script>
+	import { onMount, setContext, tick } from 'svelte';
+	import { Pane, Splitpanes } from 'svelte-splitpanes';
+	import Viewport from 'svelte-viewport-info';
+	import { page } from '$app/stores';
+	import Swal from 'sweetalert2';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
+	import _ from "lodash";
+	import moment from 'moment';
 	import {
 		Dropdown,
 		DropdownToggle,
@@ -17,13 +26,9 @@
 		deleteConversationMessage,
 		getConversationFiles,
 		getConversationUser,
-		uploadConversationFiles
+		uploadConversationFiles,
+		getAddressOptions
 	} from '$lib/services/conversation-service.js';
-	import 'overlayscrollbars/overlayscrollbars.css';
-    import { OverlayScrollbars } from 'overlayscrollbars';
-	import { page } from '$app/stores';
-	import { onMount, setContext, tick } from 'svelte';
-	import Viewport from 'svelte-viewport-info';
 	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
 	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
@@ -33,7 +38,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
-	import ChatTextArea from '$lib/common/ChatTextArea.svelte';
+	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -43,15 +48,13 @@
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
-	import ChatImageUploader from './chat-util/chat-image-uploader.svelte';
-	import ChatImageGallery from './chat-util/chat-image-gallery.svelte';
+	import ChatUtil from './chat-util/chat-util.svelte';
+	import ChatFileUploader from './chat-util/chat-file-uploader.svelte';
+	import ChatFileGallery from './chat-util/chat-file-gallery.svelte';
+	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	import { Pane, Splitpanes } from 'svelte-splitpanes';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
-	import _ from "lodash";
-	import moment from 'moment';
+	
 	
 	const options = {
 		scrollbars: {
@@ -64,20 +67,11 @@
 			pointers: ['mouse', 'touch', 'pen']
 		}
 	};
+
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
 	const maxTextLength = 4096;
-	
-	/** @type {string} */
-	let text = "";
-	let editText = "";
-	let truncateMsgId = "";
-	let indication = "";
-
-	/** @type {string[]} */
-	let prevSentMsgs = [];
-	let sentMsgIdx = 0;
 	
 	/** @type {import('$types').AgentModel} */
 	export let agent;
@@ -85,12 +79,30 @@
 	/** @type {import('$types').UserModel} */
 	export let currentUser;
 
+	/** @type {string} */
+	let text = "";
+	let editText = "";
+	let bigText = "";
+	let truncateMsgId = "";
+	let indication = "";
+	let mode = '';
+
+	/** @type {number} */
+	let messageInputTimeout;
+	let sentMsgIdx = 0;
+
+	/** @type {string[]} */
+	let prevSentMsgs = [];
+	/** @type {string[]} */
+	let chatUtilOptions = [];
+	
 	/** @type {any[]} */
     let scrollbars = [];
 	let microphoneIcon = "microphone-off";
 
 	/** @type {import('$types').ChatResponseModel?} */
 	let lastBotMsg;
+
 	/** @type {import('$types').ChatResponseModel?} */
 	let lastMsg;
 
@@ -126,6 +138,7 @@
 	let isPersistLogClosed = false; // initial condition
 	let isInstantLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
+	let isOpenBigMsgModal = false;
 	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
@@ -133,17 +146,15 @@
 	let isFrame = false;
 	let loadEditor = false;
 	let loadTextEditor = false;
-	let loadFileEditor = true;
 	let autoScrollLog = false;
 	let disableAction = false;
+	let loadChatUtils = false;
 
-	/** @type {string} */
-	let mode = '';
-
+	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
-		loadEditor = !isSendingMsg && !isThinking && (loadTextEditor || loadFileEditor);
+		loadEditor = !isSendingMsg && !isThinking && loadTextEditor;
 	}
 
 	$: {
@@ -386,7 +397,8 @@
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
-			indication = data.indication || '';
+			const retIndication = data.indication || '';
+			indication = retIndication.split('|')[0];
 		} else if (data?.sender_action == SenderAction.TypingOff) {
 			isThinking = false;
 			indication = '';
@@ -553,6 +565,35 @@
 		await sentTextMessage();
 	}
 
+	/** @param {any} e */
+    function handleMessageInput(e) {
+        const value = e.target.value;
+        if (!!!_.trim(value)) {
+            return;
+        }
+
+        clearTimeout(messageInputTimeout);
+        chatUtilOptions = [];
+        if (lastBotMsg?.rich_content?.editor === EditorType.Address) {
+            messageInputTimeout = setTimeout(() => {
+                // @ts-ignore
+                getAddressOptions(value).then(res => {
+                    // @ts-ignore
+                    const data = res?.results?.map(x => x.formatted_address) || [];
+                    chatUtilOptions = data.filter(Boolean).slice(0, 5);
+                }).catch(() => {
+                    chatUtilOptions = [];
+                });
+            }, 500);
+        }
+    }
+
+	/** @param {string} option */
+	function handleChatOptionClick(option) {
+		chatUtilOptions = [];
+		text = option;
+	}
+
 	/** 
 	 * @param {string} title
 	 * @param {string} payload
@@ -637,7 +678,6 @@
 				showCancelButton: true,
 				confirmButtonText: 'Yes',
 				cancelButtonText: 'No'
-			// @ts-ignore
 			}).then((result) => {
 				if (result.value) {
 					window.close();
@@ -718,7 +758,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				userAddStates = [];
@@ -741,7 +780,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, go ahead!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
@@ -767,7 +805,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes, delete it!',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then(async (result) => {
 			if (result.value) {
 				await handleDeleteMessage(messageId);
@@ -927,6 +964,20 @@
 	function resetStorage() {
 		conversationUserAttachmentStore.reset();
 	}
+
+	function toggleBigMessageModal() {
+		isOpenBigMsgModal = !isOpenBigMsgModal;
+		if (!isOpenBigMsgModal) {
+			bigText = '';
+		}
+	}
+
+	function sendBigMessage() {
+		isOpenBigMsgModal = !isOpenBigMsgModal;
+		const text = bigText;
+		bigText = '';
+		sendChatMessage(text);
+	}
 </script>
 
 
@@ -942,6 +993,24 @@
 	disableConfirmBtn={!!!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="5" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
+	<div class="text-secondary text-end text-count">
+		<div>{`${(editText?.length || 0)}/${maxTextLength}`}</div>
+	</div>
+</DialogModal>
+
+<DialogModal
+	title={'Add message'}
+	size={'xl'}
+	isOpen={isOpenBigMsgModal}
+	toggleModal={() => toggleBigMessageModal()}
+	confirm={() => sendBigMessage()}
+	cancel={() => toggleBigMessageModal()}
+	disableConfirmBtn={!!!_.trim(bigText)}
+>
+	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
+	<div class="text-secondary text-end text-count">
+		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
+	</div>
 </DialogModal>
 
 <StateModal
@@ -1165,7 +1234,7 @@
 								{/if}
 							</ul>
 
-							<ChatImageGallery disabled={isSendingMsg || isThinking} />
+							<ChatFileGallery disabled={isSendingMsg || isThinking} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
@@ -1191,18 +1260,73 @@
 							<div class="col">
 								<div class="position-relative">
 									<ChatTextArea
-										className={`chat-input ${loadFileEditor ? 'chat-uploader' : ''}`}
+										className={`chat-input chat-uploader`}
 										maxLength={maxTextLength}
-										bind:text={text}
 										disabled={isSendingMsg || isThinking || disableAction}
-										editor={lastBotMsg?.rich_content?.editor || ''}
+										bind:text={text}
+										bind:loadUtils={loadChatUtils}
+										bind:options={chatUtilOptions}
+										onTextInput={e => handleMessageInput(e)}
 										onKeyDown={e => onSendMessage(e)}
-									/>
-									{#if loadFileEditor}
-										<div class="chat-input-links">
-											<ChatImageUploader disabled={disableAction} onFileDrop={() => refresh()} />
-										</div>
-									{/if}
+										onFocus={e => chatUtilOptions = []}
+										onOptionClick={op => handleChatOptionClick(op)}
+									>
+										{#if !isLite}
+											<ChatBigMessage
+												containerClasses={'line-align-center text-primary chat-util-item'}
+												disabled={disableAction}
+												on:click={() => toggleBigMessageModal()}
+											/>
+										{/if}
+										<ChatFileUploader
+											accept={'.png,.jpg,.jpeg'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="bx bx-image-add"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload images"
+												/>
+											</span>
+										</ChatFileUploader>
+										<ChatFileUploader
+											accept={'.pdf,.xlsx,.xls,.csv'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="bx bxs-folder-open"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload pdf, excel files"
+												/>
+											</span>
+										</ChatFileUploader>
+										<ChatFileUploader
+											accept={'.wav,.mp3'}
+											containerClasses={'line-align-center text-primary chat-util-item'}
+											disabled={disableAction}
+											on:filedroped={() => refresh()}
+										>
+											<span>
+												<i
+													class="bx bxs-music"
+													data-bs-toggle="tooltip"
+													data-bs-placement="top"
+													title="Upload audios"
+												/>
+											</span>
+										</ChatFileUploader>
+									</ChatTextArea>
+									<div class="chat-input-links">
+										<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
+									</div>
 								</div>
 							</div>
 							<div class="col-auto">

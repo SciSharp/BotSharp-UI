@@ -69,7 +69,7 @@
 		"svelte-splitpanes": "^8.0.5",
 		"svelte-viewport-info": "^1.0.1",
 		"svelvet": "^9.0.0",
-		"sweetalert2": "^11.6.13",
+		"sweetalert2": "^11.12.4",
 		"swiper": "^10.3.1",
 		"uuid": "^10.0.0"
 	}

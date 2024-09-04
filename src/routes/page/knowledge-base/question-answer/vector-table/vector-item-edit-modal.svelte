@@ -28,7 +28,7 @@
     export let title;
 
     /** @type {string} */
-    export let size = 'xl';
+    export let size = 'md';
 
     /** @type {() => void} */
     export let toggleModal;
@@ -91,15 +91,15 @@
 </script>
 
 <Modal class={className} fade size={size} isOpen={open} toggle={() => toggleModal && toggleModal()}>
-    <ModalHeader class="knwoledge-edit-header">
+    <ModalHeader>
         <div>{title}</div>
-        <div class="knwoledge-edit-collection">
-            <span class="fw-bold collection-text">{'Collection: '}</span>
-            <span class="collection-value text-primary">{collection}</span>
+        <div>
+            <span class="fw-bold">{'Collection: '}</span>
+            <span class="text-primary collection-value">{collection}</span>
         </div>
     </ModalHeader>
     <ModalBody>
-        <Form class="knowledge-edit-form">
+        <Form>
             <Row>
                 <FormGroup class="edit-group">
                     <label class="fw-bold textarea-label" for="question">{`Question: `}</label>

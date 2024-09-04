@@ -10,8 +10,7 @@
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-    import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 	
 	
   	const firstPage = 1;
@@ -63,7 +62,6 @@
             showCancelButton: true,
 			cancelButtonText: 'No',
             confirmButtonText: 'Yes'
-        // @ts-ignore
         }).then(async (result) => {
             if (result.value) {
                 await handleCreateNewAgent();

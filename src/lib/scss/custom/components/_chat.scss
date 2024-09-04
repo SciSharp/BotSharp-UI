@@ -1,15 +1,19 @@
-.chat-option-list {
+.chat-util-common {
     display: block;
     position: absolute;
-    bottom: 100%;
+    bottom: 100% !important;
     max-width: 100%;
-    z-index: 10;
-    padding: 3px 0px;
+    z-index: 99;
     font-size: 0.8rem;
     border-radius: 5px;
     max-height: 25em;
     overflow-y: auto;
     scrollbar-width: none;
+}
+
+.chat-option-list {
+    padding: 3px 0px;
+    inset: auto auto 100% 0px !important;
 
     .chat-option-item {
         padding: 5px 15px;
@@ -20,4 +24,21 @@
         background-color: var(--bs-primary);
         color: white;
     }
+}
+
+.chat-util-container {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+    height: fit-content;
+    width: 100%;
+    z-index: 999;
+    padding: 10px 15px;
+    background-color: rgb(255, 255, 239);
+}
+
+.chat-util-item {
+    text-align: center;
+    font-size: 30px;
 }

@@ -59,19 +59,37 @@
 
     .knowledge-search-footer {
         display: flex;
+        flex-wrap: wrap;
         justify-content: space-between;
 
-        .confidence-input {
+        .search-input {
             display: flex;
             gap: 5px;
+        }
 
-            .confidence-text {
-                padding: 0.47rem 0px;
-                font-size: 12px;
+        .confidence-box {
+            width: 40%;
+        }
+
+        .input-text {
+            padding: 0.47rem 0px;
+            font-size: 14px;
+        }
+
+        .search-toggle {
+            height: 100%;
+            width: 35px;
+
+            .form-switch {
+                padding: 0px;
             }
 
-            .confidence-box {
-                width: 40%;
+            input {
+                margin: 0px;
+                height: 100%;
+                width: 100%;
+                outline: none !important;
+                box-shadow: none !important;
             }
         }
     }
@@ -95,8 +113,26 @@
         padding: 0.47rem 0.75rem;
     }
 
-    .knowledge-dropdown {
+    .collection-dropdown-container {
         width: 20%;
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
+
+        .collection-dropdown {
+            width: 100%;
+        }
+
+        .collection-action-btn {
+            i:before {
+                font-weight: bold;
+            }
+        }
+
+        select {
+            outline: none !important;
+            box-shadow: none !important;
+        }
     }
 }
 
@@ -171,11 +207,6 @@
 
         .textarea-label {
             font-size: 15px;
-        }
-
-        .text-count {
-            margin-top: 2px;
-            font-size: 10px;
         }
     }
 }

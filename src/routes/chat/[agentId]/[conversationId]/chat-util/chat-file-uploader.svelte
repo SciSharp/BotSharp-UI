@@ -1,14 +1,23 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
+    import { onDestroy, createEventDispatcher } from 'svelte';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
 	import { conversationUserAttachmentStore } from '$lib/helpers/store';
+
+    const svelteDispatch = createEventDispatcher();
 	
+    /** @type {string} */
+    export let accept;
+
+    export let fileMaxSize = 10 * 1024 * 1024;
 
     /** @type {boolean} */
     export let disabled = false;
 
-    /** @type {() => void} */
-    export let onFileDrop = () => {};
+    /** @type {string} */
+    export let containerClasses = "";
+
+    /** @type {string} */
+    export let containerStyles = "";
 
     /** @type {any[]} */
     let files = [];
@@ -17,11 +26,10 @@
     let disableFileDrop = false;
 
     /** @type {number} */
-    let fileUploadLimit = 0;
+    let localFileUploadLimit = 0;
 
     const fileUpperLimit = 5;
-    const fileMaxSize = 10 * 1024 * 1024;
-    const accept = "image/*,.pdf,.xlsx,.xls,.csv,.wav,.mp3";
+    
 
     const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
         const savedAttachments = $conversationUserAttachmentStore;
@@ -34,7 +42,7 @@
 
     $: {
         disableFileDrop = disabled || files.length >= fileUpperLimit;
-        fileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
+        localFileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
     }
 
     /** @param {any} e */
@@ -45,26 +53,32 @@
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });
-        onFileDrop?.();
+        svelteDispatch('filedroped');
     }
 </script>
 
-<div class="chat-file-editor">
-    <ul class="list-inline mb-0">
-        <li class="list-inline-item">
-            <FileDropZone
-                accept={accept}
-                disableDefaultStyles
-                noDrag
-                disabled={disableFileDrop}
-                fileLimit={fileUploadLimit}
-                maxSize={fileMaxSize}
-                on:drop={e => handleFileDrop(e)}
-            >
-                <slot>
-                    <span><i class="bx bx-image-add" /></span>
-                </slot>
-            </FileDropZone>
-        </li>
-    </ul>
+<div
+    class={`${containerClasses}`}
+    style={`${containerStyles}`}
+>
+    <FileDropZone
+        accept={accept}
+        disableDefaultStyles
+        noDrag
+        disabled={disableFileDrop}
+        fileLimit={localFileUploadLimit}
+        maxSize={fileMaxSize}
+        on:drop={e => handleFileDrop(e)}
+    >
+        <slot>
+            <span>
+                <i
+                    class="bx bx-image-add"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Upload files"
+                />
+            </span>
+        </slot>
+    </FileDropZone>
 </div>

@@ -3,6 +3,7 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
+	import Swal from 'sweetalert2';
 	import {
         Button,
         Card,
@@ -17,7 +18,9 @@
         searchVectorKnowledge,
 		createVectorKnowledgeData,
 		updateVectorKnowledgeData,
-		deleteVectorKnowledgeData
+		deleteVectorCollection,
+		deleteVectorKnowledgeData,
+		createVectorCollection
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -26,15 +29,17 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants';
 	import VectorItem from './vector-table/vector-item.svelte';
-	import VectorItemEdit from './vector-table/vector-item-edit.svelte';
+	import VectorItemEditModal from './vector-table/vector-item-edit-modal.svelte';
+	import CollectionCreateModal from './collection/collection-create-modal.svelte';
 	
 	
 	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
-    const regex = "[0-9\.]+";
+    const numberRegex = "[0-9\.]+";
+	const enableVector = true;
 	
-	let showDemo = false;
+	let showDemo = true;
 	let selectedCollection = DEFAULT_KNOWLEDGE_COLLECTION;
 	let text = "";
 	let isSearching = false;
@@ -50,7 +55,7 @@
 	/** @type {string[]} */
 	let collections = [];
 
-	/** @type {string | null | undefined} */
+	/** @type {string | null | undefined } */
 	let nextId;
 
 	/** @type {string} */
@@ -67,13 +72,42 @@
 	let isLoadingMore = false;
 	let isComplete = false;
 	let isError = false;
-	let isOpenEdit = false;
+	let isOpenEditKnowledge = false;
+	let isOpenCreateCollection = false;
+	let textSearch = false;
+
+	/** @type {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * isLocalLoading: boolean,
+	 * skipLoader: boolean,
+	 * useSearhPair: boolean
+	 * }}
+	*/
+	const defaultParams = {
+		startId: null,
+		isReset: false,
+		isLocalLoading: false,
+		skipLoader: false,
+		useSearhPair: false
+	};
 
 	onMount(() => {
-    	getCollections().then(() => {
-			initData(null, true);
-		});
+		initData();
 	});
+
+	function initData() {
+		isLoading = true;
+    	getCollections().then(() => {
+			getData({
+				...defaultParams,
+				isReset: true,
+				skipLoader: true
+			}).finally(() => isLoading = false);
+		}).finally(() => {
+			isLoading = false;
+		});
+	}
 
 
 	// Search knowledge
@@ -86,17 +120,33 @@
 		isSearching = true;
 		searchDone = false;
 		isFromSearch = false;
-		searchVectorKnowledge({
-			text: util.trim(text),
-			confidence: Number(validateConfidenceNumber(confidence))
-		}, selectedCollection).then(res => {
-			items = res || [];
-			isFromSearch = true;
-		}).finally(() => {
-			isSearching = false;
-			searchDone = true;
-			nextId = null;
-		});
+
+		if (textSearch) {
+			getData({
+				...defaultParams,
+				isReset: true,
+				skipLoader: true,
+				useSearhPair: true
+			}).then(() => {
+				isFromSearch = true;
+			}).finally(() => {
+				isSearching = false;
+				searchDone = true;
+			});
+		} else {
+			searchVectorKnowledge({
+				text: util.trim(text),
+				confidence: Number(validateConfidenceNumber(confidence)),
+				with_vector: enableVector
+			}, selectedCollection).then(res => {
+				items = res || [];
+				isFromSearch = true;
+			}).finally(() => {
+				isSearching = false;
+				searchDone = true;
+				nextId = null;
+			});
+		}
 	}
 
 	/** @param {KeyboardEvent} e */
@@ -114,18 +164,39 @@
 
 	/** @param {boolean} skipLoader */
 	function reset(skipLoader = false) {
+		resetStates();
+		getData({
+			...defaultParams,
+			startId: null,
+			isReset: true,
+			skipLoader: skipLoader
+		});
+	}
+
+	function initPage() {
+		resetStates();
+    	initData();
+	}
+
+	function resetEditData() {
+		editCollection = '';
+		editItem = null;
+	}
+
+	function resetStates() {
 		text = "";
 		nextId = null;
 		isSearching = false;
 		searchDone = false;
 		isFromSearch = false;
-		initData(nextId, true, false, skipLoader);
+		textSearch = false;
 	}
+
 
     /** @param {any} e */
     function validateConfidenceInput(e) {
-        var reg = new RegExp(regex, 'g');
-        if (!reg.test(e.key)) {
+        var reg = new RegExp(numberRegex, 'g');
+        if (e.key !== 'Backspace' && !reg.test(e.key)) {
             e.preventDefault();
         }
     }
@@ -147,16 +218,15 @@
     /** @param {any} e */
     function changeConfidence(e) {
         const value = e.target.value;
-		validateConfidenceNumber(value);
+		confidence = value;
     }
-
 
 	// Knowledge list data
 	function getCollections() {
 		return new Promise((resolve, reject) => {
 			getVectorKnowledgeCollections().then(res => {
 				const retCollections = res || [];
-				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : retCollections;
+				collections = retCollections.length === 0 ? [ DEFAULT_KNOWLEDGE_COLLECTION ] : [ ...retCollections ];
 				selectedCollection = collections[0];
 				resolve(res);
 			}).catch(err => {
@@ -168,14 +238,33 @@
 	}
 
 	/**
-	 * @param {string | null} [startId]
-	 * @param {boolean} reset
+	 * @param {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * useSearhPair: boolean }} params
 	 */
-	function getKnowledgeListData(startId = null, reset = false) {
+	function getKnowledgeListData(params = {
+		startId: null,
+		isReset: false,
+		useSearhPair: false
+	}) {
 		return new Promise((resolve, reject) => {
-			getPagedVectorKnowledgeData({ size: page_size, start_id: startId }, selectedCollection).then(res => {
+			const filter = {
+				size: page_size,
+				start_id: params.startId,
+				with_vector: enableVector,
+				search_pairs: params.useSearhPair ? [
+					{ key: "text", value: text },
+					{ key: "answer", value: text }
+				] : []
+			};
+
+			getPagedVectorKnowledgeData(
+				filter,
+				selectedCollection
+			).then(res => {
 				const newItems = res.items || [];
-				if (reset) {
+				if (params.isReset) {
 					items = [ ...newItems ];
 				} else {
 					items = [ ...items, ...newItems ];
@@ -191,16 +280,26 @@
 
 
 	/**
-	 * @param {string | null} [startId]
-	 * @param {boolean} reset
-	 * @param {boolean} isLocal
-	 * @param {boolean} skipLoader
+	 * @param {{
+	 * startId: string | null,
+	 * isReset: boolean,
+	 * isLocalLoading: boolean,
+	 * skipLoader: boolean,
+	 * useSearhPair: boolean }} params
 	 */
-	function initData(startId = null, reset = false, isLocal = false, skipLoader = false) {
+	function getData(params = {
+		startId: null,
+		isReset: false,
+		isLocalLoading: false,
+		skipLoader: false,
+		useSearhPair: false
+	}) {
 		return new Promise((resolve, reject) => {
-			if (!skipLoader) toggleLoader(isLocal);
+			if (!params.skipLoader) toggleLoader(params.isLocalLoading);
 			
-			getKnowledgeListData(startId, reset).then(res => {
+			getKnowledgeListData({
+				...params
+			}).then(res => {
 				resolve(res);
 			}).catch(err => {
 				isError = true;
@@ -209,14 +308,14 @@
 				}, 2000);
 				reject(err);
 			}).finally(() => {
-				if (!skipLoader) toggleLoader(isLocal);
+				if (!params.skipLoader) toggleLoader(params.isLocalLoading);
 			});
 		});
 	}
 
-	/** @param {boolean} isLocal */
-	function toggleLoader(isLocal) {
-		if (isLocal) {
+	/** @param {boolean} isLocalLoading */
+	function toggleLoader(isLocalLoading) {
+		if (isLocalLoading) {
 			isLoadingMore = !isLoadingMore;
 		} else {
 			isLoading = !isLoading;
@@ -224,7 +323,24 @@
 	}
 
 	function loadMore() {
-		initData(nextId, false, true);
+		let params = { ...defaultParams };
+
+		if (textSearch) {
+			params = {
+				...params,
+				startId: nextId || null,
+				isLocalLoading: true,
+				useSearhPair: true
+			};
+		} else {
+			params = {
+				...params,
+				startId: nextId || null,
+				isLocalLoading: true,
+			};
+		}
+
+		getData(params);
 	}
 
 	/** @param {any} e */
@@ -240,7 +356,7 @@
 				}, duration);
 				items = items?.filter(x => x.id !== id) || [];
 			} else {
-				throw new Error('error when deleting vector knowledge!');
+				throw 'error when deleting vector knowledge!';
 			}
 		}).catch(() => {
 			isError = true;
@@ -258,19 +374,19 @@
 		editModalTitle = "Edit knowledge";
 		editCollection = e.detail.collection;
 		editItem = e.detail.item;
-		isOpenEdit = true;
+		isOpenEditKnowledge = true;
 	}
 
 	function onKnowledgeCreate() {
 		editModalTitle = "Create knowledge";
 		editCollection = selectedCollection;
 		editItem = null;
-		isOpenEdit = true;
+		isOpenEditKnowledge = true;
 	}
 
-	function toggleEditModal() {
-		isOpenEdit = !isOpenEdit;
-		if (!isOpenEdit) {
+	function toggleKnowledgeEditModal() {
+		isOpenEditKnowledge = !isOpenEditKnowledge;
+		if (!isOpenEditKnowledge) {
 			resetEditData();
 		}
 	}
@@ -278,7 +394,7 @@
 	/** @param {any} e */
 	function confirmEdit(e) {
 		isLoading = true;
-		isOpenEdit = false;
+		isOpenEditKnowledge = false;
 
 		if (!!editItem) {
 			updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, editCollection).then(res => {
@@ -291,7 +407,7 @@
 						isComplete = false;
 					}, duration);
 				} else {
-					throw new Error('error when updating vector knowledge!');
+					throw 'error when updating vector knowledge!';
 				}
 			}).catch(() => {
 				resetEditData();
@@ -315,7 +431,7 @@
 						isComplete = false;
 					}, duration);
 				} else {
-					throw new Error('error when creating vector knowledge!');
+					throw 'error when creating vector knowledge!';
 				}
 			}).catch(() => {
 				resetEditData();
@@ -343,16 +459,80 @@
 		}
 	}
 
-	function resetEditData() {
-		editCollection = '';
-		editItem = null;
-	}
-
 	/** @param {any} e */
 	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
 		reset();
+	}
+
+	function toggleCollectionCreate() {
+		isOpenCreateCollection = !isOpenCreateCollection;
+	}
+
+	/** @param {{
+	 * collection: string,
+	 * dimension: number
+	 * }} data
+	*/
+	function confirmCollectionCreate(data) {
+		toggleCollectionCreate();
+		createVectorCollection(data.collection, data.dimension).then(res => {
+			if (res) {
+				successText = "Collection has been created!";
+				isComplete = true;
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+				initPage();
+			} else {
+				throw 'Error when creating collection';
+			}
+		}).catch(() => {
+			errorText = "Failed to create collection."
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		}).finally(() => {
+			isLoading = false;
+		});
+	}
+
+	function deleteCollection() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Are you sure you want to delete collection "${selectedCollection}"?`,
+            icon: 'warning',
+			customClass: { confirmButton: 'danger-background' },
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes',
+        }).then(async (result) => {
+            if (result.value) {
+				isLoading = true;
+                deleteVectorCollection(selectedCollection).then(res => {
+					if (res) {
+						successText = "Collection has been deleted!";
+						isComplete = true;
+						setTimeout(() => {
+							isComplete = false;
+						}, duration);
+						initPage();
+					} else {
+						throw 'Error when deleting vector collection';
+					}
+				}).catch(() => {
+					errorText = "Failed to delete collection."
+					isError = true;
+					setTimeout(() => {
+						isError = false;
+					}, duration);
+				}).finally(() => {
+					isLoading = false;
+				});
+            }
+        });
 	}
 </script>
 
@@ -367,18 +547,27 @@
 	errorText={errorText}
 />
 
-{#if isOpenEdit}
-	<VectorItemEdit
+{#if isOpenEditKnowledge}
+	<VectorItemEditModal
 		className={'vector-edit-container'}
 		title={editModalTitle}
+		size={'lg'}
 		collection={editCollection}
 		item={editItem}
-		open={isOpenEdit}
-		toggleModal={() => isOpenEdit = !isOpenEdit}
+		open={isOpenEditKnowledge}
+		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
-		cancel={() => toggleEditModal()}
+		cancel={() => toggleKnowledgeEditModal()}
 	/>
 {/if}
+
+<CollectionCreateModal
+	title={'Create new collection'}
+	open={isOpenCreateCollection}
+	toggleModal={() => toggleCollectionCreate()}
+	confirm={e => confirmCollectionCreate(e)}
+	cancel={() => toggleCollectionCreate()}
+/>
 
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
@@ -389,12 +578,12 @@
 			{#if !showDemo}
 				<div class="btn-content">
 					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
-					<div>{'Search'}</div>
+					<div>{'Start Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
 					<span class="knowledge-btn-icon"><i class="bx bx-hide" /></span>
-					<span>{'Hide'}</span>
+					<span>{'Hide Search'}</span>
 				</div>
 			{/if}
 		</Button>
@@ -412,7 +601,6 @@
 		{/if}
 	</div>
 	
-
 	<div class="reset-btn">
 		<Button
 			on:click={() => reset()}
@@ -446,45 +634,60 @@
 						{text?.length || 0}/{maxLength}
 					</div>
 				
-                    <div class="mt-2 knowledge-search-footer">
-                        <div class="confidence-input">
-                            <span class="confidence-text fw-bold">
-                                {'Confidence:'}
-                            </span>
-                            <span class="confidence-box">
+                    <div class="mt-3 knowledge-search-footer">
+                        <div class="search-input">
+                            <div class="line-align-center input-text fw-bold">
+                                <span>{'Confidence:'}</span>
+                            </div>
+                            <div class="line-align-center confidence-box">
                                 <Input
                                     type="text"
                                     class="text-center"
+									disabled={textSearch}
                                     bind:value={confidence}
                                     on:keydown={(e) => validateConfidenceInput(e)}
                                     on:blur={(e) => changeConfidence(e)}
                                 />
-                            </span>
+                            </div>
                         </div>
-                        <div>
-                            <Button
-                                color="primary"
-                                disabled={!text || util.trim(text).length === 0 || isSearching}
-                                on:click={() => search()}
-                            >
-                                {'Search'}
-                            </Button>
+						<div class="search-input">
+							<div class="line-align-center input-text fw-bold">
+								<span>{'Similarity search'}</span>
+							</div>
+							<div class="line-align-center input-text search-toggle">
+								<Input
+									type="switch"
+									bind:checked={textSearch}
+								/>
+							</div>
+							<div class="line-align-center input-text fw-bold">
+								<span>{'Keyword search'}</span>
+							</div>
+						</div>
+                        <div class="line-align-center">
+							<Button
+								color="primary"
+								disabled={!text || util.trim(text).length === 0 || isSearching}
+								on:click={() => search()}
+							>
+								{'Search'}
+							</Button>
                         </div>
                     </div>
 				
 					{#if isSearching}
-						<div class="knowledge-loader mt-4">
+						<div class="knowledge-loader mt-5">
 							<LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
 						</div>
 					{:else if searchDone && (!items || items.length === 0)}
-						<div class="mt-4">
+						<div class="mt-5">
 							<h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
 						</div>
 					{/if}
 			  	</div>
 			</div>
 		{/if}
-		<div class="d-md-flex">
+		<div class="d-md-flex mt-5">
 			<div class="w-100">
 				<Card>
 					<CardBody>
@@ -507,12 +710,40 @@
 										<i class="bx bx-add-to-queue" />
 									</div>
 								</div>
-								<div class="knowledge-dropdown">
-									<Input type="select" on:change={(e) => changeCollection(e)}>
-										{#each collections as option, idx (idx)}
-											<option value={option} selected={idx === 0}>{option}</option>
-										{/each}
-									</Input>
+								<div class="collection-dropdown-container">
+									<div class="line-align-center collection-dropdown">
+										<Input type="select" on:change={(e) => changeCollection(e)}>
+											{#each collections as option, idx (idx)}
+												<option value={option} selected={option === selectedCollection}>{option}</option>
+											{/each}
+										</Input>
+									</div>
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Add collection"
+									>
+										<Button
+											class="btn btn-sm btn-soft-primary collection-action-btn"
+											on:click={() => toggleCollectionCreate()}
+										>
+											<i class="mdi mdi-plus" />
+										</Button>
+									</div>
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Delete collection"
+									>
+										<Button
+											class="btn btn-sm btn-soft-danger collection-action-btn"
+											on:click={() => deleteCollection()}
+										>
+											<i class="mdi mdi-minus" />
+										</Button>
+									</div>
 								</div>
 							</div>
 						  

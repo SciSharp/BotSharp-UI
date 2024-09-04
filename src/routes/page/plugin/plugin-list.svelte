@@ -8,8 +8,7 @@
 		Row,
 	} from '@sveltestrap/sveltestrap';
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 
     /** @type {import('$types').PluginDefModel[]} */
     export let plugins;
@@ -28,7 +27,6 @@
 			showCancelButton: true,
 			confirmButtonText: 'Yes',
 			cancelButtonText: 'No'
-		// @ts-ignore
 		}).then((result) => {
 			if (result.value) {
 				if (enable) {

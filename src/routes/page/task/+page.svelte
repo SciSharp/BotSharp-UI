@@ -20,8 +20,7 @@
 	import Link from 'svelte-link';
     import { getAgentTasks } from '$lib/services/task-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -143,7 +142,6 @@
 			customClass: 'custom-modal',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!'
-        // @ts-ignore
         }).then((result) => {
             if (result.value) {
 				handleTaskDeletion(taskId);

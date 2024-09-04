@@ -138,6 +138,35 @@ export async function uploadVectorKnowledge(file, collection = null, startPageNu
 
 
 /**
+ * @param {string} collection
+ * @param {number} dimension
+ * @returns {Promise<boolean>}
+ */
+export async function createVectorCollection(collection, dimension) {
+    const url = replaceUrl(endpoints.vectorCollectionCreateUrl, {
+        collection: collection,
+        dimension: dimension
+    });
+
+    const response = await axios.post(url);
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function deleteVectorCollection(collection) {
+    const url = replaceUrl(endpoints.vectorCollectionDeleteUrl, {
+        collection: collection
+    });
+
+    const response = await axios.delete(url);
+    return response.data;
+}
+
+
+/**
  * @param {string} text
  * @param {string } method
  * @returns {Promise<any>}

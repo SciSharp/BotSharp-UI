@@ -24,8 +24,7 @@
 	import { getAgents } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import Swal from 'sweetalert2/dist/sweetalert2.js';
-	import "sweetalert2/src/sweetalert2.scss";
+	import Swal from 'sweetalert2';
 	import lodash from "lodash";
 
 	let isLoading = false;
@@ -183,7 +182,6 @@
 			customClass: 'custom-modal',
             showCancelButton: true,
             confirmButtonText: 'Yes, delete it!'
-        // @ts-ignore
         }).then((result) => {
             if (result.value) {
 				handleConversationDeletion(conversationId);
