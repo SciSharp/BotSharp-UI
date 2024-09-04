@@ -6,7 +6,7 @@ const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
-const conversationUserAttachmentKey = "conversation_user_attachments";
+const conversationHistoryStatesKey = "conversation_history_states";
 
 /** @type {Writable<import('$types').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
@@ -59,10 +59,6 @@ export function getConversationStore() {
 conversationStore.subscribe(value => {
     if (browser && value.id) {
         localStorage.setItem(conversationKey, JSON.stringify(value));
-        const state = conversationUserStateStore.get();
-        if (state && state.conversationId != value.id) {
-            conversationUserStateStore.reset();
-        }
     }
 });
 
@@ -81,20 +77,38 @@ export const loaderStore = createLoaderStore();
 
 const createConversationUserStateStore = () => {
     return {
-        reset: () => {
+        resetAll: () => {
             localStorage.removeItem(conversationUserStatesKey);
         },
-        get: () => {
+        resetOne: (conversationId) => {
             const json = localStorage.getItem(conversationUserStatesKey);
-            return json ? JSON.parse(json) : {};
+            const content = json ? JSON.parse(json) : {};
+            const data = content?.data || [];
+            const found = data.find(x => x.conversationId === conversationId);
+            if (!found) return;
+
+            const updated = data.filter(x => x.conversationId !== conversationId);
+            localStorage.setItem(conversationUserStatesKey, JSON.stringify({ data: updated }));
+        },
+        get: (conversationId) => {
+            const json = localStorage.getItem(conversationUserStatesKey);
+            const content = json ? JSON.parse(json) : {};
+            const found = content?.data?.find(x => x.conversationId === conversationId);
+            return found || {};
         },
         put: (value) => {
-            localStorage.setItem(conversationUserStatesKey, JSON.stringify(value));
+            const conversationId = value?.conversationId;
+            const json = localStorage.getItem(conversationUserStatesKey);
+            const content = json ? JSON.parse(json) : {};
+            const cur = content?.data?.filter(x => x.conversationId !== conversationId) || [];
+            const updated = [ ...cur, { ...value } ];
+            localStorage.setItem(conversationUserStatesKey, JSON.stringify({ data: updated }));
         }
     }
 };
 
 export const conversationUserStateStore = createConversationUserStateStore();
+
 
 const createConversationSearchOptionStore = () => {
     return {
@@ -151,7 +165,7 @@ export const conversationUserAttachmentStore = createConversationUserAttachmentS
 
 
 export function resetLocalStorage(resetUser = false) {
-    conversationUserStateStore.reset();
+    conversationUserStateStore.resetAll();
     conversationSearchOptionStore.reset();
     conversationUserMessageStore.reset();
     conversationUserAttachmentStore.reset();

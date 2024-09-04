@@ -727,7 +727,7 @@
 	}
 
 	function loadUserAddStates() {
-		const conversationUserStates = conversationUserStateStore.get();
+		const conversationUserStates = conversationUserStateStore.get(params.conversationId);
 		if (!!conversationUserStates && conversationUserStates.conversationId == params.conversationId && !!conversationUserStates.states) {
 			userAddStates = [...conversationUserStates.states];
 		} else {
@@ -761,7 +761,7 @@
 		}).then(async (result) => {
 			if (result.value) {
 				userAddStates = [];
-				conversationUserStateStore.reset();
+				conversationUserStateStore.resetOne(params.conversationId);
 			}
 		});
 	}
@@ -999,7 +999,7 @@
 </DialogModal>
 
 <DialogModal
-	title={'Add message'}
+	title={'Send message'}
 	size={'xl'}
 	isOpen={isOpenBigMsgModal}
 	toggleModal={() => toggleBigMessageModal()}

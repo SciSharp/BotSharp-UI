@@ -1,6 +1,6 @@
-import { endpoints } from './api-endpoints.js';
 import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
+import { endpoints } from './api-endpoints.js';
 import { conversationUserStateStore } from '$lib/helpers/store.js';
 
 /**
@@ -66,6 +66,7 @@ export async function getConversationFiles(conversationId, messageId, source) {
  */
 export async function deleteConversation(conversationId) {
     let url = replaceUrl(endpoints.conversationDeletionUrl, {conversationId: conversationId});
+    conversationUserStateStore.resetOne(conversationId);
     const response = await axios.delete(url);
     return response.data;
 }
@@ -85,10 +86,11 @@ export async function GetDialogs(conversationId) {
  * send a message to the hub
  * @param {string} agentId - The agent id
  * @param {string} conversationId - The conversation id
- * @param {string} message - The text message sent to CSR
+ * @param {string} text - The text message sent to CSR
  * @param {import('$types').MessageData?} data - Additional data
  */
-export async function sendMessageToHub(agentId, conversationId, message, data = null) {
+export async function sendMessageToHub(agentId, conversationId, text, data = null) {
+    console.log(data);
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
         conversationId: conversationId
@@ -96,7 +98,7 @@ export async function sendMessageToHub(agentId, conversationId, message, data = 
     const userStates = buildConversationUserStates(conversationId);
     const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
     const response = await axios.post(url, {
-        text: message,
+        text: text,
         states: totalStates,
         postback: data?.postback,
         input_message_id: data?.inputMessageId
@@ -109,17 +111,17 @@ export async function sendMessageToHub(agentId, conversationId, message, data = 
  * @param {string} conversationId
  */
 function buildConversationUserStates(conversationId) {
-    const userStates = conversationUserStateStore.get();
-    if (!!userStates && userStates.conversationId == conversationId && userStates.states?.length > 0) {
+    const userStates = conversationUserStateStore.get(conversationId);
+    if (!!userStates && userStates.conversationId == conversationId) {
         // @ts-ignore
-        const states = userStates.states.map(state => {
+        const states = userStates.states?.map(state => {
             return {
                 key: state.key.data,
                 value: state.value.data,
                 active_rounds: state.active_rounds.data || -1
             };
-        });
-        conversationUserStateStore.reset();
+        }) || [];
+        conversationUserStateStore.resetOne(conversationId);
         return states;
     }
     return [];
