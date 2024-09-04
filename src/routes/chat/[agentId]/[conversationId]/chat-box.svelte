@@ -100,33 +100,33 @@
     let scrollbars = [];
 	let microphoneIcon = "microphone-off";
 
-	/** @type {import('$types').ChatResponseModel?} */
+	/** @type {import('$conversationTypes').ChatResponseModel?} */
 	let lastBotMsg;
 
-	/** @type {import('$types').ChatResponseModel?} */
+	/** @type {import('$conversationTypes').ChatResponseModel?} */
 	let lastMsg;
 
-    /** @type {import('$types').ChatResponseModel[]} */
+    /** @type {import('$conversationTypes').ChatResponseModel[]} */
     let dialogs = [];
 	/** @type {{ [s: string]: any; }} */
 	let groupedDialogs = [];
 	
-	/** @type {import('$types').ConversationContentLogModel[]} */
+	/** @type {import('$conversationTypes').ConversationContentLogModel[]} */
 	let contentLogs = [];
 
-	/** @type {import('$types').ConversationStateLogModel[]} */
+	/** @type {import('$conversationTypes').ConversationStateLogModel[]} */
 	let convStateLogs = [];
 
-	/** @type {import('$types').ConversationStateLogModel?} */
+	/** @type {import('$conversationTypes').ConversationStateLogModel?} */
 	let latestStateLog;
 
-	/** @type {import('$types').MessageStateLogModel[]} */
+	/** @type {import('$conversationTypes').MessageStateLogModel[]} */
 	let msgStateLogs = [];
 
-	/** @type {import('$types').AgentQueueLogModel[]} */
+	/** @type {import('$conversationTypes').AgentQueueLogModel[]} */
 	let agentQueueLogs = [];
 
-	/** @type {import('$types').UserStateDetailModel[]} */
+	/** @type {import('$conversationTypes').UserStateDetailModel[]} */
 	let userAddStates = [];
 
 	/** @type {import('$userTypes').UserModel} */
@@ -212,7 +212,7 @@
 		resizeChatWindow();
 	}
 
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function initUserSentMessages(dialogs) {
 		const curConvMessages = dialogs?.filter(x => USER_SENDERS.includes(x.sender?.role || '')).map(x => {
 			return {
@@ -262,7 +262,7 @@
 		return messages?.slice(-messageLimit) || [];
 	}
 
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function findLastBotMessage(dialogs) {
 		const lastMsg = dialogs.slice(-1)[0];
 		return BOT_SENDERS.includes(lastMsg?.sender?.role || '') ? lastMsg : null;
@@ -288,7 +288,7 @@
 		})
 	}
 
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function assignMessageDisclaimer(dialogs) {
 		if (!!!dialogs) return null;
 
@@ -311,7 +311,7 @@
 		}
 	}
 
-	/** @param {import('$types').ChatResponseModel[]} dialogs */
+	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
 		if (!!!dialogs) return [];
 		const format = 'MMM D, YYYY';
@@ -332,7 +332,7 @@
 	}
 
 
-	/** @param {import('$types').ChatResponseModel} message */
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
 		dialogs.push({
 			...message,
@@ -342,7 +342,7 @@
 		text = "";
     }
 
-    /** @param {import('$types').ChatResponseModel} message */
+    /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromCsr(message) {
 		dialogs.push({
 			...message,
@@ -351,7 +351,7 @@
 		refresh();
     }
 
-    /** @param {import('$types').ChatResponseModel} message */
+    /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
 		// webSpeech.utter(message.text);
 		dialogs.push({
@@ -361,14 +361,14 @@
 		refresh();
     }
 
-	/** @param {import('$types').ConversationContentLogModel} log */
+	/** @param {import('$conversationTypes').ConversationContentLogModel} log */
 	function onConversationContentLogGenerated(log) {
 		if (!isLoadPersistLog) return;
 		contentLogs.push({ ...log });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').ConversationStateLogModel} log */
+	/** @param {import('$conversationTypes').ConversationStateLogModel} log */
 	function onConversationStateLogGenerated(log) {
 		if (!isLoadPersistLog) return;
 
@@ -377,7 +377,7 @@
 		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').MessageStateLogModel} log */
+	/** @param {import('$conversationTypes').MessageStateLogModel} log */
 	function onStateChangeGenerated(log) {
 		if (!isLoadInstantLog || log == null) return;
 
@@ -385,7 +385,7 @@
 		msgStateLogs = msgStateLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').AgentQueueLogModel} log */
+	/** @param {import('$conversationTypes').AgentQueueLogModel} log */
 	function onAgentQueueChanged(log) {
 		if (!isLoadInstantLog || log == null) return;
 
@@ -393,7 +393,7 @@
 		agentQueueLogs = agentQueueLogs.map(x => { return { ...x }; });
 	}
 
-	/** @param {import('$types').ConversationSenderActionModel} data */
+	/** @param {import('$conversationTypes').ConversationSenderActionModel} data */
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
@@ -405,7 +405,7 @@
 		}
 	}
 
-	/** @param {import('$types').ConversationMessageDeleteModel} data */
+	/** @param {import('$conversationTypes').ConversationMessageDeleteModel} data */
 	function onConversationMessageDeleted(data) {
 		if (!!!data?.message_id) return;
 		truncateDialogs(data.message_id);
@@ -424,7 +424,7 @@
 
     /**
 	 * @param {string} msgText
-	 * @param {import('$types').MessageData?} data
+	 * @param {import('$conversationTypes').MessageData?} data
 	 */
     function sendChatMessage(msgText, data = null) {
 		isSendingMsg = true;
@@ -432,7 +432,7 @@
 		clearInstantLogs();		
 		renewUserSentMessages(msgText);
 		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
-		/** @type {import('$types').MessageData?} */
+		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,
 			postback: postback
@@ -611,12 +611,12 @@
 	}
 
 	/**
-	 * @param {import('$types').ChatResponseModel[]} dialogs
+	 * @param {import('$conversationTypes').ChatResponseModel[]} dialogs
 	 * @param {string?} content
 	 * @param {string?} [truncateMsgId]
 	 */
 	 function buildPostbackMessage(dialogs, content, truncateMsgId) {
-		/** @type {import('$types').Postback?} */
+		/** @type {import('$conversationTypes').Postback?} */
 		let postback = null;
 		let lastMsg = dialogs.slice(-1)[0];
 
@@ -768,7 +768,7 @@
 
 	/**
 	 * @param {any} e
-	 * @param {import('$types').ChatResponseModel} message
+	 * @param {import('$conversationTypes').ChatResponseModel} message
 	 */
 	function resendMessage(e, message) {
 		e.preventDefault();
@@ -823,7 +823,7 @@
 
 	/**
 	 * @param {any} e
-	 * @param {import('$types').ChatResponseModel} message
+	 * @param {import('$conversationTypes').ChatResponseModel} message
 	 */
 	function editMessage(e, message) {
 		e.preventDefault();

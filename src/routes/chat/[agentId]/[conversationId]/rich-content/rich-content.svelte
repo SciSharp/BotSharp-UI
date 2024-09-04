@@ -4,7 +4,7 @@
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
 	
-    /** @type {import('$types').ChatResponseModel?} */
+    /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;
 
     /** @type {boolean} */

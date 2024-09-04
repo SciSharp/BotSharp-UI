@@ -12,7 +12,7 @@
 
     const params = $page.params;
     
-    /** @type {import('$types').ConversationModel} */
+    /** @type {import('$conversationTypes').ConversationModel} */
     let conversation;
     let conversationId = "undefined";
 

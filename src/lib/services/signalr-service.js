@@ -9,34 +9,34 @@ let connection;
 // create a SignalR service object that exposes methods to interact with the hub
 export const signalr = {
 
-  /** @type {import('$types').OnConversationInitialized} */
+  /** @type {import('$conversationTypes').OnConversationInitialized} */
   onConversationInitFromClient: () => {},
 
-  /** @type {import('$types').OnMessageReceived} */
+  /** @type {import('$conversationTypes').OnMessageReceived} */
   onMessageReceivedFromClient: () => {},
 
-  /** @type {import('$types').OnMessageReceived} */
+  /** @type {import('$conversationTypes').OnMessageReceived} */
   onMessageReceivedFromCsr: () => {},
   
-  /** @type {import('$types').OnMessageReceived} */
+  /** @type {import('$conversationTypes').OnMessageReceived} */
   onMessageReceivedFromAssistant: () => {},
 
-  /** @type {import('$types').OnConversationContentLogReceived} */
+  /** @type {import('$conversationTypes').OnConversationContentLogReceived} */
   onConversationContentLogGenerated: () => {},
 
-  /** @type {import('$types').OnConversationStateLogGenerated} */
+  /** @type {import('$conversationTypes').OnConversationStateLogGenerated} */
   onConversationStateLogGenerated: () => {},
 
-  /** @type {import('$types').OnStateChangeGenerated} */
+  /** @type {import('$conversationTypes').OnStateChangeGenerated} */
   onStateChangeGenerated: () => {},
 
-  /** @type {import('$types').OnAgentQueueChanged} */
+  /** @type {import('$conversationTypes').OnAgentQueueChanged} */
   onAgentQueueChanged: () => {},
 
-  /** @type {import('$types').OnSenderActionGenerated} */
+  /** @type {import('$conversationTypes').OnSenderActionGenerated} */
   onSenderActionGenerated: () => {},
 
-  /** @type {import('$types').OnConversationMessageDeleted} */
+  /** @type {import('$conversationTypes').OnConversationMessageDeleted} */
   onConversationMessageDeleted: () => {},
 
   // start the connection

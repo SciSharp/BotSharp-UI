@@ -17,7 +17,7 @@
     /** @type {any[]} */
     export let agentQueueLogs = [];
 
-    /** @type {import('$types').ConversationStateLogModel?} */
+    /** @type {import('$conversationTypes').ConversationStateLogModel?} */
     export let latestStateLog = null;
 
     /** @type {() => void} */

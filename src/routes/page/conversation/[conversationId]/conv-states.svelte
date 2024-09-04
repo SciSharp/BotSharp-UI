@@ -3,7 +3,7 @@
     import jsonview from '@pgrabovets/json-view';
     import { onMount } from 'svelte';
 
-    /** @type {import('$types').ConversationModel} */
+    /** @type {import('$conversationTypes').ConversationModel} */
     export let conversation;    
 
     onMount(() => {

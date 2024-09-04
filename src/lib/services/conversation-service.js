@@ -6,8 +6,8 @@ import { conversationUserStateStore } from '$lib/helpers/store.js';
 /**
  * New conversation
  * @param {string} agentId 
- * @param {Promise<import('$types').MessageConfig>} [config]
- * @returns {Promise<import('$types').ConversationModel>}
+ * @param {Promise<import('$conversationTypes').MessageConfig>} [config]
+ * @returns {Promise<import('$conversationTypes').ConversationModel>}
  */
 export async function newConversation(agentId, config) {
     let url = replaceUrl(endpoints.conversationInitUrl, {agentId: agentId});
@@ -18,7 +18,7 @@ export async function newConversation(agentId, config) {
 /**
  * Get conversation detail
  * @param {string} id
- * @returns {Promise<import('$types').ConversationModel>}
+ * @returns {Promise<import('$conversationTypes').ConversationModel>}
  */
 export async function getConversation(id) {
     let url = replaceUrl(endpoints.conversationDetailUrl, {conversationId: id});
@@ -39,8 +39,8 @@ export async function getConversationUser(id) {
 
 /**
  * Get conversation list
- * @param {import('$types').ConversationFilter} filter
- * @returns {Promise<import('$commonTypes').PagedItems<import('$types').ConversationModel>>}
+ * @param {import('$conversationTypes').ConversationFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>>}
  */
 export async function getConversations(filter) {
     let url = endpoints.conversationsUrl;
@@ -74,7 +74,7 @@ export async function deleteConversation(conversationId) {
 /**
  * Get dialog history
  * @param {string} conversationId 
- * @returns {Promise<import('$types').ChatResponseModel[]>}
+ * @returns {Promise<import('$conversationTypes').ChatResponseModel[]>}
  */
 export async function GetDialogs(conversationId) {
     let url = replaceUrl(endpoints.dialogsUrl, {conversationId: conversationId});
@@ -87,7 +87,7 @@ export async function GetDialogs(conversationId) {
  * @param {string} agentId - The agent id
  * @param {string} conversationId - The conversation id
  * @param {string} text - The text message sent to CSR
- * @param {import('$types').MessageData?} data - Additional data
+ * @param {import('$conversationTypes').MessageData?} data - Additional data
  */
 export async function sendMessageToHub(agentId, conversationId, text, data = null) {
     console.log(data);

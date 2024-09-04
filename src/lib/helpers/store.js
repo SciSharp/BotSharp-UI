@@ -34,11 +34,11 @@ userStore.subscribe(value => {
 });
 
 
-/** @type {Writable<import('$types').ConversationModel>}*/
+/** @type {Writable<import('$conversationTypes').ConversationModel>}*/
 export const conversationStore = writable({});
 
 /**
- * @returns {Writable<import('$types').ConversationModel>}
+ * @returns {Writable<import('$conversationTypes').ConversationModel>}
  */
 export function getConversationStore() {
     if (browser) {

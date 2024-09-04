@@ -3,7 +3,7 @@
     import { format } from '$lib/helpers/datetime';
     import { _ } from 'svelte-i18n'
 
-    /** @type {import('$types').ConversationModel} */
+    /** @type {import('$conversationTypes').ConversationModel} */
     export let conversation;
 </script>
 

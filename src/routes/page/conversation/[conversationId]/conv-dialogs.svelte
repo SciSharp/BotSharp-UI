@@ -10,10 +10,10 @@
 	import { FileSourceType } from '$lib/helpers/enums';
 	import ConvDialogElement from './conv-dialog-element.svelte';
 
-    /** @type {import('$types').ChatResponseModel[]} */
+    /** @type {import('$conversationTypes').ChatResponseModel[]} */
     let dialogs = [];
 
-    /** @type {import('$types').ConversationModel} */
+    /** @type {import('$conversationTypes').ConversationModel} */
     export let conversation;
 
     onMount(async () => {
@@ -21,7 +21,7 @@
     });
 
     /** 
-     * @param {import('$types').ChatResponseModel} dialog
+     * @param {import('$conversationTypes').ChatResponseModel} dialog
      * @returns {boolean}
     */
     function showInRight(dialog) {

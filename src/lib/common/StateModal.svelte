@@ -41,10 +41,10 @@
     export let validateValue = true;
     export let requireActiveRounds = false;
 
-    /** @type {import('$types').UserStateDetailModel[]} */
+    /** @type {import('$conversationTypes').UserStateDetailModel[]} */
     export let states = [];
 
-    /** @type {import('$types').UserStateDetailModel} */
+    /** @type {import('$conversationTypes').UserStateDetailModel} */
     const defaultState = {
         key: { data: '', isValid: true },
         value: { data: '', isValid: true },

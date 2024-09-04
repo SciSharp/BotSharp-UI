@@ -94,7 +94,7 @@
         editor.zoom_reset();
     }
 
-    /** @param {import('$types').ConversationModel} conversation */
+    /** @param {import('$conversationTypes').ConversationModel} conversation */
     function renderConversationNode(conversation) {
         let posX = lastPosX + 250 + nodeSpaceX, posY = lastPosY;
         let html = "New conversation";
@@ -109,7 +109,7 @@
 
     /** 
      * @param {string} message 
-     * @param {import('$types').ChatResponseModel} response
+     * @param {import('$conversationTypes').ChatResponseModel} response
      * @param {boolean} isSuccess
     */
     function renderMessageNode(message, response, isSuccess) {

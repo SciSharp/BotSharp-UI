@@ -1,7 +1,7 @@
 <script>
   import JSONTree from 'svelte-json-tree';
 
-  /** @type {import('$types').ConversationStateLogModel?} */
+  /** @type {import('$conversationTypes').ConversationStateLogModel?} */
   export let data;
 </script>
 

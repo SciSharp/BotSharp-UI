@@ -2,7 +2,7 @@
 	import Markdown from '$lib/common/Markdown.svelte';
 	import { Button } from '@sveltestrap/sveltestrap';
 
-  /** @type {import('$types').ChatResponseModel} */
+  /** @type {import('$conversationTypes').ChatResponseModel} */
   export let dialog;
 
   let is_collapsed = true;
