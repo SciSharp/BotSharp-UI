@@ -6,7 +6,6 @@ const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
-const conversationHistoryStatesKey = "conversation_history_states";
 
 /** @type {Writable<import('$types').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
