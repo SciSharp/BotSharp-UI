@@ -15,14 +15,14 @@
     /** @type {any[]} */
     let agentNodes = [];
 
-    /** @type {import('$types').AgentFilter} */
+    /** @type {import('$agentTypes').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 20, count: 0 },
         disabled: false,
         type: includeTaskAgent ? "task" : "none"
 	};
 
-    /** @type {import('$types').AgentModel[]} */
+    /** @type {import('$agentTypes').AgentModel[]} */
     export let routers;
 
     /** @type {Drawflow} */
@@ -175,7 +175,7 @@
         });
     }
     
-    /** @param {import('$types').AgentModel} router */
+    /** @param {import('$agentTypes').AgentModel} router */
     function getPlannerName(router) {
         const planner = router.routing_rules.find(p => p.type == "planner");
         return planner?.field ?? "NaviePlanner";

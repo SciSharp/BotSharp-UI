@@ -35,28 +35,28 @@
 	const firstPage = 1;
 	const pageSize = 10;
 
-    /** @type {import('$types').PagedItems<import('$types').ConversationModel>} */
+    /** @type {import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>} */
     let conversations = { count: 0, items: [] };
 
-	/** @type {import('$types').ConversationFilter} */
+	/** @type {import('$conversationTypes').ConversationFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-    /** @type {import('$types').ConversationFilter} */
+    /** @type {import('$conversationTypes').ConversationFilter} */
     let filter = { ... initFilter };
 
-	/** @type {import('$types').Pagination} */
+	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
 	/** @type {string[]} */
 	let searchStateStrs = [];
 
-	/** @type {import('$types').IdName[]} */
+	/** @type {import('$commonTypes').IdName[]} */
 	let agentOptions = [];
 
 	/** 
-	 * @type {{agentId: string?, channel: string?, status: string?, taskId: string?, states: import('$types').UserStateDetailModel[]}}
+	 * @type {{agentId: string?, channel: string?, status: string?, taskId: string?, states: import('$conversationTypes').UserStateDetailModel[]}}
 	 * */
 	let searchOption = {
 		agentId: null,

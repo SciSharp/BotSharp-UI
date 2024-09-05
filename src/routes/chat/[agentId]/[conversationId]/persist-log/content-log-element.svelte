@@ -6,7 +6,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { directToAgentPage } from '$lib/helpers/utils/common';
 
-    /** @type {import('$types').ConversationContentLogModel} */
+    /** @type {import('$conversationTypes').ConversationContentLogModel} */
     export let data;
 
     let logDisplayStyle = '';
@@ -15,7 +15,8 @@
     const unknownAgent = "Uknown";
     const includedSources = [
         ContentLogSource.Prompt,
-        ContentLogSource.AgentResponse
+        ContentLogSource.AgentResponse,
+        ContentLogSource.FunctionCall
     ];
 
     $: {

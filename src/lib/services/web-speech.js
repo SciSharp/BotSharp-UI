@@ -21,7 +21,7 @@ export const SPEECH_VOICES = [
 ];
 
 export const webSpeech = {
-      /** @type {import('$types').OnSpeechToTextDetected} */
+      /** @type {import('$conversationTypes').OnSpeechToTextDetected} */
     onSpeechToTextDetected: () => {},
 
     start() {

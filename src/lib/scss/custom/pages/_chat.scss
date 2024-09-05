@@ -620,14 +620,12 @@
     
     .state-delete {
         flex: 0.1;
-    
-        button {
-            margin-top: 5px;
-        }
+        color: var(--bs-danger);
+        font-size: 17px;
     }
 
     .invalid {
-        border-color: red;
+        border-color: var(--bs-danger);
     }
 }
 

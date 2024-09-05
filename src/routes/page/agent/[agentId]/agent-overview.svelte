@@ -6,7 +6,7 @@
 	import { AgentType } from '$lib/helpers/enums';
 	import { getAgentUtilities } from '$lib/services/agent-service';
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
     /** @type {string[]} */

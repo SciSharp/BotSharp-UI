@@ -3,7 +3,7 @@ import axios from 'axios';
 
 /**
  * Get agent settings
- * @returns {Promise<import('$types').AgentSettings>}
+ * @returns {Promise<import('$agentTypes').AgentSettings>}
  */
 export async function getSettings() {
     let url = endpoints.agentSettingUrl;
@@ -13,8 +13,8 @@ export async function getSettings() {
 
 /**
  * Get agent list
- * @param {import('$types').AgentFilter} filter
- * @returns {Promise<import('$types').PagedItems<import('$types').AgentModel>>}
+ * @param {import('$agentTypes').AgentFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>>}
  */
 export async function getAgents(filter) {
     let url = endpoints.agentListUrl;
@@ -33,7 +33,7 @@ export async function getAgents(filter) {
 /**
  * Get agent detail
  * @param {string} id
- * @returns {Promise<import('$types').AgentModel>}
+ * @returns {Promise<import('$agentTypes').AgentModel>}
  */
 export async function getAgent(id) {
     let url = endpoints.agentDetailUrl.replace("{id}", id);
@@ -43,7 +43,7 @@ export async function getAgent(id) {
 
 /**
  * Save agent detail
- * @param {import('$types').AgentModel} agent
+ * @param {import('$agentTypes').AgentModel} agent
  */
 export async function saveAgent(agent) {
     let url = endpoints.agentDetailUrl.replace("{id}", agent.id);
@@ -69,8 +69,8 @@ export async function refreshAgents() {
 
 /**
  * Create agent
- * @param {import('$types').AgentModel} agent
- * @returns {Promise<import('$types').AgentModel>}
+ * @param {import('$agentTypes').AgentModel} agent
+ * @returns {Promise<import('$agentTypes').AgentModel>}
  */
 export async function createAgent(agent) {
     const url = endpoints.agentCreateUrl;

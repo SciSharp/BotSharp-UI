@@ -4,8 +4,8 @@ import axios from 'axios';
 
 /**
  * Get plugin list
- * @param {import('$types').PluginFilter} filter
- * @returns {Promise<import('$types').PagedItems<import('$types').PluginDefModel>>}
+ * @param {import('$pluginTypes').PluginFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$pluginTypes').PluginDefModel>>}
  */
 export async function getPlugins(filter) {
     let url = endpoints.pluginListUrl;
@@ -19,7 +19,7 @@ export async function getPlugins(filter) {
 
 /**
  * Get plugin menu
- * @returns {Promise<import('$types').PluginMenuDefModel[]>}
+ * @returns {Promise<import('$pluginTypes').PluginMenuDefModel[]>}
  */
 export async function getPluginMenu() {
     let url = endpoints.pluginMenuUrl;
@@ -30,7 +30,7 @@ export async function getPluginMenu() {
 /**
  * Enable plugin
  * @param {string} id 
- * @returns {Promise<import('$types').PluginDefModel>}
+ * @returns {Promise<import('$pluginTypes').PluginDefModel>}
  */
 export async function installPlugin(id) {
     let url = replaceUrl(endpoints.pluginInstallUrl, {id: id});
@@ -41,7 +41,7 @@ export async function installPlugin(id) {
 /**
  * Disable plugin
  * @param {string} id 
- * @returns {Promise<import('$types').PluginDefModel>}
+ * @returns {Promise<import('$pluginTypes').PluginDefModel>}
  */
 export async function removePlugin(id) {
     let url = replaceUrl(endpoints.pluginRemoveUrl, {id: id});

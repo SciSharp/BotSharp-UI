@@ -7,7 +7,7 @@
 
     const svelteDispatch = createEventDispatcher();
 
-    /** @type {import('$types').KnowledgeSearchViewModel} */
+    /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel} */
     export let item;
 
     /** @type {string} */

@@ -7,10 +7,10 @@
 
 	const params = $page.params;
 
-	/** @type {import('$types').AgentModel} */
+	/** @type {import('$agentTypes').AgentModel} */
 	let agent;
 
-	/** @type {import('$types').UserModel} */
+	/** @type {import('$userTypes').UserModel} */
 	let currentUser;
 
     onMount(async () => {

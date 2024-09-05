@@ -12,13 +12,13 @@
     const contentLogTab = 1;
     const conversationStateLogTab = 2;
 
-    /** @type {import('$types').ConversationContentLogModel[]} */
+    /** @type {import('$conversationTypes').ConversationContentLogModel[]} */
     export let contentLogs = [];
 
-    /** @type {import('$types').ConversationStateLogModel[]} */
+    /** @type {import('$conversationTypes').ConversationStateLogModel[]} */
     export let convStateLogs = [];
 
-    /** @type {import('$types').ConversationStateLogModel?} */
+    /** @type {import('$conversationTypes').ConversationStateLogModel?} */
     export let lastestStateLog = null;
 
     /** @type {boolean} */

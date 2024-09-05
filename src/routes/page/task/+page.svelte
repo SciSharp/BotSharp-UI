@@ -42,18 +42,18 @@
 		}
 	};
 
-    /** @type {import('$types').PagedItems<import('$types').AgentTaskModel>} */
+    /** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentTaskModel>} */
     let tasks = { count: 0, items: [] };
 
-	/** @type {import('$types').AgentTaskFilter} */
+	/** @type {import('$agentTypes').AgentTaskFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-    /** @type {import('$types').AgentTaskFilter} */
+    /** @type {import('$agentTypes').AgentTaskFilter} */
     let filter = { ... initFilter };
 
-	/** @type {import('$types').Pagination} */
+	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
     onMount(async () => {

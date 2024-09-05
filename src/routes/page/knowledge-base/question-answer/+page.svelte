@@ -49,7 +49,7 @@
 	let errorText = "Error";
     let confidence = '0.5';
 
-	/** @type {import('$types').KnowledgeSearchViewModel[]} */
+	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
 
 	/** @type {string[]} */
@@ -61,7 +61,7 @@
 	/** @type {string} */
 	let editCollection;
 
-	/** @type {import('$types').KnowledgeSearchViewModel | null} */
+	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
 	let editItem;
 
 	/** @type {string} */

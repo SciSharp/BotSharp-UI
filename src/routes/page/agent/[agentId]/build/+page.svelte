@@ -10,7 +10,7 @@
 	let zoom = 0.8;
 	const params = $page.params;
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     let agent;	
 	onMount(async () => {
 		agent = await getAgent(params.agentId);

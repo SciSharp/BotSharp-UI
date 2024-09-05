@@ -1,194 +1,7 @@
 /**
- * @typedef {Object} UserModel
- * @property {string} id - The user id.
- * @property {string} [user_name] - User name
- * @property {string} [first_name] - The user first name.
- * @property {string} [last_name] - The user last name.
- * @property {string} [full_name] - The user full name.
- * @property {string} [email] - The user email.
- * @property {string} source - Account source.
- * @property {string} [external_id] - The user external id.
- * @property {string} [create_date] - The user create date.
- * @property {string} [update_date] - The user update date.
- * @property {string} [role] - The user role.
- * @property {string} [avatar] - The user avatar.
- * @property {string} [color]
- * @property {string} [token]
- */
-
-/**
- * @typedef {Object} Pagination
- * @property {number} page - The plugin full name.
- * @property {number} size - The plugin name.
- * @property {number} count - Row count.
- */
-
-/**
- * @typedef {Object} KeyValuePair
- * @property {string} key - The key.
- * @property {string} value - The value.
- */
-
-/**
- * @typedef {Object} IdName
- * @property {string} id - The id.
- * @property {string} name - The name.
- */
-
-/**
- * @template T
- * @typedef {Object} PagedItems<T>
- * @property {number} count - Row count.
- * @property {T[]} items - Items.
- */
-
-/**
- * @typedef {Object} PluginDefModel
- * @property {string} id - The plugin full name.
- * @property {string} name - The plugin name.
- * @property {string} description - The plugin description.
- * @property {string} assembly - The plugin assembly.
- * @property {boolean} is_core
- * @property {string} icon_url
- * @property {string} [settings_name]
- * @property {string[]} agent_ids
- * @property {boolean} enabled
- */
-
-/**
- * @typedef {Object} PluginMenuDefModel
- * @property {string} label
- * @property {string} icon
- * @property {string} link
- * @property {boolean} isHeader
- */
-
-/**
- * @typedef {Object} PluginFilter
- * @property {Pagination} pager - Pagination
- */
-
-/**
- * @typedef {Object} AgentWelcomeInfo
- * @property {string[]} messages - The welcome messages in Rich content format.
- */
-
-/**
- * @typedef {Object} AgentTemplate
- * @property {string} name
- * @property {string} content
- */
-
-/**
- * @typedef {Object} AgentLlmConfig
- * @property {boolean} is_inherit - Inherited from default Agent settings
- * @property {string?} provider 
- * @property {string?} model
- * @property {number} max_recursion_depth
- */
-
-/**
- * @typedef {Object} ChannelInstruction
- * @property {string} channel 
- * @property {string} instruction
- */
-
-/**
- * @typedef {Object} LlmModelSetting
- * @property {string} name
- * @property {string} type
- */
-
-/**
- * @typedef {Object} FunctionDef
- * @property {string} name 
- * @property {string} description
- */
-
-/** 
- * @typedef {Object} AgentFilter
- * @property {Pagination} pager - Pagination
- * @property {string} [type]
- * @property {boolean} [isPublic]
- * @property {boolean} [disabled]
- * @property {string[]} [agentIds]
- */
-
-/**
- * @typedef {Object} AgentModel
- * @property {string} id - Agent Id.
- * @property {string} name - Agent name.
- * @property {string} description - Agent description.
- * @property {string} type - Agent type
- * @property {string} instruction - System prompt
- * @property {ChannelInstruction[]} channel_instructions - Channel instructions
- * @property {boolean} disabled
- * @property {boolean} is_public
- * @property {boolean} is_host
- * @property {boolean} allow_routing
- * @property {string} icon_url - Icon
- * @property {string[]} profiles - The agent profiles.
- * @property {string[]} utilities - The agent utilities.
- * @property {Date} created_datetime
- * @property {Date} updated_datetime
- * @property {AgentLlmConfig} llm_config - LLM settings.
- * @property {PluginDefModel} plugin
- * @property {FunctionDef[]} functions
- * @property {AgentTemplate[]} templates
- * @property {Object[]} responses
- * @property {RoutingRule[]} routing_rules
- * @property {AgentWelcomeInfo} welcome_info - Welcome information.
- * @property {boolean} editable
- */
-
-/**
- * @typedef {Object} AgentSettings
- * @property {string} dataDir
- * @property {string} templateFormat
- * @property {AgentLlmConfig} llmConfig - LLM settings.
- */
-
-/** 
- * @typedef {Object} AgentTaskFilter
- * @property {Pagination} pager - Pagination
- * @property {string} [agentId] - The agent id.
- */
-
-/**
- * @typedef {Object} AgentTaskModel
- * @property {string} id - Task id.
- * @property {string} name - Task name.
- * @property {string} description - Description.
- * @property {string} content - Task detail.
- * @property {boolean} enabled
- * @property {Date} created_datetime
- * @property {Date} updated_datetime
- * @property {string} agent_id - Description.
- * @property {string} agent_name - Task detail.
- * @property {string} direct_agent_id - Run task directly in this agent.
- */
-
-
-/**
  * @typedef {Object} InstructMessageModel
  * @property {string} [instruction] - User provided prompt instead of predefined template.
  * @property {string} [template] - The template name.
- */
-
-/**
- * @typedef {Object} RoutingRule
- * @property {string} type
- * @property {string} field
- * @property {string} description
- * @property {string} fieldType
- * @property {boolean} required
- * @property {string} redirectTo
- * @property {string?} [redirect_to_agent]
- */
-
-/**
- * @typedef {Object} RouterSettings
- * @property {string} planner
  */
 
 /**
@@ -198,19 +11,19 @@
 
 /**
  * @typedef {Object} ConversationFilter
- * @property {Pagination} pager - Pagination
+ * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string?} [agentId] - The agent id.
  * @property {string?} [channel] - The conversation channel.
  * @property {string?} [status] - The conversation status.
  * @property {string?} [taskId] - The task id.
- * @property {KeyValuePair[]} [states] - The conversation status.
+ * @property {import('$commonTypes').KeyValuePair[]} [states] - The conversation status.
  */
 
 /**
  * @typedef {Object} ConversationModel
  * @property {string} id - The conversation id.
  * @property {string} title - The conversation title.
- * @property {UserModel} user - The conversation initializer.
+ * @property {import('$userTypes').UserModel} user - The conversation initializer.
  * @property {string} agent_id - The conversation agent id.
  * @property {string} agent_name - The conversation entry agent name.
  * @property {string} channel - The conversation status.
@@ -219,49 +32,6 @@
  * @property {Object[]} states - The conversation states. 
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.
- */
-
-
-// File models
-/**
- * @typedef {Object} FileModel
- * @property {string} file_name - The file name.
- * @property {string} file_data - The file data.
- * @property {string} file_url - The file url.
- */
-
-/**
- * @typedef {Object} TextFileModel
- * @property {string} file_name - The file name.
- * @property {string} [file_extension] - The file extension.
- * @property {string} file_data - The file data or url.
- */
-
-/**
- * @typedef {Object} AudioFileModel
- * @property {string} name - The audio name.
- * @property {string} [artist] - The audio author.
- * @property {string} cover - The audio cover.
- * @property {string} url - The audio url.
- * @property {string} [theme] - The audio theme.
- */
-
-
-// Speech
-/**
- * @typedef {Object} SpeechModel
- * @property {string} id
- * @property {SpeechSynthesis} synth
- * @property {SpeechSynthesisUtterance} utterThis
- * @property {() => void} stop
- * @property {() => boolean} isPlaying
- */
-
-/**
- * @typedef {Object} AudioModel
- * @property {string} id
- * @property {HTMLAudioElement} player
- * @property {() => void} stop
  */
 
 
@@ -359,7 +129,7 @@ IRichContent.prototype.quick_replies;
 /**
  * @typedef {Object} ChatResponseModel
  * @property {string} conversation_id - The conversation id.
- * @property {UserModel} sender - The message sender.
+ * @property {import('$userTypes').UserModel} sender - The message sender.
  * @property {string} message_id - The message id.
  * @property {string} text - The message content.
  * @property {string} editor - The message editor.
@@ -467,38 +237,7 @@ IRichContent.prototype.quick_replies;
  * @property {string?} [payload] - The payload message.
  */
 
-// Knowledgebase
-/**
- * @typedef {Object} SearchKnowledgeRequest
- * @property {string} text - The text.
- * @property {string[]} [fields] - Data fields.
- * @property {number} [limit] - Data limit.
- * @property {number} [confidence] - Confidence.
- * @property {boolean} [with_vector] - Include vector or not.
- */
 
-/**
- * @typedef {Object} KnowledgeFilter
- * @property {string | null} [start_id] - The start id.
- * @property {number} size - Page size.
- * @property {boolean} [with_vector] - Include vector or not.
- * @property {{ key: string, value: string }[]} [search_pairs] - Search pairs.
- */
-
-/**
- * @typedef {Object} KnowledgeSearchViewModel
- * @property {string} id - The knowledge data id.
- * @property {any} data - The knowledge data.
- * @property {number} [score] - The knowledge score.
- * @property {number[]} [vector] - The knowledge vector.
- */
-
-/**
- * @typedef {Object} KnowledgeSearchPageResult
- * @property {number} count - The total data count.
- * @property {KnowledgeSearchViewModel[]} items - The data items.
- * @property {string} [next_id] - The next id.
- */
 
 
 /**

@@ -1,7 +1,7 @@
 import { EditorType, ElementType } from '../enums';
 
 /**
- * @param {import('$types').ChatResponseModel?} message
+ * @param {import('$conversationTypes').ChatResponseModel?} message
  */
 export function loadFileGallery(message) {
     return  message?.rich_content?.editor === EditorType.File

@@ -4,21 +4,21 @@
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
     const defaultChannel = "default";
 
-    /** @type {import('$types').ChannelInstruction} */
+    /** @type {import('$agentTypes').ChannelInstruction} */
     const defaultInstruction = {
         channel: defaultChannel,
         instruction: ''
     };
 
-    /** @type {import('$types').ChannelInstruction[]} */
+    /** @type {import('$agentTypes').ChannelInstruction[]} */
     let local_instructions = [];
 
-    /** @type {import('$types').ChannelInstruction} */
+    /** @type {import('$agentTypes').ChannelInstruction} */
     let selected_instruction = { ...defaultInstruction };
 
     onMount(() => {

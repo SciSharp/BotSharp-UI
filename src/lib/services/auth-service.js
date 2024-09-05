@@ -51,7 +51,7 @@ export async function setToken(token) {
 }
 
 /**
- * @returns {Promise<import('$types').UserModel>}
+ * @returns {Promise<import('$userTypes').UserModel>}
  */
 export async function myInfo() {
     const response = await axios.get(endpoints.myInfoUrl);
@@ -95,7 +95,7 @@ export async function register(firstName, lastName, email, password, onSucceed) 
 }
 
 /**
- * @param {import('$types').FileModel} file
+ * @param {import('$fileTypes').FileModel} file
  */
 export async function uploadUserAvatar(file) {
     const response = await axios.post(endpoints.userAvatarUrl, { ...file });

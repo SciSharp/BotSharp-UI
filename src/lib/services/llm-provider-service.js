@@ -15,7 +15,7 @@ export async function getLlmProviders() {
 /**
  * Get provider model list
  * @param {string} provider
- * @returns {Promise<import('$types').LlmModelSetting[]>}
+ * @returns {Promise<import('$commonTypes').LlmModelSetting[]>}
  */
 export async function getLlmProviderModels(provider) {
     let url = replaceUrl(endpoints.llmProviderModelsUrl, {provider: provider});

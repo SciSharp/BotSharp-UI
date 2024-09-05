@@ -5,7 +5,7 @@ import axios from 'axios';
 /**
  * Execute agent instruction by template or user provided prompt.
  * @param {string} agentId
- * @param {import('$types').InstructMessageModel} instruction
+ * @param {import('$conversationTypes').InstructMessageModel} instruction
  */
 export async function executeAgentInstruction(agentId, instruction) {
     let url = replaceUrl(endpoints.instructCompletionUrl, {agentId: agentId});

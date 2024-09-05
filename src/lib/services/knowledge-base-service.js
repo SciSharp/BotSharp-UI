@@ -13,9 +13,9 @@ export async function getVectorKnowledgeCollections() {
 }
 
 /**
- * @param {import('$types').SearchKnowledgeRequest} request
+ * @param {import('$knowledgeTypes').SearchKnowledgeRequest} request
  * @param {string} collection
- * @returns {Promise<import('$types').KnowledgeSearchViewModel[]>}
+ * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchViewModel[]>}
  */
 export async function searchVectorKnowledge(request, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
@@ -27,9 +27,9 @@ export async function searchVectorKnowledge(request, collection) {
 }
 
 /**
- * @param {import('$types').KnowledgeFilter} filter
+ * @param {import('$knowledgeTypes').KnowledgeFilter} filter
  * @param {string} collection
- * @returns {Promise<import('$types').KnowledgeSearchPageResult>}
+ * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchPageResult>}
  */
 export async function getPagedVectorKnowledgeData(filter, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {

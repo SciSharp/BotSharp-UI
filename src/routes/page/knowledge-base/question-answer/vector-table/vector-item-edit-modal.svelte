@@ -12,7 +12,7 @@
     } from "@sveltestrap/sveltestrap";
     import _ from "lodash";
 
-    /** @type {import('$types').KnowledgeSearchViewModel | null} */
+    /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
     export let item;
 
     /** @type {string} */

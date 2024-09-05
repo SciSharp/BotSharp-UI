@@ -42,7 +42,7 @@
     wtBufTime,
   } = useAudioStore(dispatch);
 
-  /** @type {import('$types').AudioFileModel[]} */
+  /** @type {import('$fileTypes').AudioFileModel[]} */
   export let audio;
 
   /** @type {string} */

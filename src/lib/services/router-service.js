@@ -3,7 +3,7 @@ import axios from 'axios';
 
 /**
  * Get router settings
- * @returns {Promise<import('$types').RouterSettings>}
+ * @returns {Promise<import('$agentTypes').RouterSettings>}
  */
 export async function getSettings() {
     let url = endpoints.routerSettingUrl;

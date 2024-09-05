@@ -6,10 +6,10 @@
     /** @type {string[]} */
     let providers = [];
 
-    /** @type {import('$types').AgentModel} */
+    /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
-    /** @type {import('$types').LlmModelSetting[]} */
+    /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
 
     const lowerLimit = 1;

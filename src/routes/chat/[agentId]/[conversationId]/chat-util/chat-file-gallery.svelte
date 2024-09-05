@@ -6,7 +6,7 @@
     /** @type {boolean} */
     export let disabled = false;
 
-    /** @type {import('$types').TextFileModel[]} */
+    /** @type {import('$fileTypes').TextFileModel[]} */
     let files = [];
 
     const { autoScrollToBottom }  = getContext('chat-window-context');

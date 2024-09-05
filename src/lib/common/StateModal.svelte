@@ -41,10 +41,10 @@
     export let validateValue = true;
     export let requireActiveRounds = false;
 
-    /** @type {import('$types').UserStateDetailModel[]} */
+    /** @type {import('$conversationTypes').UserStateDetailModel[]} */
     export let states = [];
 
-    /** @type {import('$types').UserStateDetailModel} */
+    /** @type {import('$conversationTypes').UserStateDetailModel} */
     const defaultState = {
         key: { data: '', isValid: true },
         value: { data: '', isValid: true },
@@ -196,15 +196,13 @@
                     </FormGroup>
                 </div>
                 {/if}
-                <div class="state-delete">
+                <div class="state-delete mb-3 line-align-center">
                     {#if idx !== 0}
-                    <Button
-                        class="btn btn-sm btn-rounded"
-                        color="danger"
-                        on:click={() => remove(idx)}
-                    >
-                        <i class="mdi mdi-window-close"></i>
-                    </Button>
+                    <div>
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <span><i class="bx bx-no-entry clickable" on:click={() => remove(idx)} /></span>
+                    </div>
                     {/if}
                 </div>
             </Row>

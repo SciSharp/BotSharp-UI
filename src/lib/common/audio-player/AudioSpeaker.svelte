@@ -25,7 +25,7 @@
   /** @type {boolean} */
   let speaking = false;
 
-  /** @type {import('$types').SpeechModel} */
+  /** @type {import('$audioTypes').SpeechModel} */
   let speech;
 
   onMount(() => {

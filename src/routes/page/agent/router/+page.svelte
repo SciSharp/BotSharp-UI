@@ -7,12 +7,12 @@
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n'
 
-  /** @type {import('$types').AgentModel[]} */
+  /** @type {import('$agentTypes').AgentModel[]} */
   let routers;
   let isRouterNodeSelected = false;
   let isAgentNodeSelected = false;
 
-  /** @type {import('$types').AgentFilter} */
+  /** @type {import('$agentTypes').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 10, count: 0 },
     disabled: false,
@@ -35,13 +35,13 @@
     isAgentNodeSelected = false;
   }
 
-  /** @param {import('$types').AgentModel} agent */
+  /** @param {import('$agentTypes').AgentModel} agent */
   function handleRouterNodeSelected(agent) {
     isRouterNodeSelected = true;
     isAgentNodeSelected = true;
   }  
 
-  /** @param {import('$types').AgentModel} agent */
+  /** @param {import('$agentTypes').AgentModel} agent */
   function handleAgentNodeSelected(agent) {
     isRouterNodeSelected = false;
     isAgentNodeSelected = true;

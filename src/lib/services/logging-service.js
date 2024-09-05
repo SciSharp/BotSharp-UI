@@ -24,7 +24,7 @@ export async function getFullLog() {
 /**
  * Get conversation content log
  * @param {string} conversationId 
- * @returns {Promise<import('$types').ConversationContentLogModel[]>}
+ * @returns {Promise<import('$conversationTypes').ConversationContentLogModel[]>}
  */
 export async function GetContentLogs(conversationId) {
     let url = replaceUrl(endpoints.loggingContentLogUrl, {conversationId: conversationId});
@@ -35,7 +35,7 @@ export async function GetContentLogs(conversationId) {
 /**
  * Get conversation state log
  * @param {string} conversationId 
- * @returns {Promise<import('$types').ConversationStateLogModel[]>}
+ * @returns {Promise<import('$conversationTypes').ConversationStateLogModel[]>}
  */
 export async function GetStateLogs(conversationId) {
     let url = replaceUrl(endpoints.loggingStateLogUrl, {conversationId: conversationId});

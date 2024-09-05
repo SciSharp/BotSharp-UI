@@ -9,7 +9,7 @@
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n';
 
-	/** @type {import('$types').PluginMenuDefModel[]} */
+	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
 	export let menu;
 
 	// after routing complete call afterUpdate function
