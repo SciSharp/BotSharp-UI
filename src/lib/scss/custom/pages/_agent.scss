@@ -2,6 +2,18 @@
     width: 45%;
 }
 
+.agent-overview-header {
+    display: flex;
+    justify-content: center;
+    position: relative;
+
+    .agent-chat {
+        position: absolute;
+        top: 20%;
+        left: calc(50% + 30px);
+    }
+}
+
 .agent-prop-list-container {
     width: 85%;
     max-width: 100%;

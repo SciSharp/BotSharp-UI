@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
+    import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
@@ -68,17 +68,23 @@
 <Card>
     <CardHeader>
         <div class="text-center">
-            <img
-                src="images/users/bot.png"
-                alt=""
-                height="50"
-                class="mx-auto d-block"
-                style="cursor: pointer;"
-                tabindex="-1"
-                role=''
-                on:keydown={() => {}}
-                on:click={() => chatWithAgent()}
-            />
+            <div class="agent-overview-header">
+                <img
+                    src="images/users/bot.png"
+                    alt=""
+                    height="50"
+                    class="mx-auto d-block"
+                />
+                <Button
+                    class="btn btn-sm btn-soft-info agent-chat"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Chat with me"
+                    on:click={() => chatWithAgent()}
+                >
+                    <i class="mdi mdi-chat" />
+                </Button>
+            </div>
             <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name}/></h5>
             <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
         </div>
