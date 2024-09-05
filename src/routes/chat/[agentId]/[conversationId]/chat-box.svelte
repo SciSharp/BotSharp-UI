@@ -1260,7 +1260,7 @@
 							<div class="col">
 								<div class="position-relative">
 									<ChatTextArea
-										className={`chat-input chat-uploader`}
+										className={`chat-input ${!isLite ? 'chat-more-util' : ''}`}
 										maxLength={maxTextLength}
 										disabled={isSendingMsg || isThinking || disableAction}
 										bind:text={text}
@@ -1271,13 +1271,6 @@
 										onFocus={e => chatUtilOptions = []}
 										onOptionClick={op => handleChatOptionClick(op)}
 									>
-										{#if !isLite}
-											<ChatBigMessage
-												containerClasses={'line-align-center text-primary chat-util-item'}
-												disabled={disableAction}
-												on:click={() => toggleBigMessageModal()}
-											/>
-										{/if}
 										<ChatFileUploader
 											accept={'.png,.jpg,.jpeg'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
@@ -1324,7 +1317,13 @@
 											</span>
 										</ChatFileUploader>
 									</ChatTextArea>
-									<div class="chat-input-links">
+									<div class="chat-util-links">
+										{#if !isLite}
+										<ChatBigMessage
+											disabled={disableAction}
+											on:click={() => toggleBigMessageModal()}
+										/>
+										{/if}
 										<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
 									</div>
 								</div>

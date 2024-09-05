@@ -26,7 +26,7 @@
 
 
 <div
-    class={`${disableDefaultStyles ? '' : 'chat-file-editor'} ${containerClasses}`}
+    class={`${disableDefaultStyles ? '' : 'chat-util-trigger'} ${containerClasses}`}
     style={`${containerStyles}`}
 >
     <ul class="list-inline mb-0">

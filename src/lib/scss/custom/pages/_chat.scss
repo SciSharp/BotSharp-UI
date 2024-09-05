@@ -333,17 +333,18 @@
     scrollbar-width: none;
 }
 
-.chat-uploader {
-    padding-right: 3em;
+.chat-more-util {
+    padding-right: 5em;
 }
 
-// obsolete
-.chat-input-links {
+.chat-util-links {
+    display: flex;
+    width: fit-content;
     position: absolute;
     right: 3px;
     top: 55%;
     transform: translateY(-50%);
-    width: 3em;
+
     li {
         span {
             font-size: 160% !important;
@@ -355,7 +356,7 @@
     }
 }
 
-.chat-file-editor {
+.chat-util-trigger {
     text-align: center;
 
     li {

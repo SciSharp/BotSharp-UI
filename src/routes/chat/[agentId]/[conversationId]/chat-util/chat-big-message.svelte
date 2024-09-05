@@ -10,6 +10,9 @@
     export let containerStyles = "";
 
     /** @type {boolean} */
+    export let disableDefaultStyles = false;
+
+    /** @type {boolean} */
     export let disabled = false;
 
     function clickIcon() {
@@ -21,18 +24,22 @@
 </script>
 
 <div
-    class={`${containerClasses}`}
+    class={`${disableDefaultStyles ? '' : 'chat-util-trigger'} ${containerClasses}`}
     style={`${containerStyles}`}
 >
-    <span>
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <i
-            class="bx bx-pencil clickable"
-            data-bs-toggle="tooltip"
-            data-bs-placement="top"
-            title="Zoom in"
-            on:click={() => clickIcon()}
-        />
-    </span>
+    <ul class="list-inline mb-0">
+        <li class="list-inline-item">
+            <span>
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <i
+                    class="bx bx-pencil clickable"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Zoom in"
+                    on:click={() => clickIcon()}
+                />
+            </span>
+        </li>
+    </ul>
 </div>
