@@ -81,7 +81,7 @@
                     data-bs-placement="top"
                     title="Chat with me"
                     on:click={() => chatWithAgent()}
-                >
+                > Chat with me 
                     <i class="mdi mdi-chat" />
                 </Button>
             </div>
