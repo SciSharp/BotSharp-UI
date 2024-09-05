@@ -77,12 +77,10 @@
                 />
                 <Button
                     class="btn btn-sm btn-soft-info agent-chat"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Chat with me"
                     on:click={() => chatWithAgent()}
-                > Chat with me 
-                    <i class="mdi mdi-chat" />
+                >
+                    <span>{'Chat with me'}</span>
+                    <span><i class="mdi mdi-chat" /></span>
                 </Button>
             </div>
             <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name}/></h5>
