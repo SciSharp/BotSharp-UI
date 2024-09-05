@@ -15,7 +15,8 @@
     const unknownAgent = "Uknown";
     const includedSources = [
         ContentLogSource.Prompt,
-        ContentLogSource.AgentResponse
+        ContentLogSource.AgentResponse,
+        ContentLogSource.FunctionCall
     ];
 
     $: {
