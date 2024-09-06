@@ -25,3 +25,29 @@ export function isExternalUrl(url) {
 
     return /^(https?:\/\/)/.test(url)
 }
+
+/** @param {any} object */
+export function formatObject(object) {
+    let res = {};
+    if (!object) return res;
+
+    try {
+        for (const [key, value] of Object.entries(object)) {
+            let newValue;
+            try {
+                newValue = JSON.parse(value);
+            } catch {
+                newValue = value;
+            }
+    
+            res = {
+                ...res,
+                [key]: newValue
+            };
+        }
+    
+        return res;
+    } catch {
+        return object;
+    }
+}
