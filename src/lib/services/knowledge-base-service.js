@@ -1,4 +1,3 @@
-import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
@@ -24,7 +23,7 @@ export async function getVectorKnowledgeCollections(type) {
  */
 export async function searchVectorKnowledge(request, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const response = await axios.post(url, { ...request });
@@ -38,7 +37,7 @@ export async function searchVectorKnowledge(request, collection) {
  */
 export async function getPagedVectorKnowledgeData(filter, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const response = await axios.post(url, { ...filter });
@@ -46,20 +45,20 @@ export async function getPagedVectorKnowledgeData(filter, collection) {
 }
 
 /**
- * @param {string} text
- * @param {string} answer
  * @param {string} collection
+ * @param {string} text
+ * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(text, answer, collection) {
+export async function createVectorKnowledgeData(collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const request = {
         text: text,
         payload: {
-            answer: answer
+            ...payload
         }
     };
 
@@ -69,21 +68,21 @@ export async function createVectorKnowledgeData(text, answer, collection) {
 
 /**
  * @param {string} id
- * @param {string} text
- * @param {string} answer
  * @param {string} collection
+ * @param {string} text
+ * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, text, answer, collection) {
+export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const request = {
         id: id,
         text: text,
         payload: {
-            answer: answer
+            ...payload
         }
     };
 
@@ -99,7 +98,7 @@ export async function updateVectorKnowledgeData(id, text, answer, collection) {
  */
 export async function deleteVectorKnowledgeData(id, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION,
+        collection: collection,
         id: id
     });
 
@@ -117,7 +116,7 @@ export async function deleteVectorKnowledgeData(id, collection) {
  */
 export async function uploadVectorKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUploadUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const formData = new FormData();

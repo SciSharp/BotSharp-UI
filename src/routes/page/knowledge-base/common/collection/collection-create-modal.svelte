@@ -83,8 +83,8 @@
         confirm?.({
             collection_name: _.trim(collection),
             dimension: dimension,
-            provider: _.trim(collection),
-            model: _.trim(collection)
+            provider: _.trim(provider),
+            model: _.trim(model)
         });
     }
 
@@ -108,6 +108,7 @@
                     <label class="fw-bold" for="collection">{`Collection name: `}</label>
                     <Input
                         type="text"
+                        class="text-center"
                         maxlength={maxLength}
                         bind:value={collection}
                     />
@@ -121,6 +122,7 @@
                     <label class="fw-bold" for="provider">{`Embedding provider: `}</label>
                     <Input
                         type="text"
+                        class="text-center"
                         maxlength={maxLength}
                         bind:value={provider}
                     />
@@ -134,6 +136,7 @@
                     <label class="fw-bold" for="model">{`Embedding model: `}</label>
                     <Input
                         type="text"
+                        class="text-center"
                         maxlength={maxLength}
                         bind:value={model}
                     />

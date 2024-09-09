@@ -10,13 +10,18 @@
         ModalHeader,
         Row
     } from "@sveltestrap/sveltestrap";
+    import { KnowledgeCollectionType } from "$lib/helpers/enums";
     import _ from "lodash";
+	
 
     /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
     export let item;
 
     /** @type {string} */
     export let collection;
+
+    /** @type {string} */
+    export let collectionType;
 
     /** @type {boolean} */
     export let open = false;
@@ -39,6 +44,10 @@
     /** @type {() => void} */
     export let cancel;
 
+    $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
+    $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
+    $: disableConfirmBtn = !_.trim(question.text) || (isQuestionAnswerCollection && !_.trim(answer.text));
+
 
     let question = {
         text: '',
@@ -59,6 +68,7 @@
     function init() {
         question = {
             ...question,
+            rows: isQuestionAnswerCollection ? 3 : 10,
             text: item?.data?.text || item?.data?.question || ''
         };
 
@@ -100,15 +110,18 @@
     </ModalHeader>
     <ModalBody>
         <Form>
+            {#if isQuestionAnswerCollection}
             <Row>
                 <FormGroup class="edit-group">
-                    <label class="fw-bold textarea-label" for="question">{`Question: `}</label>
+                    <label class="fw-bold textarea-label" for="question">
+                        {`Question: `}
+                    </label>
                     <textarea
                         class={'form-control knowledge-textarea'}
                         placeholder="Enter question..."
                         rows={question.rows}
-                        bind:value={question.text}
                         maxlength={question.maxLength}
+                        bind:value={question.text}
                         on:input={() => {}}
                     />
                     <div class="text-secondary text-end text-count">
@@ -118,26 +131,46 @@
             </Row>
             <Row>
                 <FormGroup class="edit-group">
-                    <label class="fw-bold textarea-label" for="answer">{`Answer: `}</label>
+                    <label class="fw-bold textarea-label" for="answer">
+                        {`Answer: `}
+                    </label>
                     <textarea
                         class={'form-control knowledge-textarea'}
                         placeholder="Enter answer..."
                         rows={answer.rows}
-                        bind:value={answer.text}
                         maxlength={answer.maxLength}
-                        on:input={() => {}}
+                        bind:value={answer.text}
                     />
                     <div class="text-secondary text-end text-count">
                         {answer.text?.length || 0}/{answer.maxLength}
                     </div>
                 </FormGroup>
             </Row>
+            {:else if isDocumentCollection}
+            <Row>
+                <FormGroup class="edit-group">
+                    <label class="fw-bold textarea-label" for="text">
+                        {`Text: `}
+                    </label>
+                    <textarea
+                        class={'form-control knowledge-textarea'}
+                        placeholder="Enter text..."
+                        rows={question.rows}
+                        maxlength={question.maxLength}
+                        bind:value={question.text}
+                    />
+                    <div class="text-secondary text-end text-count">
+                        {question.text?.length || 0}/{question.maxLength}
+                    </div>
+                </FormGroup>
+            </Row>
+            {/if}
         </Form>
     </ModalBody>
     <ModalFooter>
         <Button
             color="primary"
-            disabled={!!!_.trim(question.text) || !!!_.trim(answer.text)}
+            disabled={disableConfirmBtn}
             on:click={(e) => handleConfirm(e)}
         >
             Confirm

@@ -400,7 +400,7 @@
 		isOpenEditKnowledge = false;
 
 		if (!!editItem) {
-			updateVectorKnowledgeData(e.id, e.data?.text, e.data?.answer, editCollection).then(res => {
+			updateVectorKnowledgeData(e.id, editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -423,7 +423,7 @@
 				isLoading = false;
 			});
 		} else {
-			createVectorKnowledgeData(e.data?.text, e.data?.answer, editCollection).then(res => {
+			createVectorKnowledgeData(editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -559,6 +559,7 @@
 		title={editModalTitle}
 		size={'lg'}
 		collection={editCollection}
+		collectionType={collectionType}
 		item={editItem}
 		open={isOpenEditKnowledge}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
@@ -768,6 +769,7 @@
 										{#each items as item, idx (idx)}
                                             <VectorItem
 												collection={selectedCollection}
+												collectionType={collectionType}
 												item={item}
 												open={isFromSearch && idx === 0}
 												on:delete={(e) => onKnowledgeDelete(e)}

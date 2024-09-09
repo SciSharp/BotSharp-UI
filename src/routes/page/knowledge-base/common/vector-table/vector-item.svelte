@@ -4,6 +4,7 @@
     import { fly } from 'svelte/transition';
     import Swal from 'sweetalert2';
 	import Loader from "$lib/common/Loader.svelte";
+	import { KnowledgeCollectionType } from "$lib/helpers/enums";
 
     const svelteDispatch = createEventDispatcher();
 
@@ -13,8 +14,14 @@
     /** @type {string} */
     export let collection;
 
+    /** @type {string} */
+    export let collectionType;
+
     /** @type {boolean} */
     export let open = false;
+
+    $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
+    $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
 
     let isLoading = false;
 
@@ -56,12 +63,14 @@
 {/if}
 
 <tr in:fly={{ y: -5, duration: 800 }}>
-    <td class="knowledge-text">
+    <td class={`knowledge-text-qa ${isDocumentCollection ? 'knowledge-text' : ''}`}>
         <div class="ellipsis">{item?.data?.question || item?.data?.text || ''}</div>
     </td>
-    <td class="knowledge-text">
+    {#if isQuestionAnswerCollection}
+    <td class="knowledge-text-qa">
         <div class="ellipsis">{item?.data?.answer || ''}</div>
     </td>
+    {/if}
     <td class="knowledge-op">
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
@@ -101,21 +110,33 @@
     <td colspan="3">
         <div class="knowledge-detail">
             <ul>
-            {#if item?.data?.question || item?.data?.text}
+            {#if isQuestionAnswerCollection}
                 <li>
-                    <div class="wrappable fw-bold text-primary">Question:</div>
+                    <div class="wrappable fw-bold text-primary">
+                        {'Question:'}
+                    </div>
                     <div class="wrappable">{item?.data?.question || item?.data?.text || ''}</div>
                 </li>
-            {/if}
-            {#if item?.data?.answer}
                 <li>
-                    <div class="wrappable fw-bold text-primary">Answer:</div>
+                    <div class="wrappable fw-bold text-primary">
+                        {'Answer:'}
+                    </div>
                     <div class="wrappable">{item?.data?.answer || ''}</div>
                 </li>
+            {:else if isDocumentCollection}
+                <li>
+                    <div class="wrappable fw-bold text-primary">
+                        {'Text:'}
+                    </div>
+                    <div class="wrappable">{item?.data?.text || ''}</div>
+                </li>
             {/if}
+
             {#if item?.score}
                 <li>
-                    <div class="wrappable fw-bold text-primary">Score:</div>
+                    <div class="wrappable fw-bold text-primary">
+                        {'Score:'}
+                    </div>
                     <div class="wrappable">{item?.score?.toFixed(6)}</div>
                 </li>
             {/if}
