@@ -257,8 +257,7 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				search_pairs: params.useSearhPair ? [
-					{ key: "text", value: text },
-					{ key: "answer", value: text }
+					{ key: "text", value: text }
 				] : []
 			};
 
@@ -455,8 +454,7 @@
 		if (found) {
 			found.data = {
 				...found.data,
-				text: newItem.data?.text || '',
-				answer: newItem.data?.answer || ''
+				text: newItem.data?.text || ''
 			};
 			items = [ ...items ];
 		}
