@@ -4,11 +4,16 @@ import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
 /**
+ * @param {string} type
  * @returns {Promise<string[]>}
  */
-export async function getVectorKnowledgeCollections() {
+export async function getVectorKnowledgeCollections(type) {
     const url = endpoints.vectorKnowledgeCollectionsUrl;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            type: type
+        }
+    });
     return response.data;
 }
 
@@ -138,17 +143,12 @@ export async function uploadVectorKnowledge(file, collection = null, startPageNu
 
 
 /**
- * @param {string} collection
- * @param {number} dimension
+ * @param {import('$knowledgeTypes').CreateVectorCollectionRequest} request
  * @returns {Promise<boolean>}
  */
-export async function createVectorCollection(collection, dimension) {
-    const url = replaceUrl(endpoints.vectorCollectionCreateUrl, {
-        collection: collection,
-        dimension: dimension
-    });
-
-    const response = await axios.post(url);
+export async function createVectorCollection(request) {
+    const url = endpoints.vectorCollectionCreateUrl;
+    const response = await axios.post(url, { ...request });
     return response.data;
 }
 

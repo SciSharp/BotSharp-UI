@@ -1,5 +1,14 @@
 // Knowledgebase
 /**
+ * @typedef {Object} CreateVectorCollectionRequest
+ * @property {string} collection_name - The collection name.
+ * @property {string} collection_type - The collection type.
+ * @property {string} provider - The text embedding provider.
+ * @property {string} model - The text embedding model.
+ * @property {number} dimension - The text embedding dimension.
+ */
+
+/**
  * @typedef {Object} SearchKnowledgeRequest
  * @property {string} text - The text.
  * @property {string[]} [fields] - Data fields.

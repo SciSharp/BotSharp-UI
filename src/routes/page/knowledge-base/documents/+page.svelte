@@ -38,7 +38,7 @@
 	const maxLength = 4096;
     const numberRegex = "[0-9\.]+";
 	const enableVector = true;
-	const collectionType = KnowledgeCollectionType.QuestionAnswer;
+	const collectionType = KnowledgeCollectionType.Document;
 	
 	let showDemo = true;
 	let text = "";
@@ -49,8 +49,8 @@
 	let errorText = "Error";
     let confidence = '0.5';
 
-	/** @type {string} */
-	let selectedCollection;
+    /** @type {string} */
+    let selectedCollection;
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -542,8 +542,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Q&A Knowledge')}" />
-<Breadcrumb pagetitle="{$_('Q&A Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title="{$_('Document Knowledge')}" />
+<Breadcrumb pagetitle="{$_('Document Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
 	isLoading={isLoading}
