@@ -183,6 +183,8 @@ export function getBase64(file) {
 export const PDF_ICON = 'images/icons/pdf_icon.jpg';
 export const EXCEL_ICON = 'images/icons/excel_icon.png';
 export const AUDIO_ICON = 'images/icons/audio_icon.png';
+export const TXT_ICON = 'images/icons/txt_icon.png';
+export const WORD_ICON = 'images/icons/word_icon.png';
 
 /** @param {string | undefined} file */
 export function isPdf(file) {
@@ -197,4 +199,14 @@ export function isExcel(file) {
 /** @param {string | undefined} file */
 export function isAudio(file) {
   return file?.endsWith('mp3') || file?.endsWith('wav') || file?.endsWith('mpeg') || false;
+}
+
+/** @param {string | undefined} file */
+export function isTxt(file) {
+  return file?.endsWith('txt') || false;
+}
+
+/** @param {string | undefined} file */
+export function isWord(file) {
+  return file?.endsWith('doc') || file?.endsWith('docx') || false;
 }

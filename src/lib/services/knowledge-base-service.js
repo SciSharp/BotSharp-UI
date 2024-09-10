@@ -106,37 +106,48 @@ export async function deleteVectorKnowledgeData(id, collection) {
     return response.data;
 }
 
-
 /**
- * Upload document to knowledge base.
- * @param {File} file
- * @param {string | null} [collection]
- * @param {number | null} [startPageNum]
- * @param {number | null} [endPageNum]
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorKnowledgeUploadRequest} request
+ * @returns {Promise<import('$knowledgeTypes').UploadKnowledgeResponse>}
  */
-export async function uploadVectorKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
-    const url = replaceUrl(endpoints.vectorKnowledgeUploadUrl, {
+export async function uploadKnowledgeDocuments(collection, request) {
+    const url = replaceUrl(endpoints.knowledgeDocumentUploadUrl, {
         collection: collection
     });
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const response = await axios.post(url, {
+        ...request
+    });
+    return response.data;
+}
 
-    if (startPageNum) {
-        formData.append("startPageNum", startPageNum.toString());
-    }
+/**
+ * @param {string} collection
+ * @param {string} fileId
+ * @returns {Promise<boolean>}
+ */
+export async function deleteKnowledgeDocument(collection, fileId) {
+    const url = replaceUrl(endpoints.knowledgeDocumentUploadUrl, {
+        collection: collection,
+        fileId: fileId
+    });
 
-    if (endPageNum) {
-        formData.append("endPageNum", endPageNum.toString());
-    }
+    const response = await axios.delete(url);
+    return response.data;
+}
 
-    const config = {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    };
 
-    const response = await axios.post(url, formData, config);
+/**
+ * @param {string} collection
+ * @returns {Promise<import('$fileTypes').KnowledgeFileModel[]>}
+ */
+export async function getKnowledgeDocuments(collection) {
+    const url = replaceUrl(endpoints.knowledgeDocumentListUrl, {
+        collection: collection
+    });
+
+    const response = await axios.get(url);
     return response.data;
 }
 

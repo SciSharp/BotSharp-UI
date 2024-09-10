@@ -704,17 +704,18 @@
 									<h5 class="font-size-16 knowledge-header-text">
 										<div>{$_('Knowledges')}</div>
 									</h5>
-									<!-- svelte-ignore a11y-click-events-have-key-events -->
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
 									<div
-										class="knowledge-btn-icon clickable text-primary"
-										style="justify-content: flex-start;"
+										class="line-align-center"
 										data-bs-toggle="tooltip"
 										data-bs-placement="top"
 										title="Add knowledge"
-										on:click={() => onKnowledgeCreate()}
 									>
-										<i class="bx bx-add-to-queue" />
+                                        <Button
+                                            class="btn btn-sm btn-soft-primary knowledge-btn-icon"
+                                            on:click={() => onKnowledgeCreate()}
+                                        >
+                                            <i class="mdi mdi-plus" />
+                                        </Button>
 									</div>
 								</div>
 								<div class="collection-dropdown-container">

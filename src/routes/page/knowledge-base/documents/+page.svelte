@@ -31,6 +31,7 @@
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
+	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
 	
 	
 	const page_size = 8;
@@ -692,6 +693,9 @@
 			  	</div>
 			</div>
 		{/if}
+
+        <KnowledgeDocumentUpload collection={selectedCollection} />
+
 		<div class="d-md-flex mt-5">
 			<div class="w-100">
 				<Card>
@@ -702,17 +706,18 @@
 									<h5 class="font-size-16 knowledge-header-text">
 										<div>{$_('Knowledges')}</div>
 									</h5>
-									<!-- svelte-ignore a11y-click-events-have-key-events -->
-									<!-- svelte-ignore a11y-no-static-element-interactions -->
 									<div
-										class="knowledge-btn-icon clickable text-primary"
-										style="justify-content: flex-start;"
+										class="line-align-center"
 										data-bs-toggle="tooltip"
 										data-bs-placement="top"
 										title="Add knowledge"
-										on:click={() => onKnowledgeCreate()}
 									>
-										<i class="bx bx-add-to-queue" />
+                                        <Button
+                                            class="btn btn-sm btn-soft-primary knowledge-btn-icon"
+                                            on:click={() => onKnowledgeCreate()}
+                                        >
+                                            <i class="mdi mdi-plus" />
+                                        </Button>
 									</div>
 								</div>
 								<div class="collection-dropdown-container">

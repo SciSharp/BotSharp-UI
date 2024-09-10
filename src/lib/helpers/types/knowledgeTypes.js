@@ -40,4 +40,16 @@
  * @property {string} [next_id] - The next id.
  */
 
+/**
+ * @typedef {Object} VectorKnowledgeUploadRequest
+ * @property {import('$fileTypes').FileModel[]} files - The files.
+ */
+
+/**
+ * @typedef {Object} UploadKnowledgeResponse
+ * @property {string[]} success - The success files.
+ * @property {string[]} failed - The failed files.
+ * @property {boolean} is_success
+ */
+
 export default {};
