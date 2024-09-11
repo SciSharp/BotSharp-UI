@@ -31,14 +31,14 @@
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
-	
+	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
 	
 	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
     const numberRegex = "[0-9\.]+";
 	const enableVector = true;
-	const collectionType = KnowledgeCollectionType.QuestionAnswer;
+	const collectionType = KnowledgeCollectionType.Document;
 	
 	/** @type {string} */
 	let text = "";
@@ -46,8 +46,8 @@
 	let errorText = "Error";
     let confidence = '0.5';
 
-	/** @type {string} */
-	let selectedCollection;
+    /** @type {string} */
+    let selectedCollection;
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -68,8 +68,8 @@
 	let editModalTitle = "Edit knowledge";
 
 	/** @type {boolean} */
-	let showDemo = true;
-	let isSearching = false;
+    let showDemo = true;
+    let isSearching = false;
 	let searchDone = false;
 	let isFromSearch = false;
 	let isLoading = false;
@@ -79,6 +79,10 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
+    let disableUpload = false;
+
+    /** @type {any} */
+    let docUploadrCmp;
 
 	/** @type {{
 	 * startId: string | null,
@@ -95,6 +99,8 @@
 		skipLoader: false,
 		useSearhPair: false
 	};
+
+    $: disableUpload = isLoading || isLoadingMore;
 
 	onMount(() => {
 		initData();
@@ -258,8 +264,7 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				search_pairs: params.useSearhPair ? [
-					{ key: "text", value: text },
-					{ key: "answer", value: text }
+					{ key: "text", value: text }
 				] : []
 			};
 
@@ -300,8 +305,8 @@
 	}) {
 		return new Promise((resolve, reject) => {
 			if (!params.skipLoader) {
-				toggleLoader(params.isLocalLoading);
-			}
+                toggleLoader(params.isLocalLoading);
+            }
 			
 			getKnowledgeListData({
 				...params
@@ -315,8 +320,8 @@
 				reject(err);
 			}).finally(() => {
 				if (!params.skipLoader) {
-					toggleLoader(params.isLocalLoading);
-				}
+                    toggleLoader(params.isLocalLoading);
+                }
 			});
 		});
 	}
@@ -405,7 +410,7 @@
 		isOpenEditKnowledge = false;
 
 		if (!!editItem) {
-			updateVectorKnowledgeData(e.id, editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
+			updateVectorKnowledgeData(e.id, editCollection, e.data?.text).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -428,7 +433,7 @@
 				isLoading = false;
 			});
 		} else {
-			createVectorKnowledgeData(editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
+			createVectorKnowledgeData(editCollection, e.data?.text).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -460,8 +465,7 @@
 		if (found) {
 			found.data = {
 				...found.data,
-				text: newItem.data?.text || '',
-				answer: newItem.data?.answer || ''
+				text: newItem.data?.text || ''
 			};
 			items = [ ...items ];
 		}
@@ -471,6 +475,7 @@
 	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
+        docUploadrCmp?.onCollectionChanged();
 		reset();
 	}
 
@@ -478,8 +483,7 @@
 		isOpenCreateCollection = !isOpenCreateCollection;
 	}
 
-	/** @param {import('$knowledgeTypes').CreateVectorCollectionRequest} data
-	*/
+	/** @param {import('$knowledgeTypes').CreateVectorCollectionRequest} data */
 	function confirmCollectionCreate(data) {
 		toggleCollectionCreate();
 		createVectorCollection({
@@ -545,10 +549,34 @@
             }
         });
 	}
+
+    /** @param {any} e */
+    function onDocUploaded(e) {
+        reset();
+    }
+
+    /** @param {any} e */
+    function onDocDelected(e) {
+        reset();
+        const success = e.detail.success;
+        if (success) {
+            successText = "Knowledg document has been deleted!";
+            isComplete = true;
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
+        } else {
+            errorText = "Failed to delete knowledge document."
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
+        }
+    }
 </script>
 
-<HeadTitle title="{$_('Q&A Knowledge')}" />
-<Breadcrumb pagetitle="{$_('Q&A Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title="{$_('Document Knowledge')}" />
+<Breadcrumb pagetitle="{$_('Document Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -564,7 +592,7 @@
 		title={editModalTitle}
 		size={'lg'}
 		collection={editCollection}
-		collectionType={collectionType}
+        collectionType={collectionType}
 		item={editItem}
 		open={isOpenEditKnowledge}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
@@ -699,6 +727,17 @@
 			  	</div>
 			</div>
 		{/if}
+        
+        {#if selectedCollection}
+            <KnowledgeDocumentUpload
+                collection={selectedCollection}
+                disabled={disableUpload}
+                bind:this={docUploadrCmp}
+                on:docuploaded={(e) => onDocUploaded(e)}
+                on:docdeleted={(e) => onDocDelected(e)}
+            />
+        {/if}
+
 		<div class="d-md-flex mt-5">
 			<div class="w-100">
 				<Card>
@@ -766,8 +805,7 @@
 								<Table class="table align-middle table-nowrap table-hover mb-0">
 									<thead>
 										<tr>
-											<th scope="col">{$_('Question')}</th>
-											<th scope="col">{$_('Answer')}</th>
+											<th scope="col">{$_('Text')}</th>
 											<th></th>
 										</tr>
 									</thead>
@@ -775,7 +813,7 @@
 										{#each items as item, idx (idx)}
                                             <VectorItem
 												collection={selectedCollection}
-												collectionType={collectionType}
+                                                collectionType={collectionType}
 												item={item}
 												open={isFromSearch && idx === 0}
 												on:delete={(e) => onKnowledgeDelete(e)}

@@ -1,14 +1,18 @@
-import { DEFAULT_KNOWLEDGE_COLLECTION } from '$lib/helpers/constants.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
 /**
+ * @param {string} type
  * @returns {Promise<string[]>}
  */
-export async function getVectorKnowledgeCollections() {
+export async function getVectorKnowledgeCollections(type) {
     const url = endpoints.vectorKnowledgeCollectionsUrl;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            type: type
+        }
+    });
     return response.data;
 }
 
@@ -19,7 +23,7 @@ export async function getVectorKnowledgeCollections() {
  */
 export async function searchVectorKnowledge(request, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const response = await axios.post(url, { ...request });
@@ -33,7 +37,7 @@ export async function searchVectorKnowledge(request, collection) {
  */
 export async function getPagedVectorKnowledgeData(filter, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const response = await axios.post(url, { ...filter });
@@ -41,20 +45,20 @@ export async function getPagedVectorKnowledgeData(filter, collection) {
 }
 
 /**
- * @param {string} text
- * @param {string} answer
  * @param {string} collection
+ * @param {string} text
+ * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(text, answer, collection) {
+export async function createVectorKnowledgeData(collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const request = {
         text: text,
         payload: {
-            answer: answer
+            ...payload
         }
     };
 
@@ -64,21 +68,21 @@ export async function createVectorKnowledgeData(text, answer, collection) {
 
 /**
  * @param {string} id
- * @param {string} text
- * @param {string} answer
  * @param {string} collection
+ * @param {string} text
+ * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, text, answer, collection) {
+export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+        collection: collection
     });
 
     const request = {
         id: id,
         text: text,
         payload: {
-            answer: answer
+            ...payload
         }
     };
 
@@ -94,8 +98,39 @@ export async function updateVectorKnowledgeData(id, text, answer, collection) {
  */
 export async function deleteVectorKnowledgeData(id, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION,
+        collection: collection,
         id: id
+    });
+
+    const response = await axios.delete(url);
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorKnowledgeUploadRequest} request
+ * @returns {Promise<import('$knowledgeTypes').UploadKnowledgeResponse>}
+ */
+export async function uploadKnowledgeDocuments(collection, request) {
+    const url = replaceUrl(endpoints.knowledgeDocumentUploadUrl, {
+        collection: collection
+    });
+
+    const response = await axios.post(url, {
+        ...request
+    });
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {string} fileId
+ * @returns {Promise<boolean>}
+ */
+export async function deleteKnowledgeDocument(collection, fileId) {
+    const url = replaceUrl(endpoints.knowledgeDocumentDeleteUrl, {
+        collection: collection,
+        fileId: fileId
     });
 
     const response = await axios.delete(url);
@@ -104,51 +139,26 @@ export async function deleteVectorKnowledgeData(id, collection) {
 
 
 /**
- * Upload document to knowledge base.
- * @param {File} file
- * @param {string | null} [collection]
- * @param {number | null} [startPageNum]
- * @param {number | null} [endPageNum]
+ * @param {string} collection
+ * @returns {Promise<import('$fileTypes').KnowledgeFileModel[]>}
  */
-export async function uploadVectorKnowledge(file, collection = null, startPageNum = null, endPageNum = null) {
-    const url = replaceUrl(endpoints.vectorKnowledgeUploadUrl, {
-        collection: collection || DEFAULT_KNOWLEDGE_COLLECTION
+export async function getKnowledgeDocuments(collection) {
+    const url = replaceUrl(endpoints.knowledgeDocumentListUrl, {
+        collection: collection
     });
 
-    const formData = new FormData();
-    formData.append("file", file);
-
-    if (startPageNum) {
-        formData.append("startPageNum", startPageNum.toString());
-    }
-
-    if (endPageNum) {
-        formData.append("endPageNum", endPageNum.toString());
-    }
-
-    const config = {
-        headers: {
-            "Content-Type": "multipart/form-data"
-        }
-    };
-
-    const response = await axios.post(url, formData, config);
+    const response = await axios.get(url);
     return response.data;
 }
 
 
 /**
- * @param {string} collection
- * @param {number} dimension
+ * @param {import('$knowledgeTypes').CreateVectorCollectionRequest} request
  * @returns {Promise<boolean>}
  */
-export async function createVectorCollection(collection, dimension) {
-    const url = replaceUrl(endpoints.vectorCollectionCreateUrl, {
-        collection: collection,
-        dimension: dimension
-    });
-
-    const response = await axios.post(url);
+export async function createVectorCollection(request) {
+    const url = endpoints.vectorCollectionCreateUrl;
+    const response = await axios.post(url, { ...request });
     return response.data;
 }
 

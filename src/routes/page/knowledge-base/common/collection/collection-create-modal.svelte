@@ -24,7 +24,7 @@
     export let title;
 
     /** @type {string} */
-    export let size = 'sm';
+    export let size = 'md';
 
     /** @type {number} */
     export let minDimension = 1;
@@ -33,7 +33,7 @@
     export let step = 1;
 
     /** @type {number} */
-    export let maxLength = 20;
+    export let maxLength = 30;
 
     /** @type {() => void} */
     export let toggleModal;
@@ -50,13 +50,26 @@
     /** @type {number} */
     let dimension;
 
+    /** @type {string} */
+    let provider;
+
+    /** @type {string} */
+    let model;
+
+    $: disableConfirmBtn = (!_.trim(collection) || collection.length > maxLength) ||
+                            (!_.trim(provider) || provider.length > maxLength) ||
+                            (!_.trim(model) || model.length > maxLength) ||
+                            dimension <= 0;
+
     onMount(() => {
         reset();
     });
 
     function reset() {
         collection = '';
-        dimension = 1536;
+        dimension = 3072;
+        provider = 'openai';
+        model = 'text-embedding-3-large';
     }
 
     function toggle() {
@@ -68,8 +81,10 @@
     function handleConfirm(e) {
         e.preventDefault();
         confirm?.({
-            collection: _.trim(collection),
-            dimension: dimension
+            collection_name: _.trim(collection),
+            dimension: dimension,
+            provider: _.trim(provider),
+            model: _.trim(model)
         });
     }
 
@@ -93,12 +108,40 @@
                     <label class="fw-bold" for="collection">{`Collection name: `}</label>
                     <Input
                         type="text"
+                        class="text-center"
                         maxlength={maxLength}
                         bind:value={collection}
-                        on:input={() => {}}
                     />
                     <div class="text-secondary text-end text-count">
                         {collection?.length || 0}/{maxLength}
+                    </div>
+                </FormGroup>
+            </Row>
+            <Row>
+                <FormGroup>
+                    <label class="fw-bold" for="provider">{`Embedding provider: `}</label>
+                    <Input
+                        type="text"
+                        class="text-center"
+                        maxlength={maxLength}
+                        bind:value={provider}
+                    />
+                    <div class="text-secondary text-end text-count">
+                        {provider?.length || 0}/{maxLength}
+                    </div>
+                </FormGroup>
+            </Row>
+            <Row>
+                <FormGroup>
+                    <label class="fw-bold" for="model">{`Embedding model: `}</label>
+                    <Input
+                        type="text"
+                        class="text-center"
+                        maxlength={maxLength}
+                        bind:value={model}
+                    />
+                    <div class="text-secondary text-end text-count">
+                        {model?.length || 0}/{maxLength}
                     </div>
                 </FormGroup>
             </Row>
@@ -122,7 +165,7 @@
     <ModalFooter>
         <Button
             color="primary"
-            disabled={!_.trim(collection) || dimension <= 0}
+            disabled={disableConfirmBtn}
             on:click={(e) => handleConfirm(e)}
         >
             Confirm

@@ -16,10 +16,9 @@
 }
 
 .knowledge-btn-icon {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: 15px;
+    i:before {
+        font-weight: bold;
+    }
 }
 
 .demo-tooltip-icon {
@@ -40,7 +39,6 @@
             margin: 3px 0px;
         }
     }
-    
 }
 
 .knowledge-textarea {
@@ -140,14 +138,12 @@
     overflow: hidden;
 
     .knowledge-text {
+        width: 70%;
+    }
+
+    .knowledge-text-qa {
         width: 40%;
         max-width: 50px;
-
-        .ellipsis {
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
     }
 
     .knowledge-op {
@@ -208,5 +204,141 @@
         .textarea-label {
             font-size: 15px;
         }
+    }
+}
+
+.knowledge-doc-upload-container {
+    margin-top: 50px;
+
+    .doc-upload-header {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        font-size: 18px;
+
+        .upload-toggle-btn input {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    }
+
+    .doc-upload-body {
+
+        .doc-drop-zone {
+            width: 100%;
+            height: 100%;
+
+            i {
+                font-size: 3.5em;
+            }
+        }
+
+        .doc-upload-btn {
+            
+
+            .doc-upload-bg {
+                width: 100%;
+                height: 100%;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                border-radius: 10px;
+                background-color: white;
+                font-size: 3.5em;
+
+                i:hover {
+                    color: var(--bs-primary);
+                }
+            }
+        }
+    }
+
+    .doc-upload-footer {
+        margin-top: 30px;
+
+        .load-doc-btn {
+            font-size: 12px;
+        }
+
+        .collection-docs {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--bs-primary);
+            border-radius: 5px;
+            background-color: white;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            width: 100%;
+            height: 130px;
+        }
+    }
+}
+
+
+.doc-upload-result-container {
+    .doc-upload-result-item {
+        display: flex;
+        gap: 5px;
+    }
+}
+
+
+.doc-uploader-container {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: var(--bs-light);
+}
+
+.doc-grid-item {
+    width: 8em;
+    height: 8em;
+}
+
+.doc-gallery-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.doc-gallery-item {
+    .thumbnail-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .doc-gallery-item-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+
+        .doc-gallery-item-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .doc-gallery-item-icon {
+            position: absolute;
+            color: red;
+            cursor: pointer;
+            z-index: 500;
+            right: 3px;
+            font-size: 1.5em;
+        }
+
+        .doc-gallery-item-image {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+        }
+    }
+
+    .doc-gallery-item-name {
+        text-align: center;
+        word-break: break-all;
     }
 }

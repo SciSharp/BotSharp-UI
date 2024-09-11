@@ -63,7 +63,8 @@ const config = {
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",
 				"/page/knowledge-base/question-answer",
-				"/page/knowledge-base/relationships"
+				"/page/knowledge-base/relationships",
+				"/page/knowledge-base/documents"
 			]
 		}
 	},

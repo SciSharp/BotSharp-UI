@@ -1,192 +1,197 @@
 // custom css
 .tab-content .nav-tabs {
-    display: none;
+  display: none;
+}
+  
+// dropzone 
+.dropzone .dz-message {
+  text-align: center;
+}
+  
+[data-bs-theme="dark"] {
+  .right-bar .right-bar-toggle {
+    color: #575d64;
+    background-color: #fff;
   }
-  
-  // dropzone 
-  .dropzone .dz-message {
-    text-align: center;
-  }
-  
-  [data-bs-theme="dark"] {
-    .right-bar .right-bar-toggle {
-      color: #575d64;
-      background-color: #fff;
-    }
-  
-    .svelte-select {
-      max-height: 20px !important;
-      min-height: 37px !important;
-      background-color: var(--bs-secondary-bg) !important;
-      border-color: var(--bs-border-color-translucent) !important;
-      padding-right: 5px !important;
-  
-      .value-container {
-        padding: 0 !important;
-  
-        .selected-item {
-          color: #dedddd !important;
-          font-size: .8125rem !important;
-          z-index: 1;
-        }
-  
-        input {
-          background-color: var(--bs-secondary-bg) !important;
-          font-size: .8125rem !important;
-        }
-  
-      }
-  
-      .indicators {
-        font-size: .8125rem !important;
-  
-        .clear-select {
-          height: 18px !important;
-          width: 18px !important;
-          // font-size: .8125rem !important;
-        }
-      }
-    }
-  
-    .svelte-select-list {
-      background-color: #282b2e !important;
-    }
-  
-    // Modal
-    .modal {
-      .modal-content{
-        background-color: var(--bs-modal-bg);
-        border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
-      }
-    }
-  }
-  
-  // select elements
+
   .svelte-select {
     max-height: 20px !important;
     min-height: 37px !important;
-    // background-color: #f3f6f9 !important;
-    border-color: #f3f6f9 !important;
+    background-color: var(--bs-secondary-bg) !important;
+    border-color: var(--bs-border-color-translucent) !important;
     padding-right: 5px !important;
-  
+
     .value-container {
       padding: 0 !important;
-  
+
       .selected-item {
-        color: #000 !important;
+        color: #dedddd !important;
         font-size: .8125rem !important;
         z-index: 1;
       }
-  
+
       input {
-        // background-color: #f3f6f9 !important;
+        background-color: var(--bs-secondary-bg) !important;
         font-size: .8125rem !important;
       }
-  
+
     }
-  
+
     .indicators {
       font-size: .8125rem !important;
-  
+
       .clear-select {
         height: 18px !important;
         width: 18px !important;
-  
+        // font-size: .8125rem !important;
       }
     }
   }
+
+  .svelte-select-list {
+    background-color: #282b2e !important;
+  }
+
+  // Modal
+  .modal {
+    .modal-content{
+      background-color: var(--bs-modal-bg);
+      border: var(--bs-modal-border-width) solid var(--bs-modal-border-color);
+    }
+  }
+}
   
-  .jvm-zoom-btn {
-    position: absolute;
-    left: 10px;
-    background: #424242;
-    padding: 2px;
+// select elements
+.svelte-select {
+  max-height: 20px !important;
+  min-height: 37px !important;
+  // background-color: #f3f6f9 !important;
+  border-color: #f3f6f9 !important;
+  padding-right: 5px !important;
+
+  .value-container {
+    padding: 0 !important;
+
+    .selected-item {
+      color: #000 !important;
+      font-size: .8125rem !important;
+      z-index: 1;
+    }
+
+    input {
+      // background-color: #f3f6f9 !important;
+      font-size: .8125rem !important;
+    }
+  }
+  
+  .indicators {
+    font-size: .8125rem !important;
+
+    .clear-select {
+      height: 18px !important;
+      width: 18px !important;
+
+    }
+  }
+}
+  
+.jvm-zoom-btn {
+  position: absolute;
+  left: 10px;
+  background: #424242;
+  padding: 2px;
+  color: white;
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  line-height: 10px;
+  text-align: center;
+  left: 28px;
+  border-radius: 3px;
+
+  &.jvm-zoom-btn {
+
+    top: 90px;
+  }
+
+  &.jvm-zoomout {
+    top: 110px;
+  }
+}
+  
+// data tables
+
+.sort {
+  &.asc::after {
+    content: "▲"/"";
+    float: right;
+  }
+
+  &.desc::after{
+    content: "▼"/"";
+    float: right;
+  }
+}
+  
+.json-container .json-string {
+  overflow-x: hidden;
+}
+  
+// swal2
+.swal2-container .swal2-confirm {
+  background-color: var(--bs-primary);
+}
+  
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+  
+.clickable {
+  cursor: pointer;
+}
+  
+.line-align-center {
+  display: flex;
+  flex-direction: column;
+  justify-content:center;
+}
+
+.ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+  
+.disable-outline {
+  outline: none !important;
+  box-shadow: none !important;
+}
+  
+.danger-background {
+  background-color: $danger !important;
+}
+  
+.markdown-container {
+  pre {
+    -ms-overflow-style: none !important;
+    white-space: pre-wrap;
+  }
+
+  pre::-webkit-scrollbar {
+    display: none !important;
+  }
+  
+  p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+  }
+
+  a {
     color: white;
-    width: 15px;
-    height: 15px;
-    cursor: pointer;
-    line-height: 10px;
-    text-align: center;
-    left: 28px;
-    border-radius: 3px;
-  
-    &.jvm-zoom-btn {
-  
-      top: 90px;
-    }
-  
-    &.jvm-zoomout {
-      top: 110px;
-    }
   }
-  
-  // data tables
-  
-  .sort {
-    &.asc::after {
-      content: "▲"/"";
-      float: right;
-    }
-  
-    &.desc::after{
-      content: "▼"/"";
-      float: right;
-    }
+
+  ul {
+    list-style-position: inside !important;
   }
-  
-  .json-container .json-string {
-      overflow-x: hidden;
-  }
-  
-  // swal2
-  .swal2-container .swal2-confirm {
-      background-color: var(--bs-primary);
-  }
-  
-  button:focus {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-  
-  .clickable {
-    cursor: pointer;
-  }
-  
-  .line-align-center {
-    display: flex;
-    flex-direction: column;
-    justify-content:center;
-  }
-  
-  .disable-outline {
-    outline: none !important;
-    box-shadow: none !important;
-  }
-  
-  .danger-background {
-    background-color: $danger !important;
-  }
-  
-  .markdown-container {
-    pre {
-      -ms-overflow-style: none !important;
-      white-space: pre-wrap;
-    }
-  
-    pre::-webkit-scrollbar {
-      display: none !important;
-    }
-    
-    p {
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
-    }
-  
-    a {
-      color: white;
-    }
-  
-    ul {
-      list-style-position: inside !important;
-    }
-  }
+}

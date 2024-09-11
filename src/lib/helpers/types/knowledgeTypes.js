@@ -1,5 +1,14 @@
 // Knowledgebase
 /**
+ * @typedef {Object} CreateVectorCollectionRequest
+ * @property {string} collection_name - The collection name.
+ * @property {string} collection_type - The collection type.
+ * @property {string} provider - The text embedding provider.
+ * @property {string} model - The text embedding model.
+ * @property {number} dimension - The text embedding dimension.
+ */
+
+/**
  * @typedef {Object} SearchKnowledgeRequest
  * @property {string} text - The text.
  * @property {string[]} [fields] - Data fields.
@@ -29,6 +38,18 @@
  * @property {number} count - The total data count.
  * @property {KnowledgeSearchViewModel[]} items - The data items.
  * @property {string} [next_id] - The next id.
+ */
+
+/**
+ * @typedef {Object} VectorKnowledgeUploadRequest
+ * @property {import('$fileTypes').FileModel[]} files - The files.
+ */
+
+/**
+ * @typedef {Object} UploadKnowledgeResponse
+ * @property {string[]} success - The success files.
+ * @property {string[]} failed - The failed files.
+ * @property {boolean} is_success
  */
 
 export default {};

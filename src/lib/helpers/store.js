@@ -163,6 +163,24 @@ const createConversationUserAttachmentStore = () => {
 export const conversationUserAttachmentStore = createConversationUserAttachmentStore();
 
 
+const createKnowledgeBaseDocumentStore = () => {
+    const { subscribe, set } = writable({ accepted_files: [] });
+
+    return {
+        reset: () => {
+            const data = { accepted_files: [] };
+            set({ ...data });
+        },
+        put: (value) => {
+            set(value);
+        },
+        subscribe
+    }
+};
+
+export const knowledgeBaseDocumentStore = createKnowledgeBaseDocumentStore();
+
+
 export function resetLocalStorage(resetUser = false) {
     conversationUserStateStore.resetAll();
     conversationSearchOptionStore.reset();

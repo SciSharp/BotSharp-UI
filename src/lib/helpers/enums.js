@@ -66,3 +66,9 @@ const agentType = {
     Evaluating: 'evaluating'
 };
 export const AgentType = Object.freeze(agentType);
+
+const knowledgeCollectionType = {
+    QuestionAnswer: 'question-answer',
+    Document: 'document'
+};
+export const KnowledgeCollectionType = Object.freeze(knowledgeCollectionType);
