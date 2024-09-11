@@ -116,7 +116,7 @@
             bind:checked={showUploader}
         />
         <div class="line-align-center">
-            <div>{'View Documents'}</div>
+            <div>{`${showUploader ? 'Upload' : 'View'} Documents`}</div>
         </div>
         {#if showUploader}
             <div class="line-align-center" id="upload-tooltip">
@@ -181,7 +181,7 @@
                         {#if !showDocList}
                             <div class="btn-content">
                                 <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt" /></div>
-                                <div>{'Load Collection Documents'}</div>
+                                <div>{'View Collection Documents'}</div>
                             </div>
                         {:else}
                             <div class="btn-content">
