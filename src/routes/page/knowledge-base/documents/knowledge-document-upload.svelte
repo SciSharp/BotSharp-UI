@@ -1,11 +1,18 @@
 <script>
+	import KnowledgeUploadResult from './knowledge-upload-result.svelte';
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { fly } from 'svelte/transition';
 	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
     import Swal from 'sweetalert2';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
+    import LoadingDots from '$lib/common/LoadingDots.svelte';
     import KnowledgeDocumentGallery from './knowledge-document-gallery.svelte';
 	import { knowledgeBaseDocumentStore } from '$lib/helpers/store';
+	import {
+        getKnowledgeDocuments,
+        uploadKnowledgeDocuments,
+        deleteKnowledgeDocument
+    } from '$lib/services/knowledge-base-service';
 
     const svelteDispatch = createEventDispatcher();
 
@@ -23,10 +30,18 @@
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {() => void} */
+    export const onCollectionChanged = () => {
+        showDocList = false;
+        savedFiles = [];
+        reset();
+    };
+
     /** @type {boolean} */
-    let showUploader = true;
+    let showUploader = false;
     let showDocList = false;
     let disableFileDrop = false;
+    let isLoading = false;
 
     /** @type {number} */
     let localFileUploadLimit = 0;
@@ -35,17 +50,14 @@
     let uploadFiles = [];
     /** @type {any[]} */
     let savedFiles = [];
+    /** @type {string[]} */
+    let successFiles = [];
+    /** @type {string[]} */
+    let failedFiles = [];
 
     $: {
-        disableFileDrop = disabled || uploadFiles.length >= fileLimit;
+        disableFileDrop = uploadFiles.length >= fileLimit;
         localFileUploadLimit = Math.max(fileLimit - uploadFiles.length, 0);
-    }
-    
-    $: {
-        if (!showUploader) {
-            showDocList = false;
-            savedFiles = [];
-        }
     }
 
     const unsubscribe = knowledgeBaseDocumentStore.subscribe(value => {
@@ -53,14 +65,31 @@
         uploadFiles = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
     });
 
-    onMount(() => {});
+    onMount(() => {
+        init();
+    });
 
     onDestroy(() => {
         unsubscribe();
     });
 
+    function init() {
+        showUploader = true;
+    }
+
     /** @param {any} e */
-    async function handleFileDrop(e) {
+    function toggleUploader(e) {
+        showUploader = e.target.checked;
+        if (!showUploader) {
+            showDocList = false;
+            savedFiles = [];
+            reset();
+        }
+    }
+
+    /** @param {any} e */
+    function handleFileDrop(e) {
+        reset();
         const { acceptedFiles } = e.detail;
         const savedAttachments = $knowledgeBaseDocumentStore;
         const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
@@ -87,7 +116,27 @@
             confirmButtonText: 'Yes',
         }).then(async (result) => {
             if (result.value) {
-				
+                const files = uploadFiles.map(x => {
+                    return {
+                        file_name: x.file_name,
+                        file_data: x.file_data
+                    };
+                });
+
+                disabled = true;
+				uploadKnowledgeDocuments(collection, { files: files }).then(res => {
+                    successFiles = res.success || [];
+                    failedFiles = res.failed || [];
+                    showDocList = false;
+                    uploadFiles = [];
+                    knowledgeBaseDocumentStore.reset();
+                    svelteDispatch("docuploaded");
+                }).catch(() => {
+                    successFiles = [];
+                    failedFiles = files.map(x => x.file_name);
+                }).finally(() => {
+                    disabled = false;
+                });
             }
         });
     }
@@ -97,13 +146,59 @@
         showDocList = !showDocList;
         if (!showDocList) {
             savedFiles = [];
-        } else {
-            
+            return;
         }
+
+        getKnowledgeDocumentList();
+    }
+
+    function getKnowledgeDocumentList() {
+        isLoading = true;
+        disabled = true;
+        getKnowledgeDocuments(collection).then(res => {
+            savedFiles = res || [];
+        }).finally(() => {
+            isLoading = false;
+            disabled = false;
+        });
+    }
+
+    /** @param {number} index */
+    function handleDeleteSavedFile(index) {
+        const found = savedFiles.find((_, idx) => idx === index);
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Are you sure you want to delete "${found.file_name}" and its knowledge"?`,
+            icon: 'warning',
+            customClass: { confirmButton: 'danger-background' },
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes',
+        }).then(async (result) => {
+            if (result.value) {
+                disabled = true;
+                deleteKnowledgeDocument(collection, found.file_id).then(res => {
+                    if (res) {
+                        savedFiles = savedFiles.filter((_, idx) => idx !== index);   
+                    }
+                    svelteDispatch("docdeleted", { success: res });
+                }).catch(err => {
+                    svelteDispatch("docdeleted", { success: false });
+                }).finally(() => {
+                    disabled = false;
+                    reset();
+                });
+            }
+        });
+    }
+
+    function reset() {
+        successFiles = [];
+        failedFiles = [];
     }
 </script>
 
-{#if collection}
 <div
     class="knowledge-doc-upload-container"
     in:fly={{ y: -10, duration: 500 }}
@@ -113,7 +208,9 @@
         <Input
             type="switch"
             class="upload-toggle-btn"
-            bind:checked={showUploader}
+            disabled={disabled}
+            checked={showUploader}
+            on:change={e => toggleUploader(e)}
         />
         <div class="line-align-center">
             <div>{`${showUploader ? 'Upload' : 'View'} Documents`}</div>
@@ -133,6 +230,7 @@
     </div>
     {#if showUploader}
         <div
+            class="doc-uploader-container mt-3"
             in:fly={{ y: -10, duration: 500 }}
             out:fly={{ y: -10, duration: 200 }}
         >
@@ -141,7 +239,7 @@
                     <FileDropZone
                         accept={accept}
                         containerClasses={'doc-drop-zone'}
-                        disabled={disableFileDrop}
+                        disabled={disabled || disableFileDrop}
                         fileLimit={localFileUploadLimit}
                         maxSize={fileMaxSize}
                         on:drop={e => handleFileDrop(e)}
@@ -172,10 +270,17 @@
                     </div>
                 {/if}
             </div>
+
+            <KnowledgeUploadResult
+                successFiles={successFiles}
+                failedFiles={failedFiles}
+            />
+
             <div class="doc-upload-footer">
                 <div class="load-doc-btn">
                     <Button
                         class={`btn btn-md knowledge-demo-btn ${showDocList ? 'btn-soft-warning' : 'btn-soft-primary'}`}
+                        disabled={disabled}
                         on:click={() => toggleShowDocList()}
                     >
                         {#if !showDocList}
@@ -191,30 +296,36 @@
                         {/if}
                     </Button>
                 </div>
-                {#if savedFiles.length > 0}
-                    <div
-                        class="collection-docs doc-gallery-container"
-                        in:fly={{ y: -10, duration: 500 }}
-                        out:fly={{ y: -10, duration: 200 }}
-                    >
-                        <KnowledgeDocumentGallery
-                            files={savedFiles}
-                            showFileName
-                            needDelete
-                            disabled={disabled}
-                        />
-                    </div>
-                {:else if showDocList && savedFiles.length === 0}
-                    <div
-                        class="mt-4"
-                        in:fly={{ y: -10, duration: 500 }}
-                        out:fly={{ y: -10, duration: 200 }}
-                    >
-                        <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
-                    </div>
+                {#if showDocList}
+                    {#if savedFiles.length > 0}
+                        <div
+                            class="collection-docs doc-gallery-container"
+                            in:fly={{ y: -10, duration: 500 }}
+                            out:fly={{ y: -10, duration: 200 }}
+                        >
+                            <KnowledgeDocumentGallery
+                                files={savedFiles}
+                                showFileName
+                                needDelete
+                                disabled={disabled}
+                                onDelete={idx => handleDeleteSavedFile(idx)}
+                            />
+                        </div>
+                    {:else if isLoading}
+                        <div class="knowledge-loader mt-4">
+                            <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+                        </div>
+                    {:else if savedFiles.length === 0}
+                        <div
+                            class="mt-4"
+                            in:fly={{ y: -10, duration: 500 }}
+                            out:fly={{ y: -10, duration: 200 }}
+                        >
+                            <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
+                        </div>
+                    {/if}
                 {/if}
             </div>
         </div>
     {/if}
 </div>
-{/if}

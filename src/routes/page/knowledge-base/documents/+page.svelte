@@ -33,7 +33,6 @@
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
 	
-	
 	const page_size = 8;
   	const duration = 2000;
 	const maxLength = 4096;
@@ -41,11 +40,8 @@
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.Document;
 	
-	let showDemo = true;
+	/** @type {string} */
 	let text = "";
-	let isSearching = false;
-	let searchDone = false;
-	let isFromSearch = false;
 	let successText = "Done";
 	let errorText = "Error";
     let confidence = '0.5';
@@ -72,6 +68,10 @@
 	let editModalTitle = "Edit knowledge";
 
 	/** @type {boolean} */
+    let showDemo = true;
+    let isSearching = false;
+	let searchDone = false;
+	let isFromSearch = false;
 	let isLoading = false;
 	let isLoadingMore = false;
 	let isComplete = false;
@@ -79,6 +79,10 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
+    let disableUpload = false;
+
+    /** @type {any} */
+    let docUploadrCmp;
 
 	/** @type {{
 	 * startId: string | null,
@@ -95,6 +99,8 @@
 		skipLoader: false,
 		useSearhPair: false
 	};
+
+    $: disableUpload = isLoading || isLoadingMore;
 
 	onMount(() => {
 		initData();
@@ -298,7 +304,9 @@
 		useSearhPair: false
 	}) {
 		return new Promise((resolve, reject) => {
-			if (!params.skipLoader) toggleLoader(params.isLocalLoading);
+			if (!params.skipLoader) {
+                toggleLoader(params.isLocalLoading);
+            }
 			
 			getKnowledgeListData({
 				...params
@@ -311,7 +319,9 @@
 				}, 2000);
 				reject(err);
 			}).finally(() => {
-				if (!params.skipLoader) toggleLoader(params.isLocalLoading);
+				if (!params.skipLoader) {
+                    toggleLoader(params.isLocalLoading);
+                }
 			});
 		});
 	}
@@ -465,6 +475,7 @@
 	function changeCollection(e) {
 		const value = e.target.value;
 		selectedCollection = value;
+        docUploadrCmp?.onCollectionChanged();
 		reset();
 	}
 
@@ -472,8 +483,7 @@
 		isOpenCreateCollection = !isOpenCreateCollection;
 	}
 
-	/** @param {import('$knowledgeTypes').CreateVectorCollectionRequest} data
-	*/
+	/** @param {import('$knowledgeTypes').CreateVectorCollectionRequest} data */
 	function confirmCollectionCreate(data) {
 		toggleCollectionCreate();
 		createVectorCollection({
@@ -539,6 +549,30 @@
             }
         });
 	}
+
+    /** @param {any} e */
+    function onDocUploaded(e) {
+        reset();
+    }
+
+    /** @param {any} e */
+    function onDocDelected(e) {
+        reset();
+        const success = e.detail.success;
+        if (success) {
+            successText = "Knowledg document has been deleted!";
+            isComplete = true;
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
+        } else {
+            errorText = "Failed to delete knowledge document."
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
+        }
+    }
 </script>
 
 <HeadTitle title="{$_('Document Knowledge')}" />
@@ -694,7 +728,15 @@
 			</div>
 		{/if}
         
-        <KnowledgeDocumentUpload collection={selectedCollection} />
+        {#if selectedCollection}
+            <KnowledgeDocumentUpload
+                collection={selectedCollection}
+                disabled={disableUpload}
+                bind:this={docUploadrCmp}
+                on:docuploaded={(e) => onDocUploaded(e)}
+                on:docdeleted={(e) => onDocDelected(e)}
+            />
+        {/if}
 
 		<div class="d-md-flex mt-5">
 			<div class="w-100">

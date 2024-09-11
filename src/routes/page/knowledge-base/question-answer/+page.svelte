@@ -40,11 +40,8 @@
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.QuestionAnswer;
 	
-	let showDemo = true;
+	/** @type {string} */
 	let text = "";
-	let isSearching = false;
-	let searchDone = false;
-	let isFromSearch = false;
 	let successText = "Done";
 	let errorText = "Error";
     let confidence = '0.5';
@@ -71,6 +68,10 @@
 	let editModalTitle = "Edit knowledge";
 
 	/** @type {boolean} */
+	let showDemo = true;
+	let isSearching = false;
+	let searchDone = false;
+	let isFromSearch = false;
 	let isLoading = false;
 	let isLoadingMore = false;
 	let isComplete = false;
@@ -298,7 +299,9 @@
 		useSearhPair: false
 	}) {
 		return new Promise((resolve, reject) => {
-			if (!params.skipLoader) toggleLoader(params.isLocalLoading);
+			if (!params.skipLoader) {
+				toggleLoader(params.isLocalLoading);
+			}
 			
 			getKnowledgeListData({
 				...params
@@ -311,7 +314,9 @@
 				}, 2000);
 				reject(err);
 			}).finally(() => {
-				if (!params.skipLoader) toggleLoader(params.isLocalLoading);
+				if (!params.skipLoader) {
+					toggleLoader(params.isLocalLoading);
+				}
 			});
 		});
 	}

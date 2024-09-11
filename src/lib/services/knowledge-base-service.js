@@ -128,7 +128,7 @@ export async function uploadKnowledgeDocuments(collection, request) {
  * @returns {Promise<boolean>}
  */
 export async function deleteKnowledgeDocument(collection, fileId) {
-    const url = replaceUrl(endpoints.knowledgeDocumentUploadUrl, {
+    const url = replaceUrl(endpoints.knowledgeDocumentDeleteUrl, {
         collection: collection,
         fileId: fileId
     });

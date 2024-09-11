@@ -223,7 +223,6 @@
     }
 
     .doc-upload-body {
-        margin-top: 20px;
 
         .doc-drop-zone {
             width: 100%;
@@ -273,6 +272,21 @@
             height: 130px;
         }
     }
+}
+
+
+.doc-upload-result-container {
+    .doc-upload-result-item {
+        display: flex;
+        gap: 5px;
+    }
+}
+
+
+.doc-uploader-container {
+    border-radius: 10px;
+    padding: 10px;
+    background-color: var(--bs-light);
 }
 
 .doc-grid-item {
