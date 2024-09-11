@@ -137,12 +137,6 @@
 .knowledge-table {
     overflow: hidden;
 
-    .ellipsis {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .knowledge-text {
         width: 70%;
     }
@@ -213,7 +207,6 @@
     }
 }
 
-
 .knowledge-doc-upload-container {
     margin-top: 50px;
 
@@ -222,13 +215,15 @@
         justify-content: flex-start;
         gap: 10px;
         font-size: 18px;
+
+        .upload-toggle-btn input {
+            outline: none !important;
+            box-shadow: none !important;
+        }
     }
 
     .doc-upload-body {
         margin-top: 20px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 10px;
 
         .doc-drop-zone {
             width: 100%;
@@ -258,6 +253,26 @@
             }
         }
     }
+
+    .doc-upload-footer {
+        margin-top: 30px;
+
+        .load-doc-btn {
+            font-size: 12px;
+        }
+
+        .collection-docs {
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px dashed var(--bs-primary);
+            border-radius: 5px;
+            background-color: white;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            width: 100%;
+            height: 130px;
+        }
+    }
 }
 
 .doc-grid-item {
@@ -265,11 +280,32 @@
     height: 8em;
 }
 
+.doc-gallery-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
 .doc-gallery-item {
-    .doc-gallery-item-wrapper {
-        position: relative;
+    .thumbnail-wrapper {
         width: 100%;
         height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .doc-gallery-item-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+
+        .doc-gallery-item-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
 
         .doc-gallery-item-icon {
             position: absolute;
@@ -285,5 +321,10 @@
             height: 100%;
             border-radius: 10px;
         }
+    }
+
+    .doc-gallery-item-name {
+        text-align: center;
+        word-break: break-all;
     }
 }

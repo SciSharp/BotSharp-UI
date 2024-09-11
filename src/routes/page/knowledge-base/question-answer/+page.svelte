@@ -589,14 +589,14 @@
 				</div>
 			{:else}
 				<div class="btn-content">
-					<span class="knowledge-btn-icon"><i class="bx bx-hide" /></span>
-					<span>{'Hide Search'}</span>
+					<div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+					<div>{'Hide Search'}</div>
 				</div>
 			{/if}
 		</Button>
 
 		{#if showDemo}
-			<div class="knowledge-btn-icon demo-tooltip-icon" id="demo-tooltip">
+			<div class="knowledge-btn-icon demo-tooltip-icon line-align-center" id="demo-tooltip">
 				<i class="bx bx-info-circle" />
 			</div>
 			<Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">

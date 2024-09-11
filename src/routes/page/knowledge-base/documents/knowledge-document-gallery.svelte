@@ -11,6 +11,9 @@
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {boolean} */
+    export let showFileName = false;
+
     /** @type {(args0: number) => void} */
     export let onDelete = () => {};
 
@@ -31,31 +34,38 @@
     <svelte:fragment slot="thumbnail">
         {#each files as file, idx (idx)}
             <div class={`doc-gallery-item doc-grid-item`}>
-                <GalleryThumbnail style="width: 100%; height: 100%; display: flex;" id={idx}>
-                    <div class="doc-gallery-item-wrapper">
-                        {#if needDelete}
-                            <div
-                                class="doc-gallery-item-icon"
-                                tabindex="0"
-                                role="button"
-                                on:keydown={() => {}}
-                                on:click={e => handleDeleteFile(e, idx)}
-                            >
-                                <i class="bx bx-trash" />
-                            </div>
-                        {/if}
-                        {#if isPdf(file.file_extension || file.file_name)}
-                            <img class="doc-gallery-item-image" src={PDF_ICON} alt={''}>
-                        {:else if isExcel(file.file_extension || file.file_name)}
-                            <img class="doc-gallery-item-image" src={EXCEL_ICON} alt={''}>
-                        {:else if isTxt(file.file_extension || file.file_name)}
-                            <img class="doc-gallery-item-image" src={TXT_ICON} alt={''}>
-                        {:else if isWord(file.file_extension || file.file_name)}
-                            <img class="doc-gallery-item-image" src={WORD_ICON} alt={''}>
-                        {:else}
-                            <img class="doc-gallery-item-image" src={file.file_data} alt={''}>
-                        {/if}
+                <GalleryThumbnail class="thumbnail-wrapper" id={idx}>
+                    <div class="doc-gallery-item-wrapper" style={`${showFileName ? 'height: 80%;' : ''}`}>
+                        <div class="doc-gallery-item-inner" style={`${showFileName ? 'width: 80%;' : ''}`}>
+                            {#if needDelete}
+                                <div
+                                    class="doc-gallery-item-icon"
+                                    tabindex="0"
+                                    role="button"
+                                    on:keydown={() => {}}
+                                    on:click={e => handleDeleteFile(e, idx)}
+                                >
+                                    <i class="bx bx-trash" />
+                                </div>
+                            {/if}
+                            {#if isPdf(file.file_extension || file.file_name)}
+                                <img class="doc-gallery-item-image" src={PDF_ICON} alt={''}>
+                            {:else if isExcel(file.file_extension || file.file_name)}
+                                <img class="doc-gallery-item-image" src={EXCEL_ICON} alt={''}>
+                            {:else if isTxt(file.file_extension || file.file_name)}
+                                <img class="doc-gallery-item-image" src={TXT_ICON} alt={''}>
+                            {:else if isWord(file.file_extension || file.file_name)}
+                                <img class="doc-gallery-item-image" src={WORD_ICON} alt={''}>
+                            {:else}
+                                <img class="doc-gallery-item-image" src={file.file_data} alt={''}>
+                            {/if}
+                        </div>
                     </div>
+                    {#if showFileName}
+                        <div class="doc-gallery-item-name ellipsis">
+                            {file.file_name}
+                        </div>
+                    {/if}
                 </GalleryThumbnail>
             </div>
         {/each}
