@@ -141,7 +141,7 @@
                     <div class="wrappable fw-bold text-primary">
                         {'Score:'}
                     </div>
-                    <div class="wrappable">{item?.score?.toFixed(6)}</div>
+                    <div class="wrappable">{`${(item.score * 100).toFixed(4)}%`}</div>
                 </li>
             {/if}
             </ul>
