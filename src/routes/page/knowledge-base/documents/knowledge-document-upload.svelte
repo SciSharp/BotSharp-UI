@@ -6,13 +6,16 @@
     import Swal from 'sweetalert2';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
     import LoadingDots from '$lib/common/LoadingDots.svelte';
+    import { isExternalUrl } from '$lib/helpers/utils/common';
     import KnowledgeDocumentGallery from './knowledge-document-gallery.svelte';
-	import { knowledgeBaseDocumentStore } from '$lib/helpers/store';
+	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
 	import {
         getKnowledgeDocuments,
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
+	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+	
 
     const svelteDispatch = createEventDispatcher();
 
@@ -109,7 +112,7 @@
     function handleFileUpload() {
         Swal.fire({
             title: 'Are you sure?',
-            text: `Are you sure you want to upload document(s) to knowledgebase"?`,
+            text: `Are you sure you want to upload ${uploadFiles.length > 1 ? 'these documents' : 'this document'} to knowledgebase"?`,
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: 'No',
@@ -191,6 +194,17 @@
                 });
             }
         });
+    }
+
+    /** @param {number} index */
+    function handleDownloadSavedFile(index) {
+        const found = savedFiles.find((_, idx) => idx === index);
+        if (!found) return;
+
+        const url = isExternalUrl(found.file_url) ?
+                found.file_url : `${PUBLIC_SERVICE_URL}${found.file_url}?access_token=${$userStore?.token}`;
+        
+        window.open(url);
     }
 
     function reset() {
@@ -306,9 +320,11 @@
                             <KnowledgeDocumentGallery
                                 files={savedFiles}
                                 showFileName
-                                needDelete
                                 disabled={disabled}
+                                needDelete
                                 onDelete={idx => handleDeleteSavedFile(idx)}
+                                needDownload
+                                onDownload={idx => handleDownloadSavedFile(idx)}
                             />
                         </div>
                     {:else if isLoading}

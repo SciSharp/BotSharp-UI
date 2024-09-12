@@ -9,6 +9,9 @@
     export let needDelete = false;
 
     /** @type {boolean} */
+    export let needDownload = false;
+
+    /** @type {boolean} */
     export let disabled = false;
 
     /** @type {boolean} */
@@ -17,15 +20,31 @@
     /** @type {(args0: number) => void} */
     export let onDelete = () => {};
 
+    /** @type {(args0: number) => void} */
+    export let onDownload = () => {};
+
     /**
 	 * @param {any} e
 	 * @param {number} idx
 	 */
     function handleDeleteFile(e, idx) {
         if (disabled) return;
+
         e.preventDefault();
         e.stopPropagation();
-        onDelete && onDelete(idx);
+        onDelete?.(idx);
+    }
+
+    /**
+	 * @param {any} e
+	 * @param {number} idx
+	 */
+    function handleDownloadFile(e, idx) {
+        if (disabled) return;
+
+        e.preventDefault();
+        e.stopPropagation();
+        onDownload?.(idx);
     }
 </script>
 
@@ -39,13 +58,30 @@
                         <div class="doc-gallery-item-inner" style={`${showFileName ? 'width: 80%;' : ''}`}>
                             {#if needDelete}
                                 <div
-                                    class="doc-gallery-item-icon"
+                                    class="doc-gallery-item-icon delete-icon clickable"
                                     tabindex="0"
                                     role="button"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Delete"
                                     on:keydown={() => {}}
                                     on:click={e => handleDeleteFile(e, idx)}
                                 >
                                     <i class="bx bx-trash" />
+                                </div>
+                            {/if}
+                            {#if needDownload}
+                                <div
+                                    class="doc-gallery-item-icon download-icon clickable"
+                                    tabindex="0"
+                                    role="button"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Download"
+                                    on:keydown={() => {}}
+                                    on:click={e => handleDownloadFile(e, idx)}
+                                >
+                                    <i class="bx bx-download" />
                                 </div>
                             {/if}
                             {#if isPdf(file.file_extension || file.file_name)}

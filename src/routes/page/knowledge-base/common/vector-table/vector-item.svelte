@@ -24,9 +24,13 @@
     $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
 
     let isLoading = false;
+    let loadMore = false;
 
-    function toggleItem() {
+    function toggleKnowledgeDetail() {
         open = !open;
+        if (!open) {
+            loadMore = false;
+        }
     }
 
     /** @param {string} id */
@@ -76,7 +80,7 @@
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
                 <Button
                     class="btn btn-sm btn-soft-primary"
-                    on:click={() => toggleItem()}
+                    on:click={() => toggleKnowledgeDetail()}
                 >
                     {#if open}
                         <i class="bx bx-hide" />
@@ -142,19 +146,26 @@
             {/if}
             </ul>
             {#if item?.id}
-                <ul class="knwoledge-id">
-                    <div class="wrappable text-secondary">
-                        <span>
-                            <span>(</span>
-                            <span>Id: {item?.id || ''}</span>
-                            {#if item?.vector}
-                                <span>,&nbsp</span>
-                                <span>Vector dimension: {item?.vector?.length}</span>
-                            {/if}
-                            <span>)</span>
-                        </span>
-                    </div>
-                </ul>
+                <div class="more-detail">
+                    <Button class='toggle-btn btn-sm' color="link" on:click={() => loadMore = !loadMore}>
+                        {`${loadMore ? 'Less -' : 'More +'}`}
+                    </Button>
+                </div>
+                {#if loadMore}
+                    <ul
+                        class="more-detail-list text-secondary"
+                        in:fly={{ y: -5, duration: 300 }}
+                        out:fly={{ y: -5, duration: 200 }}
+                    >
+                        <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
+                        {#if item?.data?.fileName}
+                            <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
+                        {/if}
+                        {#if item?.vector}
+                            <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>
+                        {/if}
+                    </ul>
+                {/if}
             {/if}
         </div>
     </td>
