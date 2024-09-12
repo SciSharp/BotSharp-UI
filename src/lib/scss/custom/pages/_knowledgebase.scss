@@ -163,7 +163,6 @@
 
         ul {
             margin: 15px 0px;
-            list-style-type: square;
 
             li {
                 margin: 5px 0px;
@@ -174,9 +173,23 @@
             white-space: wrap !important;
         }
 
-        .knwoledge-id {
+        .more-detail {
+            margin: 2px 0px;
+            padding-left: 2rem;
+
+            button {
+                padding-left: 0;
+            }
+        }
+
+        .more-detail-list {
+            margin: 1px 0px 15px 0px;
             font-size: 10px;
-            margin: 5px 0px;
+            padding-left: 4rem;
+            
+            .more-dtail-item {
+                list-style-type: square;
+            }
         }
     }
 }
@@ -323,11 +336,36 @@
 
         .doc-gallery-item-icon {
             position: absolute;
-            color: red;
-            cursor: pointer;
             z-index: 500;
+            font-size: 1.2em;
+            border-radius: 5px;
+            padding: 2px;
+
+            i {
+                display: block;
+            }
+        }
+
+        .delete-icon {
+            top: 3px;
             right: 3px;
-            font-size: 1.5em;
+            color: var(--bs-danger);
+
+            &:hover {
+                color: white;
+                background-color: var(--bs-danger);
+            }
+        }
+
+        .download-icon {
+            right: 3px;
+            bottom: 3px;
+            color: var(--bs-info);
+
+            &:hover {
+                color: white;
+                background-color: var(--bs-info);
+            }
         }
 
         .doc-gallery-item-image {

@@ -27,7 +27,7 @@
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { KnowledgeCollectionType } from '$lib/helpers/enums';
+	import { KnowledgeCollectionType, KnowledgePayloadName, VectorDataSource } from '$lib/helpers/enums';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
@@ -39,6 +39,12 @@
     const numberRegex = "[0-9\.]+";
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.Document;
+	const includedPayloads = [
+		KnowledgePayloadName.Text,
+		KnowledgePayloadName.FileId,
+		KnowledgePayloadName.FileName,
+		KnowledgePayloadName.DataSource
+	];
 	
 	/** @type {string} */
 	let text = "";
@@ -263,8 +269,9 @@
 				size: page_size,
 				start_id: params.startId,
 				with_vector: enableVector,
+				included_payloads: includedPayloads,
 				search_pairs: params.useSearhPair ? [
-					{ key: "text", value: text }
+					{ key: KnowledgePayloadName.Text, value: text }
 				] : []
 			};
 
@@ -408,9 +415,16 @@
 	function confirmEdit(e) {
 		isLoading = true;
 		isOpenEditKnowledge = false;
+		const dataSource = e.data?.dataSource || VectorDataSource.User;
+		e.data.dataSource = dataSource;
 
 		if (!!editItem) {
-			updateVectorKnowledgeData(e.id, editCollection, e.data?.text).then(res => {
+			updateVectorKnowledgeData(
+				e.id,
+				editCollection,
+				e.data?.dataSource,
+				e.data?.text
+			).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -433,7 +447,11 @@
 				isLoading = false;
 			});
 		} else {
-			createVectorKnowledgeData(editCollection, e.data?.text).then(res => {
+			createVectorKnowledgeData(
+				editCollection,
+				e.data?.text,
+				e.data.dataSource
+			).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -465,7 +483,8 @@
 		if (found) {
 			found.data = {
 				...found.data,
-				text: newItem.data?.text || ''
+				text: newItem.data?.text || '',
+				dataSource: newItem.data?.dataSource,
 			};
 			items = [ ...items ];
 		}

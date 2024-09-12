@@ -1,3 +1,4 @@
+import { VectorDataSource } from '$lib/helpers/enums.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
@@ -47,18 +48,20 @@ export async function getPagedVectorKnowledgeData(filter, collection) {
 /**
  * @param {string} collection
  * @param {string} text
+ * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(collection, text, payload = null) {
+export async function createVectorKnowledgeData(collection, text, dataSource, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
         collection: collection
     });
 
     const request = {
         text: text,
+        data_source: dataSource,
         payload: {
-            ...payload
+            ...payload,
         }
     };
 
@@ -70,10 +73,11 @@ export async function createVectorKnowledgeData(collection, text, payload = null
  * @param {string} id
  * @param {string} collection
  * @param {string} text
+ * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
+export async function updateVectorKnowledgeData(id, collection, text, dataSource, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
         collection: collection
     });
@@ -81,6 +85,7 @@ export async function updateVectorKnowledgeData(id, collection, text, payload = 
     const request = {
         id: id,
         text: text,
+        data_source: dataSource,
         payload: {
             ...payload
         }

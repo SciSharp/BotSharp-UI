@@ -67,9 +67,9 @@
         </div>
 
         {#if includedSources.includes(data.source)}
-        <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
-            {`${is_collapsed ? 'More +' : 'Less -'}`}
-        </Button>
+            <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
+                {`${is_collapsed ? 'More +' : 'Less -'}`}
+            </Button>
         {/if}
     </div>
 

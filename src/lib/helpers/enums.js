@@ -72,3 +72,21 @@ const knowledgeCollectionType = {
     Document: 'document'
 };
 export const KnowledgeCollectionType = Object.freeze(knowledgeCollectionType);
+
+const knowledgePayloadName = {
+    Text: 'text',
+    Question: 'question',
+    Answer: 'answer',
+    DataSource: 'dataSource',
+    FileId: 'fileId',
+    FileName: 'fileName',
+    FileSource: 'fileSource'
+};
+export const KnowledgePayloadName = Object.freeze(knowledgePayloadName);
+
+const vectorDataSource = {
+    Api: 'api',
+    User: 'user',
+    File: 'file'
+};
+export const VectorDataSource = Object.freeze(vectorDataSource);

@@ -27,7 +27,7 @@
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { KnowledgeCollectionType } from '$lib/helpers/enums';
+	import { KnowledgeCollectionType, KnowledgePayloadName, VectorDataSource } from '$lib/helpers/enums';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
@@ -39,6 +39,11 @@
     const numberRegex = "[0-9\.]+";
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.QuestionAnswer;
+	const includedPayloads = [
+		KnowledgePayloadName.Text,
+		KnowledgePayloadName.Answer,
+		KnowledgePayloadName.DataSource
+	];
 	
 	/** @type {string} */
 	let text = "";
@@ -257,9 +262,10 @@
 				size: page_size,
 				start_id: params.startId,
 				with_vector: enableVector,
+				included_payloads: includedPayloads,
 				search_pairs: params.useSearhPair ? [
-					{ key: "text", value: text },
-					{ key: "answer", value: text }
+					{ key: KnowledgePayloadName.Text, value: text },
+					{ key: KnowledgePayloadName.Answer, value: text }
 				] : []
 			};
 
@@ -403,11 +409,20 @@
 	function confirmEdit(e) {
 		isLoading = true;
 		isOpenEditKnowledge = false;
+		const dataSource = e.data?.dataSource || VectorDataSource.User;
+		e.data.dataSource = dataSource;
 
 		if (!!editItem) {
-			updateVectorKnowledgeData(e.id, editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
+			updateVectorKnowledgeData(
+				e.id,
+				editCollection,
+				e.data?.text,
+				e.data.dataSource,
+				{ answer: e.data?.answer }
+			).then(res => {
 				if (res) {
 					isComplete = true;
+					e.data.dataSource = dataSource;
 					refreshItems(e);
 					resetEditData();
 					successText = "Knowledge has been updated!";
@@ -428,7 +443,12 @@
 				isLoading = false;
 			});
 		} else {
-			createVectorKnowledgeData(editCollection, e.data?.text, { answer: e.data?.answer }).then(res => {
+			createVectorKnowledgeData(
+				editCollection,
+				e.data?.text,
+				e.data.dataSource,
+				{ answer: e.data?.answer }
+			).then(res => {
 				if (res) {
 					isComplete = true;
 					refreshItems(e);
@@ -461,7 +481,8 @@
 			found.data = {
 				...found.data,
 				text: newItem.data?.text || '',
-				answer: newItem.data?.answer || ''
+				answer: newItem.data?.answer || '',
+				dataSource: newItem.data?.dataSource,
 			};
 			items = [ ...items ];
 		}
