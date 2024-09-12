@@ -158,6 +158,9 @@
                         out:fly={{ y: -5, duration: 200 }}
                     >
                         <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
+                        {#if item?.data?.dataSource}
+                            <li class="more-detail-item wrappable">Data source: {item?.data?.dataSource}</li>
+                        {/if}
                         {#if item?.data?.fileName}
                             <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
                         {/if}
