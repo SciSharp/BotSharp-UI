@@ -103,7 +103,7 @@
     });
 
     function init() {
-        showUploader = true;
+        showUploader = false;
     }
 
     /** @param {any} e */
