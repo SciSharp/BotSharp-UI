@@ -27,7 +27,11 @@
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { KnowledgeCollectionType, KnowledgePayloadName, VectorDataSource } from '$lib/helpers/enums';
+	import {
+		KnowledgeCollectionType,
+		KnowledgePayloadName,
+		VectorDataSource
+	} from '$lib/helpers/enums';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
@@ -43,7 +47,8 @@
 		KnowledgePayloadName.Text,
 		KnowledgePayloadName.FileId,
 		KnowledgePayloadName.FileName,
-		KnowledgePayloadName.DataSource
+		KnowledgePayloadName.DataSource,
+		KnowledgePayloadName.FileSource
 	];
 	
 	/** @type {string} */
@@ -419,11 +424,17 @@
 		e.data.dataSource = dataSource;
 
 		if (!!editItem) {
+			const {
+				text,
+				answer,
+				...payload
+			} = e.data;
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
+				e.data?.text,
 				e.data?.dataSource,
-				e.data?.text
+				{ ...payload }
 			).then(res => {
 				if (res) {
 					isComplete = true;

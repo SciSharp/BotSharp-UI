@@ -413,12 +413,16 @@
 		e.data.dataSource = dataSource;
 
 		if (!!editItem) {
+			const {
+				text,
+				...payload
+			} = e.data;
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
 				e.data?.text,
 				e.data.dataSource,
-				{ answer: e.data?.answer }
+				{ ...payload }
 			).then(res => {
 				if (res) {
 					isComplete = true;

@@ -1,5 +1,8 @@
 <script>
-	import { EXCEL_ICON, PDF_ICON, TXT_ICON, WORD_ICON, isExcel, isPdf, isTxt, isWord } from '$lib/helpers/utils/file';
+	import {
+        EXCEL_ICON, HTML_ICON, PDF_ICON, TXT_ICON, WORD_ICON,
+        isExcel, isHtml, isPdf, isTxt, isWord
+    } from '$lib/helpers/utils/file';
     import { LightboxGallery, GalleryThumbnail, GalleryImage } from 'svelte-lightbox';
 
     /** @type {any[]} */
@@ -77,11 +80,15 @@
                                     role="button"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Download"
+                                    title={`${isHtml(file.file_extension || file.file_name) ? 'Download' : 'Go to web page'}`}
                                     on:keydown={() => {}}
                                     on:click={e => handleDownloadFile(e, idx)}
                                 >
-                                    <i class="bx bx-download" />
+                                    {#if isHtml(file.file_extension || file.file_name)}
+                                        <i class="mdi mdi-web" />
+                                    {:else}
+                                        <i class="bx bx-download" />
+                                    {/if}
                                 </div>
                             {/if}
                             {#if isPdf(file.file_extension || file.file_name)}
@@ -92,6 +99,8 @@
                                 <img class="doc-gallery-item-image" src={TXT_ICON} alt={''}>
                             {:else if isWord(file.file_extension || file.file_name)}
                                 <img class="doc-gallery-item-image" src={WORD_ICON} alt={''}>
+                            {:else if isHtml(file.file_extension || file.file_name)}
+                                <img class="doc-gallery-item-image" src={HTML_ICON} alt={''}>
                             {:else}
                                 <img class="doc-gallery-item-image" src={file.file_data} alt={''}>
                             {/if}
@@ -117,6 +126,8 @@
                 <img src={TXT_ICON} alt={''} />
             {:else if isWord(file.file_extension || file.file_name)}
                 <img src={WORD_ICON} alt={''} />
+            {:else if isHtml(file.file_extension || file.file_name)}
+                <img src={HTML_ICON} alt={''} />
             {:else}
                 <img src={file.file_data} alt={''} />
             {/if}

@@ -22,15 +22,17 @@
 
     $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
     $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
+    $: {
+        if (!open) {
+            loadMore = false;
+        }
+    }
 
     let isLoading = false;
     let loadMore = false;
 
     function toggleKnowledgeDetail() {
         open = !open;
-        if (!open) {
-            loadMore = false;
-        }
     }
 
     /** @param {string} id */
@@ -163,6 +165,9 @@
                         {/if}
                         {#if item?.data?.fileName}
                             <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
+                        {/if}
+                        {#if item?.data?.fileSource}
+                            <li class="more-detail-item wrappable">File source: {item?.data?.fileSource}</li>
                         {/if}
                         {#if item?.vector}
                             <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>

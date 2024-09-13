@@ -185,6 +185,7 @@ export const EXCEL_ICON = 'images/icons/excel_icon.png';
 export const AUDIO_ICON = 'images/icons/audio_icon.png';
 export const TXT_ICON = 'images/icons/txt_icon.png';
 export const WORD_ICON = 'images/icons/word_icon.png';
+export const HTML_ICON = 'images/icons/html_icon.png';
 
 /** @param {string | undefined} file */
 export function isPdf(file) {
@@ -209,4 +210,9 @@ export function isTxt(file) {
 /** @param {string | undefined} file */
 export function isWord(file) {
   return file?.endsWith('doc') || file?.endsWith('docx') || false;
+}
+
+/** @param {string | undefined} file */
+export function isHtml(file) {
+  return file?.endsWith('html') || false;
 }

@@ -85,6 +85,7 @@
         const newItem = {
             ...item,
             data: {
+                ...item?.data,
                 text: question.text,
                 answer: answer.text
             }
