@@ -3,7 +3,10 @@
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { fly } from 'svelte/transition';
 	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
+    import { PUBLIC_SERVICE_URL } from '$env/static/public';
     import Swal from 'sweetalert2';
+    import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
     import LoadingDots from '$lib/common/LoadingDots.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
@@ -14,7 +17,7 @@
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
-	import { PUBLIC_SERVICE_URL } from '$env/static/public';
+	import { KnowledgeDocSource } from '$lib/helpers/enums';
 	
 
     const svelteDispatch = createEventDispatcher();
@@ -22,7 +25,20 @@
     const accept = ".txt";
     const acceptDisplayList = "txt";
     const fileMaxSize = 10 * 1024 * 1024;
+    const startPage = 1;
+    const docPageSize = 8;
 
+    const options = {
+		scrollbars: {
+			visibility: 'auto',
+			autoHide: 'move',
+			autoHideDelay: 100,
+			dragScroll: true,
+			clickScroll: false,
+			theme: 'os-theme-dark',
+			pointers: ['mouse', 'touch', 'pen']
+		}
+	};
 
     /** @type {string} */
     export let collection;
@@ -45,9 +61,11 @@
     let showDocList = false;
     let disableFileDrop = false;
     let isLoading = false;
+    let noMoreDocs = false;
 
     /** @type {number} */
     let localFileUploadLimit = 0;
+    let docPage = startPage;
 
     /** @type {any[]} */
     let uploadFiles = [];
@@ -61,6 +79,14 @@
     $: {
         disableFileDrop = uploadFiles.length >= fileLimit;
         localFileUploadLimit = Math.max(fileLimit - uploadFiles.length, 0);
+    }
+
+    $: {
+        if (!showDocList) {
+            docPage = startPage;
+            savedFiles = [];
+            noMoreDocs = false;
+        }
     }
 
     const unsubscribe = knowledgeBaseDocumentStore.subscribe(value => {
@@ -109,10 +135,10 @@
         });
     }
 
-    function handleFileUpload() {
+    function handleFileSubmit() {
         Swal.fire({
             title: 'Are you sure?',
-            text: `Are you sure you want to upload ${uploadFiles.length > 1 ? 'these documents' : 'this document'} to knowledgebase"?`,
+            text: `Are you sure you want to submit ${uploadFiles.length > 1 ? 'these documents' : 'this document'} to knowledgebase"?`,
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: 'No',
@@ -122,7 +148,8 @@
                 const files = uploadFiles.map(x => {
                     return {
                         file_name: x.file_name,
-                        file_data: x.file_data
+                        file_data: x.file_data,
+                        file_source: KnowledgeDocSource.User
                     };
                 });
 
@@ -130,10 +157,14 @@
 				uploadKnowledgeDocuments(collection, { files: files }).then(res => {
                     successFiles = res.success || [];
                     failedFiles = res.failed || [];
-                    showDocList = false;
                     uploadFiles = [];
                     knowledgeBaseDocumentStore.reset();
                     svelteDispatch("docuploaded");
+
+                    if (showDocList) {
+                        docPage = startPage;
+                        getKnowledgeDocumentList(true);
+                    }
                 }).catch(() => {
                     successFiles = [];
                     failedFiles = files.map(x => x.file_name);
@@ -144,26 +175,53 @@
         });
     }
 
-
     function toggleShowDocList() {
         showDocList = !showDocList;
-        if (!showDocList) {
-            savedFiles = [];
-            return;
+        if (showDocList) {
+            getKnowledgeDocumentList();
         }
-
-        getKnowledgeDocumentList();
     }
 
-    function getKnowledgeDocumentList() {
+    function loadMoreDocs() {
+        if (isLoading) return;
+        
+        getKnowledgeDocumentList().then(() => {
+            autoScrollToBottom();
+        });
+    }
+
+    /** @param {boolean} reset */
+    function getKnowledgeDocumentList(reset = false) {
         isLoading = true;
         disabled = true;
-        getKnowledgeDocuments(collection).then(res => {
-            savedFiles = res || [];
-        }).finally(() => {
-            isLoading = false;
-            disabled = false;
+        noMoreDocs = false;
+
+        return new Promise((resolve, reject) => {
+            getKnowledgeDocuments(
+                collection,
+                { page: docPage, size: docPageSize }
+            ).then(res => {
+                const items = res?.items || [];
+                if (items.length > 0) {
+                    docPage += 1;
+                    if (reset) {
+                        savedFiles = [...items];
+                    } else {
+                        savedFiles = [...savedFiles, ...items];
+                    }
+                } else {
+                    noMoreDocs = true;
+                }
+                isLoading = false;
+                disabled = false;
+                resolve(res);
+            }).catch(err => {
+                isLoading = false;
+                disabled = false;
+                reject(err);
+            });
         });
+        
     }
 
     /** @param {number} index */
@@ -183,7 +241,9 @@
                 disabled = true;
                 deleteKnowledgeDocument(collection, found.file_id).then(res => {
                     if (res) {
-                        savedFiles = savedFiles.filter((_, idx) => idx !== index);   
+                        savedFiles = savedFiles.filter((_, idx) => idx !== index);
+                        docPage = startPage;
+                        getKnowledgeDocumentList(true);
                     }
                     svelteDispatch("docdeleted", { success: res });
                 }).catch(err => {
@@ -211,6 +271,18 @@
         successFiles = [];
         failedFiles = [];
     }
+
+    function autoScrollToBottom() {
+        const elem = document.querySelector('.docs-scrollbar');
+        // @ts-ignore
+        const scrollbar = OverlayScrollbars(elem, options);
+		if (scrollbar) {
+            setTimeout(() => {
+				const { viewport } = scrollbar.elements();
+                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+			}, 200);
+        }
+	}
 </script>
 
 <div
@@ -270,15 +342,15 @@
                 />
                 {#if uploadFiles?.length > 0}
                     <div class="doc-upload-btn doc-grid-item">
-                        <div class="doc-upload-bg">
+                        <div class="doc-card-btn">
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <!-- svelte-ignore a11y-no-static-element-interactions -->
                             <i
                                 class="mdi mdi-arrow-up-bold-circle clickable"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
-                                title="Upload"
-                                on:click={() => handleFileUpload()}
+                                title="Submit"
+                                on:click={() => handleFileSubmit()}
                             />
                         </div>
                     </div>
@@ -311,35 +383,51 @@
                     </Button>
                 </div>
                 {#if showDocList}
-                    {#if savedFiles.length > 0}
-                        <div
-                            class="collection-docs doc-gallery-container"
-                            in:fly={{ y: -10, duration: 500 }}
-                            out:fly={{ y: -10, duration: 200 }}
-                        >
-                            <KnowledgeDocumentGallery
-                                files={savedFiles}
-                                showFileName
-                                disabled={disabled}
-                                needDelete
-                                onDelete={idx => handleDeleteSavedFile(idx)}
-                                needDownload
-                                onDownload={idx => handleDownloadSavedFile(idx)}
-                            />
+                    <div class="collection-docs docs-scrollbar">
+                        <div>
+                            {#if savedFiles.length > 0}
+                                <div class="doc-gallery-container">
+                                    <KnowledgeDocumentGallery
+                                        files={savedFiles}
+                                        showFileName
+                                        disabled={disabled}
+                                        needDelete
+                                        onDelete={idx => handleDeleteSavedFile(idx)}
+                                        needDownload
+                                        onDownload={idx => handleDownloadSavedFile(idx)}
+                                    />
+                                    {#if !noMoreDocs}
+                                        <div class={`doc-gallery-item doc-grid-item`}>
+                                            <div class="doc-card-btn doc-load-more">
+                                                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                                <i
+                                                    class="mdi mdi-eye-plus-outline clickable"
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Load more"
+                                                    on:click={() => loadMoreDocs()}
+                                                />
+                                            </div>
+                                        </div>
+                                    {/if}
+                                </div>
+                            {:else if !isLoading && savedFiles.length === 0}
+                                <div class="mt-3 text-center">
+                                    <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
+                                </div>
+                            {/if}
+                            {#if isLoading}
+                                <div class="knowledge-loader mt-3 mb-3">
+                                    <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+                                </div>
+                            {:else if noMoreDocs && savedFiles.length > 0}
+                                <div class="mt-3 text-center">
+                                    <h4 class="text-secondary">{"Ehhh, no more files..."}</h4>
+                                </div>
+                            {/if}
                         </div>
-                    {:else if isLoading}
-                        <div class="knowledge-loader mt-4">
-                            <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
-                        </div>
-                    {:else if savedFiles.length === 0}
-                        <div
-                            class="mt-4"
-                            in:fly={{ y: -10, duration: 500 }}
-                            out:fly={{ y: -10, duration: 200 }}
-                        >
-                            <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
-                        </div>
-                    {/if}
+                    </div>
                 {/if}
             </div>
         </div>

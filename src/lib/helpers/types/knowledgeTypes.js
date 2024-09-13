@@ -53,4 +53,16 @@
  * @property {boolean} is_success
  */
 
+/**
+ * @typedef {Object} KnowledgeDocRequest
+ * @property {number} page
+ * @property {number} size
+ */
+
+/**
+ * @typedef {Object} KnowledgeDocPagedResult
+ * @property {import('$fileTypes').KnowledgeFileModel[]} items
+ * @property {number} count
+ */
+
 export default {};

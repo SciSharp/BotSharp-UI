@@ -145,14 +145,15 @@ export async function deleteKnowledgeDocument(collection, fileId) {
 
 /**
  * @param {string} collection
- * @returns {Promise<import('$fileTypes').KnowledgeFileModel[]>}
+ * @param {import('$knowledgeTypes').KnowledgeDocRequest} request
+ * @returns {Promise<import('$knowledgeTypes').KnowledgeDocPagedResult>}
  */
-export async function getKnowledgeDocuments(collection) {
+export async function getKnowledgeDocuments(collection, request) {
     const url = replaceUrl(endpoints.knowledgeDocumentListUrl, {
         collection: collection
     });
 
-    const response = await axios.get(url);
+    const response = await axios.post(url, { ...request });
     return response.data;
 }
 

@@ -90,3 +90,10 @@ const vectorDataSource = {
     File: 'file'
 };
 export const VectorDataSource = Object.freeze(vectorDataSource);
+
+const knowledgeDocSource = {
+    Api: 'api',
+    User: 'user',
+    Web: 'web'
+};
+export const KnowledgeDocSource = Object.freeze(knowledgeDocSource);

@@ -4,6 +4,7 @@
  * @property {string} file_name - The file name.
  * @property {string} [file_data] - The file data.
  * @property {string} [file_url] - The file url.
+ * @property {string} [file_source] - The file source.
  */
 
 /**
