@@ -91,23 +91,23 @@
 
 <div use:clickoutsideDirective on:clickoutside={handleClickOutside}>
     {#if showOptions}
-    <ul class="dropdown-menu chat-option-list chat-util-common">
-        {#each options as option, idx (idx)}
-            <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <li
-                class="chat-option-item"
-                on:click={() => handleOptionClick(option)}
-            >
-                {option}
-            </li>
-        {/each}
-    </ul>
+        <ul class="dropdown-menu chat-option-list chat-util-common">
+            {#each options as option, idx (idx)}
+                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <li
+                    class="chat-option-item"
+                    on:click={() => handleOptionClick(option)}
+                >
+                    {option}
+                </li>
+            {/each}
+        </ul>
     {/if}
     {#if loadUtils}
-    <div class="chat-util-container chat-util-common">
-        <slot />
-    </div>
+        <div class="chat-util-container chat-util-common">
+            <slot />
+        </div>
     {/if}
     <textarea
         class={`form-control ${className}`}
