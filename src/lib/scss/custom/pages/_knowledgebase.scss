@@ -236,7 +236,6 @@
     }
 
     .doc-upload-body {
-
         .doc-drop-zone {
             width: 100%;
             height: 100%;
@@ -244,10 +243,6 @@
             i {
                 font-size: 3.5em;
             }
-        }
-
-        .doc-upload-btn {
-            
         }
     }
 
@@ -291,7 +286,6 @@
     }
 }
 
-
 .doc-upload-result-container {
     .doc-upload-result-item {
         display: flex;
@@ -299,88 +293,8 @@
     }
 }
 
-
 .doc-uploader-container {
     border-radius: 10px;
     padding: 10px;
     background-color: var(--bs-light);
-}
-
-.doc-grid-item {
-    width: 8em;
-    height: 8em;
-}
-
-.doc-gallery-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-}
-
-.doc-gallery-item {
-    .thumbnail-wrapper {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-
-    .doc-gallery-item-wrapper {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-
-        .doc-gallery-item-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-        }
-
-        .doc-gallery-item-icon {
-            position: absolute;
-            z-index: 500;
-            font-size: 1.2em;
-            border-radius: 5px;
-            padding: 2px;
-
-            i {
-                display: block;
-            }
-        }
-
-        .delete-icon {
-            top: 3px;
-            right: 3px;
-            color: var(--bs-danger);
-
-            &:hover {
-                color: white;
-                background-color: var(--bs-danger);
-            }
-        }
-
-        .download-icon {
-            right: 3px;
-            bottom: 3px;
-            color: var(--bs-info);
-
-            &:hover {
-                color: white;
-                background-color: var(--bs-info);
-            }
-        }
-
-        .doc-gallery-item-image {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-        }
-    }
-
-    .doc-gallery-item-name {
-        text-align: center;
-        word-break: break-all;
-    }
 }

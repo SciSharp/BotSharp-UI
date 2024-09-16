@@ -57,6 +57,7 @@
     containerClasses={galleryClasses}
     containerStyles={galleryStyles}
     files={textFiles}
+    showFileName
 />
 <AudioGallery
     id={messageId}

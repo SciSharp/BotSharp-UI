@@ -8,9 +8,9 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
     import FileDropZone from '$lib/common/FileDropZone.svelte';
+    import FileGallery from '$lib/common/FileGallery.svelte';
     import LoadingDots from '$lib/common/LoadingDots.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
-    import KnowledgeDocumentGallery from './knowledge-document-gallery.svelte';
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
 	import {
         getKnowledgeDocuments,
@@ -103,7 +103,7 @@
     });
 
     function init() {
-        showUploader = false;
+        showUploader = true;
     }
 
     /** @param {any} e */
@@ -320,42 +320,42 @@
             in:fly={{ y: -10, duration: 500 }}
             out:fly={{ y: -10, duration: 200 }}
         >
-            <div class="doc-upload-body doc-gallery-container">
-                <div class="doc-grid-item">
-                    <FileDropZone
-                        accept={accept}
-                        containerClasses={'doc-drop-zone'}
-                        disabled={disabled || disableFileDrop}
-                        fileLimit={localFileUploadLimit}
-                        maxSize={fileMaxSize}
-                        on:drop={e => handleFileDrop(e)}
-                    >
-                        <i class="bx bx-cloud-upload" />
-                    </FileDropZone>
+            <FileGallery
+                containerClasses={'doc-upload-body'}
+                files={uploadFiles}
+                showFileName
+                needDelete
+                disabled={disabled}
+                onDelete={idx => deleteUploadFile(idx)}
+                showPrefix={true}
+                showSuffix={uploadFiles?.length > 0}
+            >
+                <FileDropZone
+                    slot="prefix"
+                    accept={accept}
+                    containerClasses={'doc-drop-zone'}
+                    disabled={disabled || disableFileDrop}
+                    fileLimit={localFileUploadLimit}
+                    maxSize={fileMaxSize}
+                    on:drop={e => handleFileDrop(e)}
+                >
+                    <i class="bx bx-cloud-upload" />
+                </FileDropZone>
+                <div
+                    slot="suffix"
+                    class="doc-card-btn"
+                >
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <i
+                        class="mdi mdi-arrow-up-bold-circle clickable"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Submit"
+                        on:click={() => handleFileSubmit()}
+                    />
                 </div>
-                <KnowledgeDocumentGallery
-                    files={uploadFiles}
-                    showFileName
-                    needDelete
-                    disabled={disabled}
-                    onDelete={idx => deleteUploadFile(idx)}
-                />
-                {#if uploadFiles?.length > 0}
-                    <div class="doc-upload-btn doc-grid-item">
-                        <div class="doc-card-btn">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                            <i
-                                class="mdi mdi-arrow-up-bold-circle clickable"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Submit"
-                                on:click={() => handleFileSubmit()}
-                            />
-                        </div>
-                    </div>
-                {/if}
-            </div>
+            </FileGallery>
 
             <KnowledgeUploadResult
                 successFiles={successFiles}
@@ -386,32 +386,28 @@
                     <div class="collection-docs docs-scrollbar">
                         <div>
                             {#if savedFiles.length > 0}
-                                <div class="doc-gallery-container">
-                                    <KnowledgeDocumentGallery
-                                        files={savedFiles}
-                                        showFileName
-                                        disabled={disabled}
-                                        needDelete
-                                        onDelete={idx => handleDeleteSavedFile(idx)}
-                                        needDownload
-                                        onDownload={idx => handleDownloadSavedFile(idx)}
-                                    />
-                                    {#if !noMoreDocs}
-                                        <div class={`doc-gallery-item doc-grid-item`}>
-                                            <div class="doc-card-btn doc-load-more">
-                                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                                <i
-                                                    class="mdi mdi-eye-plus-outline clickable"
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    title="Load more"
-                                                    on:click={() => loadMoreDocs()}
-                                                />
-                                            </div>
-                                        </div>
-                                    {/if}
-                                </div>
+                                <FileGallery
+                                    files={savedFiles}
+                                    showFileName
+                                    disabled={disabled}
+                                    needDelete
+                                    onDelete={idx => handleDeleteSavedFile(idx)}
+                                    needDownload
+                                    onDownload={idx => handleDownloadSavedFile(idx)}
+                                    showSuffix={!noMoreDocs}
+                                >
+                                    <div class="doc-card-btn doc-load-more" slot="suffix">
+                                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                        <i
+                                            class="mdi mdi-eye-plus-outline clickable"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Load more"
+                                            on:click={() => loadMoreDocs()}
+                                        />
+                                    </div>
+                                </FileGallery>
                             {:else if !isLoading && savedFiles.length === 0}
                                 <div class="mt-3 text-center">
                                     <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
@@ -423,7 +419,7 @@
                                 </div>
                             {:else if noMoreDocs && savedFiles.length > 0}
                                 <div class="mt-3 text-center">
-                                    <h4 class="text-secondary">{"Ehhh, no more files..."}</h4>
+                                    <h4 class="text-secondary">{"No more files..."}</h4>
                                 </div>
                             {/if}
                         </div>
