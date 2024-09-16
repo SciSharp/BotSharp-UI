@@ -4,37 +4,6 @@ $attachment-width-lite: 5em;
 $attachment-height-lite: 5em;
 $file-screen-max-width: 500px;
 
-.gallery-item {
-    width: $attachment-width;
-    height: $attachment-height;
-
-    @media (max-width: $file-screen-max-width) {
-        width: $attachment-width-lite;
-        height: $attachment-height-lite;
-    }
-
-    .gallery-item-wrapper {
-        position: relative;
-        width: 100%;
-        height: 100%;
-
-        .gallery-item-icon {
-            position: absolute;
-            color: red;
-            cursor: pointer;
-            z-index: 500;
-            right: 3px;
-            font-size: 1.5em;
-        }
-
-        .gallery-item-image {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-        }
-    }
-}
-
 .svelte-lightbox-footer p {
     display: none;
 }
@@ -76,13 +45,7 @@ $file-screen-max-width: 500px;
     }
 }
 
-.file-gallery-list {
-    margin: 5px 0px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 3px;
-    justify-content: flex-start;
-}
+
 
 .audio-gallery-list {
     margin: 5px 0px;
@@ -107,5 +70,91 @@ $file-screen-max-width: 500px;
     .aplayer {
         margin: 0 !important;
         width: 80%;
+    }
+}
+
+
+// File gallery
+.file-gallery-list {
+    margin: 5px 0px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.gallery-item {
+    width: $attachment-width;
+    height: $attachment-height;
+
+    @media (max-width: $file-screen-max-width) {
+        width: $attachment-width-lite;
+        height: $attachment-height-lite;
+    }
+
+    .item-thumbnail-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .gallery-item-wrapper {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+
+    .gallery-item-inner {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+
+    .gallery-item-image {
+        width: 100%;
+        height: 100%;
+        border-radius: 10px;
+    }
+
+    .gallery-item-icon {
+        position: absolute;
+        z-index: 500;
+        font-size: 1.2em;
+        border-radius: 5px;
+        padding: 2px;
+
+        i {
+            display: block;
+        }
+    }
+
+    .delete-icon {
+        top: 3px;
+        right: 3px;
+        color: var(--bs-danger);
+
+        &:hover {
+            color: white;
+            background-color: var(--bs-danger);
+        }
+    }
+
+    .download-icon {
+        right: 3px;
+        bottom: 3px;
+        color: var(--bs-info);
+
+        &:hover {
+            color: white;
+            background-color: var(--bs-info);
+        }
+    }
+
+    .gallery-item-name {
+        text-align: center;
+        word-break: break-all;
+        font-size: 0.7rem;
     }
 }
