@@ -1,6 +1,7 @@
 <script>
 	import KnowledgeUploadResult from './knowledge-upload-result.svelte';
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+    import util from "lodash";
     import { fly } from 'svelte/transition';
 	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
     import { PUBLIC_SERVICE_URL } from '$env/static/public';
@@ -26,7 +27,7 @@
     const acceptDisplayList = "txt";
     const fileMaxSize = 10 * 1024 * 1024;
     const startPage = 1;
-    const docPageSize = 8;
+    const docPageSize = 1;
 
     const options = {
 		scrollbars: {
@@ -163,7 +164,7 @@
 
                     if (showDocList) {
                         docPage = startPage;
-                        getKnowledgeDocumentList(true);
+                        getKnowledgeDocumentList();
                     }
                 }).catch(() => {
                     successFiles = [];
@@ -190,24 +191,25 @@
         });
     }
 
-    /** @param {boolean} reset */
-    function getKnowledgeDocumentList(reset = false) {
+    function getKnowledgeDocumentList() {
         isLoading = true;
         disabled = true;
         noMoreDocs = false;
 
+        const page = docPage;
         return new Promise((resolve, reject) => {
             getKnowledgeDocuments(
                 collection,
-                { page: docPage, size: docPageSize }
+                { page: page, size: docPageSize }
             ).then(res => {
                 const items = res?.items || [];
                 if (items.length > 0) {
                     docPage += 1;
-                    if (reset) {
+                    if (page === startPage) {
                         savedFiles = [...items];
                     } else {
-                        savedFiles = [...savedFiles, ...items];
+                        const files = [...savedFiles, ...items];
+                        savedFiles = unique(files);
                     }
                 } else {
                     noMoreDocs = true;
@@ -243,7 +245,7 @@
                     if (res) {
                         savedFiles = savedFiles.filter((_, idx) => idx !== index);
                         docPage = startPage;
-                        getKnowledgeDocumentList(true);
+                        getKnowledgeDocumentList();
                     }
                     svelteDispatch("docdeleted", { success: res });
                 }).catch(err => {
@@ -283,6 +285,13 @@
 			}, 200);
         }
 	}
+
+    /** @param {any[]} files */
+    function unique(files) {
+        if (!files) return [];
+
+        return util.uniqBy(files, (/** @type {any} */ x) => x.file_id);
+    }
 </script>
 
 <div
