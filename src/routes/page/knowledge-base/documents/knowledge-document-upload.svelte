@@ -1,7 +1,6 @@
 <script>
 	import KnowledgeUploadResult from './knowledge-upload-result.svelte';
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
-    import util from "lodash";
     import { fly } from 'svelte/transition';
 	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
     import { PUBLIC_SERVICE_URL } from '$env/static/public';
@@ -13,13 +12,12 @@
     import LoadingDots from '$lib/common/LoadingDots.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
+    import { KnowledgeDocSource } from '$lib/helpers/enums';
 	import {
         getKnowledgeDocuments,
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
-	import { KnowledgeDocSource } from '$lib/helpers/enums';
-	
 
     const svelteDispatch = createEventDispatcher();
 
@@ -27,7 +25,7 @@
     const acceptDisplayList = "txt";
     const fileMaxSize = 10 * 1024 * 1024;
     const startPage = 1;
-    const docPageSize = 1;
+    const docPageSize = 8;
 
     const options = {
 		scrollbars: {
@@ -290,7 +288,8 @@
     function unique(files) {
         if (!files) return [];
 
-        return util.uniqBy(files, (/** @type {any} */ x) => x.file_id);
+        const map = new Map();
+        return files.filter(x => !map.has(x.file_id) && map.set(x.file_id, 1));
     }
 </script>
 
