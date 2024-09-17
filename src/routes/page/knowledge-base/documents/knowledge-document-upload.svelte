@@ -12,14 +12,12 @@
     import LoadingDots from '$lib/common/LoadingDots.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
+    import { KnowledgeDocSource } from '$lib/helpers/enums';
 	import {
         getKnowledgeDocuments,
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
-	import { KnowledgeDocSource } from '$lib/helpers/enums';
-	import { listOrder } from '$lib/common/audio-player/svg';
-	
 
     const svelteDispatch = createEventDispatcher();
 
