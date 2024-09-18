@@ -69,6 +69,8 @@ function skipLoader(config) {
 
     const deleteRegexes = [
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/delete-collection', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data', 'g'),
     ];
 
     const getRegexes = [
@@ -81,15 +83,15 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g')
     ];
 
-    if (config.method === 'post' && !!config.data && postRegexes.some(regex => regex.test(config.url || ''))) {
+    if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 
-    if (config.method === 'put' && !!config.data && putRegexes.some(regex => regex.test(config.url || ''))) {
+    if (config.method === 'put' && putRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 
-    if (config.method === 'delete' && !!config.data && deleteRegexes.some(regex => regex.test(config.url || ''))) {
+    if (config.method === 'delete' && deleteRegexes.some(regex => regex.test(config.url || ''))) {
         return true;
     }
 

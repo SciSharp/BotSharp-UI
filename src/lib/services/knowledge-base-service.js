@@ -1,4 +1,3 @@
-import { VectorDataSource } from '$lib/helpers/enums.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
@@ -105,6 +104,19 @@ export async function deleteVectorKnowledgeData(id, collection) {
     const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
         collection: collection,
         id: id
+    });
+
+    const response = await axios.delete(url);
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function deleteAllVectorKnowledgeData(collection) {
+    const url = replaceUrl(endpoints.vectorKnowledgeDeleteAllUrl, {
+        collection: collection
     });
 
     const response = await axios.delete(url);
