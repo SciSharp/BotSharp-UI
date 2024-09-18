@@ -20,6 +20,7 @@
 		updateVectorKnowledgeData,
 		deleteVectorCollection,
 		deleteVectorKnowledgeData,
+		deleteAllVectorKnowledgeData,
 		createVectorCollection
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
@@ -398,6 +399,42 @@
 		isOpenEditKnowledge = true;
 	}
 
+	function onKnowledgeDeleteAll() {
+		Swal.fire({
+            title: 'Are you sure?',
+            text: `Are you sure you want to delete all data in collection "${selectedCollection}"?`,
+            icon: 'warning',
+			customClass: { confirmButton: 'danger-background' },
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes',
+        }).then(async (result) => {
+            if (result.value) {
+				isLoading = true;
+                deleteAllVectorKnowledgeData(selectedCollection).then(res => {
+					if (res) {
+						successText = "All data has been deleted!";
+						isComplete = true;
+						setTimeout(() => {
+							isComplete = false;
+						}, duration);
+						reset(true);
+					} else {
+						throw 'Error when deleting all data';
+					}
+				}).catch(() => {
+					errorText = "Failed to delete all data."
+					isError = true;
+					setTimeout(() => {
+						isError = false;
+					}, duration);
+				}).finally(() => {
+					isLoading = false;
+				});
+            }
+        });
+	}
+
 	function toggleKnowledgeEditModal() {
 		isOpenEditKnowledge = !isOpenEditKnowledge;
 		if (!isOpenEditKnowledge) {
@@ -730,7 +767,7 @@
 					<CardBody>
 						<div class="mt-2">
 							<div class="d-flex flex-wrap mb-3 knowledge-table-header">
-								<div class="d-flex">
+								<div class="d-flex" style="gap: 5px;">
 									<h5 class="font-size-16 knowledge-header-text">
 										<div>{$_('Knowledges')}</div>
 									</h5>
@@ -745,6 +782,19 @@
                                             on:click={() => onKnowledgeCreate()}
                                         >
                                             <i class="mdi mdi-plus" />
+                                        </Button>
+									</div>
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Delete all data"
+									>
+                                        <Button
+                                            class="btn btn-sm btn-soft-danger knowledge-btn-icon"
+                                            on:click={() => onKnowledgeDeleteAll()}
+                                        >
+                                            <i class="mdi mdi-minus" />
                                         </Button>
 									</div>
 								</div>
