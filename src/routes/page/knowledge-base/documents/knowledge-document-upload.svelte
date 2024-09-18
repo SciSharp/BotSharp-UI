@@ -18,6 +18,7 @@
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
+	import { isHtml } from '$lib/helpers/utils/file';
 
     const svelteDispatch = createEventDispatcher();
 
@@ -261,10 +262,18 @@
         const found = savedFiles.find((_, idx) => idx === index);
         if (!found) return;
 
-        const url = isExternalUrl(found.file_url) ?
-                found.file_url : `${PUBLIC_SERVICE_URL}${found.file_url}?access_token=${$userStore?.token}`;
-        
-        window.open(url);
+        let url = '';
+        if (!isHtml(found.file_extension || found.file_name)) {
+            if (found.file_url) {
+                url = isExternalUrl(found.file_url) ? found.file_url : `${PUBLIC_SERVICE_URL}${found.file_url}?access_token=${$userStore?.token}`;
+            }
+        } else {
+            url = found.ref_data?.url;
+        }
+
+        if (url) {
+            window.open(url);
+        }
     }
 
     function reset() {
