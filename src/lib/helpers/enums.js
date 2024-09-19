@@ -80,7 +80,8 @@ const knowledgePayloadName = {
     DataSource: 'dataSource',
     FileId: 'fileId',
     FileName: 'fileName',
-    FileSource: 'fileSource'
+    FileSource: 'fileSource',
+    FileUrl: 'fileUrl'
 };
 export const KnowledgePayloadName = Object.freeze(knowledgePayloadName);
 

@@ -60,7 +60,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/page', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/list', 'g')
+        new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g')
     ];
 
     const putRegexes = [
