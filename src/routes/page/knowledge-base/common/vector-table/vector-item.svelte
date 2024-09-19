@@ -73,9 +73,9 @@
         <div class="ellipsis">{item?.data?.question || item?.data?.text || ''}</div>
     </td>
     {#if isQuestionAnswerCollection}
-    <td class="knowledge-text-qa">
-        <div class="ellipsis">{item?.data?.answer || ''}</div>
-    </td>
+        <td class="knowledge-text-qa">
+            <div class="ellipsis">{item?.data?.answer || ''}</div>
+        </td>
     {/if}
     <td class="knowledge-op">
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
@@ -112,70 +112,83 @@
 </tr>
 
 {#if open}
-<tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
-    <td colspan="3">
-        <div class="knowledge-detail">
-            <ul>
-            {#if isQuestionAnswerCollection}
-                <li>
-                    <div class="wrappable fw-bold text-primary">
-                        {'Question:'}
-                    </div>
-                    <div class="wrappable">{item?.data?.question || item?.data?.text || ''}</div>
-                </li>
-                <li>
-                    <div class="wrappable fw-bold text-primary">
-                        {'Answer:'}
-                    </div>
-                    <div class="wrappable">{item?.data?.answer || ''}</div>
-                </li>
-            {:else if isDocumentCollection}
-                <li>
-                    <div class="wrappable fw-bold text-primary">
-                        {'Text:'}
-                    </div>
-                    <div class="wrappable">{item?.data?.text || ''}</div>
-                </li>
-            {/if}
+    <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
+        <td colspan="3">
+            <div class="knowledge-detail">
+                <ul>
+                    {#if isQuestionAnswerCollection}
+                        <li>
+                            <div class="wrappable fw-bold text-primary">
+                                {'Question:'}
+                            </div>
+                            <div class="wrappable">{item?.data?.question || item?.data?.text || ''}</div>
+                        </li>
+                        <li>
+                            <div class="wrappable fw-bold text-primary">
+                                {'Answer:'}
+                            </div>
+                            <div class="wrappable">{item?.data?.answer || ''}</div>
+                        </li>
+                    {:else if isDocumentCollection}
+                        <li>
+                            <div class="wrappable fw-bold text-primary">
+                                {'Text:'}
+                            </div>
+                            <div class="wrappable">{item?.data?.text || ''}</div>
+                        </li>
+                    {/if}
 
-            {#if item?.score}
-                <li>
-                    <div class="wrappable fw-bold text-primary">
-                        {'Score:'}
+                    {#if item?.score}
+                        <li>
+                            <div class="wrappable fw-bold text-primary">
+                                {'Score:'}
+                            </div>
+                            <div class="wrappable">{`${(item.score * 100).toFixed(4)}%`}</div>
+                        </li>
+                    {/if}
+                </ul>
+                {#if item?.id}
+                    <div class="more-detail">
+                        <Button class='toggle-btn btn-sm' color="link" on:click={() => loadMore = !loadMore}>
+                            {`${loadMore ? 'Less -' : 'More +'}`}
+                        </Button>
                     </div>
-                    <div class="wrappable">{`${(item.score * 100).toFixed(4)}%`}</div>
-                </li>
-            {/if}
-            </ul>
-            {#if item?.id}
-                <div class="more-detail">
-                    <Button class='toggle-btn btn-sm' color="link" on:click={() => loadMore = !loadMore}>
-                        {`${loadMore ? 'Less -' : 'More +'}`}
-                    </Button>
-                </div>
-                {#if loadMore}
-                    <ul
-                        class="more-detail-list text-secondary"
-                        in:fly={{ y: -5, duration: 300 }}
-                        out:fly={{ y: -5, duration: 200 }}
-                    >
-                        <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
-                        {#if item?.data?.dataSource}
-                            <li class="more-detail-item wrappable">Data source: {item?.data?.dataSource}</li>
-                        {/if}
-                        {#if item?.data?.fileName}
-                            <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
-                        {/if}
-                        {#if item?.data?.fileSource}
-                            <li class="more-detail-item wrappable">File source: {item?.data?.fileSource}</li>
-                        {/if}
-                        {#if item?.vector}
-                            <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>
-                        {/if}
-                    </ul>
+                    {#if loadMore}
+                        <ul
+                            class="more-detail-list text-secondary"
+                            in:fly={{ y: -5, duration: 300 }}
+                            out:fly={{ y: -5, duration: 200 }}
+                        >
+                            <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
+                            {#if item?.data?.dataSource}
+                                <li class="more-detail-item wrappable">Data source: {item?.data?.dataSource}</li>
+                            {/if}
+                            {#if item?.data?.fileName}
+                                <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
+                            {/if}
+                            {#if item?.data?.fileSource}
+                                <li class="more-detail-item wrappable">File source: {item?.data?.fileSource}</li>
+                            {/if}
+                            {#if item?.data?.fileUrl}
+                                <li class="more-detail-item wrappable">
+                                    <span>File url:</span>
+                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                    <span
+                                        class="link clickable"
+                                        on:click={() => window.open(item?.data?.fileUrl)}
+                                    >
+                                        link
+                                    </span>
+                                </li>
+                            {/if}
+                            {#if item?.vector}
+                                <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>
+                            {/if}
+                        </ul>
+                    {/if}
                 {/if}
-            {/if}
-        </div>
-    </td>
-</tr>
+            </div>
+        </td>
+    </tr>
 {/if}

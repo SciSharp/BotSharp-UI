@@ -14,7 +14,7 @@
     } from '@sveltestrap/sveltestrap';
     import {
         getVectorKnowledgeCollections,
-        getPagedVectorKnowledgeData,
+        getVectorKnowledgePageList,
         searchVectorKnowledge,
 		createVectorKnowledgeData,
 		updateVectorKnowledgeData,
@@ -36,9 +36,10 @@
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
+	import AdvancedSearch from '../common/search/advanced-search.svelte';
 	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
 	
-	const page_size = 8;
+	const pageSize = 8;
   	const duration = 2000;
 	const maxLength = 4096;
     const numberRegex = "[0-9\.]+";
@@ -49,7 +50,8 @@
 		KnowledgePayloadName.FileId,
 		KnowledgePayloadName.FileName,
 		KnowledgePayloadName.DataSource,
-		KnowledgePayloadName.FileSource
+		KnowledgePayloadName.FileSource,
+		KnowledgePayloadName.FileUrl
 	];
 	
 	/** @type {string} */
@@ -91,7 +93,6 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
-    let disableUpload = false;
 
     /** @type {any} */
     let docUploadrCmp;
@@ -112,7 +113,7 @@
 		useSearhPair: false
 	};
 
-    $: disableUpload = isLoading || isLoadingMore;
+    $: disabled = isLoading || isLoadingMore;
 
 	onMount(() => {
 		initData();
@@ -156,11 +157,12 @@
 				searchDone = true;
 			});
 		} else {
-			searchVectorKnowledge({
+			searchVectorKnowledge(selectedCollection,
+			{
 				text: util.trim(text),
 				confidence: Number(validateConfidenceNumber(confidence)),
 				with_vector: enableVector
-			}, selectedCollection).then(res => {
+			}).then(res => {
 				items = res || [];
 				isFromSearch = true;
 			}).finally(() => {
@@ -272,7 +274,7 @@
 	}) {
 		return new Promise((resolve, reject) => {
 			const filter = {
-				size: page_size,
+				size: pageSize,
 				start_id: params.startId,
 				with_vector: enableVector,
 				included_payloads: includedPayloads,
@@ -281,9 +283,9 @@
 				] : []
 			};
 
-			getPagedVectorKnowledgeData(
-				filter,
-				selectedCollection
+			getVectorKnowledgePageList(
+				selectedCollection,
+				filter
 			).then(res => {
 				const newItems = res.items || [];
 				if (params.isReset) {
@@ -373,7 +375,7 @@
 	function onKnowledgeDelete(e) {
 		const id = e.detail.id;
 		isLoading = true;
-		deleteVectorKnowledgeData(id, selectedCollection).then(res => {
+		deleteVectorKnowledgeData(selectedCollection, id).then(res => {
 			if (res) {
 				isComplete = true;
 				successText = "Knowledge has been deleted!";
@@ -552,6 +554,7 @@
 
 	/** @param {import('$knowledgeTypes').CreateVectorCollectionRequest} data */
 	function confirmCollectionCreate(data) {
+		isLoading = true;
 		toggleCollectionCreate();
 		createVectorCollection({
 			collection_name: data.collection_name,
@@ -699,7 +702,7 @@
 			<div class="knowledge-btn-icon demo-tooltip-icon line-align-center" id="demo-tooltip">
 				<i class="bx bx-info-circle" />
 			</div>
-			<Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
+			<Tooltip target="demo-tooltip" placement="top" class="demo-tooltip-note">
 				<ul>
 					<li>Click "Search" or press "Enter" to search knowledge</li>
 					<li>Switch collection will not search</li>
@@ -792,13 +795,23 @@
 						</div>
 					{/if}
 			  	</div>
+
+				{#if textSearch}
+					<AdvancedSearch
+						disabled={disabled}
+						items={[
+							{ key: KnowledgePayloadName.FileName, displayName: "File name" },
+							{ key: KnowledgePayloadName.FileSource, displayName: "File source" }
+						]}
+					/>
+				{/if}
 			</div>
 		{/if}
         
         {#if selectedCollection}
             <KnowledgeDocumentUpload
                 collection={selectedCollection}
-                disabled={disableUpload}
+                disabled={disabled}
                 bind:this={docUploadrCmp}
                 on:docuploaded={(e) => onDocUploaded(e)}
                 on:docdeleted={(e) => onDocDelected(e)}

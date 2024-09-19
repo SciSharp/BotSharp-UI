@@ -17,11 +17,11 @@ export async function getVectorKnowledgeCollections(type) {
 }
 
 /**
- * @param {import('$knowledgeTypes').SearchKnowledgeRequest} request
  * @param {string} collection
+ * @param {import('$knowledgeTypes').SearchKnowledgeRequest} request
  * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchViewModel[]>}
  */
-export async function searchVectorKnowledge(request, collection) {
+export async function searchVectorKnowledge(collection, request) {
     const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
         collection: collection
     });
@@ -31,12 +31,12 @@ export async function searchVectorKnowledge(request, collection) {
 }
 
 /**
- * @param {import('$knowledgeTypes').KnowledgeFilter} filter
  * @param {string} collection
+ * @param {import('$knowledgeTypes').KnowledgeFilter} filter
  * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchPageResult>}
  */
-export async function getPagedVectorKnowledgeData(filter, collection) {
-    const url = replaceUrl(endpoints.vectorKnowledgePageDataUrl, {
+export async function getVectorKnowledgePageList(collection, filter) {
+    const url = replaceUrl(endpoints.vectorKnowledgePageListUrl, {
         collection: collection
     });
 
@@ -96,11 +96,11 @@ export async function updateVectorKnowledgeData(id, collection, text, dataSource
 
 
 /**
- * @param {string} id
  * @param {string} collection
+ * @param {string} id
  * @returns {Promise<boolean>}
  */
-export async function deleteVectorKnowledgeData(id, collection) {
+export async function deleteVectorKnowledgeData(collection, id) {
     const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
         collection: collection,
         id: id
@@ -160,8 +160,8 @@ export async function deleteKnowledgeDocument(collection, fileId) {
  * @param {import('$knowledgeTypes').KnowledgeDocRequest} request
  * @returns {Promise<import('$knowledgeTypes').KnowledgeDocPagedResult>}
  */
-export async function getKnowledgeDocuments(collection, request) {
-    const url = replaceUrl(endpoints.knowledgeDocumentListUrl, {
+export async function getKnowledgeDocumentPageList(collection, request) {
+    const url = replaceUrl(endpoints.knowledgeDocumentPageListUrl, {
         collection: collection
     });
 

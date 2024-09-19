@@ -60,7 +60,7 @@ export const endpoints = {
     
     // knowledge base
     vectorKnowledgeCollectionsUrl: `${host}/knowledge/vector/collections`,
-    vectorKnowledgePageDataUrl: `${host}/knowledge/vector/{collection}/page`,
+    vectorKnowledgePageListUrl: `${host}/knowledge/vector/{collection}/page`,
     vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
     vectorKnowledgeCreateUrl: `${host}/knowledge/vector/{collection}/create`,
     vectorKnowledgeUpdateUrl: `${host}/knowledge/vector/{collection}/update`,
@@ -74,7 +74,7 @@ export const endpoints = {
 
     knowledgeDocumentUploadUrl: `${host}/knowledge/document/{collection}/upload`,
     knowledgeDocumentDeleteUrl: `${host}/knowledge/document/{collection}/delete/{fileId}`,
-    knowledgeDocumentListUrl: `${host}/knowledge/document/{collection}/list`,
+    knowledgeDocumentPageListUrl: `${host}/knowledge/document/{collection}/page`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

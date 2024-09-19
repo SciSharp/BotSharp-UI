@@ -173,6 +173,16 @@
             white-space: wrap !important;
         }
 
+        .more-detail-item {
+            .link {
+                color: var(--bs-primary);
+
+                &:hover {
+                    text-decoration: underline;
+                }
+            }
+        }
+
         .more-detail {
             margin: 2px 0px;
             padding-left: 2rem;
@@ -297,4 +307,55 @@
     border-radius: 10px;
     padding: 10px;
     background-color: var(--bs-light);
+}
+
+.knowledge-adv-search-container {
+    .knowledge-adv-search-btn {
+        display: flex;
+        justify-content: flex-start;
+        gap: 10px;
+        font-size: 18px;
+    
+        input {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    }
+    
+    .knowledge-adv-search-items {
+        margin-top: 15px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    
+        .knowledge-adv-search-item {
+            display: flex;
+            gap: 10px;
+    
+            .search-item-cb {
+                flex: 0 0 20px;
+    
+                .form-check {
+                    font-size: 15px;
+                    margin-bottom: 0.125rem;
+                }
+    
+                input[type="checkbox"] {
+                    outline: none !important;
+                    box-shadow: none !important;
+                }
+            }
+    
+            .search-item-name {
+                font-size: 15px;
+                flex: 0 0 100px;
+            }
+    
+            .search-item-content {
+                flex: 0.3;
+                min-width: 150px;
+                max-width: 350px;
+            }
+        }
+    }
 }

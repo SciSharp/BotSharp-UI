@@ -14,7 +14,7 @@
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
     import { KnowledgeDocSource } from '$lib/helpers/enums';
 	import {
-        getKnowledgeDocuments,
+        getKnowledgeDocumentPageList,
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument
     } from '$lib/services/knowledge-base-service';
@@ -197,7 +197,7 @@
 
         const page = docPage;
         return new Promise((resolve, reject) => {
-            getKnowledgeDocuments(
+            getKnowledgeDocumentPageList(
                 collection,
                 { page: page, size: docPageSize }
             ).then(res => {
@@ -322,7 +322,7 @@
             <div class="line-align-center" id="upload-tooltip">
                 <i class="bx bx-info-circle" />
             </div>
-            <Tooltip target="upload-tooltip" placement="right" class="demo-tooltip-note">
+            <Tooltip target="upload-tooltip" placement="top" class="demo-tooltip-note">
                 <ul>
                     <li>{`At most ${fileLimit} ${fileLimit > 1 ? 'documents are' : 'document is'} allowed for each upload.`}</li>
                     <li>{'Each document cannot exceed 10 MB.'}</li>
