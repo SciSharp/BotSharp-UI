@@ -20,6 +20,9 @@
     /** @type {boolean} */
     export let open = false;
 
+    /** @type {boolean} */
+    export let disabled = false;
+
     $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
     $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
     $: {
@@ -94,6 +97,7 @@
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                 <Button
                     class="btn btn-sm btn-soft-warning"
+                    disabled={disabled}
                     on:click={() => editKnowledge()}
                 >
                     <i class="bx bxs-edit" />
@@ -102,6 +106,7 @@
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                 <Button
                     class="btn btn-sm btn-soft-danger"
+                    disabled={disabled}
                     on:click={() => deleteKnowledge(item?.id)}
                 >
                     <i class="mdi mdi-delete-outline" />

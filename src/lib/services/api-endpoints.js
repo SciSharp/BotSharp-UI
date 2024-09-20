@@ -74,6 +74,7 @@ export const endpoints = {
 
     knowledgeDocumentUploadUrl: `${host}/knowledge/document/{collection}/upload`,
     knowledgeDocumentDeleteUrl: `${host}/knowledge/document/{collection}/delete/{fileId}`,
+    knowledgeDocumentDeleteAllUrl: `${host}/knowledge/document/{collection}/delete`,
     knowledgeDocumentPageListUrl: `${host}/knowledge/document/{collection}/page`,
 
     // chathub 

@@ -1,23 +1,25 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount, onDestroy, createEventDispatcher  } from 'svelte';
     import { fly } from 'svelte/transition';
     import { Input, Tooltip } from '@sveltestrap/sveltestrap';
     import util from "lodash";
-    
 
+    const svelteDispatch = createEventDispatcher();
+    
     const maxLength = 50;
 
+    
     /** @type {{ key: string, displayName: string }[]} */
     export let items;
     
     /** @type {boolean} */
     export let disabled = false;
 
-
+    
     /** @type {boolean} */
     let showAdvSearch = false;
 
-    /** @type {any[]} */
+    /** @type {{ key: string, displayName: string, checked: boolean, value: string }[]} */
     let innerItems = [];
 
 
@@ -66,6 +68,9 @@
             innerItems = innerItems.map((x, index) => {
                 return index === idx ? { ...found } : x;
             });
+            svelteDispatch('changeitems', {
+                searchItems: buildSearchItems()
+            });
         }
     }
 
@@ -80,23 +85,38 @@
             innerItems = innerItems.map((x, index) => {
                 return index === idx ? { ...found } : x;
             });
+            svelteDispatch('changeitems', {
+                searchItems: buildSearchItems()
+            });
         }
+    }
+
+
+    function buildSearchItems() {
+        return innerItems?.filter(x => x.checked && !!util.trim(x.value))?.map(x => {
+            return {
+                key: x.key,
+                value: x.value
+            }
+        }) || [];
     }
 </script>
 
 
 <div
-    class="knowledge-adv-search-container"
+    class="knowledge-adv-search-container mt-5"
     in:fly={{ y: -10, duration: 500 }}
     out:fly={{ y: -10, duration: 200 }}
 >
     <div class="knowledge-adv-search-btn text-primary fw-bold">
-        <Input
-            type="switch"
-            disabled={disabled}
-            checked={showAdvSearch}
-            on:change={e => toggleAdvSearch(e)}
-        />
+        <div class="line-align-center">
+            <Input
+                type="switch"
+                disabled={disabled}
+                checked={showAdvSearch}
+                on:change={e => toggleAdvSearch(e)}
+            />
+        </div>
         <div class="line-align-center">
             <div>{'Advance Search'}</div>
         </div>

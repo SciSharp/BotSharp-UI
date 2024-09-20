@@ -261,6 +261,22 @@
 
         .load-doc-btn {
             font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+
+            .reset-docs-btn {
+                color: var(--bs-danger);
+                
+                i {
+                    font-size: 18px;
+                    border-radius: 3px;
+
+                    &:hover {
+                        background-color: var(--bs-danger);
+                        color: white;
+                    }
+                }
+            }
         }
 
         .collection-docs {
