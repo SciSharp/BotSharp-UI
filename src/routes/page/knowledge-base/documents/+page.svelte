@@ -81,6 +81,9 @@
 	/** @type {string} */
 	let editModalTitle = "Edit knowledge";
 
+	/** @type {import('$commonTypes').KeyValuePair[]} */
+	let searchItems = [];
+
 	/** @type {boolean} */
     let showDemo = true;
     let isSearching = false;
@@ -93,6 +96,7 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
+	let disableSearchBtn = false;
 
     /** @type {any} */
     let docUploadrCmp;
@@ -113,7 +117,17 @@
 		useSearhPair: false
 	};
 
-    $: disabled = isLoading || isLoadingMore;
+    $: disabled = isLoading || isLoadingMore || isSearching;
+	$: {
+		disableSearchBtn = false;
+		if (isSearching || isLoadingMore) {
+			disableSearchBtn = true;
+		} else if (textSearch && searchItems.length > 0) {
+			disableSearchBtn = false;
+		} else if (!text || util.trim(text).length === 0) {
+			disableSearchBtn = true;
+		}
+	}
 
 	onMount(() => {
 		initData();
@@ -136,6 +150,13 @@
 	// Search knowledge
 	function toggleDemo() {
 		showDemo = !showDemo;
+	}
+
+	function toggleTextSearch() {
+		textSearch = !textSearch;
+		if (!textSearch) {
+			searchItems = [];
+		}
 	}
 
 	function search() {
@@ -273,14 +294,24 @@
 		useSearhPair: false
 	}) {
 		return new Promise((resolve, reject) => {
+			/** @type {import('$commonTypes').KeyValuePair[]} */
+			let searchPairs = [];
+			if (params.useSearhPair) {
+				if (!!text) {
+					searchPairs = [ ...searchPairs, { key: KnowledgePayloadName.Text, value: text } ];
+				}
+
+				if (textSearch && searchItems.length > 0) {
+					searchPairs = [ ...searchPairs, ...searchItems ];
+				}
+			}
+
 			const filter = {
 				size: pageSize,
 				start_id: params.startId,
 				with_vector: enableVector,
 				included_payloads: includedPayloads,
-				search_pairs: params.useSearhPair ? [
-					{ key: KnowledgePayloadName.Text, value: text }
-				] : []
+				search_pairs: searchPairs
 			};
 
 			getVectorKnowledgePageList(
@@ -630,7 +661,7 @@
         reset();
         const success = e.detail.success;
         if (success) {
-            successText = "Knowledg document has been deleted!";
+            successText = "Knowledge document has been deleted!";
             isComplete = true;
             setTimeout(() => {
                 isComplete = false;
@@ -643,6 +674,30 @@
             }, duration);
         }
     }
+
+	/** @param {any} e */
+    function onDocsReset(e) {
+        reset();
+        const success = e.detail.success;
+        if (success) {
+            successText = "Knowledge document has been reset!";
+            isComplete = true;
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
+        } else {
+            errorText = "Failed to reset knowledge documents."
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
+        }
+    }
+
+	/** @param {any} e */
+	function onSearchItemsChanged(e) {
+		searchItems = e.detail.searchItems || [];
+	}
 </script>
 
 <HeadTitle title="{$_('Document Knowledge')}" />
@@ -767,7 +822,8 @@
 							<div class="line-align-center input-text search-toggle">
 								<Input
 									type="switch"
-									bind:checked={textSearch}
+									checked={textSearch}
+									on:change={e => toggleTextSearch()}
 								/>
 							</div>
 							<div class="line-align-center input-text fw-bold">
@@ -777,13 +833,24 @@
                         <div class="line-align-center">
 							<Button
 								color="primary"
-								disabled={!text || util.trim(text).length === 0 || isSearching}
+								disabled={disableSearchBtn}
 								on:click={() => search()}
 							>
 								{'Search'}
 							</Button>
                         </div>
                     </div>
+
+					{#if textSearch}
+						<AdvancedSearch
+							on:changeitems={e => onSearchItemsChanged(e)}
+							disabled={disabled}
+							items={[
+								{ key: KnowledgePayloadName.FileName, displayName: "File name" },
+								{ key: KnowledgePayloadName.FileSource, displayName: "File source" }
+							]}
+						/>
+					{/if}
 				
 					{#if isSearching}
 						<div class="knowledge-loader mt-5">
@@ -795,16 +862,6 @@
 						</div>
 					{/if}
 			  	</div>
-
-				{#if textSearch}
-					<AdvancedSearch
-						disabled={disabled}
-						items={[
-							{ key: KnowledgePayloadName.FileName, displayName: "File name" },
-							{ key: KnowledgePayloadName.FileSource, displayName: "File source" }
-						]}
-					/>
-				{/if}
 			</div>
 		{/if}
         
@@ -815,6 +872,7 @@
                 bind:this={docUploadrCmp}
                 on:docuploaded={(e) => onDocUploaded(e)}
                 on:docdeleted={(e) => onDocDelected(e)}
+				on:resetdocs={(e) => onDocsReset(e)}
             />
         {/if}
 
@@ -857,7 +915,10 @@
 								</div>
 								<div class="collection-dropdown-container">
 									<div class="line-align-center collection-dropdown">
-										<Input type="select" on:change={(e) => changeCollection(e)}>
+										<Input
+											type="select"
+											on:change={(e) => changeCollection(e)}
+										>
 											{#each collections as option, idx (idx)}
 												<option value={option} selected={option === selectedCollection}>{option}</option>
 											{/each}

@@ -16,7 +16,8 @@
 	import {
         getKnowledgeDocumentPageList,
         uploadKnowledgeDocuments,
-        deleteKnowledgeDocument
+        deleteKnowledgeDocument,
+        deleteAllKnowledgeDocuments
     } from '$lib/services/knowledge-base-service';
 	import { isHtml } from '$lib/helpers/utils/file';
 
@@ -103,7 +104,7 @@
     });
 
     function init() {
-        showUploader = true;
+        showUploader = false;
     }
 
     /** @param {any} e */
@@ -257,6 +258,36 @@
         });
     }
 
+    function handleDeleteAllSavedFiles() {
+        if (disabled || savedFiles.length === 0) return;
+
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `Are you sure you want to delete all the documents and their knowledge"?`,
+            icon: 'warning',
+            customClass: { confirmButton: 'danger-background' },
+            showCancelButton: true,
+            cancelButtonText: 'No',
+            confirmButtonText: 'Yes',
+        }).then(async (result) => {
+            if (result.value) {
+                disabled = true;
+                deleteAllKnowledgeDocuments(collection, { page: 1, size: 10 }).then(res => {
+                    if (res) {
+                        savedFiles = [];
+                        docPage = startPage;
+                        getKnowledgeDocumentList();
+                    }
+                    svelteDispatch("resetdocs", { success: res });
+                }).catch(err => {
+                    svelteDispatch("resetdocs", { success: false });
+                }).finally(() => {
+                    disabled = false;
+                });
+            }
+        });
+    }
+
     /** @param {number} index */
     function handleDownloadSavedFile(index) {
         const found = savedFiles.find((_, idx) => idx === index);
@@ -398,6 +429,19 @@
                             </div>
                         {/if}
                     </Button>
+                    {#if showDocList}
+                        <div class="reset-docs-btn line-align-center">
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <i
+                                class={`bx bx-trash ${disabled || savedFiles.length === 0 ? '' : 'clickable'}`}
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Delete all docs"
+                                on:click={() => handleDeleteAllSavedFiles()}
+                            />
+                        </div>
+                    {/if}
                 </div>
                 {#if showDocList}
                     <div class="collection-docs docs-scrollbar">

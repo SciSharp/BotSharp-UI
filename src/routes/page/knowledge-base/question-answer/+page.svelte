@@ -85,6 +85,7 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
+	let disableSearchBtn = false;
 
 	/** @type {{
 	 * startId: string | null,
@@ -101,6 +102,16 @@
 		skipLoader: false,
 		useSearhPair: false
 	};
+
+	$: disabled = isLoading || isLoadingMore || isSearching;
+	$: {
+		disableSearchBtn = false;
+		if (isSearching || isLoadingMore) {
+			disableSearchBtn = true;
+		} else if (!text || util.trim(text).length === 0) {
+			disableSearchBtn = true;
+		}
+	}
 
 	onMount(() => {
 		initData();
@@ -743,7 +754,7 @@
                         <div class="line-align-center">
 							<Button
 								color="primary"
-								disabled={!text || util.trim(text).length === 0 || isSearching}
+								disabled={disableSearchBtn}
 								on:click={() => search()}
 							>
 								{'Search'}
@@ -802,7 +813,10 @@
 								</div>
 								<div class="collection-dropdown-container">
 									<div class="line-align-center collection-dropdown">
-										<Input type="select" on:change={(e) => changeCollection(e)}>
+										<Input
+											type="select"
+											on:change={(e) => changeCollection(e)}
+										>
 											{#each collections as option, idx (idx)}
 												<option value={option} selected={option === selectedCollection}>{option}</option>
 											{/each}

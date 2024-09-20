@@ -154,6 +154,20 @@ export async function deleteKnowledgeDocument(collection, fileId) {
     return response.data;
 }
 
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').KnowledgeDocRequest} request
+ * @returns {Promise<boolean>}
+ */
+export async function deleteAllKnowledgeDocuments(collection, request) {
+    const url = replaceUrl(endpoints.knowledgeDocumentDeleteAllUrl, {
+        collection: collection
+    });
+
+    const response = await axios.delete(url, { data: { ...request } });
+    return response.data;
+}
+
 
 /**
  * @param {string} collection
