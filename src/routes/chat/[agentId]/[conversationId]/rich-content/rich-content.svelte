@@ -3,6 +3,7 @@
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
+	import { afterUpdate, tick } from "svelte";
 	
     /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;
@@ -22,6 +23,7 @@
 
     $: {
         const richType = message?.rich_content?.message?.rich_type;
+        console.log(message);
 
         if (richType === RichType.QuickReply) {
             options = message?.rich_content?.message?.quick_replies;

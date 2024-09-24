@@ -59,7 +59,8 @@ export const endpoints = {
     loggingStateLogUrl: `${host}/logger/conversation/{conversationId}/state-log`,
     
     // knowledge base
-    vectorKnowledgeCollectionsUrl: `${host}/knowledge/vector/collections`,
+    vectorCollectionExistUrl: `${host}/knowledge/vector/{collection}/exist`,
+    vectorCollectionsUrl: `${host}/knowledge/vector/collections`,
     vectorKnowledgePageListUrl: `${host}/knowledge/vector/{collection}/page`,
     vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
     vectorKnowledgeCreateUrl: `${host}/knowledge/vector/{collection}/create`,

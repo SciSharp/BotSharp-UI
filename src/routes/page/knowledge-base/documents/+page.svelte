@@ -255,7 +255,7 @@
 		} else if (num >= 1) {
 			confidence = '1.0';
 		} else {
-			confidence = num.toFixed(2);
+			confidence = num.toFixed(1);
 		}
 		return confidence;
 	}
@@ -806,8 +806,11 @@
                             </div>
                             <div class="line-align-center confidence-box">
                                 <Input
-                                    type="text"
+                                    type="number"
                                     class="text-center"
+									min={0}
+									max={1}
+									step={0.1}
 									disabled={textSearch}
                                     bind:value={confidence}
                                     on:keydown={(e) => validateConfidenceInput(e)}

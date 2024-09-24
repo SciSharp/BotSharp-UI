@@ -74,6 +74,11 @@
     function handleClickOption(e, option, index) {
         e.preventDefault();
 
+        if (option.type === ElementType.Web && option.url) {
+            window.open(option.url);
+            return;
+        }
+
         if (!isMultiSelect) {
             innerConfirm(option?.title, option?.payload);
         } else {
@@ -146,26 +151,17 @@
 {#if plainOptions || fileOption}
 <div class="plain-option-container center-option">
     {#each plainOptions as option, index}
-        {#if option.type === ElementType.Web && option.url}
-            <button
-                class={`btn btn-sm btn-link m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                disabled={disabled}
-                in:fade={{ duration: duration }}
-                on:click={() => window.open(option.url)}
-            >
+        <button
+            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+            class:active={!!option.isClicked}
+            disabled={disabled}
+            in:fade={{ duration: duration }}
+            on:click={(e) => handleClickOption(e, option, index)}
+        >
+            <span class={`${option.type === ElementType.Web && option.url ? 'link-option' : ''}`}>
                 {option.title}
-            </button>
-        {:else}
-            <button
-                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                class:active={!!option.isClicked}
-                disabled={disabled}
-                in:fade={{ duration: duration }}
-                on:click={(e) => handleClickOption(e, option, index)}
-            >
-                {option.title}
-            </button>
-        {/if}
+            </span>
+        </button>
     {/each}
     {#if plainOptions && isMultiSelect}
         <button

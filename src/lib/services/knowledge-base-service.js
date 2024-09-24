@@ -2,12 +2,26 @@ import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
+
+/**
+ * @param {string} collection
+ * @returns {Promise<boolean>}
+ */
+export async function existVectorCollection(collection) {
+    const url = replaceUrl(endpoints.vectorCollectionExistUrl, {
+        collection: collection
+    });
+
+    const response = await axios.get(url);
+    return response.data;
+}
+
 /**
  * @param {string} type
  * @returns {Promise<string[]>}
  */
 export async function getVectorKnowledgeCollections(type) {
-    const url = endpoints.vectorKnowledgeCollectionsUrl;
+    const url = endpoints.vectorCollectionsUrl;
     const response = await axios.get(url, {
         params: {
             type: type
