@@ -2,6 +2,7 @@
     import { getContext, onMount } from "svelte";
     import { fade } from 'svelte/transition';
 	import { Card, CardBody } from "@sveltestrap/sveltestrap";
+	import { ElementType } from "$lib/helpers/enums";
     
     /** @type {boolean} */
     export let disabled = false;
@@ -35,6 +36,8 @@
                 return {
                     title: x.title,
                     payload: x.payload,
+                    type: x.type,
+                    url: x.url,
                     is_primary: x.is_primary,
                     is_secondary: x.is_secondary,
                 };
@@ -54,6 +57,8 @@
                 return {
                     title: x.title,
                     payload: x.payload,
+                    type: x.type,
+                    url: x.url,
                     is_primary: x.is_primary,
                     is_secondary: x.is_secondary,
                 };
@@ -75,7 +80,7 @@
      * @param {string} payload
 	 */
     function innerConfirm(title, payload) {
-        onConfirm && onConfirm(title, payload);
+        onConfirm?.(title, payload);
         reset();
     }
 
@@ -106,13 +111,23 @@
                         {#if card.options?.length > 0}
                             <div class="card-option-group">
                                 {#each card.options as option, i (i)}
-                                    <button
-                                        class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                        disabled={disabled}
-                                        on:click={(e) => handleClickOption(e, option)}
-                                    >
-                                        {option.title}
-                                    </button>
+                                    {#if option.type === ElementType.Web && option.url}
+                                        <button
+                                            class={`btn btn-sm btn-link m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                                            disabled={disabled}
+                                            on:click={() => window.open(option.url)}
+                                        >
+                                            {option.title}
+                                        </button>
+                                    {:else}
+                                        <button
+                                            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                                            disabled={disabled}
+                                            on:click={(e) => handleClickOption(e, option)}
+                                        >
+                                            {option.title}
+                                        </button>
+                                    {/if}
                                 {/each}
                             </div>
                         {/if}

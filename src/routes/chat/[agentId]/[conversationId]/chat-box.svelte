@@ -18,7 +18,8 @@
 		conversationStore,
 		conversationUserStateStore,
 		conversationUserMessageStore,
-		conversationUserAttachmentStore
+		conversationUserAttachmentStore,
+		resetLocalStorage
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
@@ -166,6 +167,12 @@
 	});
 	
 	onMount(async () => {
+		window.addEventListener('message', e => {
+			if (e.data.action === 'logout') {
+				resetLocalStorage(true);
+			}
+		});
+
 		autoScrollLog = true;
 		dialogs = await GetDialogs(params.conversationId);
 		conversationUser = await getConversationUser(params.conversationId);

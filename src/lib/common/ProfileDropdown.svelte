@@ -15,6 +15,13 @@
 		if (browser){	
 			resetLocalStorage(true);
 		}
+
+		const chatFrame = document.getElementById('chat-frame');
+		if (chatFrame) {
+			// @ts-ignore
+			chatFrame.contentWindow.postMessage({ action: "logout" }, "*");
+		}
+
 		goto('login');
 	};
 
@@ -57,7 +64,7 @@
 				role="button"
 				tabindex="0"
 				on:keydown={() => {}}
-				on:click={logout}
+				on:click={() => logout()}
 			>
 				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>{$_('Logout')}</span>
 			</div>
