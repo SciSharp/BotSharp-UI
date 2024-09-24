@@ -41,17 +41,17 @@
                 <Row class="justify-content-center mt-5">
                     <Col sm="8">
                         {#if showHomeImage}
-                        <div class="maintenance-img" transition:fade={{ delay: 300, duration: 500 }}>
-                        <img src={PUBLIC_HOME_IMAGE} alt="" style="max-width: 25vw;" />
-                        </div>
+                            <div class="maintenance-img" transition:fade={{ delay: 300, duration: 500 }}>
+                                <img src={PUBLIC_HOME_IMAGE} alt="" style="max-width: 25vw;" />
+                            </div>
                         {/if}
                     </Col>
                 </Row>
                 {#if showHomeSlogan}
-                <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="login" class="btn btn-primary">get started</a> with {PUBLIC_BRAND_NAME}</h4>
-                <p class="text-muted" transition:fade={{ delay: 800, duration: 500 }}>
-                {PUBLIC_HOME_SLOGAN}
-                </p>
+                    <h4 class="mt-5" transition:fade={{ delay: 500, duration: 500 }}>Let&#39;s <a href="login" class="btn btn-primary">get started</a> with {PUBLIC_BRAND_NAME}</h4>
+                    <p class="text-muted" transition:fade={{ delay: 800, duration: 500 }}>
+                        {PUBLIC_HOME_SLOGAN}
+                    </p>
                 {/if}
             </div>
         </Col>

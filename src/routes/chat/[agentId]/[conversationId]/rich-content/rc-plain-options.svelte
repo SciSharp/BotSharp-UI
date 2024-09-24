@@ -57,6 +57,8 @@
             return {
                 title: op.title,
                 payload: op.payload,
+                type: op.type,
+                url: op.url,
                 is_primary: op.is_primary,
                 is_secondary: op.is_secondary,
                 isClicked: false
@@ -144,15 +146,26 @@
 {#if plainOptions || fileOption}
 <div class="plain-option-container center-option">
     {#each plainOptions as option, index}
-        <button
-            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-            class:active={!!option.isClicked}
-            disabled={disabled}
-            in:fade={{ duration: duration }}
-            on:click={(e) => handleClickOption(e, option, index)}
-        >
-            {option.title}
-        </button>
+        {#if option.type === ElementType.Web && option.url}
+            <button
+                class={`btn btn-sm btn-link m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                disabled={disabled}
+                in:fade={{ duration: duration }}
+                on:click={() => window.open(option.url)}
+            >
+                {option.title}
+            </button>
+        {:else}
+            <button
+                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                class:active={!!option.isClicked}
+                disabled={disabled}
+                in:fade={{ duration: duration }}
+                on:click={(e) => handleClickOption(e, option, index)}
+            >
+                {option.title}
+            </button>
+        {/if}
     {/each}
     {#if plainOptions && isMultiSelect}
         <button

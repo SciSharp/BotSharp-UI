@@ -2,6 +2,7 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
+const userKey = "user";
 const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
@@ -16,7 +17,7 @@ export const userStore = writable({ id: "", full_name: "", expires: 0, token: nu
 export function getUserStore() {
     if (browser) {
         // Access localStorage only if in the browser context
-        let json = localStorage.getItem('user');
+        let json = localStorage.getItem(userKey);
         if (json)
             return JSON.parse(json);
         else
@@ -29,7 +30,7 @@ export function getUserStore() {
 
 userStore.subscribe(value => {
     if (browser && value.token) {
-        localStorage.setItem('user', JSON.stringify(value));
+        localStorage.setItem(userKey, JSON.stringify(value));
     }
 });
 

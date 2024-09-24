@@ -44,18 +44,18 @@
      * @param {string} payload
 	 */
      function handleConfirm(title, payload) {
-        onConfirm && onConfirm(title, payload);
+        onConfirm?.(title, payload);
     }
 </script>
 
 {#if message?.rich_content?.editor === EditorType.File}
-    <ChatAttachmentOptions options={options} disabled={disabled} onConfirm={handleConfirm} />
+    <ChatAttachmentOptions options={options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
 {/if}
 
 {#if message?.rich_content?.editor !== EditorType.File}
     {#if !isComplexElement}
-        <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disabled={disabled} onConfirm={handleConfirm} />
+        <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
     {:else}
-        <RcComplexOptions options={options} disabled={disabled} onConfirm={handleConfirm} />
+        <RcComplexOptions options={options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
     {/if}
 {/if}
