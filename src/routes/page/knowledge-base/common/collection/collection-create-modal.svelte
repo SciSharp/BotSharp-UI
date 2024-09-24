@@ -12,6 +12,7 @@
         Row
     } from "@sveltestrap/sveltestrap";
     import _ from "lodash";
+	import { existVectorCollection } from "$lib/services/knowledge-base-service";
 
     
     /** @type {boolean} */
@@ -47,6 +48,9 @@
     /** @type {string} */
     let collection;
 
+    /** @type {boolean} */
+    let isValidCollection = true;
+
     /** @type {number} */
     let dimension;
 
@@ -77,14 +81,40 @@
         toggleModal?.();
     }
 
+    /** @param {string} text */
+    function validateCollection(text) {
+        return new Promise((resolve, reject) => {
+            existVectorCollection(text).then(res => {
+                resolve(res);
+            }).catch(err => {
+                reject(err);
+            });
+        });
+    }
+
+    /** @param {any} e */
+    function changeCollectionText(e) {
+        isValidCollection = true;
+        collection = e.target.value;
+    }
+
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
-        confirm?.({
-            collection_name: _.trim(collection),
-            dimension: dimension,
-            provider: _.trim(provider),
-            model: _.trim(model)
+
+        validateCollection(_.trim(collection)).then(res => {
+            if (res) {
+                isValidCollection = false;
+            } else {
+                confirm?.({
+                    collection_name: _.trim(collection),
+                    dimension: dimension,
+                    provider: _.trim(provider),
+                    model: _.trim(model)
+                });
+            }
+        }).catch(() => {
+            isValidCollection = false;
         });
     }
 
@@ -97,23 +127,27 @@
 
 </script>
 
-<Modal class={className} fade size={size} isOpen={open} toggle={() => toggle()}>
+<Modal class={`vector-collection-create-container ${className}`} fade size={size} isOpen={open} toggle={() => toggle()}>
     <ModalHeader>
         <div>{title}</div>
     </ModalHeader>
     <ModalBody>
         <Form>
             <Row>
-                <FormGroup>
+                <FormGroup class="collection-input">
                     <label class="fw-bold" for="collection">{`Collection name: `}</label>
                     <Input
                         type="text"
-                        class="text-center"
+                        class={`text-center ${!isValidCollection ? 'invalid-input' : ''}`}
                         maxlength={maxLength}
-                        bind:value={collection}
+                        value={collection}
+                        on:input={(e) => changeCollectionText(e)}
                     />
-                    <div class="text-secondary text-end text-count">
-                        {collection?.length || 0}/{maxLength}
+                    <div class={`text-secondary text-count collection-note ${isValidCollection ? 'valid' : 'invalid'}`}>
+                        {#if !isValidCollection}
+                            <div style="color: var(--bs-danger);">{'* The collection already exists.'}</div>
+                        {/if}
+                        <div>{collection?.length || 0}/{maxLength}</div>
                     </div>
                 </FormGroup>
             </Row>
@@ -156,7 +190,7 @@
                         step={step}
                     />
                     <div class="text-secondary text-count">
-                        {'* The value must be larger than zero.'}
+                        {'* The value must be larger than 0.'}
                     </div>
                 </FormGroup>
             </Row>

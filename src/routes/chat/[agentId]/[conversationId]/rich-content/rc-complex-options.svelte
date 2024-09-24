@@ -72,6 +72,12 @@
 	 */
     function handleClickOption(e, option) {
         e.preventDefault();
+
+        if (option.type === ElementType.Web && option.url) {
+            window.open(option.url);
+            return;
+        }
+
         innerConfirm(option?.title, option?.payload);
     }
 
@@ -111,23 +117,13 @@
                         {#if card.options?.length > 0}
                             <div class="card-option-group">
                                 {#each card.options as option, i (i)}
-                                    {#if option.type === ElementType.Web && option.url}
-                                        <button
-                                            class={`btn btn-sm btn-link m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                            disabled={disabled}
-                                            on:click={() => window.open(option.url)}
-                                        >
-                                            {option.title}
-                                        </button>
-                                    {:else}
-                                        <button
-                                            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                            disabled={disabled}
-                                            on:click={(e) => handleClickOption(e, option)}
-                                        >
-                                            {option.title}
-                                        </button>
-                                    {/if}
+                                    <button
+                                        class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                                        disabled={disabled}
+                                        on:click={(e) => handleClickOption(e, option)}
+                                    >
+                                        <span class={`${option.type === ElementType.Web && option.url ? 'link-option' : ''}`}>{option.title}</span>
+                                    </button>
                                 {/each}
                             </div>
                         {/if}

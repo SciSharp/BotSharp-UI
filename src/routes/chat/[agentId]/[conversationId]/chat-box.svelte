@@ -278,6 +278,8 @@
 	async function refresh() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+		lastBotMsg = null;
+		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
 		lastMsg = dialogs.slice(-1)[0];
 		assignMessageDisclaimer(dialogs)
@@ -415,6 +417,7 @@
 	/** @param {import('$conversationTypes').ConversationMessageDeleteModel} data */
 	function onConversationMessageDeleted(data) {
 		if (!!!data?.message_id) return;
+
 		truncateDialogs(data.message_id);
 	}
 
@@ -863,7 +866,7 @@
 	}
 
 	/** @param {string} messageId */
-	function truncateDialogs(messageId) {
+	async function truncateDialogs(messageId) {
 		const foundIdx = dialogs.findIndex(x => x.message_id === messageId);
 		if (foundIdx < 0) return false;
 		dialogs = dialogs.filter((x, idx) => idx < foundIdx);
@@ -1137,85 +1140,85 @@
 						<div class="chat-conversation p-3">
 							<ul class="list-unstyled mb-0">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
-								<li>
-									<div class="chat-day-title">
-										<span class="title">{createDate}</span>
-									</div>
-								</li>
-								{#each dialogGroup as message}
-								<li id={'test_k' + message.message_id} class:right={USER_SENDERS.includes(message.sender?.role)}>
-									<div class="conv-msg-container">
-										{#if USER_SENDERS.includes(message.sender?.role)}
-										<div class="msg-container">
-											<div
-												tabindex="0"
-												aria-label="user-msg-to-log"
-												role="link"
-												on:keydown={() => {}}
-												on:click={() => directToLog(message.message_id)}
-											>
-												<div class="ctext-wrap user-msg" 
-													class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
-													id={`user-msg-${message.message_id}`}
-												>
-													<div class="text-start fw-bold">{@html replaceNewLine(message.text)}</div>
+									<li>
+										<div class="chat-day-title">
+											<span class="title">{createDate}</span>
+										</div>
+									</li>
+									{#each dialogGroup as message}
+										<li id={'test_k' + message.message_id} class:right={USER_SENDERS.includes(message.sender?.role)}>
+											<div class="conv-msg-container">
+												{#if USER_SENDERS.includes(message.sender?.role)}
+												<div class="msg-container">
+													<div
+														tabindex="0"
+														aria-label="user-msg-to-log"
+														role="link"
+														on:keydown={() => {}}
+														on:click={() => directToLog(message.message_id)}
+													>
+														<div class="ctext-wrap user-msg" 
+															class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
+															id={`user-msg-${message.message_id}`}
+														>
+															<div class="text-start fw-bold">{@html replaceNewLine(message.text)}</div>
+														</div>
+														<p class="chat-time mb-0 float-end">
+															<i class="bx bx-time-five align-middle me-1" />
+															{utcToLocal(message.created_at, 'hh:mm A')}
+														</p>
+													</div>
+													{#if !!message.post_action_disclaimer}
+														<RcDisclaimer content={message.post_action_disclaimer} />
+													{/if}
+													{#if !!message.is_chat_message || !!message.has_message_files}
+														<MessageFileGallery
+															messageId={message?.message_id}
+															galleryStyles={'justify-content: flex-end;'}
+															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
+														/>
+													{/if}
 												</div>
-												<p class="chat-time mb-0 float-end">
-													<i class="bx bx-time-five align-middle me-1" />
-													{utcToLocal(message.created_at, 'hh:mm A')}
-												</p>
+													{#if !isLite}
+														<Dropdown>
+															<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking || disableAction}>
+																<i class="bx bx-dots-vertical-rounded" />
+															</DropdownToggle>
+															<DropdownMenu class="dropdown-menu-end">
+																<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
+																<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
+																<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
+															</DropdownMenu>
+														</Dropdown>
+													{/if}
+												{:else}
+												<div class="cicon-wrap align-content-end">
+													{#if message.sender.role == UserRole.Client}
+														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+													{:else}
+														<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+													{/if}
+												</div>
+												<div class="msg-container">
+													<RcMessage message={message} />
+													{#if message?.message_id === lastBotMsg?.message_id}
+														<AudioSpeaker
+															id={message?.message_id} 
+															text={message?.rich_content?.message?.text || message?.text}
+														/>
+													{/if}
+													{#if !!message.is_chat_message || !!message.has_message_files}
+														<MessageFileGallery
+															messageId={message?.message_id}
+															galleryStyles={'justify-content: flex-start;'}
+															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
+														/>
+													{/if}
+												</div>
+												{/if}
 											</div>
-											{#if !!message.post_action_disclaimer}
-												<RcDisclaimer content={message.post_action_disclaimer} />
-											{/if}
-											{#if !!message.is_chat_message || !!message.has_message_files}
-												<MessageFileGallery
-													messageId={message?.message_id}
-													galleryStyles={'justify-content: flex-end;'}
-													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
-												/>
-											{/if}
-										</div>
-											{#if !isLite}
-												<Dropdown>
-													<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking || disableAction}>
-														<i class="bx bx-dots-vertical-rounded" />
-													</DropdownToggle>
-													<DropdownMenu class="dropdown-menu-end">
-														<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
-														<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
-														<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
-													</DropdownMenu>
-												</Dropdown>
-											{/if}
-										{:else}
-										<div class="cicon-wrap align-content-end">
-											{#if message.sender.role == UserRole.Client}
-												<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
-											{:else}
-												<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
-											{/if}
-										</div>
-										<div class="msg-container">
-											<RcMessage message={message} />
-											{#if message?.message_id === lastBotMsg?.message_id}
-												<AudioSpeaker
-													id={message?.message_id} 
-													text={message?.rich_content?.message?.text || message?.text}
-												/>
-											{/if}
-											{#if !!message.is_chat_message || !!message.has_message_files}
-												<MessageFileGallery
-													messageId={message?.message_id}
-													galleryStyles={'justify-content: flex-start;'}
-													fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
-												/>
-											{/if}
-										</div>
-										{/if}
-									</div>
-								</li>
-								{/each}
+										</li>
+									{/each}
 								{/each}
 
 								{#if isThinking}

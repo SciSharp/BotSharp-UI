@@ -66,7 +66,7 @@
         }
 
         .confidence-box {
-            width: 40%;
+            width: 100%;
         }
 
         .input-text {
@@ -372,6 +372,27 @@
                 min-width: 150px;
                 max-width: 350px;
             }
+        }
+    }
+}
+
+
+.vector-collection-create-container {
+    .collection-input {
+        .invalid-input {
+            border-color: var(--bs-danger);
+        }
+
+        .collection-note {
+            display: flex;
+        }
+    
+        .valid {
+            justify-content: flex-end;
+        }
+    
+        .invalid {
+            justify-content: space-between;
         }
     }
 }

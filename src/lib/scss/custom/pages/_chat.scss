@@ -704,6 +704,10 @@
         min-width: 50px;
         border-radius: 10px;
     }
+
+    .link-option:hover {
+        text-decoration: underline;
+    }
 }
 
 .complex-option-container {
@@ -750,8 +754,8 @@
                     border-radius: 10px;
                 }
 
-                .btn-link {
-                    background-color: unset !important;
+                .link-option:hover {
+                    text-decoration: underline;
                 }
             }
         }
