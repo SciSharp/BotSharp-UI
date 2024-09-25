@@ -1,5 +1,7 @@
 import { EditorType, UserRole } from "./enums";
 
+export const CHAT_FRAME_ID = "chatbox-frame";
+
 export const USER_SENDERS = [
     UserRole.Admin,
     UserRole.User,

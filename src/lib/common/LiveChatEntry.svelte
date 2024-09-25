@@ -3,49 +3,49 @@
     import { onMount } from 'svelte';
     import { PUBLIC_LIVECHAT_HOST, PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
     import { getSettingDetail } from '$lib/services/setting-service';
+    import { chatBotStore } from '$lib/helpers/store';
+	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
 
-    let showChatIcon = false;
-    let showChatBox = false;
     let chatUrl = PUBLIC_LIVECHAT_HOST;
 
     onMount(async () => {
         const agentSettings = await getSettingDetail("Agent");
         chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}?isFrame=true`;
-        showChatIcon = true;
     });
 
     // Handle event from iframe
     window.onmessage = async function(e) {
         if (e.data.action == 'close') {
-            showChatIcon = true;
-            showChatBox = false;
+            chatBotStore.set({
+                showChatBox: false
+            });
         }
     };
 
-    function handleChatBox() {
-        showChatIcon = false;
-        showChatBox = true;
+    function openChatBox() {
+        chatBotStore.set({
+            showChatBox: true
+        });
     }
 </script>
 
 <div class="fixed-bottom float-bottom-right">
-    {#if showChatBox}
+    {#if $chatBotStore.showChatBox}
         <div transition:fade={{ delay: 250, duration: 300 }}>
             <iframe
                 src={chatUrl}
                 width="380px" 
                 height="650px" 
-                class="border border-2 rounded-3 m-3 float-end chat-iframe"
+                class={`border border-2 rounded-3 m-3 float-end chat-iframe`}
                 title="live chat"
-                id="chat-frame"
-            >
-            </iframe>
+                id={CHAT_FRAME_ID}
+            />
         </div>
     {/if}
 
-    {#if showChatIcon}
+    {#if !$chatBotStore.showChatBox}
         <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 100, duration: 500 }}>
-            <button class="btn btn-transparent" on:click={() => handleChatBox()}>
+            <button class="btn btn-transparent" on:click={() => openChatBox()}>
                 <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
             </button>
         </div>

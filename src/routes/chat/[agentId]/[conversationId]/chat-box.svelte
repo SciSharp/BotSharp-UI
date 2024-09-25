@@ -167,12 +167,6 @@
 	});
 	
 	onMount(async () => {
-		window.addEventListener('message', e => {
-			if (e.data.action === 'logout') {
-				resetLocalStorage(true);
-			}
-		});
-
 		autoScrollLog = true;
 		dialogs = await GetDialogs(params.conversationId);
 		conversationUser = await getConversationUser(params.conversationId);
@@ -195,6 +189,18 @@
 		].filter(Boolean);
 		refresh();
 		autoScrollLog = false;
+
+		window.addEventListener('message', e => {
+			if (e.data.action === 'logout') {
+				resetLocalStorage(true);
+			}
+
+			if (e.data.action === 'chat' && !isThinking && !isSendingMsg) {
+				sendChatMessage(e.data.text, e.data.data || null);
+			}
+		});
+		
+		// window.parent.postMessage({ event: "chat-box-mounted" }, "*");
 	});
 
 	function resizeChatWindow() {
@@ -441,7 +447,12 @@
 		autoScrollLog = true;
 		clearInstantLogs();		
 		renewUserSentMessages(msgText);
-		const postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
+
+		let postback = data?.postback;
+		if (!postback) {
+			postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
+		}
+
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,

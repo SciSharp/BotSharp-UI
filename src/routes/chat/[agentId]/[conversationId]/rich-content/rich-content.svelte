@@ -23,7 +23,6 @@
 
     $: {
         const richType = message?.rich_content?.message?.rich_type;
-        console.log(message);
 
         if (richType === RichType.QuickReply) {
             options = message?.rich_content?.message?.quick_replies;
