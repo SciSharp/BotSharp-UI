@@ -1,0 +1,95 @@
+.multiselect-container {
+    position: relative;
+
+    .display-container {
+        .display-suffix {
+            position: absolute;
+            right: 0.6rem;
+            top: 0.18rem;
+            font-size: 1.5rem;
+
+            i {
+                transition: all .2s ease-in-out;
+            }
+        }
+
+        input[type='text'] {
+            padding-right: 1.5rem;
+        }
+
+        .show-list {
+            i {
+                transform: rotate(180deg);
+            }
+        }
+    }
+
+    .option-list {
+        padding: 5px 2px;
+        border: 2px solid var(--bs-border-color-translucent);
+        border-radius: 5px;
+
+        overflow-x: auto;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        max-height: 230px;
+
+        position: absolute;
+        left: 0px;
+        right: 0px;
+        z-index: 99;
+        background-color: white;
+
+        .search-box {
+            padding: 5px 10px;
+
+            input[type='text'] {
+                padding: 5px 1.5rem;
+                border-radius: 5px;
+                position: relative;
+            }
+        }
+
+        .search-prefix {
+            position: absolute;
+            z-index: 100;
+            left: 1.2rem;
+            top: 1.2rem;
+            display: flex;
+        }
+    }
+
+    ul {
+        list-style: none;
+        padding-left: 0px;
+        margin-bottom: 0px;
+        
+        .option-item {
+            display: flex;
+            gap: 3px;
+            padding: 5px 10px;
+
+            .select-box {
+                flex: 0 0 10%;
+                max-width: 20px;
+            }
+
+            .select-name {
+                flex: 0 0 90%;
+                max-width: 300px;
+                font-size: 1.1em;
+                word-break: break-all;
+            }
+
+            input[type='checkbox'] {
+                outline: none !important;
+                box-shadow: none !important;
+                font-size: 1.1em;
+            }
+
+            .nothing {
+                padding-left: 10px;
+            }
+        }
+    }
+}

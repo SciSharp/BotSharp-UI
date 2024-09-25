@@ -9,6 +9,9 @@
 	} from '@sveltestrap/sveltestrap';
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
 	import Swal from 'sweetalert2';
+	import { sendToChatBot } from '$lib/helpers/utils/chat';
+	
+	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
 
     /** @type {import('$pluginTypes').PluginDefModel[]} */
     export let plugins;
@@ -45,6 +48,19 @@
 	function refresh() {
 		window.location.reload();
 	}
+
+	/** @param {import('$pluginTypes').PluginDefModel} item */
+	async function clickView(item) {
+		const text = `view plugin ${item.name}`;
+		/** @type {import('$conversationTypes').MessageData} */
+		const data = {
+			postback: {
+				payload: 'hi world'
+			},
+			states: []
+		};
+		sendToChatBot(CHAT_FRAME_ID, text, data);
+	}
 </script>
 
 <Row>
@@ -75,17 +91,22 @@
 					<div class="mt-3 hstack gap-2">
 						<span class="badge rounded-1 badge-soft-{item.enabled ? 'success' : 'danger'}">{item.enabled ? $_("Enabled") : $_("Disabled")}</span>
 						{#if item.agent_ids.length > 0}
-						<span class="badge rounded-1 badge-soft-info">{item.agent_ids.length} Agent(s)</span>
+							<span class="badge rounded-1 badge-soft-info">{item.agent_ids.length} Agent(s)</span>
 						{/if}
 						<span class="badge rounded-1 badge-soft-info">{$_('Public')}</span>
 					</div>
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
-						<button class="btn btn-soft-success btn-sm">{$_('View')}</button>
+						<button
+							class="btn btn-soft-success btn-sm"
+							on:click={() => clickView(item)}
+						>
+							{$_('View')}
+						</button>
 						{#if item.settings_name}
-						<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
+							<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
 						{/if}
 						{#if !item.is_core}
-						<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
+							<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
 						{/if}
 					</div>
 				</CardBody>

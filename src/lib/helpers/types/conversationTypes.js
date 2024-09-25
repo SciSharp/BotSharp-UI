@@ -183,6 +183,14 @@ IRichContent.prototype.quick_replies;
  */
 
 /** 
+ * Conversation states
+ * @typedef {Object} ConversationStateModel
+ * @property {string} key - The state key.
+ * @property {string} value - The state value.
+ * @property {number} [active_rounds] - The state active rounds.
+ */
+
+/** 
  * Conversation states added by user
  * 
  * @typedef {Object} UserStateDetailModel
@@ -221,9 +229,9 @@ IRichContent.prototype.quick_replies;
  * Conversation postback
  * 
  * @typedef {Object} Postback
- * @property {string?} functionName - The function name.
+ * @property {string?} [functionName] - The function name.
  * @property {string?} payload - The payload.
- * @property {string?} parentId - The parent message id.
+ * @property {string?} [parentId] - The parent message id.
  */
 
 /** 
@@ -232,7 +240,7 @@ IRichContent.prototype.quick_replies;
  * @typedef {Object} MessageData
  * @property {string?} [truncateMsgId] - The truncated message.
  * @property {string?} [inputMessageId] - The input message.
- * @property {string[]?} [states] - The states input by user.
+ * @property {ConversationStateModel[]?} [states] - The states input by user.
  * @property {Postback?} [postback] - The parent message id.
  * @property {string?} [payload] - The payload message.
  */

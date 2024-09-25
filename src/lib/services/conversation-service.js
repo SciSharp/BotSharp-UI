@@ -90,7 +90,6 @@ export async function GetDialogs(conversationId) {
  * @param {import('$conversationTypes').MessageData?} data - Additional data
  */
 export async function sendMessageToHub(agentId, conversationId, text, data = null) {
-    console.log(data);
     let url = replaceUrl(endpoints.conversationMessageUrl, {
         agentId: agentId,
         conversationId: conversationId

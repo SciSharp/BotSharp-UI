@@ -182,6 +182,19 @@ const createKnowledgeBaseDocumentStore = () => {
 export const knowledgeBaseDocumentStore = createKnowledgeBaseDocumentStore();
 
 
+const createChatBotStore = () => {
+    const { subscribe, set, update } = writable({ showChatBox: false });
+
+    return {
+        set,
+        update,
+        subscribe
+    }
+};
+
+export const chatBotStore = createChatBotStore();
+
+
 export function resetLocalStorage(resetUser = false) {
     conversationUserStateStore.resetAll();
     conversationSearchOptionStore.reset();

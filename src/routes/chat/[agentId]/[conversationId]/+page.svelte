@@ -23,5 +23,5 @@
 </script>
 
 {#if currentUser}
-<Chat currentUser={currentUser} agent={agent} />
+	<Chat currentUser={currentUser} agent={agent} />
 {/if}
