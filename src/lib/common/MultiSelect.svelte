@@ -8,7 +8,7 @@
     /** @type {string} */
     export let tag;
 
-    /** @type {any[]} */
+    /** @type {{key: string, value: string}[]} */
     export let options = [];
 
     /** @type {boolean} */
@@ -38,10 +38,10 @@
     /** @type {boolean} */
     let showOptionList = false;
 
-    /** @type {any[]} */
+    /** @type {{key: string, value: string, checked: boolean}[]} */
     let innerOptions = [];
 
-    /** @type {any[]} */
+    /** @type {{key: string, value: string, checked: boolean}[]} */
     let refOptions = [];
 
     /** @type {string} */
@@ -53,16 +53,16 @@
     onMount(() => {
         innerOptions = options.map(x => {
             return {
-                id: x.id,
-                name: x.name,
+                key: x.key,
+                value: x.value,
                 checked: false
             }
         });
 
         refOptions = options.map(x => {
             return {
-                id: x.id,
-                name: x.name,
+                key: x.key,
+                value: x.value,
                 checked: false
             }
         });
@@ -82,7 +82,7 @@
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
         if (searchValue) {
-            innerOptions = refOptions.filter(x => x.name.includes(searchValue));
+            innerOptions = refOptions.filter(x => x.value.includes(searchValue));
         } else {
             innerOptions = refOptions;
         }
@@ -96,13 +96,15 @@
 	 * @param {any} option
 	 */
     function checkOption(e, option) {
-        const found = innerOptions.find(x => x.id == option.id);
-        found.checked = e.target.checked;
+        const found = innerOptions.find(x => x.key == option.key);
+        const refFound = refOptions.find(x => x.key == option.key);
 
-        const refFound = refOptions.find(x => x.id == option.id);
-        refFound.checked = e.target.checked;
-        changeDisplayText();
-        sendEvent();
+        if (found && refFound) {
+            found.checked = e.target.checked;
+            refFound.checked = e.target.checked;
+            changeDisplayText();
+            sendEvent();
+        }
     }
 
     /** @param {any} e */
@@ -119,9 +121,9 @@
 
     /** @param {boolean} checked */
     function syncChangesToRef(checked) {
-        const ids = innerOptions.map(x => x.id);
+        const keys = innerOptions.map(x => x.key);
         refOptions = refOptions.map(x => {
-            if (ids.includes(x.id)) {
+            if (keys.includes(x.key)) {
                 return {
                     ...x,
                     checked: checked
@@ -210,11 +212,11 @@
 
     $: {
         if (options.length > refOptions.length) {
-            const curIds = refOptions.map(x => x.id);
-            const newOptions = options.filter(x => !curIds.includes(x.id)).map(x => {
+            const curKeys = refOptions.map(x => x.key);
+            const newOptions = options.filter(x => !curKeys.includes(x.key)).map(x => {
                 return {
-                    id: x.id,
-                    name: x.name,
+                    key: x.key,
+                    value: x.value,
                     checked: false
                 };
             });
@@ -296,7 +298,7 @@
                             />
                         </div>
                         <div class="line-align-center select-name">
-                            {option.name}
+                            {option.value}
                         </div>
                     </li>
                 {/each}
