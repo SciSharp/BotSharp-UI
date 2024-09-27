@@ -82,9 +82,9 @@
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
         if (searchValue) {
-            innerOptions = refOptions.filter(x => x.value.includes(searchValue));
+            innerOptions = [...refOptions.filter(x => x.value.includes(searchValue))];
         } else {
-            innerOptions = refOptions;
+            innerOptions = [...refOptions];
         }
 
         verifySelectAll();
@@ -96,20 +96,27 @@
 	 * @param {any} option
 	 */
     function checkOption(e, option) {
-        const found = innerOptions.find(x => x.key == option.key);
-        const refFound = refOptions.find(x => x.key == option.key);
+        innerOptions = innerOptions.map(x => {
+            if (x.key == option.key) {
+                x.checked = e == null ? !x.checked : e.target.checked;
+            }
+            return { ...x };
+        });
 
-        if (found && refFound) {
-            found.checked = e.target.checked;
-            refFound.checked = e.target.checked;
-            changeDisplayText();
-            sendEvent();
-        }
+        refOptions = refOptions.map(x => {
+            if (x.key == option.key) {
+                x.checked = e == null ? !x.checked : e.target.checked;
+            }
+            return { ...x };
+        });
+
+        changeDisplayText();
+        sendEvent();
     }
 
     /** @param {any} e */
     function checkSelectAll(e) {
-        selectAllChecked = e.target.checked;
+        selectAllChecked = e == null ? !selectAllChecked : e.target.checked;
         innerOptions = innerOptions.map(x => {
             return { ...x, checked: selectAllChecked }
         });
@@ -275,7 +282,12 @@
             </div>
             {#if innerOptions.length > 0}
                 {#if selectAll}
-                    <li class="option-item">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <li
+                        class="option-item clickable"
+                        on:click={() => checkSelectAll(null)}
+                    >
                         <div class="line-align-center select-box">
                             <Input
                                 type="checkbox"
@@ -289,7 +301,12 @@
                     </li>
                 {/if}
                 {#each innerOptions as option, idx (idx)}
-                    <li class="option-item">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <li
+                        class="option-item clickable"
+                        on:click={() => checkOption(null, option)}
+                    >
                         <div class="line-align-center select-box">
                             <Input
                                 type="checkbox"
