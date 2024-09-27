@@ -69,6 +69,10 @@
             gap: 3px;
             padding: 5px 10px;
 
+            &:hover {
+                background-color: aliceblue;
+            }
+
             .select-box {
                 flex: 0 0 10%;
                 max-width: 20px;
