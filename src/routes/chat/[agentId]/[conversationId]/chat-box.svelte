@@ -900,7 +900,7 @@
 
 	/** @param {string} messageId */
 	function directToLog(messageId) {
-		if (!!!messageId || isLite) return;
+		if (!!!messageId || isLite || !isLoadPersistLog) return;
 
 		highlightChatMessage(messageId);
 		highlightStateLog(messageId);
@@ -1169,7 +1169,7 @@
 														on:click={() => directToLog(message.message_id)}
 													>
 														<div class="ctext-wrap user-msg" 
-															class:clickable={!isLite && (isLoadPersistLog || isLoadInstantLog)}
+															class:clickable={!isLite && isLoadPersistLog}
 															id={`user-msg-${message.message_id}`}
 														>
 															<div class="text-start fw-bold">{@html replaceNewLine(message.text)}</div>
