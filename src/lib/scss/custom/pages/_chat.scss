@@ -208,7 +208,8 @@
             background-color: rgba($primary, 0.1);
             border-radius: 8px 8px 8px 0px;
             overflow: hidden;
-            width: inherit;
+            width: fit-content;
+            max-width: 80%;
 
             .conversation-name {
                 font-weight: $font-weight-semibold;
@@ -271,6 +272,7 @@
                 text-align: right;
                 border-radius: 8px 8px 0px 8px;
                 width: inherit;
+                max-width: 80%;
             }
 
             &.last-chat {
