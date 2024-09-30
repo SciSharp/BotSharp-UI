@@ -30,7 +30,11 @@
 		uploadConversationFiles,
 		getAddressOptions
 	} from '$lib/services/conversation-service.js';
-	import { PUBLIC_LIVECHAT_ENTRY_ICON } from '$env/static/public';
+	import { 
+		PUBLIC_LIVECHAT_ENTRY_ICON, 
+		PUBLIC_LIVECHAT_VOICE_ENABLED,
+		PUBLIC_LIVECHAT_FILES_ENABLED,
+	} from '$env/static/public';
 	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
@@ -1273,16 +1277,18 @@
 					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
 							<div class="col-auto">
+
 								{#if !disableSpeech}
 									<button
 										type="submit"
 										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-										disabled={isSendingMsg || isThinking || disableAction}
+										disabled={isSendingMsg || isThinking || disableAction || PUBLIC_LIVECHAT_VOICE_ENABLED}
 										on:click={() => startListen()}
 									>
 										<i class="mdi mdi-{microphoneIcon} md-36" />
 									</button>
 								{/if}
+
 							</div>
 							<div class="col">
 								<div class="position-relative">
@@ -1351,7 +1357,7 @@
 											on:click={() => toggleBigMessageModal()}
 										/>
 										{/if}
-										<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
+										<ChatUtil disabled={disableAction || PUBLIC_LIVECHAT_FILES_ENABLED === 'false'} on:click={() => loadChatUtils = true} />
 									</div>
 								</div>
 							</div>
