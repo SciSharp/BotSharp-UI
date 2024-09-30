@@ -1,15 +1,17 @@
-// https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API
+// // https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API/Using_the_Web_Speech_API
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 const SpeechRecognitionEvent = window.SpeechRecognitionEvent || window.webkitSpeechRecognitionEvent;
 
-const recognition = new SpeechRecognition();
-recognition.continuous = false;
-recognition.lang = "en-US";
-recognition.interimResults = false;
-recognition.maxAlternatives = 1;
+const recognition = !navigator.userAgent.includes('Firefox') ? new SpeechRecognition() : null;
+if (recognition) {
+    recognition.continuous = false;
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+}
+
 
 const synth = window.speechSynthesis;
-
 
 const utterThis = new SpeechSynthesisUtterance();
 utterThis.pitch = 1;
@@ -25,8 +27,10 @@ export const webSpeech = {
     onSpeechToTextDetected: () => {},
 
     start() {
-        recognition.start();
-        console.log("Ready to receive a voice command.");      
+        if (recognition) {
+            recognition.start();
+            console.log("Ready to receive a voice command."); 
+        }
     },
 
     /** @param {string} transcript */
@@ -54,17 +58,18 @@ function setVoiceSynthesis() {
     }
 }
 
-recognition.onresult = (/** @type {any} */ event) => {
-    const text = event.results[0][0].transcript;
-    console.log(`Confidence: ${text} ${event.results[0][0].confidence}`);
-    webSpeech.onSpeechToTextDetected(text);
-};
-
-recognition.onnomatch = (/** @type {any} */ event) => {
-    console.log("I didn't recognize that color.");
-};
-
-recognition.onerror = (/** @type {any} */ event) => {
-    console.log(`Error occurred in recognition: ${event.error}`);
-};
-
+if (recognition) {
+    recognition.onresult = (/** @type {any} */ event) => {
+        const text = event.results[0][0].transcript;
+        console.log(`Confidence: ${text} ${event.results[0][0].confidence}`);
+        webSpeech.onSpeechToTextDetected(text);
+    };
+    
+    recognition.onnomatch = (/** @type {any} */ event) => {
+        console.log("I didn't recognize that color.");
+    };
+    
+    recognition.onerror = (/** @type {any} */ event) => {
+        console.log(`Error occurred in recognition: ${event.error}`);
+    };
+}
