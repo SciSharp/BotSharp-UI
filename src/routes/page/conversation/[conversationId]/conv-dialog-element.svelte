@@ -21,6 +21,7 @@
   <Markdown
     containerClasses={'dialog-item-text'}
     text={dialog?.rich_content?.message?.text || dialog?.text}
+    replaceText
   />
 </div>
 

@@ -63,7 +63,7 @@
         style="padding: 5px 8px;"
     >
         <div class:log-collapse={includedSources.includes(data.source) && !!is_collapsed}>
-            <Markdown containerClasses={logTextStyle} text={data?.content} />
+            <Markdown containerClasses={logTextStyle} text={data?.content} replaceText />
         </div>
 
         {#if includedSources.includes(data.source)}
