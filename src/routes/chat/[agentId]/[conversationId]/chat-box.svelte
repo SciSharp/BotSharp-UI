@@ -150,6 +150,7 @@
 	let autoScrollLog = false;
 	let disableAction = false;
 	let loadChatUtils = false;
+	let disableSpeech = false;
 
 	
 	$: {
@@ -167,6 +168,7 @@
 	});
 	
 	onMount(async () => {
+		disableSpeech = navigator.userAgent.includes('Firefox');
 		autoScrollLog = true;
 		dialogs = await GetDialogs(params.conversationId);
 		conversationUser = await getConversationUser(params.conversationId);
@@ -532,6 +534,8 @@
     }
 
     async function startListen() {
+		if (disableSpeech) return;
+
 		microphoneIcon = "microphone";
 		webSpeech.onSpeechToTextDetected = (transcript) => {
 			if (!!!_.trim(transcript) || isSendingMsg) return;
@@ -1269,14 +1273,16 @@
 					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
 							<div class="col-auto">
-								<button
-									type="submit"
-									class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-									disabled={isSendingMsg || isThinking || disableAction}
-									on:click={() => startListen()}
-								>
-									<i class="mdi mdi-{microphoneIcon} md-36" />
-								</button>
+								{#if !disableSpeech}
+									<button
+										type="submit"
+										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+										disabled={isSendingMsg || isThinking || disableAction}
+										on:click={() => startListen()}
+									>
+										<i class="mdi mdi-{microphoneIcon} md-36" />
+									</button>
+								{/if}
 							</div>
 							<div class="col">
 								<div class="position-relative">

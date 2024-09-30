@@ -26,7 +26,6 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
-	import MultiSelect from '$lib/common/MultiSelect.svelte';
 
 	let isLoading = false;
 	let isComplete = false;
