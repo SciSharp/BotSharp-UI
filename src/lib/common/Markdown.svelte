@@ -8,9 +8,12 @@
 	/** @type {string} */
 	export let containerClasses = "";
 
+	/** @type {boolean} */
+	export let replaceText = false;
+
     let displayText = '';
 	$: {
-		const markedText = replaceNewLine(marked(replaceMarkdown(text || ''))?.toString());
+		const markedText = replaceNewLine(marked(replaceText ? replaceMarkdown(text || '') : text || '')?.toString());
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			displayText = markedText.substring(0, idx);
