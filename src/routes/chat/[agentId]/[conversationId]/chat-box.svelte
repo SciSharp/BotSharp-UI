@@ -44,7 +44,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
-	import { EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { ChatAction, EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -55,6 +55,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
+	import Loader from '$lib/common/Loader.svelte';
 	
 	
 	const options = {
@@ -151,6 +152,7 @@
 	let disableAction = false;
 	let loadChatUtils = false;
 	let disableSpeech = false;
+	let isLoading = false;
 
 	
 	$: {
@@ -192,18 +194,37 @@
 		refresh();
 		autoScrollLog = false;
 
-		window.addEventListener('message', e => {
-			if (e.data.action === 'logout') {
+		window.addEventListener('message', async e => {
+			if (e.data.action === ChatAction.Logout) {
 				resetLocalStorage(true);
+				return;
 			}
 
-			if (e.data.action === 'chat' && !isThinking && !isSendingMsg) {
-				sendChatMessage(e.data.text, e.data.data || null);
+			if (e.data.action === ChatAction.NewChat) {
+				const conv = await createNewConversation();
+				if (!!e.data.text && !isThinking && !isSendingMsg) {
+					isLoading = true;
+					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
+						redirectToNewConversation(conv);
+						isLoading = false;
+						openFrame();
+					});
+				}
+				return;
+			}
+
+			if (e.data.action === ChatAction.Chat && !!e.data.text && !isThinking && !isSendingMsg) {
+				sendChatMessage(e.data.text, e.data.data || null).then(() => {
+					openFrame();
+				});
+				return;
 			}
 		});
-		
-		// window.parent.postMessage({ event: "chat-box-mounted" }, "*");
 	});
+
+	function openFrame() {
+		window.parent.postMessage({ action: "open" }, "*");
+	}
 
 	function resizeChatWindow() {
 		isLite = Viewport.Width <= screenWidthThreshold;
@@ -219,7 +240,7 @@
 	}
 
 	function initChatView() {
-		isFrame = $page.url.searchParams.get('isFrame') === 'true';
+		isFrame = window.location != window.parent.location;
 		mode = $page.url.searchParams.get('mode') || '';
 		// initial condition
 		isPersistLogClosed = false;
@@ -430,10 +451,22 @@
 	}
 
 	async function handleNewConversation() {
+		const conv = await createNewConversation();
+		redirectToNewConversation(conv);
+	}
+
+	async function createNewConversation() {
 		const conversation = await newConversation(params.agentId);
         conversationStore.set(conversation);
-		const url = `chat/${params.agentId}/${conversation.id}`;
-		window.location.href = url;
+		return conversation;
+	}
+
+	/** @param {import('$conversationTypes').ConversationModel} conversation */
+	function redirectToNewConversation(conversation) {
+		const url = new URL(`chat/${params.agentId}/${conversation.id}`, window.location.origin);
+		const searchParams = $page.url.searchParams;
+		url.search = searchParams?.toString();
+		window.location.href = url.toString();
 	}
 
 	function handleSaveKnowledge() {
@@ -443,8 +476,9 @@
     /**
 	 * @param {string} msgText
 	 * @param {import('$conversationTypes').MessageData?} data
+	 * @param {string?} conversationId
 	 */
-    function sendChatMessage(msgText, data = null) {
+    function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
 		autoScrollLog = true;
 		clearInstantLogs();		
@@ -471,7 +505,7 @@
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
 			return new Promise((resolve, reject) => {
-				uploadConversationFiles(params.agentId, params.conversationId, files).then(resMessageId => {
+				uploadConversationFiles(params.agentId, conversationId || params.conversationId, files).then(resMessageId => {
 					messageData = { ...messageData, inputMessageId: resMessageId };
 					if (!!filePayload) {
 						messageData = {
@@ -484,7 +518,7 @@
 						};
 					}
 
-					sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
@@ -510,7 +544,7 @@
 							};
 						}
 
-						sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+						sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
 							resolve(res);
 						}).catch(err => {
 							reject(err);
@@ -520,7 +554,7 @@
 						});
 					});
 				} else {
-					sendMessageToHub(params.agentId, params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
@@ -1003,10 +1037,33 @@
 		bigText = '';
 		sendChatMessage(text);
 	}
+
+	/**
+	 * @param {any} e
+	 * @param {any} message
+	 */
+	function likeMessage(e, message) {
+		e.preventDefault();
+
+		const text = 'I like this message.';
+		const data = {
+			postback: {
+				functionName: 'like_response',
+				payload: 'I really like this message!',
+				parentId: message?.id
+			},
+			states: []
+		};
+		sendChatMessage(text, data);
+	}
 </script>
 
 
 <svelte:window on:resize={() => resizeChatWindow()}/>
+
+{#if isLoading}
+	<Loader size={35} />
+{/if}
 
 <DialogModal
 	title={'Edit message'}
@@ -1217,10 +1274,25 @@
 												<div class="msg-container">
 													<RcMessage message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id}
-														<AudioSpeaker
-															id={message?.message_id} 
-															text={message?.rich_content?.message?.text || message?.text}
-														/>
+														<div style="display: flex; gap: 10px;">
+															<AudioSpeaker
+																id={message?.message_id} 
+																text={message?.rich_content?.message?.text || message?.text}
+															/>
+															<div class="line-align-center" style="font-size: 17px;">
+																<!-- svelte-ignore a11y-click-events-have-key-events -->
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																<div
+																	class="clickable"
+																	style="height: 95%;"
+																	on:click={e => likeMessage(e, message)}
+																>
+																	<i
+																		class="mdi mdi-thumb-up-outline text-primary"
+																	/>
+																</div>
+															</div>
+														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files}
 														<MessageFileGallery

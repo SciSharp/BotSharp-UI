@@ -10,22 +10,20 @@
 
     onMount(async () => {
         const agentSettings = await getSettingDetail("Agent");
-        chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}?isFrame=true`;
+        chatUrl = `${PUBLIC_LIVECHAT_HOST}chat/${agentSettings.hostAgentId}`;
     });
 
     // Handle event from iframe
     window.onmessage = async function(e) {
         if (e.data.action == 'close') {
-            chatBotStore.set({
-                showChatBox: false
-            });
+            chatBotStore.set({ showChatBox: false });
+        } else if (e.data.action == 'open') {
+            chatBotStore.set({ showChatBox: true });
         }
     };
 
     function openChatBox() {
-        chatBotStore.set({
-            showChatBox: true
-        });
+        chatBotStore.set({ showChatBox: true });
     }
 </script>
 
@@ -51,7 +49,6 @@
                     src={chatUrl}
                     width="0px" 
                     height="0px" 
-                    class={`border border-2 rounded-3 m-3 float-end chat-iframe`}
                     title="live chat"
                     id={CHAT_FRAME_ID}
                 />

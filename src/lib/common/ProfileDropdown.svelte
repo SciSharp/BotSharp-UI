@@ -7,6 +7,7 @@
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { _ } from 'svelte-i18n';
 	import { buildUrl } from '$lib/helpers/utils/common';
+	import { ChatAction } from '$lib/helpers/enums';
 	
 	/** @type {any} */
 	export let user;
@@ -19,7 +20,7 @@
 		const chatFrame = document.getElementById('chat-frame');
 		if (chatFrame) {
 			// @ts-ignore
-			chatFrame.contentWindow.postMessage({ action: "logout" }, "*");
+			chatFrame.contentWindow.postMessage({ action: ChatAction.Logout }, "*");
 		}
 
 		goto('login');

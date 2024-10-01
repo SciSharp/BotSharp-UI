@@ -10,8 +10,8 @@
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
 	import Swal from 'sweetalert2';
 	import { sendToChatBot } from '$lib/helpers/utils/chat';
-	
 	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
+	import { ChatAction } from '$lib/helpers/enums';
 
     /** @type {import('$pluginTypes').PluginDefModel[]} */
     export let plugins;
@@ -59,7 +59,9 @@
 			},
 			states: []
 		};
-		sendToChatBot(CHAT_FRAME_ID, text, data);
+		// ChatAction.Chat: send to current chat
+		// ChatAction.NewChat: init a new conversation, and then send the message
+		sendToChatBot(ChatAction.Chat, CHAT_FRAME_ID, text, data);
 	}
 </script>
 

@@ -99,3 +99,10 @@ const knowledgeDocSource = {
     Web: 'web'
 };
 export const KnowledgeDocSource = Object.freeze(knowledgeDocSource);
+
+const chatAction = {
+    Logout: 'logout',
+    Chat: 'chat',
+    NewChat: 'new-chat'
+};
+export const ChatAction = Object.freeze(chatAction);
