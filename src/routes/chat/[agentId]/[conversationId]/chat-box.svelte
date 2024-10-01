@@ -508,6 +508,8 @@
 		autoScrollLog = true;
 		clearInstantLogs();		
 		renewUserSentMessages(msgText);
+		const agentId = params.agentId;
+		const convId = conversationId || params.conversationId;
 
 		let postback = data?.postback;
 		if (!postback) {
@@ -530,7 +532,7 @@
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
 			return new Promise((resolve, reject) => {
-				uploadConversationFiles(params.agentId, conversationId || params.conversationId, files).then(resMessageId => {
+				uploadConversationFiles(agentId, convId, files).then(resMessageId => {
 					messageData = { ...messageData, inputMessageId: resMessageId };
 					if (!!filePayload) {
 						messageData = {
@@ -543,7 +545,7 @@
 						};
 					}
 
-					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
@@ -556,7 +558,7 @@
 		} else {
 			return new Promise((resolve, reject) => {
 				if (!!messageData?.inputMessageId) {
-					getConversationFiles(params.conversationId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
+					getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
 						const filePayload = buildFilePayload(retFiles);
 						if (!!filePayload) {
 							messageData = {
@@ -569,7 +571,7 @@
 							};
 						}
 
-						sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+						sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 							resolve(res);
 						}).catch(err => {
 							reject(err);
@@ -579,7 +581,7 @@
 						});
 					});
 				} else {
-					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
