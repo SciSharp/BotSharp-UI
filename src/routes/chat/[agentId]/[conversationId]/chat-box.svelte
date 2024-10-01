@@ -223,7 +223,9 @@
 	});
 
 	function openFrame() {
-		window.parent.postMessage({ action: "open" }, "*");
+		if (window.location != window.parent.location) {
+			window.parent.postMessage({ action: "open" }, "*");
+		}
 	}
 
 	function resizeChatWindow() {
