@@ -198,11 +198,11 @@
 		refresh();
 		autoScrollLog = false;
 
-		window.addEventListener('message', async e => {
+		window.addEventListener('message', e => {
 			if (e.data.action === ChatAction.Logout) {
 				handleLogoutAction();
 			} else if (e.data.action === ChatAction.NewChat) {
-				await handleNewChatAction(e);
+				handleNewChatAction(e);
 			} else if (e.data.action === ChatAction.Chat) {
 				handleChatAction(e);
 			}
@@ -214,23 +214,25 @@
 	}
 
 	/** @param {any} e */
-	async function handleNewChatAction(e) {
+	function handleNewChatAction(e) {
 		if (!isCreatingNewConv && !isThinking && !isSendingMsg) {
 			isCreatingNewConv = true;
-			const conv = await createNewConversation();
-			isCreatingNewConv = false;
-
-			if (conv && !!e.data.text) {
-				isLoading = true;
-				sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
-					redirectToNewConversation(conv);
-					isLoading = false;
-					openFrame();
-				}).catch(() => {
-					isLoading = false;
-					openFrame();
-				});
-			}
+			createNewConversation().then(conv => {
+				isCreatingNewConv = false;
+				if (conv && !!e.data.text) {
+					isLoading = true;
+					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
+						redirectToNewConversation(conv);
+						isLoading = false;
+						openFrame();
+					}).catch(() => {
+						isLoading = false;
+						openFrame();
+					});
+				}
+			}).catch(() => {
+				isCreatingNewConv = false;
+			});
 		}
 	}
 
