@@ -24,15 +24,3 @@ export function addChatBoxMountEventListener(func) {
         }
     });
 }
-
-/**
- * @param {string} chatFrameId
- * @param {string} text
- */
-export function loadChatFrame(chatFrameId, text) {
-    const chatFrame = document.getElementById(chatFrameId);
-    if (chatFrame) {
-        // @ts-ignore
-        chatFrame.contentWindow.postMessage({ action: "chat", text: text }, "*");
-    }
-}

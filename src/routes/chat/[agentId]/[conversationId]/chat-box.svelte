@@ -157,7 +157,7 @@
 	let loadChatUtils = false;
 	let disableSpeech = false;
 	let isLoading = false;
-
+	let isCreatingNewConv = false;
 	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -200,35 +200,54 @@
 
 		window.addEventListener('message', async e => {
 			if (e.data.action === ChatAction.Logout) {
-				resetLocalStorage(true);
-				return;
-			}
-
-			if (e.data.action === ChatAction.NewChat) {
-				const conv = await createNewConversation();
-				if (!!e.data.text && !isThinking && !isSendingMsg) {
-					isLoading = true;
-					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
-						redirectToNewConversation(conv);
-						isLoading = false;
-						openFrame();
-					});
-				}
-				return;
-			}
-
-			if (e.data.action === ChatAction.Chat && !!e.data.text && !isThinking && !isSendingMsg) {
-				sendChatMessage(e.data.text, e.data.data || null).then(() => {
-					openFrame();
-				});
-				return;
+				handleLogoutAction();
+			} else if (e.data.action === ChatAction.NewChat) {
+				await handleNewChatAction(e);
+			} else if (e.data.action === ChatAction.Chat) {
+				handleChatAction(e);
 			}
 		});
 	});
 
+	function handleLogoutAction() {
+		resetLocalStorage(true);
+	}
+
+	/** @param {any} e */
+	async function handleNewChatAction(e) {
+		if (!isCreatingNewConv && !isThinking && !isSendingMsg) {
+			isCreatingNewConv = true;
+			const conv = await createNewConversation();
+			isCreatingNewConv = false;
+
+			if (conv && !!e.data.text) {
+				isLoading = true;
+				sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
+					redirectToNewConversation(conv);
+					isLoading = false;
+					openFrame();
+				}).catch(() => {
+					isLoading = false;
+					openFrame();
+				});
+			}
+		}
+	}
+
+	/** @param {any} e */
+	function handleChatAction(e) {
+		if (!!e.data.text && !isThinking && !isSendingMsg) {
+			sendChatMessage(e.data.text, e.data.data || null).then(() => {
+				openFrame();
+			}).catch(() => {
+				openFrame();
+			});
+		}
+	}
+
 	function openFrame() {
 		if (window.location != window.parent.location) {
-			window.parent.postMessage({ action: "open" }, "*");
+			window.parent.postMessage({ action: ChatAction.Open }, "*");
 		}
 	}
 
@@ -749,7 +768,7 @@
 				}
 			});
 		} else {
-			window.parent.postMessage({ action: "close" }, "*");
+			window.parent.postMessage({ action: ChatAction.Close }, "*");
 		}
 	}
 
