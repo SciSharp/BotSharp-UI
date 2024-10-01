@@ -40,23 +40,15 @@
         }
 
         conversationId = conversation.id;
-        let chatUrl = `chat/${agentId}/${conversationId}`;
-        let query = "";
-
+        const chatUrl = new URL(`chat/${agentId}/${conversationId}`, window.location.origin);
+        
+        const searchParams = new URLSearchParams();
         if (agentId === LERNER_ID) {
-            query += `mode=${TRAINING_MODE}`;
+            searchParams.append('mode', TRAINING_MODE);
         }
 
-        const isFrame = $page.url.searchParams.get('isFrame');
-        if (isFrame === 'true') {
-            query += "isFrame=true";
-        }
-
-        if (!!query) {
-            chatUrl = `${chatUrl}?${query}`;
-        }
-
-        window.location.href = chatUrl;
+        chatUrl.search = searchParams?.toString();
+        window.location.href = chatUrl.toString();
     });
 </script>
 

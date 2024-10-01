@@ -84,14 +84,14 @@
 <!-- svelte-ignore a11y-click-events-have-key-events -->
 <!-- svelte-ignore a11y-no-static-element-interactions -->
 <div
-  class="{disableDefaultStyles ? '' : 'chat-speaker-container'} {containerClasses}"
+  class="{disableDefaultStyles ? '' : 'chat-speaker-container'} line-align-center {containerClasses}"
   style={`${containerStyles}`}
 >
-  <span style="display: inline-block;" on:click={() => speak()}>
+  <div on:click={() => speak()}>
     {#if !speaking}
-      <i class="bx bx-volume-full" />
+      <i class="bx bx-volume-full clickable" />
     {:else}
       <Stretch unit='px' size='5' gap='5' color="var(--bs-primary)" />
     {/if}
-  </span>
+  </div>
 </div>
