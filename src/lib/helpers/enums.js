@@ -101,6 +101,8 @@ const knowledgeDocSource = {
 export const KnowledgeDocSource = Object.freeze(knowledgeDocSource);
 
 const chatAction = {
+    Open: 'open',
+    Close: 'close',
     Logout: 'logout',
     Chat: 'chat',
     NewChat: 'new-chat'

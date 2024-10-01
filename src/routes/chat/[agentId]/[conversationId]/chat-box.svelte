@@ -157,7 +157,7 @@
 	let loadChatUtils = false;
 	let disableSpeech = false;
 	let isLoading = false;
-
+	let isCreatingNewConv = false;
 	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -198,37 +198,58 @@
 		refresh();
 		autoScrollLog = false;
 
-		window.addEventListener('message', async e => {
+		window.addEventListener('message', e => {
 			if (e.data.action === ChatAction.Logout) {
-				resetLocalStorage(true);
-				return;
+				handleLogoutAction();
+			} else if (e.data.action === ChatAction.NewChat) {
+				handleNewChatAction(e);
+			} else if (e.data.action === ChatAction.Chat) {
+				handleChatAction(e);
 			}
+		});
+	});
 
-			if (e.data.action === ChatAction.NewChat) {
-				const conv = await createNewConversation();
-				if (!!e.data.text && !isThinking && !isSendingMsg) {
+	function handleLogoutAction() {
+		resetLocalStorage(true);
+	}
+
+	/** @param {any} e */
+	function handleNewChatAction(e) {
+		if (!isCreatingNewConv && !isThinking && !isSendingMsg) {
+			isCreatingNewConv = true;
+			createNewConversation().then(conv => {
+				isCreatingNewConv = false;
+				if (conv && !!e.data.text) {
 					isLoading = true;
 					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
 						redirectToNewConversation(conv);
 						isLoading = false;
 						openFrame();
+					}).catch(() => {
+						isLoading = false;
+						openFrame();
 					});
 				}
-				return;
-			}
+			}).catch(() => {
+				isCreatingNewConv = false;
+			});
+		}
+	}
 
-			if (e.data.action === ChatAction.Chat && !!e.data.text && !isThinking && !isSendingMsg) {
-				sendChatMessage(e.data.text, e.data.data || null).then(() => {
-					openFrame();
-				});
-				return;
-			}
-		});
-	});
+	/** @param {any} e */
+	function handleChatAction(e) {
+		if (!!e.data.text && !isThinking && !isSendingMsg) {
+			sendChatMessage(e.data.text, e.data.data || null).then(() => {
+				openFrame();
+			}).catch(() => {
+				openFrame();
+			});
+		}
+	}
 
 	function openFrame() {
 		if (window.location != window.parent.location) {
-			window.parent.postMessage({ action: "open" }, "*");
+			window.parent.postMessage({ action: ChatAction.Open }, "*");
 		}
 	}
 
@@ -489,6 +510,8 @@
 		autoScrollLog = true;
 		clearInstantLogs();		
 		renewUserSentMessages(msgText);
+		const agentId = params.agentId;
+		const convId = conversationId || params.conversationId;
 
 		let postback = data?.postback;
 		if (!postback) {
@@ -511,7 +534,7 @@
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
 			return new Promise((resolve, reject) => {
-				uploadConversationFiles(params.agentId, conversationId || params.conversationId, files).then(resMessageId => {
+				uploadConversationFiles(agentId, convId, files).then(resMessageId => {
 					messageData = { ...messageData, inputMessageId: resMessageId };
 					if (!!filePayload) {
 						messageData = {
@@ -524,7 +547,7 @@
 						};
 					}
 
-					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
@@ -537,7 +560,7 @@
 		} else {
 			return new Promise((resolve, reject) => {
 				if (!!messageData?.inputMessageId) {
-					getConversationFiles(params.conversationId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
+					getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
 						const filePayload = buildFilePayload(retFiles);
 						if (!!filePayload) {
 							messageData = {
@@ -550,7 +573,7 @@
 							};
 						}
 
-						sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+						sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 							resolve(res);
 						}).catch(err => {
 							reject(err);
@@ -560,7 +583,7 @@
 						});
 					});
 				} else {
-					sendMessageToHub(params.agentId, conversationId || params.conversationId, msgText, messageData).then(res => {
+					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 					}).catch(err => {
 						reject(err);
@@ -749,7 +772,7 @@
 				}
 			});
 		} else {
-			window.parent.postMessage({ action: "close" }, "*");
+			window.parent.postMessage({ action: ChatAction.Close }, "*");
 		}
 	}
 

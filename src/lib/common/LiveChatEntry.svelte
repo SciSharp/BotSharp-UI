@@ -5,6 +5,7 @@
     import { getSettingDetail } from '$lib/services/setting-service';
     import { chatBotStore } from '$lib/helpers/store';
 	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
+	import { ChatAction } from '$lib/helpers/enums';
 
     let chatUrl = PUBLIC_LIVECHAT_HOST;
 
@@ -15,9 +16,9 @@
 
     // Handle event from iframe
     window.onmessage = async function(e) {
-        if (e.data.action == 'close') {
+        if (e.data.action == ChatAction.Close) {
             chatBotStore.set({ showChatBox: false });
-        } else if (e.data.action == 'open') {
+        } else if (e.data.action == ChatAction.Open) {
             chatBotStore.set({ showChatBox: true });
         }
     };

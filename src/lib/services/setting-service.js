@@ -15,7 +15,7 @@ export async function getSettings() {
 /**
  * 
  * @param {string} id 
- * @returns {Promise<object>} 
+ * @returns {Promise<any>} 
  */
 export async function getSettingDetail(id) {
     let url = replaceUrl(endpoints.settingDetailUrl, {id: id});
