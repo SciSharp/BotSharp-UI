@@ -221,13 +221,12 @@
 				isCreatingNewConv = false;
 				if (conv && !!e.data.text) {
 					isLoading = true;
+					openFrame();
 					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
 						isLoading = false;
-						openFrame();
 						redirectToNewConversation(conv);
 					}).catch(() => {
 						isLoading = false;
-						openFrame();
 					});
 				} else {
 					openFrame();
@@ -241,11 +240,8 @@
 	/** @param {any} e */
 	function handleChatAction(e) {
 		if (!!e.data.text && !isThinking && !isSendingMsg) {
-			sendChatMessage(e.data.text, e.data.data || null).then(() => {
-				openFrame();
-			}).catch(() => {
-				openFrame();
-			});
+			openFrame();
+			sendChatMessage(e.data.text, e.data.data || null);
 		}
 	}
 
