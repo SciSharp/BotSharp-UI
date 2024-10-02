@@ -29,30 +29,19 @@
 </script>
 
 <div class="fixed-bottom float-bottom-right">
-    {#if $chatBotStore.showChatBox}
-        <div transition:fade={{ delay: 250, duration: 300 }}>
-            <iframe
-                src={chatUrl}
-                width="380px" 
-                height="650px" 
-                class={`border border-2 rounded-3 m-3 float-end chat-iframe`}
-                title="live chat"
-                id={CHAT_FRAME_ID}
-            />
-        </div>
-    {/if}
+    <iframe
+        src={chatUrl}
+        width={`${$chatBotStore.showChatBox ? '380px' : '0px'}`} 
+        height={`${$chatBotStore.showChatBox ? '650px' : '0px'}`}
+        class={`border border-2 rounded-3 m-3 float-end ${$chatBotStore.showChatBox ? 'chat-iframe' : ''}`}
+        title="live chat"
+        id={CHAT_FRAME_ID}
+    />
 
     {#if !$chatBotStore.showChatBox}
-        <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 100, duration: 500 }}>
+        <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 50, duration: 200 }}>
             <button class="btn btn-transparent" on:click={() => openChatBox()}>
                 <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
-                <iframe
-                    src={chatUrl}
-                    width="0px" 
-                    height="0px" 
-                    title="live chat"
-                    id={CHAT_FRAME_ID}
-                />
             </button>
         </div>
     {/if}
