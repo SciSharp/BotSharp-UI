@@ -28,7 +28,7 @@
     }
 </script>
 
-<div class="fixed-bottom float-bottom-right">
+<div class="chatbot-container fixed-bottom float-bottom-right">
     <iframe
         src={chatUrl}
         width={`${$chatBotStore.showChatBox ? '380px' : '0px'}`} 
@@ -39,7 +39,10 @@
     />
 
     {#if !$chatBotStore.showChatBox}
-        <div class="mb-3 float-end wave-effect" transition:fade={{ delay: 50, duration: 200 }}>
+        <div
+            class="chatbot-icon mb-3 float-end wave-effect"
+            transition:fade={{ delay: 50, duration: 200 }}
+        >
             <button class="btn btn-transparent" on:click={() => openChatBox()}>
                 <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
             </button>
@@ -77,5 +80,15 @@
         width: fit-content;
         margin-right: 0px;
         margin-left: auto;
+    }
+
+    .chatbot-container {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .chatbot-icon {
+        display: flex;
+        justify-content: flex-end;
     }
 </style>
