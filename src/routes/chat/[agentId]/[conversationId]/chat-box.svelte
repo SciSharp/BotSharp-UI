@@ -222,13 +222,15 @@
 				if (conv && !!e.data.text) {
 					isLoading = true;
 					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
-						redirectToNewConversation(conv);
 						isLoading = false;
 						openFrame();
+						redirectToNewConversation(conv);
 					}).catch(() => {
 						isLoading = false;
 						openFrame();
 					});
+				} else {
+					openFrame();
 				}
 			}).catch(() => {
 				isCreatingNewConv = false;

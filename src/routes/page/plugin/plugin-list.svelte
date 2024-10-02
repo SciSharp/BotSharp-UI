@@ -60,7 +60,7 @@
 			states: []
 		};
 		// ChatAction.Chat: send to current chat
-		// ChatAction.NewChat: init a new conversation, and then send the message
+		// ChatAction.NewChat: init a new conversation, and then send the message; if the message text is null, then only create a new conversation.
 		sendToChatBot(ChatAction.Chat, CHAT_FRAME_ID, text, data);
 	}
 </script>
