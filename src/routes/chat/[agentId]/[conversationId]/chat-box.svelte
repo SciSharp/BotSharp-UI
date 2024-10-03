@@ -1086,7 +1086,7 @@
 		const data = {
 			postback: {
 				functionName: 'like_response',
-				payload: message.text,
+				payload: message.text || 'I really like this message!',
 				parentId: message?.id
 			},
 			states: []
