@@ -105,6 +105,7 @@ const chatAction = {
     Close: 'close',
     Logout: 'logout',
     Chat: 'chat',
-    NewChat: 'new-chat'
+    NewChat: 'new-chat',
+    ReceiveMsg: 'receive-msg'
 };
 export const ChatAction = Object.freeze(chatAction);

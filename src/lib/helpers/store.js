@@ -35,33 +35,35 @@ userStore.subscribe(value => {
 });
 
 
-/** @type {Writable<import('$conversationTypes').ConversationModel>}*/
-export const conversationStore = writable({});
+const createConversationStore = () => {
+    const { subscribe } = writable({});
+    return {
+        clear: (/** @type {string | null} */ convId = null) => {
+            if (!convId) {
+                localStorage.removeItem(conversationKey);
+                return;
+            }
 
-/**
- * @returns {Writable<import('$conversationTypes').ConversationModel>}
- */
-export function getConversationStore() {
-    if (browser) {
-        // Access localStorage only if in the browser context
-        const json = localStorage.getItem(conversationKey);
-        if (json)
-            return JSON.parse(json);
-        else
-            return conversationStore;
-    } else {
-        // Return a default value for SSR
-        return conversationStore;
-    }
+            const json = localStorage.getItem(conversationKey);
+            if (json) {
+                const conv = JSON.parse(json);
+                if (conv.id === convId) {
+                    localStorage.removeItem(conversationKey);
+                }
+            }
+        },
+        get: () => {
+            const json = localStorage.getItem(conversationKey);
+            return json ? JSON.parse(json) : {};
+        },
+        put: (value) => {
+            localStorage.setItem(conversationKey, JSON.stringify(value));
+        },
+        subscribe
+    };
 };
 
-// @ts-ignore
-conversationStore.subscribe(value => {
-    if (browser && value.id) {
-        localStorage.setItem(conversationKey, JSON.stringify(value));
-    }
-});
-
+export const conversationStore = createConversationStore();
 
 
 const createLoaderStore = () => {
@@ -180,19 +182,6 @@ const createKnowledgeBaseDocumentStore = () => {
 };
 
 export const knowledgeBaseDocumentStore = createKnowledgeBaseDocumentStore();
-
-
-const createChatBotStore = () => {
-    const { subscribe, set, update } = writable({ showChatBox: false });
-
-    return {
-        set,
-        update,
-        subscribe
-    }
-};
-
-export const chatBotStore = createChatBotStore();
 
 
 export function resetLocalStorage(resetUser = false) {

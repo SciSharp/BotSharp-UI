@@ -143,7 +143,7 @@
 
         // new conversation
         const conversation = await newConversation(task.agent_id, {taskId: task.id});
-        conversationStore.set(conversation);
+        conversationStore.put(conversation);
         renderConversationNode(conversation);
         
         var response = await sendMessageToHub(task.agent_id, conversation.id, task.content);
@@ -157,7 +157,7 @@
 
         // new conversation
         const conversation = await newConversation(task.direct_agent_id, {taskId: task.id});
-        conversationStore.set(conversation);
+        conversationStore.put(conversation);
         renderConversationNode(conversation);
 
         // split task into steps

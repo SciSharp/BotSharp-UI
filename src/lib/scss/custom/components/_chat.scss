@@ -1,3 +1,5 @@
+$bubble-chat-theme-color: rgba($primary, 80%);
+
 .chat-util-common {
     display: block;
     position: absolute;
@@ -41,4 +43,48 @@
 .chat-util-item {
     text-align: center;
     font-size: 30px;
+}
+
+
+
+.chat-bubble-container {
+    display: flex;
+    flex-direction: column;
+    gap: 0px;
+
+    .chat-bubble {
+        margin: 5px 30px 0px 5px;
+        display: inline-block;
+        position: relative;
+        min-width: 200px;
+        max-width: 300px;
+        background-color: $bubble-chat-theme-color;
+        border-radius: .4em;
+        color: white;
+
+        &:after {
+            content: ' ';
+            position: absolute;
+            top: 100%;
+            right: 50px;
+            width: 25px;
+            height: 20px;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            background-color: $bubble-chat-theme-color;
+        }
+    
+        .bubble-text {
+            margin: 15px;
+            height: fit-content;
+            max-height: 100px;
+            overflow-y: auto;
+            scrollbar-width: none;
+        }
+
+        .bubble-delete {
+            position: absolute;
+            right: 5px;
+            top: 3px;
+        }
+    }
 }

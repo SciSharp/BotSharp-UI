@@ -7,7 +7,7 @@
     import { newConversation } from '$lib/services/conversation-service.js';
     import { getToken, setToken } from '$lib/services/auth-service.js'
     import { getUserStore } from '$lib/helpers/store.js';
-    import { conversationStore, getConversationStore } from '$lib/helpers/store.js';
+    import { conversationStore } from '$lib/helpers/store.js';
 	import { LERNER_ID, TRAINING_MODE } from '$lib/helpers/constants';
 
     const params = $page.params;
@@ -32,11 +32,11 @@
             });
         }
 
-        conversation = getConversationStore();
+        conversation = conversationStore.get();
         if (!conversation.id || agentId != conversation.agent_id) {
             // new conversation
             conversation = await newConversation(agentId);
-            conversationStore.set(conversation);
+            conversationStore.put(conversation);
         }
 
         conversationId = conversation.id;
