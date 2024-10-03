@@ -198,7 +198,7 @@
 		refresh();
 		autoScrollLog = false;
 
-		window.addEventListener('message', e => {
+		window.addEventListener('message', async (e) => {
 			if (e.data.action === ChatAction.Logout) {
 				handleLogoutAction();
 			} else if (e.data.action === ChatAction.NewChat) {
@@ -217,9 +217,11 @@
 	function handleNewChatAction(e) {
 		if (!isCreatingNewConv && !isThinking && !isSendingMsg) {
 			isCreatingNewConv = true;
-			createNewConversation().then(conv => {
+			createNewConversation().then(async conv => {
 				isCreatingNewConv = false;
 				if (conv && !!e.data.text) {
+					dialogs = [];
+					await signalr.start(conv.id);
 					isLoading = true;
 					openFrame();
 					sendChatMessage(e.data.text, e.data.data || null, conv.id).then(() => {
@@ -246,8 +248,15 @@
 	}
 
 	function openFrame() {
-		if (window.location != window.parent.location) {
+		if (isFrame) {
 			window.parent.postMessage({ action: ChatAction.Open }, "*");
+		}
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function sendReceivedMessage(message) {
+		if (isFrame) {
+			window.parent.postMessage({ action: ChatAction.ReceiveMsg, data: message }, "*");
 		}
 	}
 
@@ -421,6 +430,7 @@
 			...message,
 			is_chat_message: true
 		});
+		sendReceivedMessage(message);
 		refresh();
     }
 
@@ -482,7 +492,7 @@
 
 	async function createNewConversation() {
 		const conversation = await newConversation(params.agentId);
-        conversationStore.set(conversation);
+        conversationStore.put(conversation);
 		return conversation;
 	}
 
@@ -754,7 +764,7 @@
 	}
 
 	function endChat() {
-		if (window.location === window.parent.location) {
+		if (!isFrame) {
 			// @ts-ignore
 			Swal.fire({
 				title: 'Are you sure?',
@@ -1306,19 +1316,21 @@
 																id={message?.message_id} 
 																text={message?.rich_content?.message?.text || message?.text}
 															/>
-															<div class="line-align-center" style="font-size: 17px;">
-																<!-- svelte-ignore a11y-click-events-have-key-events -->
-																<!-- svelte-ignore a11y-no-static-element-interactions -->
-																<div
-																	class="clickable"
-																	style="height: 95%;"
-																	on:click={e => likeMessage(e, message)}
-																>
-																	<i
-																		class="mdi mdi-thumb-up-outline text-primary"
-																	/>
+															{#if message?.function}
+																<div class="line-align-center" style="font-size: 17px;">
+																	<!-- svelte-ignore a11y-click-events-have-key-events -->
+																	<!-- svelte-ignore a11y-no-static-element-interactions -->
+																	<div
+																		class="clickable"
+																		style="height: 95%;"
+																		on:click={e => likeMessage(e, message)}
+																	>
+																		<i
+																			class="mdi mdi-thumb-up-outline text-primary"
+																		/>
+																	</div>
 																</div>
-															</div>
+															{/if}
 														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files}
@@ -1372,18 +1384,16 @@
 					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
 							<div class="col-auto">
-
 								{#if !disableSpeech}
 									<button
 										type="submit"
 										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-										disabled={isSendingMsg || isThinking || disableAction || PUBLIC_LIVECHAT_VOICE_ENABLED}
+										disabled={isSendingMsg || isThinking || disableAction || PUBLIC_LIVECHAT_VOICE_ENABLED != 'true'}
 										on:click={() => startListen()}
 									>
 										<i class="mdi mdi-{microphoneIcon} md-36" />
 									</button>
 								{/if}
-
 							</div>
 							<div class="col">
 								<div class="position-relative">
@@ -1452,7 +1462,7 @@
 											on:click={() => toggleBigMessageModal()}
 										/>
 										{/if}
-										<ChatUtil disabled={disableAction || PUBLIC_LIVECHAT_FILES_ENABLED === 'false'} on:click={() => loadChatUtils = true} />
+										<ChatUtil disabled={disableAction || PUBLIC_LIVECHAT_FILES_ENABLED != 'true'} on:click={() => loadChatUtils = true} />
 									</div>
 								</div>
 							</div>
