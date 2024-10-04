@@ -221,6 +221,7 @@
 				isCreatingNewConv = false;
 				if (conv && !!e.data.text) {
 					dialogs = [];
+					await signalr.stop();
 					await signalr.start(conv.id);
 					isLoading = true;
 					openFrame();
