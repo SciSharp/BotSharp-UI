@@ -77,7 +77,7 @@
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
-	const maxTextLength = 4096;
+	const maxTextLength = 64000;
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
