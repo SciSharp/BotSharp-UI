@@ -77,7 +77,7 @@
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
-	const maxTextLength = 4096;
+	const maxTextLength = 64000;
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
@@ -221,6 +221,7 @@
 				isCreatingNewConv = false;
 				if (conv && !!e.data.text) {
 					dialogs = [];
+					await signalr.stop();
 					await signalr.start(conv.id);
 					isLoading = true;
 					openFrame();
