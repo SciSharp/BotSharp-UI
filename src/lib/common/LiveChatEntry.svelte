@@ -11,6 +11,8 @@
     let showChatBox = false;
     let showBubbleMsg = false;
     let receivedMsg = '';
+    /** @type {number | undefined} */
+    let timeout;
 
     onMount(async () => {
         const agentSettings = await getSettingDetail("Agent");
@@ -24,9 +26,17 @@
         } else if (e.data.action == ChatAction.Open) {
             // showChatBox = true;
         } else if (e.data.action == ChatAction.ReceiveNotification && !showChatBox) {
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+
             receivedMsg = e.data?.data?.rich_content?.message?.text || e.data?.data?.text || '';
             showBubbleMsg = true;
             wave();
+            timeout = setTimeout(() => {
+                showBubbleMsg = false;
+                receivedMsg = '';
+            }, receivedMsg?.length > 200 ? 8000 : 3000);
         }
     };
 

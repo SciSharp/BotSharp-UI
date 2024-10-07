@@ -139,7 +139,7 @@
 	/** @type {import('$userTypes').UserModel} */
     let conversationUser;
 
-	/** @type {number} */
+	/** @type {number | undefined} */
 	let notificationTimeout;
 
 	/** @type {boolean} */
@@ -442,13 +442,12 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
-		notificationText = message?.rich_content?.message?.text || message.text || '';
-		isDisplayNotification = true;
-
 		if (notificationTimeout) {
 			clearTimeout(notificationTimeout);
 		}
 
+		notificationText = message?.rich_content?.message?.text || message.text || '';
+		isDisplayNotification = true;
 		notificationTimeout = setTimeout(() => {
 			isDisplayNotification = false;
 			notificationText = '';
