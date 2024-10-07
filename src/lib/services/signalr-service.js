@@ -21,6 +21,9 @@ export const signalr = {
   /** @type {import('$conversationTypes').OnMessageReceived} */
   onMessageReceivedFromAssistant: () => {},
 
+  /** @type {import('$conversationTypes').OnMessageReceived} */
+  onNotificationGenerated: () => {},
+
   /** @type {import('$conversationTypes').OnConversationContentLogReceived} */
   onConversationContentLogGenerated: () => {},
 
@@ -90,6 +93,13 @@ export const signalr = {
       if (conversationId === message.conversation_id) {
         console.log(`[OnMessageReceivedFromAssistant] ${message.sender.role}: ${message.text}`);
         this.onMessageReceivedFromAssistant(message);
+      }
+    });
+
+    connection.on('OnNotificationGenerated', (json) => {
+      const message = JSON.parse(json);
+      if (conversationId === message?.conversation_id) {
+        this.onNotificationGenerated(message);
       }
     });
 

@@ -1,5 +1,22 @@
 $bubble-chat-theme-color: rgba($primary, 80%);
 
+.dialog-modal-container {
+    .modal-title {
+        width: 100%;
+    }
+
+    .dialog-modal-header {
+        display: flex;
+        justify-content: space-between;
+
+        .header-title {
+            display: flex;
+            gap: 8px;
+        }
+    }
+}
+
+
 .chat-util-common {
     display: block;
     position: absolute;
@@ -45,7 +62,12 @@ $bubble-chat-theme-color: rgba($primary, 80%);
     font-size: 30px;
 }
 
-
+.chat-notification {
+    min-height: 20px;
+    max-height: 150px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
 
 .chat-bubble-container {
     display: flex;

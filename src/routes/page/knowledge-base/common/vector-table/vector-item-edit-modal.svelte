@@ -101,7 +101,14 @@
 
 </script>
 
-<Modal class={className} fade size={size} isOpen={open} toggle={() => toggleModal && toggleModal()}>
+<Modal
+    class={className}
+    fade
+    size={size}
+    isOpen={open}
+    toggle={() => toggleModal && toggleModal()}
+    unmountOnClose
+>
     <ModalHeader>
         <div>{title}</div>
         <div>

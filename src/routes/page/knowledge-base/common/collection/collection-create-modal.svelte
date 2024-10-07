@@ -127,7 +127,14 @@
 
 </script>
 
-<Modal class={`vector-collection-create-container ${className}`} fade size={size} isOpen={open} toggle={() => toggle()}>
+<Modal
+    class={`vector-collection-create-container ${className}`}
+    fade
+    size={size}
+    isOpen={open}
+    toggle={() => toggle()}
+    unmountOnClose
+>
     <ModalHeader>
         <div>{title}</div>
     </ModalHeader>

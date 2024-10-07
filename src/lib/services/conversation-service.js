@@ -107,6 +107,24 @@ export async function sendMessageToHub(agentId, conversationId, text, data = nul
 
 
 /**
+ * send a notification to conversation
+ * @param {string} conversationId - The conversation id
+ * @param {string} text - The text message sent to CSR
+ * @param {import('$conversationTypes').MessageData?} data - Additional data
+ */
+export async function sendNotification(conversationId, text, data = null) {
+    let url = replaceUrl(endpoints.notificationUrl, {
+        conversationId: conversationId
+    });
+    const response = await axios.post(url, {
+        text: text,
+        states: [],
+        postback: data?.postback
+    });
+    return response.data;
+}
+
+/**
  * @param {string} conversationId
  */
 function buildConversationUserStates(conversationId) {
