@@ -262,6 +262,17 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function sendReceivedNotification(message) {
+		if (notificationTimeout) {
+			clearTimeout(notificationTimeout);
+		}
+
+		notificationText = message?.rich_content?.message?.text || message.text || '';
+		isDisplayNotification = true;
+		notificationTimeout = setTimeout(() => {
+			isDisplayNotification = false;
+			notificationText = '';
+		}, notificationText?.length > 200 ? 8000 : 3000);
+
 		if (isFrame) {
 			window.parent.postMessage({ action: ChatAction.ReceiveNotification, data: message }, "*");
 		}
@@ -442,17 +453,6 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
-		if (notificationTimeout) {
-			clearTimeout(notificationTimeout);
-		}
-
-		notificationText = message?.rich_content?.message?.text || message.text || '';
-		isDisplayNotification = true;
-		notificationTimeout = setTimeout(() => {
-			isDisplayNotification = false;
-			notificationText = '';
-		}, notificationText?.length > 200 ? 8000 : 3000);
-
 		sendReceivedNotification(message);
 	}
 
