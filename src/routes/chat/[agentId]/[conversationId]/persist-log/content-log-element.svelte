@@ -16,11 +16,12 @@
     const includedSources = [
         ContentLogSource.Prompt,
         ContentLogSource.AgentResponse,
-        ContentLogSource.FunctionCall
+        ContentLogSource.FunctionCall,
+        ContentLogSource.Notification
     ];
 
     $: {
-        if (data.source === ContentLogSource.AgentResponse) {
+        if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
             logDisplayStyle = 'border border-secondary';
             logTextStyle = 'text-info';
         } else if (data.source === ContentLogSource.FunctionCall) {

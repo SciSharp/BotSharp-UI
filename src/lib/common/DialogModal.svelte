@@ -4,10 +4,13 @@
     /** @type {boolean} */
     export let isOpen;
 
+    /** @type {boolean} */
+    export let closeable = false;
+
     /** @type {string} */
     export let size = 'xl';
 
-    /** @type {string} */
+    /** @type {string | any} */
     export let title;
 
     /** @type {string} */
@@ -28,6 +31,9 @@
     /** @type {() => void} */
     export let cancel = () => {};
 
+    /** @type {() => void} */
+    export let close = () => {};
+
     /** @type {boolean} */
     export let disableConfirmBtn = false;
 
@@ -43,13 +49,44 @@
         cancel && cancel();
     }
 
+    /** @param {any} e */
+    function handleClose(e) {
+        e.preventDefault();
+        close && close();
+    }
 </script>
 
 
-<Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal()}>
-    {#if !!title}
-    <ModalHeader>{title}</ModalHeader>
-    {/if}
+<Modal
+    class={`dialog-modal-container ${className}`}
+    fade
+    size={size}
+    isOpen={isOpen}
+    toggle={() => toggleModal()}
+    unmountOnClose
+>
+    <ModalHeader>
+        <div class="dialog-modal-header">
+            {#if !!title}
+                <div class="header-title">
+                    <slot name='title-icon'/>
+                    <div>{title}</div>
+                </div>
+            {/if}
+            {#if closeable}
+                <div class="header-close">
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <div
+                        class="clickable"
+                        on:click={e => handleClose(e)}
+                    >
+                        <i class="mdi mdi-close" />
+                    </div>
+                </div>
+            {/if}
+        </div>
+    </ModalHeader>
     <ModalBody>
         <slot />
     </ModalBody>

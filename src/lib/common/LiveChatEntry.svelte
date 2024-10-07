@@ -23,7 +23,7 @@
             showChatBox = false;
         } else if (e.data.action == ChatAction.Open) {
             // showChatBox = true;
-        } else if (e.data.action == ChatAction.ReceiveMsg && !showChatBox) {
+        } else if (e.data.action == ChatAction.ReceiveNotification && !showChatBox) {
             receivedMsg = e.data?.data?.rich_content?.message?.text || e.data?.data?.text || '';
             showBubbleMsg = true;
             wave();

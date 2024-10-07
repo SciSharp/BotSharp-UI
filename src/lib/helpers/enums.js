@@ -38,7 +38,8 @@ const contentLogSource = {
     Prompt: "prompt",
     FunctionCall: "function call",
     AgentResponse: "agent response",
-    HardRule: "hard rule"
+    HardRule: "hard rule",
+    Notification: "notification"
 };
 export const ContentLogSource = Object.freeze(contentLogSource);
 
@@ -106,6 +107,6 @@ const chatAction = {
     Logout: 'logout',
     Chat: 'chat',
     NewChat: 'new-chat',
-    ReceiveMsg: 'receive-msg'
+    ReceiveNotification: 'receive-notification'
 };
 export const ChatAction = Object.freeze(chatAction);

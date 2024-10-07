@@ -158,7 +158,7 @@
     }
 </script>
 
-<Modal class={className} fade size={size} isOpen={isOpen} toggle={() => toggleModal && toggleModal()}>
+<Modal class={className} fade size={size} isOpen={isOpen} unmountOnClose toggle={() => toggleModal && toggleModal()}>
     <ModalHeader>{title}</ModalHeader>
     <ModalBody>
         <Form class="state-form">

@@ -92,6 +92,7 @@
 	let truncateMsgId = "";
 	let indication = "";
 	let mode = '';
+	let notificationText = '';
 
 	/** @type {number} */
 	let messageInputTimeout;
@@ -158,6 +159,7 @@
 	let disableSpeech = false;
 	let isLoading = false;
 	let isCreatingNewConv = false;
+	let isDisplayNotification = false;
 	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -184,6 +186,7 @@
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
+		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
 		signalr.onStateChangeGenerated = onStateChangeGenerated;
@@ -255,9 +258,9 @@
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	function sendReceivedMessage(message) {
+	function sendReceivedNotification(message) {
 		if (isFrame) {
-			window.parent.postMessage({ action: ChatAction.ReceiveMsg, data: message }, "*");
+			window.parent.postMessage({ action: ChatAction.ReceiveNotification, data: message }, "*");
 		}
 	}
 
@@ -431,9 +434,20 @@
 			...message,
 			is_chat_message: true
 		});
-		sendReceivedMessage(message);
 		refresh();
     }
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function onNotificationGenerated(message) {
+		notificationText = message?.rich_content?.message?.text || message.text || '';
+		isDisplayNotification = true;
+		setTimeout(() => {
+			isDisplayNotification = false;
+			notificationText = '';
+		}, notificationText?.length > 200 ? 8000 : 3000);
+
+		sendReceivedNotification(message);
+	}
 
 	/** @param {import('$conversationTypes').ConversationContentLogModel} log */
 	function onConversationContentLogGenerated(log) {
@@ -1094,6 +1108,13 @@
 		};
 		sendChatMessage(text, data);
 	}
+
+	function toggleNotificationModal() {
+		isDisplayNotification = !isDisplayNotification;
+		if (!isDisplayNotification) {
+			notificationText = '';
+		}
+	}
 </script>
 
 
@@ -1102,6 +1123,25 @@
 {#if isLoading}
 	<Loader size={35} />
 {/if}
+
+<DialogModal
+	title={'Notification'}
+	size={'md'}
+	isOpen={isDisplayNotification}
+	closeable
+	toggleModal={() => toggleNotificationModal()}
+	confirmBtnText={''}
+	cancelBtnText={''}
+	close={() => toggleNotificationModal()}
+>
+	<div slot='title-icon' class="color: text-warning">
+		<i class="mdi mdi-bell-ring" />
+	</div>
+	<div class="chat-notification">
+		{notificationText}
+	</div>
+</DialogModal>
+
 
 <DialogModal
 	title={'Edit message'}
