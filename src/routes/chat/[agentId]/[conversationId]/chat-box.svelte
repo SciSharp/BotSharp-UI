@@ -139,6 +139,9 @@
 	/** @type {import('$userTypes').UserModel} */
     let conversationUser;
 
+	/** @type {number} */
+	let notificationTimeout;
+
 	/** @type {boolean} */
 	let isLoadPersistLog = false;
 	let isLoadInstantLog = false;
@@ -441,7 +444,12 @@
 	function onNotificationGenerated(message) {
 		notificationText = message?.rich_content?.message?.text || message.text || '';
 		isDisplayNotification = true;
-		setTimeout(() => {
+
+		if (notificationTimeout) {
+			clearTimeout(notificationTimeout);
+		}
+
+		notificationTimeout = setTimeout(() => {
 			isDisplayNotification = false;
 			notificationText = '';
 		}, notificationText?.length > 200 ? 8000 : 3000);
