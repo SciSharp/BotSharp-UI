@@ -410,6 +410,8 @@
   "Task List": "任务列表",
   "Knowledge Manager":"知识管理",
   "Migrate agents from file repository to MongoDB":"将代理从文件存储库迁移到MongoDB",
+  "Migrate agents from file repository to PostgreSql":"将代理从文件存储库迁移到PostgreSql",
+  "Migrate agents from file repository to MySql":"将代理从文件存储库迁移到MySql",
   "Setting":"设置",
   "Start Migration":"开始迁移",
   "Plugin":"插件",
