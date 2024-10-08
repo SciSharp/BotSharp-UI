@@ -9,11 +9,11 @@
 	export let containerClasses = "";
 
 	/** @type {boolean} */
-	export let replaceText = false;
+	export let rawText = false;
 
     let displayText = '';
 	$: {
-		const markedText = replaceNewLine(marked(replaceText ? replaceMarkdown(text || '') : text || '')?.toString());
+		const markedText = !rawText ? replaceNewLine(marked(replaceMarkdown(text || ''))?.toString()) : marked(text || '')?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			displayText = markedText.substring(0, idx);
