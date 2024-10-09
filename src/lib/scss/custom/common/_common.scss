@@ -176,15 +176,22 @@ button:focus {
   pre {
     -ms-overflow-style: none !important;
     white-space: pre-wrap;
+    margin-top: 0px;
+    margin-bottom: 0px;
   }
 
   pre::-webkit-scrollbar {
     display: none !important;
   }
-  
-  p {
+
+  table {
     margin-top: 1em !important;
     margin-bottom: 1em !important;
+  }
+  
+  p {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   a {
