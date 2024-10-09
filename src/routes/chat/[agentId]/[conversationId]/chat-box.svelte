@@ -527,7 +527,7 @@
 	}
 
 	function handleSaveKnowledge() {
-		sendChatMessage("Save knowledge");
+		sendChatMessage("Save knowledge", { postback: { payload: '' } });
 	}
 
     /**
@@ -544,9 +544,9 @@
 		const convId = conversationId || params.conversationId;
 
 		let postback = data?.postback;
-		if (!postback) {
-			postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
-		}
+		// if (!postback) {
+		// 	postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
+		// }
 
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
@@ -633,7 +633,7 @@
 		webSpeech.onSpeechToTextDetected = (transcript) => {
 			if (!!!_.trim(transcript) || isSendingMsg) return;
 
-			sendChatMessage(transcript).then(() => {
+			sendChatMessage(transcript, { postback: { payload: '' } }).then(() => {
 				microphoneIcon = "microphone-off";
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
@@ -719,13 +719,14 @@
 	async function confirmSelectedOption(title, payload) {
 		if (isSendingMsg || isThinking) return;
 
-		await sendChatMessage(title, { payload: payload });
+		const postback = buildPostbackMessage(dialogs, payload || title, null);;
+		await sendChatMessage(title, { postback: postback });
 	}
 
 	async function sentTextMessage() {
 		const sentMsg = text;
 		text = '';
-		await sendChatMessage(sentMsg);
+		await sendChatMessage(sentMsg, { postback: { payload: '' } });
 	}
 
 	/**
@@ -900,8 +901,15 @@
 			cancelButtonText: 'No'
 		}).then(async (result) => {
 			if (result.value) {
+				let postback = null;
+				const found = dialogs.find(x => x.message_id === message?.message_id && USER_SENDERS.includes(x.sender?.role || ''));
+				const content = found?.payload;
+				if (content) {
+					postback = buildPostbackMessage(dialogs, content, message?.message_id);
+				}
+
 				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
-					sendChatMessage(message?.text, { inputMessageId: resMessageId });
+					sendChatMessage(message?.text, { postback: postback, inputMessageId: resMessageId });
 				});
 			}
 		});
@@ -964,8 +972,15 @@
 
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
+		let postback = null;
+		const found = dialogs.find(x => x.message_id === truncateMsgId && USER_SENDERS.includes(x.sender?.role || ''));
+		const content = found?.payload;
+		if (content) {
+			postback = buildPostbackMessage(dialogs, content, truncateMsgId);
+		}
+
 		deleteConversationMessage(params.conversationId, truncateMsgId, true).then(resMessageId => {
-			sendChatMessage(editText, { inputMessageId: resMessageId }).then(() => {
+			sendChatMessage(editText, { postback: postback, inputMessageId: resMessageId }).then(() => {
 				resetEditMsg();
 			}).catch(() => {
 				resetEditMsg();
@@ -1094,7 +1109,7 @@
 		isOpenBigMsgModal = !isOpenBigMsgModal;
 		const text = bigText;
 		bigText = '';
-		sendChatMessage(text);
+		sendChatMessage(text, { postback: { payload: '' } });
 	}
 
 	/**

@@ -134,6 +134,7 @@ IRichContent.prototype.quick_replies;
  * @property {string} text - The message content.
  * @property {string} editor - The message editor.
  * @property {string} function - The function name.
+ * @property {string} [payload] - The payload.
  * @property {RichContent} rich_content - Rich content.
  * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
