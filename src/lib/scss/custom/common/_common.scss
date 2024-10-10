@@ -176,15 +176,25 @@ button:focus {
   pre {
     -ms-overflow-style: none !important;
     white-space: pre-wrap;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    &:has(.language-sql),
+    &:has(.language-java),
+    &:has(.language-csharp),
+    &:has(.language-json) {
+      background-color: black;
+      color: white;
+      border-radius: 5px;
+      padding: 5px 10px;
+    }
   }
 
   pre::-webkit-scrollbar {
     display: none !important;
   }
 
-  table {
+  table, code {
     margin-top: 1em !important;
     margin-bottom: 1em !important;
   }
