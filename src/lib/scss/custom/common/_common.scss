@@ -176,8 +176,21 @@ button:focus {
   pre {
     -ms-overflow-style: none !important;
     white-space: pre-wrap;
-    margin-top: 0px;
-    margin-bottom: 0px;
+    margin-top: 1em;
+    margin-bottom: 1em;
+
+    &:has(.language-sql),
+    &:has(.language-java),
+    &:has(.language-javascript),
+    &:has(.language-typescript),
+    &:has(.language-csharp),
+    &:has(.language-python),
+    &:has(.language-json) {
+      background-color: black;
+      color: white;
+      border-radius: 5px;
+      padding: 5px 10px;
+    }
   }
 
   pre::-webkit-scrollbar {
@@ -187,6 +200,12 @@ button:focus {
   table {
     margin-top: 1em !important;
     margin-bottom: 1em !important;
+    border-radius: 5px;
+
+    th, td {
+      padding: 3px 5px !important;
+      border: 1px solid white;
+    }
   }
   
   p {
