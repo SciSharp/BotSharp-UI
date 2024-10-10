@@ -24,7 +24,7 @@
         if (e.data.action == ChatAction.Close) {
             showChatBox = false;
         } else if (e.data.action == ChatAction.Open) {
-            // showChatBox = true;
+            showChatBox = true;
         } else if (e.data.action == ChatAction.ReceiveNotification && !showChatBox) {
             if (timeout) {
                 clearTimeout(timeout);
