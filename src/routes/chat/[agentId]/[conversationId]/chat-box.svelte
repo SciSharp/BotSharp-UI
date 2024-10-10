@@ -527,7 +527,7 @@
 	}
 
 	function handleSaveKnowledge() {
-		sendChatMessage("Save knowledge", { postback: { payload: '' } });
+		sendChatMessage("Save knowledge");
 	}
 
     /**
@@ -633,7 +633,7 @@
 		webSpeech.onSpeechToTextDetected = (transcript) => {
 			if (!!!_.trim(transcript) || isSendingMsg) return;
 
-			sendChatMessage(transcript, { postback: { payload: '' } }).then(() => {
+			sendChatMessage(transcript).then(() => {
 				microphoneIcon = "microphone-off";
 			}).catch(() => {
 				microphoneIcon = "microphone-off";
@@ -726,7 +726,7 @@
 	async function sentTextMessage() {
 		const sentMsg = text;
 		text = '';
-		await sendChatMessage(sentMsg, { postback: { payload: '' } });
+		await sendChatMessage(sentMsg);
 	}
 
 	/**
@@ -753,6 +753,22 @@
 				parentId: lastMsg?.message_id,
 				payload: content
 			};
+		}
+		return postback;
+	}
+
+
+	/**
+	 * @param {string?} messageId
+	 */
+	function buildPostback(messageId) {
+		let postback = null;
+		if (!messageId) return postback;
+
+		const found = dialogs.find(x => x.message_id === messageId && USER_SENDERS.includes(x.sender?.role || ''));
+		const content = found?.payload;
+		if (content) {
+			postback = buildPostbackMessage(dialogs, content, messageId);
 		}
 		return postback;
 	}
@@ -901,13 +917,7 @@
 			cancelButtonText: 'No'
 		}).then(async (result) => {
 			if (result.value) {
-				let postback = null;
-				const found = dialogs.find(x => x.message_id === message?.message_id && USER_SENDERS.includes(x.sender?.role || ''));
-				const content = found?.payload;
-				if (content) {
-					postback = buildPostbackMessage(dialogs, content, message?.message_id);
-				}
-
+				const postback = buildPostback(message?.message_id);
 				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
 					sendChatMessage(message?.text, { postback: postback, inputMessageId: resMessageId });
 				});
@@ -972,13 +982,7 @@
 
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
-		let postback = null;
-		const found = dialogs.find(x => x.message_id === truncateMsgId && USER_SENDERS.includes(x.sender?.role || ''));
-		const content = found?.payload;
-		if (content) {
-			postback = buildPostbackMessage(dialogs, content, truncateMsgId);
-		}
-
+		const postback = buildPostback(truncateMsgId);
 		deleteConversationMessage(params.conversationId, truncateMsgId, true).then(resMessageId => {
 			sendChatMessage(editText, { postback: postback, inputMessageId: resMessageId }).then(() => {
 				resetEditMsg();
@@ -1109,7 +1113,7 @@
 		isOpenBigMsgModal = !isOpenBigMsgModal;
 		const text = bigText;
 		bigText = '';
-		sendChatMessage(text, { postback: { payload: '' } });
+		sendChatMessage(text);
 	}
 
 	/**
