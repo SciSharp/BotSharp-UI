@@ -48,6 +48,7 @@ export const endpoints = {
     conversationUserUrl: `${host}/conversation/{conversationId}/user`,
     dialogsUrl: `${host}/conversation/{conversationId}/dialogs`,
     conversationMessageDeletionUrl: `${host}/conversation/{conversationId}/message/{messageId}`,
+    conversationMessageUpdateUrl: `${host}/conversation/{conversationId}/update-message`,
     fileUploadUrl: `${host}/agent/{agentId}/conversation/{conversationId}/upload`,
     
     // LLM provider

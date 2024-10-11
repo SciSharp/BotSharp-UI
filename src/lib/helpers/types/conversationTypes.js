@@ -128,6 +128,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} ChatResponseModel
+ * @property {string} uuid - The uuid.
  * @property {string} conversation_id - The conversation id.
  * @property {import('$userTypes').UserModel} sender - The message sender.
  * @property {string} message_id - The message id.
@@ -246,6 +247,17 @@ IRichContent.prototype.quick_replies;
  * @property {string?} [payload] - The payload message.
  */
 
+/**
+ * @typedef {Object} EditBotMessageModel
+ * @property {ChatResponseModel} message
+ * @property {string} source
+ */
+
+/**
+ * @typedef {Object} UpdateBotMessageRequest
+ * @property {ChatResponseModel} message
+ * @property {number} innerIndex
+ */
 
 
 

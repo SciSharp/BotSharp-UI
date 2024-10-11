@@ -8,6 +8,7 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import _ from "lodash";
 	import moment from 'moment';
+	import { v4 as uuidv4 } from 'uuid';
 	import {
 		Dropdown,
 		DropdownToggle,
@@ -25,10 +26,11 @@
 		sendMessageToHub,
 		GetDialogs,
 		deleteConversationMessage,
+		updateConversationMessage,
 		getConversationFiles,
 		getConversationUser,
 		uploadConversationFiles,
-		getAddressOptions
+		getAddressOptions,
 	} from '$lib/services/conversation-service.js';
 	import { 
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
@@ -43,6 +45,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -59,7 +62,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	import Loader from '$lib/common/Loader.svelte';
+	
 	
 	
 	const options = {
@@ -78,6 +81,7 @@
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
 	const maxTextLength = 64000;
+	const duration = 2000;
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
@@ -86,13 +90,16 @@
 	export let currentUser;
 
 	/** @type {string} */
-	let text = "";
-	let editText = "";
-	let bigText = "";
-	let truncateMsgId = "";
-	let indication = "";
+	let text = '';
+	let editText = '';
+	let bigText = '';
+	let botText = '';
+	let truncateMsgId = '';
+	let indication = '';
 	let mode = '';
 	let notificationText = '';
+	let successText = "Done";
+	let errorText = "Error";
 
 	/** @type {number} */
 	let messageInputTimeout;
@@ -106,6 +113,9 @@
 	/** @type {any[]} */
     let scrollbars = [];
 	let microphoneIcon = "microphone-off";
+
+	/** @type {import('$conversationTypes').EditBotMessageModel?} */
+	let editBotMsg;
 
 	/** @type {import('$conversationTypes').ChatResponseModel?} */
 	let lastBotMsg;
@@ -149,6 +159,7 @@
 	let isInstantLogClosed = false; // initial condition
 	let isOpenEditMsgModal = false;
 	let isOpenBigMsgModal = false;
+	let isOpenEditBotMsgModal = false;
 	let isOpenUserAddStateModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
@@ -163,6 +174,8 @@
 	let isLoading = false;
 	let isCreatingNewConv = false;
 	let isDisplayNotification = false;
+	let isComplete = false;
+	let isError = false;
 	
 	$: {
 		const editor = lastBotMsg?.rich_content?.editor || '';
@@ -358,7 +371,7 @@
 
 	async function refresh() {
 		// trigger UI render
-		dialogs = dialogs?.map(item => { return { ...item }; }) || [];
+		dialogs = dialogs?.map(item => { return { ...item, uuid: uuidv4() }; }) || [];
 		lastBotMsg = null;
 		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
@@ -1141,14 +1154,100 @@
 			notificationText = '';
 		}
 	}
+
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function openEditBotMsgModal(message) {
+		isOpenEditBotMsgModal = true;
+		let source = "text";
+		if (message.rich_content?.message?.text === message.text) {
+			source = "both";
+		} else if (message.rich_content?.message?.text) {
+			source = "rich-content-text";
+		}
+		editBotMsg = {
+			message: message,
+			source: source
+		};
+		botText = message?.rich_content?.message?.text || message?.text;
+	}
+
+	function toggleEditBotMsgModal() {
+		isOpenEditBotMsgModal = !isOpenEditBotMsgModal;
+		if (!isOpenEditBotMsgModal) {
+			editBotMsg = null;
+			botText = '';
+		}
+	}
+
+	function saveBotMsg() {
+		if (!editBotMsg) return;
+
+		const found = dialogs.find(x => x.uuid === editBotMsg?.message.uuid);
+		if (!found) return;
+
+		const candidates = dialogs.filter(x => x.message_id === editBotMsg?.message.message_id && x.sender?.role === editBotMsg?.message.sender?.role);
+		const innerIdx = candidates.findIndex(x => x.uuid === editBotMsg?.message.uuid);
+		
+		/** @type {import('$conversationTypes').UpdateBotMessageRequest} */
+		const request = {
+			message: editBotMsg.message,
+			innerIndex: innerIdx
+		};
+
+		if (editBotMsg.source === "both") {
+			found.text = botText;
+			found.rich_content.message.text = botText;
+			editBotMsg.message.text = botText;
+			editBotMsg.message.rich_content.message.text = botText;
+		} else if (editBotMsg?.source === "rich-content-text") {
+			found.rich_content.message.text = botText;
+			editBotMsg.message.rich_content.message.text = botText;
+		} else {
+			found.text = botText;
+			editBotMsg.message.text = botText;
+		}
+
+		isLoading = true;
+		updateConversationMessage(params.conversationId, request).then(res => {
+			if (res) {
+				isComplete = true;
+				successText = "Message has been updated!";
+				setTimeout(() => {
+					isComplete = false;
+					successText = "";
+				}, duration);
+
+				toggleEditBotMsgModal();
+				refresh();
+			} else {
+				throw "failed to update message";
+			}
+		}).catch(err => {
+			isError = true;
+			errorText = "Failed to update message!";
+			setTimeout(() => {
+				isError = false;
+				errorText = "";
+			}, duration);
+			toggleEditBotMsgModal();
+		}).finally(() => {
+			isLoading = false;
+		});
+	}
 </script>
 
 
 <svelte:window on:resize={() => resizeChatWindow()}/>
 
-{#if isLoading}
-	<Loader size={35} />
-{/if}
+<LoadingToComplete
+	spinnerSize={35}
+	isLoading={isLoading}
+	isComplete={isComplete}
+	isError={isError}
+	successText={successText}
+	errorText={errorText}
+/>
 
 <DialogModal
 	title={'Notification'}
@@ -1170,7 +1269,7 @@
 
 
 <DialogModal
-	title={'Edit message'}
+	title={'Edit user message'}
 	size={'md'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={() => toggleEditMsgModal()}
@@ -1196,6 +1295,21 @@
 	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
 	<div class="text-secondary text-end text-count">
 		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
+	</div>
+</DialogModal>
+
+<DialogModal
+	title={'Edit bot message'}
+	size={'xl'}
+	isOpen={isOpenEditBotMsgModal}
+	toggleModal={() => toggleEditBotMsgModal()}
+	confirm={() => saveBotMsg()}
+	cancel={() => toggleEditBotMsgModal()}
+	disableConfirmBtn={!!!_.trim(botText)}
+>
+	<textarea class="form-control chat-input" rows="10" maxlength={maxTextLength} bind:value={botText} placeholder="Enter Message..." />
+	<div class="text-secondary text-end text-count">
+		<div>{`${(botText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
 
@@ -1377,7 +1491,7 @@
 												</div>
 												<div class="msg-container">
 													<RcMessage message={message} />
-													{#if message?.message_id === lastBotMsg?.message_id}
+													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														<div style="display: flex; gap: 10px;">
 															<AudioSpeaker
 																id={message?.message_id} 
@@ -1390,14 +1504,28 @@
 																	<div
 																		class="clickable"
 																		style="height: 95%;"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Like"
 																		on:click={e => likeMessage(e, message)}
 																	>
-																		<i
-																			class="mdi mdi-thumb-up-outline text-primary"
-																		/>
+																		<i class="mdi mdi-thumb-up-outline text-primary" />
 																	</div>
 																</div>
 															{/if}
+															<div class="line-align-center" style="font-size: 17px;">
+																<!-- svelte-ignore a11y-click-events-have-key-events -->
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																<div
+																	class="clickable"
+																	data-bs-toggle="tooltip"
+																	data-bs-placement="top"
+																	title="Edit"
+																	on:click={() => openEditBotMsgModal(message)}
+																>
+																	<i class="bx bxs-edit text-primary" />
+																</div>
+															</div>
 														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files}
