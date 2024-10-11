@@ -89,7 +89,12 @@
 >
   <div on:click={() => speak()}>
     {#if !speaking}
-      <i class="bx bx-volume-full clickable" />
+      <i
+        class="bx bx-volume-full clickable"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Play"
+      />
     {:else}
       <Stretch unit='px' size='5' gap='5' color="var(--bs-primary)" />
     {/if}

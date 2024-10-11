@@ -170,6 +170,31 @@ export async function deleteConversationMessage(conversationId, messageId, isNew
     });
 }
 
+/**
+ * delete a message in conversation
+ * @param {string} conversationId The conversation id
+ * @param {import('$conversationTypes').UpdateBotMessageRequest} request
+ * @returns {Promise<boolean>}
+ */
+export async function updateConversationMessage(conversationId, request) {
+    let url = replaceUrl(endpoints.conversationMessageUpdateUrl, {
+        conversationId: conversationId
+    });
+
+    const data = {
+        message: request.message,
+        inner_index: request.innerIndex
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.put(url, {...data}).then(response => {
+            resolve(response.data);
+        }).catch(err => {
+            reject(err)
+        });
+    });
+}
+
 
 /**
  * upload conversation files
