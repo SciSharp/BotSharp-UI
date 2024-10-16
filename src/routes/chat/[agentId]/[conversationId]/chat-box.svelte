@@ -36,6 +36,7 @@
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
 		PUBLIC_LIVECHAT_VOICE_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
+		PUBLIC_LIVECHAT_ENABLE_TRAINING
 	} from '$env/static/public';
 	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
@@ -1497,35 +1498,37 @@
 																id={message?.message_id} 
 																text={message?.rich_content?.message?.text || message?.text}
 															/>
-															{#if message?.function}
+															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true'}
+																{#if message?.function}
+																	<div class="line-align-center" style="font-size: 17px;">
+																		<!-- svelte-ignore a11y-click-events-have-key-events -->
+																		<!-- svelte-ignore a11y-no-static-element-interactions -->
+																		<div
+																			class="clickable"
+																			style="height: 95%;"
+																			data-bs-toggle="tooltip"
+																			data-bs-placement="top"
+																			title="Like"
+																			on:click={e => likeMessage(e, message)}
+																		>
+																			<i class="mdi mdi-thumb-up-outline text-primary" />
+																		</div>
+																	</div>
+																{/if}
 																<div class="line-align-center" style="font-size: 17px;">
 																	<!-- svelte-ignore a11y-click-events-have-key-events -->
 																	<!-- svelte-ignore a11y-no-static-element-interactions -->
 																	<div
 																		class="clickable"
-																		style="height: 95%;"
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
-																		title="Like"
-																		on:click={e => likeMessage(e, message)}
+																		title="Edit"
+																		on:click={() => openEditBotMsgModal(message)}
 																	>
-																		<i class="mdi mdi-thumb-up-outline text-primary" />
+																		<i class="bx bxs-edit text-primary" />
 																	</div>
 																</div>
 															{/if}
-															<div class="line-align-center" style="font-size: 17px;">
-																<!-- svelte-ignore a11y-click-events-have-key-events -->
-																<!-- svelte-ignore a11y-no-static-element-interactions -->
-																<div
-																	class="clickable"
-																	data-bs-toggle="tooltip"
-																	data-bs-placement="top"
-																	title="Edit"
-																	on:click={() => openEditBotMsgModal(message)}
-																>
-																	<i class="bx bxs-edit text-primary" />
-																</div>
-															</div>
 														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files}
@@ -1579,11 +1582,11 @@
 					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
 						<div class="row">
 							<div class="col-auto">
-								{#if !disableSpeech}
+								{#if PUBLIC_LIVECHAT_VOICE_ENABLED === 'true' && !disableSpeech}
 									<button
 										type="submit"
 										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-										disabled={isSendingMsg || isThinking || disableAction || PUBLIC_LIVECHAT_VOICE_ENABLED != 'true'}
+										disabled={isSendingMsg || isThinking || disableAction}
 										on:click={() => startListen()}
 									>
 										<i class="mdi mdi-{microphoneIcon} md-36" />
@@ -1652,12 +1655,14 @@
 									</ChatTextArea>
 									<div class="chat-util-links">
 										{#if !isLite}
-										<ChatBigMessage
-											disabled={disableAction}
-											on:click={() => toggleBigMessageModal()}
-										/>
+											<ChatBigMessage
+												disabled={disableAction}
+												on:click={() => toggleBigMessageModal()}
+											/>
 										{/if}
-										<ChatUtil disabled={disableAction || PUBLIC_LIVECHAT_FILES_ENABLED != 'true'} on:click={() => loadChatUtils = true} />
+										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
+											<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
+										{/if}
 									</div>
 								</div>
 							</div>
