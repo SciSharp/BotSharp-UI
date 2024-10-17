@@ -215,6 +215,8 @@
     "Task List": "Task List",
     "Knowledge Manager":"Knowledge Manager",
     "Migrate agents from file repository to MongoDB":"Migrate agents from file repository to MongoDB",
+    "Migrate agents from file repository to PostgreSql":"Migrate agents from file repository to PostgreSql",
+    "Migrate agents from file repository to MySql":"Migrate agents from file repository to MySql",
     "Setting":"Setting",
     "Start Migration":"Start Migration",
     "Plugin":"Plugin",
