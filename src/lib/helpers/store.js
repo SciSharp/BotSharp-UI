@@ -186,7 +186,6 @@ export const knowledgeBaseDocumentStore = createKnowledgeBaseDocumentStore();
 
 export function resetLocalStorage(resetUser = false) {
     conversationUserStateStore.resetAll();
-    conversationSearchOptionStore.reset();
     conversationUserMessageStore.reset();
     conversationUserAttachmentStore.reset();
     localStorage.removeItem('conversation');

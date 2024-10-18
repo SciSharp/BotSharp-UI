@@ -110,3 +110,9 @@ const chatAction = {
     ReceiveNotification: 'receive-notification'
 };
 export const ChatAction = Object.freeze(chatAction);
+
+const conversationTag = {
+    Evaluation: "evaluation-set",
+    Test: "test-set"
+};
+export const ConversationTag = Object.freeze(conversationTag);

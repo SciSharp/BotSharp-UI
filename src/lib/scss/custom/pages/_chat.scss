@@ -81,9 +81,12 @@
 
     .chat-row {
         height: 100%;
+        flex-wrap: nowrap;
+        justify-content: space-between;
 
         .chat-head-info {
             display: flex;
+            flex: 0 0 fit-content;
             flex-direction: column;
             height: 100%;
 
@@ -150,6 +153,25 @@
         .dropdown-menu {
             box-shadow: $box-shadow;
             border: 1px solid var(--#{$prefix}border-color);
+        }
+    }
+
+    .large-btn {
+        width: 40px;
+        height: 40px;
+    }
+
+    .btn-pair {
+        display: flex;
+
+        .btn-left {
+            border-top-right-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+
+        .btn-right {
+            border-top-left-radius: 0px;
+            border-bottom-left-radius: 0px;
         }
     }
 }
@@ -763,6 +785,24 @@
                     text-decoration: underline;
                 }
             }
+        }
+    }
+}
+
+.conv-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    overflow-y: auto;
+    scrollbar-width: none;
+    min-height: 100px;
+    max-height: 180px;
+
+    .conv-tag-unit {
+        flex: 0 0 50%;
+        
+        label {
+            font-size: 14px;
+            font-weight: 400;
         }
     }
 }

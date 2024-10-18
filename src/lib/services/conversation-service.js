@@ -76,7 +76,7 @@ export async function deleteConversation(conversationId) {
  * @param {string} conversationId 
  * @returns {Promise<import('$conversationTypes').ChatResponseModel[]>}
  */
-export async function GetDialogs(conversationId) {
+export async function getDialogs(conversationId) {
     let url = replaceUrl(endpoints.dialogsUrl, {conversationId: conversationId});
     const response = await axios.get(url);
     return response.data;
@@ -163,6 +163,30 @@ export async function deleteConversationMessage(conversationId, messageId, isNew
                 is_new_message: isNewMessage || false
             }
         }).then(response => {
+            resolve(response.data);
+        }).catch(err => {
+            reject(err)
+        });
+    });
+}
+
+/**
+ * delete a message in conversation
+ * @param {string} conversationId The conversation id
+ * @param {import('$conversationTypes').UpdateTagsRequest} request
+ * @returns {Promise<boolean>}
+ */
+export async function updateConversationTags(conversationId, request) {
+    let url = replaceUrl(endpoints.conversationTagsUpdateUrl, {
+        conversationId: conversationId
+    });
+
+    const data = {
+        tags: request.tags || []
+    };
+
+    return new Promise((resolve, reject) => {
+        axios.put(url, {...data}).then(response => {
             resolve(response.data);
         }).catch(err => {
             reject(err)

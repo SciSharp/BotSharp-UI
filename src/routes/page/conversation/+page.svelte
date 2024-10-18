@@ -19,13 +19,14 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Label from '$lib/common/Label.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
-	import { conversationSearchOptionStore } from '$lib/helpers/store';
 	import { onMount } from 'svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
+	import MultiSelect from '$lib/common/MultiSelect.svelte';
+	import { ConversationTag } from '$lib/helpers/enums';
 
 	let isLoading = false;
 	let isComplete = false;
@@ -33,7 +34,7 @@
 	let isOpenSearchStateModal = false;
 	const duration = 3000;
 	const firstPage = 1;
-	const pageSize = 10;
+	const pageSize = 15;
 
     /** @type {import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>} */
     let conversations = { count: 0, items: [] };
@@ -55,15 +56,32 @@
 	/** @type {import('$commonTypes').IdName[]} */
 	let agentOptions = [];
 
-	/** 
-	 * @type {{agentId: string?, channel: string?, status: string?, taskId: string?, states: import('$conversationTypes').UserStateDetailModel[]}}
-	 * */
+	/** @type {import('$commonTypes').IdName[]} */
+	let statusOptions = [
+		{ id: 'open', name: 'Active' },
+		{ id: 'closed', name: 'Completed' }
+	];
+
+	/** @type {import('$commonTypes').IdName[]} */
+	let channelOptions = [
+		{ id: 'webchat', name: 'Live Chat' },
+		{ id: 'phone', name: 'Phone' },
+		{ id: 'email', name: 'Email' }
+	];
+
+	/** @type {import('$commonTypes').KeyValuePair[]} */
+	let tagOptions = Object.entries(ConversationTag).map(([k, v]) => (
+		{ key: k, value: v }
+	));
+
+	/** @type {import('$conversationTypes').ConversationSearchOption} */
 	let searchOption = {
 		agentId: null,
 		channel: null,
 		status: null,
 		taskId: null,
 		states: [],
+		tags: []
 	};
 
     onMount(async () => {
@@ -147,8 +165,7 @@
 
 
 	async function reloadConversations() {
-		filter = { ...initFilter };
-		conversations = await getConversations(filter);
+		conversations = await getConversations({ ...filter });
 		refreshPager(conversations.count);
 	}
 
@@ -197,7 +214,6 @@
 		refreshFilter();
 		initFilterPager();
 		getPagedConversations();
-		saveSearchOption();
 	}
 
 	function initFilterPager() {
@@ -218,11 +234,6 @@
 
 	function loadSearchOption() {
 		return new Promise((resolve, reject) => {
-			const savedOption = conversationSearchOptionStore.get();
-			searchOption = {
-				...searchOption,
-				...savedOption
-			};
 			refreshFilter();
 			handleSearchStates();
 			resolve(searchOption);
@@ -237,7 +248,8 @@
 			channel: searchOption.channel,
 			status: searchOption.status,
 			taskId: searchOption.taskId,
-			states: searchStates
+			states: searchStates,
+			tags: searchOption.tags
 		};
 	}
 
@@ -285,10 +297,6 @@
 		});
 	}
 
-	function saveSearchOption() {
-		conversationSearchOptionStore.put(searchOption);
-	}
-
 	/** @param {string | number} index */
 	function handleCloseLabel(index) {
 		searchOption.states = searchOption.states.filter((x, idx) => idx != index);
@@ -319,6 +327,12 @@
 			searchOption = {
 				...searchOption,
 				status: e.target.value || null
+			};
+		} else if (type === 'tags') {
+			searchOption = {
+				...searchOption,
+				// @ts-ignore
+				tags: e.detail.selecteds?.map(x => x.value) || []
 			};
 		}
 	}
@@ -368,36 +382,45 @@
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">
-						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={(e) => changeOption(e, 'agent')}>
+						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={e => changeOption(e, 'agent')}>
 							<option value={null}>{$_('Select Agent')}</option>
 							{#each agentOptions as op}
-							<option value={`${op.id}`}>{$_(`${op.name}`)}</option>
+								<option value={`${op.id}`} selected={op.id === searchOption.agentId}>{$_(`${op.name}`)}</option>
 							{/each}
 						</select>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idTask" value={searchOption.taskId} on:change={(e) => changeOption(e, 'task')}>
+						<select class="form-select" id="idTask" value={searchOption.taskId} on:change={e => changeOption(e, 'task')}>
 							<option value={null}>{$_('Select Task')}</option>
 						</select>
 					</Col>					
 					<Col lg="2">
-						<select class="form-select" id="idStatus" value={searchOption.status} on:change={(e) => changeOption(e, 'status')}>
+						<select class="form-select" id="idStatus" value={searchOption.status} on:change={e => changeOption(e, 'status')}>
 							<option value={null}>{$_('Select Status')}</option>
-							<option value="{$_('open')}">{$_('Active')}</option>
-							<option value="{$_('closed')}">{$_('Completed')}</option>
+							{#each statusOptions as op}
+								<option value={`${op.id}`} selected={op.id === searchOption.status}>{$_(`${op.name}`)}</option>
+							{/each}
 						</select>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idChannel" value={searchOption.channel} on:change={(e) => changeOption(e, 'channel')}>
+						<select class="form-select" id="idChannel" value={searchOption.channel} on:change={e => changeOption(e, 'channel')}>
 							<option value={null}>{$_('Select Channel')}</option>
-							<option value="{$_('webchat')}">{$_('Live Chat')}</option>
-							<option value="{$_('phone')}">{$_('Phone')}</option>
-                            <option value="{$_('email')}">{$_('Email')}</option>
+							{#each channelOptions as op}
+								<option value={`${op.id}`} selected={op.id === searchOption.channel}>{$_(`${op.name}`)}</option>
+							{/each}
 						</select>
 					</Col>
 					<Col lg="2">
-						<Input type="date" class="form-control" />
+						<MultiSelect
+							tag={'conv-tags'}
+							placeholder={'Select Tags'}
+							options={tagOptions}
+							on:select={e => changeOption(e, "tags")}
+						/>
 					</Col>
+					<!-- <Col lg="2">
+						<Input type="date" class="form-control" />
+					</Col> -->
 					<Col lg="1">
 						<Button
 							type="button"
@@ -405,13 +428,14 @@
 							class="btn-soft-secondary w-100"
 							on:click={(e) => searchConversations(e)}
 						>
-							<i class="mdi mdi-filter-outline align-middle" /> {$_('Filter')}
+							<i class="mdi mdi-filter-outline align-middle" />
+							<span class="d-none">{$_('Filter')}</span>
 						</Button>
 					</Col>
 				</Row>
 				{#if searchStateStrs?.length > 0}
 					{#each searchStateStrs as str, idx (idx)}
-					<Label index={idx} text={str} onClose={(index) => handleCloseLabel(index)} />
+						<Label index={idx} text={str} onClose={(index) => handleCloseLabel(index)} />
 					{/each}
 				{/if}
 			</CardBody>

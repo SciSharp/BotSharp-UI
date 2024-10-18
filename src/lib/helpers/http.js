@@ -66,6 +66,7 @@ function skipLoader(config) {
     const putRegexes = [
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g'),
     ];
 
     const deleteRegexes = [
