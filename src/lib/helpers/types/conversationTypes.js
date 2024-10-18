@@ -17,6 +17,7 @@
  * @property {string?} [status] - The conversation status.
  * @property {string?} [taskId] - The task id.
  * @property {import('$commonTypes').KeyValuePair[]} [states] - The conversation status.
+ * @property {string[]} [tags] - The tags.
  */
 
 /**
@@ -29,7 +30,8 @@
  * @property {string} channel - The conversation status.
  * @property {string} [task_id] - Optional task id.
  * @property {string} status - The conversation status.
- * @property {Object[]} states - The conversation states. 
+ * @property {Object[]} states - The conversation states.
+ * @property {string[]} tags - The conversation tags.
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.
  */
@@ -259,7 +261,21 @@ IRichContent.prototype.quick_replies;
  * @property {number} innerIndex
  */
 
+/**
+ * @typedef {Object} UpdateTagsRequest
+ * @property {string[]} tags
+ */
 
+
+/**
+ * @typedef {Object} ConversationSearchOption
+ * @property {string?} [agentId]
+ * @property {string?} [channel]
+ * @property {string?} [taskId]
+ * @property {string?} [status]
+ * @property {UserStateDetailModel[]} states
+ * @property {string[]} tags
+ */
 
 /**
  * Invoked when a new conersation is created.

@@ -3,7 +3,7 @@
     import { _ } from 'svelte-i18n' 
     import util from "lodash";
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
-    import { GetDialogs, getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
+    import { getDialogs, getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
 	import { USER_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
@@ -30,7 +30,7 @@
     export let conversation;
 
     onMount(async () => {
-        dialogs = await GetDialogs(conversation.id);
+        dialogs = await getDialogs(conversation.id);
     });
 
     /** 

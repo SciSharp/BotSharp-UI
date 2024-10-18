@@ -18,6 +18,9 @@
     export let searchPlaceholder = '';
 
     /** @type {string} */
+    export let placeholder = '';
+
+    /** @type {string} */
     export let containerClasses = "";
 
     /** @type {string} */
@@ -26,8 +29,12 @@
     /** @type {boolean} */
     export let disableDefaultStyles = false;
 
+    /** @type {boolean} */
+    export let searchMode = false;
+
     /** @type {null | undefined | (() => Promise<any>)} */
     export let onScrollMoreOptions = null;
+
 
     /** @type {string} */
     let searchValue = '';
@@ -179,7 +186,7 @@
 
     function sendEvent() {
         svelteDispatch("select", {
-            selecteds: refOptions.filter(x => !!x.checked)
+            selecteds: refOptions.filter(x => !!x.checked).map(x => ({ key: x.key, value: x.value }))
         });
     }
 
@@ -261,6 +268,7 @@
             type="text"
             class='clickable'
             value={displayText}
+            placeholder={placeholder}
             readonly
         />
         <div class={`display-suffix ${showOptionList ? 'show-list' : ''}`}>
@@ -269,17 +277,19 @@
     </ul>
     {#if showOptionList}
         <ul class="option-list" id={`multiselect-list-${tag}`} on:scroll={() => innerScroll()}>
-            <div class="search-box">
-                <div class="search-prefix">
-                    <i class="bx bx-search-alt" />
+            {#if searchMode}
+                <div class="search-box">
+                    <div class="search-prefix">
+                        <i class="bx bx-search-alt" />
+                    </div>
+                    <Input
+                        type="text"
+                        value={searchValue}
+                        placeholder={searchPlaceholder}
+                        on:input={e => changeSearchValue(e)}
+                    />
                 </div>
-                <Input
-                    type="text"
-                    value={searchValue}
-                    placeholder={searchPlaceholder}
-                    on:input={e => changeSearchValue(e)}
-                />
-            </div>
+            {/if}
             {#if innerOptions.length > 0}
                 {#if selectAll}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->

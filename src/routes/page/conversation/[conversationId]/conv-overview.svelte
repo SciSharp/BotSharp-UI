@@ -52,6 +52,21 @@
                     </div>
                 </div>
             </li>
+            {#if conversation.tags?.length > 0}
+            <li class="mt-3">
+                <div class="d-flex">
+                    <i class="bx bx-tag text-primary fs-4"></i>
+                    <div class="ms-3">
+                        <h6 class="fs-14 mb-2">{$_('Tags')}</h6>
+                        <ul style="padding-left: 1rem;">
+                            {#each conversation.tags as tag}
+                                <li class="text-muted fs-14 mb-0">{tag}</li>
+                            {/each}
+                        </ul>
+                    </div>
+                </div>
+            </li>
+            {/if}
         </ul>
     </CardBody>
 </Card>

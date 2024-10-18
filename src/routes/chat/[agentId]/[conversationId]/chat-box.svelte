@@ -14,6 +14,7 @@
 		DropdownToggle,
 		DropdownMenu,
 		DropdownItem,
+		Input
 	} from '@sveltestrap/sveltestrap';
 	import {
 		conversationStore,
@@ -24,9 +25,11 @@
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
-		GetDialogs,
+		getConversation,
+		getDialogs,
 		deleteConversationMessage,
 		updateConversationMessage,
+		updateConversationTags,
 		getConversationFiles,
 		getConversationUser,
 		uploadConversationFiles,
@@ -52,7 +55,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
-	import { ChatAction, EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { ChatAction, ConversationTag, EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -110,10 +113,20 @@
 	let prevSentMsgs = [];
 	/** @type {string[]} */
 	let chatUtilOptions = [];
+	/** @type {string[]} */
+	let selectedTags = [];
+
+	/** @type {import('$commonTypes').KeyValuePair[]} */
+	let tagOptions = Object.entries(ConversationTag).map(([k, v]) => (
+		{ key: k, value: v }
+	));
 	
 	/** @type {any[]} */
     let scrollbars = [];
 	let microphoneIcon = "microphone-off";
+
+	/** @type {import('$conversationTypes').ConversationModel} */
+    let conversation;
 
 	/** @type {import('$conversationTypes').EditBotMessageModel?} */
 	let editBotMsg;
@@ -162,6 +175,7 @@
 	let isOpenBigMsgModal = false;
 	let isOpenEditBotMsgModal = false;
 	let isOpenUserAddStateModal = false;
+	let isOpenTagModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isLite = false;
@@ -195,8 +209,10 @@
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		autoScrollLog = true;
-		dialogs = await GetDialogs(params.conversationId);
+		conversation = await getConversation(params.conversationId);
+		dialogs = await getDialogs(params.conversationId);
 		conversationUser = await getConversationUser(params.conversationId);
+		selectedTags = conversation?.tags || [];
 		initUserSentMessages(dialogs);
 		initChatView();
 		
@@ -302,6 +318,8 @@
 			isLoadInstantLog = false;
 			isOpenEditMsgModal = false;
 			isOpenUserAddStateModal = false;
+			isOpenBigMsgModal = false;
+			isOpenTagModal = false;
 		}
 	}
 
@@ -1181,6 +1199,56 @@
 		}
 	}
 
+	function toggleTagModal() {
+		isOpenTagModal = !isOpenTagModal;
+		if (!isOpenTagModal) {
+			selectedTags = conversation?.tags || [];
+		}
+	}
+
+	/**
+	 * @param {any} e
+	 * @param {string} value
+	 */
+	function changeTagSelection(e, value) {
+		const checked = e.target.checked;
+		if (checked) {
+			selectedTags = [...new Set([...selectedTags, value])];
+		} else {
+			selectedTags = selectedTags.filter(x => x !== value);
+		}
+	}
+
+	function updateChatTags() {
+		isLoading = true;
+		updateConversationTags(
+			params.conversationId,
+			{ tags: selectedTags })
+		.then(res => {
+			if (res) {
+				isComplete = true;
+				successText = "Tags has been updated!";
+				setTimeout(() => {
+					isComplete = false;
+					successText = "";
+				}, duration);
+			} else {
+				throw "Failed to update chat tags.";
+			}
+		}).catch(() => {
+			selectedTags = conversation?.tags || [];
+			isError = true;
+			errorText = "Failed to update tags!";
+			setTimeout(() => {
+				isError = false;
+				errorText = "";
+			}, duration);
+		}).finally(() => {
+			isOpenTagModal = false;
+			isLoading = false;
+		});
+	}
+
 	function saveBotMsg() {
 		if (!editBotMsg) return;
 
@@ -1249,6 +1317,32 @@
 	successText={successText}
 	errorText={errorText}
 />
+
+<DialogModal
+	title={'Tags'}
+	size={'md'}
+	isOpen={isOpenTagModal}
+	closeable
+	toggleModal={() => toggleTagModal()}
+	confirmBtnText={'Confirm'}
+	cancelBtnText={'Cancel'}
+	confirm={() => updateChatTags()}
+	cancel={() => toggleTagModal()}
+	close={() => toggleTagModal()}
+>
+	<div class="conv-tags-container">
+		{#each tagOptions as op}
+			<div class="conv-tag-unit">
+				<Input
+					type="checkbox"
+					label={op.value}
+					checked={selectedTags.includes(op.value)}
+					on:change={e => changeTagSelection(e, op.value)}
+				/>
+			</div>
+		{/each}
+	</div>
+</DialogModal>
 
 <DialogModal
 	title={'Notification'}
@@ -1372,13 +1466,14 @@
 									</li>
 									{/if}
 									<li class="list-inline-item">
+										{#if !isLite}
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
 												{#if !isLite && (!isLoadPersistLog || !isLoadInstantLog)}
-												<DropdownItem on:click={() => openLogs()}>View Log</DropdownItem>
+													<DropdownItem on:click={() => openLogs()}>View Log</DropdownItem>
 												{/if}
 												{#if !isLite && (!isLoadInstantLog || !isOpenUserAddStateModal)}
 												<li>
@@ -1405,21 +1500,48 @@
 													</Dropdown>
 												</li>
 												{/if}
-												<DropdownItem on:click={() => handleNewConversation()}>New Conversation</DropdownItem>
+												<DropdownItem
+													disabled={currentUser?.role !== UserRole.Admin}
+													on:click={() => toggleTagModal()}
+												>
+													Add Tags
+												</DropdownItem>
 												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
-												<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
+													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
 												{/if}
 											</DropdownMenu>
 										</Dropdown>
+										{:else}
+										<button
+											class={`btn btn-rounded btn-sm btn-primary large-btn`}
+											disabled={disableAction}
+											on:click={() => handleNewConversation()}
+										>
+											<i class="mdi mdi-plus" />
+										</button>
+										{/if}
 									</li>
 									
-									<li class="list-inline-item d-md-inline-block">
+									<li class="list-inline-item btn-pair">
+										{#if !isLite}
 										<button
-											class={`btn btn-rounded btn-sm chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+											class={`btn btn-rounded btn-sm btn-primary btn-left`}
+											disabled={disableAction}
+											on:click={() => handleNewConversation()}
+										>
+											<i class="mdi mdi-plus" />
+											<span class="me-2">New</span>
+										</button>
+										{/if}
+										<button
+											class={`btn btn-rounded btn-sm btn-danger ${!isLite ? 'btn-right' : ''}`}
 											disabled={disableAction}
 											on:click={() => endChat()}
 										>
-											<span class="d-none d-sm-inline-block me-2" >End Conversation</span> <i class="mdi mdi-window-close"></i>
+											{#if !isLite}
+											<span class="me-2">End</span>
+											{/if}
+											<i class="mdi mdi-window-close" />
 										</button>
 									</li>
 								</ul>
