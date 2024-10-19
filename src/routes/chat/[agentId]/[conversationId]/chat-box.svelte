@@ -1476,36 +1476,35 @@
 													<DropdownItem on:click={() => openLogs()}>View Log</DropdownItem>
 												{/if}
 												{#if !isLite && (!isLoadInstantLog || !isOpenUserAddStateModal)}
-												<li>
-													<Dropdown direction="right" class="state-menu">
-														<DropdownToggle caret class="dropdown-item">
-															States
-														</DropdownToggle>
-														<DropdownMenu>
-															{#if !isOpenUserAddStateModal}
-															<DropdownItem
-																disabled={disableAction}
-																on:click={() => toggleUserAddStateModal()}
-															>
-																Add States
-															</DropdownItem>
-															{/if}
-															<DropdownItem
-																disabled={disableAction}
-																on:click={() => clearUserAddStates()}
-															>
-																Clear States
-															</DropdownItem>
-														</DropdownMenu>
-													</Dropdown>
-												</li>
+													<li>
+														<Dropdown direction="right" class="state-menu">
+															<DropdownToggle caret class="dropdown-item">
+																States
+															</DropdownToggle>
+															<DropdownMenu>
+																{#if !isOpenUserAddStateModal}
+																<DropdownItem
+																	disabled={disableAction}
+																	on:click={() => toggleUserAddStateModal()}
+																>
+																	Add States
+																</DropdownItem>
+																{/if}
+																<DropdownItem
+																	disabled={disableAction}
+																	on:click={() => clearUserAddStates()}
+																>
+																	Clear States
+																</DropdownItem>
+															</DropdownMenu>
+														</Dropdown>
+													</li>
 												{/if}
-												<DropdownItem
-													disabled={currentUser?.role !== UserRole.Admin}
-													on:click={() => toggleTagModal()}
-												>
-													Add Tags
-												</DropdownItem>
+												{#if currentUser?.role === UserRole.Admin}
+													<DropdownItem on:click={() => toggleTagModal()}>
+														Add Tags
+													</DropdownItem>
+												{/if}
 												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
 													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
 												{/if}
@@ -1539,7 +1538,7 @@
 											on:click={() => endChat()}
 										>
 											{#if !isLite}
-											<span class="me-2">End</span>
+											<span class="me-2">Exit</span>
 											{/if}
 											<i class="mdi mdi-window-close" />
 										</button>
