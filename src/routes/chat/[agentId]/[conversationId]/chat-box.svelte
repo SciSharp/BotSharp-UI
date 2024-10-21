@@ -38,6 +38,7 @@
 	import { 
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
 		PUBLIC_LIVECHAT_VOICE_ENABLED,
+		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
 		PUBLIC_DEBUG_MODE
@@ -1629,10 +1630,12 @@
 													<RcMessage message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														<div style="display: flex; gap: 10px;">
-															<AudioSpeaker
-																id={message?.message_id} 
-																text={message?.rich_content?.message?.text || message?.text}
-															/>
+															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
+																<AudioSpeaker
+																	id={message?.message_id} 
+																	text={message?.rich_content?.message?.text || message?.text}
+																/>
+															{/if}
 															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true'}
 																{#if message?.function}
 																	<div class="line-align-center" style="font-size: 17px;">
@@ -1655,6 +1658,7 @@
 																	<!-- svelte-ignore a11y-no-static-element-interactions -->
 																	<div
 																		class="clickable"
+																		style="height: 80%;"
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
