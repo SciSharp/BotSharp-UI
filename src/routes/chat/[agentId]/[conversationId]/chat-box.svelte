@@ -1501,12 +1501,11 @@
 													</Dropdown>
 												</li>
 												{/if}
-												<DropdownItem
-													disabled={currentUser?.role !== UserRole.Admin}
-													on:click={() => toggleTagModal()}
-												>
-													Add Tags
-												</DropdownItem>
+												{#if currentUser?.role === UserRole.Admin}
+													<DropdownItem on:click={() => toggleTagModal()}>
+														Add Tags
+													</DropdownItem>
+												{/if}
 												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
 													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
 												{/if}
@@ -1552,16 +1551,10 @@
 											disabled={disableAction}
 											on:click={() => endChat()}
 										>
-											<span
-												data-bs-toggle="tooltip"
-												data-bs-placement="top"
-												title="Exit Conversation"
-											>
-												{#if !isLite}
-												<span class="me-2">End</span>
-												{/if}
-												<i class="mdi mdi-window-close" />
-											</span>
+											{#if !isLite}
+											<span class="me-2">End</span>
+											{/if}
+											<i class="mdi mdi-window-close" />
 										</button>
 									</li>
 								</ul>
