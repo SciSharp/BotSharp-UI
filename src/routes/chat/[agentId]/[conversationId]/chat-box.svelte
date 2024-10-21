@@ -39,7 +39,8 @@
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
 		PUBLIC_LIVECHAT_VOICE_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
-		PUBLIC_LIVECHAT_ENABLE_TRAINING
+		PUBLIC_LIVECHAT_ENABLE_TRAINING,
+		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
 	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
@@ -1455,15 +1456,15 @@
 		
 							<div class="col-md-8 col-5">
 								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
-									{#if isFrame}
-									<li class="list-inline-item">
-										<button
-											class="btn btn-secondary btn-rounded btn-sm"
-											on:click={() => openFullScreen()}
-										>
-											<i class="bx bx-fullscreen" />
-										</button>
-									</li>
+									{#if PUBLIC_DEBUG_MODE === 'true' && isFrame}
+										<li class="list-inline-item">
+											<button
+												class="btn btn-secondary btn-rounded btn-sm"
+												on:click={() => openFullScreen()}
+											>
+												<i class="bx bx-fullscreen" />
+											</button>
+										</li>
 									{/if}
 									<li class="list-inline-item">
 										{#if !isLite}
@@ -1472,33 +1473,33 @@
 												<i class="bx bx-dots-horizontal-rounded" />
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
-												{#if !isLite && (!isLoadPersistLog || !isLoadInstantLog)}
+												{#if !isLoadPersistLog || !isLoadInstantLog}
 													<DropdownItem on:click={() => openLogs()}>View Log</DropdownItem>
 												{/if}
-												{#if !isLite && (!isLoadInstantLog || !isOpenUserAddStateModal)}
-													<li>
-														<Dropdown direction="right" class="state-menu">
-															<DropdownToggle caret class="dropdown-item">
-																States
-															</DropdownToggle>
-															<DropdownMenu>
-																{#if !isOpenUserAddStateModal}
-																<DropdownItem
-																	disabled={disableAction}
-																	on:click={() => toggleUserAddStateModal()}
-																>
-																	Add States
-																</DropdownItem>
-																{/if}
-																<DropdownItem
-																	disabled={disableAction}
-																	on:click={() => clearUserAddStates()}
-																>
-																	Clear States
-																</DropdownItem>
-															</DropdownMenu>
-														</Dropdown>
-													</li>
+												{#if !isLoadInstantLog || !isOpenUserAddStateModal}
+												<li>
+													<Dropdown direction="right" class="state-menu">
+														<DropdownToggle caret class="dropdown-item">
+															States
+														</DropdownToggle>
+														<DropdownMenu>
+															{#if !isOpenUserAddStateModal}
+															<DropdownItem
+																disabled={disableAction}
+																on:click={() => toggleUserAddStateModal()}
+															>
+																Add States
+															</DropdownItem>
+															{/if}
+															<DropdownItem
+																disabled={disableAction}
+																on:click={() => clearUserAddStates()}
+															>
+																Clear States
+															</DropdownItem>
+														</DropdownMenu>
+													</Dropdown>
+												</li>
 												{/if}
 												{#if currentUser?.role === UserRole.Admin}
 													<DropdownItem on:click={() => toggleTagModal()}>
@@ -1516,7 +1517,13 @@
 											disabled={disableAction}
 											on:click={() => handleNewConversation()}
 										>
-											<i class="mdi mdi-plus" />
+											<i
+												class="mdi mdi-plus"
+												style="font-size: 15px;"
+												data-bs-toggle="tooltip"
+												data-bs-placement="top"
+												title="New Conversation"
+											/>
 										</button>
 										{/if}
 									</li>
@@ -1528,8 +1535,15 @@
 											disabled={disableAction}
 											on:click={() => handleNewConversation()}
 										>
-											<i class="mdi mdi-plus" />
-											<span class="me-2">New</span>
+											<span
+												data-bs-toggle="tooltip"
+												data-bs-placement="top"
+												title="New Conversation"
+											>
+												<i class="mdi mdi-plus" />
+												<span class="me-2">New</span>
+											</span>
+											
 										</button>
 										{/if}
 										<button
@@ -1538,7 +1552,7 @@
 											on:click={() => endChat()}
 										>
 											{#if !isLite}
-											<span class="me-2">Exit</span>
+											<span class="me-2">End</span>
 											{/if}
 											<i class="mdi mdi-window-close" />
 										</button>
