@@ -46,6 +46,7 @@
             return {
                 title: op.title,
                 subtitle: op.subtitle,
+                text: op.text,
                 image_url: op.image_url,
                 options: options
             };
@@ -113,6 +114,9 @@
                         {/if}
                         {#if !!card.subtitle}
                             <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
+                        {/if}
+                        {#if !!card.text}
+                            <div class="card-element-text hide-text">{card.text}</div>
                         {/if}
                         {#if card.options?.length > 0}
                             <div class="card-option-group">

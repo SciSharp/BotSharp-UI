@@ -23,7 +23,15 @@
         if (!!config.provider) {
             models = await getLlmProviderModels(config.provider);
         }
+        init();
     });
+
+    function init() {
+        const foundProvider = providers.find(x => x === config.provider);
+        const foundModel = models.find(x => x.name === config.model);
+        config.provider = foundProvider || null;
+        config.model = foundModel?.name || null;
+    }
 
     /** @param {any} e */
     async function changeProvider(e) {
@@ -67,7 +75,7 @@
             <h5 class="mt-1 mb-3">LLM Config</h5>
             <img src="images/brands/azure-openai-logo.avif" alt="" height="50" />
             {#if agent.llm_config?.is_inherit}
-            <i class="bx bx-copy"></i> <span class="text-muted">Inherited</span>    
+                <i class="bx bx-copy"></i> <span class="text-muted">Inherited</span>    
             {/if}
         </div>
 
@@ -93,7 +101,7 @@
                     {#each models as option}
                         <option value={option.name} selected={option.name == config.model}>{option.name}</option>
                     {/each}
-                </Input>                
+                </Input>
             </div>
         </div>
 
