@@ -761,15 +761,24 @@
             justify-content: space-evenly;
             gap: 5px;
             padding: 10px 15px;
+            overflow-y: auto;
+            scrollbar-width: none;
+            height: 200px;
 
             .card-element-title {
-                font-size: 0.8rem;
+                font-size: 0.85rem;
                 font-weight: 700;
             }
 
             .card-element-subtitle {
-                font-size: 0.7rem;
+                font-size: 0.8rem;
                 font-weight: 500;
+            }
+
+            .card-element-text {
+                font-size: 0.75rem;
+                font-weight: 400;
+                padding: 5px;
             }
 
             .card-option-group {
