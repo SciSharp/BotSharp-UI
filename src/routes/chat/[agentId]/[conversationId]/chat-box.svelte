@@ -195,8 +195,8 @@
 	let isError = false;
 	
 	$: {
-		const editor = lastBotMsg?.rich_content?.editor || '';
-		loadTextEditor = TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
+		// const editor = lastBotMsg?.rich_content?.editor || '';
+		loadTextEditor = true; // TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
 		loadEditor = !isSendingMsg && !isThinking && loadTextEditor;
 	}
 
