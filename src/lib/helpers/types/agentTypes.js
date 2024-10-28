@@ -90,6 +90,7 @@
 
 /**
  * @typedef {Object} ChannelInstruction
+ * @property {string} [uid]
  * @property {string} channel 
  * @property {string} instruction
  */

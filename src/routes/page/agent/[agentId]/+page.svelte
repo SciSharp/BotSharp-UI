@@ -24,6 +24,8 @@
     let agent;
     /** @type {any} */
     let agentFunctionCmp = null;
+    /** @type {any} */
+    let agentPromptCmp = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -62,7 +64,8 @@
 
     function handleAgentUpdate() {
         fetchJsonContent();
-        isLoading = true;
+        fetchPrompts();
+
         agent = {
             ...agent,
             description: agent.description || '',
@@ -71,9 +74,11 @@
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || []
         };
+        isLoading = true;
         saveAgent(agent).then(res => {
             isLoading = false;
 			isComplete = true;
+            refreshChannelPrompts();
 			setTimeout(() => {
 				isComplete = false;
 			}, duration);
@@ -97,6 +102,16 @@
                             (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []);
         agent.templates = textContent?.templates?.length > 0 ? textContent.templates :
                             (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []);
+    }
+
+    function fetchPrompts() {
+        const obj = agentPromptCmp?.fetchChannelPrompts();
+        agent.instruction = obj.systemPrompt;
+        agent.channel_instructions = obj.channelPrompts || [];
+    }
+
+    function refreshChannelPrompts() {
+        agentPromptCmp?.refreshChannelPrompts();
     }
 
     function deleteCurrentAgent() {
@@ -141,7 +156,7 @@
         </Col>
         <Col class="section-min-width" style="flex: 65%;">
             <div class="agent-detail-section">
-                <AgentPrompt agent={agent} />
+                <AgentPrompt bind:this={agentPromptCmp} agent={agent} />
             </div>
             <div class="agent-detail-section">
                 <AgentFunction bind:this={agentFunctionCmp} agent={agent} />

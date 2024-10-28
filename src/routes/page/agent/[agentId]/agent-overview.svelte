@@ -83,7 +83,7 @@
                     <span><i class="mdi mdi-chat" /></span>
                 </Button>
             </div>
-            <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name}/></h5>
+            <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name} /></h5>
             <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
         </div>
     </CardHeader>
