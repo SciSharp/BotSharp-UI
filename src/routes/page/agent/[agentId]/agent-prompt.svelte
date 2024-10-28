@@ -1,11 +1,35 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, FormGroup, Label, Input, CardHeader } from '@sveltestrap/sveltestrap';
+    import { Card, CardBody, FormGroup, Input, CardHeader } from '@sveltestrap/sveltestrap';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+    import { v4 as uuidv4 } from 'uuid';
+    import util from "lodash";
+	import { _ } from 'svelte-i18n';
     
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
+
+    export const fetchChannelPrompts = () => {
+        const candidates = local_instructions?.filter((x, idx) => idx > 0 && !!x.channel?.trim())?.map(x => {
+            return { channel: x.channel.trim().toLowerCase(), instruction: x.instruction };
+        });
+
+        const prompts = [];
+        const groups = util.groupBy(candidates, (/** @type {any} */ x) => x.channel);
+        for (const key in groups) {
+            if (groups[key]?.length > 0) {
+                prompts.push(groups[key][0]);
+            }
+        }
+
+        return {
+            systemPrompt: local_instructions[0].instruction,
+            channelPrompts: prompts
+        };
+    }
+
+    export const refreshChannelPrompts = () => init();
 
     const defaultChannel = "default";
 
@@ -22,24 +46,33 @@
     let selected_instruction = { ...defaultInstruction };
 
     onMount(() => {
+        init();
+    });
+
+    function init() {
         local_instructions = [
             {
+                uid: uuidv4(),
                 channel: defaultChannel,
                 instruction: agent.instruction
             },
-            ...agent.channel_instructions
+            ...agent.channel_instructions?.map(x => ({
+                uid: uuidv4(),
+                channel: x.channel,
+                instruction: x.instruction
+            })) || []
         ];
 
         selected_instruction = local_instructions[0];
-    });
+    }
 
-    /** @param {string} channel */
-    function selectChannel(channel) {
-        if (channel === selected_instruction.channel) {
+    /** @param {string | undefined} uid */
+    function selectChannel(uid) {
+        if (uid === selected_instruction.uid) {
             return;
         }
 
-        selected_instruction = local_instructions.find(x => x.channel === channel) || { ...defaultInstruction };
+        selected_instruction = local_instructions.find(x => x.uid === uid) || { ...defaultInstruction };
     }
 
     /** @param {any} e */
@@ -47,9 +80,24 @@
         e.preventDefault();
         const value = e.target.value;
         selected_instruction.instruction = value || '';
+    }
 
-        if (selected_instruction.channel === defaultChannel) {
-            agent.instruction = selected_instruction.instruction;
+    function addChannel() {
+        local_instructions = [
+            ...local_instructions,
+            {
+                uid: uuidv4(),
+                channel: '',
+                instruction: ''
+            }
+        ];
+    }
+
+    /** @param {string | undefined} uid */
+    function deleteChannel(uid) {
+        local_instructions = local_instructions.filter(x => x.uid !== uid);
+        if (selected_instruction.uid === uid) {
+            selected_instruction = local_instructions[0];
         }
     }
 </script>
@@ -64,20 +112,44 @@
     </CardHeader>
     <CardBody>
         <FormGroup class="mb-3">
-            <Label for="formmessage">Description:</Label>
+            <div class="mb-2">
+                <div class="line-align-center fw-bold">
+                    {'Description:'}
+                </div>
+            </div>
             <Input
                 type="textarea"
-                id="formmessage"
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
-                rows="4"
+                rows={4}
                 bind:value={agent.description}
                 placeholder="Enter your Message"
             />
         </FormGroup>
         
         <FormGroup class="mb-3" style="overflow-y: auto; scrollbar-width: none;">
-            <Label for="form-prompt">System Prompt:</Label>
+            <div class="mb-2" style="display: flex; gap: 10px;">
+                <div class="line-align-center fw-bold">
+                    {#if local_instructions.length > 1}
+                        {'Prompts:'}
+                    {:else}
+                        {'System Prompt:'}
+                    {/if}
+                </div>
+                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div
+                    class="text-primary clickable"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Add channel instruction"
+                    style="font-size: 16px;"
+                    on:click={() => addChannel()}
+                >
+                    <i class="mdi mdi-plus-circle-outline" />
+                </div>
+            </div>
+            
             {#if local_instructions.length > 1}
             <NavBar
                 id={'agent-instruction-container'}
@@ -86,23 +158,28 @@
             >
                 {#each local_instructions as inst, idx (idx) }
                 <NavItem
-                    containerStyles={`flex: 0 1 calc(100% / ${local_instructions.length})`}
+                    containerStyles={`flex: 0 1 calc(100% / ${local_instructions.length <= 2 ? local_instructions.length : 3})`}
+                    navBtnStyles={'text-transform: none;'}
                     navBtnId={`${inst.channel}-prompt-tab`}
                     dataBsTarget={`#${inst.channel}-prompt-tab-pane`}
                     ariaControls={`${inst.channel}-prompt-tab-pane`}
-                    navBtnText={inst.channel}
-                    active={inst.channel === selected_instruction.channel}
-                    onClick={() => selectChannel(inst.channel)}
+                    bind:navBtnText={inst.channel}
+                    active={inst.uid === selected_instruction.uid}
+                    allowEdit={idx > 0}
+                    allowDelete={idx > 0}
+                    maxEditLength={20}
+                    editPlaceholder={'Type a channel name here...'}
+                    onClick={() => selectChannel(inst.uid)}
+                    onDelete={() => deleteChannel(inst.uid)}
                 />
                 {/each}
             </NavBar>
             {/if}
             <Input
                 type="textarea"
-                id="form-prompt"
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
-                rows="24"
+                rows={24}
                 value={selected_instruction.instruction}
                 on:input={(e) => changePrompt(e)}
                 placeholder="Enter your Prompt"

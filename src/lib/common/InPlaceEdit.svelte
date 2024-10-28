@@ -1,46 +1,73 @@
 <script>
-    import { createEventDispatcher, onMount } from 'svelte'
+    import { createEventDispatcher, onMount } from 'svelte';
   
-    export let value, required = true
+    /** @type {string} */
+    export let value = '';
+
+    /** @type {boolean} */
+    export let required = true;
+
+    /** @type {number} */
+    export let maxLength = 30;
+
+    /** @type {string} */
+    export let placeholder = 'Please edit here...';
   
-    const dispatch = createEventDispatcher()
-    let editing = false, original
+    const dispatch = createEventDispatcher();
+    let editing = false;
+    let original = '';
   
     onMount(() => {
-      original = value
+        original = value;
     })
   
     function edit() {
-      editing = true
+        editing = true;
     }
   
     function submit() {
-          if (value != original) {
-              dispatch('submit', value)
-          }
+        if (value != original) {
+            dispatch('submit', value);
+        }
           
-      editing = false
+        editing = false;
     }
   
+    /** @param {any} event */
     function keydown(event) {
-      if (event.key == 'Escape') {
-        event.preventDefault()
-        value = original
-        editing = false
-      }
+        if (event.key == 'Escape') {
+            event.preventDefault()
+            value = original;
+            editing = false
+        }
     }
       
+    /** @param {HTMLInputElement} element */
     function focus(element) {
-        element.focus()
+        element.focus();
     }
 </script>
 
 {#if editing}
-<form on:submit|preventDefault={submit} on:keydown={keydown}>
-    <input class="form-control" bind:value on:blur={submit} {required} use:focus/>
-</form>
+    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+    <form on:submit|preventDefault={() => submit()} on:keydown={e => keydown(e)}>
+        <input
+            class="form-control"
+            bind:value={value}
+            {required}
+            maxlength={maxLength}
+            use:focus
+            on:blur={() => submit()}
+        />
+    </form>
 {:else}
-<div on:click={edit}>
-    {value}
-</div>
+    <!-- svelte-ignore a11y-click-events-have-key-events -->
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div style="width: fit-content; min-width: 30%;" on:click={() => edit()}>
+        {#if !!value?.trim()}
+            <span>{value}</span>
+        {:else}
+            <span class="text-secondary fw-light">{placeholder}</span>
+        {/if}
+    </div>
 {/if}  
