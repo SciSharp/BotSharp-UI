@@ -173,6 +173,9 @@ button:focus {
 }
   
 .markdown-container {
+  overflow-x: auto;
+  scrollbar-width: thin;
+
   pre {
     -ms-overflow-style: none !important;
     white-space: pre-wrap;
