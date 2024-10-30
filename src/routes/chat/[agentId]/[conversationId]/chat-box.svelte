@@ -1441,15 +1441,17 @@
 							<div class="col-md-4 col-7 chat-head-info">
 								<div class="chat-head-agent">
 									{#if agent?.icon_url}
-									<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
+									<div class="line-align-center">
+										<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
+									</div>
 									{/if}
-									<div class="chat-head-agent-name">{agent?.name || 'Unkown'}</div>
+									<div class="chat-head-agent-name line-align-center ellipsis">{agent?.name || 'Unkown'}</div>
 								</div>
 								<div class="text-muted mb-0 chat-head-user">
 									<div>
 										<i class="mdi mdi-circle text-success align-middle" />
 									</div>
-									<div>
+									<div class="ellipsis">
 										<span>{conversationUser?.full_name || conversationUser?.user_name || ''}</span>
 									</div>
 								</div>

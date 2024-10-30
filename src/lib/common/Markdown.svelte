@@ -23,6 +23,6 @@
 	}
 </script>
 
-<span class={`markdown-container ${containerClasses || 'text-white'}`}>
+<div class={`markdown-container ${containerClasses || 'text-white'}`}>
 	{@html displayText}
-</span>
+</div>
