@@ -118,7 +118,7 @@
 
 {#if open}
     <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
-        <td colspan="3">
+        <td colspan="12">
             <div class="knowledge-detail">
                 <ul>
                     {#if isQuestionAnswerCollection}

@@ -1,0 +1,50 @@
+.users-table {
+    .user-permission-col {
+        width: 10%;
+        max-width: 300px;
+    }
+    
+    .user-agent-col {
+        width: 25%;
+        max-width: 350px;
+    }
+
+    .user-detail {
+        padding: 2px 5px;
+        border-radius: 3px;
+        border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
+        position: relative;
+
+        ul {
+            li {
+                margin: 2px 0px;
+            }
+        }
+
+        .wrappable {
+            white-space: wrap !important;
+        }
+
+        .basic-info {
+            margin: 15px 0px 8px 0px;
+            display: flex;
+            flex-wrap: wrap;
+
+            li {
+                flex: 0 0 50%;
+
+                .inline-edit {
+                    display: flex;
+                    gap: 3px;
+                }
+            }
+        }
+
+        .edit-btn {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 18px;
+        }
+    }
+}
