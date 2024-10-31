@@ -1,4 +1,9 @@
 .users-table {
+    .user-plain-col {
+        width: 10%;
+        max-width: 100px;
+    }
+
     .user-permission-col {
         width: 10%;
         max-width: 300px;
@@ -41,10 +46,48 @@
             }
         }
 
+        .user-agent-container {
+            margin-top: 20px;
+            padding: 0px 2rem;
+
+            .action-row-wrapper {
+                overflow-y: auto;
+                scrollbar-width: thin;
+                height: fit-content;
+                max-height: 300px;
+            }
+
+            .action-row {
+                display: flex;
+            }
+
+            .action-col {
+                padding: 3px 0px;
+
+                input[type='checkbox'] {
+                    outline: none !important;
+                    box-shadow: none !important;
+                }
+            }
+
+            .action-title {
+                .action-title-text {
+                    text-transform: capitalize;
+                    text-align: center;
+                    border-bottom: 2px solid var(--bs-primary);
+                }
+            }
+
+            .action-center {
+                display: flex;
+                justify-content: center;
+            }
+        }
+
         .edit-btn {
             display: flex;
             justify-content: flex-end;
-            font-size: 18px;
+            font-size: 16px;
         }
     }
 }

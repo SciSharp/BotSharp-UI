@@ -75,13 +75,15 @@
                     height="50"
                     class="mx-auto d-block"
                 />
-                <Button
-                    class="btn btn-sm btn-soft-info agent-chat"
-                    on:click={() => chatWithAgent()}
-                >
-                    <span>{'Chat with me'}</span>
-                    <span><i class="mdi mdi-chat" /></span>
-                </Button>
+                {#if !!agent.chatable}
+                    <Button
+                        class="btn btn-sm btn-soft-info agent-chat"
+                        on:click={() => chatWithAgent()}
+                    >
+                        <span>{'Chat with me'}</span>
+                        <span><i class="mdi mdi-chat" /></span>
+                    </Button>
+                {/if}
             </div>
             <h5 class="mt-1 mb-1"><InPlaceEdit bind:value={agent.name} /></h5>
             <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>

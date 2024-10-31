@@ -43,7 +43,7 @@
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -201,7 +201,7 @@
 	}
 
 	$: {
-		disableAction = currentUser?.role !== UserRole.Admin && currentUser?.id !== conversationUser?.id;
+		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !agent?.chatable;
 	}
 
 	setContext('chat-window-context', {
@@ -1504,8 +1504,12 @@
 													</Dropdown>
 												</li>
 												{/if}
-												{#if currentUser?.role === UserRole.Admin}
-													<DropdownItem on:click={() => toggleTagModal()}>
+												
+												{#if ADMIN_ROLES.includes(currentUser?.role || '')}
+													<DropdownItem
+														disabled={disableAction}
+														on:click={() => toggleTagModal()}
+													>
 														Add Tags
 													</DropdownItem>
 												{/if}

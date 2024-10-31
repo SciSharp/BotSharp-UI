@@ -21,6 +21,7 @@
 
 /**
  * @typedef {Object} UserAgentAction
+ * @property {string?} [id] - The id
  * @property {string} agent_id - The agent id
  * @property {import('$agentTypes').AgentModel} [agent] - The agent details
  * @property {string[]} actions - The actions

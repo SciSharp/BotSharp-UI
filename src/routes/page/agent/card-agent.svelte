@@ -73,12 +73,12 @@
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1">
-            <Link href={`/chat/${LERNER_ID}`} class="btn btn-primary btn-sm" target="_blank">
+            <Link href={`/chat/${LERNER_ID}`} class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-book-open" /> {$_('Train')}
             </Link>
           </li>
           <li class="list-inline-item me-1">
-            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
+            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!agent.chatable}>
               <i class="bx bx-chat" /> {$_('Test')}
             </Link>
           </li>

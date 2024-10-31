@@ -5,7 +5,13 @@ export const CHAT_FRAME_ID = "chatbox-frame";
 export const USER_SENDERS = [
     UserRole.Admin,
     UserRole.User,
-    UserRole.Client
+    UserRole.Client,
+    UserRole.Root
+];
+
+export const ADMIN_ROLES = [
+    UserRole.Admin,
+    UserRole.Root
 ];
 
 export const BOT_SENDERS = [

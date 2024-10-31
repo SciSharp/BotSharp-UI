@@ -4,7 +4,8 @@ const userRole = {
     User: "user",
     Client: "client",
     Function: "function",
-    Assistant: "assistant"
+    Assistant: "assistant",
+    Root: "root"
 };
 export const UserRole = Object.freeze(userRole);
 
@@ -116,3 +117,14 @@ const conversationTag = {
     Test: "test-set"
 };
 export const ConversationTag = Object.freeze(conversationTag);
+
+const userPermission = {
+    CreateAgent: "create-agent"
+};
+export const UserPermission = Object.freeze(userPermission);
+
+const userAction = {
+    Edit: "edit",
+    Chat: "chat"
+};
+export const UserAction = Object.freeze(userAction);

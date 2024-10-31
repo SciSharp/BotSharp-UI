@@ -21,6 +21,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { getUsers } from '$lib/services/user-service';
 	import UserItem from './user-item.svelte';
+	import { getAgents } from '$lib/services/agent-service';
 	
     const duration = 3000;
 	const firstPage = 1;
@@ -43,6 +44,9 @@
     /** @type {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} */
     let users = { count: 0, items: [] };
 
+    /** @type {import('$commonTypes').IdName[]} */
+	let agents = [];
+
     let searchOption = {
 		userName: '',
 		externalId: '',
@@ -51,6 +55,7 @@
 	};
 
     onMount(async () => {
+        await getPagedAgents();
 		await getPagedUsers();
     });
 
@@ -58,6 +63,16 @@
 		users = await getUsers(filter);
         refresh();
 	}
+
+    async function getPagedAgents() {
+        const response = await getAgents({ pager: { page: 1, size: 100, count: 0 } });
+        agents = response?.items?.map(x => {
+                    return {
+                        id: x.id,
+                        name: x.name
+                    };
+                })?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+    }
 
     function refresh() {
 		refreshUsers();
@@ -183,8 +198,8 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each users.items as item}
-                            <UserItem item={item} />
+							{#each users.items as item, idx (idx)}
+                                <UserItem item={item} agents={agents} />
                             {/each}
 						</tbody>
 					</Table>

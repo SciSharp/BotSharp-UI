@@ -26,11 +26,10 @@
     }
   
     function submit() {
+        editing = false;
         if (value != original) {
             dispatch('submit', value);
         }
-          
-        editing = false;
     }
   
     /** @param {any} event */
@@ -38,7 +37,7 @@
         if (event.key == 'Escape') {
             event.preventDefault()
             value = original;
-            editing = false
+            editing = false;
         }
     }
       

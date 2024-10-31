@@ -11,6 +11,8 @@
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
+	import { UserPermission } from '$lib/helpers/enums';
+	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	
 	
   	const firstPage = 1;
@@ -124,7 +126,7 @@
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
 <LoadingToComplete isLoading={isLoading} />
 
-{#if !!user}
+{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
 <Button class="mb-4" color="primary" on:click={() => createNewAgent()}>
 	<i class="bx bx-copy" /> {$_('New Agent')}
 </Button>
@@ -134,4 +136,4 @@
 	<CardAgent agents={agents.items} />
 </Row>
 
-<PlainPagination pagination={pager} pageTo={pageTo} />
+<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
