@@ -28,6 +28,15 @@
  */
 
 /**
+ * @typedef {Object} UserAgentInnerAction
+ * @property {string?} [id] - The id
+ * @property {string} agent_id - The agent id
+ * @property {string} [agent_name] - The agent name
+ * @property {import('$agentTypes').AgentModel} [agent] - The agent details
+ * @property {{ key: string, value: string, checked: boolean }[]} actions - The actions
+ */
+
+/**
  * @typedef {Object} UserFilter
  * @property {number} page - The page number
  * @property {number} size - The page size

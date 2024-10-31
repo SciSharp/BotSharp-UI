@@ -157,6 +157,11 @@ button:focus {
   justify-content:center;
 }
 
+.div-center {
+  display: flex;
+  justify-content:center;
+}
+
 .ellipsis {
   white-space: nowrap;
   overflow: hidden;
@@ -170,6 +175,10 @@ button:focus {
   
 .danger-background {
   background-color: $danger !important;
+}
+
+.thin-scrollbar {
+  scrollbar-width: thin;
 }
   
 .markdown-container {

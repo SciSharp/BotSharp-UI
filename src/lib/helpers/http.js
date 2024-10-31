@@ -67,6 +67,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g'),
+        new RegExp('http(s*)://(.*?)/users', 'g'),
     ];
 
     const deleteRegexes = [
@@ -83,7 +84,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/exist', 'g')
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/exist', 'g'),
+        new RegExp('http(s*)://(.*?)/users', 'g')
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {

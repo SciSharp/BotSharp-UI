@@ -6,8 +6,6 @@
 		CardBody,
 		Col,
 		Dropdown,
-		DropdownItem,
-		DropdownMenu,
 		DropdownToggle,
 		Input,
 		Row,
@@ -19,21 +17,21 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { getUsers } from '$lib/services/user-service';
+	import { getUsers, updateUser } from '$lib/services/user-service';
 	import UserItem from './user-item.svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	
     const duration = 3000;
 	const firstPage = 1;
-	const pageSize = 5;
+	const pageSize = 15;
 
     const initPager = { page: firstPage, size: pageSize };
 
     let isLoading = false;
 	let isComplete = false;
 	let isError = false;
-    let successText = '';
-    let errorText = '';
+    let successText = 'User has been updated!';
+    let errorText = 'Failed to update user!';
 
     /** @type {import('$commonTypes').Pagination} */    
     let pager = { ...initPager, count: 0 };
@@ -60,8 +58,18 @@
     });
 
     async function getPagedUsers() {
-		users = await getUsers(filter);
-        refresh();
+        isLoading = true;
+        return new Promise((resolve, reject) => {
+            getUsers(filter).then(res => {
+                users = res;
+                refresh();
+                resolve(res);
+            }).finally(() => {
+                setTimeout(() => {
+                    isLoading = false;
+                }, 200);
+            });
+        });
 	}
 
     async function getPagedAgents() {
@@ -123,9 +131,43 @@
 			page: pageNum,
             size: pageSize
 		};
-
 		getPagedUsers();
 	}
+
+    /** @param {any} e */
+    function saveUser(e) {
+        const data = e.detail.updatedData;
+        isLoading = true;
+        updateUser(data).then(() => {
+			isLoading = false;
+			isComplete = true;
+            postUpdateUser(data);
+			setTimeout(() => {
+				isComplete = false;
+			}, duration);
+		}).catch(() => {
+			isLoading = false;
+			isComplete = false;
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		});
+    }
+
+    /** @param {import('$userTypes').UserModel} data */
+    function postUpdateUser(data) {
+        const newItems = users?.items?.map(x => {
+            if (x.id === data.id) {
+                return { ...data };
+            }
+            return x;
+        }) || [];
+        users = {
+            ...users,
+            items: newItems
+        };
+    }
 </script>
 
 
@@ -183,23 +225,22 @@
 				</Row>
 			</CardBody>
 			<CardBody>
-				<div class="table-responsive">
+				<div class="table-responsive thin-scrollbar">
 					<Table class="align-middle nowrap users-table" bordered>
 						<thead>
 							<tr>
 								<th scope="col">{$_('User Name')}</th>
 								<th scope="col">{$_('Full Name')}</th>
 								<th scope="col">{$_('External Id')}</th>
-								<th scope="col">{$_('Role')}</th>
+								<th scope="col" class="user-plain-col">{$_('Role')}</th>
 								<th scope="col">{$_('Source')}</th>
 								<th scope="col" class="user-permission-col">{$_('Permissions')}</th>
-								<th scope="col" class="user-agent-col">{$_('Agents')}</th>
 								<th scope="col">{$_('')}</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each users.items as item, idx (idx)}
-                                <UserItem item={item} agents={agents} />
+                                <UserItem item={item} agents={agents} on:save={e => saveUser(e)} />
                             {/each}
 						</tbody>
 					</Table>

@@ -3,6 +3,7 @@
     import { fly } from 'svelte/transition';
     import { Button, Input } from '@sveltestrap/sveltestrap';
     import Swal from 'sweetalert2';
+    import lodash from "lodash";
 	import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
 	import { UserAction } from '$lib/helpers/enums';
     import { v4 as uuidv4 } from 'uuid';
@@ -20,7 +21,7 @@
     export let item;
 
     /** @type {boolean} */
-    export let open = true;
+    export let open = false;
 
     /** @type {boolean} */
     export let disabled = false;
@@ -32,19 +33,13 @@
     /** @type {import('$userTypes').UserModel} */
     let innerItem = { ...item };
 
-    /** @type {any[]} */
+    /** @type {import('$userTypes').UserAgentInnerAction[]} */
     let innerActions = [];
 
     onMount(() => {
         initInnerItem();
         initAgentActions();
     });
-
-    /** @param {import('$userTypes').UserAgentAction[]} agent_actions  */
-    function formatAgentActions(agent_actions) {
-        const validAgents = agent_actions?.filter(x => !!x.agent)?.map(x => x.agent?.name) || [];
-        return validAgents.join(", ");
-    }
 
     function initInnerItem() {
         innerItem = { ...item };
@@ -57,13 +52,12 @@
             if (!found) {
                 return {
                     id: null,
-                    agentId: x.id,
-                    agentName: x.name,
+                    agent_id: x.id,
+                    agent_name: x.name,
                     actions: allActions.map(a => {
                         return {
                             key: uuidv4(),
                             value: a,
-                            displayName: a,
                             checked: false
                         };
                     })
@@ -75,21 +69,19 @@
                 return {
                     key: uuidv4(),
                     value: a,
-                    displayName: a,
                     checked: checked
                 };
             });
 
             return {
                 id: found.id,
-                agentId: x.id,
-                agentName: x.name,
+                agent_id: x.id,
+                agent_name: x.name,
                 actions: actions
             }
         });
 
         innerActions = handledActions.filter(Boolean);
-        console.log(innerActions);
     }
 
     function toggleUserDetail() {
@@ -106,14 +98,12 @@
 	 */
     function checkAction(e, agentActionItem, actionItem) {
         const checked = e.target.checked;
-        const found = innerActions.find(x => x.agentId === agentActionItem.agentId);
+        const found = innerActions.find(x => x.agent_id === agentActionItem.agent_id);
         // @ts-ignore
         const action = found?.actions?.find(x => x.key === actionItem.key);
         if (action) {
             action.checked = checked;
         }
-        
-        console.log(found);
     }
 
     /** @param {string} id */
@@ -129,11 +119,37 @@
             confirmButtonText: 'Yes'
         }).then(async (result) => {
             if (result.value) {
+                const data = formatUpdatedData();
                 svelteDispatch("save", {
-                    user: innerItem
+                    updatedData: data
+                });
+                open = false;
+            }
+        });
+    }
+
+    function formatUpdatedData() {
+        /** @type {any[]} */
+        const list = [];
+        innerActions.forEach(x => {
+            // @ts-ignore
+            const items = x.actions.filter(a => !!a.checked);
+            if (x.id || items.length > 0) {
+                list.push({
+                    ...x,
+                    // @ts-ignore
+                    actions: items.map(i => i.value)
                 });
             }
         });
+
+        const updated = {
+            ...innerItem,
+            role: lodash.trim(innerItem.role),
+            agent_actions: list
+        };
+        innerItem = { ...updated };
+        return updated;
     }
 </script>
 
@@ -148,11 +164,6 @@
     <td class="user-permission-col">
         <div class="ellipsis">
             {item.permissions?.length > 0 ? item.permissions.join(', ') : 'N/A'}
-        </div>
-    </td>
-    <td class="user-agent-col">
-        <div class="ellipsis">
-            {formatAgentActions(item.agent_actions)}
         </div>
     </td>
     <td>
@@ -223,15 +234,10 @@
                     {/if}
                 </ul>
                 {#if innerActions.length > 0}
-                <ul>
-                    <li>
-                        <div class="fw-bold text-primary">{'Agent actions:'}</div>
-                    </li>
-                </ul>
                 <div class="user-agent-container">
                     <div class="action-row action-title">
                         <div class="action-col action-title-text fw-bold" style={colStyle}>
-                            {''}
+                            {'Agent'}
                         </div>
                         {#each allActions as title}
                             <div class="action-col action-title-text fw-bold" style={colStyle}>
@@ -243,7 +249,7 @@
                         {#each innerActions as agentActionItem}
                             <div class="action-row">
                                 <div class="action-col fw-bold" style={colStyle}>
-                                    {agentActionItem.agentName}
+                                    {agentActionItem.agent_name}
                                 </div>
                                 {#each agentActionItem.actions as actionItem}
                                     <div class="action-col action-center" style={colStyle}>
