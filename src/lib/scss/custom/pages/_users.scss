@@ -47,7 +47,7 @@
         }
 
         .user-agent-container {
-            margin-top: 20px;
+            margin: 20px 0px;
             padding: 0px 2rem;
 
             .action-row-wrapper {
@@ -71,7 +71,10 @@
             }
 
             .action-title {
-                .action-title-text {
+                .action-title-wrapper {
+                    display: flex;
+                    gap: 3px;
+                    justify-content: center;
                     text-transform: capitalize;
                     text-align: center;
                     border-bottom: 2px solid var(--bs-primary);
@@ -88,7 +91,8 @@
             display: flex;
             justify-content: flex-end;
             font-size: 16px;
-            margin-top: 10px;
+            margin-top: 3px;
+            margin-right: 5px;
         }
     }
 }

@@ -89,7 +89,7 @@
 
 	function refreshUsers() {
 		users = {
-			items: users?.items?.map(t => ({ ...t })) || [],
+			items: users?.items?.map(t => ({ ...t, open_detail: false })) || [],
 			count: users?.count || 0
 		};
 	}
@@ -159,7 +159,7 @@
     function postUpdateUser(data) {
         const newItems = users?.items?.map(x => {
             if (x.id === data.id) {
-                return { ...data };
+                return { ...data, open_detail: true };
             }
             return x;
         }) || [];
@@ -240,7 +240,12 @@
 						</thead>
 						<tbody>
 							{#each users.items as item, idx (idx)}
-                                <UserItem item={item} agents={agents} on:save={e => saveUser(e)} />
+                                <UserItem
+                                    item={item}
+                                    agents={agents}
+                                    open={item.open_detail}
+                                    on:save={e => saveUser(e)}
+                                />
                             {/each}
 						</tbody>
 					</Table>

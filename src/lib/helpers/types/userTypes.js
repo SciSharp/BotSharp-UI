@@ -17,6 +17,7 @@
  * @property {string} [avatar] - The user avatar.
  * @property {string} [color]
  * @property {string} [token]
+ * @property {boolean} [open_detail]
  */
 
 /**

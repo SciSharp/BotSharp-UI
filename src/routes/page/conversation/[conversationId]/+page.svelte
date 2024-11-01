@@ -26,8 +26,8 @@
             title: 'Are you sure?',
             text: "You won't be able to revert this!",
             icon: 'warning',
+            customClass: { confirmButton: 'danger-background' },
             showCancelButton: true,
-            customClass: 'custom-modal',
             confirmButtonText: 'Yes, delete it!'
         }).then(async (result) => {
             if (result.value) {

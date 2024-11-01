@@ -119,6 +119,7 @@
             title: 'Are you sure?',
             text: "Are you sure you want to delete this agent?",
             icon: 'warning',
+            customClass: { confirmButton: 'danger-background' },
             showCancelButton: true,
 			cancelButtonText: 'No',
             confirmButtonText: 'Yes'

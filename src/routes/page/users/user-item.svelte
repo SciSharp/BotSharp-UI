@@ -10,12 +10,6 @@
 
     const svelteDispatch = createEventDispatcher();
 
-    const allActions = [
-        UserAction.Edit,
-        UserAction.Chat
-    ];
-
-    const colStyle = `flex: 0 0 ${allActions.length > 2 ? Math.floor(1 / (allActions.length + 1) * 100) - 1 : 32}%;`;
 
     /** @type {import('$userTypes').UserModel} */
     export let item;
@@ -35,6 +29,29 @@
 
     /** @type {import('$userTypes').UserAgentInnerAction[]} */
     let innerActions = [];
+
+    let allActions = [
+        {
+            name: UserAction.Edit,
+            value: UserAction.Edit,
+            checked: false
+        },
+        {
+            name: UserAction.Chat,
+            value: UserAction.Chat,
+            checked:false
+        }
+    ];
+
+    const colStyle = `flex: 0 0 ${allActions.length > 2 ? Math.floor(1 / (allActions.length + 1) * 100) - 1 : 32}%;`;
+
+    $: {
+        allActions = allActions.map(x => {
+            const list = innerActions.flatMap(a => a.actions.filter(y => y.value === x.value));
+            x.checked = list.every(a => !!a.checked);
+            return { ...x };
+        });
+    }
 
     onMount(() => {
         initInnerItem();
@@ -57,7 +74,7 @@
                     actions: allActions.map(a => {
                         return {
                             key: uuidv4(),
-                            value: a,
+                            value: a.value,
                             checked: false
                         };
                     })
@@ -65,10 +82,10 @@
             }
 
             const actions = allActions.map(a => {
-                const checked = !!found.actions.find(y => y === a) || false;
+                const checked = !!found.actions.find(y => y === a.value) || false;
                 return {
                     key: uuidv4(),
-                    value: a,
+                    value: a.value,
                     checked: checked
                 };
             });
@@ -93,7 +110,7 @@
 
     /**
 	 * @param {any} e
-	 * @param {any} agentActionItem
+	 * @param {import('$userTypes').UserAgentInnerAction} agentActionItem
 	 * @param {any} actionItem
 	 */
     function checkAction(e, agentActionItem, actionItem) {
@@ -104,6 +121,36 @@
         if (action) {
             action.checked = checked;
         }
+
+        innerActions = [ ...innerActions ];
+    }
+
+    /**
+	 * @param {any} e
+     * @param {any} title
+	 */
+    function checkAll(e, title) {
+        const checked = e.target.checked;
+        allActions = allActions.map(x => {
+            if (x.value === title.value) {
+                x.checked = checked;
+            }
+            return { ...x };
+        });
+
+        innerActions = innerActions.map(x => {
+            const actions = x.actions.map(a => {
+                if (a.value === title.value) {
+                    a.checked = checked;
+                }
+                return { ...a };
+            });
+
+            return {
+                ...x,
+                actions: actions
+            };
+        });
     }
 
     /** @param {string} id */
@@ -123,7 +170,6 @@
                 svelteDispatch("save", {
                     updatedData: data
                 });
-                open = false;
             }
         });
     }
@@ -185,6 +231,19 @@
     <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
         <td colspan="12">
             <div class="user-detail">
+                <div class="edit-btn">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <div
+                        class="text-primary clickable"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Save"
+                        on:click={() => save(item.id)}
+                    >
+                        <i class="mdi mdi-content-save-all" />
+                    </div>
+                </div>
                 <ul class="basic-info">
                     <li>
                         <div class="wrappable">
@@ -234,51 +293,46 @@
                     {/if}
                 </ul>
                 {#if innerActions.length > 0}
-                <div class="user-agent-container">
-                    <div class="action-row action-title">
-                        <div class="action-col action-title-text fw-bold" style={colStyle}>
-                            {'Agent'}
-                        </div>
-                        {#each allActions as title}
-                            <div class="action-col action-title-text fw-bold" style={colStyle}>
-                                {title}
+                    <div class="user-agent-container">
+                        <div class="action-row action-title">
+                            <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
+                                {'Agent'}
                             </div>
-                        {/each}
-                    </div>
-                    <div class="action-row-wrapper">
-                        {#each innerActions as agentActionItem}
-                            <div class="action-row">
-                                <div class="action-col fw-bold" style={colStyle}>
-                                    {agentActionItem.agent_name}
-                                </div>
-                                {#each agentActionItem.actions as actionItem}
-                                    <div class="action-col action-center" style={colStyle}>
+                            {#each allActions as title}
+                                <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
+                                    <div>{title.name}</div>
+                                    <div>
                                         <Input
                                             type="checkbox"
                                             class="action-center"
-                                            checked={actionItem.checked}
-                                            on:change={e => checkAction(e, agentActionItem, actionItem)}
+                                            checked={title.checked}
+                                            on:change={e => checkAll(e, title)}
                                         />
                                     </div>
-                                {/each}
-                            </div>
-                        {/each}
+                                </div>
+                            {/each}
+                        </div>
+                        <div class="action-row-wrapper">
+                            {#each innerActions as agentActionItem}
+                                <div class="action-row">
+                                    <div class="action-col fw-bold" style={colStyle}>
+                                        {agentActionItem.agent_name}
+                                    </div>
+                                    {#each agentActionItem.actions as actionItem}
+                                        <div class="action-col action-center" style={colStyle}>
+                                            <Input
+                                                type="checkbox"
+                                                class="action-center"
+                                                checked={actionItem.checked}
+                                                on:change={e => checkAction(e, agentActionItem, actionItem)}
+                                            />
+                                        </div>
+                                    {/each}
+                                </div>
+                            {/each}
+                        </div>
                     </div>
-                </div>
                 {/if}
-                <div class="edit-btn">
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div
-                        class="text-primary clickable"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Save"
-                        on:click={() => save(item.id)}
-                    >
-                        <i class="mdi mdi-content-save-all" />
-                    </div>
-                </div>
             </div>
         </td>
     </tr>
