@@ -159,7 +159,7 @@
 
         Swal.fire({
             title: 'Are you sure?',
-            text: `Are you sure you want to update user ${item.user_name}?`,
+            text: `Are you sure you want to update user "${item.user_name}"?`,
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: 'No',

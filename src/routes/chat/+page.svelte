@@ -16,7 +16,7 @@
     let agentId = 'undefined';
 
 	onMount(async () => {
-        const response = await getAgents(filter);
+        const response = await getAgents(filter, true);
         agents = response?.items?.map(t => { return { ...t }; }) || [];
         const agentSettings = await getSettingDetail("Agent");
         // @ts-ignore

@@ -12,7 +12,6 @@
 		Table
 	} from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n';
-    import lodash from "lodash";
 	import HeadTitle from "$lib/common/HeadTitle.svelte";
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
@@ -39,8 +38,8 @@
     /** @type {import('$userTypes').UserFilter} */
     let filter = { ... initPager };
 
-    /** @type {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} */
-    let users = { count: 0, items: [] };
+    /** @type {import('$userTypes').UserModel[]} */
+    let userItems = [];
 
     /** @type {import('$commonTypes').IdName[]} */
 	let agents = [];
@@ -53,45 +52,50 @@
 	};
 
     onMount(async () => {
-        await getPagedAgents();
-		await getPagedUsers();
+        isLoading = true;
+        getPagedAgents().then(() => {
+            getPagedUsers().then(() => {
+                isLoading = false;
+            });
+        });
     });
 
-    async function getPagedUsers() {
+    function getPagedUsers() {
+        userItems = [];
         isLoading = true;
         return new Promise((resolve, reject) => {
             getUsers(filter).then(res => {
-                users = res;
-                refresh();
+                refresh(res);
                 resolve(res);
             }).finally(() => {
-                setTimeout(() => {
-                    isLoading = false;
-                }, 200);
+                isLoading = false;
             });
         });
 	}
 
-    async function getPagedAgents() {
-        const response = await getAgents({ pager: { page: 1, size: 100, count: 0 } });
-        agents = response?.items?.map(x => {
+    function getPagedAgents() {
+        return new Promise((resolve, reject) => {
+            getAgents({ pager: { page: 1, size: 100, count: 0 } }).then(res => {
+                agents = res?.items?.map(x => {
                     return {
                         id: x.id,
                         name: x.name
                     };
                 })?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+                resolve(agents);
+            });
+        });
     }
 
-    function refresh() {
-		refreshUsers();
+    /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
+    function refresh(users) {
+		refreshUsers(users);
 		refreshPager(users.count, filter.page, filter.size);
 	}
 
-	function refreshUsers() {
-		users = {
-			items: users?.items?.map(t => ({ ...t, open_detail: false })) || [],
-			count: users?.count || 0
-		};
+    /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
+	function refreshUsers(users) {
+        userItems = [ ...users.items ];
 	}
 
 	/** @param {number} totalItemsCount */
@@ -157,16 +161,12 @@
 
     /** @param {import('$userTypes').UserModel} data */
     function postUpdateUser(data) {
-        const newItems = users?.items?.map(x => {
+        userItems = userItems?.map(x => {
             if (x.id === data.id) {
                 return { ...data, open_detail: true };
             }
             return x;
         }) || [];
-        users = {
-            ...users,
-            items: newItems
-        };
     }
 </script>
 
@@ -239,7 +239,7 @@
 							</tr>
 						</thead>
 						<tbody>
-							{#each users.items as item, idx (idx)}
+							{#each userItems as item, idx (idx)}
                                 <UserItem
                                     item={item}
                                     agents={agents}
