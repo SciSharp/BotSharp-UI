@@ -142,13 +142,17 @@
     function saveUser(e) {
         const data = e.detail.updatedData;
         isLoading = true;
-        updateUser(data).then(() => {
-			isLoading = false;
-			isComplete = true;
-            postUpdateUser(data);
-			setTimeout(() => {
-				isComplete = false;
-			}, duration);
+        updateUser(data).then(res => {
+			if (res) {
+				isLoading = false;
+				isComplete = true;
+				postUpdateUser(data);
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+			} else {
+				throw "error when saving user.";
+			}
 		}).catch(() => {
 			isLoading = false;
 			isComplete = false;
