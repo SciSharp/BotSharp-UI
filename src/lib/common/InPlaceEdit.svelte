@@ -26,11 +26,10 @@
     }
   
     function submit() {
+        editing = false;
         if (value != original) {
             dispatch('submit', value);
         }
-          
-        editing = false;
     }
   
     /** @param {any} event */
@@ -38,7 +37,7 @@
         if (event.key == 'Escape') {
             event.preventDefault()
             value = original;
-            editing = false
+            editing = false;
         }
     }
       
@@ -63,7 +62,7 @@
 {:else}
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-static-element-interactions -->
-    <div style="width: fit-content; min-width: 30%;" on:click={() => edit()}>
+    <div style="width: fit-content; min-width: 30%;" class="clickable" on:click={() => edit()}>
         {#if !!value?.trim()}
             <span>{value}</span>
         {:else}

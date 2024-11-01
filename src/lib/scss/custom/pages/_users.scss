@@ -1,0 +1,98 @@
+.users-table {
+    .user-plain-col {
+        width: 10%;
+        max-width: 100px;
+    }
+
+    .user-permission-col {
+        width: 20%;
+        max-width: 300px;
+    }
+    
+    .user-agent-col {
+        width: 25%;
+        max-width: 350px;
+    }
+
+    .user-detail {
+        padding: 2px 5px;
+        border-radius: 3px;
+        border-color: var(--#{$prefix}light) !important;
+        background-color: var(--#{$prefix}light) !important;
+        position: relative;
+
+        ul {
+            li {
+                margin: 2px 0px;
+            }
+        }
+
+        .wrappable {
+            white-space: wrap !important;
+        }
+
+        .basic-info {
+            margin: 15px 0px 8px 0px;
+            display: flex;
+            flex-wrap: wrap;
+
+            li {
+                flex: 0 0 50%;
+
+                .inline-edit {
+                    display: flex;
+                    gap: 3px;
+                }
+            }
+        }
+
+        .user-agent-container {
+            margin: 20px 0px;
+            padding: 0px 2rem;
+
+            .action-row-wrapper {
+                overflow-y: auto;
+                scrollbar-width: thin;
+                height: fit-content;
+                max-height: 300px;
+            }
+
+            .action-row {
+                display: flex;
+            }
+
+            .action-col {
+                padding: 3px 0px;
+
+                input[type='checkbox'] {
+                    outline: none !important;
+                    box-shadow: none !important;
+                }
+            }
+
+            .action-title {
+                .action-title-wrapper {
+                    display: flex;
+                    gap: 3px;
+                    justify-content: center;
+                    text-transform: capitalize;
+                    text-align: center;
+                    border-bottom: 2px solid var(--bs-primary);
+                }
+            }
+
+            .action-center {
+                display: flex;
+                justify-content: center;
+            }
+        }
+
+        .edit-btn {
+            display: flex;
+            justify-content: flex-end;
+            font-size: 16px;
+            margin-top: 3px;
+            margin-right: 5px;
+        }
+    }
+}

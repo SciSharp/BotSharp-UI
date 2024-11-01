@@ -61,12 +61,14 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
+        new RegExp('http(s*)://(.*?)/users', 'g')
     ];
 
     const putRegexes = [
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g'),
+        new RegExp('http(s*)://(.*?)/users', 'g'),
     ];
 
     const deleteRegexes = [

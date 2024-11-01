@@ -5,6 +5,8 @@ export const endpoints = {
     // user
     tokenUrl: `${host}/token`,
     myInfoUrl: `${host}/user/me`,
+    usersUrl: `${host}/users`,
+    userUpdateUrl: `${host}/user`,
     usrCreationUrl: `${host}/user`,
     userAvatarUrl: `${host}/user/avatar`,
     

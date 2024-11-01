@@ -440,7 +440,7 @@
 				{/if}
 			</CardBody>
 			<CardBody>
-				<div class="table-responsive">
+				<div class="table-responsive thin-scrollbar">
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
