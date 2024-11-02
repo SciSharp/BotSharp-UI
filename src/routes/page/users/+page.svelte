@@ -23,6 +23,7 @@
     const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
+	const maxLength = 50;
 
     const initPager = { page: firstPage, size: pageSize };
 
@@ -204,16 +205,16 @@
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">
-						<Input bind:value={searchOption.userName} placeholder={'Search user name...'} />
+						<Input bind:value={searchOption.userName} maxlength={maxLength} placeholder={'Search user name...'} />
 					</Col>
 					<Col lg="3">
-						<Input bind:value={searchOption.externalId} placeholder={'Search external id...'} />
+						<Input bind:value={searchOption.externalId} maxlength={maxLength} placeholder={'Search external id...'} />
 					</Col>					
 					<Col lg="3">
-						<Input bind:value={searchOption.role} placeholder={'Search role...'} />
+						<Input bind:value={searchOption.role} maxlength={maxLength} placeholder={'Search role...'} />
 					</Col>
 					<Col lg="2">
-						<Input bind:value={searchOption.source} placeholder={'Search source...'} />
+						<Input bind:value={searchOption.source} maxlength={maxLength} placeholder={'Search source...'} />
 					</Col>
 					<Col lg="1">
 						<Button
