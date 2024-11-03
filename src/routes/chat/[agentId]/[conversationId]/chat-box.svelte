@@ -1060,7 +1060,7 @@
 	/** @param {string} messageId */
 	function highlightChatMessage(messageId) {
 		const targets = document.querySelectorAll('.user-msg');
-		const style = ['bg-danger', 'text-white'];
+		const style = ['bg-danger'];
 		targets.forEach(elm => {
 			if (elm.id === `user-msg-${messageId}`) {
 				elm.classList.add(...style);
@@ -1590,11 +1590,12 @@
 														on:keydown={() => {}}
 														on:click={() => directToLog(message.message_id)}
 													>
-														<div class="ctext-wrap user-msg" 
+														<div
+															class="ctext-wrap user-msg bg-primary" 
 															class:clickable={!isLite && isLoadPersistLog}
 															id={`user-msg-${message.message_id}`}
 														>
-															<div class="text-start fw-bold">{@html replaceNewLine(message.text)}</div>
+															<div class="text-start fw-bold text-white">{@html replaceNewLine(message.text)}</div>
 														</div>
 														<p class="chat-time mb-0 float-end">
 															<i class="bx bx-time-five align-middle me-1" />
@@ -1633,7 +1634,7 @@
 													{/if}
 												</div>
 												<div class="msg-container">
-													<RcMessage message={message} />
+													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														<div style="display: flex; gap: 10px;">
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}

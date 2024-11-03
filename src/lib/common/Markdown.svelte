@@ -8,6 +8,9 @@
 	/** @type {string} */
 	export let containerClasses = "";
 
+	/** @type {string} */
+	export let containerStyles = "";
+
 	/** @type {boolean} */
 	export let rawText = false;
 
@@ -23,6 +26,6 @@
 	}
 </script>
 
-<div class={`markdown-container ${containerClasses || 'text-white'}`}>
+<div class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`} style={`${containerStyles}`}>
 	{@html displayText}
 </div>
