@@ -216,7 +216,6 @@ button:focus {
 
     th, td {
       padding: 3px 5px !important;
-      border: 1px solid white;
     }
   }
   
@@ -225,11 +224,31 @@ button:focus {
     margin-bottom: 0 !important;
   }
 
+  ul {
+    list-style-position: inside !important;
+  }
+}
+
+.markdown-lite {
+  table {
+    th, td {
+      border: 1px solid white;
+    }
+  }
+
   a {
     color: white;
   }
+}
 
-  ul {
-    list-style-position: inside !important;
+.markdown-dark {
+  table {
+    th, td {
+      border: 1px solid $primary;
+    }
+  }
+
+  a {
+    color: $primary;
   }
 }

@@ -224,6 +224,10 @@
             display: flex;
             flex-direction: column;
             width: 80%;
+
+            .bot-msg {
+                background-color: var(--#{$prefix}light) !important;
+            }
         }
 
         .ctext-wrap {
