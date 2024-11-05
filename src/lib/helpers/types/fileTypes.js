@@ -12,6 +12,7 @@
  * @property {string} file_name - The file name.
  * @property {string} [file_extension] - The file extension.
  * @property {string} file_data - The file data or url.
+ * @property {string} [file_download_url] - The file download url.
  */
 
 /**
