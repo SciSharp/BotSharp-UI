@@ -128,3 +128,9 @@ const userAction = {
     Chat: "chat"
 };
 export const UserAction = Object.freeze(userAction);
+
+const globalEvent = {
+    Search: "search",
+    Chat: "chat"
+};
+export const GlobalEvent = Object.freeze(globalEvent);

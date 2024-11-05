@@ -31,4 +31,10 @@
  */
 
 
+/**
+ * @typedef {Object} GlobalEvent
+ * @property {string} name
+ * @property {any} payload
+ */
+
 export default {};

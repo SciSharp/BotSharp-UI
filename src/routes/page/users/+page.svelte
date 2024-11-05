@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import {
 		Button,
 		Card,
@@ -19,6 +19,8 @@
 	import { getUsers, updateUser } from '$lib/services/user-service';
 	import UserItem from './user-item.svelte';
 	import { getAgents } from '$lib/services/agent-service';
+	import { globalEventStore } from '$lib/helpers/store';
+	import { GlobalEvent } from '$lib/helpers/enums';
 	
     const duration = 3000;
 	const firstPage = 1;
@@ -45,6 +47,9 @@
     /** @type {import('$commonTypes').IdName[]} */
 	let agents = [];
 
+	/** @type {any} */
+	let unsubscriber;
+
     let searchOption = {
 		userName: '',
 		externalId: '',
@@ -53,13 +58,33 @@
 	};
 
     onMount(async () => {
-        isLoading = true;
+		init();
+
+		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
+			if (event.name !== GlobalEvent.Search) return;
+
+			const userNames = event.payload ? [event.payload] : undefined;
+			filter = {
+				page: firstPage,
+				size: pageSize,
+				user_names: userNames
+			};
+			getPagedUsers();
+		});
+    });
+
+	onDestroy(() => {
+		unsubscriber?.();
+	});
+
+	function init() {
+		isLoading = true;
         getPagedAgents().then(() => {
             getPagedUsers().then(() => {
                 isLoading = false;
             });
         });
-    });
+	}
 
     function getPagedUsers() {
         userItems = [];

@@ -1,19 +1,24 @@
 <script>
 	import { browser } from '$app/environment';
-	import { Input, Dropdown, DropdownToggle, DropdownMenu, Row, Col } from '@sveltestrap/sveltestrap';
-	import Link from 'svelte-link';
+	import { _ } from 'svelte-i18n';
+	import { Input } from '@sveltestrap/sveltestrap';
 	import LanguageDropdown from '$lib/common/LanguageDropdown.svelte';
 	import FullScreenDropdown from '$lib/common/FullScreenDropdown.svelte';
 	import NotificationDropdown from '$lib/common/NotificationDropdown.svelte';
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
-	import { _ } from 'svelte-i18n'
-	/**
- 	* @type {any}
- 	*/
+	import { globalEventStore } from '$lib/helpers/store';
+	import { GlobalEvent } from '$lib/helpers/enums';
+
+	/** @type {any} */
 	export let user;
-	export let toggleRightBar;
+
+	/** @type {() => void} */
+	export let toggleRightBar = () => {};
+
+	/** @type {string} */
+	let searchText = '';
 
 	const toggleSideBar = () => {
 		if (browser) {
@@ -42,6 +47,13 @@
 			}
 		}
 	};
+
+	/** @param {any} e */
+	const search = (e) => {
+		if (e.key !== 'Enter') return;
+
+		globalEventStore.set({ name: GlobalEvent.Search, payload: searchText });
+	}
 </script>
 
 <header id="page-topbar">
@@ -72,7 +84,7 @@
 				type="button"
 				class="btn btn-sm px-3 font-size-16 header-item waves-effect"
 				id="vertical-menu-btn"
-				on:click={toggleSideBar}
+				on:click={() => toggleSideBar()}
 			>
 				<i class="fa fa-fw fa-bars" />
 			</button>
@@ -80,7 +92,14 @@
 			<!-- App Search-->
 			<form class="app-search d-none d-lg-block">
 				<div class="position-relative">
-					<Input type="text" class="form-control" placeholder="{$_('Search')}..." />
+					<Input
+						type="text"
+						class="form-control"
+						placeholder="{$_('Search')}..."
+						maxlength={100}
+						bind:value={searchText}
+						on:keydown={e => search(e)}
+					/>
 					<span class="bx bx-search-alt" />
 				</div>
 			</form>

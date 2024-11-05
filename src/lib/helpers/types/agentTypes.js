@@ -28,6 +28,7 @@
  * @typedef {Object} AgentFilter
  * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string} [type]
+ * @property {string} [agentName]
  * @property {boolean} [isPublic]
  * @property {boolean} [disabled]
  * @property {string[]} [agentIds]

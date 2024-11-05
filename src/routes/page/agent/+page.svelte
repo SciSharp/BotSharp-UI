@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -11,8 +11,9 @@
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
-	import { UserPermission } from '$lib/helpers/enums';
+	import { GlobalEvent, UserPermission } from '$lib/helpers/enums';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
+	import { globalEventStore } from '$lib/helpers/store';
 	
 	
   	const firstPage = 1;
@@ -38,9 +39,26 @@
 	/** @type {import('$userTypes').UserModel} */
 	let user;
 
+	/** @type {any} */
+	let unsubscriber;
+
 	onMount(async () => {
 		user = await myInfo();
 		getPagedAgents();
+
+		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
+			if (event.name !== GlobalEvent.Search) return;
+
+			filter = {
+				pager: { page: firstPage, size: pageSize, count: 0 },
+				agentName: event.payload || null
+			};
+			getPagedAgents();
+		});
+	});
+
+	onDestroy(() => {
+		unsubscriber?.();
 	});
 
   	function getPagedAgents() {
