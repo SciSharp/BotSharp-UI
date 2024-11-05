@@ -9,7 +9,16 @@ const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
 
 /** @type {Writable<import('$commonTypes').GlobalEvent>} */
-export const globalEventStore = writable({ name: "", payload: {} });
+const createGlobalEventStore = () => {
+    const { subscribe, set } = writable({ name: "", payload: {} });
+    return {
+        subscribe,
+        set,
+        reset: () => set({})
+    };
+}
+
+export const globalEventStore = createGlobalEventStore();
 
 
 /** @type {Writable<import('$userTypes').UserModel>} */
