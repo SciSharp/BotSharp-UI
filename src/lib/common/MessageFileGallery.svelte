@@ -35,7 +35,8 @@
                     return {
                         file_name: item.file_name,
                         file_extension: item.file_extension,
-                        file_data: isExternalUrl(item.file_url) ? item.file_url : `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`
+                        file_data: isExternalUrl(item.file_url) ? item.file_url : `${PUBLIC_SERVICE_URL}${item.file_url}?access_token=${$userStore?.token}`,
+                        file_download_url: isExternalUrl(item.file_download_url) ? item.file_download_url : `${PUBLIC_SERVICE_URL}${item.file_download_url}?access_token=${$userStore?.token}`
                     };
                 });
                 // @ts-ignore
@@ -50,6 +51,14 @@
             });
         }
     });
+
+    /** @param {number} idx */
+    function handleDownloadFile(idx) {
+        const found = textFiles.find((_, index) => index === idx);
+        if (found?.file_download_url) {
+            window.open(found.file_download_url);
+        }
+    }
 </script>
 
 
@@ -58,6 +67,8 @@
     containerStyles={galleryStyles}
     files={textFiles}
     showFileName
+    needDownload
+    onDownload={idx => handleDownloadFile(idx)}
 />
 <AudioGallery
     id={messageId}
