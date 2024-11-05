@@ -8,6 +8,7 @@
 	import { page } from '$app/stores';
 	import { browser } from '$app/environment';
 	import { _ } from 'svelte-i18n';
+	import { globalEventStore } from '$lib/helpers/store';
 
 	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
 	export let menu;
@@ -199,6 +200,14 @@
 		const path = $page.url.pathname;
 		return path?.startsWith('/') ? path.substring(1) : path;
 	};
+
+	/** @param {string} link */
+	const goToPage = (link) => {
+		if (!link) return;
+
+		globalEventStore.reset();
+		window.open(link, '_self');
+	}
 </script>
 
 <div class="vertical-menu">
@@ -225,19 +234,19 @@
 											</Link>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
-													<li><Link href={childItem.link}>{$_(childItem.label)}</Link></li>
+													<li><Link on:click={() => goToPage(childItem.link)}>{$_(childItem.label)}</Link></li>
 												{/each}
 											</ul>
 										</li>
 									{:else}
-										<li><Link href={subMenu.link}>{$_(subMenu.label)}</Link></li>
+										<li><Link on:click={() => goToPage(subMenu.link)}>{$_(subMenu.label)}</Link></li>
 									{/if}
 								{/each}
 							</ul>
 						</li>
 					{:else}
 						<li>
-							<Link href={item.link} class="waves-effect">
+							<Link class="waves-effect" on:click={() => goToPage(item.link)} >
 								<i class={item.icon} /> <span>{$_(item.label)}</span>
 							</Link>
 						</li>
