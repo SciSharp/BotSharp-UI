@@ -8,6 +8,10 @@ const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
 
+/** @type {Writable<import('$commonTypes').GlobalEvent>} */
+export const globalEventStore = writable({ name: "", payload: {} });
+
+
 /** @type {Writable<import('$userTypes').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
 

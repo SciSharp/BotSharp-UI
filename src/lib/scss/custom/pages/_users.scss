@@ -32,7 +32,7 @@
         }
 
         .basic-info {
-            margin: 15px 0px 8px 0px;
+            margin: 15px 0px 0px 0px;
             display: flex;
             flex-wrap: wrap;
 
@@ -43,6 +43,32 @@
                     display: flex;
                     gap: 3px;
                 }
+            }
+        }
+
+        .user-permission-container {
+            display: flex;
+            gap: 5px;
+
+            .permission-wrapper {
+                display: flex;
+                flex-direction: column;
+                gap: 3px;
+
+                .edit-wrapper {
+                    display: flex;
+                    gap: 3px;
+                }
+                
+                input[type="text"] {
+                    height: 30px;
+                    font-size: 12px;
+                }
+            }
+
+            
+            .list-add {
+                font-size: 18px;
             }
         }
 

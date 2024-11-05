@@ -192,10 +192,27 @@
         const updated = {
             ...innerItem,
             role: lodash.trim(innerItem.role),
+            permissions: innerItem.permissions.filter(x => x?.length > 0),
             agent_actions: list
         };
         innerItem = { ...updated };
         return updated;
+    }
+
+    function addPermission() {
+        innerItem = {
+            ...innerItem,
+            permissions: [ ...innerItem.permissions, '' ]
+        };
+    }
+
+    /** @param {number} index */
+    function deletePermission(index) {
+        const permissions = innerItem.permissions.filter((_, idx) => idx !== index);
+        innerItem = {
+            ...innerItem,
+            permissions: permissions
+        };
     }
 </script>
 
@@ -283,15 +300,46 @@
                         </div>
                     </li>
                     {/if}
-                    {#if item.permissions}
+                </ul>
+                <ul>
                     <li>
-                        <div class="wrappable">
-                            <span class="fw-bold text-primary">{'Permissions:'}</span>
-                            <span>{item.permissions?.length > 0 ? item.permissions.join(', ') : 'N/A'}</span>
+                        <div class="user-permission-container">
+                            <div class="fw-bold text-primary">{'Permissions:'}</div>
+                            <div class="permission-wrapper">
+                                {#each innerItem.permissions as permission, index}
+                                    <div class="edit-wrapper">
+                                        <Input
+                                            type="text"
+                                            class="edit-text-box"
+                                            bind:value={permission}
+                                        />
+                                        <div class="line-align-center">
+                                            <i
+                                                class="bx bxs-no-entry text-danger"
+                                                role="link"
+                                                tabindex="0"
+                                                on:keydown={() => {}}
+                                                on:click={() => deletePermission(index)}
+                                            />
+                                        </div>
+                                    </div>
+                                {/each}
+                                {#if innerItem.permissions?.length < 5}
+                                    <div class="list-add line-align-center">
+                                        <i
+                                            class="bx bx bx-list-plus text-primary clickable"
+                                            role="link"
+                                            tabindex="0"
+                                            on:keydown={() => {}}
+                                            on:click={() => addPermission()}
+                                        />
+                                    </div>
+                                {/if}
+                            </div>
                         </div>
                     </li>
-                    {/if}
                 </ul>
+
                 {#if innerActions.length > 0}
                     <div class="user-agent-container">
                         <div class="action-row action-title">

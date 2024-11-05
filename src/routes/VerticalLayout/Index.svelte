@@ -39,7 +39,7 @@
 </script>
 
 <div id="layout-wrapper">
-	<Header user={user} {toggleRightBar} />
+	<Header user={user} toggleRightBar={() => toggleRightBar()} />
 	{#if menu}
 	<Sidebar menu={menu}/>
 	{/if}
@@ -52,5 +52,5 @@
 		<Footer />
 	</div>
 
-	<RightSidebar {closebar} />
+	<RightSidebar closebar={() => closebar()} />
 </div>
