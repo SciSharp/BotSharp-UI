@@ -11,7 +11,8 @@ export async function getPlugins(filter) {
     let url = endpoints.pluginListUrl;
     const response = await axios.get(url, { params: filter,
         paramsSerializer: {
-            dots: true
+            dots: true,
+            indexes: null
         }
     });
     return response.data;
