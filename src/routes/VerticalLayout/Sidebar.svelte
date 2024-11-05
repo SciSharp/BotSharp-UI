@@ -201,8 +201,7 @@
 		return path?.startsWith('/') ? path.substring(1) : path;
 	};
 
-	/** @param {string} link */
-	const goToPage = (link) => {
+	const goToPage = () => {
 		globalEventStore.reset();
 	}
 </script>
@@ -231,19 +230,19 @@
 											</Link>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
-													<li><Link href={childItem.link} on:click={() => goToPage(childItem.link)}>{$_(childItem.label)}</Link></li>
+													<li><Link href={childItem.link} on:click={() => goToPage()}>{$_(childItem.label)}</Link></li>
 												{/each}
 											</ul>
 										</li>
 									{:else}
-										<li><Link href={subMenu.link} on:click={() => goToPage(subMenu.link)}>{$_(subMenu.label)}</Link></li>
+										<li><Link href={subMenu.link} on:click={() => goToPage()}>{$_(subMenu.label)}</Link></li>
 									{/if}
 								{/each}
 							</ul>
 						</li>
 					{:else}
 						<li>
-							<Link class="waves-effect" href={item.link} on:click={() => goToPage(item.link)} >
+							<Link class="waves-effect" href={item.link} on:click={() => goToPage()} >
 								<i class={item.icon} /> <span>{$_(item.label)}</span>
 							</Link>
 						</li>

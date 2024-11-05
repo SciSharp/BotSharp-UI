@@ -89,6 +89,7 @@
             flex: 0 0 fit-content;
             flex-direction: column;
             height: 100%;
+            gap: 5px;
 
             .chat-head-agent {
                 flex: 0.5;
@@ -108,6 +109,7 @@
                 display: flex;
                 gap: 5px;
                 width: fit-content;
+                font-size: 12px;
             }
         }
     }

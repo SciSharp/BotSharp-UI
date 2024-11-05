@@ -2,11 +2,13 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import Plugins from './plugin-list.svelte';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n';
+	import { globalEventStore } from '$lib/helpers/store';
+	import { GlobalEvent } from '$lib/helpers/enums';
 
 	const firstPage = 1;
 	const pageSize = 12;
@@ -25,9 +27,27 @@
 	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
 
+	/** @type {any} */
+	let unsubscriber;
+
     onMount(async () => {
 		await getPagedPlugins();
+
+		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
+			if (event.name !== GlobalEvent.Search) return;
+
+			const names = event.payload ? [event.payload] : undefined;
+			filter = {
+				pager: { page: firstPage, size: pageSize, count: 0 },
+				names: names
+			};
+			getPagedPlugins();
+		});
     });
+
+	onDestroy(() => {
+		unsubscriber?.();
+	});
 
 	async function getPagedPlugins() {
 		plugins = await getPlugins(filter);
