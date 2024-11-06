@@ -106,6 +106,7 @@
 	let notificationText = '';
 	let successText = "Done";
 	let errorText = "Error";
+	let note = '';
 
 	/** @type {number} */
 	let messageInputTimeout;
@@ -193,6 +194,7 @@
 	let isDisplayNotification = false;
 	let isComplete = false;
 	let isError = false;
+	let clickCopy = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
@@ -1169,6 +1171,31 @@
 		sendChatMessage(text, data);
 	}
 
+	/**
+	 * @param {any} e
+	 * @param {any} message
+	 */
+	function copyMessage(e, message) {
+		e.preventDefault();
+
+		const elem = document.getElementById(`message-note-${message.message_id}`);
+		if (!elem) return;
+
+		const text = message?.rich_content?.message?.text || message?.text || '';
+		elem.classList.remove('hide');
+		
+		navigator.clipboard.writeText(text).then(() => {
+			elem.textContent = 'Copied!';
+		}).catch(() => {
+			elem.textContent = 'Error!';
+		}).finally(() => {
+			clickCopy = false;
+			setTimeout(() => {
+				elem.classList.add('hide');
+			}, 800);
+		});
+	}
+
 	function toggleNotificationModal() {
 		isDisplayNotification = !isDisplayNotification;
 		if (!isDisplayNotification) {
@@ -1636,7 +1663,7 @@
 												<div class="msg-container">
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														<div style="display: flex; gap: 10px;">
+														<div style="display: flex; gap: 10px; flex-wrap: wrap;">
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id} 
@@ -1675,6 +1702,31 @@
 																	</div>
 																</div>
 															{/if}
+															<div class="line-align-center" style="font-size: 17px;">
+																<!-- svelte-ignore a11y-click-events-have-key-events -->
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																<div
+																	class="clickable"
+																	style="height: 85%;"
+																	data-bs-toggle="tooltip"
+																	data-bs-placement="top"
+																	title="Copy"
+																	on:mouseup={e => copyMessage(e, message)}
+																	on:mousedown={() => clickCopy = true}
+																>
+																	{#if clickCopy}
+																		<i class="bx bxs-copy text-primary" />
+																	{:else}
+																		<i class="bx bx-copy text-primary" />
+																	{/if}
+																</div>
+															</div>
+															<div
+																class="line-align-center text-primary hide"
+																style={'font-size: 0.8em;'}
+																id={`message-note-${message.message_id}`}
+															>
+															</div>
 														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files}
