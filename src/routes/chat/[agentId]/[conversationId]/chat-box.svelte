@@ -106,7 +106,6 @@
 	let notificationText = '';
 	let successText = "Done";
 	let errorText = "Error";
-	let note = '';
 
 	/** @type {number} */
 	let messageInputTimeout;
@@ -194,7 +193,7 @@
 	let isDisplayNotification = false;
 	let isComplete = false;
 	let isError = false;
-	let clickCopy = false;
+	let copyClicked = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
@@ -1189,7 +1188,7 @@
 		}).catch(() => {
 			elem.textContent = 'Error!';
 		}).finally(() => {
-			clickCopy = false;
+			copyClicked = false;
 			setTimeout(() => {
 				elem.classList.add('hide');
 			}, 800);
@@ -1712,9 +1711,9 @@
 																	data-bs-placement="top"
 																	title="Copy"
 																	on:mouseup={e => copyMessage(e, message)}
-																	on:mousedown={() => clickCopy = true}
+																	on:mousedown={() => copyClicked = true}
 																>
-																	{#if clickCopy}
+																	{#if copyClicked}
 																		<i class="bx bxs-copy text-primary" />
 																	{:else}
 																		<i class="bx bx-copy text-primary" />
