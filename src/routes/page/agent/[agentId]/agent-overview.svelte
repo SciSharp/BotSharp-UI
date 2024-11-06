@@ -75,7 +75,7 @@
                     height="50"
                     class="mx-auto d-block"
                 />
-                {#if !!agent.chatable}
+                {#if 1}
                     <Button
                         class="btn btn-sm btn-soft-info agent-chat"
                         on:click={() => chatWithAgent()}

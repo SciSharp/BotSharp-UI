@@ -201,7 +201,7 @@
 	}
 
 	$: {
-		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !agent?.chatable;
+		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id;
 	}
 
 	setContext('chat-window-context', {

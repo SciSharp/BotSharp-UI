@@ -78,7 +78,7 @@
             </Link>
           </li>
           <li class="list-inline-item me-1">
-            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!agent.chatable}>
+            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank">
               <i class="bx bx-chat" /> {$_('Test')}
             </Link>
           </li>
