@@ -34,6 +34,7 @@
 		getConversationUser,
 		uploadConversationFiles,
 		getAddressOptions,
+		pinConversationToDashboard,
 	} from '$lib/services/conversation-service.js';
 	import { 
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
@@ -558,6 +559,12 @@
 		const searchParams = $page.url.searchParams;
 		url.search = searchParams?.toString();
 		window.location.href = url.toString();
+	}
+
+	function pinDashboard() {
+		const agentId = params.agentId;
+		const convId = params.conversationId;
+		pinConversationToDashboard(agentId, convId).then().finally();
 	}
 
 	function handleSaveKnowledge() {
@@ -1511,7 +1518,10 @@
 												{/if}
 												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
 													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
-												{/if}
+												{/if}											
+												<DropdownItem on:click={() => pinDashboard()}>
+													Pin to Dashboard
+												</DropdownItem>
 											</DropdownMenu>
 										</Dropdown>
 										{:else}

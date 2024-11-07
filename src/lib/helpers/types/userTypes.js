@@ -16,4 +16,15 @@
  * @property {string} [token]
  */
 
+/**
+ * @typedef {Object} DashboardModel
+ * @property {DashboardConversation[]} [conversation_list] - conversation components
+ */
+
+/**
+ * @typedef {Object} DashboardConversation
+ * @property {string} [name] - The conversation name.
+ * @property {string} [conversation_id] - The conversation id.
+ * @property {string} [instruction] - The user input instruction.
+ */
 export default {};

@@ -51,6 +51,7 @@ export const endpoints = {
     conversationMessageUpdateUrl: `${host}/conversation/{conversationId}/update-message`,
     conversationTagsUpdateUrl: `${host}/conversation/{conversationId}/update-tags`,
     fileUploadUrl: `${host}/agent/{agentId}/conversation/{conversationId}/upload`,
+    pinConversationUrl: `${host}/agent/{agentId}/conversation/{conversationId}/dashboard`,
     
     // LLM provider
     llmProvidersUrl: `${host}/llm-providers`,
@@ -83,6 +84,10 @@ export const endpoints = {
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,
+
+    // dashboard
+    dashboardSettingUrl: `${host}/dashboard/components`,
+    dashConversationInstructionUrl: `${host}/dashboard/component/conversation?userId={userId}`,
 
     // Google geocode api
     addressUrl: `${host}/address/options`
