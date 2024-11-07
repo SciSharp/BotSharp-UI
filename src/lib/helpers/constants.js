@@ -31,7 +31,8 @@ export const FILE_EDITORS = [
     EditorType.File
 ];
 
-export const LERNER_ID = "01acc3e5-0af7-49e6-ad7a-a760bd12dc40";
+export const LEARNER_ID = "01acc3e5-0af7-49e6-ad7a-a760bd12dc40";
+export const EVALUATOR_ID = "2cd4b805-7078-4405-87e9-2ec9aadf8a11";
 export const TRAINING_MODE = "training";
 
 export const DEFAULT_KNOWLEDGE_COLLECTION = "BotSharp";

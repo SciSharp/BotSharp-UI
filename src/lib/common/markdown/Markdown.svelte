@@ -1,7 +1,6 @@
 <script>
-	import SvelteMarkdown from 'svelte-markdown';
+	import { marked } from 'marked';
     import { replaceMarkdown, replaceNewLine } from '$lib/helpers/http';
-	import CodeBlock from './CodeBlock.svelte';
 
     /** @type {string} */
 	export let text;
@@ -17,7 +16,13 @@
 
     let innerText = '';
 	$: {
-		innerText = !rawText ? replaceNewLine(replaceMarkdown(text || '')) : text;
+		const markedText = !rawText ? replaceNewLine(marked(replaceMarkdown(text || ''))?.toString()) : marked(text || '')?.toString();
+		if (!!markedText && markedText.endsWith('<br>')) {
+			const idx = markedText.lastIndexOf('<br>');
+			innerText = markedText.substring(0, idx);
+		} else {
+            innerText = markedText;
+        }
 	}
 </script>
 
@@ -25,11 +30,11 @@
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 >
-	<!-- {@html innerText} -->
-	<SvelteMarkdown
+	{@html innerText}
+	<!-- <SvelteMarkdown
 		source={innerText}
 		renderers={{
 			code: CodeBlock
 		}}
-	/>
+	/> -->
 </div>

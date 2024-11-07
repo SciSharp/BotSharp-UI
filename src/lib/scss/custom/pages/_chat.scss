@@ -770,7 +770,8 @@
             padding: 10px 15px;
             overflow-y: auto;
             scrollbar-width: none;
-            height: 200px;
+            height: fit-content;
+            max-height: 200px;
 
             .card-element-title {
                 font-size: 0.85rem;

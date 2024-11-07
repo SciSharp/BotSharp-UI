@@ -185,6 +185,19 @@ button:focus {
   overflow-x: auto;
   scrollbar-width: thin;
 
+  &:has(.language-sql),
+  &:has(.language-java),
+  &:has(.language-javascript),
+  &:has(.language-typescript),
+  &:has(.language-csharp),
+  &:has(.language-python),
+  &:has(.language-json) {
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+  }
+
   pre {
     -ms-overflow-style: none !important;
     white-space: pre-wrap;
