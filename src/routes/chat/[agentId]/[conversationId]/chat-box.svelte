@@ -43,7 +43,7 @@
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LERNER_ID, TEXT_EDITORS, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { webSpeech } from '$lib/services/web-speech.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -573,7 +573,7 @@
     function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
 		autoScrollLog = true;
-		clearInstantLogs();		
+		clearInstantLogs();
 		renewUserSentMessages(msgText);
 		const agentId = params.agentId;
 		const convId = conversationId || params.conversationId;
@@ -1530,7 +1530,7 @@
 														Add Tags
 													</DropdownItem>
 												{/if}
-												{#if agent?.id === LERNER_ID && mode === TRAINING_MODE}
+												{#if agent?.id === LEARNER_ID && mode === TRAINING_MODE}
 													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
 												{/if}
 											</DropdownMenu>

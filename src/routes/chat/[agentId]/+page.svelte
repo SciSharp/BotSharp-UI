@@ -8,7 +8,7 @@
     import { getToken, setToken } from '$lib/services/auth-service.js'
     import { getUserStore } from '$lib/helpers/store.js';
     import { conversationStore } from '$lib/helpers/store.js';
-	import { LERNER_ID, TRAINING_MODE } from '$lib/helpers/constants';
+	import { LEARNER_ID, TRAINING_MODE } from '$lib/helpers/constants';
 
     const params = $page.params;
     
@@ -29,7 +29,7 @@
         } else {
             await getToken("guest@gmail.com", "123456", () => {
                 console.log("login as guest.");
-            });
+            }, () => {});
         }
 
         conversation = conversationStore.get();
@@ -43,7 +43,7 @@
         const chatUrl = new URL(`chat/${agentId}/${conversationId}`, window.location.origin);
         
         const searchParams = new URLSearchParams();
-        if (agentId === LERNER_ID) {
+        if (agentId === LEARNER_ID) {
             searchParams.append('mode', TRAINING_MODE);
         }
 
