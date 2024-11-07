@@ -1,5 +1,5 @@
 <script>
-	import Markdown from "$lib/common/Markdown.svelte";
+	import Markdown from "$lib/common/markdown/Markdown.svelte";
 
     /** @type {any} */
     export let message;

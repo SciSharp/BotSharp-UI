@@ -3,7 +3,6 @@
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
 	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
-	import { afterUpdate, tick } from "svelte";
 	
     /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;

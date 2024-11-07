@@ -1,7 +1,7 @@
 <script>
 	import { Button } from '@sveltestrap/sveltestrap';
     import Link from 'svelte-link/src/Link.svelte';
-    import Markdown from "$lib/common/Markdown.svelte";
+    import Markdown from "$lib/common/markdown/Markdown.svelte";
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { directToAgentPage } from '$lib/helpers/utils/common';
