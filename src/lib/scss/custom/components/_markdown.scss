@@ -1,0 +1,20 @@
+.code-block {
+    position: relative;
+    background-color: black;
+    color: white;
+    border-radius: 5px;
+    padding: 5px 10px;
+    
+    pre {
+        margin: 0px !important;
+        white-space: pre !important;
+        overflow-x: auto;
+        scrollbar-width: thin;
+        max-width: 100%;
+    }
+
+    .code-header {
+        display: flex;
+        justify-content: space-between;
+    }
+}
