@@ -35,7 +35,7 @@
             on:mouseup={() => copyToClipboard()}
             on:mousedown={() => copied = true}
         >
-            {#if 1}
+            {#if copied}
                 <div class="div-center">
                     <div class="line-align-center">
                         <i class="bx bx-check" style="font-size: 18px;" /> 
