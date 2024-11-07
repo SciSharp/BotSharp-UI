@@ -1177,20 +1177,11 @@
 	function copyMessage(e, message) {
 		e.preventDefault();
 
-		const elem = document.getElementById(`message-note-${message.message_id}`);
-		if (!elem) return;
-
 		const text = message?.rich_content?.message?.text || message?.text || '';
-		elem.classList.remove('hide');
 		
 		navigator.clipboard.writeText(text).then(() => {
-			elem.textContent = 'Copied!';
-		}).catch(() => {
-			elem.textContent = 'Error!';
-		}).finally(() => {
-			copyClicked = false;
 			setTimeout(() => {
-				elem.classList.add('hide');
+				copyClicked = false;
 			}, 800);
 		});
 	}
@@ -1701,11 +1692,11 @@
 																	</div>
 																</div>
 															{/if}
-															<div class="line-align-center" style="font-size: 17px;">
+															<div style="font-size: 17px;">
 																<!-- svelte-ignore a11y-click-events-have-key-events -->
 																<!-- svelte-ignore a11y-no-static-element-interactions -->
 																<div
-																	class="clickable"
+																	class="line-align-center text-primary"
 																	style="height: 85%;"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
@@ -1714,17 +1705,18 @@
 																	on:mousedown={() => copyClicked = true}
 																>
 																	{#if copyClicked}
-																		<i class="bx bxs-copy text-primary" />
+																		<div class="div-center">
+																			<div class="line-align-center">
+																				<i class="bx bx-check" /> 
+																			</div>
+																			<div class="line-align-center">
+																				<span style="font-size: 10px;">{'Copied!'}</span>
+																			</div>
+																		</div>
 																	{:else}
-																		<i class="bx bx-copy text-primary" />
+																		<i class="bx bx-copy clickable" />
 																	{/if}
 																</div>
-															</div>
-															<div
-																class="line-align-center text-primary hide"
-																style={'font-size: 0.8em;'}
-																id={`message-note-${message.message_id}`}
-															>
 															</div>
 														</div>
 													{/if}
