@@ -211,7 +211,6 @@
 	
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
-		autoScrollLog = true;
 		conversation = await getConversation(params.conversationId);
 		dialogs = await getDialogs(params.conversationId);
 		conversationUser = await getConversationUser(params.conversationId);
@@ -220,7 +219,7 @@
 		initChatView();
 		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
-		signalr.onMessageReceivedFromCsr = onMessageReceivedFromCsr;
+		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
@@ -235,7 +234,6 @@
 			document.querySelector('.chat-scrollbar')
 		].filter(Boolean);
 		refresh();
-		autoScrollLog = false;
 
 		window.addEventListener('message', async (e) => {
 			if (e.data.action === ChatAction.Logout) {
@@ -459,21 +457,14 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
+		autoScrollLog = true;
+		clearInstantLogs();
 		dialogs.push({
 			...message,
 			is_chat_message: true
 		});
 		refresh();
 		text = "";
-    }
-
-    /** @param {import('$conversationTypes').ChatResponseModel} message */
-    function onMessageReceivedFromCsr(message) {
-		dialogs.push({
-			...message,
-			is_chat_message: true
-		});
-		refresh();
     }
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -572,7 +563,6 @@
 	 */
     function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
-		autoScrollLog = true;
 		clearInstantLogs();
 		renewUserSentMessages(msgText);
 		const agentId = params.agentId;
@@ -618,7 +608,6 @@
 						reject(err);
 					}).finally(() => {
 						isSendingMsg = false;
-						autoScrollLog = false;
 					});
 				});
 			});
@@ -644,7 +633,6 @@
 							reject(err);
 						}).finally(() => {
 							isSendingMsg = false;
-							autoScrollLog = false;
 						});
 					});
 				} else {
@@ -654,7 +642,6 @@
 						reject(err);
 					}).finally(() => {
 						isSendingMsg = false;
-						autoScrollLog = false;
 					});
 				}
 			});

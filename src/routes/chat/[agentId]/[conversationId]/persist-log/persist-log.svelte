@@ -1,7 +1,7 @@
 <script>
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onDestroy, onMount } from 'svelte';
+	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { GetContentLogs, GetStateLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
@@ -34,6 +34,7 @@
     let scrollbars = [];
     /** @type {number} */
     let selectedTab = contentLogTab;
+    let tabChanged = false;
 
     const options = {
 		scrollbars: {
@@ -63,6 +64,13 @@
 		scrollToBottom();
 	});
 
+    beforeUpdate(() => {
+        if (tabChanged) {
+            autoScroll = false;
+            tabChanged = false;
+        }
+    });
+
     afterUpdate(() => {
         refresh();
     });
@@ -75,6 +83,7 @@
         if (autoScroll) {
             scrollToBottom();
         }
+        
     }
 
     function scrollToBottom() {
@@ -97,9 +106,13 @@
         cleanScreen && cleanScreen();
     }
     
-    /** @param {number} tab */
-    function handleTabClick(tab) {
-        selectedTab = tab;
+    /** @param {number} selected */
+    function handleTabClick(selected) {
+        if (selectedTab === selected) {
+            return;
+        }
+        tabChanged = true;
+        selectedTab = selected;
     }
 </script>
 
