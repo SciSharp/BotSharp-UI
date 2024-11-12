@@ -5,7 +5,7 @@
 	import { refreshAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
     import { _ } from 'svelte-i18n';
-    import Swal from 'sweetalert2'
+    import Swal from 'sweetalert2';
 
     let isLoading = false;
     let isComplete = false;

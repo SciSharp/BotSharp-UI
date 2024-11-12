@@ -63,10 +63,12 @@ export async function deleteAgent(agentId) {
 
 /**
  * Refresh agent data
+ * @returns {Promise<string>}
  */
 export async function refreshAgents() {
     const url = endpoints.agentRefreshUrl;
-    await axios.post(url);
+    const response = await axios.post(url);
+    return response.data;
 }
 
 /**
