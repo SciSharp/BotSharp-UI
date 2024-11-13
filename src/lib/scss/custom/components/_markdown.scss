@@ -2,24 +2,24 @@
     overflow-x: auto;
     scrollbar-width: thin;
   
-    &:has(.language-sql),
-    &:has(.language-java),
-    &:has(.language-javascript),
-    &:has(.language-typescript),
-    &:has(.language-csharp),
-    &:has(.language-python),
-    &:has(.language-json) {
-      background-color: black;
-      color: white !important;
-      border-radius: 5px;
-      padding: 5px 10px;
-    }
-  
     pre {
       -ms-overflow-style: none !important;
       white-space: pre-wrap;
       margin-top: 1em;
       margin-bottom: 1em;
+
+      &:has(.language-sql),
+      &:has(.language-java),
+      &:has(.language-javascript),
+      &:has(.language-typescript),
+      &:has(.language-csharp),
+      &:has(.language-python),
+      &:has(.language-json) {
+        background-color: black;
+        color: white !important;
+        border-radius: 5px;
+        padding: 5px 10px;
+      }
     }
   
     pre::-webkit-scrollbar {
