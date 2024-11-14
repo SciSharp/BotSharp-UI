@@ -46,6 +46,14 @@
             }
         }
 
+        .role-wrapper {
+            .role-select {
+                height: 30px;
+                font-size: 12px;
+                padding: 0.3rem 1rem;
+            }
+        }
+
         .user-permission-container {
             display: flex;
             gap: 5px;

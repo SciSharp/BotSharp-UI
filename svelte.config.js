@@ -14,6 +14,7 @@ const config = {
 			$fileTypes: './src/lib/helpers/types/fileTypes.js',
 			$audioTypes: './src/lib/helpers/types/audioTypes.js',
 			$userTypes: './src/lib/helpers/types/userTypes.js',
+			$roleTypes: './src/lib/helpers/types/roleTypes.js',
 			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
 		},
 
@@ -60,6 +61,7 @@ const config = {
 				"/page/mongodb",
 				"/page/user/me",
 				"/page/users",
+				"/page/roles",
 				"/chat",
 				"/chat/[agentId]",
 				"/chat/[agentId]/[conversationId]",

@@ -2,11 +2,13 @@
 	import { createEventDispatcher, onMount } from 'svelte';
     import { fly } from 'svelte/transition';
     import { Button, Input } from '@sveltestrap/sveltestrap';
+    import { v4 as uuidv4 } from 'uuid';
     import Swal from 'sweetalert2';
     import lodash from "lodash";
-	import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
+    import Loader from '$lib/common/Loader.svelte';
 	import { UserAction } from '$lib/helpers/enums';
-    import { v4 as uuidv4 } from 'uuid';
+    import { getUserDetails } from '$lib/services/user-service';
+	
 
     const svelteDispatch = createEventDispatcher();
 
@@ -23,6 +25,12 @@
     /** @type {import('$commonTypes').IdName[]} */
     export let agents = [];
 
+    /** @type {string[]} */
+    export let roleOptions = [];
+
+
+    /** @type {boolean} */
+    let isLoading = false;
 
     /** @type {import('$userTypes').UserModel} */
     let innerItem = { ...item };
@@ -104,8 +112,24 @@
     function toggleUserDetail() {
         open = !open;
         if (open) {
-            initAgentActions();
+            isLoading = true;
+            getUserDetails(item.id).then(res => {
+                innerItem = { ...res };
+                initAgentActions();
+            }).finally(() => {
+                isLoading = false;
+            });
         }
+    }
+
+
+    /** @param {any} e */
+    function changeRole(e) {
+        const value = e.target.value;
+        innerItem = {
+            ...innerItem,
+            role: value
+        };
     }
 
     /**
@@ -245,143 +269,156 @@
 </tr>
 
 {#if open}
+    
     <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
-        <td colspan="12">
-            <div class="user-detail">
-                <div class="edit-btn">
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <div
-                        class="text-primary clickable"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Save"
-                        on:click={() => save(item.id)}
-                    >
-                        <i class="mdi mdi-content-save-all" />
+        {#if isLoading}
+            <td colspan="12">
+                <Loader disableDefaultStyles size={30} containerStyles={'display: flex; justify-content: center;'} />
+            </td>
+        {:else}
+            <td colspan="12">
+                <div class="user-detail">
+                    <div class="edit-btn">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <div
+                            class="text-primary clickable"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Save"
+                            on:click={() => save(item.id)}
+                        >
+                            <i class="mdi mdi-content-save-all" />
+                        </div>
                     </div>
-                </div>
-                <ul class="basic-info">
-                    <li>
-                        <div class="wrappable">
-                            <span class="fw-bold text-primary">{'User name:'}</span>
-                            <span>{item.user_name}</span>
-                        </div>
-                    </li>
-                    {#if item.full_name}
-                    <li>
-                        <div class="wrappable">
-                            <span class="fw-bold text-primary">{'Full name:'}</span>
-                            <span>{item.full_name}</span>
-                        </div>
-                    </li>
-                    {/if}
-                    {#if item.role}
-                    <li>
-                        <div class="wrappable inline-edit">
-                            <div class="fw-bold text-primary line-align-center">{'Role:'}</div>
-                            <div><InPlaceEdit bind:value={innerItem.role} maxLength={15} /></div>
-                        </div>
-                    </li>
-                    {/if}
-                    {#if item.source}
-                    <li>
-                        <div class="wrappable">
-                            <span class="fw-bold text-primary">{'Source:'}</span>
-                            <span>{item.source}</span>
-                        </div>
-                    </li>
-                    {/if}
-                    {#if item.type}
-                    <li>
-                        <div class="wrappable">
-                            <span class="fw-bold text-primary">{'Type:'}</span>
-                            <span>{item.type}</span>
-                        </div>
-                    </li>
-                    {/if}
-                </ul>
-                <ul>
-                    <li>
-                        <div class="user-permission-container">
-                            <div class="fw-bold text-primary">{'Permissions:'}</div>
-                            <div class="permission-wrapper">
-                                {#each innerItem.permissions as permission, index}
-                                    <div class="edit-wrapper">
-                                        <Input
-                                            type="text"
-                                            class="edit-text-box"
-                                            bind:value={permission}
-                                        />
-                                        <div class="line-align-center">
+                    <ul class="basic-info">
+                        <li>
+                            <div class="wrappable">
+                                <span class="fw-bold text-primary">{'User name:'}</span>
+                                <span>{item.user_name}</span>
+                            </div>
+                        </li>
+                        {#if item.full_name}
+                        <li>
+                            <div class="wrappable">
+                                <span class="fw-bold text-primary">{'Full name:'}</span>
+                                <span>{item.full_name}</span>
+                            </div>
+                        </li>
+                        {/if}
+                        {#if item.type}
+                        <li>
+                            <div class="wrappable">
+                                <span class="fw-bold text-primary">{'Type:'}</span>
+                                <span>{item.type}</span>
+                            </div>
+                        </li>
+                        {/if}
+                        {#if item.source}
+                        <li>
+                            <div class="wrappable">
+                                <span class="fw-bold text-primary">{'Source:'}</span>
+                                <span>{item.source}</span>
+                            </div>
+                        </li>
+                        {/if}
+                        {#if item.role}
+                        <li>
+                            <div class="wrappable inline-edit">
+                                <div class="fw-bold text-primary line-align-center">{'Role:'}</div>
+                                <div class="role-wrapper">
+                                    <Input class="role-select" type="select" value={innerItem.role} on:change={e => changeRole(e)}>
+                                        {#each roleOptions as option}
+                                            <option value={option} selected={option == innerItem.role}>{option}</option>
+                                        {/each}
+                                    </Input>
+                                </div>
+                            </div>
+                        </li>
+                        {/if}
+                    </ul>
+                    <ul>
+                        <li>
+                            <div class="user-permission-container">
+                                <div class="fw-bold text-primary">{'Permissions:'}</div>
+                                <div class="permission-wrapper">
+                                    {#each innerItem.permissions as permission, index}
+                                        <div class="edit-wrapper">
+                                            <Input
+                                                type="text"
+                                                class="edit-text-box"
+                                                bind:value={permission}
+                                            />
+                                            <div class="line-align-center">
+                                                <i
+                                                    class="bx bxs-no-entry text-danger"
+                                                    role="link"
+                                                    tabindex="0"
+                                                    on:keydown={() => {}}
+                                                    on:click={() => deletePermission(index)}
+                                                />
+                                            </div>
+                                        </div>
+                                    {/each}
+                                    {#if innerItem.permissions?.length < 5}
+                                        <div class="list-add line-align-center">
                                             <i
-                                                class="bx bxs-no-entry text-danger"
+                                                class="bx bx bx-list-plus text-primary clickable"
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
-                                                on:click={() => deletePermission(index)}
+                                                on:click={() => addPermission()}
+                                            />
+                                        </div>
+                                    {/if}
+                                </div>
+                            </div>
+                        </li>
+                    </ul>
+
+                    {#if innerActions.length > 0}
+                        <div class="user-agent-container">
+                            <div class="action-row action-title">
+                                <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
+                                    {'Agent'}
+                                </div>
+                                {#each allActions as title}
+                                    <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
+                                        <div>{title.name}</div>
+                                        <div>
+                                            <Input
+                                                type="checkbox"
+                                                class="action-center"
+                                                checked={title.checked}
+                                                on:change={e => checkAll(e, title)}
                                             />
                                         </div>
                                     </div>
                                 {/each}
-                                {#if innerItem.permissions?.length < 5}
-                                    <div class="list-add line-align-center">
-                                        <i
-                                            class="bx bx bx-list-plus text-primary clickable"
-                                            role="link"
-                                            tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => addPermission()}
-                                        />
-                                    </div>
-                                {/if}
                             </div>
-                        </div>
-                    </li>
-                </ul>
-
-                {#if innerActions.length > 0}
-                    <div class="user-agent-container">
-                        <div class="action-row action-title">
-                            <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
-                                {'Agent'}
-                            </div>
-                            {#each allActions as title}
-                                <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
-                                    <div>{title.name}</div>
-                                    <div>
-                                        <Input
-                                            type="checkbox"
-                                            class="action-center"
-                                            checked={title.checked}
-                                            on:change={e => checkAll(e, title)}
-                                        />
-                                    </div>
-                                </div>
-                            {/each}
-                        </div>
-                        <div class="action-row-wrapper">
-                            {#each innerActions as agentActionItem}
-                                <div class="action-row">
-                                    <div class="action-col fw-bold" style={colStyle}>
-                                        {agentActionItem.agent_name}
-                                    </div>
-                                    {#each agentActionItem.actions as actionItem}
-                                        <div class="action-col action-center" style={colStyle}>
-                                            <Input
-                                                type="checkbox"
-                                                class="action-center"
-                                                checked={actionItem.checked}
-                                                on:change={e => checkAction(e, agentActionItem, actionItem)}
-                                            />
+                            <div class="action-row-wrapper">
+                                {#each innerActions as agentActionItem}
+                                    <div class="action-row">
+                                        <div class="action-col fw-bold" style={colStyle}>
+                                            {agentActionItem.agent_name}
                                         </div>
-                                    {/each}
-                                </div>
-                            {/each}
+                                        {#each agentActionItem.actions as actionItem}
+                                            <div class="action-col action-center" style={colStyle}>
+                                                <Input
+                                                    type="checkbox"
+                                                    class="action-center"
+                                                    checked={actionItem.checked}
+                                                    on:change={e => checkAction(e, agentActionItem, actionItem)}
+                                                />
+                                            </div>
+                                        {/each}
+                                    </div>
+                                {/each}
+                            </div>
                         </div>
-                    </div>
-                {/if}
-            </div>
-        </td>
+                    {/if}
+                </div>
+            </td>
+        {/if}
     </tr>
 {/if}

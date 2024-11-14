@@ -21,6 +21,7 @@
 	import { getAgents } from '$lib/services/agent-service';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
+	import { getRoleOptions } from '$lib/services/role-service';
 	
     const duration = 3000;
 	const firstPage = 1;
@@ -46,6 +47,9 @@
 
     /** @type {import('$commonTypes').IdName[]} */
 	let agents = [];
+
+	/** @type {string[]} */
+	let roleOptions = [];
 
 	/** @type {any} */
 	let unsubscriber;
@@ -79,11 +83,14 @@
 
 	function init() {
 		isLoading = true;
-        getPagedAgents().then(() => {
-            getPagedUsers().then(() => {
-                isLoading = false;
-            });
-        });
+		getRoleOptions().then(roles => {
+			roleOptions = [...roles];
+			getPagedAgents().then(() => {
+				getPagedUsers().then(() => {
+					isLoading = false;
+				});
+			});
+		});
 	}
 
     function getPagedUsers() {
@@ -273,6 +280,7 @@
                                 <UserItem
                                     item={item}
                                     agents={agents}
+									roleOptions={roleOptions}
                                     open={item.open_detail}
                                     on:save={e => saveUser(e)}
                                 />
