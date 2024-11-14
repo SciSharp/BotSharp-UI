@@ -1,15 +1,15 @@
-.users-table {
-    .user-plain-col {
+.roles-table {
+    .role-plain-col {
         width: 10%;
         max-width: 100px;
     }
 
-    .user-permission-col {
-        width: 20%;
+    .role-permission-col {
+        width: 40%;
         max-width: 300px;
     }
 
-    .user-detail {
+    .role-detail {
         padding: 2px 5px;
         border-radius: 3px;
         border-color: var(--#{$prefix}light) !important;
@@ -41,15 +41,7 @@
             }
         }
 
-        .role-wrapper {
-            .role-select {
-                height: 30px;
-                font-size: 12px;
-                padding: 0.3rem 1rem;
-            }
-        }
-
-        .user-permission-container {
+        .role-permission-container {
             display: flex;
             gap: 5px;
 
@@ -75,7 +67,7 @@
             }
         }
 
-        .user-agent-container {
+        .role-agent-container {
             margin: 20px 0px;
             padding: 0px 2rem;
 

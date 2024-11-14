@@ -3,17 +3,17 @@
     import { fly } from 'svelte/transition';
     import { Button, Input } from '@sveltestrap/sveltestrap';
     import { v4 as uuidv4 } from 'uuid';
+    import moment from "moment";
     import Swal from 'sweetalert2';
-    import lodash from "lodash";
     import Loader from '$lib/common/Loader.svelte';
 	import { UserAction } from '$lib/helpers/enums';
-    import { getUserDetails } from '$lib/services/user-service';
+	import { getRoleDetails } from '$lib/services/role-service';
+    
 	
-
     const svelteDispatch = createEventDispatcher();
 
 
-    /** @type {import('$userTypes').UserModel} */
+    /** @type {import('$roleTypes').RoleModel} */
     export let item;
 
     /** @type {boolean} */
@@ -25,17 +25,14 @@
     /** @type {import('$commonTypes').IdName[]} */
     export let agents = [];
 
-    /** @type {string[]} */
-    export let roleOptions = [];
-
 
     /** @type {boolean} */
     let isLoading = false;
 
-    /** @type {import('$userTypes').UserModel} */
+    /** @type {import('$roleTypes').RoleModel} */
     let innerItem = { ...item };
 
-    /** @type {import('$userTypes').UserAgentInnerAction[]} */
+    /** @type {import('$roleTypes').RoleAgentInnerAction[]} */
     let innerActions = [];
 
     let allActions = [
@@ -119,32 +116,27 @@
         innerActions = handledActions.filter(Boolean);
     }
 
-    function toggleUserDetail() {
+    function toggleRoleDetail() {
         open = !open;
         if (open) {
-            isLoading = true;
-            getUserDetails(item.id).then(res => {
-                innerItem = { ...res };
-                initAgentActions();
-            }).finally(() => {
-                isLoading = false;
-            });
+            if (item.id != null) {
+                isLoading = true;
+                getRoleDetails(item.id).then(res => {
+                    if (!!res) {
+                        innerItem = { ...res };
+                    }
+                    initAgentActions();
+                }).finally(() => {
+                    isLoading = false;
+                });
+            }
         }
     }
 
 
-    /** @param {any} e */
-    function changeRole(e) {
-        const value = e.target.value;
-        innerItem = {
-            ...innerItem,
-            role: value
-        };
-    }
-
     /**
 	 * @param {any} e
-	 * @param {import('$userTypes').UserAgentInnerAction} agentActionItem
+	 * @param {import('$roleTypes').RoleAgentInnerAction} agentActionItem
 	 * @param {any} actionItem
 	 */
     function checkAction(e, agentActionItem, actionItem) {
@@ -187,13 +179,10 @@
         });
     }
 
-    /** @param {string} id */
-    function save(id) {
-        if (!id) return;
-
+    function save() {
         Swal.fire({
             title: 'Are you sure?',
-            text: `Are you sure you want to update user "${item.user_name}"?`,
+            text: `Are you sure you want to update role "${item.name}"?`,
             icon: 'warning',
             showCancelButton: true,
             cancelButtonText: 'No',
@@ -225,7 +214,6 @@
 
         const updated = {
             ...innerItem,
-            role: lodash.trim(innerItem.role),
             permissions: innerItem.permissions.filter(x => x?.length > 0),
             agent_actions: list
         };
@@ -251,17 +239,14 @@
 </script>
 
 <tr in:fly={{ y: -5, duration: 800 }}>
-    <td>{item.user_name}</td>
-    <td>{item.full_name}</td>
-    <td>{item.external_id}</td>
-    <td class="user-plain-col">
-        <div class="ellipsis">{item.role}</div>
-    </td>
-    <td>{item.type}</td>
-    <td class="user-permission-col">
+    <td>{item.name}</td>
+    <td class="role-permission-col">
         <div class="ellipsis">
             {item.permissions?.length > 0 ? item.permissions.join(', ') : 'N/A'}
         </div>
+    </td>
+    <td>
+        {item.update_date != null ? moment.utc(item.update_date).local().format('MMM D YYYY, hh:mm A') : 'N/A'}
     </td>
     <td>
         <ul class="list-unstyled hstack gap-1 mb-0" style="justify-content: center;">
@@ -269,7 +254,7 @@
                 <Button
                     class="btn btn-sm btn-soft-warning"
                     disabled={disabled}
-                    on:click={() => toggleUserDetail()}
+                    on:click={() => toggleRoleDetail()}
                 >
                     <i class="bx bxs-edit" />
                 </Button>
@@ -286,7 +271,7 @@
             </td>
         {:else}
             <td colspan="12">
-                <div class="user-detail">
+                <div class="role-detail">
                     <div class="edit-btn">
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -295,7 +280,7 @@
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
                             title="Save"
-                            on:click={() => save(item.id)}
+                            on:click={() => save()}
                         >
                             <i class="mdi mdi-content-save-all" />
                         </div>
@@ -303,52 +288,14 @@
                     <ul class="basic-info">
                         <li>
                             <div class="wrappable">
-                                <span class="fw-bold text-primary">{'User name:'}</span>
-                                <span>{item.user_name}</span>
+                                <span class="fw-bold text-primary">{'Name:'}</span>
+                                <span>{item.name}</span>
                             </div>
                         </li>
-                        {#if item.full_name}
-                        <li>
-                            <div class="wrappable">
-                                <span class="fw-bold text-primary">{'Full name:'}</span>
-                                <span>{item.full_name}</span>
-                            </div>
-                        </li>
-                        {/if}
-                        {#if item.type}
-                        <li>
-                            <div class="wrappable">
-                                <span class="fw-bold text-primary">{'Type:'}</span>
-                                <span>{item.type}</span>
-                            </div>
-                        </li>
-                        {/if}
-                        {#if item.source}
-                        <li>
-                            <div class="wrappable">
-                                <span class="fw-bold text-primary">{'Source:'}</span>
-                                <span>{item.source}</span>
-                            </div>
-                        </li>
-                        {/if}
-                        {#if item.role}
-                        <li>
-                            <div class="wrappable inline-edit">
-                                <div class="fw-bold text-primary line-align-center">{'Role:'}</div>
-                                <div class="role-wrapper">
-                                    <Input class="role-select" type="select" value={innerItem.role} on:change={e => changeRole(e)}>
-                                        {#each roleOptions as option}
-                                            <option value={option} selected={option == innerItem.role}>{option}</option>
-                                        {/each}
-                                    </Input>
-                                </div>
-                            </div>
-                        </li>
-                        {/if}
                     </ul>
                     <ul>
                         <li>
-                            <div class="user-permission-container">
+                            <div class="role-permission-container">
                                 <div class="fw-bold text-primary">{'Permissions:'}</div>
                                 <div class="permission-wrapper">
                                     {#each innerItem.permissions as permission, index}
@@ -386,7 +333,7 @@
                     </ul>
 
                     {#if innerActions.length > 0}
-                        <div class="user-agent-container">
+                        <div class="role-agent-container">
                             <div class="action-row action-title">
                                 <div class="action-col action-title-wrapper fw-bold" style={colStyle}>
                                     {'Agent'}

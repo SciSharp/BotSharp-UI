@@ -44,6 +44,7 @@
  * @property {string[]} [user_ids] - The user ids.
  * @property {string[]} [user_names] - The user names
  * @property {string[]} [roles] - The roles.
+ * @property {string[]} [types] - The types.
  * @property {string[]} [sources] - The sources.
  * @property {string[]} [external_ids] - The external ids.
  */

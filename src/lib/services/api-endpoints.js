@@ -6,6 +6,7 @@ export const endpoints = {
     roleOptionsUrl: `${host}/role/options`,
     rolesUrl: `${host}/roles`,
     roleDetailUrl: `${host}/role/{id}/details`,
+    roleUpdateUrl: `${host}/role`,
 
     // user
     tokenUrl: `${host}/token`,

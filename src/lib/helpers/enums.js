@@ -125,6 +125,8 @@ export const UserPermission = Object.freeze(userPermission);
 
 const userAction = {
     Edit: "edit",
+    Train: "train",
+    Evaluate: "evaluate",
     Chat: "chat"
 };
 export const UserAction = Object.freeze(userAction);
