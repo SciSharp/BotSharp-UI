@@ -2,10 +2,17 @@ import { PUBLIC_SERVICE_URL } from '$env/static/public';
 export const host = PUBLIC_SERVICE_URL;
 
 export const endpoints = {
+    // role
+    roleOptionsUrl: `${host}/role/options`,
+    rolesUrl: `${host}/roles`,
+    roleDetailUrl: `${host}/role/{id}/details`,
+    roleUpdateUrl: `${host}/role`,
+
     // user
     tokenUrl: `${host}/token`,
     myInfoUrl: `${host}/user/me`,
     usersUrl: `${host}/users`,
+    userDetailUrl: `${host}/user/{id}/details`,
     userUpdateUrl: `${host}/user`,
     usrCreationUrl: `${host}/user`,
     userAvatarUrl: `${host}/user/avatar`,

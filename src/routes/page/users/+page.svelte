@@ -5,8 +5,6 @@
 		Card,
 		CardBody,
 		Col,
-		Dropdown,
-		DropdownToggle,
 		Input,
 		Row,
 		Table
@@ -21,6 +19,7 @@
 	import { getAgents } from '$lib/services/agent-service';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
+	import { getRoleOptions } from '$lib/services/role-service';
 	
     const duration = 3000;
 	const firstPage = 1;
@@ -47,6 +46,9 @@
     /** @type {import('$commonTypes').IdName[]} */
 	let agents = [];
 
+	/** @type {string[]} */
+	let roleOptions = [];
+
 	/** @type {any} */
 	let unsubscriber;
 
@@ -54,7 +56,7 @@
 		userName: '',
 		externalId: '',
 		role: '',
-		source: '',
+		type: '',
 	};
 
     onMount(async () => {
@@ -79,11 +81,14 @@
 
 	function init() {
 		isLoading = true;
-        getPagedAgents().then(() => {
-            getPagedUsers().then(() => {
-                isLoading = false;
-            });
-        });
+		getRoleOptions().then(roles => {
+			roleOptions = [...roles];
+			getPagedAgents().then(() => {
+				getPagedUsers().then(() => {
+					isLoading = false;
+				});
+			});
+		});
 	}
 
     function getPagedUsers() {
@@ -142,7 +147,7 @@
         const userName = searchOption.userName?.trim();
         const externalId = searchOption.externalId?.trim();
         const role = searchOption.role?.trim();
-        const source = searchOption.source?.trim();
+        const type = searchOption.type?.trim();
 
         filter = {
             ...filter,
@@ -150,7 +155,7 @@
             user_names: !!userName ? [userName] : [],
             external_ids: !!externalId ? [externalId] : [],
             roles: !!role ? [role] : [],
-            sources: !!source ? [source] : []
+            types: !!type ? [type] : []
         };
     }
 
@@ -172,7 +177,7 @@
 			if (res) {
 				isLoading = false;
 				isComplete = true;
-				postUpdateUser(data);
+				postUpdate(data);
 				setTimeout(() => {
 					isComplete = false;
 				}, duration);
@@ -190,7 +195,7 @@
     }
 
     /** @param {import('$userTypes').UserModel} data */
-    function postUpdateUser(data) {
+    function postUpdate(data) {
         userItems = userItems?.map(x => {
             if (x.id === data.id) {
                 return { ...data, open_detail: true };
@@ -212,19 +217,6 @@
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('User List')}</h5>
-					<div class="flex-shrink-0">
-						<Button
-							class="btn btn-light"
-							on:click={() => {}}
-						>
-							<i class="mdi mdi-magnify" />
-						</Button>
-						<Dropdown class="dropdown d-inline-block">
-							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical" />
-							</DropdownToggle>
-						</Dropdown>
-					</div>
 				</div>
 			</CardBody>
 			<CardBody class="border-bottom">
@@ -239,7 +231,7 @@
 						<Input bind:value={searchOption.role} maxlength={maxLength} placeholder={'Search role...'} />
 					</Col>
 					<Col lg="2">
-						<Input bind:value={searchOption.source} maxlength={maxLength} placeholder={'Search source...'} />
+						<Input bind:value={searchOption.type} maxlength={maxLength} placeholder={'Search type...'} />
 					</Col>
 					<Col lg="1">
 						<Button
@@ -263,7 +255,7 @@
 								<th scope="col">{$_('Full Name')}</th>
 								<th scope="col">{$_('External Id')}</th>
 								<th scope="col" class="user-plain-col">{$_('Role')}</th>
-								<th scope="col">{$_('Source')}</th>
+								<th scope="col">{$_('Type')}</th>
 								<th scope="col" class="user-permission-col">{$_('Permissions')}</th>
 								<th scope="col">{$_('')}</th>
 							</tr>
@@ -273,6 +265,7 @@
                                 <UserItem
                                     item={item}
                                     agents={agents}
+									roleOptions={roleOptions}
                                     open={item.open_detail}
                                     on:save={e => saveUser(e)}
                                 />

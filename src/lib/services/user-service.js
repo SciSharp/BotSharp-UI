@@ -13,6 +13,18 @@ export async function getUsers(filter) {
 
 
 /**
+ * Get user detail
+ * @param {string} id
+ * @returns {Promise<import('$userTypes').UserModel>}
+ */
+export async function getUserDetails(id) {
+    const url = endpoints.userDetailUrl.replace("{id}", id);
+    const response = await axios.get(url);
+    return response.data;
+}
+
+
+/**
  * Get user list
  * @param {import('$userTypes').UserModel} model
  * @returns {Promise<boolean>}
