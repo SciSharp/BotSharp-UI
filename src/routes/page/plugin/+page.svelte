@@ -36,10 +36,9 @@
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
 
-			const names = event.payload ? [event.payload] : undefined;
 			filter = {
 				pager: { page: firstPage, size: pageSize, count: 0 },
-				names: names
+				similarName: event.payload || null
 			};
 			getPagedPlugins();
 		});

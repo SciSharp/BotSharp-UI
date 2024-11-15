@@ -51,7 +51,7 @@
 
 			filter = {
 				pager: { page: firstPage, size: pageSize, count: 0 },
-				agentName: event.payload || null
+				similarName: event.payload || null
 			};
 			getPagedAgents();
 		});
