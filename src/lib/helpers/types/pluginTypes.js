@@ -23,6 +23,7 @@
  * @typedef {Object} PluginFilter
  * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string[]} [names] - The plugin names
+ * @property {string} [similarName] - The plugin similar name
  */
 
 export default {};
