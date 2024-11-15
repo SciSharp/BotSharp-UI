@@ -58,7 +58,6 @@ const config = {
 				"/page/plugin",
 				"/page/plugin/[pluginId]",
 				"/page/setting",
-				"/page/mongodb",
 				"/page/user/me",
 				"/page/users",
 				"/page/roles",
