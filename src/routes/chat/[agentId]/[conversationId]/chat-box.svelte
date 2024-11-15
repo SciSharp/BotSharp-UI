@@ -1647,7 +1647,7 @@
 																	text={message?.rich_content?.message?.text || message?.text}
 																/>
 															{/if}
-															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true'}
+															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true' && agent?.trainable}
 																{#if message?.function}
 																	<div class="line-align-center" style="font-size: 17px;">
 																		<!-- svelte-ignore a11y-click-events-have-key-events -->

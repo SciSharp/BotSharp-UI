@@ -145,8 +145,8 @@
 </script>
 
 
-<HeadTitle title="{$_('User List')}" />
-<Breadcrumb title="{$_('Management')}" pagetitle="{$_('Users')}" />
+<HeadTitle title="{$_('Role List')}" />
+<Breadcrumb title="{$_('Management')}" pagetitle="{$_('Roles')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={successText} errorText={errorText} />
 
 

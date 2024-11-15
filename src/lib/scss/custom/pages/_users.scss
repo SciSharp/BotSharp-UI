@@ -92,6 +92,7 @@
 
             .action-col {
                 padding: 3px 0px;
+                border-bottom: 1px dotted var(--bs-primary);
 
                 input[type='checkbox'] {
                     outline: none !important;

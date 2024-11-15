@@ -60,6 +60,8 @@
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
  * @property {boolean} editable
  * @property {boolean} chatable
+ * @property {boolean} trainable
+ * @property {boolean} evaluable
  */
 
 
