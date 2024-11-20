@@ -107,6 +107,16 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
+
+    .merge-utility {
+        display: flex;
+        gap: 3px;
+        
+        input {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+    }
     
     .utility-wrapper {
         border: 1px dotted var(--bs-primary);

@@ -49,6 +49,7 @@
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
+ * @property {boolean} merge_utility - Merge utility
  * @property {AgentUtility[]} utilities - The agent utilities.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime

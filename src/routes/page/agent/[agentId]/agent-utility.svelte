@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
+    import { Card, CardBody, Input, Button, Tooltip } from '@sveltestrap/sveltestrap';
     import { getAgentUtilities } from '$lib/services/agent-service';
 
     const limit = 5;
@@ -150,6 +150,15 @@
             }
         }) || [];
     }
+
+
+    /** @param {any} e */
+    function changeMergeUtility(e) {
+        const checked = e.target.checked;
+        if (!!agent) {
+            agent.merge_utility = checked;
+        }
+    }
 </script>
 
 <Card>
@@ -159,8 +168,23 @@
         </div>
 
         <div class="agent-utility-container">
-            <div>
-
+            <div class="merge-utility">
+                <Input
+					type="checkbox"
+					checked={agent?.merge_utility || false}
+					on:change={e => changeMergeUtility(e)}
+				/>
+                <div class="fw-bold">
+                    Merge utility
+                </div>
+                <div
+                    class="line-align-center"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Merge with entry agent utilities"
+                >
+                    <i class="bx bx-info-circle" />
+                </div>
             </div>
 
             {#each innerUtilities as utility, uid (uid)}
