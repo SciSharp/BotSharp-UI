@@ -6,6 +6,9 @@
 	import { AgentType } from '$lib/helpers/enums';
 	import { getAgentUtilities } from '$lib/services/agent-service';
 
+    const profileLimit = 10;
+
+
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
@@ -13,13 +16,7 @@
     export let profiles = [];
 
     /** @type {string[]} */
-    export let utilities = [];
-
-    /** @type {string[]} */
     let utilityOptions = [];
-
-    const profileLimit = 10;
-    const utilityLimit = 10;
 
     onMount(() => {
         getAgentUtilities().then(data => {
@@ -41,21 +38,6 @@
     function removeProfile(index) {
         profiles = profiles.filter((x, idx) => idx !== index);
         agent.profiles = profiles;
-    }
-
-    function addUtility() {
-        if (!!!agent) return;
-
-        utilities = [...utilities, ''];
-        agent.utilities = utilities;
-    }
-
-    /**
-	 * @param {number} index
-	 */
-    function removeUtility(index) {
-        utilities = utilities.filter((x, idx) => idx !== index);
-        agent.utilities = utilities;
     }
 
     function chatWithAgent() {
@@ -165,42 +147,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <th class="agent-prop-key">Utilities</th>
-                        <td>
-                            <div class="agent-prop-list-container">
-                                {#each utilities as utility, index}
-                                <div class="edit-wrapper">
-                                    <Input type="select" class="edit-text-box" bind:value={utility}>
-                                        {#each utilityOptions as option}
-                                            <option selected={utility === option}>{option}</option>
-                                        {/each}
-                                    </Input>
-                                    <div class="delete-icon">
-                                        <i
-                                            class="bx bxs-no-entry"
-                                            role="link"
-                                            tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => removeUtility(index)}
-                                        />
-                                    </div>
-                                </div>
-                                {/each}
-                                {#if utilities?.length < utilityLimit}
-                                <div class="list-add">
-                                    <i
-                                        class="bx bx bx-list-plus"
-                                        role="link"
-                                        tabindex="0"
-                                        on:keydown={() => {}}
-                                        on:click={() => addUtility()}
-                                    />
-                                </div>
-                                {/if}
-                            </div>
-                        </td>
-                    </tr>
+                    
                     <tr>
                         <th class="agent-prop-key">Status</th>
                         <td>							

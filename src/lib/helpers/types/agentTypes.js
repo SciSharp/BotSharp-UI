@@ -49,7 +49,7 @@
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
- * @property {string[]} utilities - The agent utilities.
+ * @property {AgentUtility[]} utilities - The agent utilities.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.
@@ -118,5 +118,17 @@
  * @property {string} description
  */
 
+
+/**
+ * @typedef {Object} AgentUtility
+ * @property {string} name 
+ * @property {UtilityBase[]} functions
+ * @property {UtilityBase[]} templates
+ */
+
+/**
+ * @typedef {Object} UtilityBase
+ * @property {string} name
+ */
 
 export default {};

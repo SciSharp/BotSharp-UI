@@ -1,8 +1,8 @@
 <script>
-    import { Button, Card, CardBody, CardHeader, Col, Input } from '@sveltestrap/sveltestrap';
-    import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
     import { onMount } from 'svelte';
-
+    import { Card, CardBody, Input } from '@sveltestrap/sveltestrap';
+    import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
+    
     /** @type {string[]} */
     let providers = [];
 

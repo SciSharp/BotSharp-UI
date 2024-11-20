@@ -18,6 +18,7 @@
     import { _ } from 'svelte-i18n'  
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
+	import AgentUtility from './agent-utility.svelte';
 	
 	
     /** @type {import('$agentTypes').AgentModel} */
@@ -26,6 +27,8 @@
     let agentFunctionCmp = null;
     /** @type {any} */
     let agentPromptCmp = null;
+    /** @type {any} */
+    let agentUtilityCmp = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -65,6 +68,7 @@
     function handleAgentUpdate() {
         fetchJsonContent();
         fetchPrompts();
+        fetchUtilties();
 
         agent = {
             ...agent,
@@ -72,7 +76,7 @@
             instruction: agent.instruction || '',
             channel_instructions: agent.channel_instructions || [],
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
-            utilities: agent.utilities?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || []
+            utilities: agent.utilities || []
         };
         isLoading = true;
         saveAgent(agent).then(res => {
@@ -110,6 +114,11 @@
         agent.channel_instructions = obj.channelPrompts || [];
     }
 
+    function fetchUtilties() {
+        const list = agentUtilityCmp?.fetchUtilities();
+        agent.utilities = list || [];
+    }
+
     function refreshChannelPrompts() {
         agentPromptCmp?.refreshChannelPrompts();
     }
@@ -145,14 +154,16 @@
     <Row class="agent-detail-sections">
         <Col class="section-min-width agent-overview" style="flex: 35%;">
             <div class="agent-detail-section">
-                <AgentOverview agent={agent} profiles={agent.profiles || []} utilities={agent.utilities || []} />
+                <AgentOverview agent={agent} profiles={agent.profiles || []} />
             </div>
-
             <div class="agent-detail-section">
                 <AgentLlmConfig agent={agent} />
                 {#if agent.routing_rules?.length > 0}
                     <AgentRouting agent={agent} />
                 {/if}
+            </div>
+            <div class="agent-detail-section">
+                <AgentUtility bind:this={agentUtilityCmp} agent={agent} />
             </div>
         </Col>
         <Col class="section-min-width" style="flex: 65%;">
