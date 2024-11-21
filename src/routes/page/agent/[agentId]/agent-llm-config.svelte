@@ -110,7 +110,14 @@
                 Maximum recursive depth
             </label>
             <div class="col-md-9">
-                <Input type="number" min={lowerLimit} max={upperLimit} style="text-align: center;" value={config.max_recursion_depth} on:change={e => changeMaxRecursiveDepth(e)} />              
+                <Input
+                    style="text-align: center;"
+                    type="number"
+                    min={lowerLimit}
+                    max={upperLimit}
+                    value={config.max_recursion_depth}
+                    on:change={e => changeMaxRecursiveDepth(e)}
+                />              
             </div>
         </div>
     </CardBody>
