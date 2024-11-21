@@ -4,7 +4,6 @@
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
-	import { getAgentUtilities } from '$lib/services/agent-service';
 
     const profileLimit = 10;
 
@@ -15,15 +14,7 @@
     /** @type {string[]} */
     export let profiles = [];
 
-    /** @type {string[]} */
-    let utilityOptions = [];
-
-    onMount(() => {
-        getAgentUtilities().then(data => {
-            const list = data?.filter(x => x?.trim()?.length > 0) || [];
-            utilityOptions = ["", ...list];
-        });
-    });
+    onMount(() => {});
 
     function addProfile() {
         if (!!!agent) return;

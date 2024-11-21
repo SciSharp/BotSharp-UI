@@ -123,6 +123,7 @@
 /**
  * @typedef {Object} AgentUtility
  * @property {string} name 
+ * @property {boolean} disabled 
  * @property {UtilityBase[]} functions
  * @property {UtilityBase[]} templates
  */

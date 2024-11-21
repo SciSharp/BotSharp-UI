@@ -111,7 +111,7 @@
     .merge-utility {
         display: flex;
         gap: 3px;
-        
+
         input {
             outline: none !important;
             box-shadow: none !important;
@@ -150,6 +150,21 @@
 
         .utility-row-primary {
             display: flex;
+
+            .utility-label {
+                display: flex;
+                gap: 10px;
+
+                .utility-tooltip {
+                    display: flex;
+                    gap: 3px;
+                }
+
+                input {
+                    outline: none !important;
+                    box-shadow: none !important;
+                }
+            }
         }
 
         .utility-row-secondary {
