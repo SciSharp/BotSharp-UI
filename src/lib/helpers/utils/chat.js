@@ -13,14 +13,3 @@ export function sendToChatBot(action, chatFrameId, text = null, data = null) {
         chatFrame.contentWindow.postMessage(content, "*");
     }
 }
-
-/**
- * @param {() => void} func
- */
-export function addChatBoxMountEventListener(func) {
-    window.addEventListener("message", e => {
-        if (e.data.event === 'chat-box-mounted') {
-            func();
-        }
-    });
-}

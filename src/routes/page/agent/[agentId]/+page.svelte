@@ -19,6 +19,7 @@
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	import AgentUtility from './agent-utility.svelte';
+	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	
 	
     /** @type {import('$agentTypes').AgentModel} */
@@ -176,7 +177,7 @@
         </Col>
     </Row>
 
-    {#if !!agent?.editable}
+    {#if !!AgentExtensions.editable(agent)}
         <Row>
             <div class="hstack gap-2 my-4">
                 <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>

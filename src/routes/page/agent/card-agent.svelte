@@ -4,6 +4,7 @@
   import { format } from '$lib/helpers/datetime';
   import { _ } from 'svelte-i18n';
 	import { LEARNER_ID } from "$lib/helpers/constants";
+	import { AgentExtensions } from "$lib/helpers/utils/agent";
 
   /** @type {import('$agentTypes').AgentModel[]} */
   export let agents;
@@ -78,7 +79,7 @@
             </Link>
           </li>
           <li class="list-inline-item me-1">
-            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!agent.chatable}>
+            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!AgentExtensions.chatable(agent)}>
               <i class="bx bx-chat" /> {$_('Test')}
             </Link>
           </li>

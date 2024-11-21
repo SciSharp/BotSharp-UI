@@ -4,6 +4,7 @@
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
+	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
     const profileLimit = 10;
 
@@ -48,7 +49,7 @@
                     height="50"
                     class="mx-auto d-block"
                 />
-                {#if !!agent.chatable}
+                {#if !!AgentExtensions.chatable(agent)}
                     <Button
                         class="btn btn-sm btn-soft-info agent-chat"
                         on:click={() => chatWithAgent()}
@@ -59,7 +60,7 @@
                 {/if}
             </div>
             <h5 class="mt-1 mb-1 div-center"><InPlaceEdit bind:value={agent.name} /></h5>
-            <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
+            <p class="text-muted mb-0">{`Updated at ${format(agent.updated_datetime, 'time')}`}</p>
         </div>
     </CardHeader>
     <CardBody>
