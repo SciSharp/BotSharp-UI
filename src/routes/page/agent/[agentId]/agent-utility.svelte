@@ -193,7 +193,7 @@
         const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
-        found.disabled = e.target.checked;
+        found.disabled = !e.target.checked;
         refresh(innerUtilities);
     }
 
@@ -255,7 +255,7 @@
                                 <div class="line-align-center">
                                     <Input
                                         type="checkbox"
-                                        checked={utility.disabled}
+                                        checked={!utility.disabled}
                                         on:change={e => toggleUtility(e, uid)}
                                     />
                                 </div>
@@ -263,7 +263,7 @@
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Disable utility"
+                                    title="Uncheck to disable utility"
                                 >
                                     <i class="bx bx-info-circle" />
                                 </div>
