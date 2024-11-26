@@ -32,9 +32,8 @@
             isMultiSelect = true;
         } else if (richType === RichType.Generic) {
             options = message?.rich_content?.message?.elements;
-            isComplexElement = true;
             // @ts-ignore
-            // isComplexElement = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
+            isComplexElement = message?.rich_content?.message?.elements?.some(x => x.buttons?.length > 0) || false;
         } else if (message?.rich_content?.editor === EditorType.File) {
             options = message?.rich_content?.message?.buttons;
         }
