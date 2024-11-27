@@ -28,22 +28,44 @@
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
 	import { getUserStore, userStore } from '$lib/helpers/store';
+	import Conversation from './Conversation.svelte';
+	import { getDashboardSettings } from '$lib/services/dashboard-service';
 	
 	let subscribemodal = false;
-	let user = {full_name: ""};
+	let user = {full_name: "", id: ""};
+
+	/**
+	 * @type {import("../../../lib/helpers/types/userTypes").DashboardModel}
+	 */
+	let dashboard_model ;
 	const togglesubscribemodal = (() => {
 		subscribemodal = !subscribemodal;
 	})
 
 	onMount(() => {
-		const userModelSubscribe = userStore.subscribe((/** @type {{ full_name: string; }} */ value) => {
+		const userModelSubscribe = userStore.subscribe((/** @type {{ full_name: string; id: string }} */ value) => {
 			user = value;
 		})
 		user = getUserStore();
+		loadDashboardComponents(user.id);
 		setTimeout(() => {
 			subscribemodal = true;
 		}, 1000);
 	})
+
+	/**
+	 * delete a message in conversation
+	 * @param {string} userId The user input
+	 */
+	async function loadDashboardComponents(userId) {
+		getDashboardSettings(userId)
+		.then(
+			response => {
+				dashboard_model = response
+			}
+		)
+		.catch();
+	}
 </script>
 
 <HeadTitle title={$_('Dashboard')} />
@@ -205,6 +227,14 @@
 			</CardBody>
 		</Card>
 	</Col>
+</Row>
+
+<Row>
+	{#each dashboard_model?.conversation_list || [] as conv, index (conv.conversation_id)}
+		{#if conv?.conversation_id}
+			<Conversation conversationId={conv.conversation_id} instruction={conv.instruction} userId={user.id}/>
+		{/if}
+	{/each}
 </Row>
 
 <Row>

@@ -105,6 +105,47 @@ export async function sendMessageToHub(agentId, conversationId, text, data = nul
     return response.data;
 }
 
+/**
+ * pin a conversation to dashboard
+ * @param {string} agentId - The agent id
+ * @param {string} conversationId - The conversation id
+ */
+export async function pinConversationToDashboard(agentId, conversationId) {
+    let url = replaceUrl(endpoints.pinConversationUrl, {
+        agentId: agentId,
+        conversationId: conversationId
+    });
+    const response = await axios.put(url);
+    return response.data;
+}
+
+/**
+ * unpin a conversation from dashboard
+ * @param {string} agentId - The agent id
+ * @param {string} conversationId - The conversation id
+ */
+export async function unpinConversationFromDashboard(agentId, conversationId) {
+    let url = replaceUrl(endpoints.pinConversationUrl, {
+        agentId: agentId,
+        conversationId: conversationId
+    });
+    const response = await axios.delete(url);
+    return response.data;
+}
+
+/**
+ * update a dashboard conversation instuction
+ * @param {string} userId - The conversation id
+ * @param {import('$userTypes').DashboardConversation} dashConv - The instruction
+ */
+export async function updateDashboardConversation(userId, dashConv) {
+    let url = replaceUrl(endpoints.dashConversationInstructionUrl, {
+        userId: userId
+    });
+    const response = await axios.post(url, dashConv);
+    return response.data;
+}
+
 
 /**
  * send a notification to conversation
