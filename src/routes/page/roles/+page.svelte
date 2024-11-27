@@ -121,7 +121,7 @@
 					isComplete = false;
 				}, duration);
 			} else {
-				throw "error when saving user.";
+				throw "error when saving role.";
 			}
 		}).catch(() => {
 			isLoading = false;

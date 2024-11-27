@@ -4,7 +4,10 @@
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
-	import { getAgentUtilities } from '$lib/services/agent-service';
+	import { AgentExtensions } from '$lib/helpers/utils/agent';
+
+    const profileLimit = 10;
+
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -12,21 +15,7 @@
     /** @type {string[]} */
     export let profiles = [];
 
-    /** @type {string[]} */
-    export let utilities = [];
-
-    /** @type {string[]} */
-    let utilityOptions = [];
-
-    const profileLimit = 10;
-    const utilityLimit = 10;
-
-    onMount(() => {
-        getAgentUtilities().then(data => {
-            const list = data?.filter(x => x?.trim()?.length > 0) || [];
-            utilityOptions = ["", ...list];
-        });
-    });
+    onMount(() => {});
 
     function addProfile() {
         if (!!!agent) return;
@@ -41,21 +30,6 @@
     function removeProfile(index) {
         profiles = profiles.filter((x, idx) => idx !== index);
         agent.profiles = profiles;
-    }
-
-    function addUtility() {
-        if (!!!agent) return;
-
-        utilities = [...utilities, ''];
-        agent.utilities = utilities;
-    }
-
-    /**
-	 * @param {number} index
-	 */
-    function removeUtility(index) {
-        utilities = utilities.filter((x, idx) => idx !== index);
-        agent.utilities = utilities;
     }
 
     function chatWithAgent() {
@@ -75,7 +49,7 @@
                     height="50"
                     class="mx-auto d-block"
                 />
-                {#if !!agent.chatable}
+                {#if !!AgentExtensions.chatable(agent)}
                     <Button
                         class="btn btn-sm btn-soft-info agent-chat"
                         on:click={() => chatWithAgent()}
@@ -86,7 +60,7 @@
                 {/if}
             </div>
             <h5 class="mt-1 mb-1 div-center"><InPlaceEdit bind:value={agent.name} /></h5>
-            <p class="text-muted mb-0">Updated at {format(agent.updated_datetime, 'time')}</p>
+            <p class="text-muted mb-0">{`Updated at ${format(agent.updated_datetime, 'time')}`}</p>
         </div>
     </CardHeader>
     <CardBody>
@@ -165,42 +139,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr>
-                        <th class="agent-prop-key">Utilities</th>
-                        <td>
-                            <div class="agent-prop-list-container">
-                                {#each utilities as utility, index}
-                                <div class="edit-wrapper">
-                                    <Input type="select" class="edit-text-box" bind:value={utility}>
-                                        {#each utilityOptions as option}
-                                            <option selected={utility === option}>{option}</option>
-                                        {/each}
-                                    </Input>
-                                    <div class="delete-icon">
-                                        <i
-                                            class="bx bxs-no-entry"
-                                            role="link"
-                                            tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => removeUtility(index)}
-                                        />
-                                    </div>
-                                </div>
-                                {/each}
-                                {#if utilities?.length < utilityLimit}
-                                <div class="list-add">
-                                    <i
-                                        class="bx bx bx-list-plus"
-                                        role="link"
-                                        tabindex="0"
-                                        on:keydown={() => {}}
-                                        on:click={() => addUtility()}
-                                    />
-                                </div>
-                                {/if}
-                            </div>
-                        </td>
-                    </tr>
+                    
                     <tr>
                         <th class="agent-prop-key">Status</th>
                         <td>							

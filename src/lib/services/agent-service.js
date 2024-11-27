@@ -84,10 +84,10 @@ export async function createAgent(agent) {
 
 /**
  * Get agent utilities
- * @returns {Promise<string[]>}
+ * @returns {Promise<import('$agentTypes').AgentUtility[]>}
  */
-export async function getAgentUtilities() {
-    const url = endpoints.agentUtilitiesUrl;
+export async function getAgentUtilityOptions() {
+    const url = endpoints.agentUtilityOptionsUrl;
     const response = await axios.get(url);
     return response.data;
 }

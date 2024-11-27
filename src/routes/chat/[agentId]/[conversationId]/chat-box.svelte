@@ -53,12 +53,13 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import StateModal from '$lib/common/StateModal.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
+	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
 	import { ChatAction, ConversationTag, EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
@@ -203,7 +204,7 @@
 	}
 
 	$: {
-		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !agent?.chatable;
+		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !AgentExtensions.chatable(agent);
 	}
 
 	setContext('chat-window-context', {
@@ -1657,7 +1658,7 @@
 																	text={message?.rich_content?.message?.text || message?.text}
 																/>
 															{/if}
-															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true' && agent?.trainable}
+															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true' && AgentExtensions.trainable(agent)}
 																{#if message?.function}
 																	<div class="line-align-center" style="font-size: 17px;">
 																		<!-- svelte-ignore a11y-click-events-have-key-events -->

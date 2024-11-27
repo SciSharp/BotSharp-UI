@@ -49,7 +49,8 @@
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
- * @property {string[]} utilities - The agent utilities.
+ * @property {boolean} merge_utility - Merge utility
+ * @property {AgentUtility[]} utilities - The agent utilities.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.
@@ -59,10 +60,7 @@
  * @property {Object[]} responses
  * @property {RoutingRule[]} routing_rules
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
- * @property {boolean} editable
- * @property {boolean} chatable
- * @property {boolean} trainable
- * @property {boolean} evaluable
+ * @property {string[]?} [actions]
  */
 
 
@@ -118,5 +116,18 @@
  * @property {string} description
  */
 
+
+/**
+ * @typedef {Object} AgentUtility
+ * @property {string} name 
+ * @property {boolean} disabled 
+ * @property {UtilityBase[]} functions
+ * @property {UtilityBase[]} templates
+ */
+
+/**
+ * @typedef {Object} UtilityBase
+ * @property {string} name
+ */
 
 export default {};
