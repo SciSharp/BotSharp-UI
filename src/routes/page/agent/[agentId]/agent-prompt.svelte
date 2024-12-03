@@ -131,9 +131,9 @@
             <div class="mb-2" style="display: flex; gap: 10px;">
                 <div class="line-align-center fw-bold">
                     {#if local_instructions.length > 1}
-                        {'Prompts:'}
+                        {'Instructions:'}
                     {:else}
-                        {'System Prompt:'}
+                        {'System instruction:'}
                     {/if}
                 </div>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -182,7 +182,7 @@
                 rows={24}
                 value={selected_instruction.instruction}
                 on:input={(e) => changePrompt(e)}
-                placeholder="Enter your Prompt"
+                placeholder="Enter your instruction"
             />
         </FormGroup>
     </CardBody>
