@@ -1759,7 +1759,7 @@
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
-									disabled={isSendingMsg || isThinking}
+									disabled={isSendingMsg || isThinking || disableAction}
 									onConfirm={(title, payload) => confirmSelectedOption(title, payload)}
 								/>
 							{/if}
@@ -1843,7 +1843,7 @@
 									<div class="chat-util-links">
 										{#if !isLite}
 											<ChatBigMessage
-												disabled={disableAction}
+												disabled={isSendingMsg || isThinking || disableAction}
 												on:click={() => toggleBigMessageModal()}
 											/>
 										{/if}

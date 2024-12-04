@@ -51,3 +51,20 @@ export function formatObject(object) {
         return object;
     }
 }
+
+
+/**
+ * @param {string?} str
+ * @param {string?} prefix
+ */
+export function truncateByPrefix(str, prefix) {
+    if (!str || !prefix) {
+        return str;
+    }
+
+    if (!str.startsWith(prefix)) {
+        return str;
+    }
+
+    return str.replace(prefix, '');
+}
