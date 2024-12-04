@@ -128,6 +128,7 @@
 /**
  * @typedef {Object} UtilityBase
  * @property {string} name
+ * @property {string?} [displayName]
  */
 
 export default {};

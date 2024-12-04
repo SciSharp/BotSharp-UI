@@ -2,9 +2,10 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
+	import { truncateByPrefix } from '$lib/helpers/utils/common';
 
     const limit = 5;
-    const maxLength = 30;
+    const prefix = "util-";
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -60,13 +61,29 @@
         getAgentUtilityOptions().then(data => {
             const list = data || [];
             list.forEach(item => {
-                const fns = item.functions.map(f => f.name);
-                const tps = item.templates.map(t => t.name);
+                const fns = item.functions.map(f => {
+                    return {
+                        name: f.name,
+                        displayName: truncateByPrefix(f.name, prefix)
+                    };
+                });
+                const tps = item.templates.map(t => {
+                    return {
+                        name: t.name,
+                        displayName: truncateByPrefix(t.name, prefix)
+                    };
+                });
 
                 if (!utilityMapper[item.name]) {
                     utilityMapper[item.name] = {
-                        functions: ["", ...fns],
-                        templates: ["", ...tps]
+                        functions: [{
+                            name: "",
+                            displayName: ""
+                        }, ...fns],
+                        templates: [{
+                            name: "",
+                            displayName: ""
+                        }, ...tps]
                     };
                 } else {
                     const prevFns = utilityMapper[item.name].functions;
@@ -82,7 +99,20 @@
     });
 
     function init() {
-        refresh(agent.utilities);
+        const list = agent.utilities?.map(x => {
+            return {
+                ...x,
+                functions: x.functions?.map(f => ({
+                    ...f,
+                    displayName: truncateByPrefix(f.name, prefix)
+                })) || [],
+                templates: x.templates?.map(t => ({
+                    ...t,
+                    displayName: truncateByPrefix(t.name, prefix)
+                })) || []
+            };
+        }) || [];
+        refresh(list);
     }
 
     /**
@@ -97,11 +127,11 @@
         found.name = name;
         found.functions = [
             // @ts-ignore
-            ...utilityMapper[name].functions?.filter(x => !!x)?.map(x => ({ name: x })) || []
+            ...utilityMapper[name].functions?.filter(x => !!x.name) || []
         ];
         found.templates = [
             // @ts-ignore
-            ...utilityMapper[name].templates?.filter(x => !!x)?.map(x => ({ name: x })) || []
+            ...utilityMapper[name].templates?.filter(x => !!x.name) || []
         ];
         refresh(innerUtilities);
     }
@@ -132,9 +162,9 @@
         if (!found || found.disabled) return;
 
         if (type === 'function') {
-            found.functions.push({ name: '' });
+            found.functions.push({ name: '', displayName: '' });
         } else if (type === 'template') {
-            found.templates.push({ name: '' });
+            found.templates.push({ name: '', displayName: '' });
         }
 
         refresh(innerUtilities);
@@ -171,15 +201,18 @@
         const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
+        const vals = e.target.value.split("#");
         if (type === 'function') {
             const fn = found.functions?.find((_, index) => index === idx);
             if (fn) {
-                fn.name = e.target.value;
+                fn.name = vals[0];
+                fn.displayName = vals[1];
             }
         } else if (type === 'template') {
             const tp = found.templates?.find((_, index) => index === idx);
             if (tp) {
-                tp.name = e.target.value;
+                tp.name = vals[0];
+                tp.displayName = vals[1];
             }
         }
         refresh(innerUtilities);
@@ -305,12 +338,11 @@
                                         <div class="utility-input line-align-center">
                                             <Input
                                                 type="select"
-                                                value={fn.name}
                                                 disabled={utility.disabled}
                                                 on:change={e => selectContent(e, uid, fid, 'function')}
                                             >
                                                 {#each (utilityMapper[utility.name]?.functions || []) as option}
-                                                    <option value={option} selected={option == fn.name}>{option}</option>
+                                                    <option value={`${option.name}#${option.dsiplayName}`} selected={option.name == fn.name}>{option.displayName}</option>
                                                 {/each}
                                             </Input>
                                         </div>
@@ -355,12 +387,11 @@
                                         <div class="utility-input line-align-center">
                                             <Input
                                                 type="select"
-                                                value={tp.name}
                                                 disabled={utility.disabled}
                                                 on:change={e => selectContent(e, uid, tid, 'template')}
                                             >
                                                 {#each (utilityMapper[utility.name]?.templates || []) as option}
-                                                    <option value={option} selected={option == tp.name}>{option}</option>
+                                                    <option value={`${option.name}#${option.dsiplayName}`} selected={option.name == tp.name}>{option.displayName}</option>
                                                 {/each}
                                             </Input>
                                         </div>
