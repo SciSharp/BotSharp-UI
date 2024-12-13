@@ -72,6 +72,8 @@
                         <td>
                             {#if agent.type == AgentType.Routing}
                                 Routing Agent
+                            {:else if agent.type == AgentType.Planning}
+                                Planning Agent
                             {:else if agent.type == AgentType.Evaluating}
                                 Evaluation Agent
                             {:else if agent.type == AgentType.Static}
@@ -139,13 +141,28 @@
                             </div>
                         </td>
                     </tr>
-                    
                     <tr>
                         <th class="agent-prop-key">Status</th>
                         <td>							
                             <div class="form-check mb-3">
                                 <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />
                                 <label class="form-check-label" for="disabled">Disabled</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key">Max message count</th>
+                        <td>							
+                            <div class="mb-3">
+                                <Input
+                                    type="number"
+                                    style="width: 50%; min-width: 100px;"
+                                    class="text-center"
+									min={1}
+                                    max={1000}
+									step={1}
+                                    bind:value={agent.max_message_count}
+                                />
                             </div>
                         </td>
                     </tr>

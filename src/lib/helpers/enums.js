@@ -66,7 +66,8 @@ const agentType = {
     Routing: 'routing',
     Task: 'task',
     Static: 'static',
-    Evaluating: 'evaluating'
+    Evaluating: 'evaluating',
+    Planning: 'planning'
 };
 export const AgentType = Object.freeze(agentType);
 

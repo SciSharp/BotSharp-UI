@@ -77,7 +77,8 @@
             instruction: agent.instruction || '',
             channel_instructions: agent.channel_instructions || [],
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
-            utilities: agent.utilities || []
+            utilities: agent.utilities || [],
+            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
         };
         isLoading = true;
         saveAgent(agent).then(res => {
