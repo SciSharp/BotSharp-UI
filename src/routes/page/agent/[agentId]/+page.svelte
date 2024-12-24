@@ -19,6 +19,7 @@
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	import AgentUtility from './agent-utility.svelte';
+	import AgentKnowledgeBase from './agent-knowledge-base.svelte';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	
 	
@@ -30,6 +31,8 @@
     let agentPromptCmp = null;
     /** @type {any} */
     let agentUtilityCmp = null;
+    /** @type {any} */
+    let agentKnowledgeBaseCmp = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -70,6 +73,7 @@
         fetchJsonContent();
         fetchPrompts();
         fetchUtilties();
+        fetchKnowledgeBases();
 
         agent = {
             ...agent,
@@ -78,6 +82,7 @@
             channel_instructions: agent.channel_instructions || [],
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities || [],
+            knowledge_bases: agent.knowledge_bases || [],
             max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
         };
         isLoading = true;
@@ -119,6 +124,11 @@
     function fetchUtilties() {
         const list = agentUtilityCmp?.fetchUtilities();
         agent.utilities = list || [];
+    }
+
+    function fetchKnowledgeBases() {
+        const list = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
+        agent.knowledge_bases = list || [];
     }
 
     function refreshChannelPrompts() {
@@ -166,6 +176,9 @@
             </div>
             <div class="agent-detail-section">
                 <AgentUtility bind:this={agentUtilityCmp} agent={agent} />
+            </div>
+            <div class="agent-detail-section">
+                <AgentKnowledgeBase bind:this={agentKnowledgeBaseCmp} agent={agent} />
             </div>
         </Col>
         <Col class="section-min-width" style="flex: 65%;">
