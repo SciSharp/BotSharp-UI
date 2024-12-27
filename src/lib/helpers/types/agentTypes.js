@@ -52,6 +52,7 @@
  * @property {boolean} merge_utility - Merge utility
  * @property {number?} [max_message_count]
  * @property {AgentUtility[]} utilities - The agent utilities.
+ * @property {AgentKnowledgeBase[]} knowledge_bases - The agent knowledge bases.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {AgentLlmConfig} llm_config - LLM settings.
@@ -124,6 +125,12 @@
  * @property {boolean} disabled 
  * @property {UtilityBase[]} functions
  * @property {UtilityBase[]} templates
+ */
+
+/**
+ * @typedef {Object} AgentKnowledgeBase
+ * @property {string} name 
+ * @property {boolean} disabled 
  */
 
 /**
