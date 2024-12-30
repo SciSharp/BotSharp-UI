@@ -130,6 +130,8 @@
 /**
  * @typedef {Object} AgentKnowledgeBase
  * @property {string} name 
+ * @property {string} type
+ * @property {string?} [displayName]
  * @property {boolean} disabled 
  */
 

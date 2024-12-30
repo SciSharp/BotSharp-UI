@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
+	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
 
     const limit = 5;
 
@@ -12,28 +13,45 @@
         const candidates = innerKnowledgeBases?.filter(x => !!x.name)?.map(x => {
             return {
                 name: x.name,
+                type: x.type,
                 disabled: x.disabled
             };
         });
-        candidates.map(x => {
-            console.log(x.disabled);
-            console.log(x.name);
+
+        /** @type {import('$agentTypes').AgentKnowledgeBase[]} */
+        const knowledgeBases = [];
+        const unique = new Set();
+        candidates.forEach(x => {
+            if (!unique.has(x.name)) {
+                knowledgeBases.push(x);
+                unique.add(x.name);
+            }
         });
-        refresh(candidates);
-        return candidates;
+
+        refresh(knowledgeBases);
+        return knowledgeBases;
     }
 
-    /** @type {string[]} */
+    /** @type {any[]} */
     let knowledgeBaseOptions = [];
 
     /** @type {import('$agentTypes').AgentKnowledgeBase[]} */
     let innerKnowledgeBases = [];
 
     onMount(async () =>{
-        const type = 'question-answer';
-        getVectorKnowledgeCollections(type).then(data => {
-            const names = data || [];
-            knowledgeBaseOptions = ["", ...names];
+        getVectorKnowledgeCollections().then(data => {
+            const list = data?.map(x => {
+                return {
+                    name: x.name,
+                    type: x.type,
+                    displayName: getDisplayOption(x)
+                };
+            }) || [];
+            knowledgeBaseOptions = [{
+                name: "",
+                type: "",
+                displayName: ""
+            }, ...list];
         });
         init();
     });
@@ -42,10 +60,17 @@
         const list = agent.knowledge_bases?.map(x => {
             return {
                 ...x,
+                displayName: getDisplayOption(x),
                 disabled: false
             };
         }) || [];
         refresh(list);
+    }
+
+    /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
+    function getDisplayOption(b) {
+        return `${b.name} ${!!KnowledgeCollectionDisplayType[b.type]
+                   ? `(${KnowledgeCollectionDisplayType[b.type]})` : ''}`
     }
 
     /**
@@ -56,8 +81,9 @@
         const found = innerKnowledgeBases.find((_, index) => index === idx);
         if (!found) return;
         
-        const name = e.target.value;
-        found.name = name;
+        const vals = e.target.value.split("#");
+        found.name = vals[0];
+        found.type = vals[1];
         refresh(innerKnowledgeBases);
     }
 
@@ -66,6 +92,8 @@
             ...innerKnowledgeBases,
             {
                 name: '',
+                type: '',
+                displayName: '',
                 disabled: false
             }
         ];
@@ -94,6 +122,8 @@
         innerKnowledgeBases = list?.map(x => {
             return {
                 name: x.name,
+                type: x.type,
+                displayName: x.displayName,
                 disabled: x.disabled
             }
         }) || [];
@@ -135,12 +165,13 @@
                             <div class="utility-input line-align-center">
                                 <Input
                                     type="select"
-                                    value={knowledge.name}
                                     disabled={knowledge.disabled}
                                     on:change={e => changeKnowledgeBase(e, uid)}
                                 >
-                                    {#each [...knowledgeBaseOptions, "one.data-assistant"] as option}
-                                        <option value={option} selected={option == knowledge.name}>{option}</option>
+                                    {#each [...knowledgeBaseOptions] as option}
+                                        <option value={`${option.name}#${option.type}`} selected={option.name == knowledge.name}>
+                                            {option.displayName}
+                                        </option>
                                     {/each}
                                 </Input>
                             </div>

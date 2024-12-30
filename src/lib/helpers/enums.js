@@ -77,6 +77,12 @@ const knowledgeCollectionType = {
 };
 export const KnowledgeCollectionType = Object.freeze(knowledgeCollectionType);
 
+const knowledgeCollectionDisplayType =  {
+    [knowledgeCollectionType.QuestionAnswer]: "Q & A",
+    [knowledgeCollectionType.Document]: "Docs",
+};
+export const KnowledgeCollectionDisplayType = Object.freeze(knowledgeCollectionDisplayType);
+
 const knowledgePayloadName = {
     Text: 'text',
     Question: 'question',

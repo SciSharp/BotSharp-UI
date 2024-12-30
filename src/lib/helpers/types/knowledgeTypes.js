@@ -65,4 +65,24 @@
  * @property {number} count
  */
 
+/**
+ * @typedef {Object} VectorCollectionConfig
+ * @property {string} name
+ * @property {string} type
+ * @property {VectorStoreConfig} vector_store
+ * @property {KnowledgeEmbeddingConfig} text_embedding
+ */
+
+/**
+ * @typedef {Object} VectorStoreConfig
+ * @property {string} provider
+ */
+
+/**
+ * @typedef {Object} KnowledgeEmbeddingConfig
+ * @property {string} provider
+ * @property {string} model
+ * @property {number} dimension
+ */
+
 export default {};

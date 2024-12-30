@@ -17,10 +17,10 @@ export async function existVectorCollection(collection) {
 }
 
 /**
- * @param {string} type
- * @returns {Promise<string[]>}
+ * @param {string?} type
+ * @returns {Promise<import('$knowledgeTypes').VectorCollectionConfig[]>}
  */
-export async function getVectorKnowledgeCollections(type) {
+export async function getVectorKnowledgeCollections(type = null) {
     const url = endpoints.vectorCollectionsUrl;
     const response = await axios.get(url, {
         params: {

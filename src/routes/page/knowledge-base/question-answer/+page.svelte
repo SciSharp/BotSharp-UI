@@ -247,7 +247,7 @@
 	function getCollections() {
 		return new Promise((resolve, reject) => {
 			getVectorKnowledgeCollections(collectionType).then(res => {
-				const retCollections = res || [];
+				const retCollections = res?.map(x => x.name) || [];
 				collections = [ ...retCollections ];
 				selectedCollection = collections[0];
 				resolve(res);
