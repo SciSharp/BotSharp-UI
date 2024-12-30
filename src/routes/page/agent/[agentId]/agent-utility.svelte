@@ -342,7 +342,7 @@
                                                 on:change={e => selectContent(e, uid, fid, 'function')}
                                             >
                                                 {#each (utilityMapper[utility.name]?.functions || []) as option}
-                                                    <option value={`${option.name}#${option.dsiplayName}`} selected={option.name == fn.name}>{option.displayName}</option>
+                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == fn.name}>{option.displayName}</option>
                                                 {/each}
                                             </Input>
                                         </div>
@@ -391,7 +391,7 @@
                                                 on:change={e => selectContent(e, uid, tid, 'template')}
                                             >
                                                 {#each (utilityMapper[utility.name]?.templates || []) as option}
-                                                    <option value={`${option.name}#${option.dsiplayName}`} selected={option.name == tp.name}>{option.displayName}</option>
+                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == tp.name}>{option.displayName}</option>
                                                 {/each}
                                             </Input>
                                         </div>
