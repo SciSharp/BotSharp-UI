@@ -42,6 +42,7 @@
 	const pageSize = 8;
   	const duration = 2000;
 	const maxLength = 4096;
+	const step = 0.1;
     const numberRegex = "[0-9\.]+";
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.Document;
@@ -263,8 +264,24 @@
     /** @param {any} e */
     function changeConfidence(e) {
         const value = e.target.value;
-		confidence = value;
+		confidence = validateConfidenceNumber(value);
     }
+
+	/**
+	 * @param {string} type
+	 * @param {number} step
+	 */
+	 function stepChangeConfidence(type, step) {
+		let innerStep = step || 0;
+		if (type === 'plus') {
+			innerStep = Math.abs(innerStep);
+		} else if (type === 'minus') {
+			innerStep = -Math.abs(innerStep);
+		}
+
+		const newConfidence = Number(confidence) + innerStep;
+		confidence = validateConfidenceNumber(newConfidence?.toString());
+	}
 
 	// Knowledge list data
 	function getCollections() {
@@ -804,19 +821,34 @@
                             <div class="line-align-center input-text fw-bold">
                                 <span>{'Confidence:'}</span>
                             </div>
-                            <div class="line-align-center confidence-box">
-                                <Input
-                                    type="number"
-                                    class="text-center"
-									min={0}
-									max={1}
-									step={0.1}
-									disabled={textSearch}
-                                    bind:value={confidence}
-                                    on:keydown={(e) => validateConfidenceInput(e)}
-                                    on:blur={(e) => changeConfidence(e)}
-                                />
-                            </div>
+							<div style="display: flex;">
+								<div class="line-align-center confidence-box">
+									<Input
+										type="text"
+										class="text-center"
+										disabled={textSearch}
+										bind:value={confidence}
+										on:keydown={(e) => validateConfidenceInput(e)}
+										on:blur={(e) => changeConfidence(e)}
+									/>
+								</div>
+								<div class="step-btn-group">
+									<Button
+										class="btn btn-sm"
+										color="link"
+										on:click={() => stepChangeConfidence('plus', step)}
+									>
+										<i class="mdi mdi-chevron-up" />
+									</Button>
+									<Button
+										class="btn btn-sm"
+										color="link"
+										on:click={() => stepChangeConfidence('minus', step)}
+									>
+										<i class="mdi mdi-chevron-down" />
+									</Button>
+								</div>
+							</div>
                         </div>
 						<div class="search-input">
 							<div class="line-align-center input-text fw-bold">
