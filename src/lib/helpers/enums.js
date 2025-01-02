@@ -79,7 +79,7 @@ export const KnowledgeCollectionType = Object.freeze(knowledgeCollectionType);
 
 const knowledgeCollectionDisplayType =  {
     [knowledgeCollectionType.QuestionAnswer]: "Q & A",
-    [knowledgeCollectionType.Document]: "Docs",
+    [knowledgeCollectionType.Document]: "Documents",
 };
 export const KnowledgeCollectionDisplayType = Object.freeze(knowledgeCollectionDisplayType);
 
