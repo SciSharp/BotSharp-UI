@@ -6,6 +6,7 @@
     import { onMount, createEventDispatcher } from 'svelte';
 
     let includeRoutingAgent = true;
+    let includePlannerAgent = false;
     let includeTaskAgent = false;
     let includeStaticAgent = false;
 
@@ -54,6 +55,7 @@
     });    
 
     function renderRoutingFlow(){
+        agentNodes = [];
         editor.clear();
         let posX = 0;
         const nodeSpaceX = 300, nodeSpaceY = 120;
@@ -74,6 +76,7 @@
         posX += nodeSpaceX;
         let routerPosY = nodeSpaceY * (agents.length > 0 ? agents.length : 1) / (routers.length > 0 ? routers.length : 1);
         routers.forEach(router => {
+            /** @type {string[]} */
             let profiles = [];
             const planner = getPlannerName(router);
             const chatTestLinkHtml = router.is_public ? 
@@ -88,8 +91,9 @@
             const data = {
                 id: router.id,
                 agent: router.name,
-                profiles: profiles,
+                profiles: profiles || [],
                 type: router.type,
+                routing_rules: router.routing_rules || []
             };
 
             if (router.is_host) {
@@ -101,10 +105,37 @@
             routerPosY += nodeSpaceY + 50;
         });
 
+        const plannerAgents = agents.filter(x => x.type === 'planning');
+        const otherAgnets = agents.filter(x => x.type !== 'planning');
+
         posY = 100;
         posX += nodeSpaceX;
-        agents.forEach(agent => {       
+        plannerAgents.forEach(agent => {
+            let html = `<span class="h6">${agent.name}</span>`;
+
+            if (agent.profiles.length > 0) {
+                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + agent.profiles.join(', ');
+            }
+
+            const data = {
+                id: agent.id,
+                agent: agent.name
+            };
+            let nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
+
+            const routers = agentNodes.filter(x => x.type === 'routing' && x.profiles?.includes('planning') && getPlannerName(x) === agent.name);
+            routers.forEach(r => {
+                editor.addConnection(r.nid, nid, `output_1`, `input_1`);
+            });
+            
+            posY += nodeSpaceY;
+        });
+
+        posY = 100;
+        posX += nodeSpaceX;
+        otherAgnets.forEach(agent => {       
             let profiles = [];
+
             const chatTestLinkHtml = agent.is_public ? 
                 `<a href= "chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>` :
                 '';
@@ -132,10 +163,11 @@
             // connect by profile
             if (profiles.length > 0) {
                 // match profile
-                profiles.forEach(profile => {
-                    agentNodes.filter(ag => ag.type == "routing")
-                    .forEach(r => {
-                        if (r.profiles.find((p) => p == profile)) {
+                profiles.forEach((/** @type {string} */ profile) => {
+                    if (profile == 'planning') return;
+
+                    agentNodes.filter(ag => ag.type == "routing").forEach(r => {
+                        if (r.profiles.find((/** @type {string} */ p) => p == profile)) {
                             editor.addConnection(r.nid, nid, `output_1`, `input_1`);
                         } else {
                             // editor.removeNodeInput(nid, "input_2");
@@ -143,7 +175,6 @@
                         }
                     });
                 });
-                
             } else {
                 // profile is empty
                 /*agentNodes.filter(ag => ag.type == "routing" && ag.profiles.length == 0)
@@ -177,14 +208,21 @@
     
     /** @param {import('$agentTypes').AgentModel} router */
     function getPlannerName(router) {
-        const planner = router.routing_rules.find(p => p.type == "planner");
-        return planner?.field ?? "NaviePlanner";
+        const planner = router.routing_rules?.find(p => p.type == "planner");
+        return !!planner ? planner.field ?? "NaviePlanner" : null;
+    }
+
+    async function handlePlannerAgentSelected() {
+        includePlannerAgent = !includePlannerAgent;
+        filter.type = getAgentTypes();
+        const response = await getAgents(filter);
+        agents = response?.items || [];
+        renderRoutingFlow();
     }
 
     async function handleTaskAgentSelected() {
         includeTaskAgent = !includeTaskAgent;
-        filter.type = includeTaskAgent ? "task" : "none";
-        filter.type += includeStaticAgent ? ",static" : ",none";
+        filter.type = getAgentTypes();
         const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
@@ -192,11 +230,24 @@
 
     async function handleStaticAgentSelected() {
         includeStaticAgent = !includeStaticAgent;
-        filter.type = includeTaskAgent ? "task" : "none";
-        filter.type += includeStaticAgent ? ",static" : ",none";
+        filter.type = getAgentTypes();
         const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
+    }
+
+    function getAgentTypes() {
+        let types = ['none'];
+        if (includePlannerAgent) {
+            types.push('planning');
+        }
+        if (includeTaskAgent) {
+            types.push('task');
+        }
+        if (includeStaticAgent) {
+            types.push('static')
+        }
+        return types.join(',');
     }
 
 </script>
@@ -205,12 +256,14 @@
     <input type="checkbox" class="btn-check active" id="btncheck1" autocomplete="off"/>
     <label class={`btn btn-${includeRoutingAgent ? "" : "outline-"}primary`} for="btncheck1">Routing Agent</label>
 
-    <input type="checkbox" class="btn-check" id="btncheck2" autocomplete="off" on:click={handleTaskAgentSelected} />
-    <label class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`} for="btncheck2">Task Agent</label>
+    <input type="checkbox" class="btn-check active" id="btncheck2" autocomplete="off" on:click={() => handlePlannerAgentSelected()}/>
+    <label class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`} for="btncheck2">Planner Agent</label>
 
-    <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" on:click={handleStaticAgentSelected} />
-    <label class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`} for="btncheck3">Static Agent</label>
+    <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" on:click={() => handleTaskAgentSelected()} />
+    <label class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`} for="btncheck3">Task Agent</label>
+
+    <input type="checkbox" class="btn-check" id="btncheck4" autocomplete="off" on:click={() => handleStaticAgentSelected()} />
+    <label class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`} for="btncheck4">Static Agent</label>
 </div>
 
-<div id="drawflow" style="height: 72vh; width: 100%">
-</div>
+<div id="drawflow" style="height: 72vh; width: 100%"></div>

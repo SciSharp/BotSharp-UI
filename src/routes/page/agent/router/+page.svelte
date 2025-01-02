@@ -55,7 +55,8 @@
 {#if routers}
 <Row>
   <Col>
-    <RoutingFlow routers={routers} 
+    <RoutingFlow
+      routers={routers} 
       on:userNodeSelected={(e) => handleUserNodeSelected()}
       on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
       on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>
