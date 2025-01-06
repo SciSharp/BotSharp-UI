@@ -107,7 +107,7 @@
 
         <div class="mb-3 row">
             <label for="example-text-input" class="col-md-3 col-form-label">
-                Maximum recursive depth
+                Max recursive depth
             </label>
             <div class="col-md-9">
                 <Input

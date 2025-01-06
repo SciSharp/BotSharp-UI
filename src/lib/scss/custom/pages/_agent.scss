@@ -15,7 +15,7 @@
 }
 
 .agent-prop-list-container {
-    width: 85%;
+    width: 95%;
     max-width: 100%;
 
     .edit-wrapper {
@@ -51,9 +51,26 @@
     }
 }
 
+.vertical-flexible {
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
 .agent-detail-sections {
+    .card {
+        margin-bottom: 0px !important;
+    }
+
     .section-min-width {
         min-width: 300px;
+    }
+
+    .agent-col {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        margin-bottom: 10px;
     }
 
     .agent-detail-section {

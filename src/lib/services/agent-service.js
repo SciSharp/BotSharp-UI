@@ -83,11 +83,21 @@ export async function createAgent(agent) {
 }
 
 /**
- * Get agent utilities
+ * Get agent utility options
  * @returns {Promise<import('$agentTypes').AgentUtility[]>}
  */
 export async function getAgentUtilityOptions() {
     const url = endpoints.agentUtilityOptionsUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * Get agent event rule options
+ * @returns {Promise<import('$agentTypes').AgentEventRule[]>}
+ */
+export async function getAgentEventRuleOptions() {
+    const url = endpoints.agentEventRuleOptionsUrl;
     const response = await axios.get(url);
     return response.data;
 }
