@@ -14,7 +14,7 @@
             return {
                 name: x.name,
                 event_name: x.event_name?.trim(),
-                event_type: x.event_type?.trim(),
+                entity_type: x.entity_type?.trim(),
                 disabled: x.disabled
             };
         });
@@ -85,7 +85,7 @@
             {
                 name: '',
                 event_name: '',
-                event_type: '',
+                entity_type: '',
                 displayName: '',
                 disabled: false
             }
@@ -121,8 +121,8 @@
         const val = e.target.value;
         if (field === 'event_name') {
             found.event_name = val;
-        } else if (field === 'event_type') {
-            found.event_type = val;
+        } else if (field === 'entity_type') {
+            found.entity_type = val;
         }
         refresh(innerRules);
     }
@@ -134,7 +134,7 @@
             return {
                 name: x.name,
                 event_name: x.event_name,
-                event_type: x.event_type,
+                entity_type: x.entity_type,
                 displayName: x.displayName,
                 disabled: x.disabled
             }
@@ -222,7 +222,7 @@
                         <div class="utility-content">
                             <div class="utility-list-item">
                                 <div class="utility-label line-align-center">
-                                    {'Event Type'}
+                                    {'Entity Type'}
                                 </div>
                                 <div class="utility-value">
                                     <div class="utility-input line-align-center">
@@ -230,8 +230,8 @@
                                             type="text"
                                             disabled={rule.disabled}
                                             maxlength={textLimit}
-                                            value={rule.event_type}
-                                            on:input={e => changeContent(e, uid, 'event_type')}
+                                            value={rule.entity_type}
+                                            on:input={e => changeContent(e, uid, 'entity_type')}
                                         />
                                     </div>
                                     <div class="utility-delete line-align-center"></div>
