@@ -7,19 +7,16 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import AgentPrompt from './agent-prompt.svelte';
-	import AgentOverview from './agent-overview.svelte';
-    import AgentRouting from './agent-routing.svelte';
-    import AgentFunction from './agent-function.svelte';
-    import AgentLlmConfig from './agent-llm-config.svelte';
+	import AgentPrompt from './agent-components/agent-prompt.svelte';
+	import AgentOverview from './agent-components/agent-overview.svelte';
+    import AgentFunction from './agent-components/agent-function.svelte';
+    import AgentTabs from './agent-tabs.svelte';
     import { page } from '$app/stores';
     import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
-	import AgentUtility from './agent-utility.svelte';
-	import AgentKnowledgeBase from './agent-knowledge-base.svelte';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	
 	
@@ -30,9 +27,7 @@
     /** @type {any} */
     let agentPromptCmp = null;
     /** @type {any} */
-    let agentUtilityCmp = null;
-    /** @type {any} */
-    let agentKnowledgeBaseCmp = null;
+    let agentTabsCmp = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -72,8 +67,7 @@
     function handleAgentUpdate() {
         fetchJsonContent();
         fetchPrompts();
-        fetchUtilties();
-        fetchKnowledgeBases();
+        fetchTabData();
 
         agent = {
             ...agent,
@@ -83,6 +77,7 @@
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
+            event_rules: agent.event_rules || [],
             max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
         };
         isLoading = true;
@@ -121,14 +116,13 @@
         agent.channel_instructions = obj.channelPrompts || [];
     }
 
-    function fetchUtilties() {
-        const list = agentUtilityCmp?.fetchUtilities();
-        agent.utilities = list || [];
-    }
-
-    function fetchKnowledgeBases() {
-        const list = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
-        agent.knowledge_bases = list || [];
+    function fetchTabData() {
+        const data = agentTabsCmp?.fetchData();
+        if (data) {
+            agent.utilities = data.utilities || [];
+            agent.knowledge_bases = data.knwoledgebases || [];
+            agent.event_rules = data.eventRules || [];
+        }
     }
 
     function refreshChannelPrompts() {
@@ -163,25 +157,17 @@
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
 
 {#if agent}
+<div>
     <Row class="agent-detail-sections">
-        <Col class="section-min-width agent-overview" style="flex: 35%;">
+        <Col class="section-min-width agent-col" style="flex: 40%;">
             <div class="agent-detail-section">
                 <AgentOverview agent={agent} profiles={agent.profiles || []} />
             </div>
             <div class="agent-detail-section">
-                <AgentLlmConfig agent={agent} />
-                {#if agent.routing_rules?.length > 0}
-                    <AgentRouting agent={agent} />
-                {/if}
-            </div>
-            <div class="agent-detail-section">
-                <AgentUtility bind:this={agentUtilityCmp} agent={agent} />
-            </div>
-            <div class="agent-detail-section">
-                <AgentKnowledgeBase bind:this={agentKnowledgeBaseCmp} agent={agent} />
+                <AgentTabs bind:this={agentTabsCmp} agent={agent} />
             </div>
         </Col>
-        <Col class="section-min-width" style="flex: 65%;">
+        <Col class="section-min-width agent-col" style="flex: 60%;">
             <div class="agent-detail-section">
                 <AgentPrompt bind:this={agentPromptCmp} agent={agent} />
             </div>
@@ -199,4 +185,5 @@
             </div>
         </Row>
     {/if}
+</div>
 {/if}

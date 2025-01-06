@@ -106,7 +106,7 @@
                     <tr>
                         <th class="agent-prop-key">Profiles</th>
                         <td>
-                            <div class="agent-prop-list-container">
+                            <div class="agent-prop-list-container vertical-flexible">
                                 {#each profiles as profile, index}
                                 <div class="edit-wrapper">
                                     <input

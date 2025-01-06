@@ -155,7 +155,7 @@
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Uncheck to disable utility"
+                                    title="Uncheck to disable knowledgebase"
                                 >
                                     <i class="bx bx-info-circle" />
                                 </div>
@@ -170,7 +170,7 @@
                                 >
                                     {#each [...knowledgeBaseOptions] as option}
                                         <option value={`${option.name}#${option.type}`} selected={option.name == knowledge.name}>
-                                            {option.displayName}
+                                            {option.displayName || option.name}
                                         </option>
                                     {/each}
                                 </Input>

@@ -179,8 +179,8 @@
                 type="textarea"
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
-                rows={24}
                 value={selected_instruction.instruction}
+                rows={24}
                 on:input={(e) => changePrompt(e)}
                 placeholder="Enter your instruction"
             />

@@ -391,7 +391,9 @@
                                                 on:change={e => selectContent(e, uid, tid, 'template')}
                                             >
                                                 {#each (utilityMapper[utility.name]?.templates || []) as option}
-                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == tp.name}>{option.displayName}</option>
+                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == tp.name}>
+                                                        {option.displayName || option.name}
+                                                    </option>
                                                 {/each}
                                             </Input>
                                         </div>
