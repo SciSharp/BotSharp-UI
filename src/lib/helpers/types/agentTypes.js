@@ -140,7 +140,7 @@
  * @typedef {Object} AgentEventRule
  * @property {string} name 
  * @property {string} event_name
- * @property {string} event_type
+ * @property {string} entity_type
  * @property {string?} [displayName]
  * @property {boolean} disabled
  */
