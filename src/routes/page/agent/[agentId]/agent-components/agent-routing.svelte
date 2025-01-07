@@ -10,7 +10,7 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">Routing Rules</h5>
+            <h5 class="mt-1 mb-3">Routing</h5>
         </div>
 
         {#each agent.routing_rules as rule, idx (idx)}

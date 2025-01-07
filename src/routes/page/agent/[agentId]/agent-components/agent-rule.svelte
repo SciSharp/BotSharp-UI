@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-	import { getAgentEventRuleOptions } from '$lib/services/agent-service';
+	import { getAgentRuleOptions } from '$lib/services/agent-service';
 
     const limit = 5;
     const textLimit = 50;
@@ -9,7 +9,7 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
-    export const fetchEventRules = () => {
+    export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.name)?.map(x => {
             return {
                 name: x.name,
@@ -19,7 +19,7 @@
             };
         });
 
-        /** @type {import('$agentTypes').AgentEventRule[]} */
+        /** @type {import('$agentTypes').AgentRule[]} */
         const rules = [];
         const unique = new Set();
         candidates.forEach(x => {
@@ -36,11 +36,11 @@
     /** @type {any[]} */
     let ruleOptions = [];
 
-    /** @type {import('$agentTypes').AgentEventRule[]} */
+    /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
 
     onMount(async () =>{
-        getAgentEventRuleOptions().then(data => {
+        getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
                 return {
                     name: x.name,
@@ -56,7 +56,7 @@
     });
 
     function init() {
-        const list = agent.event_rules?.map(x => {
+        const list = agent.rules?.map(x => {
             return {
                 ...x,
                 displayName: "",
@@ -128,7 +128,7 @@
     }
 
 
-    /** @param {import('$agentTypes').AgentEventRule[]} list */
+    /** @param {import('$agentTypes').AgentRule[]} list */
     function refresh(list) {
         innerRules = list?.map(x => {
             return {
@@ -146,7 +146,7 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">Event Rules</h5>
+            <h5 class="mt-1 mb-3">Rules</h5>
         </div>
 
         <div class="agent-utility-container">
@@ -154,7 +154,7 @@
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
                         <div class="utility-label fw-bold">
-                            <div class="line-align-center">{`Collection #${uid + 1}`}</div>
+                            <div class="line-align-center">{`Rule #${uid + 1}`}</div>
                             <div class="utility-tooltip">
                                 <div class="line-align-center">
                                     <Input
@@ -247,7 +247,7 @@
                     <Button color="primary" on:click={() => addRule()}>
                         <span>
                             <i class="bx bx-plus" />
-                            <span>Add Event Rule</span>
+                            <span>Add Rule</span>
                         </span>
                     </Button>
                 </div>
