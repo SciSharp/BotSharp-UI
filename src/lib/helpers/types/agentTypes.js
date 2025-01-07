@@ -61,7 +61,7 @@
  * @property {AgentTemplate[]} templates
  * @property {Object[]} responses
  * @property {RoutingRule[]} routing_rules
- * @property {AgentEventRule[]} event_rules
+ * @property {AgentRule[]} rules
  * @property {AgentWelcomeInfo} welcome_info - Welcome information.
  * @property {string[]?} [actions]
  */
@@ -137,7 +137,7 @@
  */
 
 /**
- * @typedef {Object} AgentEventRule
+ * @typedef {Object} AgentRule
  * @property {string} name 
  * @property {string} event_name
  * @property {string} entity_type

@@ -93,11 +93,11 @@ export async function getAgentUtilityOptions() {
 }
 
 /**
- * Get agent event rule options
- * @returns {Promise<import('$agentTypes').AgentEventRule[]>}
+ * Get agent rule options
+ * @returns {Promise<import('$agentTypes').AgentRule[]>}
  */
-export async function getAgentEventRuleOptions() {
-    const url = endpoints.agentEventRuleOptionsUrl;
+export async function getAgentRuleOptions() {
+    const url = endpoints.agentRuleOptionsUrl;
     const response = await axios.get(url);
     return response.data;
 }

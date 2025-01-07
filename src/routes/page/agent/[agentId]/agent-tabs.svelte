@@ -7,7 +7,7 @@
 	import AgentUtility from './agent-components/agent-utility.svelte';
 	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
-	import AgentEventRule from './agent-components/agent-event-rule.svelte';
+	import AgentEventRule from './agent-components/agent-rule.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -15,12 +15,12 @@
     export const fetchData = () => {
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
-        const eventRules = agentEventRuleCmp?.fetchEventRules();
+        const rules = agentEventRuleCmp?.fetchRules();
 
         return {
             utilities: utilities || [],
             knwoledgebases: knwoledgebases || [],
-            eventRules: eventRules || []
+            rules: rules || []
         };
     };
 
@@ -37,10 +37,10 @@
     /** @type {any[]}*/
     let tabs = [
         { name: 'agent-llm-config', displayText: 'LLm Config' },
-        { name: 'agent-routing-rule', displayText: 'Routing Rules' },
+        { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
-        { name: 'agent-knowledgebase', displayText: 'Knowledge Bases' },
-        { name: 'agent-event-rule', displayText: 'Event Rules' }
+        { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
+        { name: 'agent-event-rule', displayText: 'Rules' }
     ];
 
     onMount(() => {

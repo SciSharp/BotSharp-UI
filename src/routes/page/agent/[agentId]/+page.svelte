@@ -77,7 +77,7 @@
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
-            event_rules: agent.event_rules || [],
+            rules: agent.rules || [],
             max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
         };
         isLoading = true;
@@ -121,7 +121,7 @@
         if (data) {
             agent.utilities = data.utilities || [];
             agent.knowledge_bases = data.knwoledgebases || [];
-            agent.event_rules = data.eventRules || [];
+            agent.rules = data.rules || [];
         }
     }
 
