@@ -138,7 +138,7 @@
 
 /**
  * @typedef {Object} AgentRule
- * @property {string} name 
+ * @property {string} trigger_name 
  * @property {string} event_name
  * @property {string} entity_type
  * @property {string?} [displayName]
