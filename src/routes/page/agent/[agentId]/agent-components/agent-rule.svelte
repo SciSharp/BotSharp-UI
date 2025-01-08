@@ -15,7 +15,8 @@
                 trigger_name: x.trigger_name,
                 event_name: x.event_name?.trim(),
                 entity_type: x.entity_type?.trim(),
-                disabled: x.disabled
+                disabled: x.disabled,
+                criteria: x.criteria
             };
         });
 
@@ -43,12 +44,12 @@
         getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
                 return {
-                    trigger_name: x.trigger_name,
+                    name: x.trigger_name,
                     displayName: ""
                 };
             }) || [];
             ruleOptions = [{
-                trigger_name: "",
+                name: "",
                 displayName: ""
             }, ...list];
         });
@@ -87,7 +88,8 @@
                 event_name: '',
                 entity_type: '',
                 displayName: '',
-                disabled: false
+                disabled: false,
+                criteria: ''
             }
         ];
     }
@@ -123,6 +125,8 @@
             found.event_name = val;
         } else if (field === 'entity_type') {
             found.entity_type = val;
+        } else if (field === 'criteria') {
+            found.criteria = val;
         }
         refresh(innerRules);
     }
@@ -136,7 +140,8 @@
                 event_name: x.event_name,
                 entity_type: x.entity_type,
                 displayName: x.displayName,
-                disabled: x.disabled
+                disabled: x.disabled,
+                criteria: x.criteria
             }
         }) || [];
     }
@@ -181,8 +186,8 @@
                                     on:change={e => changeRule(e, uid)}
                                 >
                                     {#each [...ruleOptions] as option}
-                                        <option value={option.trigger_name} selected={option.trigger_name == rule.trigger_name}>
-                                            {option.displayName || option.trigger_name}
+                                        <option value={option.name} selected={option.name == rule.trigger_name}>
+                                            {option.displayName || option.name}
                                         </option>
                                     {/each}
                                 </Input>
@@ -232,6 +237,25 @@
                                             maxlength={textLimit}
                                             value={rule.entity_type}
                                             on:input={e => changeContent(e, uid, 'entity_type')}
+                                        />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    {'Criteria'}
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="text"
+                                            disabled={rule.disabled}
+                                            maxlength={textLimit}
+                                            value={rule.criteria}
+                                            on:input={e => changeContent(e, uid, 'criteria')}
                                         />
                                     </div>
                                     <div class="utility-delete line-align-center"></div>
