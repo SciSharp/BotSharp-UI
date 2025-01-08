@@ -134,7 +134,7 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">Knowledge Bases</h5>
+            <h5 class="mt-1 mb-3">Knowledge Base</h5>
         </div>
 
         <div class="agent-utility-container">
