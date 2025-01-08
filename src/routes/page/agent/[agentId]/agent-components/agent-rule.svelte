@@ -10,9 +10,9 @@
     export let agent;
 
     export const fetchRules = () => {
-        const candidates = innerRules?.filter(x => !!x.name)?.map(x => {
+        const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
             return {
-                name: x.name,
+                trigger_name: x.trigger_name,
                 event_name: x.event_name?.trim(),
                 entity_type: x.entity_type?.trim(),
                 disabled: x.disabled
@@ -23,9 +23,9 @@
         const rules = [];
         const unique = new Set();
         candidates.forEach(x => {
-            if (!unique.has(x.name)) {
+            if (!unique.has(x.trigger_name)) {
                 rules.push(x);
-                unique.add(x.name);
+                unique.add(x.trigger_name);
             }
         });
 
@@ -43,12 +43,12 @@
         getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
                 return {
-                    name: x.name,
+                    trigger_name: x.trigger_name,
                     displayName: ""
                 };
             }) || [];
             ruleOptions = [{
-                name: "",
+                trigger_name: "",
                 displayName: ""
             }, ...list];
         });
@@ -75,7 +75,7 @@
         if (!found) return;
         
         const val = e.target.value;
-        found.name = val;
+        found.trigger_name = val;
         refresh(innerRules);
     }
 
@@ -83,7 +83,7 @@
         innerRules = [
             ...innerRules,
             {
-                name: '',
+                trigger_name: '',
                 event_name: '',
                 entity_type: '',
                 displayName: '',
@@ -132,7 +132,7 @@
     function refresh(list) {
         innerRules = list?.map(x => {
             return {
-                name: x.name,
+                trigger_name: x.trigger_name,
                 event_name: x.event_name,
                 entity_type: x.entity_type,
                 displayName: x.displayName,
@@ -181,8 +181,8 @@
                                     on:change={e => changeRule(e, uid)}
                                 >
                                     {#each [...ruleOptions] as option}
-                                        <option value={option.name} selected={option.name == rule.name}>
-                                            {option.displayName || option.name}
+                                        <option value={option.trigger_name} selected={option.trigger_name == rule.trigger_name}>
+                                            {option.displayName || option.trigger_name}
                                         </option>
                                     {/each}
                                 </Input>
