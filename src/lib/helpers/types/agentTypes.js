@@ -143,6 +143,7 @@
  * @property {string} entity_type
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {string} criteria
  */
 
 /**
