@@ -139,11 +139,9 @@
 /**
  * @typedef {Object} AgentRule
  * @property {string} trigger_name 
- * @property {string} event_name
- * @property {string} entity_type
+ * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
- * @property {string} criteria
  */
 
 /**

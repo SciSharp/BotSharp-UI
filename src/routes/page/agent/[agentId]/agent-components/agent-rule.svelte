@@ -4,7 +4,7 @@
 	import { getAgentRuleOptions } from '$lib/services/agent-service';
 
     const limit = 5;
-    const textLimit = 50;
+    const textLimit = 100;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -13,10 +13,8 @@
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
             return {
                 trigger_name: x.trigger_name,
-                event_name: x.event_name?.trim(),
-                entity_type: x.entity_type?.trim(),
                 disabled: x.disabled,
-                criteria: x.criteria
+                criteria: x.criteria?.trim()
             };
         });
 
@@ -85,11 +83,9 @@
             ...innerRules,
             {
                 trigger_name: '',
-                event_name: '',
-                entity_type: '',
+                criteria: '',
                 displayName: '',
-                disabled: false,
-                criteria: ''
+                disabled: false
             }
         ];
     }
@@ -121,11 +117,7 @@
         if (!found) return;
 
         const val = e.target.value;
-        if (field === 'event_name') {
-            found.event_name = val;
-        } else if (field === 'entity_type') {
-            found.entity_type = val;
-        } else if (field === 'criteria') {
+        if (field === 'criteria') {
             found.criteria = val;
         }
         refresh(innerRules);
@@ -137,11 +129,9 @@
         innerRules = list?.map(x => {
             return {
                 trigger_name: x.trigger_name,
-                event_name: x.event_name,
-                entity_type: x.entity_type,
+                criteria: x.criteria,
                 displayName: x.displayName,
-                disabled: x.disabled,
-                criteria: x.criteria
+                disabled: x.disabled
             }
         }) || [];
     }
@@ -205,44 +195,6 @@
                     </div>
 
                     <div class="utility-row utility-row-secondary">
-                        <div class="utility-content">
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    {'Event Name'}
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="text"
-                                            disabled={rule.disabled}
-                                            maxlength={textLimit}
-                                            value={rule.event_name}
-                                            on:input={e => changeContent(e, uid, 'event_name')}
-                                        />
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="utility-content">
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    {'Entity Type'}
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="text"
-                                            disabled={rule.disabled}
-                                            maxlength={textLimit}
-                                            value={rule.entity_type}
-                                            on:input={e => changeContent(e, uid, 'entity_type')}
-                                        />
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                        </div>
                         <div class="utility-content">
                             <div class="utility-list-item">
                                 <div class="utility-label line-align-center">
