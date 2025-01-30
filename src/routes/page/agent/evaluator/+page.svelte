@@ -16,7 +16,7 @@
 	/** @type {import('$agentTypes').AgentFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 },
-    	type: "evaluating"
+    	types: ["evaluating"]
 	};
 
   	/** @type {import('$agentTypes').AgentFilter} */

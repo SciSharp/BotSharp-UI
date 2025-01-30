@@ -21,6 +21,9 @@
     export let placeholder = '';
 
     /** @type {string} */
+    export let selectedText = '';
+
+    /** @type {string} */
     export let containerClasses = "";
 
     /** @type {string} */
@@ -153,9 +156,9 @@
         if (count === 0) {
             displayText = '';
         } else if (count === options.length) {
-            displayText = `All selected (${count})`;
+            displayText = `All selected ${selectedText} (${count})`;
         } else {
-            displayText = `Selected (${count})`;
+            displayText = `Selected ${selectedText} (${count})`;
         }
 
         verifySelectAll();

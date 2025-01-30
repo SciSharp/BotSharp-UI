@@ -71,6 +71,16 @@ const agentType = {
 };
 export const AgentType = Object.freeze(agentType);
 
+const agentTaskStatus = {
+    Scheduled: 'scheduled',
+    New: 'new',
+    Running: 'running',
+    Success: 'success',
+    Failed: 'failed'
+};
+export const AgentTaskStatus = Object.freeze(agentTaskStatus);
+
+
 const knowledgeCollectionType = {
     QuestionAnswer: 'question-answer',
     Document: 'document'

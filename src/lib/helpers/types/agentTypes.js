@@ -27,12 +27,12 @@
 /** 
  * @typedef {Object} AgentFilter
  * @property {import('$commonTypes').Pagination} pager - Pagination
- * @property {string} [type]
- * @property {string} [agentName]
+ * @property {string[]?} [types]
+ * @property {string[]?} [agentNames]
  * @property {string} [similarName]
  * @property {boolean} [isPublic]
  * @property {boolean} [disabled]
- * @property {string[]} [agentIds]
+ * @property {string[]?} [agentIds]
  */
 
 /**
@@ -46,9 +46,11 @@
  * @property {boolean} disabled
  * @property {boolean} is_public
  * @property {boolean} is_host
+ * @property {boolean} is_router
  * @property {boolean} allow_routing
  * @property {string} icon_url - Icon
  * @property {string[]} profiles - The agent profiles.
+ * @property {string[]} labels - The agent labels.
  * @property {boolean} merge_utility - Merge utility
  * @property {number?} [max_message_count]
  * @property {AgentUtility[]} utilities - The agent utilities.
@@ -78,6 +80,7 @@
  * @typedef {Object} AgentTaskFilter
  * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string} [agentId] - The agent id.
+ * @property {string?} [status] - The agent task status.
  */
 
 /**
@@ -87,6 +90,7 @@
  * @property {string} description - Description.
  * @property {string} content - Task detail.
  * @property {boolean} enabled
+ * @property {string} status
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
  * @property {string} agent_id - Description.
@@ -149,5 +153,13 @@
  * @property {string} name
  * @property {string?} [displayName]
  */
+
+
+/**
+ * @typedef {Object} AgentTaskSearchOption
+ * @property {string?} [agentId]
+ * @property {string?} [status]
+ */
+
 
 export default {};

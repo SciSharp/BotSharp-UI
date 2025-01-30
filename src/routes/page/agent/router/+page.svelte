@@ -1,29 +1,39 @@
 <script>
+  import { onMount } from 'svelte';
+  import { _ } from 'svelte-i18n';
+  import { page } from '$app/stores';
   import { Col, Row } from '@sveltestrap/sveltestrap';
   import Breadcrumb from '$lib/common/Breadcrumb.svelte';
   import HeadTitle from '$lib/common/HeadTitle.svelte';
   import { getAgents } from '$lib/services/agent-service.js';
   import RoutingFlow from './routing-flow.svelte'
-  import { onMount } from 'svelte';
-  import { _ } from 'svelte-i18n'
+
+  const params = $page.url.searchParams;
 
   /** @type {import('$agentTypes').AgentModel[]} */
   let routers;
   let isRouterNodeSelected = false;
   let isAgentNodeSelected = false;
 
+  /** @type {string?} */
+  let targetAgentId = '';
+
   /** @type {import('$agentTypes').AgentFilter} */
 	const filter = {
 		pager: { page: 1, size: 10, count: 0 },
     disabled: false,
-		type: "routing"
+		types: ["routing"]
 	};
 
   onMount(async () => {
+    targetAgentId = params.get('agent_id');
     await getRouter();
   });
 
   async function getRouter() {
+    // if (!!targetAgentId) {
+    //   filter.agentIds = [targetAgentId];
+    // }
     const response = await getAgents(filter);
     if (response.items?.length > 0) {
       routers = response.items;
@@ -45,7 +55,6 @@
   function handleAgentNodeSelected(agent) {
     isRouterNodeSelected = false;
     isAgentNodeSelected = true;
-    console.log(agent);
   }
 </script>
 
@@ -56,7 +65,8 @@
 <Row>
   <Col>
     <RoutingFlow
-      routers={routers} 
+      routers={routers}
+      targetAgentId={targetAgentId}
       on:userNodeSelected={(e) => handleUserNodeSelected()}
       on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
       on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>

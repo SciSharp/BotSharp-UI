@@ -75,6 +75,7 @@
             instruction: agent.instruction || '',
             channel_instructions: agent.channel_instructions || [],
             profiles: agent.profiles?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
+            labels: agent.labels?.filter((x, idx, self) => x?.trim()?.length > 0 && self.indexOf(x) === idx) || [],
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
             rules: agent.rules || [],
@@ -161,7 +162,7 @@
     <Row class="agent-detail-sections">
         <Col class="section-min-width agent-col" style="flex: 40%;">
             <div class="agent-detail-section">
-                <AgentOverview agent={agent} profiles={agent.profiles || []} />
+                <AgentOverview agent={agent} profiles={agent.profiles || []} labels={agent.labels || []} />
             </div>
             <div class="agent-detail-section">
                 <AgentTabs bind:this={agentTabsCmp} agent={agent} />

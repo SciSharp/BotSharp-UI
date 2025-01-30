@@ -70,8 +70,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	
-	
+
 	
 	const options = {
 		scrollbars: {
@@ -1651,7 +1650,7 @@
 												<div class="msg-container">
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														<div style="display: flex; gap: 10px; flex-wrap: wrap;">
+														<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id} 

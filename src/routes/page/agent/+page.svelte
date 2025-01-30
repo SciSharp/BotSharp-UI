@@ -11,9 +11,10 @@
 	import { _ } from 'svelte-i18n'
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
-	import { GlobalEvent, UserPermission } from '$lib/helpers/enums';
+	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
+	import MultiSelect from '$lib/common/MultiSelect.svelte';
 	
 	
   	const firstPage = 1;
@@ -42,6 +43,13 @@
 	/** @type {any} */
 	let unsubscriber;
 
+	let agentTypeOptions = Object.entries(AgentType).map(([k, v]) => (
+		{ key: k, value: v }
+	));
+
+	/** @type {string[]} */
+	let selectedAgentTypes = [];
+
 	onMount(async () => {
 		user = await myInfo();
 		getPagedAgents();
@@ -50,7 +58,8 @@
 			if (event.name !== GlobalEvent.Search) return;
 
 			filter = {
-				pager: { page: firstPage, size: pageSize, count: 0 },
+				pager: initFilter.pager,
+				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
 				similarName: event.payload || null
 			};
 			getPagedAgents();
@@ -138,17 +147,62 @@
 
 		getPagedAgents();
 	}
+
+	
+	/**
+	 * @param {any} e
+	 */
+	function selectAgentTypeOption(e) {
+		// @ts-ignore
+		selectedAgentTypes = e.detail.selecteds?.map(x => x.value) || [];
+	}
+
+	function searchAgents() {
+		filter = {
+			...filter,
+			types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
+			pager: initFilter.pager
+		};
+		getPagedAgents();
+	}
 </script>
 
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
 <LoadingToComplete isLoading={isLoading} />
 
-{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
-<Button class="mb-4" color="primary" on:click={() => createNewAgent()}>
-	<i class="bx bx-copy" /> {$_('New Agent')}
-</Button>
-{/if}
+<div class="agents-header-container mb-4">
+	<div>
+		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
+		<Button color="primary" on:click={() => createNewAgent()}>
+			<i class="bx bx-copy" /> {$_('New Agent')}
+		</Button>
+		{/if}
+	</div>
+	<div class="agent-filter">
+		<MultiSelect
+			tag={'agent-label-select'}
+			placeholder={'Select agent labels'}
+			selectedText={'labels'}
+			options={[]}
+			on:select={e => {}}
+		/>
+		<MultiSelect
+			tag={'agent-type-select'}
+			placeholder={'Select agent types'}
+			selectedText={'types'}
+			options={agentTypeOptions}
+			on:select={e => selectAgentTypeOption(e)}
+		/>
+		<Button
+			class="btn btn-light"
+			on:click={(e) => searchAgents()}
+		>
+			<i class="mdi mdi-magnify" />
+		</Button>
+	</div>
+</div>
+
 
 <Row>
 	<CardAgent agents={agents.items} />

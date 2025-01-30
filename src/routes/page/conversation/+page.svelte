@@ -331,8 +331,7 @@
 		} else if (type === 'tags') {
 			searchOption = {
 				...searchOption,
-				// @ts-ignore
-				tags: e.detail.selecteds?.map(x => x.value) || []
+				tags: e.target.value?.length > 0 ? [e.target.value] : []
 			};
 		}
 	}
@@ -358,12 +357,12 @@
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('Conversation List')}</h5>
 					<div class="flex-shrink-0">
-						<Button
+						<!-- <Button
 							class="btn btn-light"
 							on:click={(e) => searchConversations(e)}
 						>
 							<i class="mdi mdi-magnify" />
-						</Button>
+						</Button> -->
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
 								<i class="mdi mdi-dots-vertical" />
@@ -411,11 +410,11 @@
 						</select>
 					</Col>
 					<Col lg="2">
-						<MultiSelect
-							tag={'conv-tags'}
-							placeholder={'Select Tags'}
-							options={tagOptions}
-							on:select={e => changeOption(e, "tags")}
+						<Input
+							type={'text'}
+							placeholder={'Tag'}
+							maxlength={100}
+							on:input={e => changeOption(e, "tags")}
 						/>
 					</Col>
 					<!-- <Col lg="2">
