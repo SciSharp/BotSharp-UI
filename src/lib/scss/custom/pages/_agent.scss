@@ -1,3 +1,13 @@
+.agents-header-container {
+    display: flex;
+    justify-content: space-between;
+
+    .agent-filter {
+        display: flex;
+        gap: 10px
+    }
+}
+
 .agent-prop-key {
     width: 45%;
 }
@@ -205,4 +215,11 @@
             }
         }
     }
+}
+
+.agent-label-container {
+    display: flex;
+    gap: 5px;
+    flex-wrap: wrap;
+    margin: 5px 0px;
 }

@@ -31,24 +31,32 @@
                 {agent.name}
               </Link>
             </h5>
-            <p>Provided by {agent.plugin.name}</p>
+            {#if agent.labels?.length > 0}
+              <div class="agent-label-container">
+                {#each agent.labels as label}
+                  <Badge color={"info"}>{label}</Badge>
+                {/each}
+              </div>
+            {:else}
+              <p>Provided by {agent.plugin.name}</p>
+            {/if}
             <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
             <div class="avatar-group" style="height:35px;">
               {#if agent.is_router}
               <div class="avatar-group-item me-3">
-                  <img src="icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
+                <img src="icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
               </div>
               {/if}
               {#if agent.allow_routing}
               <div class="avatar-group-item me-3">
-                  <img src="icons/routing-2.png" class="rounded-circle avatar-xs" alt="routing"/>
+                <img src="icons/routing-2.png" class="rounded-circle avatar-xs" alt="routing"/>
               </div>
               {/if}
               {#each agent.functions as fn}
                 <div class="avatar-group-item">
-                <Link href="#" class="d-inline-block" id={"member" + fn.name}>
+                  <Link href="#" class="d-inline-block" id={"member" + fn.name}>
                     <img src="images/function.png" class="rounded-circle avatar-xs" alt={fn.name}/>
-                </Link>
+                  </Link>
                 </div>
               {/each}
             </div>
@@ -67,6 +75,13 @@
             <i class="bx bx-calendar me-1" />
             {format(agent.updated_datetime, 'short-date')}
           </li>
+          {#if agent.is_router}
+          <li class="list-inline-item me-1">
+            <Link href={`page/agent/router?agent_id=${agent.id}`} class="btn btn-primary btn-sm" target="_blank">
+              <i class="mdi mdi-magnify" /> {$_('View')}
+            </Link>
+          </li>
+          {/if}
           <li class="list-inline-item me-1">
             <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-wrench" /> {$_('Build')}

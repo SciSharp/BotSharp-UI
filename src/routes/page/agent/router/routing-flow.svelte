@@ -1,14 +1,16 @@
 <script>
+    import { onMount, createEventDispatcher } from 'svelte';
     import Drawflow from 'drawflow';
     import 'drawflow/dist/drawflow.min.css';
     import '$lib/drawflow/drawflow.css';
     import { getAgents } from '$lib/services/agent-service.js';
-    import { onMount, createEventDispatcher } from 'svelte';
+	import { AgentType } from '$lib/helpers/enums';
 
     let includeRoutingAgent = true;
     let includePlannerAgent = false;
     let includeTaskAgent = false;
     let includeStaticAgent = false;
+    let disabled = false;
 
     /** @type {any[]} */
     let agents = [];
@@ -20,15 +22,22 @@
 	const filter = {
 		pager: { page: 1, size: 20, count: 0 },
         disabled: false,
-        type: includeTaskAgent ? "task" : "none"
+        types: includeTaskAgent ? [AgentType.Task] : ["none"]
 	};
 
     /** @type {import('$agentTypes').AgentModel[]} */
     export let routers;
 
+    /** @type {string?} */
+    export let targetAgentId = '';
+
     /** @type {Drawflow} */
     let editor;
     const dispatch = createEventDispatcher();
+
+    $: {
+        disabled = !targetAgentId;
+    }
     
     onMount(async () => {
         const response = await getAgents(filter);
@@ -54,7 +63,7 @@
         }
     });    
 
-    function renderRoutingFlow(){
+    function renderRoutingFlow() {
         agentNodes = [];
         editor.clear();
         let posX = 0;
@@ -189,7 +198,7 @@
 
             // draw fallback routing
             // fallback
-            const fallback = agent.routing_rules.find(p => p.type == "fallback");
+            const fallback = agent.routing_rules.find((/** @type {any} */ p) => p.type == "fallback");
             if (fallback) {
                 editor.addNodeOutput(nid);
                 let router = agentNodes.find(ag => ag.id == fallback.redirectTo);
@@ -214,7 +223,7 @@
 
     async function handlePlannerAgentSelected() {
         includePlannerAgent = !includePlannerAgent;
-        filter.type = getAgentTypes();
+        filter.types = getAgentTypes();
         const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
@@ -222,7 +231,7 @@
 
     async function handleTaskAgentSelected() {
         includeTaskAgent = !includeTaskAgent;
-        filter.type = getAgentTypes();
+        filter.types = getAgentTypes();
         const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
@@ -230,7 +239,7 @@
 
     async function handleStaticAgentSelected() {
         includeStaticAgent = !includeStaticAgent;
-        filter.type = getAgentTypes();
+        filter.types = getAgentTypes();
         const response = await getAgents(filter);
         agents = response?.items || [];
         renderRoutingFlow();
@@ -239,15 +248,15 @@
     function getAgentTypes() {
         let types = ['none'];
         if (includePlannerAgent) {
-            types.push('planning');
+            types.push(AgentType.Planning);
         }
         if (includeTaskAgent) {
-            types.push('task');
+            types.push(AgentType.Task);
         }
         if (includeStaticAgent) {
-            types.push('static')
+            types.push(AgentType.Static)
         }
-        return types.join(',');
+        return types;
     }
 
 </script>
@@ -256,14 +265,50 @@
     <input type="checkbox" class="btn-check active" id="btncheck1" autocomplete="off"/>
     <label class={`btn btn-${includeRoutingAgent ? "" : "outline-"}primary`} for="btncheck1">Routing Agent</label>
 
-    <input type="checkbox" class="btn-check active" id="btncheck2" autocomplete="off" on:click={() => handlePlannerAgentSelected()}/>
-    <label class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`} for="btncheck2">Planner Agent</label>
+    <input
+        type="checkbox"
+        class="btn-check active"
+        id="btncheck2"
+        autocomplete="off"
+        disabled={disabled}
+        on:click={() => handlePlannerAgentSelected()}
+    />
+    <label
+        class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`}
+        for="btncheck2"
+    >
+        Planner Agent
+    </label>
 
-    <input type="checkbox" class="btn-check" id="btncheck3" autocomplete="off" on:click={() => handleTaskAgentSelected()} />
-    <label class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`} for="btncheck3">Task Agent</label>
+    <input
+        type="checkbox"
+        class="btn-check"
+        id="btncheck3"
+        autocomplete="off"
+        disabled={disabled}
+        on:click={() => handleTaskAgentSelected()}
+    />
+    <label 
+        class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`}
+        for="btncheck3"
+    >
+        Task Agent
+    </label>
 
-    <input type="checkbox" class="btn-check" id="btncheck4" autocomplete="off" on:click={() => handleStaticAgentSelected()} />
-    <label class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`} for="btncheck4">Static Agent</label>
+    <input
+        type="checkbox"
+        class="btn-check"
+        id="btncheck4"
+        autocomplete="off"
+        disabled={disabled}
+        on:click={() => handleStaticAgentSelected()}
+    />
+    <label
+        class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`}
+        for="btncheck4"
+    >
+        Static Agent
+    </label>
 </div>
 
 <div id="drawflow" style="height: 72vh; width: 100%"></div>

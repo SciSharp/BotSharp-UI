@@ -6,7 +6,7 @@
 	import { AgentType } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
-    const profileLimit = 10;
+    const limit = 10;
 
 
     /** @type {import('$agentTypes').AgentModel} */
@@ -14,6 +14,9 @@
 
     /** @type {string[]} */
     export let profiles = [];
+
+    /** @type {string[]} */
+    export let labels = [];
 
     onMount(() => {});
 
@@ -30,6 +33,21 @@
     function removeProfile(index) {
         profiles = profiles.filter((x, idx) => idx !== index);
         agent.profiles = profiles;
+    }
+
+    function addLabel() {
+        if (!!!agent) return;
+
+        labels = [...labels, ''];
+        agent.labels = labels;
+    }
+
+    /**
+	 * @param {number} index
+	 */
+    function removeLabel(index) {
+        labels = labels.filter((x, idx) => idx !== index);
+        agent.labels = labels;
     }
 
     function chatWithAgent() {
@@ -127,7 +145,7 @@
                                     </div>
                                 </div>
                                 {/each}
-                                {#if profiles?.length < profileLimit}
+                                {#if profiles?.length < limit}
                                 <div class="list-add">
                                     <i
                                         class="bx bx bx-list-plus"
@@ -135,6 +153,44 @@
                                         tabindex="0"
                                         on:keydown={() => {}}
                                         on:click={() => addProfile()}
+                                    />
+                                </div>
+                                {/if}
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key">Labels</th>
+                        <td>
+                            <div class="agent-prop-list-container vertical-flexible">
+                                {#each labels as label, index}
+                                <div class="edit-wrapper">
+                                    <input
+                                        class="form-control edit-text-box"
+                                        type="text"
+                                        placeholder="Typing here..."
+                                        maxlength={30}
+                                        bind:value={label}
+                                    />
+                                    <div class="delete-icon">
+                                        <i
+                                            class="bx bxs-no-entry"
+                                            role="link"
+                                            tabindex="0"
+                                            on:keydown={() => {}}
+                                            on:click={() => removeLabel(index)}
+                                        />
+                                    </div>
+                                </div>
+                                {/each}
+                                {#if labels?.length < limit}
+                                <div class="list-add">
+                                    <i
+                                        class="bx bx bx-list-plus"
+                                        role="link"
+                                        tabindex="0"
+                                        on:keydown={() => {}}
+                                        on:click={() => addLabel()}
                                     />
                                 </div>
                                 {/if}
