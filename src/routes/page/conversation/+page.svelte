@@ -26,7 +26,7 @@
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
 	import MultiSelect from '$lib/common/MultiSelect.svelte';
-	import { ConversationTag } from '$lib/helpers/enums';
+	import { ConversationChannel, ConversationTag } from '$lib/helpers/enums';
 
 	let isLoading = false;
 	let isComplete = false;
@@ -63,11 +63,9 @@
 	];
 
 	/** @type {import('$commonTypes').IdName[]} */
-	let channelOptions = [
-		{ id: 'webchat', name: 'Live Chat' },
-		{ id: 'phone', name: 'Phone' },
-		{ id: 'email', name: 'Email' }
-	];
+	let channelOptions = Object.entries(ConversationChannel).map(([k, v]) => (
+		{ id: v, name: v }
+	));
 
 	/** @type {import('$commonTypes').KeyValuePair[]} */
 	let tagOptions = Object.entries(ConversationTag).map(([k, v]) => (
