@@ -19,15 +19,9 @@ export async function getSettings() {
  */
 export async function getAgents(filter, checkAuth = false) {
     let url = endpoints.agentListUrl;
-    const response = await axios.get(url, {
-        params: {
-            ...filter,
-            checkAuth : checkAuth
-        },
-        paramsSerializer: {
-            dots: true,
-            indexes: null,
-        }
+    const response = await axios.post(url, {
+        filter: filter,
+        checkAuth : checkAuth
     });
     return response.data;
 }
@@ -98,6 +92,16 @@ export async function getAgentUtilityOptions() {
  */
 export async function getAgentRuleOptions() {
     const url = endpoints.agentRuleOptionsUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * Get agent labels
+ * @returns {Promise<string[]>}
+ */
+export async function getAgentLabels() {
+    const url = endpoints.agentLabelsUrl;
     const response = await axios.get(url);
     return response.data;
 }

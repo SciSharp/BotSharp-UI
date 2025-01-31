@@ -6,6 +6,7 @@
   import Breadcrumb from '$lib/common/Breadcrumb.svelte';
   import HeadTitle from '$lib/common/HeadTitle.svelte';
   import { getAgents } from '$lib/services/agent-service.js';
+	import { AgentType } from '$lib/helpers/enums';
   import RoutingFlow from './routing-flow.svelte'
 
   const params = $page.url.searchParams;
@@ -22,7 +23,7 @@
 	const filter = {
 		pager: { page: 1, size: 10, count: 0 },
     disabled: false,
-		types: ["routing"]
+		types: [AgentType.Routing]
 	};
 
   onMount(async () => {
@@ -31,9 +32,9 @@
   });
 
   async function getRouter() {
-    // if (!!targetAgentId) {
-    //   filter.agentIds = [targetAgentId];
-    // }
+    if (!!targetAgentId) {
+      filter.agentIds = [targetAgentId];
+    }
     const response = await getAgents(filter);
     if (response.items?.length > 0) {
       routers = response.items;
@@ -66,7 +67,7 @@
   <Col>
     <RoutingFlow
       routers={routers}
-      targetAgentId={targetAgentId}
+      viewOnlyMode={!!targetAgentId}
       on:userNodeSelected={(e) => handleUserNodeSelected()}
       on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
       on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>

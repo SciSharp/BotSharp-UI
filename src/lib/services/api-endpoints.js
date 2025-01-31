@@ -35,6 +35,7 @@ export const endpoints = {
     agentCreateUrl: `${host}/agent`,
     agentUtilityOptionsUrl: `${host}/agent/utility/options`,
     agentRuleOptionsUrl: `${host}/rule/triggers`,
+    agentLabelsUrl: `${host}/agent/labels`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,
@@ -97,7 +98,7 @@ export const endpoints = {
 
     // dashboard
     dashboardSettingUrl: `${host}/dashboard/components`,
-    dashConversationInstructionUrl: `${host}/dashboard/component/conversation?userId={userId}`,
+    dashConversationInstructionUrl: `${host}/dashboard/component/conversation`,
 
     // Google geocode api
     addressUrl: `${host}/address/options`

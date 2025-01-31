@@ -89,6 +89,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/role/options', 'g'),
         new RegExp('http(s*)://(.*?)/role/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/user/(.*?)/details', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/labels', 'g'),
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {

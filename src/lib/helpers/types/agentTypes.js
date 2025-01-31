@@ -30,6 +30,7 @@
  * @property {string[]?} [types]
  * @property {string[]?} [agentNames]
  * @property {string} [similarName]
+ * @property {string[]?} [labels]
  * @property {boolean} [isPublic]
  * @property {boolean} [disabled]
  * @property {string[]?} [agentIds]

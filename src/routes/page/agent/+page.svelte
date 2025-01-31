@@ -5,7 +5,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import CardAgent from './card-agent.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-  	import { createAgent, getAgents } from '$lib/services/agent-service.js';
+  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
   	import { myInfo } from '$lib/services/auth-service';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n'
@@ -43,16 +43,22 @@
 	/** @type {any} */
 	let unsubscriber;
 
-	let agentTypeOptions = Object.entries(AgentType).map(([k, v]) => (
-		{ key: k, value: v }
+	const agentTypeOptions = Object.entries(AgentType).map(([k, v]) => (
+		{ key: v, value: v }
 	));
+
+	/** @type {{ key: string, value: string }[]} */
+	let agentLabelOptions = [];
 
 	/** @type {string[]} */
 	let selectedAgentTypes = [];
+	/** @type {string[]} */
+	let selectedAgentLabels = [];
 
 	onMount(async () => {
 		user = await myInfo();
 		getPagedAgents();
+		getAgentLabelOptions();
 
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
@@ -79,6 +85,14 @@
 		}).finally(() => {
 			refresh();
 			isLoading = false;
+		});
+	}
+
+	function getAgentLabelOptions() {
+		return getAgentLabels().then(res => {
+			agentLabelOptions = res?.map(x => ({ key: x, value: x })) || [];
+		}).catch(() => {
+			agentLabelOptions = [];
 		});
 	}
 
@@ -147,23 +161,44 @@
 
 		getPagedAgents();
 	}
-
 	
-	/**
-	 * @param {any} e
-	 */
+	/** @param {any} e */
 	function selectAgentTypeOption(e) {
 		// @ts-ignore
-		selectedAgentTypes = e.detail.selecteds?.map(x => x.value) || [];
+		selectedAgentTypes = e.detail.selecteds?.map(x => x.key) || [];
 	}
 
-	function searchAgents() {
+	/** @param {any} e */
+	function selectAgentLabelOption(e) {
+		// @ts-ignore
+		selectedAgentLabels = e.detail.selecteds?.map(x => x.key) || [];
+	}
+
+	function search() {
+		refreshFilter();
+		initFilterPager();
+		getPagedAgents();
+	}
+
+	function reset() {
+		selectedAgentTypes = [];
+		selectedAgentLabels = [];
+	}
+
+	function refreshFilter() {
 		filter = {
 			...filter,
 			types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
+			labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
 			pager: initFilter.pager
 		};
-		getPagedAgents();
+	}
+
+	function initFilterPager() {
+		filter = {
+			...filter,
+			pager: { page: firstPage, size: pageSize, count: 0 },
+		};
 	}
 </script>
 
@@ -182,23 +217,38 @@
 	<div class="agent-filter">
 		<MultiSelect
 			tag={'agent-label-select'}
-			placeholder={'Select agent labels'}
+			placeholder={'Select labels'}
 			selectedText={'labels'}
-			options={[]}
-			on:select={e => {}}
+			searchMode
+			selectedKeys={selectedAgentLabels}
+			options={agentLabelOptions}
+			on:select={e => selectAgentLabelOption(e)}
 		/>
 		<MultiSelect
 			tag={'agent-type-select'}
-			placeholder={'Select agent types'}
+			placeholder={'Select types'}
 			selectedText={'types'}
+			selectedKeys={selectedAgentTypes}
 			options={agentTypeOptions}
 			on:select={e => selectAgentTypeOption(e)}
 		/>
 		<Button
-			class="btn btn-light"
-			on:click={(e) => searchAgents()}
+			class="btn btn-info"
+			data-bs-toggle="tooltip"
+			data-bs-placement="bottom"
+			title="Search"
+			on:click={(e) => search()}
 		>
 			<i class="mdi mdi-magnify" />
+		</Button>
+		<Button
+			class="btn btn-light"
+			data-bs-toggle="tooltip"
+			data-bs-placement="bottom"
+			title="Reset filters"
+			on:click={(e) => reset()}
+		>
+			<i class="mdi mdi-restore" />
 		</Button>
 	</div>
 </div>
