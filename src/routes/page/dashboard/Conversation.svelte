@@ -31,7 +31,7 @@
 	let loadUtils;
 	
 	/** @type {number} */
-	let messageInputTimeout;
+	let messageInputTimeout = 0;
 
 	/** @type {string[]} */
 	let chatUtilOptions = [];
@@ -136,7 +136,7 @@
 									type="submit"
 									class={`btn btn-rounded chat-send waves-effect waves-light btn-primary`}
 									disabled={!!!(text)}
-									on:click={() => updateDashboardConversation(userId, {
+									on:click={() => updateDashboardConversation({
 										conversation_id: conversationId,
 										name: '',
 										instruction: text

@@ -135,13 +135,10 @@ export async function unpinConversationFromDashboard(agentId, conversationId) {
 
 /**
  * update a dashboard conversation instuction
- * @param {string} userId - The conversation id
  * @param {import('$userTypes').DashboardConversation} dashConv - The instruction
  */
-export async function updateDashboardConversation(userId, dashConv) {
-    let url = replaceUrl(endpoints.dashConversationInstructionUrl, {
-        userId: userId
-    });
+export async function updateDashboardConversation(dashConv) {
+    let url = endpoints.dashConversationInstructionUrl;
     const response = await axios.post(url, dashConv);
     return response.data;
 }

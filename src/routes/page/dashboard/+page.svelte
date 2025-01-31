@@ -54,11 +54,10 @@
 	})
 
 	/**
-	 * delete a message in conversation
 	 * @param {string} userId The user input
 	 */
 	async function loadDashboardComponents(userId) {
-		getDashboardSettings(userId)
+		getDashboardSettings()
 		.then(
 			response => {
 				dashboard_model = response
