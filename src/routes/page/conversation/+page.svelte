@@ -64,7 +64,7 @@
 
 	/** @type {import('$commonTypes').IdName[]} */
 	let channelOptions = Object.entries(ConversationChannel).map(([k, v]) => (
-		{ id: v, name: v }
+		{ id: k.toLowerCase(), name: v }
 	));
 
 	/** @type {import('$commonTypes').KeyValuePair[]} */
