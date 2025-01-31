@@ -67,7 +67,7 @@
   <Col>
     <RoutingFlow
       routers={routers}
-      viewMode={!!targetAgentId}
+      viewOnlyMode={!!targetAgentId}
       on:userNodeSelected={(e) => handleUserNodeSelected()}
       on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
       on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>

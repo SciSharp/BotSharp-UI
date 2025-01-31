@@ -28,14 +28,14 @@
     export let routers;
 
     /** @type {boolean} */
-    export let viewMode = false;
+    export let viewOnlyMode = false;
 
     /** @type {Drawflow} */
     let editor;
     const dispatch = createEventDispatcher();
     
     onMount(async () => {
-        if (viewMode) {
+        if (viewOnlyMode) {
             const response = await getAgents(filter);
             agents = response?.items || [];
         }
@@ -80,7 +80,7 @@
 
         // add router node
         posX += nodeSpaceX;
-        let routerPosY = viewMode ? posY : nodeSpaceY * (agents.length > 0 ? agents.length : 1) / (routers.length > 0 ? routers.length : 1);
+        let routerPosY = viewOnlyMode ? posY : nodeSpaceY * (agents.length > 0 ? agents.length : 1) / (routers.length > 0 ? routers.length : 1);
 
         routers.forEach(router => {
             /** @type {string[]} */
@@ -133,7 +133,7 @@
             };
 
             const routers = agentNodes.filter(x => x.type === AgentType.Routing && x.profiles?.includes('planning') && getPlannerName(x) === agent.name);
-            if (!viewMode || routers.length > 0) {
+            if (!viewOnlyMode || routers.length > 0) {
                 nodeId = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
             }
 
@@ -148,8 +148,8 @@
             }
         });
 
-        posY = viewMode ? posY + 30 : 120;
-        posX += viewMode ? 0 : nodeSpaceX;
+        posY = viewOnlyMode ? posY + 30 : 120;
+        posX += viewOnlyMode ? 0 : nodeSpaceX;
         otherAgnets.forEach(agent => {   
             /**@type {any} */
             let nodeId = null;
@@ -180,7 +180,7 @@
             };
             
 
-            if (viewMode && profiles.length > 0) {
+            if (viewOnlyMode && profiles.length > 0) {
                 const filteredProfiles = profiles.filter((/** @type {string} */ profile) => profile !== 'planning');
                 const foundNodes = agentNodes.filter(ag => ag.type == AgentType.Routing
                                                         && !!ag.profiles?.some((/** @type {any} */ p) => filteredProfiles.includes(p)));
@@ -195,7 +195,7 @@
                         });
                     });
                 }
-            } else if (!viewMode) {
+            } else if (!viewOnlyMode) {
                 nodeId = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
 
                 // connect by profile
@@ -298,10 +298,10 @@
         class="btn-check active"
         id="btncheck1"
         autocomplete="off"
-        disabled={viewMode}
+        disabled={viewOnlyMode}
     />
     <label
-        class={`btn btn-${includeRoutingAgent && !viewMode ? "" : "outline-"}primary`}
+        class={`btn btn-${includeRoutingAgent && !viewOnlyMode ? "" : "outline-"}primary`}
         for="btncheck1"
     >
         Routing Agent
@@ -312,7 +312,7 @@
         class="btn-check active"
         id="btncheck2"
         autocomplete="off"
-        disabled={viewMode}
+        disabled={viewOnlyMode}
         on:click={() => handlePlannerAgentSelected()}
     />
     <label
@@ -327,7 +327,7 @@
         class="btn-check"
         id="btncheck3"
         autocomplete="off"
-        disabled={viewMode}
+        disabled={viewOnlyMode}
         on:click={() => handleTaskAgentSelected()}
     />
     <label 
@@ -342,7 +342,7 @@
         class="btn-check"
         id="btncheck4"
         autocomplete="off"
-        disabled={viewMode}
+        disabled={viewOnlyMode}
         on:click={() => handleStaticAgentSelected()}
     />
     <label
