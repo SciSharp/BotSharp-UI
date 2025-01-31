@@ -135,6 +135,18 @@ const conversationTag = {
 };
 export const ConversationTag = Object.freeze(conversationTag);
 
+const conversationChannel = {
+    WebChat: "Web Chat",
+    OpenAPI: "Open Api",
+    Phone: "Phone",
+    SMS: "Sms",
+    Messenger: "Messenger",
+    Email: "Email",
+    Crontab: "Crontab",
+    Database: "Database"
+};
+export const ConversationChannel = Object.freeze(conversationChannel);
+
 const userPermission = {
     CreateAgent: "create-agent"
 };
