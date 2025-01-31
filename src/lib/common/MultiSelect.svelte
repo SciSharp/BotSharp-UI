@@ -23,6 +23,9 @@
     /** @type {string} */
     export let selectedText = '';
 
+    /** @type {string[]} */
+    export let selectedKeys;
+
     /** @type {string} */
     export let containerClasses = "";
 
@@ -77,6 +80,43 @@
             }
         });
     });
+
+    $: {
+        innerOptions = innerOptions.map(x => {
+            x.checked = !!selectedKeys?.includes(x.key);
+            return {...x};
+        });
+        refOptions = refOptions.map(x => {
+            x.checked = !!selectedKeys?.includes(x.key);
+            return {...x};
+        });
+        changeDisplayText();
+    }
+
+    $: {
+        if (options.length > refOptions.length) {
+            const curKeys = refOptions.map(x => x.key);
+            const newOptions = options.filter(x => !curKeys.includes(x.key)).map(x => {
+                return {
+                    key: x.key,
+                    value: x.value,
+                    checked: false
+                };
+            });
+
+            innerOptions = [
+                ...innerOptions,
+                ...newOptions
+            ];
+
+            refOptions = [
+                ...refOptions,
+                ...newOptions
+            ];
+
+            changeDisplayText();
+        }
+    }
 
 
     async function toggleOptionList() {
@@ -224,31 +264,6 @@
                     loading = false;
                 });
             }
-        }
-    }
-
-    $: {
-        if (options.length > refOptions.length) {
-            const curKeys = refOptions.map(x => x.key);
-            const newOptions = options.filter(x => !curKeys.includes(x.key)).map(x => {
-                return {
-                    key: x.key,
-                    value: x.value,
-                    checked: false
-                };
-            });
-
-            innerOptions = [
-                ...innerOptions,
-                ...newOptions
-            ];
-
-            refOptions = [
-                ...refOptions,
-                ...newOptions
-            ];
-
-            changeDisplayText();
         }
     }
 </script>

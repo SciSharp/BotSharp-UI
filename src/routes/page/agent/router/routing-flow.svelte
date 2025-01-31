@@ -28,20 +28,20 @@
     /** @type {import('$agentTypes').AgentModel[]} */
     export let routers;
 
-    /** @type {string?} */
-    export let targetAgentId = '';
+    /** @type {boolean} */
+    export let singleMode = false;
 
     /** @type {Drawflow} */
     let editor;
     const dispatch = createEventDispatcher();
 
     $: {
-        disabled = !targetAgentId;
+        // disabled = !!targetAgentId;
     }
     
     onMount(async () => {
-        const response = await getAgents(filter);
-        agents = response?.items || [];
+        // const response = await getAgents(filter);
+        // agents = response?.items || [];
 
         const container = document.getElementById("drawflow");
         if (container) {
@@ -49,13 +49,13 @@
             editor.reroute = true;
             editor.reroute_fix_curvature = true;
             editor.start();
-            editor.on('nodeCreated', function(id) {
+            editor.on('nodeCreated', id => {
                 let node = editor.getNodeFromId(id);
                 node.data.nid = id;
                 console.log(`Node created ${id} ${node.data.agent}`);
                 agentNodes.push(node.data);
             });
-            editor.on('nodeSelected', function(id) {
+            editor.on('nodeSelected', id => {
                 console.log("Node selected " + id);
                 // emit event
             });
@@ -130,13 +130,12 @@
                 id: agent.id,
                 agent: agent.name
             };
-            let nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
 
-            const routers = agentNodes.filter(x => x.type === 'routing' && x.profiles?.includes('planning') && getPlannerName(x) === agent.name);
+            const nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
+            const routers = agentNodes.filter(x => x.type === AgentType.Routing && x.profiles?.includes('planning') && getPlannerName(x) === agent.name);
             routers.forEach(r => {
                 editor.addConnection(r.nid, nid, `output_1`, `input_1`);
             });
-            
             posY += nodeSpaceY;
         });
 
@@ -146,13 +145,13 @@
             let profiles = [];
 
             const chatTestLinkHtml = agent.is_public ? 
-                `<a href= "chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>` :
-                '';
+                `<a href= "chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>` : '';
             let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
-            if (agent.type == "static") {
+            if (agent.type == AgentType.Static) {
                 const taskLinkHtml = `<a href= "page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
                 html += taskLinkHtml;
             }
+
             if (agent.profiles.length > 0) {
                 profiles = agent.profiles;
                 html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + profiles.join(', ');
@@ -167,7 +166,7 @@
                 agent: agent.name,
                 profiles: profiles
             };
-            let nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
+            const nid = editor.addNode('agent', 1, 0, posX, posY, 'enabled-node', data, html, false);
 
             // connect by profile
             if (profiles.length > 0) {
@@ -175,7 +174,7 @@
                 profiles.forEach((/** @type {string} */ profile) => {
                     if (profile == 'planning') return;
 
-                    agentNodes.filter(ag => ag.type == "routing").forEach(r => {
+                    agentNodes.filter(ag => ag.type == AgentType.Routing).forEach(r => {
                         if (r.profiles.find((/** @type {string} */ p) => p == profile)) {
                             editor.addConnection(r.nid, nid, `output_1`, `input_1`);
                         } else {
@@ -254,7 +253,7 @@
             types.push(AgentType.Task);
         }
         if (includeStaticAgent) {
-            types.push(AgentType.Static)
+            types.push(AgentType.Static);
         }
         return types;
     }
