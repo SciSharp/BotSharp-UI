@@ -16,6 +16,7 @@ const config = {
 			$userTypes: './src/lib/helpers/types/userTypes.js',
 			$roleTypes: './src/lib/helpers/types/roleTypes.js',
 			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
+			$realtimeTypes: './src/lib/helpers/types/realtimeTypes.js',
 		},
 
 		// for static deployment

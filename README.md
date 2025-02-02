@@ -29,6 +29,9 @@ npm run dev
 
 # or start the server and open the app in a new browser tab
 npm run dev -- --open
+
+# or start the server with different .env
+npm run dev -- --mode botsharp
 ```
 
 You can override the `.env` values by creating a local env file named `.env.local` if needed.

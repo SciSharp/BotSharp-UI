@@ -46,7 +46,7 @@
 	} from '$env/static/public';
 	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
-	import { webSpeech } from '$lib/services/web-speech.js';
+	import { llmRealtime } from '$lib/services/llm-realtime-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -181,6 +181,7 @@
 	let isOpenTagModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
+	let isListening = false;
 	let isLite = false;
 	let isFrame = false;
 	let loadEditor = false;
@@ -470,7 +471,6 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
-		// webSpeech.utter(message.text);
 		dialogs.push({
 			...message,
 			is_chat_message: true
@@ -658,17 +658,15 @@
     async function startListen() {
 		if (disableSpeech) return;
 
-		microphoneIcon = "microphone";
-		webSpeech.onSpeechToTextDetected = (transcript) => {
-			if (!!!_.trim(transcript) || isSendingMsg) return;
-
-			sendChatMessage(transcript).then(() => {
-				microphoneIcon = "microphone-off";
-			}).catch(() => {
-				microphoneIcon = "microphone-off";
-			});
+		if (!isListening) {
+			llmRealtime.start(params.agentId);
+			isListening = true;
+			microphoneIcon = "microphone";
+		} else {
+			llmRealtime.stop();
+			isListening = false;
+			microphoneIcon = "microphone-off";
 		}
-		webSpeech.start();
 	}
 
 	/** @param {any} e */
