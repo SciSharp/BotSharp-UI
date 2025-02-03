@@ -19,9 +19,15 @@ export async function getSettings() {
  */
 export async function getAgents(filter, checkAuth = false) {
     let url = endpoints.agentListUrl;
-    const response = await axios.post(url, {
-        filter: filter,
-        checkAuth : checkAuth
+    const response = await axios.get(url, {
+        params: {
+            ...filter,
+            checkAuth : checkAuth
+        },
+        paramsSerializer: {
+            dots: true,
+            indexes: null,
+        }
     });
     return response.data;
 }
