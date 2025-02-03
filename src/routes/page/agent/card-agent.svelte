@@ -65,35 +65,35 @@
       </CardBody>
       <div class="px-4 py-3 border-top">
         <ul class="list-inline mb-0">
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Badge color={agent.disabled ? "warning" : "success"}>{agent.disabled ? $_('Disabled') : $_('Enabled')}</Badge>
           </li>
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Badge color={agent.is_public ? "success" : "warning"}>{agent.is_public ? $_('Public') : $_('Private')}</Badge>
           </li>
-          <li class="list-inline-item me-1" id="dueDate">
+          <li class="list-inline-item me-1 mt-1 mb-1" id="dueDate">
             <i class="bx bx-calendar me-1" />
             {format(agent.updated_datetime, 'short-date')}
           </li>
           {#if agent.is_router}
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href={`page/agent/router?agent_id=${agent.id}`} class="btn btn-primary btn-sm" target="_blank">
               <i class="mdi mdi-magnify" /> {$_('View')}
             </Link>
           </li>
           {/if}
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-wrench" /> {$_('Build')}
             </Link>
           </li>
           {#if agent.is_public }      
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href={`/chat/${LEARNER_ID}`} class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-book-open" /> {$_('Train')}
             </Link>
           </li>
-          <li class="list-inline-item me-1">
+          <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!AgentExtensions.chatable(agent)}>
               <i class="bx bx-chat" /> {$_('Test')}
             </Link>
