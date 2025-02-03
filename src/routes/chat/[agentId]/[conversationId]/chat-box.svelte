@@ -659,7 +659,9 @@
 		if (disableSpeech) return;
 
 		if (!isListening) {
-			llmRealtime.start(params.agentId);
+			llmRealtime.start(params.agentId, message => {
+				console.log(message);
+			});
 			isListening = true;
 			microphoneIcon = "microphone";
 		} else {

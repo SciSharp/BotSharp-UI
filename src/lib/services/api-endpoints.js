@@ -46,6 +46,7 @@ export const endpoints = {
 
     // agent realtime interaction
     agentInitRealtimeSessionUrl: `${host}/agent/{agentId}/realtime/session`,
+    agentFunctionCallUrl: `${host}/agent/{agentId}/function/{functionName}/execute`,
 
     // router
     routerSettingUrl: `${host}/router/settings`,
