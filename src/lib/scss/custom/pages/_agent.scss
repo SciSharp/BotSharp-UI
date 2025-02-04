@@ -217,6 +217,12 @@
     }
 }
 
+.agent-card-header {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
 .agent-label-container {
     display: flex;
     gap: 5px;

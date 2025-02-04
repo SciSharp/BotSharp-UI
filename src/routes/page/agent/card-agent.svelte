@@ -26,11 +26,25 @@
           </div>
 
           <div class="flex-grow-1 overflow-hidden">
-            <h5 class="text-truncate font-size-15">
-              <Link href= "page/agent/{agent.id}" class="text-dark">
-                {agent.name}
-              </Link>
-            </h5>
+            <div class="agent-card-header">
+              <h5 class="text-truncate font-size-15 line-align-center mb-0">
+                <Link href= "page/agent/{agent.id}" class="text-dark">
+                  {agent.name}
+                </Link>
+              </h5>
+              {#if agent.is_router}
+              <div
+                class="font-size-15 line-align-center"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title="Go to flowchart"
+              >
+                <Link href={`page/agent/router?agent_id=${agent.id}`} target="_blank">
+                  <i class="mdi mdi-sitemap" />
+                </Link>
+              </div>
+              {/if}
+            </div>
             {#if agent.labels?.length > 0}
               <div class="agent-label-container">
                 {#each agent.labels as label}
@@ -75,13 +89,6 @@
             <i class="bx bx-calendar me-1" />
             {format(agent.updated_datetime, 'short-date')}
           </li>
-          {#if agent.is_router}
-          <li class="list-inline-item me-1 mt-1 mb-1">
-            <Link href={`page/agent/router?agent_id=${agent.id}`} class="btn btn-primary btn-sm" target="_blank">
-              <i class="mdi mdi-magnify" /> {$_('View')}
-            </Link>
-          </li>
-          {/if}
           <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
               <i class="bx bx-wrench" /> {$_('Build')}
