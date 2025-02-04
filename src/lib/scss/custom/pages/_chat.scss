@@ -239,6 +239,7 @@
             overflow: hidden;
             width: fit-content;
             max-width: 100%;
+            word-break: break-all;
 
             .conversation-name {
                 font-weight: $font-weight-semibold;
