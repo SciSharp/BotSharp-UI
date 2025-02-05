@@ -159,6 +159,7 @@
             <NavBar id={'persist-log-container'}>
                 <NavItem
                     navBtnId={'content-log-tab'}
+                    navBtnClasses={'log-footer-nav-btn'}
                     dataBsTarget={'#content-log-tab-pane'}
                     ariaControls={'content-log-tab-pane'}
                     navBtnText={'Content Log'}
@@ -168,6 +169,7 @@
                 />
                 <NavItem
                     navBtnId={'conv-state-log-tab'}
+                    navBtnClasses={'log-footer-nav-btn'}
                     dataBsTarget={'#conv-state-log-tab-pane'}
                     ariaControls={'conv-state-log-tab-pane'}
                     navBtnText={'Conversation States'}

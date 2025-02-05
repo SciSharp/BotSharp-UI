@@ -87,6 +87,7 @@
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
+	const chatWidthThreshold = 300;
 	const maxTextLength = 64000;
 	const duration = 2000;
 	
@@ -219,6 +220,7 @@
 		selectedTags = conversation?.tags || [];
 		initUserSentMessages(dialogs);
 		initChatView();
+		handlePaneResize();
 		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
@@ -659,7 +661,7 @@
 		if (disableSpeech) return;
 
 		if (!isListening) {
-			llmRealtime.start(params.agentId, message => {
+			llmRealtime.start(params.agentId, (/** @type {any} */ message) => {
 				console.log(message);
 			});
 			isListening = true;
@@ -1317,6 +1319,14 @@
 			isLoading = false;
 		});
 	}
+
+	function handlePaneResize() {
+		const header = document.querySelector('.chat-head');
+		if (!header) return;
+
+		const width = header.getBoundingClientRect().width;
+		isLite = width < chatWidthThreshold;
+	}
 </script>
 
 
@@ -1432,9 +1442,9 @@
 
 <HeadTitle title="Chat" addOn='' />
 <div class="d-lg-flex">
-	<Splitpanes>
+	<Splitpanes on:resize={() => handlePaneResize()}>
 		{#if isLoadInstantLog}
-		<Pane size={30} minSize={20} maxSize={50} >
+		<Pane size={30} minSize={25} maxSize={40} >
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
@@ -1444,7 +1454,7 @@
 			/>
 		</Pane>
 		{/if}
-		<Pane minSize={20}>
+		<Pane minSize={30}>
 			<div style="height: 100vh;">
 				<div class="card mb-0" style="height: 100vh;">
 					<div class="border-bottom chat-head">
@@ -1469,18 +1479,18 @@
 							</div>
 		
 							<div class="col-md-8 col-5">
-								<ul class="list-inline user-chat-nav user-chat-nav-flex mb-0">
+								<div class="user-chat-nav user-chat-nav-flex mb-0">
 									{#if PUBLIC_DEBUG_MODE === 'true' && isFrame}
-										<li class="list-inline-item">
+										<div class="">
 											<button
 												class="btn btn-secondary btn-rounded btn-sm"
 												on:click={() => openFullScreen()}
 											>
 												<i class="bx bx-fullscreen" />
 											</button>
-										</li>
+										</div>
 									{/if}
-									<li class="list-inline-item">
+									<div class="">
 										{#if !isLite}
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
@@ -1547,9 +1557,9 @@
 											/>
 										</button>
 										{/if}
-									</li>
+									</div>
 									
-									<li class="list-inline-item btn-pair">
+									<div class="btn-pair">
 										{#if !isLite}
 										<button
 											class={`btn btn-rounded btn-sm btn-primary btn-left`}
@@ -1558,13 +1568,12 @@
 										>
 											<span
 												data-bs-toggle="tooltip"
-												data-bs-placement="top"
+												data-bs-placement="bottom"
 												title="New Conversation"
 											>
 												<i class="mdi mdi-plus" />
 												<span class="me-2">New</span>
 											</span>
-											
 										</button>
 										{/if}
 										<button
@@ -1577,8 +1586,8 @@
 											{/if}
 											<i class="mdi mdi-window-close" />
 										</button>
-									</li>
-								</ul>
+									</div>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -1869,7 +1878,7 @@
 			</div>
 		</Pane>
 		{#if isLoadPersistLog}
-		<Pane size={30} minSize={20} maxSize={50}>
+		<Pane size={30} minSize={25} maxSize={40}>
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
