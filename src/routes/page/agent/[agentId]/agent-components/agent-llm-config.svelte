@@ -12,8 +12,8 @@
     /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
 
-    const lowerLimit = 1;
-    const upperLimit = 10;
+    const recursiveDepthLowerLimit = 1;
+    const recursiveDepthUpperLimit = 10;
 
     let config = agent.llm_config;
 
@@ -59,13 +59,19 @@
     function changeMaxRecursiveDepth(e) {
         let value = Number(e.target.value) || 0;
         
-        if (value < lowerLimit) {
-            value = lowerLimit;
-        } else if (value > upperLimit) {
-            value = upperLimit;
+        if (value < recursiveDepthLowerLimit) {
+            value = recursiveDepthLowerLimit;
+        } else if (value > recursiveDepthUpperLimit) {
+            value = recursiveDepthUpperLimit;
         }
 
         config.max_recursion_depth = value;
+    }
+
+    /** @param {any} e */
+    function changeMaxOutputToken(e) {
+        const value = Number(e.target.value) || 0;
+        config.max_output_tokens = value;
     }
 </script>
 
@@ -113,11 +119,25 @@
                 <Input
                     style="text-align: center;"
                     type="number"
-                    min={lowerLimit}
-                    max={upperLimit}
+                    min={recursiveDepthLowerLimit}
+                    max={recursiveDepthUpperLimit}
                     value={config.max_recursion_depth}
                     on:change={e => changeMaxRecursiveDepth(e)}
-                />              
+                />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="example-text-input" class="col-md-3 col-form-label">
+                Max output tokens
+            </label>
+            <div class="col-md-9">
+                <Input
+                    style="text-align: center;"
+                    type="number"
+                    value={config.max_output_tokens}
+                    on:change={e => changeMaxOutputToken(e)}
+                />
             </div>
         </div>
     </CardBody>
