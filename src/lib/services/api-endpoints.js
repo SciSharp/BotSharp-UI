@@ -67,6 +67,8 @@ export const endpoints = {
     conversationTagsUpdateUrl: `${host}/conversation/{conversationId}/update-tags`,
     fileUploadUrl: `${host}/agent/{agentId}/conversation/{conversationId}/upload`,
     pinConversationUrl: `${host}/agent/{agentId}/conversation/{conversationId}/dashboard`,
+    conversationStateValueUrl: `${host}/conversation/state-search`,
+    conversationStateKeyListUrl: `${host}/conversation/state-key`,
     
     // LLM provider
     llmProvidersUrl: `${host}/llm-providers`,

@@ -21,12 +21,13 @@
 	import StateModal from '$lib/common/StateModal.svelte';
 	import { onMount } from 'svelte';
 	import { getAgents } from '$lib/services/agent-service';
-	import { getConversations, deleteConversation } from '$lib/services/conversation-service.js';
+	import { getConversations, deleteConversation, getConversationStateKey, getConversationStateValue } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
 	import MultiSelect from '$lib/common/MultiSelect.svelte';
 	import { ConversationChannel, ConversationTag } from '$lib/helpers/enums';
+	import RemoteSearchInput from '$lib/common/RemoteSearchInput.svelte';
 
 	let isLoading = false;
 	let isComplete = false;
@@ -82,11 +83,29 @@
 		tags: []
 	};
 
+	/** @type {any[]} */
+	let stateOptions = [];
+
+	/** @type {string | null} */
+	let selectedState = null;
+
+	/** @type {{id: string, name: string} | null} */
+	let selectedValue;
+
+
+	let isValueEditable = false;
+
+	/**
+	 * @type {RemoteSearchInput}
+	 */
+	let remoteSearchInput;
+
     onMount(async () => {
 		isLoading = true;
 		Promise.all([
 			loadAgentOptions(),
 			loadSearchOption(),
+			loadStates(),
 			loadConversations()])
 		.finally(() => {
 			isLoading = false
@@ -221,13 +240,23 @@
 		};
 	}
 
-	function toggleSearchStateModal() {
-		isOpenSearchStateModal = !isOpenSearchStateModal;
-	}
-
-	function handleConfirmStateModal() {
+	/**
+	 * @param {any} e
+	 */
+	function handleConfirmStateModal(e) {
+		if (selectedState && selectedValue?.id) {
+		  searchOption.states = [
+			  {
+				  key: { data: stateOptions.find(x => Number(x.id) === Number(selectedState))?.description, isValid: true },
+				  value: {data: selectedValue.id, isValid: true },
+				  active_rounds: {data: 0, isValid: true},
+			  }
+			];
+		} else {
+			searchOption.states = [];
+		}
 		handleSearchStates();
-		toggleSearchStateModal();
+		searchConversations(e);
 	}
 
 	function loadSearchOption() {
@@ -333,46 +362,72 @@
 			};
 		}
 	}
+
+	async function loadStates() {
+		const response = await getConversationStateKey();
+		stateOptions = response;
+	}
+
+	/**
+	 * @param { any } e
+	 */
+	function handleStateChange(e) {
+		selectedState = e.target.value;
+		isValueEditable = !!selectedState;
+		selectedValue = null;
+		remoteSearchInput?.clearSearchResults();
+	}
+
+  /**
+   * @param {any} query
+   */
+	 async function handleValueSearch(query) {
+    if (!selectedState) return [];
+    const response = await getConversationStateValue(selectedState, query);
+    return response;
+  }
 </script>
 
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
 <LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={'Delete completed!'} />
-<StateModal
-	isOpen={isOpenSearchStateModal}
-	validateKey={true}
-	validateValue={false}
-	bind:states={searchOption.states}
-	toggleModal={() => toggleSearchStateModal()}
-	confirm={() => handleConfirmStateModal()}
-	cancel={() => toggleSearchStateModal()}
-/>
 
 <Row>
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">{$_('Conversation List')}</h5>
-					<div class="flex-shrink-0">
+					<h5 class="mb-0 card-title flex-grow-0">{$_('Conversation List')}</h5>
+					<div class="flex-grow-1">
+						<Row class="g-3">
+							<Col lg="1"></Col>
+							<Col lg="2" sm="12">
+								<select class="form-select" on:change={handleStateChange}>
+									<option value={null}>Select State</option>
+									{#each stateOptions as state}
+										<option value={state.id}>{state.name}</option>
+									{/each}
+								</select>
+							</Col>
+							<Col lg="2" sm="12">
+								<RemoteSearchInput 
+								  bind:selectedValue={selectedValue}
+								  disabled={!isValueEditable}
+								  onSearch={handleValueSearch}
+								  placeholder="Enter a value"
+								  bind:this={remoteSearchInput}
+								/>
+							</Col>
+							<Col lg="1" sm="12">
+								<button class="btn btn-primary" on:click={handleConfirmStateModal}>Confirm</button>
+							</Col>
+						</Row>
 						<!-- <Button
 							class="btn btn-light"
 							on:click={(e) => searchConversations(e)}
 						>
 							<i class="mdi mdi-magnify" />
 						</Button> -->
-						<Dropdown class="dropdown d-inline-block">
-							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical" />
-							</DropdownToggle>
-							<DropdownMenu class="conv-state-search-menu">
-								<DropdownItem
-									on:click={() => toggleSearchStateModal()}
-								>
-									{$_('Search States')}
-								</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
 					</div>
 				</div>
 			</CardBody>
@@ -416,8 +471,8 @@
 						/>
 					</Col>
 					<!-- <Col lg="2">
-						<Input type="date" class="form-control" />
-					</Col> -->
+            <Input type="date" class="form-control" />
+          </Col> -->
 					<Col lg="1">
 						<Button
 							type="button"
@@ -430,11 +485,6 @@
 						</Button>
 					</Col>
 				</Row>
-				{#if searchStateStrs?.length > 0}
-					{#each searchStateStrs as str, idx (idx)}
-						<Label index={idx} text={str} onClose={(index) => handleCloseLabel(index)} />
-					{/each}
-				{/if}
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
