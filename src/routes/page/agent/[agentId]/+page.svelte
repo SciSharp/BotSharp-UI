@@ -102,7 +102,11 @@
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
             rules: agent.rules || [],
-            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
+            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null,
+            llm_config: {
+                ...agent.llm_config,
+                max_output_tokens: Number(agent.llm_config.max_output_tokens) > 0 ? Number(agent.llm_config.max_output_tokens) : null
+            }
         };
         isLoading = true;
         saveAgent(agent).then(res => {

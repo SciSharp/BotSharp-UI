@@ -102,6 +102,10 @@
                     height: 80%;
                     max-height: 25px;
                 }
+
+                .chat-head-agent-name {
+                    font-size: 0.8em;
+                }
             }
 
             .chat-head-user {
@@ -109,7 +113,7 @@
                 display: flex;
                 gap: 5px;
                 width: fit-content;
-                font-size: 12px;
+                font-size: 0.7em !important;
             }
         }
     }
@@ -127,6 +131,7 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
+    gap: 5px;
 }
 
 .user-chat-nav {
@@ -141,8 +146,14 @@
         background-color: var(--#{$prefix}light);
         border-radius: 50%;
         border: none;
-        width: 40px;
-        height: 40px;
+        // width: 40px;
+        // height: 40px;
+        width: 2em;
+        height: 2em;
+
+        i {
+            font-size: 0.8em;
+        }
     }
     
     .dropdown {
@@ -175,6 +186,10 @@
         .btn-right {
             border-top-left-radius: 0px;
             border-bottom-left-radius: 0px;
+        }
+
+        i, span {
+            font-size: 0.9em;
         }
     }
 }
@@ -420,6 +435,10 @@
 
     .log-footer {
         flex: 2%;
+
+        .log-footer-nav-btn {
+            font-size: 0.75em;
+        }
     }
 
     .instant-log-body {

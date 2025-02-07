@@ -66,6 +66,7 @@
 			filter = {
 				pager: initFilter.pager,
 				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
+				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
 				similarName: event.payload || null
 			};
 			getPagedAgents();
