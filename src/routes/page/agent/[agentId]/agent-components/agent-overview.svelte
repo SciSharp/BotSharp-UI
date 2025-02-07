@@ -17,7 +17,10 @@
 
     /** @type {string[]} */
     export let labels = [];
-
+    
+    /** @type {() => void} */
+    export let handleAgentChange;
+   
     onMount(() => {});
 
     function addProfile() {
@@ -107,7 +110,13 @@
                         <th class="agent-prop-key">Visibility</th>
                         <td>
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" bind:checked={agent.is_public} id="is_public" />
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    bind:checked={agent.is_public} 
+                                    on:input={handleAgentChange}
+                                    id="is_public" 
+                                />
                                 <label class="form-check-label" for="is_public"> Public </label>
                             </div>
                         </td>
@@ -116,7 +125,13 @@
                         <th class="agent-prop-key">Routable</th>
                         <td>
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" bind:checked={agent.allow_routing} id="allow_routing" />
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    bind:checked={agent.allow_routing} 
+                                    on:input={handleAgentChange}
+                                    id="allow_routing" 
+                                />
                                 <label class="form-check-label" for="allow_routing">Allow</label>
                             </div>
                         </td>
@@ -133,6 +148,7 @@
                                         placeholder="Typing here..."
                                         maxlength={30}
                                         bind:value={profile}
+                                        on:input={handleAgentChange}
                                     />
                                     <div class="delete-icon">
                                         <i
@@ -140,7 +156,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => removeProfile(index)}
+                                            on:click={() => { removeProfile(index); handleAgentChange(); }}
                                         />
                                     </div>
                                 </div>
@@ -152,7 +168,7 @@
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
-                                        on:click={() => addProfile()}
+                                        on:click={() => { addProfile(); handleAgentChange(); }}
                                     />
                                 </div>
                                 {/if}
@@ -171,6 +187,7 @@
                                         placeholder="Typing here..."
                                         maxlength={30}
                                         bind:value={label}
+                                        on:input={handleAgentChange}
                                     />
                                     <div class="delete-icon">
                                         <i
@@ -178,7 +195,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => removeLabel(index)}
+                                            on:click={() => { removeLabel(index); handleAgentChange(); }}
                                         />
                                     </div>
                                 </div>
@@ -190,7 +207,7 @@
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
-                                        on:click={() => addLabel()}
+                                        on:click={() => { addLabel(); handleAgentChange(); }}
                                     />
                                 </div>
                                 {/if}
@@ -201,7 +218,13 @@
                         <th class="agent-prop-key">Status</th>
                         <td>							
                             <div class="form-check mb-3">
-                                <input class="form-check-input" type="checkbox" bind:checked={agent.disabled} id="disabled" />
+                                <input 
+                                    class="form-check-input" 
+                                    type="checkbox" 
+                                    bind:checked={agent.disabled} 
+                                    on:input={handleAgentChange}
+                                    id="disabled" 
+                                />
                                 <label class="form-check-label" for="disabled">Disabled</label>
                             </div>
                         </td>
@@ -218,6 +241,7 @@
                                     max={1000}
 									step={1}
                                     bind:value={agent.max_message_count}
+                                    on:input={handleAgentChange}
                                 />
                             </div>
                         </td>

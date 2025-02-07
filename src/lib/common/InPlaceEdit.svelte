@@ -31,7 +31,12 @@
             dispatch('submit', value);
         }
     }
-  
+
+    /** @param {any} event */
+    function handleInput(event) {
+        dispatch('input', event);
+    }
+
     /** @param {any} event */
     function keydown(event) {
         if (event.key == 'Escape') {
@@ -57,6 +62,7 @@
             maxlength={maxLength}
             use:focus
             on:blur={() => submit()}
+            on:input={handleInput}
         />
     </form>
 {:else}

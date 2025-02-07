@@ -12,6 +12,9 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
     export const fetchData = () => {
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
@@ -24,6 +27,20 @@
         };
     };
 
+    export const fetchOriginalData = () => {
+        const utilities = agentUtilityCmp?.fetchOriginalUtilities();
+        const knwoledgebases = agentKnowledgeBaseCmp?.fetchOriginalKnowledgeBases();
+        const rules = agentEventRuleCmp?.fetchOriginalRules();
+
+        return {
+            utilities: utilities || [],
+            knwoledgebases: knwoledgebases || [],
+            rules: rules || []
+        };
+    }
+
+    /** @type {any} */
+    let agentLlmConfigCmp = null;
     /** @type {any} */
     let agentUtilityCmp = null;
     /** @type {any} */
@@ -46,6 +63,14 @@
     onMount(() => {
         selectedTab = tabs[0]?.name;
     });
+
+    export const reinit = () => {
+        agentLlmConfigCmp?.reinit();
+        agentUtilityCmp?.reinit();
+        agentKnowledgeBaseCmp?.reinit();
+        agentEventRuleCmp?.reinit();
+    }
+
 
     /** @param {string} selected */
     function handleTabClick(selected) {
@@ -74,19 +99,19 @@
         </NavBar>
 
         <div class:hide={selectedTab !== 'agent-llm-config'}>
-            <AgentLlmConfig agent={agent} />
+            <AgentLlmConfig agent={agent} bind:this={agentLlmConfigCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-routing-rule'}>
             <AgentRouting agent={agent} />
         </div>
         <div class:hide={selectedTab !== 'agent-utility'}>
-            <AgentUtility agent={agent} bind:this={agentUtilityCmp} />
+            <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-knowledgebase'}>
-            <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} />
+            <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-event-rule'}>
-            <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} />
+            <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
     </CardBody>
 </Card>

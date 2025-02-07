@@ -12,26 +12,34 @@
     /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
     const lowerLimit = 1;
     const upperLimit = 10;
 
     let config = agent.llm_config;
 
     onMount(async () =>{
+        await init();
+    });
+
+    async function init() {
         providers = await getLlmProviders();
         providers = ['', ...providers]
         if (!!config.provider) {
             models = await getLlmProviderModels(config.provider);
         }
-        init();
-    });
-
-    function init() {
         const foundProvider = providers.find(x => x === config.provider);
         const foundModel = models.find(x => x.name === config.model);
         config.provider = foundProvider || null;
         config.model = foundModel?.name || null;
     }
+
+    export const reinit = () => {
+        config = agent.llm_config;
+        init();
+    };
 
     /** @param {any} e */
     async function changeProvider(e) {
@@ -41,18 +49,22 @@
         if (!!!provider) {
             models = [];
             config.model = null;
+            handleAgentChange();
             return;
         }
 
         config.is_inherit = false;
+        handleAgentChange();
         models = await getLlmProviderModels(provider);
         config.model = models[0]?.name;
+        handleAgentChange();
     }
 
     /** @param {any} e */
     function changeModel(e) {
         config.is_inherit = false;
         config.model = e.target.value || null;
+        handleAgentChange();
     }
 
     /** @param {any} e */
@@ -66,6 +78,7 @@
         }
 
         config.max_recursion_depth = value;
+        handleAgentChange();
     }
 </script>
 
