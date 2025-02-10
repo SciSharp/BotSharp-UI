@@ -10,6 +10,19 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
+    export const fetchOriginalChannelPrompts = () => {
+        return {
+            systemPrompt: local_instructions?.[0]?.instruction || '',
+            channelPrompts: local_instructions?.slice(1)?.map(x => ({
+                channel: x.channel,
+                instruction: x.instruction
+            })) || []
+        };
+    };
+
     export const fetchChannelPrompts = () => {
         const candidates = local_instructions?.filter((x, idx) => idx > 0 && !!x.channel?.trim())?.map(x => {
             return { channel: x.channel.trim().toLowerCase(), instruction: x.instruction };
@@ -124,9 +137,10 @@
                 rows={4}
                 bind:value={agent.description}
                 placeholder="Enter your Message"
+                on:input={handleAgentChange}
             />
         </FormGroup>
-        
+
         <FormGroup class="mb-3" style="overflow-y: auto; scrollbar-width: none;">
             <div class="mb-2" style="display: flex; gap: 10px;">
                 <div class="line-align-center fw-bold">
@@ -144,7 +158,7 @@
                     data-bs-placement="top"
                     title="Add channel instruction"
                     style="font-size: 16px;"
-                    on:click={() => addChannel()}
+                    on:click={() => { addChannel(); handleAgentChange(); }}
                 >
                     <i class="mdi mdi-plus-circle-outline" />
                 </div>
@@ -170,7 +184,8 @@
                     maxEditLength={20}
                     editPlaceholder={'Type a channel name here...'}
                     onClick={() => selectChannel(inst.uid)}
-                    onDelete={() => deleteChannel(inst.uid)}
+                    onDelete={() => { deleteChannel(inst.uid); handleAgentChange(); }}
+                    onInput={handleAgentChange}
                 />
                 {/each}
             </NavBar>
@@ -181,7 +196,7 @@
                 style="scrollbar-width: thin; resize: none;"
                 value={selected_instruction.instruction}
                 rows={24}
-                on:input={(e) => changePrompt(e)}
+                on:input={(e) => { changePrompt(e); handleAgentChange(); }}
                 placeholder="Enter your instruction"
             />
         </FormGroup>

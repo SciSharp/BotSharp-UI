@@ -180,3 +180,15 @@ button:focus {
 .thin-scrollbar {
   scrollbar-width: thin;
 }
+
+.scrollable-dropdown {
+  .dropdown-menu {
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .dropdown-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}

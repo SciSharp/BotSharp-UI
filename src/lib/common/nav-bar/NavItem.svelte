@@ -68,6 +68,9 @@
     /** @type {() => void} */
     export let onDelete = () => {};
 
+    /** @type {() => void} */
+    export let onInput = () => {};
+
     /** @param {any} e */
     function handleTabClick(e) {
         e.preventDefault();
@@ -78,6 +81,12 @@
     function handleTabDelete(e) {
         e.preventDefault();
         onDelete?.();
+    }
+
+    /** @param {any} e */
+    function handleTabInput(e) {
+        e.preventDefault();
+        onInput?.();
     }
 </script>
 
@@ -102,7 +111,12 @@
         on:click={(e) => handleTabClick(e)}
     >
         {#if allowEdit}
-            <InPlaceEdit bind:value={navBtnText} maxLength={maxEditLength} placeholder={editPlaceholder} />
+            <InPlaceEdit 
+                bind:value={navBtnText} 
+                maxLength={maxEditLength} 
+                placeholder={editPlaceholder}
+                on:input={handleTabInput}
+            />
         {:else}
             <div style="height: 100%" class="line-align-center">
                 <div>{navBtnText}</div>

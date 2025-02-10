@@ -18,8 +18,8 @@
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
-	
-	
+    import LocalStorageManager from '$lib/helpers/utils/storage-manager';
+
     /** @type {import('$agentTypes').AgentModel} */
     let agent;
     /** @type {any} */
@@ -36,18 +36,41 @@
 
     const duration = 3000;
     const params = $page.params;
+    const agentStorage = new LocalStorageManager();
+    let agentDraft = getAgentDraft();
+    /** @type {import('$agentTypes').AgentModel} */
+    let originalAgent;
 
     onMount(() => {
         isLoading = true;
         getAgent(params.agentId).then(data => {
-            agent = {
+            originalAgent = {
                 ...data,
                 llm_config: data.llm_config || {}
             };
+            const agentDraft = getAgentDraft();
+            if (agentDraft) {
+                agent = agentDraft;
+            } else {
+                agent = JSON.parse(JSON.stringify(originalAgent));
+            }
         }).finally(() => {
             isLoading = false;
         });
     });
+
+    function getAgentDraft() {
+        return agentStorage.get(`agent_draft_${params.agentId}`)
+    }
+
+    /** @param {any} data */
+    function saveAgentDraft(data) {
+        agentStorage.set(`agent_draft_${params.agentId}`, data, 24 * 60 * 60 * 1000)
+    }
+
+    function deleteAgentDraft() {
+        agentStorage.remove(`agent_draft_${params.agentId}`);
+    }
 
     function updateCurrentAgent() {
         Swal.fire({
@@ -88,31 +111,49 @@
         isLoading = true;
         saveAgent(agent).then(res => {
             isLoading = false;
-			isComplete = true;
+            isComplete = true;
+            deleteAgentDraft();
             refreshChannelPrompts();
-			setTimeout(() => {
-				isComplete = false;
-			}, duration);
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
         }).catch(err => {
             isLoading = false;
-			isComplete = false;
-			isError = true;
-			setTimeout(() => {
-				isError = false;
-			}, duration);
+            isComplete = false;
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
         });
     }
 
-    function fetchJsonContent() {
+    function formatJsonContent() {
         const content = agentFunctionCmp?.fetchContent();
         const textContent = JSON.parse(content?.text || "{}");
         const jsonContent = JSON.parse(JSON.stringify(content?.json || {}));
-        agent.functions = textContent?.functions?.length > 0 ? textContent.functions :
-                            (jsonContent?.functions?.length > 0 ? jsonContent?.functions : []);
-        agent.responses = textContent?.responses?.length > 0 ? textContent.responses :
-                            (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []);
-        agent.templates = textContent?.templates?.length > 0 ? textContent.templates :
-                            (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []);
+        return {
+            functions: textContent?.functions?.length > 0 ? textContent.functions :
+                (jsonContent?.functions?.length > 0 ? jsonContent?.functions : []),
+            responses: textContent?.responses?.length > 0 ? textContent.responses :
+                (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []),
+            templates: textContent?.templates?.length > 0 ? textContent.templates :
+                (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []),
+        }
+    }
+
+    function fetchJsonContent() {
+        const data = formatJsonContent();
+        agent.functions = data.functions;
+        agent.responses = data.responses;
+        agent.templates = data.templates;
+    }
+
+    function formatOriginalPrompts() {
+        const obj = agentPromptCmp?.fetchOriginalChannelPrompts();
+        return {
+            instruction: obj.systemPrompt,
+            channel_instructions: obj.channelPrompts || []
+        }
     }
 
     function fetchPrompts() {
@@ -121,6 +162,14 @@
         agent.channel_instructions = obj.channelPrompts || [];
     }
 
+    function formatOriginalTabData() {
+        const data = agentTabsCmp?.fetchOriginalData();
+        return data ? {
+            utilities: data.utilities || [],
+            knowledge_bases: data.knwoledgebases || [],
+            rules: data.rules || []
+        } : null;
+    }
     function fetchTabData() {
         const data = agentTabsCmp?.fetchData();
         if (data) {
@@ -152,9 +201,33 @@
 
     function handleAgentDelete() {
         deleteAgent(agent?.id).then(res => {
+            deleteAgentDraft();
             goto(`page/agent`);
         });
     }
+
+    function handleAgentChange() {
+        const data = {
+            ...agent,
+            ...formatJsonContent(),
+            ...formatOriginalPrompts(),
+            ...formatOriginalTabData(),
+        };
+        saveAgentDraft(data);
+    }
+
+    function agentDraftReset() {
+        agent = JSON.parse(JSON.stringify(originalAgent));
+        agentDraft = null;
+        deleteAgentDraft();
+        setTimeout(() => {
+            refreshChannelPrompts();
+            agentFunctionCmp?.reinit();
+            agentTabsCmp?.reinit();
+        });
+    }
+
+
 </script>
 
 <HeadTitle title="{$_('Agent Overview')}" />
@@ -163,21 +236,24 @@
 
 {#if agent}
 <div>
+    {#if agentDraft}
+    <button type="button" class="btn btn-sm btn-primary" on:click={agentDraftReset}>{$_('Reset')}</button>
+    {/if}
     <Row class="agent-detail-sections">
         <Col class="section-min-width agent-col" style="flex: 40%;">
             <div class="agent-detail-section">
-                <AgentOverview agent={agent} profiles={agent.profiles || []} labels={agent.labels || []} />
+                <AgentOverview agent={agent} profiles={agent.profiles || []} labels={agent.labels || []} {handleAgentChange} />
             </div>
             <div class="agent-detail-section">
-                <AgentTabs bind:this={agentTabsCmp} agent={agent} />
+                <AgentTabs bind:this={agentTabsCmp} agent={agent} {handleAgentChange} />
             </div>
         </Col>
         <Col class="section-min-width agent-col" style="flex: 60%;">
             <div class="agent-detail-section">
-                <AgentPrompt bind:this={agentPromptCmp} agent={agent} />
+                <AgentPrompt bind:this={agentPromptCmp} agent={agent} {handleAgentChange} />
             </div>
             <div class="agent-detail-section">
-                <AgentFunction bind:this={agentFunctionCmp} agent={agent} />
+                <AgentFunction bind:this={agentFunctionCmp} agent={agent} {handleAgentChange} />
             </div>
         </Col>
     </Row>

@@ -9,6 +9,9 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
     export const fetchKnowledgeBases = () => {
         const candidates = innerKnowledgeBases?.filter(x => !!x.name)?.map(x => {
             return {
@@ -30,6 +33,10 @@
 
         refresh(knowledgeBases);
         return knowledgeBases;
+    }
+
+    export const fetchOriginalKnowledgeBases = () => {
+        return innerKnowledgeBases;
     }
 
     /** @type {any[]} */
@@ -61,11 +68,12 @@
             return {
                 ...x,
                 displayName: getDisplayOption(x),
-                disabled: false
             };
         }) || [];
         refresh(list);
     }
+
+    export const reinit = () => init();
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
     function getDisplayOption(b) {
@@ -84,6 +92,7 @@
         const vals = e.target.value.split("#");
         found.name = vals[0];
         found.type = vals[1];
+        handleAgentChange();
         refresh(innerKnowledgeBases);
     }
 
@@ -97,11 +106,13 @@
                 disabled: false
             }
         ];
+        handleAgentChange();
     }
 
     /** @param {number} idx */
     function deleteKnowledgeBase(idx) {
         innerKnowledgeBases = innerKnowledgeBases.filter((_, index) => index !== idx);
+        handleAgentChange();
     }
 
     /**
@@ -113,6 +124,7 @@
         if (!found) return;
 
         found.disabled = !e.target.checked;
+        handleAgentChange();
         refresh(innerKnowledgeBases);
     }
 

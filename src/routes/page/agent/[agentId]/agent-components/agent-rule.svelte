@@ -9,6 +9,9 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
             return {
@@ -30,6 +33,10 @@
 
         refresh(rules);
         return rules;
+    }
+
+    export const fetchOriginalRules = () => {
+        return innerRules;
     }
 
     /** @type {any[]} */
@@ -59,11 +66,12 @@
             return {
                 ...x,
                 displayName: "",
-                disabled: false
             };
         }) || [];
         refresh(list);
     }
+
+    export const reinit = () => init();
 
     /**
 	 * @param {any} e
@@ -75,6 +83,7 @@
         
         const val = e.target.value;
         found.trigger_name = val;
+        handleAgentChange();
         refresh(innerRules);
     }
 
@@ -88,11 +97,13 @@
                 disabled: false
             }
         ];
+        handleAgentChange();
     }
 
     /** @param {number} idx */
     function deleteRule(idx) {
         innerRules = innerRules.filter((_, index) => index !== idx);
+        handleAgentChange();
     }
 
     /**
@@ -104,6 +115,7 @@
         if (!found) return;
 
         found.disabled = !e.target.checked;
+        handleAgentChange();
         refresh(innerRules);
     }
 
@@ -120,6 +132,7 @@
         if (field === 'criteria') {
             found.criteria = val;
         }
+        handleAgentChange();
         refresh(innerRules);
     }
 

@@ -5,6 +5,9 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {() => void} */
+    export let handleAgentChange;
+
     export const fetchContent = () => {
         return content;
     }
@@ -15,6 +18,10 @@
     };
 
     onMount(() => {
+        init();
+    });
+
+    function init() {
         content = {
             json: {
                 functions: agent.functions,
@@ -22,7 +29,9 @@
                 templates: agent.templates
             }
         };
-    });
+    }
+
+    export const reinit = () => init();
 
     /**
 	 * @param {import('svelte-jsoneditor').Content} updatedContent
@@ -31,6 +40,8 @@
 	 */
     function handleChange(updatedContent, previousContent, status) {
         content = updatedContent;
+        const isInitial = 'json' in previousContent && JSON.stringify(previousContent.json) === "{}";
+        !isInitial && handleAgentChange();
     }
 </script>
 

@@ -70,6 +70,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
+	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 
 	
 	const options = {
@@ -96,6 +97,8 @@
 
 	/** @type {import('$userTypes').UserModel} */
 	export let currentUser;
+
+	const messageStorage = new LocalStorageManager();
 
 	/** @type {string} */
 	let text = '';
@@ -220,6 +223,10 @@
 		selectedTags = conversation?.tags || [];
 		initUserSentMessages(dialogs);
 		initChatView();
+		const messageDraft = getMessageDraft();
+		if (messageDraft) {
+			text = messageDraft;
+		}
 		handlePaneResize();
 		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
@@ -613,6 +620,7 @@
 
 					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
+						deleteMessageDraft();
 					}).catch(err => {
 						reject(err);
 					}).finally(() => {
@@ -638,6 +646,7 @@
 
 						sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 							resolve(res);
+							deleteMessageDraft();
 						}).catch(err => {
 							reject(err);
 						}).finally(() => {
@@ -647,6 +656,7 @@
 				} else {
 					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
+						deleteMessageDraft();
 					}).catch(err => {
 						reject(err);
 					}).finally(() => {
@@ -717,6 +727,7 @@
 	/** @param {any} e */
     function handleMessageInput(e) {
         const value = e.target.value;
+				saveMessageDraft(value);
         if (!!!_.trim(value)) {
             return;
         }
@@ -1137,6 +1148,8 @@
 		isOpenBigMsgModal = !isOpenBigMsgModal;
 		if (!isOpenBigMsgModal) {
 			bigText = '';
+		} else {
+			bigText = text;
 		}
 	}
 
@@ -1320,6 +1333,26 @@
 		});
 	}
 
+  /** @param {any} e */
+	function handleInputBigText(e) {
+		saveMessageDraft(e.target.value);
+	}
+
+	const MESSAGE_STORAGE_KEY = 'message_draft_';
+	function getMessageDraft() {
+		return messageStorage.get(MESSAGE_STORAGE_KEY + params.conversationId);
+  }
+
+	/**
+	 * @param {any} message
+	 */
+  function saveMessageDraft(message) {
+		messageStorage.set(MESSAGE_STORAGE_KEY + params.conversationId, message, 24 * 60 * 60 * 1000);
+  }
+
+  function deleteMessageDraft() {
+		messageStorage.remove(MESSAGE_STORAGE_KEY + params.conversationId);
+  }
 	function handlePaneResize() {
 		const header = document.querySelector('.chat-head');
 		if (!header) return;
@@ -1410,7 +1443,7 @@
 	cancel={() => toggleBigMessageModal()}
 	disableConfirmBtn={!!!_.trim(bigText)}
 >
-	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." />
+	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." on:input={handleInputBigText} />
 	<div class="text-secondary text-end text-count">
 		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
@@ -1849,12 +1882,10 @@
 										</ChatFileUploader>
 									</ChatTextArea>
 									<div class="chat-util-links">
-										{#if !isLite}
-											<ChatBigMessage
-												disabled={isSendingMsg || isThinking || disableAction}
-												on:click={() => toggleBigMessageModal()}
-											/>
-										{/if}
+										<ChatBigMessage
+											disabled={isSendingMsg || isThinking || disableAction}
+											on:click={() => toggleBigMessageModal()}
+										/>
 										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
 											<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
 										{/if}

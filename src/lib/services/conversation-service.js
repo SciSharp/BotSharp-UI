@@ -289,3 +289,37 @@ export async function getAddressOptions(text) {
     });
     return response.data;
 }
+
+/**
+ * get conversation state key list
+ * @returns {Promise<{id: string, name: string, description: string}[]>}
+ */
+export async function getConversationStateKey() {
+    let url = endpoints.conversationStateKeyListUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/** @type {import('axios').CancelTokenSource | null} */
+let getConversationStateValueCancelToken = null;
+/**
+ * get conversation state value
+ * @param {string} key
+ * @param {string} query
+ * @returns {Promise<{id: string, name: string}[]>}
+ */
+export async function getConversationStateValue(key, query) {
+    let url = endpoints.conversationStateValueUrl;
+    if (getConversationStateValueCancelToken) {
+        getConversationStateValueCancelToken.cancel();
+    }
+    getConversationStateValueCancelToken = axios.CancelToken.source();
+    const response = await axios.get(url, {
+        params: {
+            conversatinFilterType: key,
+            searchKey: query
+        },
+        cancelToken: getConversationStateValueCancelToken.token
+    });
+    return response.data;
+}
