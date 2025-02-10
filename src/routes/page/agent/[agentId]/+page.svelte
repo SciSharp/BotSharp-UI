@@ -28,6 +28,10 @@
     let agentPromptCmp = null;
     /** @type {any} */
     let agentTabsCmp = null;
+    /** @type {import('$agentTypes').AgentModel} */
+    let originalAgent;
+    /** @type {any} */
+    let agentDraft = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -37,18 +41,16 @@
     const duration = 3000;
     const params = $page.params;
     const agentStorage = new LocalStorageManager();
-    let agentDraft = getAgentDraft();
-    /** @type {import('$agentTypes').AgentModel} */
-    let originalAgent;
+    
 
     onMount(() => {
         isLoading = true;
+        agentDraft = getAgentDraft();
         getAgent(params.agentId).then(data => {
             originalAgent = {
                 ...data,
                 llm_config: data.llm_config || {}
             };
-            const agentDraft = getAgentDraft();
             if (agentDraft) {
                 agent = agentDraft;
             } else {
@@ -226,8 +228,6 @@
             agentTabsCmp?.reinit();
         });
     }
-
-
 </script>
 
 <HeadTitle title="{$_('Agent Overview')}" />
@@ -236,24 +236,40 @@
 
 {#if agent}
 <div>
-    {#if agentDraft}
-    <button type="button" class="btn btn-sm btn-primary" on:click={agentDraftReset}>{$_('Reset')}</button>
-    {/if}
     <Row class="agent-detail-sections">
         <Col class="section-min-width agent-col" style="flex: 40%;">
             <div class="agent-detail-section">
-                <AgentOverview agent={agent} profiles={agent.profiles || []} labels={agent.labels || []} {handleAgentChange} />
+                <AgentOverview
+                    agent={agent}
+                    profiles={agent.profiles || []}
+                    labels={agent.labels || []}
+                    resetable={!!agentDraft}
+                    resetAgent={() => agentDraftReset()}
+                    {handleAgentChange}
+                />
             </div>
             <div class="agent-detail-section">
-                <AgentTabs bind:this={agentTabsCmp} agent={agent} {handleAgentChange} />
+                <AgentTabs
+                    bind:this={agentTabsCmp}
+                    agent={agent}
+                    {handleAgentChange}
+                />
             </div>
         </Col>
         <Col class="section-min-width agent-col" style="flex: 60%;">
             <div class="agent-detail-section">
-                <AgentPrompt bind:this={agentPromptCmp} agent={agent} {handleAgentChange} />
+                <AgentPrompt
+                    bind:this={agentPromptCmp}
+                    agent={agent}
+                    {handleAgentChange}
+                />
             </div>
             <div class="agent-detail-section">
-                <AgentFunction bind:this={agentFunctionCmp} agent={agent} {handleAgentChange} />
+                <AgentFunction
+                    bind:this={agentFunctionCmp}
+                    agent={agent}
+                    {handleAgentChange}
+                />
             </div>
         </Col>
     </Row>

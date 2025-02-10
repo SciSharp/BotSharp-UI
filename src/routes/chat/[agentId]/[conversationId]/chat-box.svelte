@@ -91,6 +91,7 @@
 	const chatWidthThreshold = 300;
 	const maxTextLength = 64000;
 	const duration = 2000;
+	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
@@ -224,9 +225,7 @@
 		initUserSentMessages(dialogs);
 		initChatView();
 		const messageDraft = getMessageDraft();
-		if (messageDraft) {
-			text = messageDraft;
-		}
+		text = messageDraft || '';
 		handlePaneResize();
 		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
@@ -1333,26 +1332,24 @@
 		});
 	}
 
-  /** @param {any} e */
+  	/** @param {any} e */
 	function handleInputBigText(e) {
 		saveMessageDraft(e.target.value);
 	}
 
-	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	function getMessageDraft() {
 		return messageStorage.get(MESSAGE_STORAGE_KEY + params.conversationId);
-  }
+  	}
 
-	/**
-	 * @param {any} message
-	 */
-  function saveMessageDraft(message) {
+	/** @param {any} message */
+	function saveMessageDraft(message) {
 		messageStorage.set(MESSAGE_STORAGE_KEY + params.conversationId, message, 24 * 60 * 60 * 1000);
-  }
+	}
 
-  function deleteMessageDraft() {
+	function deleteMessageDraft() {
 		messageStorage.remove(MESSAGE_STORAGE_KEY + params.conversationId);
-  }
+	}
+
 	function handlePaneResize() {
 		const header = document.querySelector('.chat-head');
 		if (!header) return;

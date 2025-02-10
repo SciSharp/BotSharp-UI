@@ -6,6 +6,8 @@
     import { v4 as uuidv4 } from 'uuid';
     import util from "lodash";
 	import { _ } from 'svelte-i18n';
+
+    const defaultChannel = "default";
     
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -43,8 +45,6 @@
     }
 
     export const refreshChannelPrompts = () => init();
-
-    const defaultChannel = "default";
 
     /** @type {import('$agentTypes').ChannelInstruction} */
     const defaultInstruction = {

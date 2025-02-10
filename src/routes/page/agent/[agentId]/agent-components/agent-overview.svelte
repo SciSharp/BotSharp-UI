@@ -1,6 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
+    import { _ } from 'svelte-i18n'  
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
     import { format } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
@@ -20,6 +21,12 @@
     
     /** @type {() => void} */
     export let handleAgentChange;
+
+    /** @type {boolean} */
+    export let resetable = false;
+
+    /** @type {() => void} */
+    export let resetAgent = () => {};
    
     onMount(() => {});
 
@@ -62,6 +69,19 @@
 
 <Card>
     <CardHeader>
+        {#if resetable}
+            <!-- svelte-ignore a11y-click-events-have-key-events -->
+            <!-- svelte-ignore a11y-no-static-element-interactions -->
+            <div
+                class="agent-reset-container"
+                data-bs-toggle="tooltip"
+                data-bs-placement="bottom"
+                title={$_('Reset')}
+                on:click={() => resetAgent()}
+            >
+                <i class="mdi mdi-refresh text-primary clickable" />
+            </div>
+        {/if}
         <div class="text-center">
             <div class="agent-overview-header">
                 <img
@@ -80,7 +100,9 @@
                     </Button>
                 {/if}
             </div>
-            <h5 class="mt-1 mb-1 div-center"><InPlaceEdit bind:value={agent.name} /></h5>
+            <h5 class="mt-1 mb-1 div-center">
+                <InPlaceEdit bind:value={agent.name} on:input={handleAgentChange} />
+            </h5>
             <p class="text-muted mb-0">{`Updated at ${format(agent.updated_datetime, 'time')}`}</p>
         </div>
     </CardHeader>
