@@ -39,6 +39,13 @@
         };
     }
 
+    export const reinit = () => {
+        agentLlmConfigCmp?.reinit();
+        agentUtilityCmp?.reinit();
+        agentKnowledgeBaseCmp?.reinit();
+        agentEventRuleCmp?.reinit();
+    }
+
     /** @type {any} */
     let agentLlmConfigCmp = null;
     /** @type {any} */
@@ -63,14 +70,6 @@
     onMount(() => {
         selectedTab = tabs[0]?.name;
     });
-
-    export const reinit = () => {
-        agentLlmConfigCmp?.reinit();
-        agentUtilityCmp?.reinit();
-        agentKnowledgeBaseCmp?.reinit();
-        agentEventRuleCmp?.reinit();
-    }
-
 
     /** @param {string} selected */
     function handleTabClick(selected) {

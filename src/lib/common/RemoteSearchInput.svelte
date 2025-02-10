@@ -53,32 +53,32 @@
 </script>
 
 <div class="position-relative">
-  <Dropdown class="scrollable-dropdown" isOpen={isOpen && (searchResults.length > 0 || loading)} toggle={() => isOpen = !isOpen}>
-      <DropdownToggle tag="div">
-          <Input
-              type="text"
-              value={selectedValue?.name}
-              on:input={handleInput}
-              {disabled}
-              {placeholder}
-          />
-      </DropdownToggle>
-      <DropdownMenu class="w-100">
-          {#if loading}
-              <DropdownItem>
-                  <Spinner size="sm" />
-              </DropdownItem>
-          {:else}
-              {#each searchResults as result, index}
-                  <DropdownItem
-                      active={selectedValue?.id === result.id}
-                      on:click={() => selectResult(result)}
-                      title={result.name}
-                  >
-                      {result.name}
-                  </DropdownItem>
-              {/each}
-          {/if}
-      </DropdownMenu>
-  </Dropdown>
+    <Dropdown class="scrollable-dropdown" isOpen={isOpen && (searchResults.length > 0 || loading)} toggle={() => isOpen = !isOpen}>
+        <DropdownToggle tag="div">
+            <Input
+                type="text"
+                value={selectedValue?.name}
+                on:input={handleInput}
+                {disabled}
+                {placeholder}
+            />
+        </DropdownToggle>
+        <DropdownMenu class="w-100">
+            {#if loading}
+                <DropdownItem>
+                    <Spinner size="sm" />
+                </DropdownItem>
+            {:else}
+                {#each searchResults as result, index}
+                    <DropdownItem
+                        active={selectedValue?.id === result.id}
+                        on:click={() => selectResult(result)}
+                        title={result.name}
+                    >
+                        {result.name}
+                    </DropdownItem>
+                {/each}
+            {/if}
+        </DropdownMenu>
+    </Dropdown>
 </div>

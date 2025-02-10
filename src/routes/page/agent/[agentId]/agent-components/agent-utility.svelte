@@ -55,6 +55,8 @@
         return innerUtilities;
     }
 
+    export const reinit = () => init();
+
     /** @type {any} */
     let utilityMapper = {};
 
@@ -121,8 +123,6 @@
         }) || [];
         refresh(list);
     }
-
-    export const reinit = () => init();
 
     /**
 	 * @param {any} e
