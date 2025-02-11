@@ -7,6 +7,9 @@
 
 .list-title {
     width: 40%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .conv-state-search-menu {

@@ -1,5 +1,8 @@
 <script>
-	import { _ } from 'svelte-i18n'
+	import { onMount } from 'svelte';
+	import { _ } from 'svelte-i18n';
+	import Swal from 'sweetalert2';
+	import lodash from "lodash";
 	import {
 		Button,
 		Card,
@@ -13,13 +16,10 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { onMount } from 'svelte';
 	import { getAgents } from '$lib/services/agent-service';
-	import { getConversations, deleteConversation, getConversationStateKey } from '$lib/services/conversation-service.js';
+	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import Swal from 'sweetalert2';
-	import lodash from "lodash";
-	import { ConversationChannel, ConversationTag } from '$lib/helpers/enums';
+	import { ConversationChannel } from '$lib/helpers/enums';
 	import RemoteSearchInput from '$lib/common/RemoteSearchInput.svelte';
 
 	let isLoading = false;
@@ -219,11 +219,11 @@
 	 * @param {any} e
 	 */
 	function handleConfirmStateModal(e) {
-		if (stateKey && stateValue) {
+		if (stateKey) {
 		  searchOption.states = [
 			  {
 				  key: { data: stateKey, isValid: true },
-				  value: {data: stateValue, isValid: true },
+				  value: { data: stateValue || '', isValid: true },
 				  active_rounds: {data: -1, isValid: true},
 			  }
 			];
@@ -338,13 +338,16 @@
 		}
 	}
 
-  /**
-   * @param {any} query
-   */
-  async function handleStateSearch(query) {
-    const response = await getConversationStateKey(query);
-		return response || [];
-  }
+	/** @param {string} query */
+	function handleStateSearch(query) {
+		return new Promise((resolve) => {
+			getConversationStateSearchKeys({
+				query: query
+			}).then(res => {
+				resolve(res || []);
+			}).catch(() => resolve([]));
+		});
+	}
 </script>
 
 <HeadTitle title="{$_('Conversation List')}" />
@@ -355,14 +358,16 @@
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
-				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-0" style="width: 100%;">{$_('Conversation List')}</h5>
-					<div style="width: 100%;">
+				<div class="d-flex align-items-center" style="flex-wrap: wrap; justify-content: space-between;">
+					<div class="mb-0 card-title flex-grow-0">
+						<h5 class="mb-0">{$_('Conversation List')}</h5>
+					</div>
+					<div>
 						<div class="state-search-container">
 							<div>
 								<RemoteSearchInput
 									bind:value={stateKey}
-									onSearch={handleStateSearch}
+									onSearch={e => handleStateSearch(e)}
 									placeholder="Search States"
 								/>
 							</div>
@@ -435,7 +440,7 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
-					<Table class="align-middle nowrap" bordered>
+					<Table class="align-middle nowrap" style="table-layout: fixed;" bordered>
 						<thead>
 							<tr>
 								<th scope="col" class="list-title">{$_('Title')}</th>

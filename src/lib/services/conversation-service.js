@@ -290,24 +290,21 @@ export async function getAddressOptions(text) {
     return response.data;
 }
 
-/** @type {import('axios').CancelTokenSource | null} */
-let getConversationStatKeyCancelToken = null;
+/** @type {AbortController} */
+let controller = new AbortController();
+
 /**
- * get conversation state key list
- * @param {string} query
- * @returns {Promise<{id: string, name: string}[]>}
+ * get conversation state search keys
+ * @param {import('$conversationTypes').StateSearchQuery} request
+ * @returns {Promise<string[]>}
  */
-export async function getConversationStateKey(query) {
-    let url = endpoints.conversationStateKeyListUrl;
-    if (getConversationStatKeyCancelToken) {
-        getConversationStatKeyCancelToken.cancel();
-    }
-    getConversationStatKeyCancelToken = axios.CancelToken.source();
+export async function getConversationStateSearchKeys(request) {
+    let url = endpoints.conversationStateSearchKeysUrl;
     const response = await axios.get(url, {
         params: {
-            searchKey: query
+            ...request
         },
-        cancelToken: getConversationStatKeyCancelToken.token
+        signal: controller.signal
     });
     return response.data;
 }
