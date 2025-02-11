@@ -15,7 +15,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { onMount } from 'svelte';
 	import { getAgents } from '$lib/services/agent-service';
-	import { getConversations, deleteConversation, getConversationStateKey, getConversationStateValue } from '$lib/services/conversation-service.js';
+	import { getConversations, deleteConversation, getConversationStateKey } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
@@ -70,27 +70,17 @@
 		tags: []
 	};
 
-	/** @type {any[]} */
-	let stateOptions = [];
+	/** @type {string} */
+	let stateKey = "";
 
 	/** @type {string | null} */
-	let selectedStateKey = null;
-
-	/** @type {{id: string, name: string} | null} */
-	let selectedStateValue;
-
-	/** @type {boolean} */
-	let isValueEditable = false;
-
-	/** @type {RemoteSearchInput} */
-	let remoteSearchInput;
+	let stateValue = null;
 
     onMount(async () => {
 		isLoading = true;
 		Promise.all([
 			loadAgentOptions(),
 			loadSearchOption(),
-			loadStates(),
 			loadConversations()])
 		.finally(() => {
 			isLoading = false
@@ -229,12 +219,12 @@
 	 * @param {any} e
 	 */
 	function handleConfirmStateModal(e) {
-		if (selectedStateKey && selectedStateValue?.id) {
+		if (stateKey && stateValue) {
 		  searchOption.states = [
 			  {
-				  key: { data: stateOptions.find(x => Number(x.id) === Number(selectedStateKey))?.description, isValid: true },
-				  value: {data: selectedStateValue.id, isValid: true },
-				  active_rounds: {data: 0, isValid: true},
+				  key: { data: stateKey, isValid: true },
+				  value: {data: stateValue, isValid: true },
+				  active_rounds: {data: -1, isValid: true},
 			  }
 			];
 		} else {
@@ -348,28 +338,12 @@
 		}
 	}
 
-	async function loadStates() {
-		const response = await getConversationStateKey();
-		stateOptions = response;
-	}
-
-	/**
-	 * @param { any } e
-	 */
-	function handleStateChange(e) {
-		selectedStateKey = e.target.value;
-		isValueEditable = !!selectedStateKey;
-		selectedStateValue = null;
-		remoteSearchInput?.clearSearchResults();
-	}
-
   /**
    * @param {any} query
    */
-	 async function handleValueSearch(query) {
-    if (!selectedStateKey) return [];
-    const response = await getConversationStateValue(selectedStateKey, query);
-    return response;
+  async function handleStateSearch(query) {
+    const response = await getConversationStateKey(query);
+		return response || [];
   }
 </script>
 
@@ -386,20 +360,18 @@
 					<div style="width: 100%;">
 						<div class="state-search-container">
 							<div>
-								<select class="form-select" on:change={handleStateChange}>
-									<option value={null}>Select State</option>
-									{#each stateOptions as state}
-										<option value={state.id}>{state.name}</option>
-									{/each}
-								</select>
+								<RemoteSearchInput
+									bind:value={stateKey}
+									onSearch={handleStateSearch}
+									placeholder="Search States"
+								/>
 							</div>
 							<div>
-								<RemoteSearchInput 
-								  bind:selectedValue={selectedStateValue}
-								  disabled={!isValueEditable}
-								  onSearch={handleValueSearch}
-								  placeholder="Enter a value"
-								  bind:this={remoteSearchInput}
+								<Input
+									type="text"
+									bind:value={stateValue}
+									disabled={!stateKey}
+									placeholder="Enter a value"
 								/>
 							</div>
 							<div>

@@ -136,7 +136,7 @@
                                     class="form-check-input" 
                                     type="checkbox" 
                                     bind:checked={agent.is_public} 
-                                    on:input={handleAgentChange}
+                                    on:change={handleAgentChange}
                                     id="is_public" 
                                 />
                                 <label class="form-check-label" for="is_public"> Public </label>
@@ -151,7 +151,7 @@
                                     class="form-check-input" 
                                     type="checkbox" 
                                     bind:checked={agent.allow_routing} 
-                                    on:input={handleAgentChange}
+                                    on:change={handleAgentChange}
                                     id="allow_routing" 
                                 />
                                 <label class="form-check-label" for="allow_routing">Allow</label>
@@ -244,7 +244,7 @@
                                     class="form-check-input" 
                                     type="checkbox" 
                                     bind:checked={agent.disabled} 
-                                    on:input={handleAgentChange}
+                                    on:change={handleAgentChange}
                                     id="disabled" 
                                 />
                                 <label class="form-check-label" for="disabled">Disabled</label>
