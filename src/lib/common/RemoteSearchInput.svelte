@@ -11,15 +11,20 @@
 
 	/** @type {string} */
 	export let value;
+    /** @type {string} */
+    export let placeholder = '';
+    /** @type {boolean} */
 	export let disabled = false;
-	export let placeholder = '';
-	/**
-	 * @type {(query: string) => Promise<({id: string; name: string} | string)[]>}
-	 */
-	export let onSearch;
+	/** @type {boolean} */
 	export let loading = false;
+    /** @type {(query: string) => Promise<string[]>} */
+	export let onSearch = query => Promise.resolve([]);
 
-	/** @type {({id: string; name: string} | string)[]} */
+    export const clearSearchResults = () => {
+		searchResults = [];
+	};
+
+	/** @type {string[]} */
 	let searchResults = [];
 	let isOpen = false;
 
@@ -46,15 +51,13 @@
 	}
 
 	/**
-	 * @param { {id: string; name: string} | string } result
+	 * @param { string } result
 	 */
 	function selectResult(result) {
-		value = typeof result === 'string' ? result : result?.id;
+		value = result;
 	}
 
-	export function clearSearchResults() {
-		searchResults = [];
-	}
+	
 </script>
 
 <div class="position-relative">
@@ -66,17 +69,17 @@
 		<DropdownToggle tag="div">
 			<Input type="text" {value} on:input={handleInput} {disabled} {placeholder} />
 		</DropdownToggle>
-		<DropdownMenu class="w-100">
+		<DropdownMenu class="w-100 thin-scrollbar">
 			{#if loading}
 				<li class="text-center"><Spinner size="sm" /></li>
 			{:else}
-				{#each searchResults as result, index}
+				{#each searchResults as item, index}
 					<DropdownItem
-						active={value === (typeof result === 'string' ? result : result?.id)}
-						on:click={() => selectResult(result)}
-						title={typeof result === 'string' ? result : result?.name}
+						active={value === item}
+						title={item}
+                        on:click={() => selectResult(item)}
 					>
-						{typeof result === 'string' ? result : result?.name}
+						{item}
 					</DropdownItem>
 				{/each}
 			{/if}
