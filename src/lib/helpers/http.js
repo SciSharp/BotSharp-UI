@@ -90,7 +90,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/role/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/user/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/agent/labels', 'g'),
-        new RegExp('http(s*)://(.*?)/conversation/state-search', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation/state-key', 'g'),
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {

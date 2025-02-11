@@ -85,6 +85,7 @@
     function changeMaxOutputToken(e) {
         const value = Number(e.target.value) || 0;
         config.max_output_tokens = value;
+        handleAgentChange();
     }
 </script>
 
