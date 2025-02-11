@@ -39,6 +39,8 @@
         return innerRules;
     }
 
+    export const reinit = () => init();
+
     /** @type {any[]} */
     let ruleOptions = [];
 
@@ -70,9 +72,7 @@
         }) || [];
         refresh(list);
     }
-
-    export const reinit = () => init();
-
+    
     /**
 	 * @param {any} e
 	 * @param {number} idx

@@ -5,10 +5,6 @@
 		Card,
 		CardBody,
 		Col,
-		Dropdown,
-		DropdownItem,
-		DropdownMenu,
-		DropdownToggle,
 		Input,
 		Row,
 		Table
@@ -17,22 +13,18 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import Label from '$lib/common/Label.svelte';
-	import StateModal from '$lib/common/StateModal.svelte';
 	import { onMount } from 'svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation, getConversationStateKey } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
-	import MultiSelect from '$lib/common/MultiSelect.svelte';
 	import { ConversationChannel, ConversationTag } from '$lib/helpers/enums';
 	import RemoteSearchInput from '$lib/common/RemoteSearchInput.svelte';
 
 	let isLoading = false;
 	let isComplete = false;
 	let isError = false;
-	let isOpenSearchStateModal = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
@@ -66,11 +58,6 @@
 	/** @type {import('$commonTypes').IdName[]} */
 	let channelOptions = Object.entries(ConversationChannel).map(([k, v]) => (
 		{ id: k.toLowerCase(), name: v }
-	));
-
-	/** @type {import('$commonTypes').KeyValuePair[]} */
-	let tagOptions = Object.entries(ConversationTag).map(([k, v]) => (
-		{ key: k, value: v }
 	));
 
 	/** @type {import('$conversationTypes').ConversationSearchOption} */
@@ -369,35 +356,28 @@
 		<Card>
 			<CardBody class="border-bottom">
 				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-0">{$_('Conversation List')}</h5>
-					<div class="flex-grow-1">
-						<Row class="g-3">
-							<Col lg="1"></Col>
-							<Col lg="2" sm="12">
+					<h5 class="mb-0 card-title flex-grow-0" style="width: 100%;">{$_('Conversation List')}</h5>
+					<div style="width: 100%;">
+						<div class="state-search-container">
+							<div>
 								<RemoteSearchInput
 									bind:value={stateKey}
 									onSearch={handleStateSearch}
 									placeholder="Search States"
 								/>
-							</Col>
-							<Col lg="2" sm="12">
+							</div>
+							<div>
 								<Input
 									type="text"
 									bind:value={stateValue}
 									disabled={!stateKey}
 									placeholder="Enter a value"
 								/>
-							</Col>
-							<Col lg="1" sm="12">
-								<button class="btn btn-primary" on:click={handleConfirmStateModal}>Confirm</button>
-							</Col>
-						</Row>
-						<!-- <Button
-							class="btn btn-light"
-							on:click={(e) => searchConversations(e)}
-						>
-							<i class="mdi mdi-magnify" />
-						</Button> -->
+							</div>
+							<div>
+								<Button color="primary" on:click={handleConfirmStateModal}>Confirm</Button>
+							</div>
+						</div>
 					</div>
 				</div>
 			</CardBody>
@@ -440,9 +420,6 @@
 							on:input={e => changeOption(e, "tags")}
 						/>
 					</Col>
-					<!-- <Col lg="2">
-            <Input type="date" class="form-control" />
-          </Col> -->
 					<Col lg="1">
 						<Button
 							type="button"

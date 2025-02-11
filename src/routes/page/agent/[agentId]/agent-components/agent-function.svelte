@@ -12,6 +12,8 @@
         return content;
     }
 
+    export const reinit = () => init();
+
     /** @type {import('svelte-jsoneditor').Content} */
     let content = {
         json: {}
@@ -30,8 +32,6 @@
             }
         };
     }
-
-    export const reinit = () => init();
 
     /**
 	 * @param {import('svelte-jsoneditor').Content} updatedContent

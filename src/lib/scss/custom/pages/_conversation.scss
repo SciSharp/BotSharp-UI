@@ -29,3 +29,9 @@
     -webkit-line-clamp: 10;
     max-height: 300px;
 }
+
+.state-search-container {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}

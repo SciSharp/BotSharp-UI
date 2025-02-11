@@ -39,6 +39,8 @@
         return innerKnowledgeBases;
     }
 
+    export const reinit = () => init();
+
     /** @type {any[]} */
     let knowledgeBaseOptions = [];
 
@@ -72,8 +74,6 @@
         }) || [];
         refresh(list);
     }
-
-    export const reinit = () => init();
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
     function getDisplayOption(b) {

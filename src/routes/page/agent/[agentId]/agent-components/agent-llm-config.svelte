@@ -54,7 +54,7 @@
         }
 
         config.is_inherit = false;
-        handleAgentChange();
+        // handleAgentChange();
         models = await getLlmProviderModels(provider);
         config.model = models[0]?.name;
         handleAgentChange();
