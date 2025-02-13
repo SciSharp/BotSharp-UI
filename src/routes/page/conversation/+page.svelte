@@ -342,7 +342,8 @@
 	function handleStateSearch(query) {
 		return new Promise((resolve) => {
 			getConversationStateSearchKeys({
-				query: query
+				query: query,
+				keyLimit: 20
 			}).then(res => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
@@ -440,7 +441,7 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
-					<Table class="align-middle nowrap" style="table-layout: fixed;" bordered>
+					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>
 								<th scope="col" class="list-title">{$_('Title')}</th>

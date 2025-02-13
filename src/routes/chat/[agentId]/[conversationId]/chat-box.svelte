@@ -224,9 +224,9 @@
 		selectedTags = conversation?.tags || [];
 		initUserSentMessages(dialogs);
 		initChatView();
+		handlePaneResize();
 		const messageDraft = getMessageDraft();
 		text = messageDraft || '';
-		handlePaneResize();
 		
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
