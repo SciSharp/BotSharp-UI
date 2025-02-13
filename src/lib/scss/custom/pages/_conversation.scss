@@ -7,6 +7,8 @@
 
 .list-title {
     width: 40%;
+    min-width: 100px;
+    max-width: 200px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
