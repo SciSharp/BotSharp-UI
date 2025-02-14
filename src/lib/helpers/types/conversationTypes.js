@@ -41,7 +41,8 @@
  * @typedef {Object} StateSearchQuery
  * @property {string} query - The search query.
  * @property {number?} [keyLimit] - The key limit.
- * @property {boolean?} [preLoad] - Whether it is preloading or not.
+ * @property {number?} [convLimit] - The conversation limit.
+ * @property {boolean?} [preload] - Whether it is preloading or not.
  */
 
 
