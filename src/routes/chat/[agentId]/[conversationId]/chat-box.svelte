@@ -44,7 +44,7 @@
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { llmRealtime } from '$lib/services/llm-realtime-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -1658,9 +1658,10 @@
 													{#if !!message.post_action_disclaimer}
 														<RcDisclaimer content={message.post_action_disclaimer} />
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
 														<MessageFileGallery
-															messageId={message?.message_id}
+															message={message}
+															appendImage
 															galleryStyles={'justify-content: flex-end;'}
 															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
 														/>
@@ -1756,9 +1757,10 @@
 															</div>
 														</div>
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
 														<MessageFileGallery
-															messageId={message?.message_id}
+															message={message}
+															appendImage
 															galleryStyles={'justify-content: flex-start;'}
 															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
 														/>

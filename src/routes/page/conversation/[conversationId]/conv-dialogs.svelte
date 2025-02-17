@@ -5,7 +5,7 @@
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import { getDialogs, getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
-	import { USER_SENDERS } from '$lib/helpers/constants';
+	import { IMAGE_DATA_PREFIX, USER_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
 	import DialogModal from '$lib/common/DialogModal.svelte';
@@ -21,7 +21,6 @@
     /** @type {boolean} */
     let isOpenNotificationModal = false;
     let isComplete = false;
-    let isError = false;
 
     /** @type {string} */
     let text = '';
@@ -62,11 +61,6 @@
             setTimeout(() => {
                 isComplete = false;
             }, duration);
-        }).catch(() => {
-            isError = true;
-            setTimeout(() => {
-                isError = false;
-            }, duration);
         }).finally(() => {
             isOpenNotificationModal = false;
             text = '';
@@ -74,7 +68,7 @@
     }
 </script>
 
-<LoadingToComplete isComplete={isComplete} isError={isError} successText={'Notification sent!'} />
+<LoadingToComplete isComplete={isComplete} successText={'Notification sent!'} />
 
 <DialogModal
     title={'Notification'}
@@ -149,9 +143,10 @@
                             </div>
                             <div>
                                 <ConvDialogElement dialog={dialog} />
-                                {#if !!dialog.has_message_files}
+                                {#if !!dialog.has_message_files || dialog.data?.startsWith(IMAGE_DATA_PREFIX)}
                                     <MessageFileGallery
-                                        messageId={dialog?.message_id}
+                                        message={dialog}
+                                        appendImage
                                         galleryClasses={'dialog-file-display'}
                                         fetchFiles={() => getConversationFiles(conversation.id, dialog.message_id, showInRight(dialog) ? FileSourceType.User : FileSourceType.Bot)}
                                     />

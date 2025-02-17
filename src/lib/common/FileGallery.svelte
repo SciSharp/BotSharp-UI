@@ -103,7 +103,7 @@
                                             <i class="bx bx-trash" />
                                         </div>
                                     {/if}
-                                    {#if needDownload}
+                                    {#if needDownload && !!file.file_download_url}
                                         <div
                                             class="gallery-item-icon download-icon clickable"
                                             tabindex="0"
