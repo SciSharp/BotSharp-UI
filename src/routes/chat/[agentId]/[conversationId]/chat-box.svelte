@@ -1658,9 +1658,10 @@
 													{#if !!message.post_action_disclaimer}
 														<RcDisclaimer content={message.post_action_disclaimer} />
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith("data:image")}
 														<MessageFileGallery
-															messageId={message?.message_id}
+															message={message}
+															appendImage
 															galleryStyles={'justify-content: flex-end;'}
 															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.User)}
 														/>
@@ -1756,9 +1757,10 @@
 															</div>
 														</div>
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith("data:image")}
 														<MessageFileGallery
-															messageId={message?.message_id}
+															message={message}
+															appendImage
 															galleryStyles={'justify-content: flex-start;'}
 															fetchFiles={() => getConversationFiles(params.conversationId, message.message_id, FileSourceType.Bot)}
 														/>
