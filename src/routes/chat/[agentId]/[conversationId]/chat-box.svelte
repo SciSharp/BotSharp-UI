@@ -92,6 +92,7 @@
 	const maxTextLength = 64000;
 	const duration = 2000;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
+	const IMAGE_DATA_PREFIX = 'data:image';
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;
@@ -1658,7 +1659,7 @@
 													{#if !!message.post_action_disclaimer}
 														<RcDisclaimer content={message.post_action_disclaimer} />
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith("data:image")}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
 														<MessageFileGallery
 															message={message}
 															appendImage
@@ -1757,7 +1758,7 @@
 															</div>
 														</div>
 													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith("data:image")}
+													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
 														<MessageFileGallery
 															message={message}
 															appendImage
