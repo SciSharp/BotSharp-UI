@@ -36,7 +36,6 @@
     /** @type {boolean} */
     let isLoading = false;
     let isComplete = false;
-    let isError = false;
 
     const duration = 3000;
     const params = $page.params;
@@ -122,10 +121,6 @@
         }).catch(err => {
             isLoading = false;
             isComplete = false;
-            isError = true;
-            setTimeout(() => {
-                isError = false;
-            }, duration);
         });
     }
 
@@ -232,7 +227,7 @@
 
 <HeadTitle title="{$_('Agent Overview')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} />
 
 {#if agent}
 <div>

@@ -44,7 +44,7 @@
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { llmRealtime } from '$lib/services/llm-realtime-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
@@ -92,7 +92,6 @@
 	const maxTextLength = 64000;
 	const duration = 2000;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
-	const IMAGE_DATA_PREFIX = 'data:image';
 	
 	/** @type {import('$agentTypes').AgentModel} */
 	export let agent;

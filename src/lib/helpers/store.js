@@ -90,6 +90,17 @@ const createLoaderStore = () => {
 export const loaderStore = createLoaderStore();
 
 
+const createGlobalErrorStore = () => {
+    const { subscribe, set } = writable(false);
+    return {
+        subscribe,
+        set
+    };
+}
+
+export const globalErrorStore = createGlobalErrorStore();
+
+
 const createConversationUserStateStore = () => {
     return {
         resetAll: () => {

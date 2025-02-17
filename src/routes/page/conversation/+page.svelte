@@ -24,7 +24,6 @@
 
 	let isLoading = false;
 	let isComplete = false;
-	let isError = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
@@ -174,10 +173,6 @@
 		}).catch(err => {
 			isLoading = false;
 			isComplete = false;
-			isError = true;
-			setTimeout(() => {
-				isError = false;
-			}, duration);
 		});
     }
 
@@ -353,7 +348,7 @@
 
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={'Delete completed!'} />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} successText={'Delete completed!'} />
 
 <Row>
 	<Col lg="12">
