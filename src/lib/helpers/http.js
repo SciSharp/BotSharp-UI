@@ -37,7 +37,7 @@ axios.interceptors.response.use(
     (error) => {
         loaderStore.set(false);
         const user = getUserStore();
-        console.log('error', error);
+        
         const isExpired = Date.now() / 1000 > user.expires;
         if (isExpired || (error.response && error.response.status === 401)) {
             redirectToLogin();

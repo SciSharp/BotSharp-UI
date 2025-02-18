@@ -17,6 +17,8 @@
 	export let disabled = false;
 	/** @type {boolean} */
 	export let loading = false;
+	/** @type {number} */
+    export let maxLength = 2000;
     /** @type {(query: string) => Promise<string[]>} */
 	export let onSearch = query => Promise.resolve([]);
 
@@ -67,7 +69,7 @@
 		toggle={() => (isOpen = !isOpen)}
 	>
 		<DropdownToggle tag="div">
-			<Input type="text" {value} on:input={handleInput} {disabled} {placeholder} />
+			<Input type="text" {value} on:input={handleInput} maxlength={maxLength} {disabled} {placeholder} />
 		</DropdownToggle>
 		<DropdownMenu class="w-100 thin-scrollbar">
 			{#if loading}

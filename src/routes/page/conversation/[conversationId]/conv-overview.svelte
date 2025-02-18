@@ -1,6 +1,6 @@
 <script>
     import { Button, Card, CardBody, CardTitle} from '@sveltestrap/sveltestrap';
-    import { format } from '$lib/helpers/datetime';
+    import { utcToLocal } from '$lib/helpers/datetime';
     import { _ } from 'svelte-i18n'
 
     /** @type {import('$conversationTypes').ConversationModel} */
@@ -12,7 +12,7 @@
         <div class="text-center">
             <!--<img src={adobephotoshop} alt="" height="50" class="mx-auto d-block" />-->
             <h5 class="mt-3 mb-1">{conversation.title}</h5>
-            <p class="text-muted mb-0">{format(conversation.created_time, 'time')}</p>
+            <p class="text-muted mb-0">{utcToLocal(conversation.created_time)}</p>
         </div>
 
         <ul class="list-unstyled mt-4">

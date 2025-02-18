@@ -3,7 +3,7 @@
     import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n'  
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
-    import { format } from '$lib/helpers/datetime';
+    import { utcToLocal } from '$lib/helpers/datetime';
 	import { AgentType } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
@@ -103,7 +103,7 @@
             <h5 class="mt-1 mb-1 div-center">
                 <InPlaceEdit bind:value={agent.name} on:input={handleAgentChange} />
             </h5>
-            <p class="text-muted mb-0">{`Updated at ${format(agent.updated_datetime, 'time')}`}</p>
+            <p class="text-muted mb-0">{`Updated at ${utcToLocal(agent.updated_datetime)}`}</p>
         </div>
     </CardHeader>
     <CardBody>
@@ -270,7 +270,7 @@
                     </tr>
                     <tr>
                         <th class="agent-prop-key">Created Date</th>
-                        <td>{format(agent.created_datetime, 'time')}</td>
+                        <td>{utcToLocal(agent.created_datetime)}</td>
                     </tr>
                 </tbody>
             </Table>
