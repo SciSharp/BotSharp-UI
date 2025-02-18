@@ -72,12 +72,6 @@
 		tags: []
 	};
 
-	// /** @type {string} */
-	// let stateKey = "";
-
-	// /** @type {string | null} */
-	// let stateValue = null;
-
 	/** @type {{key: string, value: string | null}[]} */
     let states = [
         { key: '', value: ''}
