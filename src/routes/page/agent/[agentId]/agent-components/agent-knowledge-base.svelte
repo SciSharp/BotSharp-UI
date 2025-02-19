@@ -10,7 +10,7 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     export const fetchKnowledgeBases = () => {
         const candidates = innerKnowledgeBases?.filter(x => !!x.name)?.map(x => {
@@ -31,7 +31,7 @@
             }
         });
 
-        refresh(knowledgeBases);
+        innerRefresh(knowledgeBases);
         return knowledgeBases;
     }
 
@@ -39,7 +39,7 @@
         return innerKnowledgeBases;
     }
 
-    export const reinit = () => init();
+    export const refresh = () => init();
 
     /** @type {any[]} */
     let knowledgeBaseOptions = [];
@@ -72,7 +72,7 @@
                 displayName: getDisplayOption(x),
             };
         }) || [];
-        refresh(list);
+        innerRefresh(list);
     }
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
@@ -93,7 +93,7 @@
         found.name = vals[0];
         found.type = vals[1];
         handleAgentChange();
-        refresh(innerKnowledgeBases);
+        innerRefresh(innerKnowledgeBases);
     }
 
     function addKnowledgeBase() {
@@ -125,12 +125,12 @@
 
         found.disabled = !e.target.checked;
         handleAgentChange();
-        refresh(innerKnowledgeBases);
+        innerRefresh(innerKnowledgeBases);
     }
 
 
     /** @param {import('$agentTypes').AgentKnowledgeBase[]} list */
-    function refresh(list) {
+    function innerRefresh(list) {
         innerKnowledgeBases = list?.map(x => {
             return {
                 name: x.name,

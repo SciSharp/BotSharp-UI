@@ -102,6 +102,12 @@
                 background-color: white;
                 padding: 20px;
             }
+
+            .agent-prompt-body {
+                overflow-y: auto;
+                scrollbar-width: none;
+                margin-bottom: 0px !important;
+            }
         }
     }
 }

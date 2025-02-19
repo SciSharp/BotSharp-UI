@@ -118,7 +118,7 @@
                 on:input={handleTabInput}
             />
         {:else}
-            <div style="height: 100%" class="line-align-center">
+            <div style="height: 100%;" class="line-align-center ellipsis">
                 <div>{navBtnText}</div>
             </div>
         {/if}

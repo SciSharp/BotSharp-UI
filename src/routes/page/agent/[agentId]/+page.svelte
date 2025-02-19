@@ -7,7 +7,7 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import AgentPrompt from './agent-components/agent-prompt.svelte';
+	import AgentInstruction from './agent-components/agent-instruction.svelte';
 	import AgentOverview from './agent-components/agent-overview.svelte';
     import AgentFunction from './agent-components/agent-function.svelte';
     import AgentTabs from './agent-tabs.svelte';
@@ -19,13 +19,16 @@
 	import { goto } from '$app/navigation';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
     import LocalStorageManager from '$lib/helpers/utils/storage-manager';
+	import AgentTemplate from './agent-components/agent-template.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     let agent;
     /** @type {any} */
     let agentFunctionCmp = null;
     /** @type {any} */
-    let agentPromptCmp = null;
+    let agentInstructionCmp = null;
+    /** @type {any} */
+    let agentTemplateCmp = null;
     /** @type {any} */
     let agentTabsCmp = null;
     /** @type {import('$agentTypes').AgentModel} */
@@ -90,7 +93,8 @@
 
     function handleAgentUpdate() {
         fetchJsonContent();
-        fetchPrompts();
+        fetchInstructions();
+        fetchTemplates();
         fetchTabData();
 
         agent = {
@@ -114,7 +118,8 @@
             isLoading = false;
             isComplete = true;
             deleteAgentDraft();
-            refreshChannelPrompts();
+            refreshInstructions();
+            refreshTemplates();
             setTimeout(() => {
                 isComplete = false;
             }, duration);
@@ -132,43 +137,66 @@
             functions: textContent?.functions?.length > 0 ? textContent.functions :
                 (jsonContent?.functions?.length > 0 ? jsonContent?.functions : []),
             responses: textContent?.responses?.length > 0 ? textContent.responses :
-                (jsonContent?.responses?.length > 0 ? jsonContent?.responses : []),
-            templates: textContent?.templates?.length > 0 ? textContent.templates :
-                (jsonContent?.templates?.length > 0 ? jsonContent?.templates : []),
+                (jsonContent?.responses?.length > 0 ? jsonContent?.responses : [])
         }
     }
 
+    // Functions, responses
     function fetchJsonContent() {
         const data = formatJsonContent();
         agent.functions = data.functions;
         agent.responses = data.responses;
-        agent.templates = data.templates;
     }
 
-    function formatOriginalPrompts() {
-        const obj = agentPromptCmp?.fetchOriginalChannelPrompts();
+    // Insturctions
+    function formatOriginalInstructions() {
+        const obj = agentInstructionCmp?.fetchOriginalInstructions();
         return {
             instruction: obj.systemPrompt,
             channel_instructions: obj.channelPrompts || []
         }
     }
 
-    function fetchPrompts() {
-        const obj = agentPromptCmp?.fetchChannelPrompts();
+    function fetchInstructions() {
+        const obj = agentInstructionCmp?.fetchInstructions();
         agent.instruction = obj.systemPrompt;
         agent.channel_instructions = obj.channelPrompts || [];
     }
 
+    function refreshInstructions() {
+        agentInstructionCmp?.refresh();
+    }
+
+    // Templates
+    function formatOriginalTemplates() {
+        const obj = agentTemplateCmp?.fetchOriginalTemplates();
+        return {
+            templates: obj.templates || []
+        }
+    }
+
+    function fetchTemplates() {
+        const obj = agentTemplateCmp?.fetchTemplates();
+        agent.templates = obj.templates || [];
+    }
+
+    function refreshTemplates() {
+        agentTemplateCmp?.refresh();
+    }
+
+
+    // Tab data
     function formatOriginalTabData() {
-        const data = agentTabsCmp?.fetchOriginalData();
+        const data = agentTabsCmp?.fetchOriginalTabData();
         return data ? {
             utilities: data.utilities || [],
             knowledge_bases: data.knwoledgebases || [],
             rules: data.rules || []
         } : null;
     }
+
     function fetchTabData() {
-        const data = agentTabsCmp?.fetchData();
+        const data = agentTabsCmp?.fetchTabData();
         if (data) {
             agent.utilities = data.utilities || [];
             agent.knowledge_bases = data.knwoledgebases || [];
@@ -176,9 +204,6 @@
         }
     }
 
-    function refreshChannelPrompts() {
-        agentPromptCmp?.refreshChannelPrompts();
-    }
 
     function deleteCurrentAgent() {
         Swal.fire({
@@ -207,7 +232,8 @@
         const data = {
             ...agent,
             ...formatJsonContent(),
-            ...formatOriginalPrompts(),
+            ...formatOriginalInstructions(),
+            ...formatOriginalTemplates(),
             ...formatOriginalTabData(),
         };
         saveAgentDraft(data);
@@ -218,9 +244,10 @@
         agentDraft = null;
         deleteAgentDraft();
         setTimeout(() => {
-            refreshChannelPrompts();
-            agentFunctionCmp?.reinit();
-            agentTabsCmp?.reinit();
+            refreshInstructions();
+            refreshTemplates();
+            agentFunctionCmp?.refresh();
+            agentTabsCmp?.refresh();
         });
     }
 </script>
@@ -253,8 +280,15 @@
         </Col>
         <Col class="section-min-width agent-col" style="flex: 60%;">
             <div class="agent-detail-section">
-                <AgentPrompt
-                    bind:this={agentPromptCmp}
+                <AgentInstruction
+                    bind:this={agentInstructionCmp}
+                    agent={agent}
+                    {handleAgentChange}
+                />
+            </div>
+            <div class="agent-detail-section">
+                <AgentTemplate
+                    bind:this={agentTemplateCmp}
                     agent={agent}
                     {handleAgentChange}
                 />

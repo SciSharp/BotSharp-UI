@@ -5,6 +5,7 @@
 
 /**
  * @typedef {Object} AgentTemplate
+ * @property {string?} [uid]
  * @property {string} name
  * @property {string} content
  */

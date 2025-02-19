@@ -20,7 +20,7 @@
     export let labels = [];
     
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     /** @type {boolean} */
     export let resetable = false;
@@ -129,9 +129,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Visibility</th>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Visibility
+                            </div>
+                        </th>
                         <td>
-                            <div class="form-check mb-3">
+                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
                                 <input 
                                     class="form-check-input" 
                                     type="checkbox" 
@@ -139,14 +143,20 @@
                                     on:change={handleAgentChange}
                                     id="is_public" 
                                 />
-                                <label class="form-check-label" for="is_public"> Public </label>
+                                <label class="form-check-label" for="is_public">
+                                    Public
+                                </label>
                             </div>
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Routable</th>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Routable
+                            </div>
+                        </th>
                         <td>
-                            <div class="form-check mb-3">
+                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
                                 <input 
                                     class="form-check-input" 
                                     type="checkbox" 
@@ -159,7 +169,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Profiles</th>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Profiles
+                            </div>
+                        </th>
                         <td>
                             <div class="agent-prop-list-container vertical-flexible">
                                 {#each profiles as profile, index}
@@ -198,7 +212,11 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Labels</th>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Labels
+                            </div>
+                        </th>
                         <td>
                             <div class="agent-prop-list-container vertical-flexible">
                                 {#each labels as label, index}
@@ -237,9 +255,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Status</th>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Status
+                            </div>
+                        </th>
                         <td>							
-                            <div class="form-check mb-3">
+                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
                                 <input 
                                     class="form-check-input" 
                                     type="checkbox" 
@@ -252,9 +274,13 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Max message count</th>
+                        <th class="agent-prop-key" style="vertical-align: middle">
+                            <div class="mt-1">
+                                Max message count
+                            </div>
+                        </th>
                         <td>							
-                            <div class="mb-3">
+                            <div class="mt-2 mb-2">
                                 <Input
                                     type="number"
                                     style="width: 50%; min-width: 100px;"
@@ -269,8 +295,16 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">Created Date</th>
-                        <td>{utcToLocal(agent.created_datetime)}</td>
+                        <th class="agent-prop-key">
+                            <div class="mt-2 mb-2">
+                                Created Date
+                            </div>
+                        </th>
+                        <td>
+                            <div class="mt-2 mb-2">
+                                {utcToLocal(agent.created_datetime)}
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </Table>

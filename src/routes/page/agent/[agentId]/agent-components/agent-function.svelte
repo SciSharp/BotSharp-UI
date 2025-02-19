@@ -6,13 +6,13 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     export const fetchContent = () => {
         return content;
     }
 
-    export const reinit = () => init();
+    export const refresh = () => init();
 
     /** @type {import('svelte-jsoneditor').Content} */
     let content = {
@@ -27,8 +27,7 @@
         content = {
             json: {
                 functions: agent.functions,
-                responses: agent.responses,
-                templates: agent.templates
+                responses: agent.responses
             }
         };
     }

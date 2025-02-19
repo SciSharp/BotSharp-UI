@@ -11,7 +11,7 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     export const fetchUtilities = () => {
         const candidates = innerUtilities?.filter(x => !!x.name)?.map(x => {
@@ -47,7 +47,7 @@
             };
         });
 
-        refresh(candidates);
+        innerRefresh(candidates);
         return candidates;
     }
 
@@ -55,7 +55,7 @@
         return innerUtilities;
     }
 
-    export const reinit = () => init();
+    export const refresh = () => init();
 
     /** @type {any} */
     let utilityMapper = {};
@@ -121,7 +121,7 @@
                 })) || []
             };
         }) || [];
-        refresh(list);
+        innerRefresh(list);
     }
 
     /**
@@ -142,7 +142,7 @@
             // @ts-ignore
             ...utilityMapper[name].templates?.filter(x => !!x.name) || []
         ];
-        refresh(innerUtilities);
+        innerRefresh(innerUtilities);
     }
 
     function addUtility() {
@@ -176,7 +176,7 @@
             found.templates.push({ name: '', displayName: '' });
         }
 
-        refresh(innerUtilities);
+        innerRefresh(innerUtilities);
     }
 
     /**
@@ -196,7 +196,7 @@
             found.templates = tps;
         }
         
-        refresh(innerUtilities);
+        innerRefresh(innerUtilities);
     }
 
     
@@ -224,7 +224,7 @@
                 tp.displayName = vals[1];
             }
         }
-        refresh(innerUtilities);
+        innerRefresh(innerUtilities);
     }
 
     /**
@@ -236,12 +236,12 @@
         if (!found) return;
 
         found.disabled = !e.target.checked;
-        refresh(innerUtilities);
+        innerRefresh(innerUtilities);
     }
 
 
     /** @param {import('$agentTypes').AgentUtility[]} list */
-    function refresh(list) {
+    function innerRefresh(list) {
         innerUtilities = list?.map(x => {
             return {
                 name: x.name,
