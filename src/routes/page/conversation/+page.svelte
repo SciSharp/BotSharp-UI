@@ -16,7 +16,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { getAgents } from '$lib/services/agent-service';
+	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel } from '$lib/helpers/enums';
@@ -105,13 +105,13 @@
 
 	function loadAgentOptions() {
 		return new Promise((resolve, reject) => {
-			getAgents({ pager: { page: 1, size: 100, count: 0 } }).then(res => {
-				agentOptions = res?.items?.map(x => {
+			getAgentOptions().then(res => {
+				agentOptions = res?.map(x => {
 					return {
 						id: x.id,
 						name: x.name
 					};
-				})?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+				}) || [];
 				resolve(agentOptions);
 			}).catch((error) => {
 				agentOptions = [];

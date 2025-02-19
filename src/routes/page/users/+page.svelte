@@ -16,7 +16,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { getUsers, updateUser } from '$lib/services/user-service';
 	import UserItem from './user-item.svelte';
-	import { getAgents } from '$lib/services/agent-service';
+	import { getAgentOptions } from '$lib/services/agent-service';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
 	import { getRoleOptions } from '$lib/services/role-service';
@@ -106,13 +106,13 @@
 
     function getPagedAgents() {
         return new Promise((resolve, reject) => {
-            getAgents({ pager: { page: 1, size: 100, count: 0 } }).then(res => {
-                agents = res?.items?.map(x => {
+            getAgentOptions().then(res => {
+                agents = res?.map(x => {
                     return {
                         id: x.id,
                         name: x.name
                     };
-                })?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+                }) || [];
                 resolve(agents);
             });
         });
