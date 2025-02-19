@@ -20,13 +20,16 @@
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel } from '$lib/helpers/enums';
-	import RemoteSearchInput from '$lib/common/RemoteSearchInput.svelte';
+	import StateSearch from './state-search.svelte';
 
-	let isLoading = false;
-	let isComplete = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
+
+	/** @type {boolean} */
+	let isLoading = false;
+	let isComplete = false;
+	let showStateSearch = false;
 
     /** @type {import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>} */
     let conversations = { count: 0, items: [] };
@@ -69,11 +72,10 @@
 		tags: []
 	};
 
-	/** @type {string} */
-	let stateKey = "";
-
-	/** @type {string | null} */
-	let stateValue = null;
+	/** @type {{key: string, value: string | null}[]} */
+    let states = [
+        { key: '', value: ''}
+    ];
 
     onMount(async () => {
 		isLoading = true;
@@ -214,17 +216,11 @@
 	 * @param {any} e
 	 */
 	function handleConfirmStateModal(e) {
-		if (stateKey) {
-		  searchOption.states = [
-			  {
-				  key: { data: stateKey, isValid: true },
-				  value: { data: stateValue || '', isValid: true },
-				  active_rounds: {data: -1, isValid: true},
-			  }
-			];
-		} else {
-			searchOption.states = [];
-		}
+		searchOption.states = states.filter(x => !!lodash.trim(x.key)).map(x => ({
+			key: { data: x.key, isValid: true },
+			value: { data: x.value || '', isValid: true },
+			active_rounds: {data: -1, isValid: true},
+		}));
 		handleSearchStates();
 		searchConversations(e);
 	}
@@ -251,12 +247,12 @@
 	}
 
 	function getSearchStates() {
-		return searchOption.states?.map(x => {
-			return {
-				key: x.key?.data,
-				value: x.value?.data
-			};
-		}) || [];
+		searchOption.states = states?.filter(x => !!lodash.trim(x.key))?.map(x => ({
+			key: { data: x.key, isValid: true },
+			value: { data: x.value || '', isValid: true },
+			active_rounds: {data: -1, isValid: true},
+		})) || [];
+		return searchOption.states.map(x => ({ key: x.key.data, value: x.value.data }));;
 	}
 
 	function handleSearchStates() {
@@ -358,30 +354,30 @@
 					<div class="mb-0 card-title flex-grow-0">
 						<h5 class="mb-0">{$_('Conversation List')}</h5>
 					</div>
-					<div>
-						<div class="state-search-container">
-							<div>
-								<RemoteSearchInput
-									bind:value={stateKey}
-									onSearch={e => handleStateSearch(e)}
-									placeholder="Search States"
-								/>
+					<div class="state-search-btn-wrapper">
+						<Button
+							color={showStateSearch ? 'secondary' : 'primary'}
+							on:click={() => showStateSearch = !showStateSearch}
+						>
+							<div class="state-search-btn">
+								<div>
+									{#if showStateSearch}
+										<i class="bx bx-hide" />
+									{:else}
+										<i class="bx bx-search-alt" />
+									{/if}
+								</div>
+								<div class="search-btn-text">{'State Search'}</div>
 							</div>
-							<div>
-								<Input
-									type="text"
-									bind:value={stateValue}
-									disabled={!stateKey}
-									placeholder="Enter a value"
-								/>
-							</div>
-							<div>
-								<Button color="primary" on:click={handleConfirmStateModal}>Confirm</Button>
-							</div>
-						</div>
+						</Button>						
 					</div>
 				</div>
 			</CardBody>
+			{#if showStateSearch}
+				<CardBody class="border-bottom" style="display: flex; justify-content: flex-end;">
+					<StateSearch bind:states={states} onSearch={q => handleStateSearch(q)}/>
+				</CardBody>
+			{/if}
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">

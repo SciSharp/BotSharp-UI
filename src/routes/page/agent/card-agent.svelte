@@ -1,7 +1,7 @@
 <script>
   import Link from "svelte-link";
   import { Badge, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
-  import { format } from '$lib/helpers/datetime';
+  import { utcToLocal } from '$lib/helpers/datetime';
   import { _ } from 'svelte-i18n';
 	import { LEARNER_ID } from "$lib/helpers/constants";
 	import { AgentExtensions } from "$lib/helpers/utils/agent";
@@ -87,7 +87,7 @@
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1" id="dueDate">
             <i class="bx bx-calendar me-1" />
-            {format(agent.updated_datetime, 'short-date')}
+            {utcToLocal(agent.updated_datetime, 'MMM D, YYYY')}
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1">
             <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
