@@ -13,20 +13,20 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
-    export const fetchOriginalChannelPrompts = () => {
+    export const fetchOriginalInstructions = () => {
         return {
-            systemPrompt: local_instructions?.[0]?.instruction || '',
-            channelPrompts: local_instructions?.slice(1)?.map(x => ({
+            systemPrompt: inner_instructions?.[0]?.instruction || '',
+            channelPrompts: inner_instructions?.slice(1)?.map(x => ({
                 channel: x.channel,
                 instruction: x.instruction
             })) || []
         };
     };
 
-    export const fetchChannelPrompts = () => {
-        const candidates = local_instructions?.filter((x, idx) => idx > 0 && !!x.channel?.trim())?.map(x => {
+    export const fetchInstructions = () => {
+        const candidates = inner_instructions?.filter((x, idx) => idx > 0 && !!x.channel?.trim())?.map(x => {
             return { channel: x.channel.trim().toLowerCase(), instruction: x.instruction };
         });
 
@@ -39,12 +39,13 @@
         }
 
         return {
-            systemPrompt: local_instructions[0].instruction,
+            systemPrompt: inner_instructions[0].instruction,
             channelPrompts: prompts
         };
     }
 
-    export const refreshChannelPrompts = () => init();
+    export const refreshInstructions = () => init();
+
 
     /** @type {import('$agentTypes').ChannelInstruction} */
     const defaultInstruction = {
@@ -53,7 +54,7 @@
     };
 
     /** @type {import('$agentTypes').ChannelInstruction[]} */
-    let local_instructions = [];
+    let inner_instructions = [];
 
     /** @type {import('$agentTypes').ChannelInstruction} */
     let selected_instruction = { ...defaultInstruction };
@@ -63,7 +64,7 @@
     });
 
     function init() {
-        local_instructions = [
+        inner_instructions = [
             {
                 uid: uuidv4(),
                 channel: defaultChannel,
@@ -76,7 +77,7 @@
             })) || []
         ];
 
-        selected_instruction = local_instructions[0];
+        selected_instruction = inner_instructions[0];
     }
 
     /** @param {string | undefined} uid */
@@ -85,7 +86,7 @@
             return;
         }
 
-        selected_instruction = local_instructions.find(x => x.uid === uid) || { ...defaultInstruction };
+        selected_instruction = inner_instructions.find(x => x.uid === uid) || { ...defaultInstruction };
     }
 
     /** @param {any} e */
@@ -96,21 +97,23 @@
     }
 
     function addChannel() {
-        local_instructions = [
-            ...local_instructions,
+        inner_instructions = [
+            ...inner_instructions,
             {
                 uid: uuidv4(),
                 channel: '',
                 instruction: ''
             }
         ];
+
+        selected_instruction = inner_instructions[inner_instructions.length-1];
     }
 
     /** @param {string | undefined} uid */
     function deleteChannel(uid) {
-        local_instructions = local_instructions.filter(x => x.uid !== uid);
+        inner_instructions = inner_instructions.filter(x => x.uid !== uid);
         if (selected_instruction.uid === uid) {
-            selected_instruction = local_instructions[0];
+            selected_instruction = inner_instructions[0];
         }
     }
 </script>
@@ -124,7 +127,7 @@
         </div>
     </CardHeader>
     <CardBody>
-        <FormGroup class="mb-3">
+        <FormGroup>
             <div class="mb-2">
                 <div class="line-align-center fw-bold">
                     {'Description:'}
@@ -141,10 +144,10 @@
             />
         </FormGroup>
 
-        <FormGroup class="mb-3" style="overflow-y: auto; scrollbar-width: none;">
+        <FormGroup class="agent-prompt-body">
             <div class="mb-2" style="display: flex; gap: 10px;">
                 <div class="line-align-center fw-bold">
-                    {#if local_instructions.length > 1}
+                    {#if inner_instructions.length > 1}
                         {'Instructions:'}
                     {:else}
                         {'System instruction:'}
@@ -164,15 +167,15 @@
                 </div>
             </div>
             
-            {#if local_instructions.length > 1}
+            {#if inner_instructions.length > 1}
             <NavBar
                 id={'agent-instruction-container'}
                 disableDefaultStyles
                 containerClasses={'nav-tabs-secondary'}
             >
-                {#each local_instructions as inst, idx (idx) }
+                {#each inner_instructions as inst, idx (idx) }
                 <NavItem
-                    containerStyles={`flex: 0 1 calc(100% / ${local_instructions.length <= 2 ? local_instructions.length : 3})`}
+                    containerStyles={`flex: 0 1 calc(100% / ${inner_instructions.length <= 2 ? inner_instructions.length : 3})`}
                     navBtnStyles={'text-transform: none;'}
                     navBtnId={`${inst.channel}-prompt-tab`}
                     dataBsTarget={`#${inst.channel}-prompt-tab-pane`}
@@ -182,7 +185,7 @@
                     allowEdit={idx > 0}
                     allowDelete={idx > 0}
                     maxEditLength={20}
-                    editPlaceholder={'Type a channel name here...'}
+                    editPlaceholder={'Type a channel here...'}
                     onClick={() => selectChannel(inst.uid)}
                     onDelete={() => { deleteChannel(inst.uid); handleAgentChange(); }}
                     onInput={handleAgentChange}
@@ -195,7 +198,7 @@
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
                 value={selected_instruction.instruction}
-                rows={24}
+                rows={20}
                 on:input={(e) => { changePrompt(e); handleAgentChange(); }}
                 placeholder="Enter your instruction"
             />

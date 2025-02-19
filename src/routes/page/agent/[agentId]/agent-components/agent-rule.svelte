@@ -10,7 +10,7 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {

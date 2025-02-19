@@ -11,7 +11,7 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     export const fetchUtilities = () => {
         const candidates = innerUtilities?.filter(x => !!x.name)?.map(x => {

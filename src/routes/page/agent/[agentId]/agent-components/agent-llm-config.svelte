@@ -13,7 +13,7 @@
     let models = [];
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
     const recursiveDepthLowerLimit = 1;
     const recursiveDepthUpperLimit = 10;

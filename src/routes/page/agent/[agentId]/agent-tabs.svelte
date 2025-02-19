@@ -13,9 +13,9 @@
     export let agent;
 
     /** @type {() => void} */
-    export let handleAgentChange;
+    export let handleAgentChange = () => {};
 
-    export const fetchData = () => {
+    export const fetchTabData = () => {
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
@@ -27,7 +27,7 @@
         };
     };
 
-    export const fetchOriginalData = () => {
+    export const fetchOriginalTabData = () => {
         const utilities = agentUtilityCmp?.fetchOriginalUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchOriginalKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchOriginalRules();
