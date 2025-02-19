@@ -3,22 +3,27 @@
     import { Card, CardBody, Input } from '@sveltestrap/sveltestrap';
     import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
     
-    /** @type {string[]} */
-    let providers = [];
-
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
-    /** @type {import('$commonTypes').LlmModelSetting[]} */
-    let models = [];
-
     /** @type {() => void} */
     export let handleAgentChange = () => {};
+
+    export const refresh = () => {
+        config = agent.llm_config;
+        init();
+    };
 
     const recursiveDepthLowerLimit = 1;
     const recursiveDepthUpperLimit = 10;
 
     let config = agent.llm_config;
+
+    /** @type {string[]} */
+    let providers = [];
+
+    /** @type {import('$commonTypes').LlmModelSetting[]} */
+    let models = [];
 
     onMount(async () =>{
         await init();
@@ -36,10 +41,7 @@
         config.model = foundModel?.name || null;
     }
 
-    export const reinit = () => {
-        config = agent.llm_config;
-        init();
-    };
+    
 
     /** @param {any} e */
     async function changeProvider(e) {

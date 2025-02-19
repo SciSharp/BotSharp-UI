@@ -164,7 +164,7 @@
     }
 
     function refreshInstructions() {
-        agentInstructionCmp?.refreshInstructions();
+        agentInstructionCmp?.refresh();
     }
 
     // Templates
@@ -181,7 +181,7 @@
     }
 
     function refreshTemplates() {
-        agentTemplateCmp?.refreshTemplates();
+        agentTemplateCmp?.refresh();
     }
 
 
@@ -246,8 +246,8 @@
         setTimeout(() => {
             refreshInstructions();
             refreshTemplates();
-            agentFunctionCmp?.reinit();
-            agentTabsCmp?.reinit();
+            agentFunctionCmp?.refresh();
+            agentTabsCmp?.refresh();
         });
     }
 </script>

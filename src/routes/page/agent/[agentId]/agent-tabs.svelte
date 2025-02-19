@@ -39,11 +39,11 @@
         };
     }
 
-    export const reinit = () => {
-        agentLlmConfigCmp?.reinit();
-        agentUtilityCmp?.reinit();
-        agentKnowledgeBaseCmp?.reinit();
-        agentEventRuleCmp?.reinit();
+    export const refresh = () => {
+        agentLlmConfigCmp?.refresh();
+        agentUtilityCmp?.refresh();
+        agentKnowledgeBaseCmp?.refresh();
+        agentEventRuleCmp?.refresh();
     }
 
     /** @type {any} */

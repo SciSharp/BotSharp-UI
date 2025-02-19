@@ -1,11 +1,11 @@
 <script>
     import { onMount } from 'svelte';
+    import { _ } from 'svelte-i18n';
+    import { v4 as uuidv4 } from 'uuid';
+    import util from "lodash";
     import { Card, CardBody, FormGroup, Input, CardHeader } from '@sveltestrap/sveltestrap';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-    import { v4 as uuidv4 } from 'uuid';
-    import util from "lodash";
-	import { _ } from 'svelte-i18n';
 
     const defaultChannel = "default";
     
@@ -44,7 +44,7 @@
         };
     }
 
-    export const refreshInstructions = () => init();
+    export const refresh = () => init();
 
 
     /** @type {import('$agentTypes').ChannelInstruction} */

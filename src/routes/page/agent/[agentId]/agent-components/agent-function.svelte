@@ -12,7 +12,7 @@
         return content;
     }
 
-    export const reinit = () => init();
+    export const refresh = () => init();
 
     /** @type {import('svelte-jsoneditor').Content} */
     let content = {

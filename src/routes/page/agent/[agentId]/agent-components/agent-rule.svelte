@@ -31,7 +31,7 @@
             }
         });
 
-        refresh(rules);
+        innerRefresh(rules);
         return rules;
     }
 
@@ -39,7 +39,7 @@
         return innerRules;
     }
 
-    export const reinit = () => init();
+    export const refresh = () => init();
 
     /** @type {any[]} */
     let ruleOptions = [];
@@ -70,7 +70,7 @@
                 displayName: "",
             };
         }) || [];
-        refresh(list);
+        innerRefresh(list);
     }
     
     /**
@@ -84,7 +84,7 @@
         const val = e.target.value;
         found.trigger_name = val;
         handleAgentChange();
-        refresh(innerRules);
+        innerRefresh(innerRules);
     }
 
     function addRule() {
@@ -116,7 +116,7 @@
 
         found.disabled = !e.target.checked;
         handleAgentChange();
-        refresh(innerRules);
+        innerRefresh(innerRules);
     }
 
     /**
@@ -133,12 +133,12 @@
             found.criteria = val;
         }
         handleAgentChange();
-        refresh(innerRules);
+        innerRefresh(innerRules);
     }
 
 
     /** @param {import('$agentTypes').AgentRule[]} list */
-    function refresh(list) {
+    function innerRefresh(list) {
         innerRules = list?.map(x => {
             return {
                 trigger_name: x.trigger_name,

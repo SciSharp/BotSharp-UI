@@ -41,7 +41,7 @@
         };
     }
 
-    export const refreshTemplates = () => init();
+    export const refresh = () => init();
 
 
     /** @type {import('$agentTypes').AgentTemplate} */
