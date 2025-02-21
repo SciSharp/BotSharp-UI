@@ -25,6 +25,19 @@
  */
 
 /**
+ * @typedef {Object} LlmConfigOption
+ * @property {number?} [type]
+ * @property {boolean?} [multiModal]
+ * @property {boolean?} [imageGeneration]
+ */
+
+/**
+ * @typedef {Object} LlmConfig
+ * @property {string} provider
+ * @property {LlmModelSetting[]} models
+ */
+
+/**
  * @typedef {Object} LlmModelSetting
  * @property {string} name
  * @property {string} type

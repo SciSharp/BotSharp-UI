@@ -74,6 +74,7 @@ export const endpoints = {
     // LLM provider
     llmProvidersUrl: `${host}/llm-providers`,
     llmProviderModelsUrl: `${host}/llm-provider/{provider}/models`,
+    llmConfigsUrl: `${host}/llm-configs`,
 
     // logging
     loggingFullLogUrl: `${host}/logger/full-log`,

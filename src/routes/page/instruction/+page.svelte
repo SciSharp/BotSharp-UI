@@ -13,8 +13,12 @@
 	import { getAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { sendChatCompletion } from '$lib/services/instruct-service';
+	import { getLlmConfigs } from '$lib/services/llm-provider-service';
+	import { LlmModelType } from '$lib/helpers/enums';
 
     const maxLength = 64000;
+    const DEFAULT_PROVIDER = 'openai';
+    const DEFAULT_MODEL = 'gpt-4o-mini';
 
     let isLoading = false;
     let isThinking = false;
@@ -27,9 +31,18 @@
 
     /** @type {import('$agentTypes').AgentModel | null} */
     let selectedAgent = null;
+
+    /** @type {string | null} */
+    let selectedProvider = null;
+
+    /** @type {string | null} */
+    let selectedModel = null;
     
     /** @type {import('$agentTypes').AgentModel[]} */
     let agents = [];
+
+    /** @type {import('$commonTypes').LlmConfig[]} */
+    let llmConfigs = [];
 
     /** @type {any[]} */
     let states = [
@@ -41,6 +54,7 @@
             isLoading = true;
             const pagedAgents = await getAgents({ pager: { page: 1, size: 1000, count: 0 } });
             agents = pagedAgents.items || [];
+            llmConfigs = await getLlmConfigs({ type: LlmModelType.Chat });
         } catch {
             agents = [];
         } finally {
@@ -56,10 +70,11 @@
         const formattedStates = formatStates(states);
         const start = new Date();
         sendChatCompletion({
-            text: util.trim(text),
-            instruction: util.trim(instruction),
-            provider: 'openai',
-            model: 'gpt-4o-mini',
+            text: util.trim(text) || '',
+            instruction: util.trim(instruction) || null,
+            agentId: selectedAgent?.id,
+            provider: selectedProvider || DEFAULT_PROVIDER,
+            model: selectedModel || DEFAULT_MODEL,
             states: formattedStates
         }).then(res => {
             result = res || '';
@@ -108,18 +123,20 @@
     function onAgentSelected(e) {
         selectedAgent = e.detail.selectedAgent || null;
         instruction = selectedAgent?.instruction || '';
-    }
 
-    /** @param {any} e */
-    function onTemplateSelected(e) {
         const template = e.detail.selectedTemplate || null;
-        let text = template?.content;
-        if (!template) {
-            text = selectedAgent?.instruction;
+        if (!!template) {
+            instruction = template?.content || '';
         }
-        instruction = text || '';
+
+        onLlmSelected(e);
     }
     
+    /** @param {any} e */
+    function onLlmSelected(e) {
+        selectedProvider = e.detail.selectedProvider || null;
+        selectedModel = e.detail.selectedModel || '';
+    }
 </script>
 
 <HeadTitle title="{$_('Instruction')}" />
@@ -196,8 +213,9 @@
         <InstructionSetting
             disabled={isThinking}
             agents={agents}
+            llmConfigs={llmConfigs}
             on:agentSelected={e => onAgentSelected(e)}
-            on:templateSelected={e => onTemplateSelected(e)}
+            on:llmSelected={e => onLlmSelected(e)}
         />
     </div>
 </div>
