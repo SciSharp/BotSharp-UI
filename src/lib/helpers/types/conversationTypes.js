@@ -1,10 +1,4 @@
 /**
- * @typedef {Object} InstructMessageModel
- * @property {string} [instruction] - User provided prompt instead of predefined template.
- * @property {string} [template] - The template name.
- */
-
-/**
  * @typedef {Object} MessageConfig
  * @property {string} [taskId] - Optional task id.
  */

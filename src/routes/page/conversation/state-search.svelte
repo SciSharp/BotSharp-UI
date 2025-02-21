@@ -53,7 +53,7 @@
                     placeholder="Enter a value"
                 />
             </div>
-            <div class="state-delete line-align-center" style="flex: 0 0 13px;">
+            <div class="line-align-center" style="flex: 0 0 13px;">
                 <div>
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
