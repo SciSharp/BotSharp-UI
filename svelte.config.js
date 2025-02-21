@@ -17,6 +17,7 @@ const config = {
 			$roleTypes: './src/lib/helpers/types/roleTypes.js',
 			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
 			$realtimeTypes: './src/lib/helpers/types/realtimeTypes.js',
+			$instructTypes: './src/lib/helpers/types/instructTypes.js'
 		},
 
 		// for static deployment
@@ -51,6 +52,7 @@ const config = {
 				"/page/agent/[agentId]",
 				"/page/agent/[agentId]/build",
 				"/page/agent/[agentId]/train",
+				"/page/instruction",
 				"/page/conversation",
 				"/page/conversation/[conversationId]",
 				"/page/task",

@@ -44,6 +44,7 @@ export const endpoints = {
 
     // agent instruct
     instructCompletionUrl: `${host}/instruct/{agentId}`,
+    chatCompletionUrl: `${host}/instruct/chat-completion`,
 
     // agent realtime interaction
     agentInitRealtimeSessionUrl: `${host}/agent/{agentId}/realtime/session`,
@@ -73,6 +74,7 @@ export const endpoints = {
     // LLM provider
     llmProvidersUrl: `${host}/llm-providers`,
     llmProviderModelsUrl: `${host}/llm-provider/{provider}/models`,
+    llmConfigsUrl: `${host}/llm-configs`,
 
     // logging
     loggingFullLogUrl: `${host}/logger/full-log`,

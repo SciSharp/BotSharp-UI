@@ -22,3 +22,23 @@ export async function getLlmProviderModels(provider) {
     const response = await axios.get(url);
     return response.data;
 }
+
+
+/**
+ * Get llm configs
+ * @param {import('$commonTypes').LlmConfigOption?} [options]
+ * @returns {Promise<import('$commonTypes').LlmConfig[]>}
+ */
+export async function getLlmConfigs(options = null) {
+    const url = endpoints.llmConfigsUrl;
+    const response = await axios.get(url, {
+        params: {
+            options: options
+        },
+        paramsSerializer: {
+            dots: true,
+            indexes: null,
+        }
+    });
+    return response.data;
+}

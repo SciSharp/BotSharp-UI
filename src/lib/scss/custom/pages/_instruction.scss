@@ -1,0 +1,85 @@
+.instruction-container {
+    .text-count {
+        margin-top: 2px;
+        font-size: 10px;
+    }
+
+    .instruction-result-container {
+        .instruction-result-body {
+            font-size: 15px;
+            padding: 5px 10px;
+            overflow-y: auto;
+            max-height: 500px;
+            scrollbar-width: thin;
+        }
+    }
+}
+
+.instruction-border {
+    border: 1px dashed var(--bs-primary);
+    border-radius: 5px;
+}
+
+.instruct-header {
+    font-size: 17px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.instruct-text-header {
+    font-size: 17px;
+    display: flex;
+    gap: 5px;
+}
+
+.instruct-setting-container {
+    display: flex;
+    flex-wrap: wrap;
+
+    .instruct-setting-section {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    @media (max-width: 992px) {
+        .instruct-setting-section {
+            margin-top: 10px;
+        }
+
+        .instruction-gap {
+            margin-top: 10px;
+        }
+    }
+
+    .instruct-setting-item {
+        display: flex;
+        justify-content: center;
+
+        .instruct-setting-dropdown {
+            width: 60%;
+        }
+
+        @media (max-width: 992px) {
+            .instruct-setting-dropdown {
+                width: 100%;
+            }
+        }
+    }
+}
+
+.instruct-setting-padding {
+    padding: 20px 10px;
+}
+
+.instruct-state-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .instruct-state-item {
+        display: flex;
+        gap: 10px;
+        justify-content: center;
+    }
+}

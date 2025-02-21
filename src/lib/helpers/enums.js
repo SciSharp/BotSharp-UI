@@ -165,3 +165,12 @@ const globalEvent = {
     Chat: "chat"
 };
 export const GlobalEvent = Object.freeze(globalEvent);
+
+const llmModelType = {
+    Text: 1,
+    Chat: 2,
+    Image: 3,
+    Embedding: 4,
+    Audio: 5
+};
+export const LlmModelType = Object.freeze(llmModelType);
