@@ -3,22 +3,32 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
+	import { Button, Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import InstructionSetting from './instruction-components/instruction-setting.svelte';
 	import InstructionState from './instruction-components/instruction-state.svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { sendChatCompletion } from '$lib/services/instruct-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
 	import { LlmModelType } from '$lib/helpers/enums';
+	import NavBar from '$lib/common/nav-bar/NavBar.svelte';
+	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+	import InstructionTemplate from './instruction-components/instruction-template.svelte';
+	import InstructionLlm from './instruction-components/instruction-llm.svelte';
 
     const maxLength = 64000;
     const DEFAULT_PROVIDER = 'openai';
     const DEFAULT_MODEL = 'gpt-4o-mini';
+
+    /** @type {any[]}*/
+    const tabs = [
+        { name: 'instruction-template', displayText: 'Template' },
+        { name: 'instruction-llm', displayText: 'LLM Config' },
+        { name: 'instruction-states', displayText: 'States' }
+    ];
 
     let isLoading = false;
     let isThinking = false;
@@ -32,7 +42,7 @@
     /** @type {import('$agentTypes').AgentModel | null} */
     let selectedAgent = null;
 
-    /** @type {string | null} */
+    /** @type {import('$commonTypes').LlmConfig?} */
     let selectedProvider = null;
 
     /** @type {string | null} */
@@ -49,6 +59,9 @@
         { key: '', value: ''}
     ];
 
+    /** @type {string}*/
+    let selectedTab = tabs[0].name;
+
     onMount(async () => {
         try {
             isLoading = true;
@@ -62,7 +75,6 @@
         }
     });
 
-
     function sendRequest() {
         isThinking = true;
         requestDone = false;
@@ -73,7 +85,7 @@
             text: util.trim(text) || '',
             instruction: util.trim(instruction) || null,
             agentId: selectedAgent?.id,
-            provider: selectedProvider || DEFAULT_PROVIDER,
+            provider: selectedProvider?.provider || DEFAULT_PROVIDER,
             model: selectedModel || DEFAULT_MODEL,
             states: formattedStates
         }).then(res => {
@@ -121,21 +133,29 @@
 
     /** @param {any} e */
     function onAgentSelected(e) {
-        selectedAgent = e.detail.selectedAgent || null;
+        selectedAgent = e.detail.agent || null;
         instruction = selectedAgent?.instruction || '';
 
-        const template = e.detail.selectedTemplate || null;
+        const template = e.detail.template || null;
         if (!!template) {
             instruction = template?.content || '';
         }
 
-        onLlmSelected(e);
+        const providerName = selectedAgent?.llm_config?.provider || null;
+        const modelName = selectedAgent?.llm_config?.model || null;
+        selectedProvider = llmConfigs?.find(x => x.provider === providerName) || null;
+        selectedModel = modelName;
     }
     
     /** @param {any} e */
     function onLlmSelected(e) {
-        selectedProvider = e.detail.selectedProvider || null;
-        selectedModel = e.detail.selectedModel || '';
+        selectedProvider = e.detail.provider || null;
+        selectedModel = e.detail.model || '';
+    }
+
+    /** @param {string} selected */
+    function handleTabClick(selected) {
+        selectedTab = selected;
     }
 </script>
 
@@ -151,7 +171,7 @@
                 rows={8}
                 maxlength={maxLength}
                 disabled={isThinking}
-                placeholder={'Start typing here...'}
+                placeholder={'Enter input message...'}
                 bind:value={text}
                 on:keydown={(e) => pressKey(e)}
             />
@@ -207,55 +227,95 @@
     </div>
 </div>
 
-
-<div class="d-xl-flex mt-3">
-    <div class="w-100">
-        <InstructionSetting
-            disabled={isThinking}
-            agents={agents}
-            llmConfigs={llmConfigs}
-            on:agentSelected={e => onAgentSelected(e)}
-            on:llmSelected={e => onLlmSelected(e)}
-        />
-    </div>
-</div>
-
-
 <div class="d-xl-flex mt-4 mb-5">
 	<div class="w-100">
-        <Row class="instruct-setting-container">
-            <Col lg="9">
-                <div>
-                    <div class="instruct-text-header text-primary fw-bold mb-2">
-                        <div class="line-align-center">
-                            {'Instruction'}
-                        </div>
-                        <div class="line-align-center">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                            <i
-                                class="mdi mdi-refresh text-primary clickable"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="bottom"
-                                title={'Reset'}
-                                on:click={e => resetInstruction()}
-                            />
-                        </div>
+        <Row>
+            <Col lg="7">
+                <div class="instruct-text-header text-primary fw-bold mb-2">
+                    <div class="line-align-center">
+                        {'Instruction'}
                     </div>
-                    <div class="instruct-setting-section instruction-border instruct-setting-padding">
+                    <div class="line-align-center">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <i
+                            class="mdi mdi-refresh text-primary clickable"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title={'Reset'}
+                            on:click={e => resetInstruction()}
+                        />
+                    </div>
+                </div>
+            </Col>
+            <Col lg="5"></Col>
+        </Row>
+        <Row class="instruct-setting-container">
+            <Col lg="7">
+                <div>
+                    <div class="instruct-setting-section" style="gap: 2px;">
                         <textarea
                             class='form-control knowledge-textarea'
                             rows={19}
                             maxlength={maxLength}
                             disabled={isThinking}
-                            placeholder={'Start typing here...'}
+                            placeholder={'Enter instruction...'}
                             bind:value={instruction}
                         />
+                        <div class="text-secondary text-end text-count">
+                            <div>{instruction?.length || 0}/{maxLength}</div>
+                        </div>
                     </div>
                 </div>
             </Col>
-            <Col lg="3">
-                <InstructionState bind:states={states} disabled={isThinking} />
+            <Col lg="5" class="instruction-gap">
+                <Card>
+                    <CardBody>
+                        
+                        <NavBar
+                            id={'instruction-nav-container'}
+                            disableDefaultStyles
+                            containerClasses={'nav-tabs-secondary'}
+                        >
+                            {#each tabs as tab, idx}
+                            <NavItem
+                                containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 2 ? tabs.length : 3})`}
+                                navBtnStyles={'text-transform: none;'}
+                                navBtnId={`${tab.name}-tab`}
+                                dataBsTarget={`#${tab.name}-tab-pane`}
+                                ariaControls={`${tab.name}-tab-pane`}
+                                navBtnText={tab.displayText}
+                                active={tab.name === selectedTab}
+                                onClick={() => handleTabClick(tab.name)}
+                            />
+                            {/each}
+                        </NavBar>
+                        
+                        <div class:hide={selectedTab !== 'instruction-template'}>
+                            <InstructionTemplate
+                                agents={agents}
+                                disabled={isThinking}
+                                on:agentSelected={e => onAgentSelected(e)}
+                            />
+                        </div>
+                        <div class:hide={selectedTab !== 'instruction-llm'}>
+                            <InstructionLlm
+                                llmConfigs={llmConfigs}
+                                disabled={isThinking}
+                                selectedProvider={selectedProvider}
+                                selectedModel={selectedModel}
+                                on:llmSelected={e => onLlmSelected(e)}
+                            />
+                        </div>
+                        <div class:hide={selectedTab !== 'instruction-states'}>
+                            <InstructionState
+                                bind:states={states}
+                                disabled={isThinking}
+                            />
+                        </div>
+                    </CardBody>
+                </Card>
+                
             </Col>
         </Row>
     </div>
