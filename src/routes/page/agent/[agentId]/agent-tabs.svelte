@@ -16,11 +16,13 @@
     export let handleAgentChange = () => {};
 
     export const fetchTabData = () => {
+        const llmConfig = agentLlmConfigCmp?.fetchLlmConfig();
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
 
         return {
+            llmConfig,
             utilities: utilities || [],
             knwoledgebases: knwoledgebases || [],
             rules: rules || []

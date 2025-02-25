@@ -107,11 +107,7 @@
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
             rules: agent.rules || [],
-            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null,
-            llm_config: {
-                ...agent.llm_config,
-                max_output_tokens: Number(agent.llm_config.max_output_tokens) > 0 ? Number(agent.llm_config.max_output_tokens) : null
-            }
+            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
         };
         isLoading = true;
         saveAgent(agent).then(res => {
@@ -198,6 +194,7 @@
     function fetchTabData() {
         const data = agentTabsCmp?.fetchTabData();
         if (data) {
+            agent.llm_config = data.llmConfig;
             agent.utilities = data.utilities || [];
             agent.knowledge_bases = data.knwoledgebases || [];
             agent.rules = data.rules || [];
@@ -239,7 +236,7 @@
         saveAgentDraft(data);
     }
 
-    function agentDraftReset() {
+    function handleAgentReset() {
         agent = JSON.parse(JSON.stringify(originalAgent));
         agentDraft = null;
         deleteAgentDraft();
@@ -266,7 +263,7 @@
                     profiles={agent.profiles || []}
                     labels={agent.labels || []}
                     resetable={!!agentDraft}
-                    resetAgent={() => agentDraftReset()}
+                    resetAgent={() => handleAgentReset()}
                     {handleAgentChange}
                 />
             </div>

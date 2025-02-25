@@ -38,12 +38,12 @@
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import AdvancedSearch from '../common/search/advanced-search.svelte';
 	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
+	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 	
 	const pageSize = 8;
   	const duration = 2000;
 	const maxLength = 4096;
 	const step = 0.1;
-    const numberRegex = "[0-9\.]+";
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.Document;
 	const includedPayloads = [
@@ -241,7 +241,7 @@
 
     /** @param {any} e */
     function validateConfidenceInput(e) {
-        var reg = new RegExp(numberRegex, 'g');
+        const reg = new RegExp(DECIMAL_REGEX, 'g');
         if (e.key !== 'Backspace' && !reg.test(e.key)) {
             e.preventDefault();
         }

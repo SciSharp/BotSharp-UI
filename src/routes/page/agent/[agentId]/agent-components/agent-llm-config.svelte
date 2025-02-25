@@ -2,12 +2,22 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input } from '@sveltestrap/sveltestrap';
     import { getLlmProviders, getLlmProviderModels } from '$lib/services/llm-provider-service';
+	import { INTEGER_REGEX } from '$lib/helpers/constants';
     
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
     /** @type {() => void} */
     export let handleAgentChange = () => {};
+
+    export const fetchLlmConfig = () => {
+        return {
+            ...config,
+            max_output_tokens: Number(config.max_output_tokens) > 0 ? Number(config.max_output_tokens) : null
+        };
+    }
+
+    export const fetchOriginalLlmConfig = () => {};
 
     export const refresh = () => {
         config = agent.llm_config;
@@ -56,7 +66,6 @@
         }
 
         config.is_inherit = false;
-        // handleAgentChange();
         models = await getLlmProviderModels(provider);
         config.model = models[0]?.name;
         handleAgentChange();
@@ -88,6 +97,14 @@
         const value = Number(e.target.value) || 0;
         config.max_output_tokens = value;
         handleAgentChange();
+    }
+
+    /** @param {any} e */
+    function validateIntegerInput(e) {
+        const reg = new RegExp(INTEGER_REGEX, 'g');
+        if (e.key !== 'Backspace' && !reg.test(e.key)) {
+            e.preventDefault();
+        }
     }
 </script>
 
@@ -138,6 +155,7 @@
                     min={recursiveDepthLowerLimit}
                     max={recursiveDepthUpperLimit}
                     value={config.max_recursion_depth}
+                    on:keydown={e => validateIntegerInput(e)}
                     on:change={e => changeMaxRecursiveDepth(e)}
                 />
             </div>
@@ -152,6 +170,7 @@
                     style="text-align: center;"
                     type="number"
                     value={config.max_output_tokens}
+                    on:keydown={e => validateIntegerInput(e)}
                     on:change={e => changeMaxOutputToken(e)}
                 />
             </div>

@@ -37,3 +37,6 @@ export const TRAINING_MODE = "training";
 
 export const DEFAULT_KNOWLEDGE_COLLECTION = "BotSharp";
 export const IMAGE_DATA_PREFIX = 'data:image';
+
+export const INTEGER_REGEX = "[0-9]+";
+export const DECIMAL_REGEX = "[0-9.]+";
