@@ -3,8 +3,11 @@
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
 	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
+	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 
     const limit = 5;
+    const confidLowerBound = 0;
+    const confidUpperBound = 1;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -17,7 +20,8 @@
             return {
                 name: x.name,
                 type: x.type,
-                disabled: x.disabled
+                disabled: x.disabled,
+                confidence: x.confidence
             };
         });
 
@@ -96,6 +100,44 @@
         innerRefresh(innerKnowledgeBases);
     }
 
+    /**
+	 * @param {any} e
+	 * @param {number} idx
+	 */
+    function changeConfidence(e, idx) {
+        const found = innerKnowledgeBases.find((_, index) => index === idx);
+        if (!found) return;
+        
+        const value = e.target.value;
+		const confidence = validateConfidenceNumber(value);
+        found.confidence = confidence;
+        handleAgentChange();
+        innerRefresh(innerKnowledgeBases);
+    }
+
+    /** @param {any} e */
+    function validateConfidenceInput(e) {
+        const reg = new RegExp(DECIMAL_REGEX, 'g');
+        if (e.key !== 'Backspace' && !reg.test(e.key)) {
+            e.preventDefault();
+        }
+    }
+
+	/** @param {string} value */
+	function validateConfidenceNumber(value) {
+        let confidence;
+		const num = Number(value);
+
+		if (isNaN(num) || num < confidLowerBound) {
+			confidence = '0.0';
+		} else if (num >= confidUpperBound) {
+			confidence = '1.0';
+		} else {
+			confidence = num.toFixed(1);
+		}
+		return Number(confidence);
+	}
+
     function addKnowledgeBase() {
         innerKnowledgeBases = [
             ...innerKnowledgeBases,
@@ -136,7 +178,8 @@
                 name: x.name,
                 type: x.type,
                 displayName: x.displayName,
-                disabled: x.disabled
+                disabled: x.disabled,
+                confidence: x.confidence
             }
         }) || [];
     }
@@ -195,6 +238,28 @@
                                     on:keydown={() => {}}
                                     on:click={() => deleteKnowledgeBase(uid)}
                                 />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="utility-row utility-row-secondary">
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    {'Confidence'}
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="text"
+                                            class="text-center"
+                                            bind:value={knowledge.confidence}
+                                            disabled={knowledge.disabled}
+                                            on:keydown={e => validateConfidenceInput(e)}
+                                            on:blur={e => changeConfidence(e, uid)}
+                                        />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
                             </div>
                         </div>
                     </div>

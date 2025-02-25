@@ -167,6 +167,8 @@
 
             .utility-label {
                 width: 30%;
+                font-size: 0.95em;
+                flex-wrap: wrap;
             }
 
             .utility-value {
@@ -222,7 +224,7 @@
                     display: flex;
 
                     .utility-label {
-                        font-size: 12px;
+                        font-size: 0.95em;
                     }
                 }
             }

@@ -129,7 +129,7 @@
         <FormGroup class="agent-prompt-body">
             <div class="mb-2" style="display: flex; gap: 10px;">
                 <div class="line-align-center fw-bold">
-                    {'Prompts:'}
+                    {'Contents:'}
                 </div>
                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                 <!-- svelte-ignore a11y-no-static-element-interactions -->

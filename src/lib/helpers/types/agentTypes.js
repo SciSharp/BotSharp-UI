@@ -140,7 +140,8 @@
  * @property {string} name 
  * @property {string} type
  * @property {string?} [displayName]
- * @property {boolean} disabled 
+ * @property {boolean} disabled
+ * @property {number?} [confidence]
  */
 
 /**
