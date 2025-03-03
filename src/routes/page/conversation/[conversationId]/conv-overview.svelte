@@ -11,7 +11,7 @@
     <CardBody>
         <div class="text-center">
             <!--<img src={adobephotoshop} alt="" height="50" class="mx-auto d-block" />-->
-            <h5 class="mt-3 mb-1">{conversation.title}</h5>
+            <h5 class="mt-3 mb-1 ellipsis">{conversation.title}</h5>
             <p class="text-muted mb-0">{utcToLocal(conversation.created_time)}</p>
         </div>
 
