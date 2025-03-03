@@ -23,7 +23,7 @@
 
     afterUpdate(() => {
         if (selectedProvider) {
-            onProviderChanged();
+            onProviderChanged(selectedModel);
         }
     });
 
@@ -44,7 +44,6 @@
         const selected = e.target.value || null;
         selectedProvider = llmConfigs?.find(x => x.provider === selected) || null;
         onProviderChanged();
-        console.log(selectedModel, modelOptions);
         disPatchEvent();
     }
 
