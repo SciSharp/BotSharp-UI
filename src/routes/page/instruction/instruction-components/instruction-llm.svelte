@@ -24,6 +24,8 @@
     afterUpdate(() => {
         if (selectedProvider) {
             onProviderChanged(selectedModel);
+        } else {
+            selectedModel = null;
         }
     });
 
