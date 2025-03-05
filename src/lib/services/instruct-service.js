@@ -22,3 +22,23 @@ export async function sendChatCompletion(request) {
     const response = await axios.post(url, request);
     return response.data;
 }
+
+
+/**
+ * Get instruction logs
+ * @param {import('$instructTypes').InstructLogFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$instructTypes').InstructionLogModel>>}
+ */
+export async function getInstructionLogs(filter) {
+    const url = endpoints.instructLogUrl;
+    const response = await axios.get(url, {
+        params: {
+            ...filter
+        },
+        paramsSerializer: {
+            dots: true,
+            indexes: null,
+        }
+    });
+    return response.data;
+}

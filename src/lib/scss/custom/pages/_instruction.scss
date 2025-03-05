@@ -83,3 +83,20 @@
         justify-content: center;
     }
 }
+
+.instruction-log-col {
+    max-width: 150px;
+}
+
+.instruction-log-detail-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 10px 5px;
+
+    .instruction-log-message {
+        overflow-y: auto;
+        max-height: 350px;
+        scrollbar-width: none;
+    }
+}
