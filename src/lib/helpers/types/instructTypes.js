@@ -11,7 +11,32 @@
  * @property {string} [instruction]
  * @property {string} [provider]
  * @property {string} [model]
+ * @property {string?} [template]
  * @property {import('$conversationTypes').ConversationStateModel[]} [states]
+ */
+
+/**
+ * @typedef {Object} InstructLogFilter
+ * @property {number} page - The page number
+ * @property {number} size - The page size
+ * @property {string[]?} [agentIds]
+ * @property {string[]?} [providers]
+ * @property {string[]?} [models]
+ * @property {string[]?} [templateNames]
+ */
+
+/**
+ * @typedef {Object} InstructionLogModel
+ * @property {string} [id]
+ * @property {string?} [agent_id]
+ * @property {string?} [agent_name]
+ * @property {string} provider
+ * @property {string} model
+ * @property {string?} [template_name]
+ * @property {string} user_message
+ * @property {string?} [system_instruction]
+ * @property {string} completion_text
+ * @property {Date} created_time
  */
 
 export default {};

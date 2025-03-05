@@ -68,3 +68,12 @@ export function truncateByPrefix(str, prefix) {
 
     return str.replace(prefix, '');
 }
+
+
+/**
+ * @param {any[]} arr
+ * @param {string | number} key
+ */
+export function removeDuplicates(arr, key) {
+    return [...new Map(arr.map(item => [item[key], item])).values()];
+}

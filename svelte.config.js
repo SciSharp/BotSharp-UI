@@ -53,6 +53,7 @@ const config = {
 				"/page/agent/[agentId]/build",
 				"/page/agent/[agentId]/train",
 				"/page/instruction",
+				"/page/instruction/log",
 				"/page/conversation",
 				"/page/conversation/[conversationId]",
 				"/page/task",

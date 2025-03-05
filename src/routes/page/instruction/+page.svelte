@@ -47,6 +47,9 @@
 
     /** @type {string | null} */
     let selectedModel = null;
+
+    /** @type {string | null} */
+    let selectedTemplate = null;
     
     /** @type {import('$agentTypes').AgentModel[]} */
     let agents = [];
@@ -87,6 +90,7 @@
             agentId: selectedAgent?.id,
             provider: selectedProvider?.provider || DEFAULT_PROVIDER,
             model: selectedModel || DEFAULT_MODEL,
+            template: selectedTemplate,
             states: formattedStates
         }).then(res => {
             result = res || '';
@@ -137,6 +141,7 @@
         instruction = selectedAgent?.instruction || '';
 
         const template = e.detail.template || null;
+        selectedTemplate = template?.name || null;
         if (!!template) {
             instruction = template?.content || '';
         }
