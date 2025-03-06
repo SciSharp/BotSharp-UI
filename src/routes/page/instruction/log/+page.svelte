@@ -201,7 +201,7 @@
 
 
 <HeadTitle title="{$_('Instruction Log')}" />
-<Breadcrumb pagetitle="{$_('Instruction Log')}" title="{$_('Instruction')}"/>
+<Breadcrumb pagetitle="{$_('Log')}" title="{$_('Instruction')}"/>
 <LoadingToComplete isLoading={isLoading} />
 
 <Row>
@@ -260,9 +260,10 @@
 						<thead>
 							<tr>
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Agent')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Provider')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Model')}</th>
+								<th scope="col" class="instruction-log-col ellipsis">{$_('Llm Provider')}</th>
+								<th scope="col" class="instruction-log-col ellipsis">{$_('Llm Model')}</th>
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Template')}</th>
+								<th scope="col" class="instruction-log-col ellipsis">{$_('Caller')}</th>
                                 <th scope="col" class="instruction-log-col ellipsis">{$_('Created Time')}</th>
 								<th scope="col">{$_('')}</th>
 							</tr>

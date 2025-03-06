@@ -16,6 +16,9 @@
 
     let innerText = '';
 	$: {
+		if (typeof text !== 'string') {
+			text = `${JSON.stringify(text)}`;
+		}
 		const markedText = !rawText ? replaceNewLine(marked(replaceMarkdown(text || ''))?.toString()) : marked(text || '')?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
