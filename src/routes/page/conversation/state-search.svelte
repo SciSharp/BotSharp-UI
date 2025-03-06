@@ -36,7 +36,7 @@
 >
     {#each states as state, idx}
         <div class="state-search-item">
-            <div>
+            <div style="flex: 1;">
                 <RemoteSearchInput
                     bind:value={state.key}
                     maxLength={maxLength}
@@ -44,7 +44,7 @@
                     placeholder="Search States"
                 />
             </div>
-            <div>
+            <div style="flex: 1;">
                 <Input
                     type="text"
                     bind:value={state.value}
@@ -67,15 +67,16 @@
         </div>
     {/each}
     {#if states.length < limit}
-    <div>
-        <Button 
-            color="link"
-            style="padding-left: 0px;"
-            on:click={() => addState()}
-        >
-            Add +
-        </Button>
-    </div>
+        <div class="d-flex justify-content-end">
+            <Button 
+                color="link"
+                style="padding-left: 0px;"
+                on:click={() => addState()}
+            >
+                Add +
+            </Button>
+            <div style="flex: 0 0 13px;"></div>
+        </div>
     {/if}
 </div>
 

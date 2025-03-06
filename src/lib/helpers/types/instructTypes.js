@@ -33,6 +33,7 @@
  * @property {string} provider
  * @property {string} model
  * @property {string?} [template_name]
+ * @property {string?} [user_name]
  * @property {string} user_message
  * @property {string?} [system_instruction]
  * @property {string} completion_text

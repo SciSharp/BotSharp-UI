@@ -8,7 +8,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import InstructionState from './instruction-components/instruction-state.svelte';
+	import InstructionState from '../instruction-components/instruction-state.svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { sendChatCompletion } from '$lib/services/instruct-service';
@@ -16,8 +16,8 @@
 	import { LlmModelType } from '$lib/helpers/enums';
 	import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-	import InstructionTemplate from './instruction-components/instruction-template.svelte';
-	import InstructionLlm from './instruction-components/instruction-llm.svelte';
+	import InstructionTemplate from '../instruction-components/instruction-template.svelte';
+	import InstructionLlm from '../instruction-components/instruction-llm.svelte';
 
     const maxLength = 64000;
     const DEFAULT_PROVIDER = 'openai';
@@ -165,7 +165,7 @@
 </script>
 
 <HeadTitle title="{$_('Instruction')}" />
-<Breadcrumb pagetitle="{$_('Instruction')}" title="{$_('Instruction')}"/>
+<Breadcrumb pagetitle="{$_('Testing')}" title="{$_('Instruction')}"/>
 <LoadingToComplete isLoading={isLoading} />
 
 <div class="d-xl-flex">
