@@ -374,8 +374,12 @@
 				</div>
 			</CardBody>
 			{#if showStateSearch}
-				<CardBody class="border-bottom" style="display: flex; justify-content: flex-end;">
-					<StateSearch bind:states={states} onSearch={q => handleStateSearch(q)}/>
+				<CardBody class="border-bottom">
+					<Row class="g-3 justify-content-end">
+						<Col lg="6">
+							<StateSearch bind:states={states} onSearch={q => handleStateSearch(q)}/>
+						</Col>
+					</Row>
 				</CardBody>
 			{/if}
 			<CardBody class="border-bottom">
