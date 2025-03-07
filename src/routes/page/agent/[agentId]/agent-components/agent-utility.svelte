@@ -269,24 +269,26 @@
         </div>
 
         <div class="agent-utility-container">
-            <div class="merge-utility">
-                <Input
-					type="checkbox"
-					checked={agent?.merge_utility || false}
-					on:change={e => { toggleMergeUtility(e); handleAgentChange(); }}
-				/>
-                <div class="fw-bold">
-                    Merge utilities
+            {#if !agent?.is_router}
+                <div class="merge-utility">
+                    <Input
+                        type="checkbox"
+                        checked={agent?.merge_utility || false}
+                        on:change={e => { toggleMergeUtility(e); handleAgentChange(); }}
+                    />
+                    <div class="fw-bold">
+                        Merge utilities
+                    </div>
+                    <div
+                        class="line-align-center"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Merge with entry agent utilities"
+                    >
+                        <i class="bx bx-info-circle" />
+                    </div>
                 </div>
-                <div
-                    class="line-align-center"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Merge with entry agent utilities"
-                >
-                    <i class="bx bx-info-circle" />
-                </div>
-            </div>
+            {/if}
 
             {#each innerUtilities as utility, uid (uid)}
                 <div class="utility-wrapper">
