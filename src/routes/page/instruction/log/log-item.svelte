@@ -47,7 +47,7 @@
                         {'System instruction:'}
                     </div>
                     <div class="instruction-log-message">
-                        <Markdown containerClasses={'markdown-dark text-dark'} text={item.system_instruction} rawText />
+                        <div contenteditable="false" bind:innerText={item.system_instruction}></div>
                     </div>
                 </div>
                 {/if}
@@ -57,7 +57,7 @@
                         {'User message:'}
                     </div>
                     <div class="instruction-log-message">
-                        <Markdown containerClasses={'markdown-dark text-dark'} text={item.user_message || ''} rawText />
+                        <div contenteditable="false" bind:innerText={item.user_message}></div>
                     </div>
                 </div>
                 {/if}
