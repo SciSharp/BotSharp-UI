@@ -16,6 +16,7 @@
  * @property {string} label
  * @property {string} icon
  * @property {string} link
+ * @property {string?} [iFrameUrl]
  * @property {boolean} isHeader
  */
 

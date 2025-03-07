@@ -20,6 +20,17 @@ const createGlobalEventStore = () => {
 
 export const globalEventStore = createGlobalEventStore();
 
+/** @type {Writable<import('$pluginTypes').PluginMenuDefModel[]>} */
+const createGlobalMenuStore = () => {
+    const { set, subscribe } = writable([]);
+    return {
+        set,
+        subscribe
+    };
+}
+
+export const globalMenuStore = createGlobalMenuStore();
+
 
 /** @type {Writable<import('$userTypes').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });

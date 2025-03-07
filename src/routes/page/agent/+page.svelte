@@ -1,20 +1,20 @@
 <script>
 	import { onDestroy, onMount } from 'svelte';
+	import { _ } from 'svelte-i18n';
+	import { goto } from '$app/navigation';
+	import Swal from 'sweetalert2';
 	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import CardAgent from './card-agent.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
-  	import { myInfo } from '$lib/services/auth-service';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
-	import { _ } from 'svelte-i18n'
-	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2';
+	import MultiSelect from '$lib/common/MultiSelect.svelte';
+  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
+  	import { myInfo } from '$lib/services/auth-service';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
-	import MultiSelect from '$lib/common/MultiSelect.svelte';
+	import CardAgent from './card-agent.svelte';
 	
 	
   	const firstPage = 1;
