@@ -16,8 +16,17 @@
  * @property {string} label
  * @property {string} icon
  * @property {string} link
- * @property {string?} [embedUrl]
+ * @property {EmbeddingInfoModel?} [embeddingInfo]
  * @property {boolean} isHeader
+ */
+
+/**
+ * @typedef {Object} EmbeddingInfoModel
+ * @property {string} source
+ * @property {string?} [scriptSrc]
+ * @property {string?} [scriptType]
+ * @property {string?} [url]
+ *  @property {string?} [htmlTag]
  */
 
 /**
