@@ -8,12 +8,12 @@
 	import { globalMenuStore } from '$lib/helpers/store';
 
     /** @type {string} */
-    let iFrameUrl = '';
+    let embedUrl = '';
 
     const unsubscriber = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
         const url = $page.url.pathname;
         const pageInfo = menu.find(x => x.link === url) || null;
-        iFrameUrl = pageInfo?.iFrameUrl || '';
+        embedUrl = pageInfo?.embedUrl || '';
     });
 
     onDestroy(() => {
@@ -24,7 +24,7 @@
 <HeadTitle title="{$_('Metrics')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Metrics')}" />
 
-{#if iFrameUrl}
+{#if embedUrl}
 <Row>
 	<Col lg="12">
 		<Card>
@@ -33,7 +33,7 @@
                     title="agent-metrics"
                     height="100%"
                     width="100%"
-                    src={iFrameUrl}
+                    src={embedUrl}
                     frameborder="0"
                     allowfullscreen
                 >
