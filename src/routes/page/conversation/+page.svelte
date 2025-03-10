@@ -12,6 +12,7 @@
 		Row,
 		Table
 	} from '@sveltestrap/sveltestrap';
+	import StateSearch from '$lib/common/StateSearch.svelte';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
@@ -20,7 +21,7 @@
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel } from '$lib/helpers/enums';
-	import StateSearch from './state-search.svelte';
+	
 
 	const duration = 3000;
 	const firstPage = 1;
@@ -248,8 +249,8 @@
 
 	function getSearchStates() {
 		searchOption.states = states?.filter(x => !!lodash.trim(x.key))?.map(x => ({
-			key: { data: x.key, isValid: true },
-			value: { data: x.value || '', isValid: true },
+			key: { data: lodash.trim(x.key), isValid: true },
+			value: { data: lodash.trim(x.value) || '', isValid: true },
 			active_rounds: {data: -1, isValid: true},
 		})) || [];
 		return searchOption.states.map(x => ({ key: x.key.data, value: x.value.data }));;
@@ -350,7 +351,7 @@
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
-				<div class="d-flex align-items-center" style="flex-wrap: wrap; justify-content: space-between;">
+				<div class="d-flex flex-wrap align-items-center justify-content-between">
 					<div class="mb-0 card-title flex-grow-0">
 						<h5 class="mb-0">{$_('Conversation List')}</h5>
 					</div>

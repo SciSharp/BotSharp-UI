@@ -12,6 +12,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import LogItem from './log-item.svelte';
 	import { removeDuplicates } from '$lib/helpers/utils/common';
+	import StateSearch from '$lib/common/StateSearch.svelte';
 
     const firstPage = 1;
 	const pageSize = 15;
@@ -45,8 +46,17 @@
 		agentId: null,
 		provider: null,
 		model: null,
-        template: ''
+        template: '',
+		states: []
 	};
+
+	/** @type {boolean} */
+	let showStateSearch = false;
+
+	/** @type {{key: string, value: string | null}[]} */
+    let states = [
+        { key: '', value: ''}
+    ];
 
     onMount(async () => {
         Promise.all([
@@ -177,16 +187,27 @@
         const provider = searchOption.provider || null;
         const model = searchOption.model || null;
         const template = util.trim(searchOption.template) || null;
+		const states = getSearchStates();
 
         filter = {
             ...filter,
             page: firstPage,
-            agentIds: agentId ? [agentId] : null,
-            providers: provider ? [provider] : null,
-            models: model ? [model] : null,
-            templateNames: template ? [template] : null
+            agentIds: agentId ? [agentId] : [],
+            providers: provider ? [provider] : [],
+            models: model ? [model] : [],
+            templateNames: template ? [template] : [],
+			states: states
         };
     }
+
+	function getSearchStates() {
+		searchOption.states = states?.filter(x => !!util.trim(x.key))?.map(x => ({
+			key: util.trim(x.key),
+			value: util.trim(x.value) || ''
+		})) || [];
+		// @ts-ignore
+		return searchOption.states.map(x => ({ key: x.key, value: x.value }));;
+	}
 
     /** @param {number} pageNum */
 	function pageTo(pageNum) {
@@ -208,10 +229,38 @@
 	<Col lg="12">
 		<Card>
 			<CardBody class="border-bottom">
-				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">{$_('Log List')}</h5>
+				<div class="d-flex flex-wrap align-items-center justify-content-between">
+					<div class="mb-0 card-title flex-grow-0">
+						<h5 class="mb-0 card-title flex-grow-1">{$_('Log List')}</h5>
+					</div>
+					<div class="state-search-btn-wrapper">
+						<Button
+							color={showStateSearch ? 'secondary' : 'primary'}
+							on:click={() => showStateSearch = !showStateSearch}
+						>
+							<div class="state-search-btn">
+								<div>
+									{#if showStateSearch}
+										<i class="bx bx-hide" />
+									{:else}
+										<i class="bx bx-search-alt" />
+									{/if}
+								</div>
+								<div class="search-btn-text">{'State Search'}</div>
+							</div>
+						</Button>						
+					</div>
 				</div>
 			</CardBody>
+			{#if showStateSearch}
+				<CardBody class="border-bottom">
+					<Row class="g-3 justify-content-end">
+						<Col lg="6">
+							<StateSearch bind:states={states} />
+						</Col>
+					</Row>
+				</CardBody>
+			{/if}
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">

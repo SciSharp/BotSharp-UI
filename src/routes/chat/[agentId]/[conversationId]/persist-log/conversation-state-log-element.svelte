@@ -1,6 +1,6 @@
 <script>
-	import { formatObject } from '$lib/helpers/utils/common';
     import JSONTree from 'svelte-json-tree';
+	import { formatObject } from '$lib/helpers/utils/common';
 
     /** @type {any} */
     export let data;

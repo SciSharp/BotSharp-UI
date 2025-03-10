@@ -59,7 +59,7 @@
                     <!-- svelte-ignore a11y-no-static-element-interactions -->
                     <i
                         class="bx bx-no-entry text-danger clickable"
-                        class:hide={idx === 0}
+                        class:hide={states.length === 1}
                         on:click={() => removeState(idx)}
                     />
                 </div>

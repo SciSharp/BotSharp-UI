@@ -1,6 +1,7 @@
 import { endpoints } from '$lib/services/api-endpoints.js';
 import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
+import qs from 'qs';
 
 /**
  * Execute agent instruction by template or user provided prompt.
@@ -35,10 +36,7 @@ export async function getInstructionLogs(filter) {
         params: {
             ...filter
         },
-        paramsSerializer: {
-            dots: true,
-            indexes: null,
-        }
+        paramsSerializer: (params) => qs.stringify(params, { encode: false, allowDots: true, arrayFormat: "indices" })
     });
     return response.data;
 }

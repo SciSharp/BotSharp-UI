@@ -23,6 +23,7 @@
  * @property {string[]?} [providers]
  * @property {string[]?} [models]
  * @property {string[]?} [templateNames]
+ * @property {{key: string, value: string}[]?} [states]
  */
 
 /**
@@ -37,6 +38,7 @@
  * @property {string} user_message
  * @property {string?} [system_instruction]
  * @property {string} completion_text
+ * @property {Object?} [states]
  * @property {Date} created_time
  */
 
