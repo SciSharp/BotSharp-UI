@@ -46,6 +46,7 @@ export const endpoints = {
     instructCompletionUrl: `${host}/instruct/{agentId}`,
     chatCompletionUrl: `${host}/instruct/chat-completion`,
     instructLogUrl: `${host}/logger/instruction/log`,
+    instructLogSearchKeysUrl: `${host}/logger/instruction/log/keys`,
 
     // agent realtime interaction
     agentInitRealtimeSessionUrl: `${host}/agent/{agentId}/realtime/session`,

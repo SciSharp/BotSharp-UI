@@ -196,14 +196,16 @@
                     </FormGroup>
                 </div>
                 {/if}
-                <div class="state-delete mb-3 line-align-center">
-                    {#if idx !== 0}
-                    <div>
+                <div class="state-delete mb-3 line-align-center" style={`padding-top: ${idx === 0 ? '28px' : '0px'}`}>
+                    <div class="line-align-center">
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <span><i class="bx bx-no-entry clickable" on:click={() => remove(idx)} /></span>
+                        <i
+                            class="bx bx-no-entry clickable"
+                            class:hide={states.length === 1}
+                            on:click={() => remove(idx)}
+                        />
                     </div>
-                    {/if}
                 </div>
             </Row>
             {/each}

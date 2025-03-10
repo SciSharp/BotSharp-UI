@@ -8,7 +8,7 @@
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
-	import { getInstructionLogs } from '$lib/services/instruct-service';
+	import { getInstructionLogs, getInstructionLogSearchKeys } from '$lib/services/instruct-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import LogItem from './log-item.svelte';
 	import { removeDuplicates } from '$lib/helpers/utils/common';
@@ -218,6 +218,19 @@
 		};
 		getPagedInstructionLogs();
 	}
+
+	/** @param {string} query */
+	function handleStateSearch(query) {
+		return new Promise((resolve) => {
+			getInstructionLogSearchKeys({
+				query: query,
+				keyLimit: 20,
+				agentIds: searchOption.agentId ? [searchOption.agentId] : null
+			}).then(res => {
+				resolve(res || []);
+			}).catch(() => resolve([]));
+		});
+	}
 </script>
 
 
@@ -256,7 +269,7 @@
 				<CardBody class="border-bottom">
 					<Row class="g-3 justify-content-end">
 						<Col lg="6">
-							<StateSearch bind:states={states} />
+							<StateSearch bind:states={states} onSearch={(query) => handleStateSearch(query)} />
 						</Col>
 					</Row>
 				</CardBody>

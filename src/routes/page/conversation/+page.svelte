@@ -335,7 +335,8 @@
 		return new Promise((resolve) => {
 			getConversationStateSearchKeys({
 				query: query,
-				keyLimit: 20
+				keyLimit: 20,
+				agentIds: searchOption.agentId ? [searchOption.agentId] : null
 			}).then(res => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
