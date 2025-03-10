@@ -42,4 +42,13 @@
  * @property {Date} created_time
  */
 
+/**
+ * @typedef {Object} StateSearchQuery
+ * @property {string} query - The search query.
+ * @property {number?} [keyLimit] - The key limit.
+ * @property {number?} [logLimit] - The log limit.
+ * @property {boolean?} [preload] - Whether it is preloading or not.
+ * @property {string[]?} [agentIds]
+ */
+
 export default {};

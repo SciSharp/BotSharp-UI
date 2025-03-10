@@ -37,6 +37,7 @@
  * @property {number?} [keyLimit] - The key limit.
  * @property {number?} [convLimit] - The conversation limit.
  * @property {boolean?} [preload] - Whether it is preloading or not.
+ * @property {string[]?} [agentIds]
  */
 
 

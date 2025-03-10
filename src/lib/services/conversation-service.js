@@ -1,7 +1,8 @@
-import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
-import { endpoints } from './api-endpoints.js';
+import qs from 'qs';
+import { replaceUrl } from '$lib/helpers/http';
 import { conversationUserStateStore } from '$lib/helpers/store.js';
+import { endpoints } from './api-endpoints.js';
 
 /**
  * New conversation
@@ -44,7 +45,12 @@ export async function getConversationUser(id) {
  */
 export async function getConversations(filter) {
     let url = endpoints.conversationsUrl;
-    const response = await axios.post(url, { ...filter});
+    const response = await axios.get(url, {
+        params: {
+            ...filter
+        },
+        paramsSerializer: (params) => qs.stringify(params, { encode: false, allowDots: true, arrayFormat: "indices" })
+    });
     return response.data;
 }
 
@@ -303,6 +309,10 @@ export async function getConversationStateSearchKeys(request) {
     const response = await axios.get(url, {
         params: {
             ...request
+        },
+        paramsSerializer: {
+            dots: true,
+            indexes: null,
         },
         signal: controller.signal
     });

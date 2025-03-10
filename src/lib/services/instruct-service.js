@@ -40,3 +40,22 @@ export async function getInstructionLogs(filter) {
     });
     return response.data;
 }
+
+/**
+ * get instruction log search keys
+ * @param {import('$instructTypes').StateSearchQuery} request
+ * @returns {Promise<string[]>}
+ */
+export async function getInstructionLogSearchKeys(request) {
+    let url = endpoints.instructLogSearchKeysUrl;
+    const response = await axios.get(url, {
+        params: {
+            ...request
+        },
+        paramsSerializer: {
+            dots: true,
+            indexes: null,
+        }
+    });
+    return response.data;
+}
