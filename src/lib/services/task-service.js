@@ -28,3 +28,17 @@ export async function getAgentTaskDetail(agentId, taskid) {
     var response = await axios.get(url);
     return response.data;
 }
+
+/**
+ * Update agent task
+ * @param {string} agentId 
+ * @param {string} taskId 
+ * @param {import('$agentTypes').AgentTaskModel} task
+ */
+export async function updateAgentTask(agentId, taskId, task) {
+    const url = replaceUrl(endpoints.agentTaskUpdateUrl, { agentId: agentId, taskId: taskId });
+    var response = await axios.put(url, {
+        ...task
+    });
+    return response.data;
+}

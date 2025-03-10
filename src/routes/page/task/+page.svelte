@@ -1,6 +1,9 @@
 <script>
 	import { onMount } from 'svelte';
-	import { _ } from 'svelte-i18n'
+	import { _ } from 'svelte-i18n';
+	import Swal from 'sweetalert2';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
 	import {
 		Button,
 		Card,
@@ -17,15 +20,12 @@
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
-    import { getAgentTasks } from '$lib/services/task-service';
-	import { utcToLocal } from '$lib/helpers/datetime';
-	import Swal from 'sweetalert2';
-	import { replaceNewLine } from '$lib/helpers/http';
-	import 'overlayscrollbars/overlayscrollbars.css';
-    import { OverlayScrollbars } from 'overlayscrollbars';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+    import { getAgentTasks, updateAgentTask } from '$lib/services/task-service';
 	import { AgentTaskStatus } from '$lib/helpers/enums';
+	import TaskItem from './task-item.svelte';
+	
 
-	let isError = false;
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 10;
@@ -41,6 +41,10 @@
 			pointers: ['mouse', 'touch', 'pen']
 		}
 	};
+
+	let isLoading = false;
+	let isComplete = false;
+	let successText = "Update completed!";
 
     /** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentTaskModel>} */
     let tasks = { count: 0, items: [] };
@@ -123,42 +127,6 @@
 		refreshPager(tasks.count);
 	}
 
-	/** @param {string} taskId */
-    function handleTaskDeletion(taskId) {
-        /*deleteConversation(conversationId).then(async () => {
-			isLoading = false;
-			isComplete = true;
-			setTimeout(() => {
-				isComplete = false;
-			}, duration);
-			await reloadConversations();
-		}).catch(err => {
-			isLoading = false;
-			isComplete = false;
-			isError = true;
-			setTimeout(() => {
-				isError = false;
-			}, duration);
-		});*/
-    }
-
-	/** @param {string} taskId */
-	function openDeleteModal(taskId) {
-		// @ts-ignore
-		Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-			customClass: 'custom-modal',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.value) {
-				handleTaskDeletion(taskId);
-            }
-        });
-	}
-
 	/**
 	 * @param {any} e
 	 */
@@ -200,10 +168,99 @@
 			};
 		}
 	}
+
+	/** @param {any} e */
+	function onTaskSaved(e) {
+		const task = e.detail.task;
+		if (!task) return;
+
+		openSaveModal(task);
+	}
+
+	/** @param {import('$agentTypes').AgentTaskModel} task */
+	function openSaveModal(task) {
+		// @ts-ignore
+		Swal.fire({
+            title: 'Are you sure?',
+            text: "You can change it back.",
+            icon: 'warning',
+			customClass: 'custom-modal',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, save it!'
+        }).then((result) => {
+            if (result.value) {
+				handleTaskSave(task);
+            }
+        });
+	}
+
+	/** @param {import('$agentTypes').AgentTaskModel} task */
+    function handleTaskSave(task) {
+        updateAgentTask(task.agent_id, task.id, task).then(async () => {
+			isLoading = false;
+			isComplete = true;
+			successText = "Update completed!";
+			setTimeout(() => {
+				isComplete = false;
+				successText = '';
+			}, duration);
+		}).catch(() => {
+			isLoading = false;
+			isComplete = false;
+			successText = '';
+		});
+    }
+
+	
+
+	/** @param {any} e */
+	function onTaskDeleted(e) {
+		const task = e.detail.task;
+		if (!task) return;
+
+		openDeleteModal(task.id);
+	}
+
+	/** @param {string} taskId */
+	function openDeleteModal(taskId) {
+		// @ts-ignore
+		Swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+			customClass: 'custom-modal',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.value) {
+				handleTaskDeletion(taskId);
+            }
+        });
+	}
+
+	/** @param {string} taskId */
+    function handleTaskDeletion(taskId) {
+        /*deleteConversation(conversationId).then(async () => {
+			isLoading = false;
+			isComplete = true;
+			setTimeout(() => {
+				isComplete = false;
+			}, duration);
+			await reloadConversations();
+		}).catch(err => {
+			isLoading = false;
+			isComplete = false;
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		});*/
+    }
 </script>
 
 <HeadTitle title="{$_('Task List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Task')}" />
+<LoadingToComplete isLoading={isLoading} isComplete={isComplete} />
 
 <Row>
 	<Col lg="12">
@@ -263,7 +320,7 @@
 								<th scope="col">{$_('Description')}</th>
 								<th scope="col">{$_('Agent')}</th>
 								<th scope="col">{$_('Details')}</th>
-								<th scope="col">{$_('Updated Date')}</th>
+								<th scope="col">{$_('Updated Time')}</th>
 								<th scope="col">{$_('Enabled')}</th>
 								<th scope="col">{$_('Status')}</th>
 								<th scope="col">{$_('Action')}</th>
@@ -271,31 +328,11 @@
 						</thead>
 						<tbody>
 							{#each tasks.items as task}
-							<tr>
-								<td scope="row">
-									<a href="page/conversation/{task.id}">{task.name}</a>
-								</td>
-								<td>{task.description}</td>
-								<td>{task.agent_name}</td>
-								<td><div style="max-height: 100px;" class="scrollbar">{@html replaceNewLine(task.content)}</div></td>
-								<td>{utcToLocal(task.updated_datetime)}</td>
-								<td><span class="badge bg-success">{task.enabled ? $_("Enabled") : $_("Disabled")}</span></td>
-								<td><span class="badge bg-info">{task.status}</span></td>
-								<td>
-									<ul class="list-unstyled hstack gap-1 mb-0">
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-											<a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-danger">
-                                                <i class="mdi mdi-eye-outline" />
-                                            </a>
-										</li>
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-											<Button on:click={() => openDeleteModal(task.id)} class="btn btn-sm btn-soft-danger">
-                                                <i class="mdi mdi-delete-outline" />
-                                            </Button>
-										</li>
-									</ul>
-								</td>
-							</tr>
+								<TaskItem
+									task={task}
+									on:save={e => onTaskSaved(e)}
+									on:delete={e => onTaskDeleted(e)}
+								/>
 							{/each}
 						</tbody>
 					</Table>
