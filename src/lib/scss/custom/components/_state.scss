@@ -1,0 +1,26 @@
+.state-search-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    .state-search-item {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+    }
+}
+
+.state-search-btn-wrapper {
+    .state-search-btn {
+        display: flex;
+        justify-content: center;
+        gap: 3px;
+        flex-wrap: wrap;
+
+        @media (max-width: 800px) {
+            .search-btn-text {
+                display: none;
+            }
+        }
+    }
+}

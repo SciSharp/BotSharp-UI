@@ -91,11 +91,18 @@
 .instruction-log-detail-container {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 25px;
     padding: 10px 5px;
 
-    .instruction-log-message {
+    .instruction-log-mt {
         margin-top: 10px;
+    }
+
+    .instruction-log-state ul {
+        font-size: 15px;
+    }
+
+    .overflow {
         overflow-y: auto;
         max-height: 350px;
         scrollbar-width: none;

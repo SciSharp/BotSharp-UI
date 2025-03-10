@@ -1,8 +1,10 @@
 <script>
     import { fly } from 'svelte/transition';
     import { Button } from '@sveltestrap/sveltestrap';
+    import JSONTree from 'svelte-json-tree';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
+    import { formatObject } from '$lib/helpers/utils/common';
 
     /** @type {import('$instructTypes').InstructionLogModel} */
     export let item;
@@ -46,7 +48,7 @@
                     <div class="text-primary fw-bold">
                         {'System instruction:'}
                     </div>
-                    <div class="instruction-log-message">
+                    <div class="instruction-log-mt overflow">
                         <div contenteditable="false" bind:innerText={item.system_instruction}></div>
                     </div>
                 </div>
@@ -56,7 +58,7 @@
                     <div class="text-primary fw-bold">
                         {'User message:'}
                     </div>
-                    <div class="instruction-log-message">
+                    <div class="instruction-log-mt overflow">
                         <div contenteditable="false" bind:innerText={item.user_message}></div>
                     </div>
                 </div>
@@ -66,8 +68,24 @@
                     <div class="text-primary fw-bold">
                         {'Completion text:'}
                     </div>
-                    <div class="instruction-log-message">
+                    <div class="instruction-log-mt overflow">
                         <Markdown containerClasses={'markdown-dark text-dark'} text={item.completion_text} rawText />
+                    </div>
+                </div>
+                {/if}
+                {#if item.states}
+                <div>
+                    <div class="text-primary fw-bold">
+                        {'States:'}
+                    </div>
+                    <div class="instruction-log-mt instruction-log-state overflow">
+                        <JSONTree
+                            value={formatObject(item.states)}
+                            defaultExpandedLevel={1}
+                            --json-tree-number-color="var(--bs-info)"
+                            --json-tree-boolean-color="var(--bs-info)"
+                            --json-tree-string-color="var(--bs-info)"
+                        />
                     </div>
                 </div>
                 {/if}
