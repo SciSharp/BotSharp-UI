@@ -94,8 +94,8 @@
  * @property {string} content - Task detail.
  * @property {boolean} enabled
  * @property {string} status
- * @property {Date} created_datetime
- * @property {Date} updated_datetime
+ * @property {Date} created_time
+ * @property {Date} updated_time
  * @property {string} agent_id - Description.
  * @property {string} agent_name - Task detail.
  * @property {string} [direct_agent_id] - Run task directly in this agent.
