@@ -300,7 +300,7 @@
         </Col>
     </Row>
 
-    {#if !!AgentExtensions.editable(agent)}
+    {#if !!AgentExtensions.editable(originalAgent)}
         <Row>
             <div class="hstack gap-2 my-4">
                 <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>

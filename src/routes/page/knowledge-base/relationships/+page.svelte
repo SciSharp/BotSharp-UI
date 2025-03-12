@@ -97,7 +97,7 @@
                             </div>
                         </div>
                     {:else if searchDone && !result}
-                        <div class="mt-3">
+                        <div class="mt-3 text-center">
                             <h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
                         </div>
                     {/if}
