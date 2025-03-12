@@ -18,8 +18,8 @@
         />
     </div>
     {#if data.message_id}
-    <div style="margin-top: 10px;">
-        {`MessageId: ${data.message_id}`}
-    </div>
+        <div style="margin-top: 10px;">
+            {`MessageId: ${data.message_id}`}
+        </div>
     {/if} 
 </div>

@@ -26,6 +26,8 @@
     ];
 
     $: {
+        logDisplayStyle = '';
+        logTextStyle = '';
         if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
             logDisplayStyle = 'border border-secondary';
             logTextStyle = 'text-info';
@@ -62,7 +64,7 @@
             {/if}
             </span>
             <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
-        </div>        
+        </div>
     </div>
     <div
         class={`rounded log-content ${logDisplayStyle}`}

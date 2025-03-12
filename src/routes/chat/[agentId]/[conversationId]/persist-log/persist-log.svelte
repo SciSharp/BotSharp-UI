@@ -1,16 +1,31 @@
 <script>
+    import { afterUpdate, beforeUpdate, onDestroy, onMount, tick } from 'svelte';
+    import { page } from '$app/stores';
+    import moment from 'moment';
+    import { v4 as uuidv4 } from 'uuid';
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, beforeUpdate, onDestroy, onMount } from 'svelte';
-	import { page } from '$app/stores';
-	import { GetContentLogs, GetStateLogs } from '$lib/services/logging-service';
+	import { getContentLogs, getStateLogs } from '$lib/services/logging-service';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     import ContentLogElement from './content-log-element.svelte';
 	import ConversationStateLogElement from './conversation-state-log-element.svelte';
-
+	
     const contentLogTab = 1;
     const conversationStateLogTab = 2;
+    const conversationId = $page.params.conversationId;
+    const utcNow = moment.utc().toDate();
+
+    const scrollbarElements = [
+        {
+            id: '.content-log-scrollbar',
+            type: contentLogTab,
+        },
+        {
+            id: '.conv-state-log-scrollbar',
+            type: conversationStateLogTab,
+        }
+    ];
 
     /** @type {import('$conversationTypes').ConversationContentLogModel[]} */
     export let contentLogs = [];
@@ -36,6 +51,11 @@
     let selectedTab = contentLogTab;
     let tabChanged = false;
 
+    /** @type {import('$conversationTypes').ConversationLogFilter} */
+    let contentLogFilter = { size: 20, startTime: utcNow };
+    /** @type {import('$conversationTypes').ConversationLogFilter} */
+    let stateLogFilter = { size: 20, startTime: utcNow };
+
     const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -49,18 +69,10 @@
 	};
 
     onMount(async () => {
-        const conversationId = $page.params.conversationId;
-        contentLogs = await GetContentLogs(conversationId);
-        convStateLogs = await GetStateLogs(conversationId);
-        lastestStateLog = convStateLogs.slice(-1)[0];
+        await getChatContentLogs();
+        await getChatStateLogs();
 
-        const scrollbarElements = [
-            document.querySelector('.content-log-scrollbar'),
-            document.querySelector('.conv-state-log-scrollbar')
-        ].filter(Boolean);
-        scrollbarElements.forEach(elem => {
-            scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
-        });
+        initScrollbars();
 		scrollToBottom();
 	});
 
@@ -94,6 +106,63 @@
                 viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
             }, 200);
         });
+    }
+
+    function initScrollbars() {
+        scrollbarElements.forEach(item => {
+            const elem = document.querySelector(item.id);
+            if (!elem) return;
+
+            const scrollbar = OverlayScrollbars(elem, options);
+            scrollbar.on("scroll", async (e) => {
+                const curScrollTop = e.elements().scrollOffsetElement.scrollTop;
+                if (curScrollTop <= 1) {
+                    tabChanged = true;
+                    if (item.type === contentLogTab) {
+                        await getChatContentLogs();
+                    } else if (item.type === conversationStateLogTab) {
+                        await getChatStateLogs();
+                    }
+                }
+            });
+
+            scrollbars = [ ...scrollbars, scrollbar];
+        });
+    }
+
+    async function getChatContentLogs() {
+        if (!contentLogFilter.startTime) return;
+
+        const pagedContentLogs = await getContentLogs(conversationId, contentLogFilter);
+        contentLogFilter = {
+            ...contentLogFilter,
+            startTime: pagedContentLogs.nextTime || null
+        };
+        const newLogs = pagedContentLogs.items?.map(x => {
+            return { uid: uuidv4(), ...x };
+        }) || [];
+
+        if (newLogs.length > 0) {
+            contentLogs = [...newLogs, ...contentLogs];
+        }
+    }
+
+    async function getChatStateLogs() {
+        if (!stateLogFilter.startTime) return;
+
+        const pagedStateLogs = await getStateLogs(conversationId, stateLogFilter);
+        stateLogFilter = {
+            ...stateLogFilter,
+            startTime: pagedStateLogs.nextTime || null
+        };
+        const newLogs = pagedStateLogs.items?.map(x => {
+            return { uid: uuidv4(), ...x };
+        }) || [];
+
+        if (newLogs.length > 0) {
+            convStateLogs = [...newLogs, ...convStateLogs];
+            lastestStateLog = convStateLogs.slice(-1)[0];
+        }
     }
     
     function cleanLogs() {
@@ -141,7 +210,7 @@
 
         <div class="content-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== contentLogTab}>
             <ul>
-                {#each contentLogs as log}
+                {#each contentLogs as log (log.uid)}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>
@@ -149,7 +218,7 @@
 
         <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== conversationStateLogTab}>
             <ul>
-                {#each convStateLogs as log}
+                {#each convStateLogs as log (log.uid)}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>

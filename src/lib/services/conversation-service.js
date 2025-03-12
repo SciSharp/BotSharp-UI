@@ -80,11 +80,16 @@ export async function deleteConversation(conversationId) {
 /**
  * Get dialog history
  * @param {string} conversationId 
+ * @param {number} count
  * @returns {Promise<import('$conversationTypes').ChatResponseModel[]>}
  */
-export async function getDialogs(conversationId) {
+export async function getDialogs(conversationId, count = 100) {
     let url = replaceUrl(endpoints.dialogsUrl, {conversationId: conversationId});
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            count: count
+        }
+    });
     return response.data;
 }
 

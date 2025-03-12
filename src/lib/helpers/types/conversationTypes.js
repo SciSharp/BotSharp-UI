@@ -152,6 +152,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} ConversationContentLogModel
+ * @property {string?} [uid]
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} name - The sender name.
@@ -164,10 +165,17 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} ConversationStateLogModel
+ * @property {string?} [uid]
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {Object} states - The states content.
  * @property {Date} created_at - The log sent time.
+ */
+
+/**
+ * @typedef {Object} ConversationLogFilter
+ * @property {number} size
+ * @property {Date?} [startTime]
  */
 
 /**

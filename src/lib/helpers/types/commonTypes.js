@@ -25,6 +25,14 @@
  */
 
 /**
+ * @template T
+ * @typedef {Object} DateTimePagedItems<T>
+ * @property {number} count - Row count.
+ * @property {T[]} items - Items.
+ * @property {Date?} [nextTime]
+ */
+
+/**
  * @typedef {Object} LlmConfigOption
  * @property {number?} [type]
  * @property {boolean?} [multiModal]

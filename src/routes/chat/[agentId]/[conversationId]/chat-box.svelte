@@ -88,9 +88,10 @@
 	const params = $page.params;
 	const messageLimit = 100;
 	const screenWidthThreshold = 1024;
-	const chatWidthThreshold = 300;
+	const chatWidthThreshold = 500;
 	const maxTextLength = 64000;
 	const duration = 2000;
+	const dialogCount = 50;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	
 	/** @type {import('$agentTypes').AgentModel} */
@@ -219,7 +220,7 @@
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		conversation = await getConversation(params.conversationId);
-		dialogs = await getDialogs(params.conversationId);
+		dialogs = await getDialogs(params.conversationId, dialogCount);
 		conversationUser = await getConversationUser(params.conversationId);
 		selectedTags = conversation?.tags || [];
 		initUserSentMessages(dialogs);
@@ -494,7 +495,8 @@
 	/** @param {import('$conversationTypes').ConversationContentLogModel} log */
 	function onConversationContentLogGenerated(log) {
 		if (!isLoadPersistLog) return;
-		contentLogs.push({ ...log });
+
+		contentLogs.push({ ...log, uid: uuidv4() });
 		contentLogs = contentLogs.map(x => { return { ...x }; });
 	}
 
@@ -503,7 +505,7 @@
 		if (!isLoadPersistLog) return;
 
 		latestStateLog = log;
-		convStateLogs.push({ ...log });
+		convStateLogs.push({ ...log, uid: uuidv4() });
 		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
 
@@ -1489,7 +1491,7 @@
 				<div class="card mb-0" style="height: 100vh;">
 					<div class="border-bottom chat-head">
 						<div class="row chat-row">
-							<div class="col-md-4 col-7 chat-head-info">
+							<div class="col-md-4 col-4 chat-head-info">
 								<div class="chat-head-agent">
 									{#if agent?.icon_url}
 									<div class="line-align-center">
@@ -1507,9 +1509,9 @@
 									</div>
 								</div>
 							</div>
-		
-							<div class="col-md-8 col-5">
-								<div class="user-chat-nav user-chat-nav-flex mb-0">
+
+							<div class="col-md-8 col-8">
+								<div class="user-chat-nav user-chat-nav-flex mb-0" style={`padding-top: ${!isFrame ? '5px' : '0px'};`}>
 									{#if PUBLIC_DEBUG_MODE === 'true' && isFrame}
 										<div class="">
 											<button
@@ -1913,7 +1915,7 @@
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
 				bind:lastestStateLog={latestStateLog}
-				autoScroll={autoScrollLog}
+				bind:autoScroll={autoScrollLog}
 				closeWindow={() => closePersistLog()}
 				cleanScreen={() => cleanPersistLogScreen()}
 			/>

@@ -23,22 +23,32 @@ export async function getFullLog() {
 
 /**
  * Get conversation content log
- * @param {string} conversationId 
- * @returns {Promise<import('$conversationTypes').ConversationContentLogModel[]>}
+ * @param {string} conversationId
+ * @param {import('$conversationTypes').ConversationLogFilter} filter
+ * @returns {Promise<import('$commonTypes').DateTimePagedItems<import('$conversationTypes').ConversationContentLogModel>>}
  */
-export async function GetContentLogs(conversationId) {
+export async function getContentLogs(conversationId, filter) {
     let url = replaceUrl(endpoints.loggingContentLogUrl, {conversationId: conversationId});
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            ...filter
+        }
+    });
     return response.data;
 }
 
 /**
  * Get conversation state log
- * @param {string} conversationId 
- * @returns {Promise<import('$conversationTypes').ConversationStateLogModel[]>}
+ * @param {string} conversationId
+ * @param {import('$conversationTypes').ConversationLogFilter} filter
+ * @returns {Promise<import('$commonTypes').DateTimePagedItems<import('$conversationTypes').ConversationStateLogModel>>}
  */
-export async function GetStateLogs(conversationId) {
+export async function getStateLogs(conversationId, filter) {
     let url = replaceUrl(endpoints.loggingStateLogUrl, {conversationId: conversationId});
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            ...filter
+        }
+    });
     return response.data;
 }
