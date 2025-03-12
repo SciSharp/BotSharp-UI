@@ -743,7 +743,7 @@
                             <div class="line-align-center input-text fw-bold">
                                 <span>{'Confidence:'}</span>
                             </div>
-							<div style="display: flex;">
+							<div style="display: flex; gap: 5px;">
 								<div class="line-align-center confidence-box">
 									<Input
 										type="text"
@@ -802,7 +802,7 @@
 							<LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
 						</div>
 					{:else if searchDone && (!items || items.length === 0)}
-						<div class="mt-5">
+						<div class="mt-5 text-center">
 							<h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
 						</div>
 					{/if}
