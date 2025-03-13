@@ -275,7 +275,8 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} UpdateTagsRequest
- * @property {string[]} tags
+ * @property {string[]} toAddTags
+ * @property {string[]} toDeleteTags
  */
 
 

@@ -231,7 +231,8 @@ export async function updateConversationTags(conversationId, request) {
     });
 
     const data = {
-        tags: request.tags || []
+        toAddTags: request.toAddTags || [],
+        toDeleteTags: request.toDeleteTags || []
     };
 
     return new Promise((resolve, reject) => {
