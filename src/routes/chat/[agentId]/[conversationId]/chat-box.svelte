@@ -1252,7 +1252,10 @@
 		isLoading = true;
 		updateConversationTags(
 			params.conversationId,
-			{ tags: selectedTags })
+			{
+				toAddTags: selectedTags,
+				toDeleteTags: tagOptions.filter(x => !selectedTags.includes(x.value)).map(x => x.value)
+			})
 		.then(res => {
 			if (res) {
 				isComplete = true;
