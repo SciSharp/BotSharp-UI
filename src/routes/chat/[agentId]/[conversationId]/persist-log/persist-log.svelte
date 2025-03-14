@@ -33,9 +33,6 @@
     /** @type {import('$conversationTypes').ConversationStateLogModel[]} */
     export let convStateLogs = [];
 
-    /** @type {import('$conversationTypes').ConversationStateLogModel?} */
-    export let lastestStateLog = null;
-
     /** @type {boolean} */
     export let autoScroll = false;
 
@@ -161,7 +158,6 @@
 
         if (newLogs.length > 0) {
             convStateLogs = [...newLogs, ...convStateLogs];
-            lastestStateLog = convStateLogs.slice(-1)[0];
         }
     }
     

@@ -19,11 +19,16 @@ export async function newConversation(agentId, config) {
 /**
  * Get conversation detail
  * @param {string} id
+ * @param {boolean} isLoadStates
  * @returns {Promise<import('$conversationTypes').ConversationModel>}
  */
-export async function getConversation(id) {
+export async function getConversation(id, isLoadStates = false) {
     let url = replaceUrl(endpoints.conversationDetailUrl, {conversationId: id});
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            isLoadStates: isLoadStates
+        }
+    });
     return response.data;
 }
 

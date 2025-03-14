@@ -17,7 +17,7 @@
     /** @type {any[]} */
     export let agentQueueLogs = [];
 
-    /** @type {import('$conversationTypes').ConversationStateLogModel?} */
+    /** @type {Object?} */
     export let latestStateLog = null;
 
     /** @type {() => void} */
@@ -138,7 +138,7 @@
                 </div>
                 <div class="agent-queue-log-scrollbar padding-side">
                     <ul>
-                        {#each agentQueueLogs as log}
+                        {#each agentQueueLogs as log (log.uid)}
                             <AgentQueueLogElement data={log} />
                         {/each}
                     </ul>
@@ -165,7 +165,7 @@
                 </div>
                 <div class="msg-state-log-scrollbar padding-side" >
                     <ul>
-                        {#each msgStateLogs as log}
+                        {#each msgStateLogs as log (log.uid)}
                             <MessageStateLogElement data={log} />
                         {/each}
                     </ul>
