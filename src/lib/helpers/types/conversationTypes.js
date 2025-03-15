@@ -10,6 +10,7 @@
  * @property {string?} [channel] - The conversation channel.
  * @property {string?} [status] - The conversation status.
  * @property {string?} [taskId] - The task id.
+ * @property {boolean?} [isLoadLatestStates]
  * @property {import('$commonTypes').KeyValuePair[]} [states] - The conversation status.
  * @property {string[]} [tags] - The tags.
  */
@@ -24,7 +25,7 @@
  * @property {string} channel - The conversation status.
  * @property {string} [task_id] - Optional task id.
  * @property {string} status - The conversation status.
- * @property {Object[]} states - The conversation states.
+ * @property {Object} states - The conversation states.
  * @property {string[]} tags - The conversation tags.
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.
@@ -145,6 +146,7 @@ IRichContent.prototype.quick_replies;
  * @property {RichContent} rich_content - Rich content.
  * @property {string} post_action_disclaimer - The message disclaimer.
  * @property {string} data - The message data.
+ * @property {Object} states
  * @property {Date} created_at - The message sent time.
  * @property {boolean} has_message_files
  * @property {boolean} is_chat_message
@@ -180,6 +182,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} MessageStateLogModel
+ * @property {string?} uid
  * @property {string} conversation_id - The conversation id.
  * @property {string} message_id - The message id.
  * @property {string} before_value - The value before change.
@@ -193,6 +196,7 @@ IRichContent.prototype.quick_replies;
 
 /**
  * @typedef {Object} AgentQueueLogModel
+ * @property {string?} uid
  * @property {string} conversation_id - The conversation id.
  * @property {string} log - The log content.
  * @property {Date} created_at - The log sent time.

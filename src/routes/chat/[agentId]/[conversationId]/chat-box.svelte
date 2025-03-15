@@ -157,7 +157,8 @@
 	/** @type {import('$conversationTypes').ConversationStateLogModel[]} */
 	let convStateLogs = [];
 
-	/** @type {import('$conversationTypes').ConversationStateLogModel?} */
+	// /** @type {import('$conversationTypes').ConversationStateLogModel?} */
+	/** @type {Object?} */
 	let latestStateLog;
 
 	/** @type {import('$conversationTypes').MessageStateLogModel[]} */
@@ -219,10 +220,11 @@
 	
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
-		conversation = await getConversation(params.conversationId);
+		conversation = await getConversation(params.conversationId, true);
 		dialogs = await getDialogs(params.conversationId, dialogCount);
 		conversationUser = await getConversationUser(params.conversationId);
 		selectedTags = conversation?.tags || [];
+		latestStateLog = conversation?.states;
 		initUserSentMessages(dialogs);
 		initChatView();
 		handlePaneResize();
@@ -469,7 +471,6 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
 		autoScrollLog = true;
-		clearInstantLogs();
 		dialogs.push({
 			...message,
 			is_chat_message: true
@@ -484,6 +485,7 @@
 			...message,
 			is_chat_message: true
 		});
+		latestStateLog = message.states;
 		refresh();
     }
 
@@ -504,7 +506,6 @@
 	function onConversationStateLogGenerated(log) {
 		if (!isLoadPersistLog) return;
 
-		latestStateLog = log;
 		convStateLogs.push({ ...log, uid: uuidv4() });
 		convStateLogs = convStateLogs.map(x => { return { ...x }; });
 	}
@@ -514,7 +515,7 @@
 		if (!isLoadInstantLog || log == null) return;
 
 		msgStateLogs.push({ ...log });
-		msgStateLogs = msgStateLogs.map(x => { return { ...x }; });
+		msgStateLogs = msgStateLogs.map(x => { return { ...x, uid: uuidv4() }; });
 	}
 
 	/** @param {import('$conversationTypes').AgentQueueLogModel} log */
@@ -522,7 +523,7 @@
 		if (!isLoadInstantLog || log == null) return;
 
 		agentQueueLogs.push({ ...log });
-		agentQueueLogs = agentQueueLogs.map(x => { return { ...x }; });
+		agentQueueLogs = agentQueueLogs.map(x => { return { ...x, uid: uuidv4() }; });
 	}
 
 	/** @param {import('$conversationTypes').ConversationSenderActionModel} data */
@@ -1053,7 +1054,6 @@
 
 			targetIdx = convStateLogs.findIndex(x => x.message_id === messageId);
 			convStateLogs = convStateLogs.filter((x, idx) => idx < targetIdx);
-			latestStateLog = convStateLogs.slice(-1)[0];
 		}
 	}
 
@@ -1483,7 +1483,7 @@
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
-				latestStateLog={latestStateLog?.message_id === lastMsg?.message_id ? latestStateLog : null}
+				latestStateLog={latestStateLog}
 				agent={agent}
 				closeWindow={() => closeInstantLog()}
 			/>
@@ -1917,7 +1917,6 @@
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
-				bind:lastestStateLog={latestStateLog}
 				bind:autoScroll={autoScrollLog}
 				closeWindow={() => closePersistLog()}
 				cleanScreen={() => cleanPersistLogScreen()}

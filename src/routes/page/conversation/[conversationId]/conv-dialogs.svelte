@@ -14,6 +14,7 @@
 
     const maxTextLength = 4096;
     const duration = 1500;
+    const dialogCount = 50;
 
     /** @type {import('$conversationTypes').ChatResponseModel[]} */
     let dialogs = [];
@@ -29,7 +30,7 @@
     export let conversation;
 
     onMount(async () => {
-        dialogs = await getDialogs(conversation.id);
+        dialogs = await getDialogs(conversation.id, dialogCount);
     });
 
     /** 
