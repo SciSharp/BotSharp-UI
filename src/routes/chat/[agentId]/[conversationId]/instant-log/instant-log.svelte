@@ -172,7 +172,7 @@
                 </div>
             </div>
             {/if}
-            {#if latestStateLog}
+            {#if latestStateLog && Object.keys(latestStateLog)?.length > 0}
             <div
                 class="log-list instant-log-section instant-log-sec-md"
                 in:fade={{ duration: inDuration }}
