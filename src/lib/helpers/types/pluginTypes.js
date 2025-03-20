@@ -18,6 +18,7 @@
  * @property {string} link
  * @property {EmbeddingInfoModel?} [embeddingInfo]
  * @property {boolean} isHeader
+ * @property {PluginMenuDefModel[]} subMenu
  */
 
 /**
