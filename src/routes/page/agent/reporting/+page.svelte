@@ -12,8 +12,12 @@
 
     onMount(async () => {
         unsubscriber = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
-            const url = $page.url.pathname;
-            const data = menu.find(x => x.link === url)?.embeddingInfo || null;
+            const url = getPathUrl();
+            let data = menu.find(x => x.link === url)?.embeddingInfo || null;
+            if (!data) {
+                const found = menu.find(x => !!x.subMenu?.find(y => y.link === url));
+                data = found?.subMenu?.find(x => x.link === url)?.embeddingInfo || null;
+            }
             embed(data);
         });
     });
@@ -39,7 +43,7 @@
             document.head.appendChild(script);
         }
 
-        const div = document.querySelector('#agent-metrics-content');
+        const div = document.querySelector('#agent-reporting-content');
         if (!data.url || !div) return;
 
         if (data.htmlTag) {
@@ -53,15 +57,20 @@
             div.appendChild(elem);
         }
     }
+
+    const getPathUrl = () => {
+		const path = $page.url.pathname;
+		return path?.startsWith('/') ? path.substring(1) : path;
+	};
 </script>
 
-<HeadTitle title="{$_('Metrics')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Metrics')}" />
+<HeadTitle title="{$_('Reporting')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Reporting')}" />
 
 <Row>
 	<Col lg="12">
 		<Card>
-			<CardBody id="agent-metrics-content"></CardBody>
+			<CardBody id="agent-reporting-content"></CardBody>
         </Card>
     </Col>
 </Row>
