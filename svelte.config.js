@@ -49,7 +49,7 @@ const config = {
 				"/page/agent",
 				"/page/agent/router",
 				"/page/agent/evaluator",
-				"/page/agent/reporting",
+				"/page/agent/reporting/[reportType]",
 				"/page/agent/[agentId]",
 				"/page/agent/[agentId]/build",
 				"/page/agent/[agentId]/train",
