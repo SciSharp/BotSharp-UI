@@ -12,6 +12,9 @@
     /** @type {any} */
     let menuUnsubscribe;
 
+    /** @type {string?} */
+    let label = '';
+
     /** @type {string} */
     let curSlug = '';
 
@@ -27,12 +30,14 @@
     onMount(async () => {
         menuUnsubscribe = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
             const url = getPathUrl();
-            let data = menu.find(x => x.link === url)?.embeddingInfo || null;
-            if (!data) {
-                const found = menu.find(x => !!x.subMenu?.find(y => y.link === url));
-                data = found?.subMenu?.find(x => x.link === url)?.embeddingInfo || null;
+            let found = menu.find(x => x.link === url);
+            label = found?.label || null;
+            if (!found?.embeddingInfo) {
+                const subFound = menu.find(x => !!x.subMenu?.find(y => y.link === url));
+                found = subFound?.subMenu?.find(x => x.link === url);
+                label = found?.label || null;
             }
-            embed(data);
+            embed(found?.embeddingInfo || null);
         });
     });
 
@@ -79,8 +84,8 @@
 	};
 </script>
 
-<HeadTitle title="{$_('Reporting')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Reporting')}" />
+<HeadTitle title="{$_(label || 'Reporting')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_(label || 'Reporting')}" />
 
 <Row>
 	<Col lg="12">
