@@ -1,29 +1,49 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
+    import { onMount, onDestroy, afterUpdate } from 'svelte';
+    import { derived } from 'svelte/store';
     import { page } from '$app/stores';
     import { _ } from 'svelte-i18n';
     import { Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
 	import HeadTitle from "$lib/common/HeadTitle.svelte";
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import { globalMenuStore } from '$lib/helpers/store';
+	
 
     /** @type {any} */
-    let unsubscriber;
+    let menuUnsubscribe;
+
+    /** @type {string?} */
+    let label = '';
+
+    /** @type {string} */
+    let curSlug = '';
+
+    const slug = derived(page, $page => $page.params.reportType);
+
+    const contentSubscribe = slug.subscribe(value => {
+        if (curSlug && curSlug !== value) {
+            location.reload();
+        }
+        curSlug = value;
+    });
 
     onMount(async () => {
-        unsubscriber = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
+        menuUnsubscribe = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
             const url = getPathUrl();
-            let data = menu.find(x => x.link === url)?.embeddingInfo || null;
-            if (!data) {
-                const found = menu.find(x => !!x.subMenu?.find(y => y.link === url));
-                data = found?.subMenu?.find(x => x.link === url)?.embeddingInfo || null;
+            let found = menu.find(x => x.link === url);
+            label = found?.label || null;
+            if (!found?.embeddingInfo) {
+                const subFound = menu.find(x => !!x.subMenu?.find(y => y.link === url));
+                found = subFound?.subMenu?.find(x => x.link === url);
+                label = found?.label || null;
             }
-            embed(data);
+            embed(found?.embeddingInfo || null);
         });
     });
 
     onDestroy(() => {
-        unsubscriber?.();
+        menuUnsubscribe?.();
+        contentSubscribe?.();
     });
 
     
@@ -64,8 +84,8 @@
 	};
 </script>
 
-<HeadTitle title="{$_('Reporting')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Reporting')}" />
+<HeadTitle title="{$_(label || 'Reporting')}" />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_(label || 'Reporting')}" />
 
 <Row>
 	<Col lg="12">

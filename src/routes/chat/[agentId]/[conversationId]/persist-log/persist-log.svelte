@@ -33,9 +33,6 @@
     /** @type {import('$conversationTypes').ConversationStateLogModel[]} */
     export let convStateLogs = [];
 
-    /** @type {import('$conversationTypes').ConversationStateLogModel?} */
-    export let lastestStateLog = null;
-
     /** @type {boolean} */
     export let autoScroll = false;
 
@@ -49,7 +46,8 @@
     let scrollbars = [];
     /** @type {number} */
     let selectedTab = contentLogTab;
-    let tabChanged = false;
+    /** @type {boolean} */
+    let pauseChange = false;
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
     let contentLogFilter = { size: 20, startTime: utcNow };
@@ -77,9 +75,9 @@
 	});
 
     beforeUpdate(() => {
-        if (tabChanged) {
+        if (pauseChange) {
             autoScroll = false;
-            tabChanged = false;
+            pauseChange = false;
         }
     });
 
@@ -117,7 +115,7 @@
             scrollbar.on("scroll", async (e) => {
                 const curScrollTop = e.elements().scrollOffsetElement.scrollTop;
                 if (curScrollTop <= 1) {
-                    tabChanged = true;
+                    pauseChange = true;
                     if (item.type === contentLogTab) {
                         await getChatContentLogs();
                     } else if (item.type === conversationStateLogTab) {
@@ -161,7 +159,6 @@
 
         if (newLogs.length > 0) {
             convStateLogs = [...newLogs, ...convStateLogs];
-            lastestStateLog = convStateLogs.slice(-1)[0];
         }
     }
     
@@ -180,7 +177,7 @@
         if (selectedTab === selected) {
             return;
         }
-        tabChanged = true;
+        pauseChange = true;
         selectedTab = selected;
     }
 </script>
