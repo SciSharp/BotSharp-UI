@@ -6,6 +6,7 @@
 	import { isAudio, AUDIO_ICON } from '$lib/helpers/utils/file';
 	import { isExternalUrl } from '$lib/helpers/utils/common';
     import AudioGallery from './AudioGallery.svelte';
+	import { IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	
     /** @type {string} */
     export let galleryClasses = '';
@@ -53,7 +54,7 @@
             });
         }
 
-        if (appendImage && message?.data) {
+        if (appendImage && message?.data && message?.data?.startsWith(IMAGE_DATA_PREFIX)) {
             textFiles = [...textFiles, {
                 file_name: 'data',
                 file_extension: '',
