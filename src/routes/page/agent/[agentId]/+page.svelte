@@ -187,7 +187,8 @@
         return data ? {
             utilities: data.utilities || [],
             knowledge_bases: data.knwoledgebases || [],
-            rules: data.rules || []
+            rules: data.rules || [],
+            mcp_tools: data.mcpTools || []
         } : null;
     }
 
@@ -198,6 +199,7 @@
             agent.utilities = data.utilities || [];
             agent.knowledge_bases = data.knwoledgebases || [];
             agent.rules = data.rules || [];
+            agent.mcp_tools = data.mcpTools || [];
         }
     }
 

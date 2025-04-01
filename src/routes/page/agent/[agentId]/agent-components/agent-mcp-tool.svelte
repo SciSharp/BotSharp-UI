@@ -1,0 +1,350 @@
+<script>
+    import { onMount } from 'svelte';
+    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
+	import { getServerConfigs } from '$lib/services/mcp-service';
+    
+    const limit = 10;
+    const textLimit = 100;
+
+    /** @type {import('$agentTypes').AgentModel} */
+    export let agent;
+
+    /** @type {() => void} */
+    export let handleAgentChange = () => {};
+
+    export const fetchMcpTools = () => {
+        const candidates = innerTools?.filter(x => !!x.name)?.map(x => {
+            /** @type {import('$commonTypes').NameBase[]} */
+            const functions = [];
+
+            const uniqueFns = new Set();
+            const fns = x.functions.filter(f => !!f.name);
+
+            fns.forEach(f => {
+                if (!uniqueFns.has(f.name)) {
+                    functions.push({ ...f });
+                    uniqueFns.add(f.name);
+                }
+            });
+
+           return {
+                ...x,
+                name: x.name,
+                disabled: x.disabled,
+                functions: functions,
+           };
+        });
+
+        /** @type {import('$agentTypes').AgentMcpTool[]} */
+        const tools = [];
+        const unique = new Set();
+        candidates.forEach(x => {
+            if (!unique.has(x.name)) {
+                tools.push(x);
+                unique.add(x.name);
+            }
+        });
+
+        innerRefresh(tools);
+        return tools;
+    }
+
+    export const fetchOriginalMcpTools = () => {
+        return innerTools;
+    }
+
+    export const refresh = () => init();
+
+    /** @type {any[]} */
+    let toolOptions = [];
+
+    /** @type {import('$agentTypes').AgentMcpTool[]} */
+    let innerTools = [];
+
+
+    onMount(async () => {
+        getServerConfigs().then(res => {
+            const list = res?.map(x => {
+                return {
+                    id: x.id,
+                    name: x.name
+                };
+            }) || [];
+            toolOptions = [
+                {
+                    id: '',
+                    name: ''
+                },
+                ...list
+            ];
+        }).catch(() => {
+            toolOptions = [];
+        });
+        init();
+    });
+
+    function init() {
+        const list = agent.mcp_tools?.map(x => {
+            return {
+                ...x,
+                displayName: ""
+            };
+        }) || [];
+        innerRefresh(list);
+    }
+
+    /** @param {import('$agentTypes').AgentMcpTool[]} list */
+    function innerRefresh(list) {
+        innerTools = list?.map(x => {
+            return {
+                name: x.name,
+                server_id: x.server_id,
+                disabled: x.disabled,
+                functions: x.functions?.map(x => ({ ...x })) || []
+            }
+        }) || [];
+    }
+
+    /**
+	 * @param {any} e
+	 * @param {number} idx
+	 */
+     function changeTool(e, idx) {
+        const found = innerTools.find((_, index) => index === idx);
+        if (!found) return;
+        
+        const val = e.target.value;
+        const name = toolOptions.find(x => x.id == val)?.name || '';
+
+        found.name = name;
+        found.server_id = val;
+        innerRefresh(innerTools);
+        handleAgentChange();
+    }
+
+    function addTool() {
+        innerTools = [
+            ...innerTools,
+            {
+                name: '',
+                server_id: '',
+                disabled: false,
+                functions: []
+            }
+        ];
+        handleAgentChange();
+    }
+
+    /** @param {number} idx */
+    function deleteTool(idx) {
+        innerTools = innerTools.filter((_, index) => index !== idx);
+        handleAgentChange();
+    }
+
+    /**
+     * @param {any} e
+	 * @param {number} uid
+	 */
+    function toggleTool(e, uid) {
+        const found = innerTools.find((_, index) => index === uid);
+        if (!found) return;
+
+        found.disabled = !e.target.checked;
+        innerRefresh(innerTools);
+        handleAgentChange();
+    }
+
+    /**
+     * @param {any} e
+	 * @param {number} tid
+     * @param {number} id
+     * @param {string} type
+	 */
+    function changeContent(e, tid, id, type) {
+        const found = innerTools.find((_, index) => index === tid);
+        if (!found) return;
+
+        const val = e.target.value;
+        if (type === 'function') {
+            const fn = found.functions.find((_, index) => index == id);
+            if (fn) {
+                fn.name = val;
+            }
+        }
+
+        innerRefresh(innerTools);
+        handleAgentChange();
+    }
+
+    /**
+	 * @param {number} id
+	 * @param {string} type
+	 */
+     function addToolContent(id, type) {
+        const found = innerTools.find((_, index) => index === id);
+        if (!found || found.disabled) return;
+
+        if (type === 'function') {
+            found.functions.push({ name: '' });
+        }
+
+        innerRefresh(innerTools);
+        handleAgentChange();
+    }
+
+    /**
+	 * @param {number} uid
+	 * @param {number} id
+     * @param {string} type
+	 */
+     function deleteToolContent(uid, id, type) {
+        const found = innerTools.find((_, index) => index === uid);
+        if (!found || found.disabled) return;
+
+        if (type === 'function') {
+            const fns = found.functions?.filter((_, index) => index !== id) || [];
+            found.functions = fns;
+        }
+        
+        innerRefresh(innerTools);
+        handleAgentChange();
+    }
+</script>
+
+<Card>
+    <CardBody>
+        <div class="text-center">
+            <h5 class="mt-1 mb-3">MCP Tools</h5>
+        </div>
+
+        <div class="agent-utility-container">
+            {#each innerTools as tool, uid (uid)}
+                <div class="utility-wrapper">
+                    <div class="utility-row utility-row-primary">
+                        <div class="utility-label fw-bold">
+                            <div class="line-align-center">{`Tool #${uid + 1}`}</div>
+                            <div class="utility-tooltip">
+                                <div class="line-align-center">
+                                    <Input
+                                        type="checkbox"
+                                        checked={!tool.disabled}
+                                        on:change={e => toggleTool(e, uid)}
+                                    />
+                                </div>
+                                <div
+                                    class="line-align-center"
+                                    data-bs-toggle="tooltip"
+                                    data-bs-placement="top"
+                                    title="Uncheck to disable tool"
+                                >
+                                    <i class="bx bx-info-circle" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="utility-value">
+                            <div class="utility-input line-align-center">
+                                <Input
+                                    type="select"
+                                    disabled={tool.disabled}
+                                    on:change={e => changeTool(e, uid)}
+                                >
+                                    {#each [...toolOptions] as option}
+                                        <option value={option.id} selected={option.id == tool.server_id}>
+                                            {option.displayName || option.name}
+                                        </option>
+                                    {/each}
+                                </Input>
+                            </div>
+                            <div class="utility-delete line-align-center">
+                                <i
+                                    class="bx bxs-no-entry text-danger clickable"
+                                    role="link"
+                                    tabindex="0"
+                                    on:keydown={() => {}}
+                                    on:click={() => deleteTool(uid)}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="utility-row utility-row-secondary">
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    {'Server'}
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="text"
+                                            disabled
+                                            value={tool.server_id}
+                                        />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="utility-content">
+                            {#each tool.functions as fn, fid (fid)}
+                                <div class="utility-list-item">
+                                    <div class="utility-label line-align-center">
+                                        {fid === 0 ? 'Functions' : ''}
+                                    </div>
+                                    <div class="utility-value">
+                                        <div class="utility-input line-align-center">
+                                            <Input
+                                                type="text"
+                                                maxlength={textLimit}
+                                                disabled={tool.disabled}
+                                                value={fn.name}
+                                                on:change={e => changeContent(e, uid, fid, 'function')}
+                                            />
+                                        </div>
+                                        <div class="utility-delete line-align-center">
+                                            <i
+                                                class="bx bxs-no-entry text-danger clickable"
+                                                role="link"
+                                                tabindex="0"
+                                                on:keydown={() => {}}
+                                                on:click={() => deleteToolContent(uid, fid, 'function')}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            {/each}
+
+                            {#if tool.functions?.length < limit}
+                                <div class="utility-list-item">
+                                    <div class="utility-label">
+                                        {tool.functions.length === 0 ? 'Functions' : ''}
+                                    </div>
+                                    <div class="utility-value">
+                                        <i
+                                            class="bx bx-list-plus add-list clickable"
+                                            role="link"
+                                            tabindex="0"
+                                            on:keydown={() => {}}
+                                            on:click={() => addToolContent(uid, 'function')}
+                                        />
+                                    </div>
+                                </div>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+            {/each}
+
+            {#if innerTools.length < limit}
+                <div class="add-utility">
+                    <Button color="primary" on:click={() => addTool()}>
+                        <span>
+                            <i class="bx bx-plus" />
+                            <span>Add Tool</span>
+                        </span>
+                    </Button>
+                </div>
+            {/if}
+        </div>
+    </CardBody>
+</Card>

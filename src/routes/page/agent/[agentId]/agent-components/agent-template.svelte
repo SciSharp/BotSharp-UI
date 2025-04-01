@@ -90,6 +90,7 @@
         e.preventDefault();
         const value = e.target.value;
         selected_template.content = value || '';
+        handleAgentChange();
     }
 
     function addTemplate() {
@@ -103,6 +104,7 @@
         ];
 
         selected_template = inner_templates[inner_templates.length-1];
+        handleAgentChange();
     }
 
     /** @param {string | undefined | null} uid */
@@ -113,6 +115,7 @@
                 ...defaultTemplate
             };
         }
+        handleAgentChange();
     }
 </script>
 
@@ -139,7 +142,7 @@
                     data-bs-placement="top"
                     title="Add templates"
                     style="font-size: 16px;"
-                    on:click={() => { addTemplate(); handleAgentChange(); }}
+                    on:click={() => addTemplate()}
                 >
                     <i class="mdi mdi-plus-circle-outline" />
                 </div>
@@ -165,7 +168,7 @@
                     maxEditLength={50}
                     editPlaceholder={'Type a title here...'}
                     onClick={() => selectTemplate(template.uid)}
-                    onDelete={() => { deleteTemplate(template.uid); handleAgentChange(); }}
+                    onDelete={() => deleteTemplate(template.uid)}
                     onInput={() => handleAgentChange()}
                 />
                 {/each}
@@ -176,7 +179,7 @@
                 style="scrollbar-width: thin; resize: none;"
                 value={selected_template.content}
                 rows={15}
-                on:input={(e) => { changePrompt(e); handleAgentChange(); }}
+                on:input={(e) => changePrompt(e)}
                 placeholder="Enter your template"
             />
             {/if}

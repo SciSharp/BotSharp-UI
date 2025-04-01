@@ -8,6 +8,7 @@
 	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
 	import AgentEventRule from './agent-components/agent-rule.svelte';
+	import AgentMcpTool from './agent-components/agent-mcp-tool.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -20,12 +21,14 @@
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
+        const mcpTools = agentMcpToolCmp?.fetchMcpTools();
 
         return {
             llmConfig,
             utilities: utilities || [],
             knwoledgebases: knwoledgebases || [],
-            rules: rules || []
+            rules: rules || [],
+            mcpTools: mcpTools || []
         };
     };
 
@@ -33,11 +36,13 @@
         const utilities = agentUtilityCmp?.fetchOriginalUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchOriginalKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchOriginalRules();
+        const mcpTools = agentMcpToolCmp?.fetchOriginalMcpTools();
 
         return {
             utilities: utilities || [],
             knwoledgebases: knwoledgebases || [],
-            rules: rules || []
+            rules: rules || [],
+            mcpTools: mcpTools || []
         };
     }
 
@@ -46,6 +51,7 @@
         agentUtilityCmp?.refresh();
         agentKnowledgeBaseCmp?.refresh();
         agentEventRuleCmp?.refresh();
+        agentMcpToolCmp?.refresh();
     }
 
     /** @type {any} */
@@ -56,6 +62,8 @@
     let agentKnowledgeBaseCmp = null;
     /** @type {any} */
     let agentEventRuleCmp = null;
+    /** @type {any} */
+    let agentMcpToolCmp = null;
 
     /** @type {string}*/
     let selectedTab;
@@ -66,11 +74,12 @@
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
         { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
-        { name: 'agent-event-rule', displayText: 'Rules' }
+        { name: 'agent-event-rule', displayText: 'Rules' },
+        { name: 'agent-mcp-tool', displayText: 'MCP' }
     ];
 
     onMount(() => {
-        selectedTab = tabs[0]?.name;
+        selectedTab = tabs[5]?.name;
     });
 
     /** @param {string} selected */
@@ -113,6 +122,9 @@
         </div>
         <div class:hide={selectedTab !== 'agent-event-rule'}>
             <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
+        </div>
+        <div class:hide={selectedTab !== 'agent-mcp-tool'}>
+            <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />
         </div>
     </CardBody>
 </Card>

@@ -15,9 +15,9 @@
 
     export const fetchUtilities = () => {
         const candidates = innerUtilities?.filter(x => !!x.name)?.map(x => {
-            /** @type {import('$agentTypes').UtilityBase[]} */
+            /** @type {import('$commonTypes').NameBase[]} */
             const functions = [];
-            /** @type {import('$agentTypes').UtilityBase[]} */
+            /** @type {import('$commonTypes').NameBase[]} */
             const templates = [];
 
             const uniqueFns = new Set();
@@ -143,6 +143,7 @@
             ...utilityMapper[name].templates?.filter(x => !!x.name) || []
         ];
         innerRefresh(innerUtilities);
+        handleAgentChange();
     }
 
     function addUtility() {
@@ -160,6 +161,7 @@
     /** @param {number} idx */
     function deleteUtility(idx) {
         innerUtilities = innerUtilities.filter((_, index) => index !== idx);
+        handleAgentChange();
     }
 
     /**
@@ -177,6 +179,7 @@
         }
 
         innerRefresh(innerUtilities);
+        handleAgentChange();
     }
 
     /**
@@ -197,6 +200,7 @@
         }
         
         innerRefresh(innerUtilities);
+        handleAgentChange();
     }
 
     
@@ -225,6 +229,7 @@
             }
         }
         innerRefresh(innerUtilities);
+        handleAgentChange();
     }
 
     /**
@@ -237,6 +242,7 @@
 
         found.disabled = !e.target.checked;
         innerRefresh(innerUtilities);
+        handleAgentChange();
     }
 
 
@@ -259,6 +265,7 @@
         if (!!agent) {
             agent.merge_utility = checked;
         }
+        handleAgentChange();
     }
 </script>
 
@@ -274,7 +281,7 @@
                     <Input
                         type="checkbox"
                         checked={agent?.merge_utility || false}
-                        on:change={e => { toggleMergeUtility(e); handleAgentChange(); }}
+                        on:change={e => { toggleMergeUtility(e);}}
                     />
                     <div class="fw-bold">
                         Merge utilities
@@ -300,7 +307,7 @@
                                     <Input
                                         type="checkbox"
                                         checked={!utility.disabled}
-                                        on:change={e => { toggleUtility(e, uid); handleAgentChange(); }}
+                                        on:change={e => { toggleUtility(e, uid); }}
                                     />
                                 </div>
                                 <div
@@ -319,7 +326,7 @@
                                     type="select"
                                     value={utility.name}
                                     disabled={utility.disabled}
-                                    on:change={e => { changeUtility(e, uid); handleAgentChange(); }}
+                                    on:change={e => { changeUtility(e, uid); }}
                                 >
                                     {#each utilityOptions as option}
                                         <option value={option} selected={option == utility.name}>{option}</option>
@@ -332,7 +339,7 @@
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
-                                    on:click={() => { deleteUtility(uid); handleAgentChange(); }}
+                                    on:click={() => { deleteUtility(uid); }}
                                 />
                             </div>
                         </div>
@@ -350,7 +357,7 @@
                                             <Input
                                                 type="select"
                                                 disabled={utility.disabled}
-                                                on:change={e => { selectContent(e, uid, fid, 'function'); handleAgentChange(); }}
+                                                on:change={e => { selectContent(e, uid, fid, 'function'); }}
                                             >
                                                 {#each (utilityMapper[utility.name]?.functions || []) as option}
                                                     <option value={`${option.name}#${option.displayName}`} selected={option.name == fn.name}>{option.displayName}</option>
@@ -363,7 +370,7 @@
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
-                                                on:click={() => { deleteUtilityContent(uid, fid, 'function'); handleAgentChange(); }}
+                                                on:click={() => { deleteUtilityContent(uid, fid, 'function'); }}
                                             />
                                         </div>
                                     </div>
@@ -381,7 +388,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => { addUtilityContent(uid, 'function'); handleAgentChange(); }}
+                                            on:click={() => { addUtilityContent(uid, 'function'); }}
                                         />
                                     </div>
                                 </div>
@@ -399,7 +406,7 @@
                                             <Input
                                                 type="select"
                                                 disabled={utility.disabled}
-                                                on:change={e => { selectContent(e, uid, tid, 'template'); handleAgentChange(); }}
+                                                on:change={e => { selectContent(e, uid, tid, 'template'); }}
                                             >
                                                 {#each (utilityMapper[utility.name]?.templates || []) as option}
                                                     <option value={`${option.name}#${option.displayName}`} selected={option.name == tp.name}>
@@ -414,7 +421,7 @@
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
-                                                on:click={() => { deleteUtilityContent(uid, tid, 'template'); handleAgentChange(); }}
+                                                on:click={() => { deleteUtilityContent(uid, tid, 'template'); }}
                                             />
                                         </div>
                                     </div>
@@ -432,7 +439,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => { addUtilityContent(uid, 'template'); handleAgentChange(); }}
+                                            on:click={() => { addUtilityContent(uid, 'template'); }}
                                         />
                                     </div>
                                 </div>

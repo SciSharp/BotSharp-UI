@@ -57,6 +57,7 @@
  * @property {boolean} merge_utility - Merge utility
  * @property {number?} [max_message_count]
  * @property {AgentUtility[]} utilities - The agent utilities.
+ * @property {any[]} mcp_tools - The agent mcp tools
  * @property {AgentKnowledgeBase[]} knowledge_bases - The agent knowledge bases.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
@@ -131,8 +132,16 @@
  * @typedef {Object} AgentUtility
  * @property {string} name 
  * @property {boolean} disabled 
- * @property {UtilityBase[]} functions
- * @property {UtilityBase[]} templates
+ * @property {import('$commonTypes').NameBase[]} functions
+ * @property {import('$commonTypes').NameBase[]} templates
+ */
+
+/**
+ * @typedef {Object} AgentMcpTool
+ * @property {string} name
+ * @property {string} server_id 
+ * @property {boolean} disabled 
+ * @property {import('$commonTypes').NameBase[]} functions
  */
 
 /**
@@ -150,12 +159,6 @@
  * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
- */
-
-/**
- * @typedef {Object} UtilityBase
- * @property {string} name
- * @property {string?} [displayName]
  */
 
 

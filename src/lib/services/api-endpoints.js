@@ -112,6 +112,8 @@ export const endpoints = {
     dashConversationInstructionUrl: `${host}/dashboard/component/conversation`,
 
     // Google geocode api
-    addressUrl: `${host}/address/options`
+    addressUrl: `${host}/address/options`,
+
+    mcpServerConfigsUrl: `${host}/mcp/server-configs`
 }
 
