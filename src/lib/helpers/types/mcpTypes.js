@@ -2,7 +2,7 @@
  * @typedef {Object} McpServerConfigModel
  * @property {string} id - The server id.
  * @property {string} name - The server name.
- * @property {string} transportType - The transport type.
+ * @property {string} transport_type - The transport type.
  */
 
 export default {};

@@ -57,7 +57,7 @@
  * @property {boolean} merge_utility - Merge utility
  * @property {number?} [max_message_count]
  * @property {AgentUtility[]} utilities - The agent utilities.
- * @property {any[]} mcp_tools - The agent mcp tools
+ * @property {AgentMcpTool[]} mcp_tools - The agent mcp tools
  * @property {AgentKnowledgeBase[]} knowledge_bases - The agent knowledge bases.
  * @property {Date} created_datetime
  * @property {Date} updated_datetime
