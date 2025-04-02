@@ -94,6 +94,7 @@
         e.preventDefault();
         const value = e.target.value;
         selected_instruction.instruction = value || '';
+        handleAgentChange();
     }
 
     function addChannel() {
@@ -107,6 +108,7 @@
         ];
 
         selected_instruction = inner_instructions[inner_instructions.length-1];
+        handleAgentChange();
     }
 
     /** @param {string | undefined} uid */
@@ -115,6 +117,7 @@
         if (selected_instruction.uid === uid) {
             selected_instruction = inner_instructions[0];
         }
+        handleAgentChange();
     }
 </script>
 
@@ -161,7 +164,7 @@
                     data-bs-placement="top"
                     title="Add channel instruction"
                     style="font-size: 16px;"
-                    on:click={() => { addChannel(); handleAgentChange(); }}
+                    on:click={() => addChannel()}
                 >
                     <i class="mdi mdi-plus-circle-outline" />
                 </div>
@@ -187,7 +190,7 @@
                     maxEditLength={20}
                     editPlaceholder={'Type a channel here...'}
                     onClick={() => selectChannel(inst.uid)}
-                    onDelete={() => { deleteChannel(inst.uid); handleAgentChange(); }}
+                    onDelete={() => deleteChannel(inst.uid)}
                     onInput={handleAgentChange}
                 />
                 {/each}
@@ -199,7 +202,7 @@
                 style="scrollbar-width: thin; resize: none;"
                 value={selected_instruction.instruction}
                 rows={20}
-                on:input={(e) => { changePrompt(e); handleAgentChange(); }}
+                on:input={(e) => changePrompt(e)}
                 placeholder="Enter your instruction"
             />
         </FormGroup>

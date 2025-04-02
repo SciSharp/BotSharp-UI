@@ -58,4 +58,10 @@
  * @property {any} payload
  */
 
+/**
+ * @typedef {Object} NameBase
+ * @property {string} name
+ * @property {string?} [displayName]
+ */
+
 export default {};

@@ -35,6 +35,7 @@
 
         profiles = [...profiles, ''];
         agent.profiles = profiles;
+        handleAgentChange();
     }
 
     /**
@@ -43,6 +44,7 @@
     function removeProfile(index) {
         profiles = profiles.filter((x, idx) => idx !== index);
         agent.profiles = profiles;
+        handleAgentChange();
     }
 
     function addLabel() {
@@ -50,6 +52,7 @@
 
         labels = [...labels, ''];
         agent.labels = labels;
+        handleAgentChange();
     }
 
     /**
@@ -58,6 +61,7 @@
     function removeLabel(index) {
         labels = labels.filter((x, idx) => idx !== index);
         agent.labels = labels;
+        handleAgentChange();
     }
 
     function chatWithAgent() {
@@ -192,7 +196,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => { removeProfile(index); handleAgentChange(); }}
+                                            on:click={() => removeProfile(index)}
                                         />
                                     </div>
                                 </div>
@@ -204,7 +208,7 @@
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
-                                        on:click={() => { addProfile(); handleAgentChange(); }}
+                                        on:click={() => addProfile()}
                                     />
                                 </div>
                                 {/if}
@@ -235,7 +239,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => { removeLabel(index); handleAgentChange(); }}
+                                            on:click={() => removeLabel(index)}
                                         />
                                     </div>
                                 </div>
@@ -247,7 +251,7 @@
                                         role="link"
                                         tabindex="0"
                                         on:keydown={() => {}}
-                                        on:click={() => { addLabel(); handleAgentChange(); }}
+                                        on:click={() => addLabel()}
                                     />
                                 </div>
                                 {/if}

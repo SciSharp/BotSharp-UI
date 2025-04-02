@@ -96,8 +96,8 @@
         const vals = e.target.value.split("#");
         found.name = vals[0];
         found.type = vals[1];
-        handleAgentChange();
         innerRefresh(innerKnowledgeBases);
+        handleAgentChange();
     }
 
     /**
@@ -111,8 +111,8 @@
         const value = e.target.value;
 		const confidence = validateConfidenceNumber(value);
         found.confidence = confidence;
-        handleAgentChange();
         innerRefresh(innerKnowledgeBases);
+        handleAgentChange();
     }
 
     /** @param {any} e */
@@ -166,8 +166,8 @@
         if (!found) return;
 
         found.disabled = !e.target.checked;
-        handleAgentChange();
         innerRefresh(innerKnowledgeBases);
+        handleAgentChange();
     }
 
 

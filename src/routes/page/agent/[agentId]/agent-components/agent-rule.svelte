@@ -83,8 +83,8 @@
         
         const val = e.target.value;
         found.trigger_name = val;
-        handleAgentChange();
         innerRefresh(innerRules);
+        handleAgentChange();
     }
 
     function addRule() {
@@ -115,8 +115,8 @@
         if (!found) return;
 
         found.disabled = !e.target.checked;
-        handleAgentChange();
         innerRefresh(innerRules);
+        handleAgentChange();
     }
 
     /**
@@ -132,8 +132,8 @@
         if (field === 'criteria') {
             found.criteria = val;
         }
-        handleAgentChange();
         innerRefresh(innerRules);
+        handleAgentChange();
     }
 
 
