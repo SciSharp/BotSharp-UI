@@ -13,7 +13,7 @@
     export let handleAgentChange = () => {};
 
     export const fetchMcpTools = () => {
-        const candidates = innerTools?.filter(x => !!x.name)?.map(x => {
+        const candidates = innerMcps?.filter(x => !!x.name)?.map(x => {
             /** @type {import('$commonTypes').NameBase[]} */
             const functions = [];
 
@@ -50,16 +50,16 @@
     }
 
     export const fetchOriginalMcpTools = () => {
-        return innerTools;
+        return innerMcps;
     }
 
     export const refresh = () => init();
 
     /** @type {any[]} */
-    let toolOptions = [];
+    let mcpOptions = [];
 
     /** @type {import('$agentTypes').AgentMcpTool[]} */
-    let innerTools = [];
+    let innerMcps = [];
 
 
     onMount(async () => {
@@ -70,7 +70,7 @@
                     name: x.name
                 };
             }) || [];
-            toolOptions = [
+            mcpOptions = [
                 {
                     id: '',
                     name: ''
@@ -78,7 +78,7 @@
                 ...list
             ];
         }).catch(() => {
-            toolOptions = [];
+            mcpOptions = [];
         });
         init();
     });
@@ -95,7 +95,7 @@
 
     /** @param {import('$agentTypes').AgentMcpTool[]} list */
     function innerRefresh(list) {
-        innerTools = list?.map(x => {
+        innerMcps = list?.map(x => {
             return {
                 name: x.name,
                 server_id: x.server_id,
@@ -110,21 +110,21 @@
 	 * @param {number} idx
 	 */
      function changeTool(e, idx) {
-        const found = innerTools.find((_, index) => index === idx);
+        const found = innerMcps.find((_, index) => index === idx);
         if (!found) return;
         
         const val = e.target.value;
-        const name = toolOptions.find(x => x.id == val)?.name || '';
+        const name = mcpOptions.find(x => x.id == val)?.name || '';
 
         found.name = name;
         found.server_id = val;
-        innerRefresh(innerTools);
+        innerRefresh(innerMcps);
         handleAgentChange();
     }
 
     function addTool() {
-        innerTools = [
-            ...innerTools,
+        innerMcps = [
+            ...innerMcps,
             {
                 name: '',
                 server_id: '',
@@ -137,7 +137,7 @@
 
     /** @param {number} idx */
     function deleteTool(idx) {
-        innerTools = innerTools.filter((_, index) => index !== idx);
+        innerMcps = innerMcps.filter((_, index) => index !== idx);
         handleAgentChange();
     }
 
@@ -146,11 +146,11 @@
 	 * @param {number} uid
 	 */
     function toggleTool(e, uid) {
-        const found = innerTools.find((_, index) => index === uid);
+        const found = innerMcps.find((_, index) => index === uid);
         if (!found) return;
 
         found.disabled = !e.target.checked;
-        innerRefresh(innerTools);
+        innerRefresh(innerMcps);
         handleAgentChange();
     }
 
@@ -161,7 +161,7 @@
      * @param {string} type
 	 */
     function changeContent(e, tid, id, type) {
-        const found = innerTools.find((_, index) => index === tid);
+        const found = innerMcps.find((_, index) => index === tid);
         if (!found) return;
 
         const val = e.target.value;
@@ -172,7 +172,7 @@
             }
         }
 
-        innerRefresh(innerTools);
+        innerRefresh(innerMcps);
         handleAgentChange();
     }
 
@@ -181,14 +181,14 @@
 	 * @param {string} type
 	 */
      function addToolContent(id, type) {
-        const found = innerTools.find((_, index) => index === id);
+        const found = innerMcps.find((_, index) => index === id);
         if (!found || found.disabled) return;
 
         if (type === 'function') {
             found.functions.push({ name: '' });
         }
 
-        innerRefresh(innerTools);
+        innerRefresh(innerMcps);
         handleAgentChange();
     }
 
@@ -198,7 +198,7 @@
      * @param {string} type
 	 */
      function deleteToolContent(uid, id, type) {
-        const found = innerTools.find((_, index) => index === uid);
+        const found = innerMcps.find((_, index) => index === uid);
         if (!found || found.disabled) return;
 
         if (type === 'function') {
@@ -206,7 +206,7 @@
             found.functions = fns;
         }
         
-        innerRefresh(innerTools);
+        innerRefresh(innerMcps);
         handleAgentChange();
     }
 </script>
@@ -214,15 +214,15 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">MCP Tools</h5>
+            <h5 class="mt-1 mb-3">MCP</h5>
         </div>
 
         <div class="agent-utility-container">
-            {#each innerTools as tool, uid (uid)}
+            {#each innerMcps as tool, uid (uid)}
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
                         <div class="utility-label fw-bold">
-                            <div class="line-align-center">{`Tool #${uid + 1}`}</div>
+                            <div class="line-align-center">{`MCP #${uid + 1}`}</div>
                             <div class="utility-tooltip">
                                 <div class="line-align-center">
                                     <Input
@@ -235,7 +235,7 @@
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
-                                    title="Uncheck to disable tool"
+                                    title="Uncheck to disable MCP"
                                 >
                                     <i class="bx bx-info-circle" />
                                 </div>
@@ -248,7 +248,7 @@
                                     disabled={tool.disabled}
                                     on:change={e => changeTool(e, uid)}
                                 >
-                                    {#each [...toolOptions] as option}
+                                    {#each [...mcpOptions] as option}
                                         <option value={option.id} selected={option.id == tool.server_id}>
                                             {option.displayName || option.name}
                                         </option>
@@ -335,12 +335,12 @@
                 </div>
             {/each}
 
-            {#if innerTools.length < limit}
+            {#if innerMcps.length < limit}
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addTool()}>
                         <span>
                             <i class="bx bx-plus" />
-                            <span>Add Tool</span>
+                            <span>Add MCP</span>
                         </span>
                     </Button>
                 </div>
