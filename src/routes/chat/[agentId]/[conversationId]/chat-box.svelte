@@ -1657,7 +1657,7 @@
 														</div>
 														<p class="chat-time mb-0 float-end">
 															<i class="bx bx-time-five align-middle me-1" />
-															{utcToLocal(message.created_at, 'hh:mm A')}
+															{utcToLocal(message.created_at, 'h:mm:ss A')}
 														</p>
 													</div>
 													{#if !!message.post_action_disclaimer}
