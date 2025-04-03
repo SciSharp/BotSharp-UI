@@ -289,7 +289,7 @@
                             {#each tool.functions as fn, fid (fid)}
                                 <div class="utility-list-item">
                                     <div class="utility-label line-align-center">
-                                        {fid === 0 ? 'Functions' : ''}
+                                        {fid === 0 ? 'Tools' : ''}
                                     </div>
                                     <div class="utility-value">
                                         <div class="utility-input line-align-center">
