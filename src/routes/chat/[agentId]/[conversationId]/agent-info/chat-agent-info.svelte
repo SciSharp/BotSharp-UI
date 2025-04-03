@@ -35,7 +35,10 @@
             <span>{agent?.functions?.length || 0} {agent?.functions?.length > 1 ? 'functions' : 'function'}{', '}</span>
             {/if}
             {#if !!agent?.utilities}
-            <span>{agent?.utilities?.length || 0} {agent?.utilities?.length > 1 ? 'utilities' : 'utility'}</span>
+            <span>{agent?.utilities?.length || 0} {agent?.utilities?.length > 1 ? 'utilities' : 'utility'}{', '}</span>
+            {/if}
+            {#if !!agent?.mcp_tools}
+            <span>{agent?.mcp_tools?.length || 0} {agent?.mcp_tools?.length > 1 ? 'MCPs' : 'MCP'}</span>
             {/if}
         </div>
     </div>
