@@ -319,7 +319,7 @@
         class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`}
         for="btncheck2"
     >
-        Planner Agent
+        Planning Agent
     </label>
 
     <input

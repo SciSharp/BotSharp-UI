@@ -154,7 +154,8 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">Rules</h5>
+            <h5 class="mt-1 mb-3">Triggers & Rules</h5>
+            <h6 class="mt-1 mb-3">Wake-up your agent by rules</h6>
         </div>
 
         <div class="agent-utility-container">

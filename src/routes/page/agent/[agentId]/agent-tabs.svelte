@@ -74,8 +74,8 @@
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
         { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
-        { name: 'agent-event-rule', displayText: 'Rules' },
-        { name: 'agent-mcp-tool', displayText: 'MCP' }
+        { name: 'agent-event-rule', displayText: 'Triggers & Rules' },
+        { name: 'agent-mcp-tool', displayText: 'MCP Tools' }
     ];
 
     onMount(() => {
