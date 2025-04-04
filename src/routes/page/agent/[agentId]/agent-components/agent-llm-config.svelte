@@ -25,7 +25,6 @@
     };
 
     const recursiveDepthLowerLimit = 1;
-    const recursiveDepthUpperLimit = 10;
 
     let config = agent.llm_config;
 
@@ -84,8 +83,6 @@
         
         if (value < recursiveDepthLowerLimit) {
             value = recursiveDepthLowerLimit;
-        } else if (value > recursiveDepthUpperLimit) {
-            value = recursiveDepthUpperLimit;
         }
 
         config.max_recursion_depth = value;
@@ -153,7 +150,6 @@
                     style="text-align: center;"
                     type="number"
                     min={recursiveDepthLowerLimit}
-                    max={recursiveDepthUpperLimit}
                     value={config.max_recursion_depth}
                     on:keydown={e => validateIntegerInput(e)}
                     on:change={e => changeMaxRecursiveDepth(e)}
