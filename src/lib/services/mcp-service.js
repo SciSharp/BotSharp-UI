@@ -3,7 +3,7 @@ import axios from 'axios';
 
 /**
  * Get mcp server configs
- * @returns {Promise<import('$mcpTypes').McpServerConfigModel[]>}
+ * @returns {Promise<import('$mcpTypes').McpServerOptionModel[]>}
  */
 export async function getServerConfigs() {
     const url = endpoints.mcpServerConfigsUrl;
