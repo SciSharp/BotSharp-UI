@@ -190,6 +190,7 @@
     <CardBody>
         <div class="text-center">
             <h5 class="mt-1 mb-3">Knowledge Base</h5>
+            <h6 class="mt-1 mb-3">Make your Agent have memory</h6>
         </div>
 
         <div class="agent-utility-container">

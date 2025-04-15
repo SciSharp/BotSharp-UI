@@ -218,7 +218,8 @@
 <Card>
     <CardBody>
         <div class="text-center">
-            <h5 class="mt-1 mb-3">MCP</h5>
+            <h5 class="mt-1 mb-3">MCP Tools</h5>
+            <h6 class="mt-1 mb-3">Tools powered by MCP Servers</h6>
         </div>
 
         <div class="agent-utility-container">

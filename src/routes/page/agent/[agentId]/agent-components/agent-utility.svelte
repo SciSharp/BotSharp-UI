@@ -273,6 +273,7 @@
     <CardBody>
         <div class="text-center">
             <h5 class="mt-1 mb-3">Utilities</h5>
+            <h6 class="mt-1 mb-3">Tools shared across plugins</h6>
         </div>
 
         <div class="agent-utility-container">
