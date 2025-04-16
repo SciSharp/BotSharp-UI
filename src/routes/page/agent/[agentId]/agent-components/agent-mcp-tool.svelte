@@ -4,7 +4,6 @@
 	import { getServerConfigs } from '$lib/services/mcp-service';
     
     const limit = 10;
-    const textLimit = 100;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -36,17 +35,17 @@
         });
 
         /** @type {import('$agentTypes').AgentMcpTool[]} */
-        const tools = [];
+        const mcps = [];
         const unique = new Set();
         candidates.forEach(x => {
             if (!unique.has(x.name)) {
-                tools.push(x);
+                mcps.push(x);
                 unique.add(x.name);
             }
         });
 
-        innerRefresh(tools);
-        return tools;
+        innerRefresh(mcps);
+        return mcps;
     }
 
     export const fetchOriginalMcpTools = () => {
@@ -67,13 +66,18 @@
             const list = res?.map(x => {
                 return {
                     id: x.id,
-                    name: x.name
+                    name: x.name,
+                    tools: [
+                        '',
+                        ...x.tools
+                    ]
                 };
             }) || [];
             mcpOptions = [
                 {
                     id: '',
-                    name: ''
+                    name: '',
+                    tools: ['']
                 },
                 ...list
             ];
@@ -109,7 +113,7 @@
 	 * @param {any} e
 	 * @param {number} idx
 	 */
-     function changeTool(e, idx) {
+     function changeMcp(e, idx) {
         const found = innerMcps.find((_, index) => index === idx);
         if (!found) return;
         
@@ -118,11 +122,12 @@
 
         found.name = name;
         found.server_id = val;
+        found.functions = [];
         innerRefresh(innerMcps);
         handleAgentChange();
     }
 
-    function addTool() {
+    function addMcp() {
         innerMcps = [
             ...innerMcps,
             {
@@ -136,7 +141,7 @@
     }
 
     /** @param {number} idx */
-    function deleteTool(idx) {
+    function deleteMcp(idx) {
         innerMcps = innerMcps.filter((_, index) => index !== idx);
         handleAgentChange();
     }
@@ -145,7 +150,7 @@
      * @param {any} e
 	 * @param {number} uid
 	 */
-    function toggleTool(e, uid) {
+    function toggleMcp(e, uid) {
         const found = innerMcps.find((_, index) => index === uid);
         if (!found) return;
 
@@ -156,22 +161,21 @@
 
     /**
      * @param {any} e
-	 * @param {number} tid
-     * @param {number} id
+	 * @param {number} id
+     * @param {number} refId
      * @param {string} type
 	 */
-    function changeContent(e, tid, id, type) {
-        const found = innerMcps.find((_, index) => index === tid);
+    function changeMcpContent(e, id, refId, type) {
+        const found = innerMcps.find((_, index) => index === id);
         if (!found) return;
 
         const val = e.target.value;
         if (type === 'function') {
-            const fn = found.functions.find((_, index) => index == id);
+            const fn = found.functions.find((_, index) => index == refId);
             if (fn) {
                 fn.name = val;
             }
         }
-
         innerRefresh(innerMcps);
         handleAgentChange();
     }
@@ -180,7 +184,7 @@
 	 * @param {number} id
 	 * @param {string} type
 	 */
-     function addToolContent(id, type) {
+     function addMcpContent(id, type) {
         const found = innerMcps.find((_, index) => index === id);
         if (!found || found.disabled) return;
 
@@ -197,7 +201,7 @@
 	 * @param {number} id
      * @param {string} type
 	 */
-     function deleteToolContent(uid, id, type) {
+     function deleteMcpContent(uid, id, type) {
         const found = innerMcps.find((_, index) => index === uid);
         if (!found || found.disabled) return;
 
@@ -219,7 +223,7 @@
         </div>
 
         <div class="agent-utility-container">
-            {#each innerMcps as tool, uid (uid)}
+            {#each innerMcps as mcp, uid (uid)}
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
                         <div class="utility-label fw-bold">
@@ -228,8 +232,8 @@
                                 <div class="line-align-center">
                                     <Input
                                         type="checkbox"
-                                        checked={!tool.disabled}
-                                        on:change={e => toggleTool(e, uid)}
+                                        checked={!mcp.disabled}
+                                        on:change={e => toggleMcp(e, uid)}
                                     />
                                 </div>
                                 <div
@@ -246,11 +250,11 @@
                             <div class="utility-input line-align-center">
                                 <Input
                                     type="select"
-                                    disabled={tool.disabled}
-                                    on:change={e => changeTool(e, uid)}
+                                    disabled={mcp.disabled}
+                                    on:change={e => changeMcp(e, uid)}
                                 >
                                     {#each [...mcpOptions] as option}
-                                        <option value={option.id} selected={option.id == tool.server_id}>
+                                        <option value={option.id} selected={option.id == mcp.server_id}>
                                             {option.displayName || option.name}
                                         </option>
                                     {/each}
@@ -262,7 +266,7 @@
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
-                                    on:click={() => deleteTool(uid)}
+                                    on:click={() => deleteMcp(uid)}
                                 />
                             </div>
                         </div>
@@ -279,7 +283,7 @@
                                         <Input
                                             type="text"
                                             disabled
-                                            value={tool.server_id}
+                                            value={mcp.server_id}
                                         />
                                     </div>
                                     <div class="utility-delete line-align-center"></div>
@@ -287,7 +291,7 @@
                             </div>
                         </div>
                         <div class="utility-content">
-                            {#each tool.functions as fn, fid (fid)}
+                            {#each mcp.functions as fn, fid (fid)}
                                 <div class="utility-list-item">
                                     <div class="utility-label line-align-center">
                                         {fid === 0 ? 'Tools' : ''}
@@ -295,12 +299,16 @@
                                     <div class="utility-value">
                                         <div class="utility-input line-align-center">
                                             <Input
-                                                type="text"
-                                                maxlength={textLimit}
-                                                disabled={tool.disabled}
-                                                value={fn.name}
-                                                on:change={e => changeContent(e, uid, fid, 'function')}
-                                            />
+                                                type="select"
+                                                disabled={mcp.disabled}
+                                                on:change={e => changeMcpContent(e, uid, fid, 'function')}
+                                            >
+                                                {#each [...mcpOptions.find(x => x.id === mcp.server_id)?.tools || []] as option}
+                                                    <option value={option} selected={option == fn.name}>
+                                                        {option}
+                                                    </option> 
+                                                {/each}
+                                            </Input>
                                         </div>
                                         <div class="utility-delete line-align-center">
                                             <i
@@ -308,17 +316,17 @@
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
-                                                on:click={() => deleteToolContent(uid, fid, 'function')}
+                                                on:click={() => deleteMcpContent(uid, fid, 'function')}
                                             />
                                         </div>
                                     </div>
                                 </div>
                             {/each}
 
-                            {#if tool.functions?.length < limit}
+                            {#if mcp.functions?.length < limit}
                                 <div class="utility-list-item">
                                     <div class="utility-label">
-                                        {tool.functions.length === 0 ? 'Functions' : ''}
+                                        {mcp.functions.length === 0 ? 'Functions' : ''}
                                     </div>
                                     <div class="utility-value">
                                         <i
@@ -326,7 +334,7 @@
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}
-                                            on:click={() => addToolContent(uid, 'function')}
+                                            on:click={() => addMcpContent(uid, 'function')}
                                         />
                                     </div>
                                 </div>
@@ -338,7 +346,7 @@
 
             {#if innerMcps.length < limit}
                 <div class="add-utility">
-                    <Button color="primary" on:click={() => addTool()}>
+                    <Button color="primary" on:click={() => addMcp()}>
                         <span>
                             <i class="bx bx-plus" />
                             <span>Add MCP</span>
