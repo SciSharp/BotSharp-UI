@@ -192,7 +192,7 @@ function buildConversationUserStates(conversationId) {
                 active_rounds: state.active_rounds.data || -1
             };
         }) || [];
-        conversationUserStateStore.resetOne(conversationId);
+        // conversationUserStateStore.resetOne(conversationId);
         return states;
     }
     return [];
