@@ -3,8 +3,8 @@
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getAgentRuleOptions } from '$lib/services/agent-service';
 
-    const limit = 15;
-    const textLimit = 100;
+    const limit = 100;
+    const textLimit = 200;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;

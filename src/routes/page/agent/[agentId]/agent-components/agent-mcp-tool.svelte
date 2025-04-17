@@ -3,7 +3,7 @@
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getServerConfigs } from '$lib/services/mcp-service';
     
-    const limit = 10;
+    const limit = 100;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
