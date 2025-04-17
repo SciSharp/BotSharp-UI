@@ -181,6 +181,10 @@ button:focus {
   scrollbar-width: thin;
 }
 
+.none-scrollbar {
+  scrollbar-width: none;
+}
+
 .scrollable-dropdown {
   .dropdown-menu {
     max-height: 200px;

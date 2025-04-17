@@ -5,7 +5,7 @@
 	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
 	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 
-    const limit = 5;
+    const limit = 100;
     const confidLowerBound = 0;
     const confidUpperBound = 1;
 

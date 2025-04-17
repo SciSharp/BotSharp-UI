@@ -4,7 +4,7 @@
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { truncateByPrefix } from '$lib/helpers/utils/common';
 
-    const limit = 5;
+    const limit = 100;
     const prefix = "util-";
 
     /** @type {import('$agentTypes').AgentModel} */
