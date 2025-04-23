@@ -71,6 +71,7 @@
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
+	import { realtimeChat } from '$lib/services/realtime-chat-service';
 
 	
 	const options = {
@@ -673,13 +674,15 @@
 		if (disableSpeech) return;
 
 		if (!isListening) {
-			llmRealtime.start(params.agentId, (/** @type {any} */ message) => {
-				console.log(message);
-			});
+			// llmRealtime.start(params.agentId, (/** @type {any} */ message) => {
+			// 	console.log(message);
+			// });
+			realtimeChat.start(params.agentId, params.conversationId);
 			isListening = true;
 			microphoneIcon = "microphone";
 		} else {
-			llmRealtime.stop();
+			// llmRealtime.stop();
+			realtimeChat.stop();
 			isListening = false;
 			microphoneIcon = "microphone-off";
 		}
