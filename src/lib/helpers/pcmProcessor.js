@@ -3,7 +3,8 @@ export const AudioRecordingWorklet = `
 class AudioProcessingWorklet extends AudioWorkletProcessor {
 
   // send and clear buffer every 2048 samples, 
-  // which at 16khz is about 8 times a second
+  // which at 16khz is about 8 times a second,
+  // or at 24khz is about 11 times a second
   buffer = new Int16Array(2048);
 
   // current write index
@@ -43,12 +44,12 @@ class AudioProcessingWorklet extends AudioWorkletProcessor {
       // convert float32 -1 to 1 to int16 -32768 to 32767
       const int16Value = float32Array[i] * 32768;
       this.buffer[this.bufferWriteIndex++] = int16Value;
-      if(this.bufferWriteIndex >= this.buffer.length) {
+      if (this.bufferWriteIndex >= this.buffer.length) {
         this.sendAndClearBuffer();
       }
     }
 
-    if(this.bufferWriteIndex >= this.buffer.length) {
+    if (this.bufferWriteIndex >= this.buffer.length) {
       this.sendAndClearBuffer();
     }
   }
