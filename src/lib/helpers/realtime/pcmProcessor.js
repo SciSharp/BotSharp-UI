@@ -10,9 +10,11 @@ class AudioProcessingWorklet extends AudioWorkletProcessor {
   // current write index
   bufferWriteIndex = 0;
 
+  speaking = false;
+  threshold = 0.1;
+
   constructor() {
     super();
-    this.hasAudio = false;
   }
 
   /**
@@ -22,6 +24,7 @@ class AudioProcessingWorklet extends AudioWorkletProcessor {
   process(inputs) {
     if (inputs[0].length) {
       const channel0 = inputs[0][0];
+      this.speaking = channel0.some(sample => Math.abs(sample) >= this.threshold);
       this.processChunk(channel0);
     }
     return true;
@@ -31,6 +34,7 @@ class AudioProcessingWorklet extends AudioWorkletProcessor {
     this.port.postMessage({
       event: "chunk",
       data: {
+        speaking: this.speaking,
         int16arrayBuffer: this.buffer.slice(0, this.bufferWriteIndex).buffer,
       },
     });

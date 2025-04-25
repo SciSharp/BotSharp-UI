@@ -1,5 +1,5 @@
 import { PUBLIC_SERVICE_URL } from "$env/static/public";
-import { AudioRecordingWorklet } from "$lib/helpers/pcmProcessor";
+import { AudioRecordingWorklet } from "$lib/helpers/realtime/pcmProcessor";
 
 // @ts-ignore
 const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -15,20 +15,20 @@ let audioQueue = [];
 /** @type {boolean} */
 let isPlaying = false;
 
+/** @type {WebSocket | null} */
+let socket = null;
+
+/** @type {MediaStream | null} */
+let mediaStream = null;
+
+/** @type {AudioWorkletNode | null} */
+let workletNode = null;
+
+/** @type {MediaStreamAudioSourceNode | null} */
+let micSource = null;
+
 export const realtimeChat = {
     
-    /** @type {WebSocket | null} */
-    socket: null,
-
-    /** @type {MediaStream | null} */
-    mediaStream: null,
-
-    /** @type {AudioWorkletNode | null} */
-    workletNode: null,
-
-    /** @type {MediaStreamAudioSourceNode | null} */
-    micSource: null,
-
     /**
      * @param {string} agentId
      * @param {string} conversationId
@@ -36,31 +36,34 @@ export const realtimeChat = {
     start(agentId, conversationId) {
         reset();
         const wsUrl = buildWebsocketUrl();
-        this.socket = new WebSocket(`${wsUrl}/chat/stream/${agentId}/${conversationId}`);
+        socket = new WebSocket(`${wsUrl}/chat/stream/${agentId}/${conversationId}`);
       
-        this.socket.onopen = async () => {
+        socket.onopen = async () => {
             console.log("WebSocket connected");
 
-            this.socket?.send(JSON.stringify({
+            socket?.send(JSON.stringify({
                 event: "start"
             }));
 
-            this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             audioCtx = new AudioContext({ sampleRate: sampleRate });
 
             const workletName = "audio-recorder-worklet";
             const src = createWorkletFromSrc(workletName, AudioRecordingWorklet);
             await audioCtx.audioWorklet.addModule(src);
 
-            this.workletNode = new AudioWorkletNode(audioCtx, workletName);
-            this.micSource = audioCtx.createMediaStreamSource(this.mediaStream);
-            this.micSource.connect(this.workletNode);
+            workletNode = new AudioWorkletNode(audioCtx, workletName);
+            micSource = audioCtx.createMediaStreamSource(mediaStream);
+            micSource.connect(workletNode);
 
-            this.workletNode.port.onmessage = event => {
+            workletNode.port.onmessage = event => {
                 const arrayBuffer = event.data.data.int16arrayBuffer;
-                if (arrayBuffer && this.socket?.readyState === WebSocket.OPEN) {
+                if (arrayBuffer && socket?.readyState === WebSocket.OPEN) {
+                    if (event.data.data.speaking) {
+                        reset();
+                    }
                     const arrayBufferString = arrayBufferToBase64(arrayBuffer);
-                    this.socket.send(JSON.stringify({
+                    socket.send(JSON.stringify({
                         event: 'media',
                         payload: arrayBufferString
                     }));
@@ -68,7 +71,7 @@ export const realtimeChat = {
             };
         };
 
-        this.socket.onmessage = (/** @type {MessageEvent} */ e) => {
+        socket.onmessage = (/** @type {MessageEvent} */ e) => {
             try {
                 const json = JSON.parse(e.data);
                 if (json.event === 'media' && !!json.media.payload) {
@@ -80,11 +83,11 @@ export const realtimeChat = {
             }
         };
 
-        this.socket.onclose = () => {
+        socket.onclose = () => {
             console.log("Websocket closed");
         };
       
-        this.socket.onerror = (/** @type {Event} */ e) => {
+        socket.onerror = (/** @type {Event} */ e) => {
             console.error('WebSocket error', e);
         };
     },
@@ -92,22 +95,25 @@ export const realtimeChat = {
     stop() {
         reset();
         
-        if (this.mediaStream) {
-            this.mediaStream.getTracks().forEach(t => t.stop());
-            this.mediaStream = null;
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(t => t.stop());
+            mediaStream = null;
         }
 
-        if (this.workletNode) {
-            this.micSource?.disconnect(this.workletNode);
-            this.workletNode.port.close();
-            this.workletNode.disconnect();
+        if (workletNode) {
+            micSource?.disconnect(workletNode);
+            workletNode.port.close();
+            workletNode.disconnect();
+            micSource = null;
+            workletNode = null;
         }
 
-        if (this.socket?.readyState === WebSocket.OPEN) {
-            this.socket.send(JSON.stringify({
+        if (socket?.readyState === WebSocket.OPEN) {
+            socket.send(JSON.stringify({
                 event: 'disconnect'
             }));
-            this.socket.close();
+            socket.close();
+            socket = null;
         }
     }
 };
@@ -143,7 +149,7 @@ function enqueueAudioChunk(base64Audio) {
     audioQueue.push(audioBuffer);
   
     if (!isPlaying) {
-      playNext();
+        playNext();
     }
 }
 
@@ -159,7 +165,6 @@ function playNext() {
     const source = audioCtx.createBufferSource();
     source.buffer = buffer;
     source.connect(audioCtx.destination);
-  
     source.onended = () => {
         playNext();
     };
@@ -221,7 +226,7 @@ function convert16BitPCMToFloat32(buffer) {
     for (let i = 0; i< chunk.length / 2; i++) {
         try {
             const int16 = dataView.getInt16(i * 2, true);
-            output[i] = int16 / 32767;
+            output[i] = int16 / 32768;
         } catch (e) {
             console.error(e);
         }
