@@ -65,7 +65,9 @@ export const realtimeChat = {
                     const arrayBufferString = arrayBufferToBase64(arrayBuffer);
                     socket.send(JSON.stringify({
                         event: 'media',
-                        payload: arrayBufferString
+                        body: {
+                            payload: arrayBufferString
+                        }
                     }));
                 }
             };
