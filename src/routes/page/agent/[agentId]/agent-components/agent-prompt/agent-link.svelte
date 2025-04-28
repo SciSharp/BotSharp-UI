@@ -118,13 +118,6 @@
 
 
 <Card class="agent-prompt-container">
-    <CardHeader class="agent-prompt-header border-bottom">
-        <div class="d-flex">
-            <div class="flex-grow-1">
-                <h5 class="fw-semibold mb-0">{'Links'}</h5>
-            </div>
-        </div>
-    </CardHeader>
     <CardBody>
         <FormGroup class="agent-prompt-body">
             <div class="mb-2" style="display: flex; gap: 10px;">
