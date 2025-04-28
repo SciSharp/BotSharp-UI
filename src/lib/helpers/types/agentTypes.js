@@ -11,6 +11,13 @@
  */
 
 /**
+ * @typedef {Object} AgentLink
+ * @property {string?} [uid]
+ * @property {string} name
+ * @property {string} content
+ */
+
+/**
  * @typedef {Object} AgentLlmConfig
  * @property {boolean} is_inherit - Inherited from default Agent settings
  * @property {string?} provider 
@@ -65,6 +72,7 @@
  * @property {import('$pluginTypes').PluginDefModel} plugin
  * @property {FunctionDef[]} functions
  * @property {AgentTemplate[]} templates
+ * @property {AgentLink[]} links
  * @property {Object[]} responses
  * @property {RoutingRule[]} routing_rules
  * @property {AgentRule[]} rules

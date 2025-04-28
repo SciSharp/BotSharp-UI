@@ -19,7 +19,7 @@
 	import { goto } from '$app/navigation';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
     import LocalStorageManager from '$lib/helpers/utils/storage-manager';
-	import AgentTemplate from './agent-components/agent-template.svelte';
+	import AgentPromptWrapper from './agent-components/agent-prompt-wrapper.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     let agent;
@@ -28,7 +28,7 @@
     /** @type {any} */
     let agentInstructionCmp = null;
     /** @type {any} */
-    let agentTemplateCmp = null;
+    let agentPromptWrapperCmp = null;
     /** @type {any} */
     let agentTabsCmp = null;
     /** @type {import('$agentTypes').AgentModel} */
@@ -94,7 +94,7 @@
     function handleAgentUpdate() {
         fetchJsonContent();
         fetchInstructions();
-        fetchTemplates();
+        fetchPromptWrapper();
         fetchTabData();
 
         agent = {
@@ -115,7 +115,7 @@
             isComplete = true;
             deleteAgentDraft();
             refreshInstructions();
-            refreshTemplates();
+            refreshPromptWrapper();
             setTimeout(() => {
                 isComplete = false;
             }, duration);
@@ -164,20 +164,22 @@
     }
 
     // Templates
-    function formatOriginalTemplates() {
-        const obj = agentTemplateCmp?.fetchOriginalTemplates();
+    function formatOriginalPromptWrapper() {
+        const obj = agentPromptWrapperCmp?.fetchOriginalPromptWrapperData();
         return {
-            templates: obj.templates || []
+            templates: obj.templates || [],
+            links: obj.links || []
         }
     }
 
-    function fetchTemplates() {
-        const obj = agentTemplateCmp?.fetchTemplates();
+    function fetchPromptWrapper() {
+        const obj = agentPromptWrapperCmp?.fetchPromptWrapperData();
         agent.templates = obj.templates || [];
+        agent.links = obj.links || [];
     }
 
-    function refreshTemplates() {
-        agentTemplateCmp?.refresh();
+    function refreshPromptWrapper() {
+        agentPromptWrapperCmp?.refresh();
     }
 
 
@@ -232,7 +234,7 @@
             ...agent,
             ...formatJsonContent(),
             ...formatOriginalInstructions(),
-            ...formatOriginalTemplates(),
+            ...formatOriginalPromptWrapper(),
             ...formatOriginalTabData(),
         };
         saveAgentDraft(data);
@@ -244,7 +246,7 @@
         deleteAgentDraft();
         setTimeout(() => {
             refreshInstructions();
-            refreshTemplates();
+            refreshPromptWrapper();
             agentFunctionCmp?.refresh();
             agentTabsCmp?.refresh();
         });
@@ -286,8 +288,8 @@
                 />
             </div>
             <div class="agent-detail-section">
-                <AgentTemplate
-                    bind:this={agentTemplateCmp}
+                <AgentPromptWrapper
+                    bind:this={agentPromptWrapperCmp}
                     agent={agent}
                     {handleAgentChange}
                 />

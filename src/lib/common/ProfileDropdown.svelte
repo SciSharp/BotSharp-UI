@@ -42,7 +42,8 @@
 	>
 		<img
 			class="rounded-circle header-profile-user"
-			src={`${buildUrl(PUBLIC_SERVICE_URL, user?.avatar)}?access_token=${$userStore?.token}`}
+			src={`${user?.avatar && $userStore?.token ?
+				`${buildUrl(PUBLIC_SERVICE_URL, user?.avatar)}?access_token=${$userStore?.token}` : ''}`}
 			alt=""
 			on:error={e => handleAvatarLoad(e)}
 		/>
