@@ -70,7 +70,7 @@
             {#each tabs as tab, idx (idx) }
             <NavItem
                 containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 2 ? tabs.length : 3})`}
-                navBtnStyles={'text-transform: none;'}
+                navBtnStyles={'text-transform: none; font-size: 15px; font-weight: 600;'}
                 navBtnId={`${tab.name}-tab`}
                 dataBsTarget={`#${tab.name}-tab`}
                 ariaControls={`${tab.name}-tab-pane`}
