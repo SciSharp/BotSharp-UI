@@ -14,16 +14,16 @@
     /** @type {() => void} */
     export let handleAgentChange = () => {};
 
-    export const fetchOriginalLinks = () => {
-        const links = inner_links?.map(x => ({
+    export const fetchOriginalTemplates = () => {
+        const templates = inner_templates?.map(x => ({
                 name: x.name,
                 content: x.content
             })) || [];
-        return links;
+        return templates;
     };
 
-    export const fetchLinks = () => {
-        const candidates = inner_links?.filter((x, idx) => !!x.name?.trim())?.map(x => {
+    export const fetchTemplates = () => {
+        const candidates = inner_templates?.filter((x, idx) => !!x.name?.trim())?.map(x => {
             return { name: x.name.trim().toLowerCase(), content: x.content };
         });
 
@@ -41,58 +41,58 @@
     export const refresh = () => init();
 
 
-    /** @type {import('$agentTypes').AgentLink} */
-    const defaultLink = {
+    /** @type {import('$agentTypes').AgentTemplate} */
+    const defaultTemplate = {
         uid: '',
         name: '',
         content: ''
     };
 
-    /** @type {import('$agentTypes').AgentLink[]} */
-    let inner_links = [];
+    /** @type {import('$agentTypes').AgentTemplate[]} */
+    let inner_templates = [];
 
-    /** @type {import('$agentTypes').AgentLink} */
-    let selected_link = { ...defaultLink };
+    /** @type {import('$agentTypes').AgentTemplate} */
+    let selected_template = { ...defaultTemplate };
 
     onMount(() => {
         init();
     });
 
     function init() {
-        inner_links = [
-            ...agent.links?.map(x => ({
+        inner_templates = [
+            ...agent.templates?.map(x => ({
                 uid: uuidv4(),
                 name: x.name,
                 content: x.content
             })) || []
         ];
 
-        selected_link = inner_links.length > 0 ? inner_links[0] : {
-            ...defaultLink
+        selected_template = inner_templates.length > 0 ? inner_templates[0] : {
+            ...defaultTemplate
         };
     }
 
 
     /** @param {string | undefined | null} uid */
     function selectTemplate(uid) {
-        if (uid === selected_link.uid) {
+        if (uid === selected_template.uid) {
             return;
         }
 
-        selected_link = inner_links.find(x => x.uid === uid) || { ...defaultLink };
+        selected_template = inner_templates.find(x => x.uid === uid) || { ...defaultTemplate };
     }
 
     /** @param {any} e */
     function changePrompt(e) {
         e.preventDefault();
         const value = e.target.value;
-        selected_link.content = value || '';
+        selected_template.content = value || '';
         handleAgentChange();
     }
 
     function addTemplate() {
-        inner_links = [
-            ...inner_links,
+        inner_templates = [
+            ...inner_templates,
             {
                 uid: uuidv4(),
                 name: '',
@@ -100,16 +100,16 @@
             }
         ];
 
-        selected_link = inner_links[inner_links.length-1];
+        selected_template = inner_templates[inner_templates.length-1];
         handleAgentChange();
     }
 
     /** @param {string | undefined | null} uid */
     function deleteTemplate(uid) {
-        inner_links = inner_links.filter(x => x.uid !== uid);
-        if (selected_link.uid === uid) {
-            selected_link = inner_links.length > 0 ? inner_links[0] : {
-                ...defaultLink
+        inner_templates = inner_templates.filter(x => x.uid !== uid);
+        if (selected_template.uid === uid) {
+            selected_template = inner_templates.length > 0 ? inner_templates[0] : {
+                ...defaultTemplate
             };
         }
         handleAgentChange();
@@ -118,6 +118,13 @@
 
 
 <Card class="agent-prompt-container">
+    <CardHeader class="agent-prompt-header border-bottom">
+        <div class="d-flex">
+            <div class="flex-grow-1">
+                <h5 class="fw-semibold">{'Templates'}</h5>
+            </div>
+        </div>
+    </CardHeader>
     <CardBody>
         <FormGroup class="agent-prompt-body">
             <div class="mb-2" style="display: flex; gap: 10px;">
@@ -138,21 +145,21 @@
                 </div>
             </div>
             
-            {#if inner_links.length > 0}
+            {#if inner_templates.length > 0}
             <NavBar
                 id={'agent-template-container'}
                 disableDefaultStyles
                 containerClasses={'nav-tabs-secondary'}
             >
-                {#each inner_links as template, idx (idx) }
+                {#each inner_templates as template, idx (idx) }
                 <NavItem
-                    containerStyles={`flex: 0 1 calc(100% / ${inner_links.length <= 2 ? inner_links.length : 3})`}
+                    containerStyles={`flex: 0 1 calc(100% / ${inner_templates.length <= 2 ? inner_templates.length : 3})`}
                     navBtnStyles={'text-transform: none;'}
                     navBtnId={`template-${idx}-prompt-tab`}
                     dataBsTarget={`#template-${idx}-prompt-tab-pane`}
                     ariaControls={`template-${idx}-prompt-tab-pane`}
                     bind:navBtnText={template.name}
-                    active={template.uid === selected_link.uid}
+                    active={template.uid === selected_template.uid}
                     allowEdit
                     allowDelete
                     maxEditLength={50}
@@ -167,7 +174,7 @@
                 type="textarea"
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
-                value={selected_link.content}
+                value={selected_template.content}
                 rows={15}
                 on:input={(e) => changePrompt(e)}
                 placeholder="Enter your content"
