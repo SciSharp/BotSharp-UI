@@ -1,7 +1,6 @@
 import { endpoints } from '$lib/services/api-endpoints.js';
 import { replaceUrl } from '$lib/helpers/http';
 import axios from 'axios';
-import { json } from '@sveltejs/kit';
 
 export const llmRealtime = {
     /** @type {RTCPeerConnection} */

@@ -15,12 +15,11 @@
     export let handleAgentChange = () => {};
 
     export const fetchOriginalTemplates = () => {
-        return {
-            templates: inner_templates?.map(x => ({
+        const templates = inner_templates?.map(x => ({
                 name: x.name,
                 content: x.content
-            })) || []
-        };
+            })) || [];
+        return templates;
     };
 
     export const fetchTemplates = () => {
@@ -36,9 +35,7 @@
             }
         }
 
-        return {
-            templates: prompts
-        };
+        return prompts;
     }
 
     export const refresh = () => init();
@@ -180,7 +177,7 @@
                 value={selected_template.content}
                 rows={15}
                 on:input={(e) => changePrompt(e)}
-                placeholder="Enter your template"
+                placeholder="Enter your content"
             />
             {/if}
         </FormGroup>

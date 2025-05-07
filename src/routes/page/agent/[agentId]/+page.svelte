@@ -165,15 +165,14 @@
 
     // Templates
     function formatOriginalTemplates() {
-        const obj = agentTemplateCmp?.fetchOriginalTemplates();
+        const templates = agentTemplateCmp?.fetchOriginalTemplates();
         return {
-            templates: obj.templates || []
+            templates: templates || []
         }
     }
 
     function fetchTemplates() {
-        const obj = agentTemplateCmp?.fetchTemplates();
-        agent.templates = obj.templates || [];
+        agent.templates = agentTemplateCmp?.fetchTemplates();;
     }
 
     function refreshTemplates() {

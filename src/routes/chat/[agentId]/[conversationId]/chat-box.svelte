@@ -46,7 +46,6 @@
 	} from '$env/static/public';
 	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
-	import { llmRealtime } from '$lib/services/llm-realtime-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import DialogModal from '$lib/common/DialogModal.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -71,6 +70,7 @@
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
+	import { realtimeChat } from '$lib/services/realtime-chat-service';
 
 	
 	const options = {
@@ -673,13 +673,11 @@
 		if (disableSpeech) return;
 
 		if (!isListening) {
-			llmRealtime.start(params.agentId, (/** @type {any} */ message) => {
-				console.log(message);
-			});
+			realtimeChat.start(params.agentId, params.conversationId);
 			isListening = true;
 			microphoneIcon = "microphone";
 		} else {
-			llmRealtime.stop();
+			realtimeChat.stop();
 			isListening = false;
 			microphoneIcon = "microphone-off";
 		}

@@ -74,7 +74,8 @@
 								on:drop={e => handleFileDrop(e)}
 							>
 								<img
-									src={`${buildUrl(PUBLIC_SERVICE_URL, currentUser?.avatar || '').href}?access_token=${$userStore?.token}`}
+									src={`${currentUser?.avatar && $userStore?.token ? 
+										`${buildUrl(PUBLIC_SERVICE_URL, currentUser?.avatar).href}?access_token=${$userStore?.token}` : ''}`}
 									alt=""
 									class="img-thumbnail rounded-circle"
 									style="width: 100%; height: 100%;"

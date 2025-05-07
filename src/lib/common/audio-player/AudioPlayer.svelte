@@ -242,7 +242,7 @@
     if (loop === "none") {
       if (order === "list") {
         if ($playList.playingIndex < audios.length - 1) {
-          const promise = buildNextSongPromise(nextIdx);
+          const promise = buildNextAudioPromise(nextIdx);
           promise.then(() => play());
         } else {
           $playList.playingIndex = ($playList.playingIndex + 1) % audios.length;
@@ -257,13 +257,13 @@
         } else {
           targetIdx = randomIdx;
         }
-        const promise = buildNextSongPromise(targetIdx);
+        const promise = buildNextAudioPromise(targetIdx);
         promise.then(() => play());
       }
     } else if (loop === "one") {
       player.currentTime = 0;
     } else if (loop === "all") {
-      const promise = buildNextSongPromise(nextIdx);
+      const promise = buildNextAudioPromise(nextIdx);
       promise.then(() => play());
     }
   };
@@ -271,7 +271,7 @@
   /**
    * @param {number} idx
    */
-  function buildNextSongPromise(idx) {
+  function buildNextAudioPromise(idx) {
     return new Promise((/** @type {any} */ resolve) => {
       $playList.playingIndex = idx;
       player.currentTime = 0;
@@ -287,8 +287,8 @@
   /**
    * @param {number} idx
    */
-  function switchSong(idx) {
-    const promise = buildNextSongPromise(idx);
+  function switchAudio(idx) {
+    const promise = buildNextAudioPromise(idx);
     if (autoPlayNextOnClick) {
       promise.then(() => {
         play();
@@ -490,7 +490,7 @@
         {#each $audioList as song, idx}
           <!-- svelte-ignore a11y-click-events-have-key-events -->
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-          <li on:click={() => switchSong(idx) }>
+          <li on:click={() => switchAudio(idx) }>
           {#if idx === $playList.playingIndex}
             <span class="aplayer-list-cur" />
           {/if}
