@@ -50,13 +50,7 @@
         innerRefresh(candidates);
         return candidates;
     }
-
-    export const fetchOriginalUtilities = () => {
-        return innerUtilities;
-    }
-
-    export const refresh = () => init();
-
+    
     /** @type {any} */
     let utilityMapper = {};
 

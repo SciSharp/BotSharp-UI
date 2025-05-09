@@ -39,12 +39,6 @@
         return knowledgeBases;
     }
 
-    export const fetchOriginalKnowledgeBases = () => {
-        return innerKnowledgeBases;
-    }
-
-    export const refresh = () => init();
-
     /** @type {any[]} */
     let knowledgeBaseOptions = [];
 
