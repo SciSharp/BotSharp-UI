@@ -18,7 +18,6 @@
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
-    import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import AgentTemplate from './agent-components/agent-template.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
@@ -31,10 +30,6 @@
     let agentTemplateCmp = null;
     /** @type {any} */
     let agentTabsCmp = null;
-    /** @type {import('$agentTypes').AgentModel} */
-    let originalAgent;
-    /** @type {any} */
-    let agentDraft = null;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -42,39 +37,15 @@
 
     const duration = 3000;
     const params = $page.params;
-    const agentStorage = new LocalStorageManager();
-    
 
     onMount(() => {
         isLoading = true;
-        agentDraft = getAgentDraft();
         getAgent(params.agentId).then(data => {
-            originalAgent = {
-                ...data,
-                llm_config: data.llm_config || {}
-            };
-            if (agentDraft) {
-                agent = agentDraft;
-            } else {
-                agent = JSON.parse(JSON.stringify(originalAgent));
-            }
+            agent = data;
         }).finally(() => {
             isLoading = false;
         });
     });
-
-    function getAgentDraft() {
-        return agentStorage.get(`agent_draft_${params.agentId}`)
-    }
-
-    /** @param {any} data */
-    function saveAgentDraft(data) {
-        agentStorage.set(`agent_draft_${params.agentId}`, data, 24 * 60 * 60 * 1000)
-    }
-
-    function deleteAgentDraft() {
-        agentStorage.remove(`agent_draft_${params.agentId}`);
-    }
 
     function updateCurrentAgent() {
         Swal.fire({
@@ -107,15 +78,17 @@
             utilities: agent.utilities || [],
             knowledge_bases: agent.knowledge_bases || [],
             rules: agent.rules || [],
-            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null
+            max_message_count: Number(agent.max_message_count) > 0 ? Number(agent.max_message_count) : null,
+            llm_config: {
+                ...agent.llm_config,
+                max_output_tokens: Number(agent.llm_config.max_output_tokens) > 0 ? Number(agent.llm_config.max_output_tokens) : null
+            }
         };
         isLoading = true;
         saveAgent(agent).then(res => {
             isLoading = false;
             isComplete = true;
-            deleteAgentDraft();
-            refreshInstructions();
-            refreshTemplates();
+            refresh();
             setTimeout(() => {
                 isComplete = false;
             }, duration);
@@ -144,53 +117,17 @@
         agent.responses = data.responses;
     }
 
-    // Insturctions
-    function formatOriginalInstructions() {
-        const obj = agentInstructionCmp?.fetchOriginalInstructions();
-        return {
-            instruction: obj.systemPrompt,
-            channel_instructions: obj.channelPrompts || []
-        }
-    }
-
     function fetchInstructions() {
         const obj = agentInstructionCmp?.fetchInstructions();
         agent.instruction = obj.systemPrompt;
         agent.channel_instructions = obj.channelPrompts || [];
     }
 
-    function refreshInstructions() {
-        agentInstructionCmp?.refresh();
-    }
-
-    // Templates
-    function formatOriginalTemplates() {
-        const templates = agentTemplateCmp?.fetchOriginalTemplates();
-        return {
-            templates: templates || []
-        }
-    }
-
     function fetchTemplates() {
         agent.templates = agentTemplateCmp?.fetchTemplates();;
     }
 
-    function refreshTemplates() {
-        agentTemplateCmp?.refresh();
-    }
-
-
     // Tab data
-    function formatOriginalTabData() {
-        const data = agentTabsCmp?.fetchOriginalTabData();
-        return data ? {
-            utilities: data.utilities || [],
-            knowledge_bases: data.knwoledgebases || [],
-            rules: data.rules || [],
-            mcp_tools: data.mcpTools || []
-        } : null;
-    }
-
     function fetchTabData() {
         const data = agentTabsCmp?.fetchTabData();
         if (data) {
@@ -221,32 +158,12 @@
 
     function handleAgentDelete() {
         deleteAgent(agent?.id).then(res => {
-            deleteAgentDraft();
             goto(`page/agent`);
         });
     }
 
-    function handleAgentChange() {
-        const data = {
-            ...agent,
-            ...formatJsonContent(),
-            ...formatOriginalInstructions(),
-            ...formatOriginalTemplates(),
-            ...formatOriginalTabData(),
-        };
-        saveAgentDraft(data);
-    }
-
-    function handleAgentReset() {
-        agent = JSON.parse(JSON.stringify(originalAgent));
-        agentDraft = null;
-        deleteAgentDraft();
-        setTimeout(() => {
-            refreshInstructions();
-            refreshTemplates();
-            agentFunctionCmp?.refresh();
-            agentTabsCmp?.refresh();
-        });
+    function refresh() {
+        agentInstructionCmp?.refresh();
     }
 </script>
 
@@ -263,16 +180,12 @@
                     agent={agent}
                     profiles={agent.profiles || []}
                     labels={agent.labels || []}
-                    resetable={!!agentDraft}
-                    resetAgent={() => handleAgentReset()}
-                    {handleAgentChange}
                 />
             </div>
             <div class="agent-detail-section">
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
-                    {handleAgentChange}
                 />
             </div>
         </Col>
@@ -281,27 +194,24 @@
                 <AgentInstruction
                     bind:this={agentInstructionCmp}
                     agent={agent}
-                    {handleAgentChange}
                 />
             </div>
             <div class="agent-detail-section">
                 <AgentTemplate
                     bind:this={agentTemplateCmp}
                     agent={agent}
-                    {handleAgentChange}
                 />
             </div>
             <div class="agent-detail-section">
                 <AgentFunction
                     bind:this={agentFunctionCmp}
                     agent={agent}
-                    {handleAgentChange}
                 />
             </div>
         </Col>
     </Row>
 
-    {#if !!AgentExtensions.editable(originalAgent)}
+    {#if !!AgentExtensions.editable(agent)}
         <Row>
             <div class="hstack gap-2 my-4">
                 <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>

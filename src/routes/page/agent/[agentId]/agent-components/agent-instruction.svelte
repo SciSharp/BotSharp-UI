@@ -15,16 +15,6 @@
     /** @type {() => void} */
     export let handleAgentChange = () => {};
 
-    export const fetchOriginalInstructions = () => {
-        return {
-            systemPrompt: inner_instructions?.[0]?.instruction || '',
-            channelPrompts: inner_instructions?.slice(1)?.map(x => ({
-                channel: x.channel,
-                instruction: x.instruction
-            })) || []
-        };
-    };
-
     export const fetchInstructions = () => {
         const candidates = inner_instructions?.filter((x, idx) => idx > 0 && !!x.channel?.trim())?.map(x => {
             return { channel: x.channel.trim().toLowerCase(), instruction: x.instruction };

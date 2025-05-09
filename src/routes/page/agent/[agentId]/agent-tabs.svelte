@@ -32,28 +32,6 @@
         };
     };
 
-    export const fetchOriginalTabData = () => {
-        const utilities = agentUtilityCmp?.fetchOriginalUtilities();
-        const knwoledgebases = agentKnowledgeBaseCmp?.fetchOriginalKnowledgeBases();
-        const rules = agentEventRuleCmp?.fetchOriginalRules();
-        const mcpTools = agentMcpToolCmp?.fetchOriginalMcpTools();
-
-        return {
-            utilities: utilities || [],
-            knwoledgebases: knwoledgebases || [],
-            rules: rules || [],
-            mcpTools: mcpTools || []
-        };
-    }
-
-    export const refresh = () => {
-        agentLlmConfigCmp?.refresh();
-        agentUtilityCmp?.refresh();
-        agentKnowledgeBaseCmp?.refresh();
-        agentEventRuleCmp?.refresh();
-        agentMcpToolCmp?.refresh();
-    }
-
     /** @type {any} */
     let agentLlmConfigCmp = null;
     /** @type {any} */

@@ -35,12 +35,6 @@
         return rules;
     }
 
-    export const fetchOriginalRules = () => {
-        return innerRules;
-    }
-
-    export const refresh = () => init();
-
     /** @type {any[]} */
     let ruleOptions = [];
 

@@ -48,12 +48,6 @@
         return mcps;
     }
 
-    export const fetchOriginalMcpTools = () => {
-        return innerMcps;
-    }
-
-    export const refresh = () => init();
-
     /** @type {any[]} */
     let mcpOptions = [];
 

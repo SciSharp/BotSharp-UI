@@ -17,13 +17,6 @@
         };
     }
 
-    export const fetchOriginalLlmConfig = () => {};
-
-    export const refresh = () => {
-        config = agent.llm_config;
-        init();
-    };
-
     const recursiveDepthLowerLimit = 1;
 
     let config = agent.llm_config;

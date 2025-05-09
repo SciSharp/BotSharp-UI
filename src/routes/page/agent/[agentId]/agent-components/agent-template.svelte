@@ -14,14 +14,6 @@
     /** @type {() => void} */
     export let handleAgentChange = () => {};
 
-    export const fetchOriginalTemplates = () => {
-        const templates = inner_templates?.map(x => ({
-                name: x.name,
-                content: x.content
-            })) || [];
-        return templates;
-    };
-
     export const fetchTemplates = () => {
         const candidates = inner_templates?.filter((x, idx) => !!x.name?.trim())?.map(x => {
             return { name: x.name.trim().toLowerCase(), content: x.content };
@@ -37,8 +29,6 @@
 
         return prompts;
     }
-
-    export const refresh = () => init();
 
 
     /** @type {import('$agentTypes').AgentTemplate} */

@@ -21,12 +21,6 @@
     
     /** @type {() => void} */
     export let handleAgentChange = () => {};
-
-    /** @type {boolean} */
-    export let resetable = false;
-
-    /** @type {() => void} */
-    export let resetAgent = () => {};
    
     onMount(() => {});
 
@@ -73,19 +67,6 @@
 
 <Card>
     <CardHeader>
-        {#if resetable}
-            <!-- svelte-ignore a11y-click-events-have-key-events -->
-            <!-- svelte-ignore a11y-no-static-element-interactions -->
-            <div
-                class="agent-reset-container"
-                data-bs-toggle="tooltip"
-                data-bs-placement="bottom"
-                title={$_('Reset')}
-                on:click={() => resetAgent()}
-            >
-                <i class="mdi mdi-refresh text-primary clickable" />
-            </div>
-        {/if}
         <div class="text-center">
             <div class="agent-overview-header">
                 <img
