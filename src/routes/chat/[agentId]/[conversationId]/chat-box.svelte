@@ -31,7 +31,6 @@
 		updateConversationMessage,
 		updateConversationTags,
 		getConversationFiles,
-		getConversationUser,
 		uploadConversationFiles,
 		getAddressOptions,
 		pinConversationToDashboard,
@@ -71,6 +70,7 @@
 	import InstantLog from './instant-log/instant-log.svelte';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
+	import { webSpeech } from '$lib/services/web-speech';
 
 	
 	const options = {
@@ -132,7 +132,6 @@
 	
 	/** @type {any[]} */
     let scrollbars = [];
-	let microphoneIcon = "microphone-off";
 
 	/** @type {import('$conversationTypes').ConversationModel} */
     let conversation;
@@ -222,7 +221,7 @@
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		conversation = await getConversation(params.conversationId, true);
 		dialogs = await getDialogs(params.conversationId, dialogCount);
-		conversationUser = await getConversationUser(params.conversationId);
+		conversationUser = conversation?.user;
 		selectedTags = conversation?.tags || [];
 		latestStateLog = conversation?.states;
 		initUserSentMessages(dialogs);
@@ -669,17 +668,38 @@
 		}
     }
 
-    async function startListen() {
+    function startListen() {
 		if (disableSpeech) return;
 
-		if (!isListening) {
-			realtimeChat.start(params.agentId, params.conversationId);
-			isListening = true;
-			microphoneIcon = "microphone";
+		isListening = !isListening;
+		if (conversation?.is_realtime_enabled) {
+
+			if (isListening) {
+				realtimeChat.start(params.agentId, params.conversationId);
+			} else {
+				realtimeChat.stop();
+			}
 		} else {
-			realtimeChat.stop();
-			isListening = false;
-			microphoneIcon = "microphone-off";
+			webSpeech.onSpeechToTextDetected = (transcript) => {
+				if (!!!_.trim(transcript) || isSendingMsg) {
+					return;
+				}
+
+				sendChatMessage(transcript);
+			};
+			webSpeech.onRecognitionStarted = () => {
+				isListening = true;
+			};
+			webSpeech.onRecognitionEnded = () => {
+				isListening = false;
+			};
+
+			if (isListening) {
+				webSpeech.start({ continuous: true });
+			} else {
+				webSpeech.abort();
+			}
+			
 		}
 	}
 
@@ -1819,7 +1839,7 @@
 										disabled={isSendingMsg || isThinking || disableAction}
 										on:click={() => startListen()}
 									>
-										<i class="mdi mdi-{microphoneIcon} md-36" />
+										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36" />
 									</button>
 								{/if}
 							</div>
