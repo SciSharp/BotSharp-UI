@@ -33,17 +33,6 @@ export async function getConversation(id, isLoadStates = false) {
 }
 
 /**
- * Get conversation user
- * @param {string} id
- * @returns {Promise<import('$userTypes').UserModel>}
- */
-export async function getConversationUser(id) {
-    let url = replaceUrl(endpoints.conversationUserUrl, {conversationId: id});
-    const response = await axios.get(url);
-    return response.data;
-}
-
-/**
  * Get conversation list
  * @param {import('$conversationTypes').ConversationFilter} filter
  * @returns {Promise<import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>>}
