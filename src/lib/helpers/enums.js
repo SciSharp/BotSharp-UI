@@ -71,6 +71,12 @@ const agentType = {
 };
 export const AgentType = Object.freeze(agentType);
 
+const agentMode = {
+    Eager: "eager",
+    Lazy: "lazy"
+};
+export const AgentMode = Object.freeze(agentMode);
+
 const agentTaskStatus = {
     Scheduled: 'scheduled',
     New: 'new',

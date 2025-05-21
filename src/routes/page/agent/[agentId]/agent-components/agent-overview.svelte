@@ -1,10 +1,10 @@
 <script>
     import { onMount } from 'svelte';
     import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
-    import { _ } from 'svelte-i18n'  
-    import InPlaceEdit from '$lib/common/InPlaceEdit.svelte'
+    import { _ } from 'svelte-i18n';
+    import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
     import { utcToLocal } from '$lib/helpers/datetime';
-	import { AgentType } from '$lib/helpers/enums';
+	import { AgentMode, AgentType } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
     const limit = 10;
@@ -23,6 +23,11 @@
     export let handleAgentChange = () => {};
    
     onMount(() => {});
+
+    /** @type {import('$commonTypes').IdName[]} */
+	const agentModeOptions = Object.entries(AgentMode).map(([k, v]) => (
+		{ id: v, name: v }
+	));
 
     function addProfile() {
         if (!!!agent) return;
@@ -55,6 +60,15 @@
     function removeLabel(index) {
         labels = labels.filter((x, idx) => idx !== index);
         agent.labels = labels;
+        handleAgentChange();
+    }
+
+    /**
+	 * @param {any} e
+	 */
+    function changeMode(e) {
+        const value = e.target.value;
+        agent.mode = value;
         handleAgentChange();
     }
 
@@ -255,6 +269,27 @@
                                     id="disabled" 
                                 />
                                 <label class="form-check-label" for="disabled">Disabled</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key" style="vertical-align: middle">
+                            <div class="mt-1">
+                                Mode
+                            </div>
+                        </th>
+                        <td>							
+                            <div class="mt-2 mb-2" style="width: fit-content;">
+                                <Input
+                                    type="select"
+                                    on:change={e => changeMode(e)}
+                                >
+                                    {#each [...agentModeOptions] as option}
+                                        <option value={option.id} selected={option.id === agent.mode}>
+                                            {option.name}
+                                        </option>
+                                    {/each}
+                                </Input>
                             </div>
                         </td>
                     </tr>
