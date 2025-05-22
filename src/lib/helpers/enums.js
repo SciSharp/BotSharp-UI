@@ -71,6 +71,12 @@ const agentType = {
 };
 export const AgentType = Object.freeze(agentType);
 
+const routingMode = {
+    Eager: "eager",
+    Lazy: "lazy"
+};
+export const RoutingMode = Object.freeze(routingMode);
+
 const agentTaskStatus = {
     Scheduled: 'scheduled',
     New: 'new',

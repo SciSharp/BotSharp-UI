@@ -8,14 +8,15 @@
 
   /** @type {import('$agentTypes').AgentModel[]} */
   export let agents;
+
 </script>
 
 {#each agents as agent}
   <Col xl="4" sm="6">
     <Card style={"height: 95%;"}>
       <CardBody>
-        <div class="d-flex">
-          <div class="avatar-md me-4">
+        <div class="d-flex justify-content-between" style="gap: 1.5rem;">
+          <div class="avatar-md">
             <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
               {#if agent.icon_url}
               <img src={agent.icon_url} alt="" height="60" />
@@ -54,8 +55,17 @@
             {:else}
               <p>Provided by {agent.plugin.name}</p>
             {/if}
-            <p class="text-muted mb-4" style="height: 35px;">{agent.description}</p>
-            <div class="avatar-group" style="height:35px;">
+            <div
+              class="text-muted mb-2 truncate-text"
+              style="height: 60px;"
+              data-bs-toggle="tooltip"
+              data-bs-placement="top"
+              title={agent.description}
+            >
+              {agent.description}
+            </div>
+            <div class="overflow-hidden">
+              <div class="avatar-group" style="height:35px;">
               {#if agent.is_router}
               <div class="avatar-group-item me-3">
                 <img src="icons/router.png" class="rounded-circle avatar-xs" alt="routing"/>
@@ -68,12 +78,14 @@
               {/if}
               {#each agent.functions as fn}
                 <div class="avatar-group-item">
-                  <Link href="#" class="d-inline-block" id={"member" + fn.name}>
+                  <div class="d-inline-block" id={"member" + fn.name}>
                     <img src="images/function.png" class="rounded-circle avatar-xs" alt={fn.name}/>
-                  </Link>
+                  </div>
                 </div>
               {/each}
             </div>
+            </div>
+            
           </div>
         </div>
       </CardBody>

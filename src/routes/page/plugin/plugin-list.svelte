@@ -69,18 +69,26 @@
 	{#each plugins as item}
 		<Col xl={3} md={6} style="margin-bottom: 10px;">
 			<Card style="height: 100%">
-				<CardBody>
+				<CardBody class="d-flex flex-column justify-content-between">
 					<div class="favorite-icon">
-						<Link href="#"><i class="uil uil-heart-alt fs-18" /></Link>
+						<div><i class="uil uil-heart-alt fs-18" /></div>
 					</div>
-					<img src={item.icon_url} alt="{item.name}" height="35" style="max-width: 100%;" class="mb-3" />
+					<img src={item.icon_url} alt="{item.name}" height="35" width="35" class="mb-3" />
 					<h5 class="fs-17 mb-2">
-						<Link href="#" class="text-dark">{item.name}</Link>
+						<div class="text-dark">{item.name}</div>
 						<small class="text-muted fw-normal">plugin</small>
 					</h5>
 					<ul class="list-inline mb-0">
 						<li>
-							<p class="text-muted fs-14 mb-1">{item.description}</p>
+							<p
+								class="text-muted fs-14 mb-1 truncate-text"
+								style="height: 60px;"
+								data-bs-toggle="tooltip"
+								data-bs-placement="top"
+								title={item.description}
+							>
+								{item.description}
+							</p>
 						</li>
 						{' '}
 						<li>
