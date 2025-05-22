@@ -134,7 +134,7 @@
                             {/if}
                         </td>
                     </tr>
-                    {#if 1}
+                    {#if agent.is_router}
                     <tr>
                         <th class="agent-prop-key" style="vertical-align: middle">
                             <div class="mt-1">
