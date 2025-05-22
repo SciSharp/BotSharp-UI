@@ -13,7 +13,7 @@
 
 /**
  * @typedef {Object} IdName
- * @property {string} id - The id.
+ * @property {string?} id - The id.
  * @property {string} name - The name.
  */
 

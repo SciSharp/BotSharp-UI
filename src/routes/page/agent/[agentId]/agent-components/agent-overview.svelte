@@ -4,7 +4,7 @@
     import { _ } from 'svelte-i18n';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
     import { utcToLocal } from '$lib/helpers/datetime';
-	import { AgentMode, AgentType } from '$lib/helpers/enums';
+	import { RoutingMode, AgentType } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
     const limit = 10;
@@ -21,14 +21,21 @@
     
     /** @type {() => void} */
     export let handleAgentChange = () => {};
-   
-    onMount(() => {});
 
     /** @type {import('$commonTypes').IdName[]} */
-	const agentModeOptions = Object.entries(AgentMode).map(([k, v]) => (
+	let routingModeOptions = Object.entries(RoutingMode).map(([k, v]) => (
 		{ id: v, name: v }
 	));
 
+   
+    onMount(() => {
+        init();
+    });
+
+    function init() {
+        routingModeOptions = [{ id: null, name: '' }, ...routingModeOptions];
+    }
+    
     function addProfile() {
         if (!!!agent) return;
 
@@ -67,7 +74,7 @@
 	 * @param {any} e
 	 */
     function changeMode(e) {
-        const value = e.target.value;
+        const value = e.target.value || null;
         agent.mode = value;
         handleAgentChange();
     }
@@ -127,6 +134,29 @@
                             {/if}
                         </td>
                     </tr>
+                    {#if 1}
+                    <tr>
+                        <th class="agent-prop-key" style="vertical-align: middle">
+                            <div class="mt-1">
+                                Routing Mode
+                            </div>
+                        </th>
+                        <td>
+                            <div class="mt-2 mb-2" style="width: fit-content;">
+                                <Input
+                                    type="select"
+                                    on:change={e => changeMode(e)}
+                                >
+                                    {#each [...routingModeOptions] as option}
+                                        <option value={option.id} selected={option.id === agent.mode}>
+                                            {option.name}
+                                        </option>
+                                    {/each}
+                                </Input>
+                            </div>
+                        </td>
+                    </tr>
+                    {/if}
                     <tr>
                         <th class="agent-prop-key">
                             <div class="mt-2 mb-2">
@@ -269,27 +299,6 @@
                                     id="disabled" 
                                 />
                                 <label class="form-check-label" for="disabled">Disabled</label>
-                            </div>
-                        </td>
-                    </tr>
-                    <tr>
-                        <th class="agent-prop-key" style="vertical-align: middle">
-                            <div class="mt-1">
-                                Mode
-                            </div>
-                        </th>
-                        <td>							
-                            <div class="mt-2 mb-2" style="width: fit-content;">
-                                <Input
-                                    type="select"
-                                    on:change={e => changeMode(e)}
-                                >
-                                    {#each [...agentModeOptions] as option}
-                                        <option value={option.id} selected={option.id === agent.mode}>
-                                            {option.name}
-                                        </option>
-                                    {/each}
-                                </Input>
                             </div>
                         </td>
                     </tr>
