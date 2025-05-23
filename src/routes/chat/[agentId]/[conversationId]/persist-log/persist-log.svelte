@@ -46,8 +46,6 @@
     let scrollbars = [];
     /** @type {number} */
     let selectedTab = contentLogTab;
-    /** @type {boolean} */
-    let pauseChange = false;
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
     let contentLogFilter = { size: 20, startTime: utcNow };
@@ -74,12 +72,7 @@
 		scrollToBottom();
 	});
 
-    beforeUpdate(() => {
-        if (pauseChange) {
-            autoScroll = false;
-            pauseChange = false;
-        }
-    });
+    beforeUpdate(() => {});
 
     afterUpdate(() => {
         refresh();
@@ -114,8 +107,7 @@
             const scrollbar = OverlayScrollbars(elem, options);
             scrollbar.on("scroll", async (e) => {
                 const curScrollTop = e.elements().scrollOffsetElement.scrollTop;
-                if (curScrollTop <= 1) {
-                    pauseChange = true;
+                if (curScrollTop <= 3 && curScrollTop > 0) {
                     if (item.type === contentLogTab) {
                         await getChatContentLogs();
                     } else if (item.type === conversationStateLogTab) {
@@ -177,7 +169,6 @@
         if (selectedTab === selected) {
             return;
         }
-        pauseChange = true;
         selectedTab = selected;
     }
 </script>
