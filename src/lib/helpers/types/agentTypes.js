@@ -132,7 +132,8 @@
 /**
  * @typedef {Object} AgentUtility
  * @property {string} name 
- * @property {boolean} disabled 
+ * @property {boolean} disabled
+ * @property {string?} [visibility_expression]
  * @property {import('$commonTypes').NameBase[]} functions
  * @property {import('$commonTypes').NameBase[]} templates
  */

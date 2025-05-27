@@ -42,6 +42,7 @@
             return {
                 name: x.name,
                 disabled: x.disabled,
+                visibility_expression: x.visibility_expression,
                 functions: functions,
                 templates: templates
             };
@@ -177,6 +178,19 @@
     }
 
     /**
+     * @param {any} e
+	 * @param {number} uid
+	 */
+    function changeUtilityVisibility(e, uid) {
+        const found = innerUtilities.find((_, index) => index === uid);
+        if (!found) return;
+
+        found.visibility_expression = e.target.value || null;
+        innerRefresh(innerUtilities);
+        handleAgentChange();
+    }
+
+    /**
 	 * @param {number} uid
 	 * @param {number} id
      * @param {string} type
@@ -246,6 +260,7 @@
             return {
                 name: x.name,
                 disabled: x.disabled,
+                visibility_expression: x.visibility_expression,
                 functions: x.functions.map(f => ({ ...f })),
                 templates: x.templates.map(t => ({ ...t }))
             }
@@ -341,6 +356,25 @@
                     </div>
                     
                     <div class="utility-row utility-row-secondary">
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    {'Visibility expression'}
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="text"
+                                            disabled={utility.disabled}
+                                            maxlength={1000}
+                                            value={utility.visibility_expression}
+                                            on:change={e => changeUtilityVisibility(e, uid)}
+                                        />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                        </div>
                         <div class="utility-content">
                             {#each utility.functions as fn, fid (fid)}
                                 <div class="utility-list-item">
