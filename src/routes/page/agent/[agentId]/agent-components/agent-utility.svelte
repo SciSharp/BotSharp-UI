@@ -14,39 +14,18 @@
     export let handleAgentChange = () => {};
 
     export const fetchUtilities = () => {
-        const candidates = innerUtilities?.filter(x => !!x.name)?.map(x => {
-            /** @type {import('$commonTypes').NameBase[]} */
-            const functions = [];
-            /** @type {import('$commonTypes').NameBase[]} */
-            const templates = [];
-
-            const uniqueFns = new Set();
-            const uniqueTps = new Set();
-            const fns = x.functions.filter(f => !!f.name);
-            const tps = x.templates.filter(t => !!t.name);
-
-            fns.forEach(f => {
-                if (!uniqueFns.has(f.name)) {
-                    functions.push({ ...f });
-                    uniqueFns.add(f.name);
-                }
-            });
-
-            tps.forEach(t => {
-                if (!uniqueTps.has(t.name)) {
-                    templates.push({ ...t });
-                    uniqueTps.add(t.name);
-                }
-            });
-
-            return {
-                name: x.name,
-                disabled: x.disabled,
-                visibility_expression: x.visibility_expression,
-                functions: functions,
-                templates: templates
-            };
-        });
+        const list = innerUtilities?.filter(x => !!x.category && !!x.name && x.items?.length > 0) || [];
+        
+        /** @type {import('$agentTypes').AgentUtility[]} */
+        const candidates = list.reduce((acc, x) => {
+            const tag = `${x.category}##${x.name}`;
+            if (!acc.visited.has(tag)) {
+                // @ts-ignore
+                acc.result.push(x);
+                acc.visited.add(tag);
+            }
+            return acc;
+        }, { result: [], visited: new Set() }).result;
 
         innerRefresh(candidates);
         return candidates;
@@ -56,64 +35,43 @@
     let utilityMapper = {};
 
     /** @type {string[]} */
-    let utilityOptions = [];
+    let utilityCategoryOptions = [];
 
     /** @type {import('$agentTypes').AgentUtility[]} */
     let innerUtilities = [];
 
     onMount(async () =>{
+        init();
         getAgentUtilityOptions().then(data => {
             const list = data || [];
-            list.forEach(item => {
-                const fns = item.functions.map(f => {
-                    return {
-                        name: f.name,
-                        displayName: truncateByPrefix(f.name, prefix)
-                    };
-                });
-                const tps = item.templates.map(t => {
-                    return {
-                        name: t.name,
-                        displayName: truncateByPrefix(t.name, prefix)
-                    };
-                });
+            list.forEach(utility => {
+                const content = {
+                    name: utility.name,
+                    items: utility.items.map(it => ({
+                        ...it,
+                        function_display_name: truncateByPrefix(it.function_name, prefix),
+                        template_display_name: truncateByPrefix(it.template_name, prefix)
+                    }))
+                };
 
-                if (!utilityMapper[item.name]) {
-                    utilityMapper[item.name] = {
-                        functions: [{
-                            name: "",
-                            displayName: ""
-                        }, ...fns],
-                        templates: [{
-                            name: "",
-                            displayName: ""
-                        }, ...tps]
-                    };
-                } else {
-                    const prevFns = utilityMapper[item.name].functions;
-                    const prevTps = utilityMapper[item.name].templates;
-                    utilityMapper[item.name].functions = [...prevFns, fns];
-                    utilityMapper[item.name].templates = [...prevTps, tps];
-                }
+                const contents = utilityMapper[utility.category] || [];
+                contents.push(content);
+                utilityMapper[utility.category] = contents;
             });
-            const names = list.map(x => x.name) || [];
-            utilityOptions = ["", ...names];
+            const keys = Object.keys(utilityMapper).sort((/** @type {string} */ a, /** @type {string} */ b) => a.localeCompare(b));
+            utilityCategoryOptions = ["", ...keys];
         });
-        init();
     });
 
     function init() {
         const list = agent.utilities?.map(x => {
             return {
                 ...x,
-                functions: x.functions?.map(f => ({
-                    ...f,
-                    displayName: truncateByPrefix(f.name, prefix)
-                })) || [],
-                templates: x.templates?.map(t => ({
-                    ...t,
-                    displayName: truncateByPrefix(t.name, prefix)
-                })) || []
+                items: x.items.map(it => ({
+                    ...it,
+                    function_display_name: truncateByPrefix(it.function_name, prefix),
+                    template_display_name: truncateByPrefix(it.template_name, prefix)
+                }))
             };
         }) || [];
         innerRefresh(list);
@@ -123,20 +81,32 @@
 	 * @param {any} e
 	 * @param {number} idx
 	 */
-    function changeUtility(e, idx) {
+    function changeUtilityCategory(e, idx) {
+        const found = innerUtilities.find((_, index) => index === idx);
+        if (!found) return;
+        
+        const category = e.target.value;
+        found.category = category;
+        found.name = '';
+        found.items = [];
+        innerRefresh(innerUtilities);
+        handleAgentChange();
+    }
+
+    /**
+	 * @param {any} e
+	 * @param {number} idx
+	 */
+    function changeUtilityName(e, idx) {
         const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
         
         const name = e.target.value;
         found.name = name;
-        found.functions = [
-            // @ts-ignore
-            ...utilityMapper[name].functions?.filter(x => !!x.name) || []
-        ];
-        found.templates = [
-            // @ts-ignore
-            ...utilityMapper[name].templates?.filter(x => !!x.name) || []
-        ];
+        
+        const foundUtility = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name == name);
+        found.items = foundUtility?.items?.map((/** @type {any} */ x) => ({...x})) || [];
+
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
@@ -145,10 +115,10 @@
         innerUtilities = [
             ...innerUtilities,
             {
+                category: '',
                 name: '',
                 disabled: false,
-                functions: [],
-                templates: []
+                items: []
             }
         ];
     }
@@ -156,24 +126,6 @@
     /** @param {number} idx */
     function deleteUtility(idx) {
         innerUtilities = innerUtilities.filter((_, index) => index !== idx);
-        handleAgentChange();
-    }
-
-    /**
-	 * @param {number} uid
-	 * @param {string} type
-	 */
-    function addUtilityContent(uid, type) {
-        const found = innerUtilities.find((_, index) => index === uid);
-        if (!found || found.disabled) return;
-
-        if (type === 'function') {
-            found.functions.push({ name: '', displayName: '' });
-        } else if (type === 'template') {
-            found.templates.push({ name: '', displayName: '' });
-        }
-
-        innerRefresh(innerUtilities);
         handleAgentChange();
     }
 
@@ -191,51 +143,28 @@
     }
 
     /**
+     * @param {any} e
 	 * @param {number} uid
-	 * @param {number} id
-     * @param {string} type
+     * @param {number} fid
 	 */
-    function deleteUtilityContent(uid, id, type) {
-        const found = innerUtilities.find((_, index) => index === uid);
-        if (!found || found.disabled) return;
+    function changeUtilityItemVisibility(e, uid, fid) {
+        const found = innerUtilities.find((_, index) => index === uid)?.items?.find((_, index) => index === fid);
+        if (!found) return;
 
-        if (type === 'function') {
-            const fns = found.functions?.filter((_, index) => index !== id) || [];
-            found.functions = fns;
-        } else if (type === 'template') {
-            const tps = found.templates?.filter((_, index) => index !== id) || [];
-            found.templates = tps;
-        }
-        
+        found.visibility_expression = e.target.value || null;
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
 
-    
     /**
-     * @param {any} e
 	 * @param {number} uid
-     * @param {number} idx
-     * @param {string} type
+	 * @param {number} fid
 	 */
-    function selectContent(e, uid, idx, type) {
+    function deleteUtilityItem(uid, fid) {
         const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
-        const vals = e.target.value.split("#");
-        if (type === 'function') {
-            const fn = found.functions?.find((_, index) => index === idx);
-            if (fn) {
-                fn.name = vals[0];
-                fn.displayName = vals[1];
-            }
-        } else if (type === 'template') {
-            const tp = found.templates?.find((_, index) => index === idx);
-            if (tp) {
-                tp.name = vals[0];
-                tp.displayName = vals[1];
-            }
-        }
+        found.items = found.items?.filter((_, index) => index !== fid) || [];
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
@@ -258,11 +187,11 @@
     function innerRefresh(list) {
         innerUtilities = list?.map(x => {
             return {
+                category: x.category,
                 name: x.name,
                 disabled: x.disabled,
                 visibility_expression: x.visibility_expression,
-                functions: x.functions.map(f => ({ ...f })),
-                templates: x.templates.map(t => ({ ...t }))
+                items: x.items.map(it => ({ ...it }))
             }
         }) || [];
     }
@@ -317,7 +246,7 @@
                                     <Input
                                         type="checkbox"
                                         checked={!utility.disabled}
-                                        on:change={e => { toggleUtility(e, uid); }}
+                                        on:change={e => toggleUtility(e, uid)}
                                     />
                                 </div>
                                 <div
@@ -334,12 +263,13 @@
                             <div class="utility-input line-align-center">
                                 <Input
                                     type="select"
-                                    value={utility.name}
+                                    value={utility.category}
                                     disabled={utility.disabled}
-                                    on:change={e => { changeUtility(e, uid); }}
+                                    placeholder={'Select a category'}
+                                    on:change={e => changeUtilityCategory(e, uid)}
                                 >
-                                    {#each utilityOptions as option}
-                                        <option value={option} selected={option == utility.name}>{option}</option>
+                                    {#each utilityCategoryOptions as option}
+                                        <option value={option} selected={option == utility.category}>{option}</option>
                                     {/each}
                                 </Input>
                             </div>
@@ -349,49 +279,68 @@
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
-                                    on:click={() => { deleteUtility(uid); }}
+                                    on:click={() => deleteUtility(uid)}
                                 />
                             </div>
                         </div>
                     </div>
                     
                     <div class="utility-row utility-row-secondary">
-                        <div class="utility-content">
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    {'Visibility expression'}
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="text"
-                                            disabled={utility.disabled}
-                                            maxlength={1000}
-                                            value={utility.visibility_expression}
-                                            on:change={e => changeUtilityVisibility(e, uid)}
-                                        />
+                        {#if utility.category}
+                            <div class="utility-content">
+                                <div class="utility-list-item">
+                                    <div class="utility-label line-align-center">
+                                        {'Name'}
                                     </div>
-                                    <div class="utility-delete line-align-center"></div>
+                                    <div class="utility-value">
+                                        <div class="utility-input line-align-center">
+                                            <Input
+                                                type="select"
+                                                value={utility.name}
+                                                disabled={utility.disabled}
+                                                placeholder={'Select a utility'}
+                                                on:change={e => changeUtilityName(e, uid)}
+                                            >
+                                                {#each ['', ...utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name) || []] as option}
+                                                    <option value={option} selected={option == utility.name}>{option}</option>
+                                                {/each}
+                                            </Input>
+                                        </div>
+                                        <div class="utility-delete line-align-center"></div>
+                                    </div>
+                                </div>
+                                <div class="utility-list-item">
+                                    <div class="utility-label line-align-center">
+                                        {'Visibility'}
+                                    </div>
+                                    <div class="utility-value">
+                                        <div class="utility-input line-align-center">
+                                            <Input
+                                                type="text"
+                                                disabled={utility.disabled}
+                                                maxlength={1000}
+                                                value={utility.visibility_expression}
+                                                on:change={e => changeUtilityVisibility(e, uid)}
+                                            />
+                                        </div>
+                                        <div class="utility-delete line-align-center"></div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="utility-content">
-                            {#each utility.functions as fn, fid (fid)}
+                        {/if}
+                        {#each utility.items as item, fid (fid)}
+                            <div class="utility-content">
                                 <div class="utility-list-item">
                                     <div class="utility-label line-align-center">
-                                        {fid === 0 ? 'Functions' : ''}
+                                        {'Function'}
                                     </div>
                                     <div class="utility-value">
                                         <div class="utility-input line-align-center">
                                             <Input
-                                                type="select"
-                                                disabled={utility.disabled}
-                                                on:change={e => { selectContent(e, uid, fid, 'function'); }}
-                                            >
-                                                {#each (utilityMapper[utility.name]?.functions || []) as option}
-                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == fn.name}>{option.displayName}</option>
-                                                {/each}
-                                            </Input>
+                                                type="text"
+                                                value={item.function_display_name}
+                                                disabled
+                                            />
                                         </div>
                                         <div class="utility-delete line-align-center">
                                             <i
@@ -399,81 +348,47 @@
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
-                                                on:click={() => { deleteUtilityContent(uid, fid, 'function'); }}
+                                                on:click={() => deleteUtilityItem(uid, fid)}
                                             />
                                         </div>
                                     </div>
                                 </div>
-                            {/each}
-
-                            {#if utility.functions?.length < limit}
-                                <div class="utility-list-item">
-                                    <div class="utility-label">
-                                        {utility.functions.length === 0 ? 'Functions' : ''}
-                                    </div>
-                                    <div class="utility-value">
-                                        <i
-                                            class="bx bx-list-plus add-list clickable"
-                                            role="link"
-                                            tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => { addUtilityContent(uid, 'function'); }}
-                                        />
-                                    </div>
-                                </div>
-                            {/if}
-                        </div>
-
-                        <div class="utility-content">
-                            {#each utility.templates as tp, tid (tid)}
+                                {#if item.template_name}
                                 <div class="utility-list-item">
                                     <div class="utility-label line-align-center">
-                                        {tid === 0 ? 'Templates' : ''}
+                                        {'Template'}
                                     </div>
                                     <div class="utility-value">
                                         <div class="utility-input line-align-center">
                                             <Input
-                                                type="select"
-                                                disabled={utility.disabled}
-                                                on:change={e => { selectContent(e, uid, tid, 'template'); }}
-                                            >
-                                                {#each (utilityMapper[utility.name]?.templates || []) as option}
-                                                    <option value={`${option.name}#${option.displayName}`} selected={option.name == tp.name}>
-                                                        {option.displayName || option.name}
-                                                    </option>
-                                                {/each}
-                                            </Input>
-                                        </div>
-                                        <div class="utility-delete line-align-center">
-                                            <i
-                                                class="bx bxs-no-entry text-danger clickable"
-                                                role="link"
-                                                tabindex="0"
-                                                on:keydown={() => {}}
-                                                on:click={() => { deleteUtilityContent(uid, tid, 'template'); }}
+                                                type="text"
+                                                value={item.template_display_name}
+                                                disabled
                                             />
                                         </div>
+                                        <div class="utility-delete line-align-center"></div>
                                     </div>
                                 </div>
-                            {/each}
-
-                            {#if utility.templates?.length < limit}
+                                {/if}
                                 <div class="utility-list-item">
-                                    <div class="utility-label">
-                                        {utility.templates.length === 0 ? 'Templates' : ''}
+                                    <div class="utility-label line-align-center">
+                                        {'Visibility'}
                                     </div>
                                     <div class="utility-value">
-                                        <i
-                                            class="bx bx-list-plus add-list clickable"
-                                            role="link"
-                                            tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => { addUtilityContent(uid, 'template'); }}
-                                        />
+                                        <div class="utility-input line-align-center">
+                                            <Input
+                                                type="text"
+                                                disabled={utility.disabled}
+                                                maxlength={1000}
+                                                value={item.visibility_expression}
+                                                on:change={e => changeUtilityItemVisibility(e, uid, fid)}
+                                            />
+                                        </div>
+                                        <div class="utility-delete line-align-center"></div>
                                     </div>
                                 </div>
-                            {/if}
-                        </div>
+                            </div>
+                        {/each}
                     </div>
                 </div>
             {/each}
