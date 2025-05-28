@@ -140,7 +140,7 @@
 
 /**
  * @typedef {Object} UtilityItem
- * @property {string} function_name
+ * @property {string?} [function_name]
  * @property {string?} [function_display_name]
  * @property {string?} [template_name]
  * @property {string?} [template_display_name]

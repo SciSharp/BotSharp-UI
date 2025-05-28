@@ -159,12 +159,25 @@
     /**
 	 * @param {number} uid
 	 * @param {number} fid
+     * @param {string} type
 	 */
-    function deleteUtilityItem(uid, fid) {
-        const found = innerUtilities.find((_, index) => index === uid);
-        if (!found) return;
+    function deleteUtilityItem(uid, fid, type) {
+        const foundUtility = innerUtilities.find((_, index) => index === uid);
+        const foundItem = foundUtility?.items?.find((_, index) => index === fid);
+        if (!foundUtility || !foundItem) return;
 
-        found.items = found.items?.filter((_, index) => index !== fid) || [];
+        if (type === 'function') {
+            foundItem.function_name = null;
+            foundItem.function_display_name = null;
+        } else if (type === 'template') {
+            foundItem.template_name = null;
+            foundItem.template_display_name = null;
+        }
+
+        if (foundItem.function_name == null && foundItem.template_name == null) {
+            foundUtility.items = foundUtility.items.filter((_, index) => index !== fid);
+        }
+
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
@@ -330,45 +343,55 @@
                         {/if}
                         {#each utility.items as item, fid (fid)}
                             <div class="utility-content">
-                                <div class="utility-list-item">
-                                    <div class="utility-label line-align-center">
-                                        {'Function'}
-                                    </div>
-                                    <div class="utility-value">
-                                        <div class="utility-input line-align-center">
-                                            <Input
-                                                type="text"
-                                                value={item.function_display_name}
-                                                disabled
-                                            />
+                                {#if item.function_name}
+                                    <div class="utility-list-item">
+                                        <div class="utility-label line-align-center">
+                                            {'Function'}
                                         </div>
-                                        <div class="utility-delete line-align-center">
-                                            <i
-                                                class="bx bxs-no-entry text-danger clickable"
-                                                role="link"
-                                                tabindex="0"
-                                                on:keydown={() => {}}
-                                                on:click={() => deleteUtilityItem(uid, fid)}
-                                            />
+                                        <div class="utility-value">
+                                            <div class="utility-input line-align-center">
+                                                <Input
+                                                    type="text"
+                                                    value={item.function_display_name}
+                                                    disabled
+                                                />
+                                            </div>
+                                            <div class="utility-delete line-align-center">
+                                                <i
+                                                    class="bx bxs-no-entry text-danger clickable"
+                                                    role="link"
+                                                    tabindex="0"
+                                                    on:keydown={() => {}}
+                                                    on:click={() => deleteUtilityItem(uid, fid, 'function')}
+                                                />
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                {/if}
                                 {#if item.template_name}
-                                <div class="utility-list-item">
-                                    <div class="utility-label line-align-center">
-                                        {'Template'}
-                                    </div>
-                                    <div class="utility-value">
-                                        <div class="utility-input line-align-center">
-                                            <Input
-                                                type="text"
-                                                value={item.template_display_name}
-                                                disabled
-                                            />
+                                    <div class="utility-list-item">
+                                        <div class="utility-label line-align-center">
+                                            {'Template'}
                                         </div>
-                                        <div class="utility-delete line-align-center"></div>
+                                        <div class="utility-value">
+                                            <div class="utility-input line-align-center">
+                                                <Input
+                                                    type="text"
+                                                    value={item.template_display_name}
+                                                    disabled
+                                                />
+                                            </div>
+                                            <div class="utility-delete line-align-center">
+                                                <i
+                                                    class="bx bxs-no-entry text-danger clickable"
+                                                    role="link"
+                                                    tabindex="0"
+                                                    on:keydown={() => {}}
+                                                    on:click={() => deleteUtilityItem(uid, fid, 'template')}
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
-                                </div>
                                 {/if}
                                 <div class="utility-list-item">
                                     <div class="utility-label line-align-center">
