@@ -54,8 +54,8 @@ export function formatObject(object) {
 
 
 /**
- * @param {string?} str
- * @param {string?} prefix
+ * @param {string | null | undefined} str
+ * @param {string | null | undefined} prefix
  */
 export function truncateByPrefix(str, prefix) {
     if (!str || !prefix) {

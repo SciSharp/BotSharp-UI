@@ -131,10 +131,20 @@
 
 /**
  * @typedef {Object} AgentUtility
+ * @property {string} category 
  * @property {string} name 
- * @property {boolean} disabled 
- * @property {import('$commonTypes').NameBase[]} functions
- * @property {import('$commonTypes').NameBase[]} templates
+ * @property {boolean} disabled
+ * @property {string?} [visibility_expression]
+ * @property {UtilityItem[]} items
+ */
+
+/**
+ * @typedef {Object} UtilityItem
+ * @property {string?} [function_name]
+ * @property {string?} [function_display_name]
+ * @property {string?} [template_name]
+ * @property {string?} [template_display_name]
+ * @property {string?} [visibility_expression]
  */
 
 /**
