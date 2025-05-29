@@ -34,9 +34,6 @@
     /** @type {any} */
     let utilityMapper = {};
 
-    /** @type {string[]} */
-    let utilityCategoryOptions = [];
-
     /** @type {import('$agentTypes').AgentUtility[]} */
     let innerUtilities = [];
 
@@ -58,8 +55,6 @@
                 contents.push(content);
                 utilityMapper[utility.category] = contents;
             });
-            const keys = Object.keys(utilityMapper).sort((/** @type {string} */ a, /** @type {string} */ b) => a.localeCompare(b));
-            utilityCategoryOptions = ["", ...keys];
         });
     });
 
@@ -218,6 +213,36 @@
         }
         handleAgentChange();
     }
+
+    /**
+     * @param {any[]} options
+	 * @param {string} placeholder
+	 */
+    function getUtilityOptions(options, placeholder = '') {
+        let list = options?.map(x => {
+            return {
+                label: x,
+                value: x
+            };
+        }) || [];
+
+        list = [{
+            label: placeholder || '',
+            value: ''
+        }, ...list];
+        return list;
+    }
+
+    /** @param {number} uid */
+	function revertUtility(uid) {
+		const found = innerUtilities.find((_, index) => index === uid);
+        if (!found) return;
+
+        const originalItems = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name === found.name)?.items || [];
+        found.items = [...originalItems];
+        innerRefresh(innerUtilities);
+        handleAgentChange();
+	}
 </script>
 
 <Card>
@@ -278,11 +303,12 @@
                                     type="select"
                                     value={utility.category}
                                     disabled={utility.disabled}
-                                    placeholder={'Select a category'}
                                     on:change={e => changeUtilityCategory(e, uid)}
                                 >
-                                    {#each utilityCategoryOptions as option}
-                                        <option value={option} selected={option == utility.category}>{option}</option>
+                                    {#each getUtilityOptions(Object.keys(utilityMapper), 'Select a category') as option}
+                                        <option value={option.value} selected={option.value == utility.category}>
+                                            {option.label}
+                                        </option>
                                     {/each}
                                 </Input>
                             </div>
@@ -302,8 +328,18 @@
                         {#if utility.category}
                             <div class="utility-content">
                                 <div class="utility-list-item">
-                                    <div class="utility-label line-align-center">
-                                        {'Name'}
+                                    <div class="utility-label d-flex" style="gap: 10px;">
+                                        <div class="line-align-center">{'Name'}</div>
+                                        {#if utility.name}
+                                        <div class="line-align-center">
+                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                            <i
+                                                class="mdi mdi-refresh clickable"
+                                                on:click={() => revertUtility(uid)}
+                                            />
+                                        </div>
+                                        {/if}
                                     </div>
                                     <div class="utility-value">
                                         <div class="utility-input line-align-center">
@@ -311,11 +347,12 @@
                                                 type="select"
                                                 value={utility.name}
                                                 disabled={utility.disabled}
-                                                placeholder={'Select a utility'}
                                                 on:change={e => changeUtilityName(e, uid)}
                                             >
-                                                {#each ['', ...utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name) || []] as option}
-                                                    <option value={option} selected={option == utility.name}>{option}</option>
+                                                {#each getUtilityOptions(utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name), 'Select a utility') as option}
+                                                    <option value={option.value} selected={option.value == utility.name}>
+                                                        {option.label}
+                                                    </option>
                                                 {/each}
                                             </Input>
                                         </div>
