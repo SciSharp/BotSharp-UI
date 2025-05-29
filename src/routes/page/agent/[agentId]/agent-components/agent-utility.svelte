@@ -336,6 +336,9 @@
                                             <!-- svelte-ignore a11y-no-static-element-interactions -->
                                             <i
                                                 class="mdi mdi-refresh clickable"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Revert"
                                                 on:click={() => revertUtility(uid)}
                                             />
                                         </div>
