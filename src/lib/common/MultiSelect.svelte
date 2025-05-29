@@ -8,7 +8,7 @@
     /** @type {string} */
     export let tag;
 
-    /** @type {{key: string, value: string}[]} */
+    /** @type {import('$commonTypes').LabelValuePair[]} */
     export let options = [];
 
     /** @type {boolean} */
@@ -24,7 +24,7 @@
     export let selectedText = '';
 
     /** @type {string[]} */
-    export let selectedKeys;
+    export let selectedLabels;
 
     /** @type {string} */
     export let containerClasses = "";
@@ -51,10 +51,10 @@
     /** @type {boolean} */
     let showOptionList = false;
 
-    /** @type {{key: string, value: string, checked: boolean}[]} */
+    /** @type {{label: string, value: string, checked: boolean}[]} */
     let innerOptions = [];
 
-    /** @type {{key: string, value: string, checked: boolean}[]} */
+    /** @type {{label: string, value: string, checked: boolean}[]} */
     let refOptions = [];
 
     /** @type {string} */
@@ -66,7 +66,7 @@
     onMount(() => {
         innerOptions = options.map(x => {
             return {
-                key: x.key,
+                label: x.label,
                 value: x.value,
                 checked: false
             }
@@ -74,7 +74,7 @@
 
         refOptions = options.map(x => {
             return {
-                key: x.key,
+                label: x.label,
                 value: x.value,
                 checked: false
             }
@@ -83,11 +83,11 @@
 
     $: {
         innerOptions = innerOptions.map(x => {
-            x.checked = !!selectedKeys?.includes(x.key);
+            x.checked = !!selectedLabels?.includes(x.label);
             return {...x};
         });
         refOptions = refOptions.map(x => {
-            x.checked = !!selectedKeys?.includes(x.key);
+            x.checked = !!selectedLabels?.includes(x.label);
             return {...x};
         });
         changeDisplayText();
@@ -95,10 +95,10 @@
 
     $: {
         if (options.length > refOptions.length) {
-            const curKeys = refOptions.map(x => x.key);
-            const newOptions = options.filter(x => !curKeys.includes(x.key)).map(x => {
+            const curKeys = refOptions.map(x => x.label);
+            const newOptions = options.filter(x => !curKeys.includes(x.label)).map(x => {
                 return {
-                    key: x.key,
+                    label: x.label,
                     value: x.value,
                     checked: false
                 };
@@ -147,14 +147,14 @@
 	 */
     function checkOption(e, option) {
         innerOptions = innerOptions.map(x => {
-            if (x.key == option.key) {
+            if (x.label == option.label) {
                 x.checked = e == null ? !x.checked : e.target.checked;
             }
             return { ...x };
         });
 
         refOptions = refOptions.map(x => {
-            if (x.key == option.key) {
+            if (x.label == option.label) {
                 x.checked = e == null ? !x.checked : e.target.checked;
             }
             return { ...x };
@@ -178,9 +178,9 @@
 
     /** @param {boolean} checked */
     function syncChangesToRef(checked) {
-        const keys = innerOptions.map(x => x.key);
+        const keys = innerOptions.map(x => x.label);
         refOptions = refOptions.map(x => {
-            if (keys.includes(x.key)) {
+            if (keys.includes(x.label)) {
                 return {
                     ...x,
                     checked: checked
@@ -229,7 +229,7 @@
 
     function sendEvent() {
         svelteDispatch("select", {
-            selecteds: refOptions.filter(x => !!x.checked).map(x => ({ key: x.key, value: x.value }))
+            selecteds: refOptions.filter(x => !!x.checked).map(x => ({ label: x.label, value: x.value }))
         });
     }
 
@@ -343,7 +343,7 @@
                             />
                         </div>
                         <div class="line-align-center select-name">
-                            {option.value}
+                            {option.label}
                         </div>
                     </li>
                 {/each}

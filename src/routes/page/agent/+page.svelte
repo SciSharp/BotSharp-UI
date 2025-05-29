@@ -43,11 +43,12 @@
 	/** @type {any} */
 	let unsubscriber;
 
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	const agentTypeOptions = Object.entries(AgentType).map(([k, v]) => (
-		{ key: v, value: v }
-	));
+		{ label: v, value: v }
+	)).sort((a, b) => a.label.localeCompare(b.label));
 
-	/** @type {{ key: string, value: string }[]} */
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentLabelOptions = [];
 
 	/** @type {string[]} */
@@ -91,7 +92,7 @@
 
 	function getAgentLabelOptions() {
 		return getAgentLabels().then(res => {
-			agentLabelOptions = res?.map(x => ({ key: x, value: x })) || [];
+			agentLabelOptions = res?.map(x => ({ label: x, value: x })) || [];
 		}).catch(() => {
 			agentLabelOptions = [];
 		});
@@ -166,13 +167,13 @@
 	/** @param {any} e */
 	function selectAgentTypeOption(e) {
 		// @ts-ignore
-		selectedAgentTypes = e.detail.selecteds?.map(x => x.key) || [];
+		selectedAgentTypes = e.detail.selecteds?.map(x => x.label) || [];
 	}
 
 	/** @param {any} e */
 	function selectAgentLabelOption(e) {
 		// @ts-ignore
-		selectedAgentLabels = e.detail.selecteds?.map(x => x.key) || [];
+		selectedAgentLabels = e.detail.selecteds?.map(x => x.label) || [];
 	}
 
 	function search() {
@@ -221,7 +222,7 @@
 			placeholder={'Select labels'}
 			selectedText={'labels'}
 			searchMode
-			selectedKeys={selectedAgentLabels}
+			selectedLabels={selectedAgentLabels}
 			options={agentLabelOptions}
 			on:select={e => selectAgentLabelOption(e)}
 		/>
@@ -229,7 +230,8 @@
 			tag={'agent-type-select'}
 			placeholder={'Select types'}
 			selectedText={'types'}
-			selectedKeys={selectedAgentTypes}
+			searchMode
+			selectedLabels={selectedAgentTypes}
 			options={agentTypeOptions}
 			on:select={e => selectAgentTypeOption(e)}
 		/>

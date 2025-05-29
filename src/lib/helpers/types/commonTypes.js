@@ -18,6 +18,12 @@
  */
 
 /**
+ * @typedef {Object} LabelValuePair
+ * @property {string} label - The label.
+ * @property {string} value - The value.
+ */
+
+/**
  * @template T
  * @typedef {Object} PagedItems<T>
  * @property {number} count - Row count.

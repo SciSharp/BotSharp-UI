@@ -215,11 +215,11 @@
     }
 
     /**
-     * @param {any[]} options
+     * @param {string[]} options
 	 * @param {string} placeholder
 	 */
     function getUtilityOptions(options, placeholder = '') {
-        let list = options?.map(x => {
+        let list = options?.sort((a, b) => a.localeCompare(b))?.map(x => {
             return {
                 label: x,
                 value: x
@@ -234,7 +234,7 @@
     }
 
     /** @param {number} uid */
-	function revertUtility(uid) {
+	function resetUtility(uid) {
 		const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
@@ -338,8 +338,8 @@
                                                 class="mdi mdi-refresh clickable"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
-                                                title="Revert"
-                                                on:click={() => revertUtility(uid)}
+                                                title="Reset"
+                                                on:click={() => resetUtility(uid)}
                                             />
                                         </div>
                                         {/if}
