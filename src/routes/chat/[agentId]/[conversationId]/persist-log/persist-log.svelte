@@ -48,9 +48,9 @@
     let selectedTab = contentLogTab;
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
-    let contentLogFilter = { size: 20, startTime: utcNow };
+    let contentLogFilter = { size: 100, startTime: utcNow };
     /** @type {import('$conversationTypes').ConversationLogFilter} */
-    let stateLogFilter = { size: 20, startTime: utcNow };
+    let stateLogFilter = { size: 100, startTime: utcNow };
 
     const options = {
 		scrollbars: {
