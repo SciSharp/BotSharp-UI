@@ -1,8 +1,9 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
+    import { Card, CardBody, Input, Button, Tooltip } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { truncateByPrefix } from '$lib/helpers/utils/common';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
 
     const limit = 100;
     const prefix = "util-";
@@ -38,23 +39,25 @@
     let innerUtilities = [];
 
     onMount(async () =>{
-        init();
         getAgentUtilityOptions().then(data => {
             const list = data || [];
             list.forEach(utility => {
                 const content = {
                     name: utility.name,
-                    items: utility.items.map(it => ({
-                        ...it,
-                        function_display_name: truncateByPrefix(it.function_name, prefix),
-                        template_display_name: truncateByPrefix(it.template_name, prefix)
-                    }))
+                    items: utility.items.map(it => {
+                        return {
+                            ...it,
+                            function_display_name: truncateByPrefix(it.function_name, prefix),
+                            template_display_name: truncateByPrefix(it.template_name, prefix)
+                        };
+                    })
                 };
 
                 const contents = utilityMapper[utility.category] || [];
                 contents.push(content);
                 utilityMapper[utility.category] = contents;
             });
+            init();
         });
     });
 
@@ -164,6 +167,8 @@
         if (type === 'function') {
             foundItem.function_name = null;
             foundItem.function_display_name = null;
+            foundItem.template_name = null;
+            foundItem.template_display_name = null;
         } else if (type === 'template') {
             foundItem.template_name = null;
             foundItem.template_display_name = null;
@@ -199,7 +204,7 @@
                 name: x.name,
                 disabled: x.disabled,
                 visibility_expression: x.visibility_expression,
-                items: x.items.map(it => ({ ...it }))
+                items: x.items.map(it => ({ ...it, description: null }))
             }
         }) || [];
     }
@@ -233,6 +238,17 @@
         return list;
     }
 
+    /**
+     * @param {string} category
+     * @param {string} name
+     * @param {string} key
+	 */
+    function getUtilityItemDescription(category, name, key) {
+        // @ts-ignore
+        const desc = utilityMapper[category]?.find(x => x.name === name)?.items?.find(x => x.function_name === key)?.description;
+        return desc || '';
+    }
+
     /** @param {number} uid */
 	function resetUtility(uid) {
 		const found = innerUtilities.find((_, index) => index === uid);
@@ -258,7 +274,7 @@
                     <Input
                         type="checkbox"
                         checked={agent?.merge_utility || false}
-                        on:change={e => { toggleMergeUtility(e);}}
+                        on:change={e => toggleMergeUtility(e)}
                     />
                     <div class="fw-bold">
                         Merge utilities
@@ -275,6 +291,9 @@
             {/if}
 
             {#each innerUtilities as utility, uid (uid)}
+                {
+                    @const utilityCategoryOptions = getUtilityOptions(Object.keys(utilityMapper), 'Select a category')
+                }
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
                         <div class="utility-label fw-bold">
@@ -305,7 +324,7 @@
                                     disabled={utility.disabled}
                                     on:change={e => changeUtilityCategory(e, uid)}
                                 >
-                                    {#each getUtilityOptions(Object.keys(utilityMapper), 'Select a category') as option}
+                                    {#each utilityCategoryOptions as option}
                                         <option value={option.value} selected={option.value == utility.category}>
                                             {option.label}
                                         </option>
@@ -326,6 +345,9 @@
                     
                     <div class="utility-row utility-row-secondary">
                         {#if utility.category}
+                            {
+                                @const utilityOptions = getUtilityOptions(utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name), 'Select a utility')
+                            }
                             <div class="utility-content">
                                 <div class="utility-list-item">
                                     <div class="utility-label d-flex" style="gap: 10px;">
@@ -352,7 +374,7 @@
                                                 disabled={utility.disabled}
                                                 on:change={e => changeUtilityName(e, uid)}
                                             >
-                                                {#each getUtilityOptions(utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name), 'Select a utility') as option}
+                                                {#each utilityOptions as option}
                                                     <option value={option.value} selected={option.value == utility.name}>
                                                         {option.label}
                                                     </option>
@@ -384,9 +406,32 @@
                         {#each utility.items as item, fid (fid)}
                             <div class="utility-content">
                                 {#if item.function_name}
+                                    { 
+                                        @const description = getUtilityItemDescription(utility.category, utility.name, item.function_name)
+                                    }
                                     <div class="utility-list-item">
-                                        <div class="utility-label line-align-center">
-                                            {'Function'}
+                                        <div class="utility-label d-flex" style="gap: 10px;">
+                                            <div class="line-align-center">{'Function'}</div>
+                                            {#if description}
+                                            <div class="line-align-center">
+                                                <i
+                                                    class="bx bx-info-circle"
+                                                    id={`utility-${uid}-${fid}`}
+                                                />
+                                                <Tooltip
+                                                    class="agent-utility-desc"
+                                                    target={`utility-${uid}-${fid}`}
+                                                    placement="right"
+                                                    animation
+                                                >
+                                                    <Markdown
+                                                        rawText
+                                                        containerClasses={'markdown-div'}
+                                                        text={description}
+                                                    />
+                                                </Tooltip>
+                                            </div>
+                                            {/if}
                                         </div>
                                         <div class="utility-value">
                                             <div class="utility-input line-align-center">
