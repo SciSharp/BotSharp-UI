@@ -44,13 +44,11 @@
             list.forEach(utility => {
                 const content = {
                     name: utility.name,
-                    items: utility.items.map(it => {
-                        return {
-                            ...it,
-                            function_display_name: truncateByPrefix(it.function_name, prefix),
-                            template_display_name: truncateByPrefix(it.template_name, prefix)
-                        };
-                    })
+                    items: utility.items.map(it => ({
+                        ...it,
+                        function_display_name: truncateByPrefix(it.function_name, prefix),
+                        template_display_name: truncateByPrefix(it.template_name, prefix)
+                    }))
                 };
 
                 const contents = utilityMapper[utility.category] || [];
