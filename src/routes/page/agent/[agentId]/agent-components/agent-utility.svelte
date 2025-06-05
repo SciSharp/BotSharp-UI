@@ -310,7 +310,7 @@
                                     data-bs-placement="top"
                                     title="Uncheck to disable utility"
                                 >
-                                    <i class="bx bx-info-circle" />
+                                    <i class="bx bx-info-circle" style="font-size: 15px;" />
                                 </div>
                             </div>
                         </div>
@@ -356,6 +356,7 @@
                                             <!-- svelte-ignore a11y-no-static-element-interactions -->
                                             <i
                                                 class="mdi mdi-refresh clickable"
+                                                style="font-size: 15px;"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Reset"
@@ -414,6 +415,7 @@
                                             <div class="line-align-center">
                                                 <i
                                                     class="bx bx-info-circle"
+                                                    style="font-size: 15px;"
                                                     id={`utility-${uid}-${fid}`}
                                                 />
                                                 <Tooltip
