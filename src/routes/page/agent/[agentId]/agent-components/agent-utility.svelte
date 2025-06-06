@@ -1,12 +1,16 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Input, Button, Tooltip } from '@sveltestrap/sveltestrap';
+    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { truncateByPrefix } from '$lib/helpers/utils/common';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
+	import BotSharpTooltip from '$lib/common/tooltip/BotSharpTooltip.svelte';
 
     const limit = 100;
     const prefix = "util-";
+
+    let windowWidth = 0;
+    let windowHeight = 0;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -39,6 +43,7 @@
     let innerUtilities = [];
 
     onMount(async () =>{
+        resizeWindow();
         getAgentUtilityOptions().then(data => {
             const list = data || [];
             list.forEach(utility => {
@@ -71,6 +76,11 @@
             };
         }) || [];
         innerRefresh(list);
+    }
+
+    function resizeWindow() {
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
     }
 
     /**
@@ -259,6 +269,8 @@
 	}
 </script>
 
+<svelte:window on:resize={() => resizeWindow()}/>
+
 <Card>
     <CardBody>
         <div class="text-center">
@@ -418,18 +430,20 @@
                                                     style="font-size: 15px;"
                                                     id={`utility-${uid}-${fid}`}
                                                 />
-                                                <Tooltip
-                                                    class="agent-utility-desc"
+                                                <BotSharpTooltip
+                                                    containerClasses="agent-utility-desc"
+                                                    style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                     target={`utility-${uid}-${fid}`}
                                                     placement="right"
-                                                    animation
+                                                    isOpen
                                                 >
                                                     <Markdown
                                                         rawText
                                                         containerClasses={'markdown-div'}
+                                                        containerStyles={`max-width: ${Math.floor(windowWidth*0.55)}px;`}
                                                         text={description}
                                                     />
-                                                </Tooltip>
+                                                </BotSharpTooltip>
                                             </div>
                                             {/if}
                                         </div>

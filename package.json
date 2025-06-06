@@ -41,6 +41,7 @@
 		"@fullcalendar/common": "^5.11.5",
 		"@microsoft/signalr": "^8.0.0",
 		"@pgrabovets/json-view": "^2.7.5",
+		"@popperjs/core": "^2.11.8",
 		"@sveltejs/adapter-static": "^3.0.0",
 		"@sveltestrap/sveltestrap": "^6.2.3",
 		"@twilio/voice-sdk": "^2.9.0",

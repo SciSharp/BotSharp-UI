@@ -77,3 +77,8 @@ export function truncateByPrefix(str, prefix) {
 export function removeDuplicates(arr, key) {
     return [...new Map(arr.map(item => [item[key], item])).values()];
 }
+
+/**
+ * @param {(string | null)[]} args
+ */
+export const classnames = (...args) => args.filter(Boolean).join(' ');
