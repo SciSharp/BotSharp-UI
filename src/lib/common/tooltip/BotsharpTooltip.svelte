@@ -1,5 +1,4 @@
 <script>
-    // @ts-nocheck
 	import { Portal } from '@sveltestrap/sveltestrap';
     import { onMount, onDestroy } from 'svelte';
     import { createPopper } from '@popperjs/core';
@@ -57,7 +56,7 @@
 
     /**
      * The delay for showing the tooltip (in milliseconds).
-     * @type {string | number}
+     * @type {number}
      */
     export let delay = 0;
 
@@ -71,7 +70,7 @@
     let targetEl;
     /** @type {HTMLDivElement | null} */
     let tooltipEl;
-    /** @type {string} */
+    /** @type {number} */
     let showTimer;
 
     const checkPopperPlacement = {
