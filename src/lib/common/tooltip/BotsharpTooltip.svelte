@@ -5,6 +5,7 @@
     import { createPopper } from '@popperjs/core';
     import { v4 as uuidv4 } from 'uuid';
 	import { classnames } from '$lib/helpers/utils/common';
+    import { clickoutsideDirective } from "$lib/helpers/directives";
     
     /**
      * Additional CSS class names for the tooltip.
@@ -29,6 +30,12 @@
      * @type {boolean}
      */
     export let isOpen = false;
+
+    /**
+     * Controls the visibility of the tooltip after hover the attached element.
+     * @type {boolean}
+     */
+    export let persist = false;
 
     /**
      * The preferred placement of the tooltip.
@@ -73,7 +80,6 @@
         phase: 'main',
         // @ts-ignore
         fn(args) {
-            console.log('args', args);
             popperPlacement = args.state.placement;
         }
     };
@@ -121,19 +127,35 @@
 
         if (targetEl) {
             targetEl.addEventListener('mouseover', open);
-            // targetEl.addEventListener('mouseleave', close);
+            if (!persist) {
+                targetEl.addEventListener('mouseleave', close);
+            }
         }
     }
 
     function unregisterEventListeners() {
         if (targetEl) {
             targetEl.removeEventListener('mouseover', open);
-            // targetEl.removeEventListener('mouseleave', close);
+            targetEl.removeEventListener('mouseleave', close);
             targetEl.removeAttribute('aria-describedby');
         }
 
-        if (tooltipEl) {
+        if (tooltipEl && persist) {
             tooltipEl.removeEventListener("mouseleave", close);
+        }
+    }
+
+    /** @param {any} e */
+    function handleClickOutside(e) {
+        e.preventDefault();
+
+        if (!persist) return;
+
+        const curNode = e.detail.currentNode;
+        const targetNode = e.detail.targetNode;
+
+        if (!curNode?.contains(targetNode)) {
+            isOpen = false;
         }
     }
 
@@ -173,6 +195,10 @@
         }
     }
 
+    $: if (persist && tooltipEl) {
+        tooltipEl.addEventListener("mouseleave", close);
+    }
+
     $: {
         if (popperPlacement === 'left') {
             bsPlacement = 'start';
@@ -182,16 +208,14 @@
             bsPlacement = popperPlacement;
         }
     }
-
-    $: if (tooltipEl) {
-        tooltipEl.addEventListener("mouseleave", close);
-    }
 </script>
 
 {#if isOpen}
     <svelte:component this={Portal}>
         <div
             bind:this={tooltipEl}
+            use:clickoutsideDirective
+            on:clickoutside={handleClickOutside}
             {...$$restProps}
             class={classes}
             {id}

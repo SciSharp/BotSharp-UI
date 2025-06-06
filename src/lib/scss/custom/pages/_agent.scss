@@ -262,4 +262,8 @@
         max-height: 500px;
         font-size: 15px;
     }
+
+    &.show {
+        opacity: 1 !important;
+    }
 }

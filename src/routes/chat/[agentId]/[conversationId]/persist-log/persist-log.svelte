@@ -163,12 +163,12 @@
     }
 
     async function goToTopLog() {
+        scroll(true);
         if (selectedTab === contentLogTab) {
             await getChatContentLogs();
         } else if (selectedTab === conversationStateLogTab) {
             await getChatStateLogs();
         }
-        scroll(true);
     }
 </script>
 

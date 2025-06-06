@@ -435,7 +435,7 @@
                                                     style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                     target={`utility-${uid}-${fid}`}
                                                     placement="right"
-                                                    isOpen
+                                                    persist
                                                 >
                                                     <Markdown
                                                         rawText
