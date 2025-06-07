@@ -1,6 +1,10 @@
 <script>
+	import { onMount } from 'svelte';
 	import { marked } from 'marked';
     import { replaceMarkdown, replaceNewLine } from '$lib/helpers/http';
+	import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
+	import { v4 as uuidv4 } from 'uuid';
 
     /** @type {string} */
 	export let text;
@@ -13,6 +17,32 @@
 
 	/** @type {boolean} */
 	export let rawText = false;
+
+	const scrollbarId = uuidv4();
+
+	const options = {
+		scrollbars: {
+			visibility: 'auto',
+			autoHide: 'move',
+			autoHideDelay: 100,
+			dragScroll: true,
+			clickScroll: false,
+			theme: 'os-theme-light',
+			pointers: ['mouse', 'touch', 'pen']
+		}
+	};
+
+	onMount(() => {
+		initScrollbar();
+	});
+
+	function initScrollbar() {
+        const elem = document.querySelector(`#markdown-scrollbar-${scrollbarId}`);
+		if (elem) {
+			// @ts-ignore
+			const scrollbar = OverlayScrollbars(elem, options);
+		}
+    }
 
     let innerText = '';
 	$: {
@@ -30,6 +60,7 @@
 </script>
 
 <div
+	id={`markdown-scrollbar-${scrollbarId}`}
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 >
