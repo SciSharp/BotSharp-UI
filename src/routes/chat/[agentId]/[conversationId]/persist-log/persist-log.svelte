@@ -190,7 +190,7 @@
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary chat-send waves-effect waves-light"
+                    class="btn btn-sm btn-primary chat-send waves-effect waves-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to top"
@@ -200,7 +200,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary chat-send waves-effect waves-light"
+                    class="btn btn-sm btn-light chat-send waves-effect waves-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to bottom"
