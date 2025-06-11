@@ -250,3 +250,20 @@
     flex-wrap: wrap;
     margin: 5px 0px;
 }
+
+.agent-utility-desc {
+    .tooltip-inner {
+        text-align: start;
+        max-width: fit-content;
+        padding: 20px;
+    }
+
+    .markdown-div {
+        max-height: 500px;
+        font-size: 15px;
+    }
+
+    &.show {
+        opacity: 1 !important;
+    }
+}

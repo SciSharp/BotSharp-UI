@@ -48,9 +48,9 @@
     let selectedTab = contentLogTab;
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
-    let contentLogFilter = { size: 100, startTime: utcNow };
+    let contentLogFilter = { size: 80, startTime: utcNow };
     /** @type {import('$conversationTypes').ConversationLogFilter} */
-    let stateLogFilter = { size: 100, startTime: utcNow };
+    let stateLogFilter = { size: 80, startTime: utcNow };
 
     const options = {
 		scrollbars: {
@@ -59,7 +59,7 @@
 			autoHideDelay: 100,
 			dragScroll: true,
 			clickScroll: false,
-			theme: 'os-theme-dark',
+			theme: 'os-theme-light',
 			pointers: ['mouse', 'touch', 'pen']
 		}
 	};
@@ -69,7 +69,7 @@
         await getChatStateLogs();
 
         initScrollbars();
-		scrollToBottom();
+		scroll();
 	});
 
     beforeUpdate(() => {});
@@ -84,17 +84,17 @@
 
     function refresh() {
         if (autoScroll) {
-            scrollToBottom();
+            scroll();
         }
-        
     }
 
-    function scrollToBottom() {
+    /** @param {boolean} goToTop */
+    function scroll(goToTop = false) {
         // @ts-ignore
         scrollbars.forEach(scrollbar => {
             setTimeout(() => {
                 const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+                viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
             }, 200);
         });
     }
@@ -104,18 +104,8 @@
             const elem = document.querySelector(item.id);
             if (!elem) return;
 
+            // @ts-ignore
             const scrollbar = OverlayScrollbars(elem, options);
-            scrollbar.on("scroll", async (e) => {
-                const curScrollTop = e.elements().scrollOffsetElement.scrollTop;
-                if (curScrollTop <= 3 && curScrollTop > 0) {
-                    if (item.type === contentLogTab) {
-                        await getChatContentLogs();
-                    } else if (item.type === conversationStateLogTab) {
-                        await getChatStateLogs();
-                    }
-                }
-            });
-
             scrollbars = [ ...scrollbars, scrollbar];
         });
     }
@@ -161,7 +151,7 @@
 
     function handleCleanScreen() {
         cleanLogs();
-        cleanScreen && cleanScreen();
+        cleanScreen?.();
     }
     
     /** @param {number} selected */
@@ -170,6 +160,15 @@
             return;
         }
         selectedTab = selected;
+    }
+
+    async function goToTopLog() {
+        scroll(true);
+        if (selectedTab === contentLogTab) {
+            await getChatContentLogs();
+        } else if (selectedTab === conversationStateLogTab) {
+            await getChatStateLogs();
+        }
     }
 </script>
 
@@ -180,9 +179,34 @@
                 <button
                     type="button"
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Clean log"
                     on:click={() => handleCleanScreen()}
                 >
-                    <i class="bx bx-trash"></i>
+                    <i class="bx bx-trash" />
+                </button>
+            </div>
+            <div>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-primary chat-send waves-effect waves-light"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Scroll to top"
+                    on:click={() => goToTopLog()}
+                >
+                    <i class="mdi mdi-chevron-double-up" />
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-sm btn-light chat-send waves-effect waves-light"
+                    data-bs-toggle="tooltip"
+                    data-bs-placement="top"
+                    title="Scroll to bottom"
+                    on:click={() => scroll()}
+                >
+                    <i class="mdi mdi-chevron-double-down" />
                 </button>
             </div>
             <div>
@@ -191,7 +215,7 @@
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
                     on:click={() => closeWindow()}
                 >
-                    <i class="mdi mdi-window-close"></i>
+                    <i class="mdi mdi-window-close" />
                 </button>
             </div>
         </div>
