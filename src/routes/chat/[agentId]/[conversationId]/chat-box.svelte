@@ -25,6 +25,7 @@
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
+		sendStreamMessage,
 		getConversation,
 		getDialogs,
 		deleteConversationMessage,
@@ -202,6 +203,8 @@
 	let isComplete = false;
 	let isError = false;
 	let copyClicked = false;
+
+	let isStreaming = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
@@ -233,6 +236,11 @@
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
+
+		signalr.beforeReceiveLlmStreamMessage = beforeReceiveLlmStreamMessage;
+		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
+		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
+		
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
@@ -489,6 +497,54 @@
     }
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function beforeReceiveLlmStreamMessage(message) {
+		isStreaming = true;
+		dialogs.push({
+			...message,
+			is_chat_message: true
+		});
+		refresh();
+		console.log('Before receiving llm stream message.', dialogs);
+	}
+
+	let processing = false;
+	/** @type {string[]} */
+	let messageQueue = [];
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	async function onReceiveLlmStreamMessage(message) {
+		console.log('On receiving llm stream message', message.text);
+		isSendingMsg = false;
+		isThinking = false;
+		messageQueue.push(message.text);
+		await handleMesssageQueue();
+	}
+
+	async function handleMesssageQueue() {
+		if (processing) return;
+
+		processing = true;
+		while (messageQueue.length > 0) {
+			const lastMsg = dialogs[dialogs.length - 1];
+			const text = messageQueue.shift() || '';
+			for (const char of text) {
+				lastMsg.text += char;
+				refresh();
+				await new Promise(resolve => setTimeout(() => {
+					resolve('');
+				}, 30));
+			}
+		}
+		processing = false;
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function afterReceiveLlmStreamMessage(message) {
+		isStreaming = false;
+		console.log('After receiving llm stream message.', dialogs);
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
 		sendReceivedNotification(message);
 	}
@@ -619,7 +675,7 @@
 						};
 					}
 
-					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
+					sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 						deleteMessageDraft();
 					}).catch(err => {
@@ -645,7 +701,7 @@
 							};
 						}
 
-						sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
+						sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
 							resolve(res);
 							deleteMessageDraft();
 						}).catch(err => {
@@ -655,7 +711,7 @@
 						});
 					});
 				} else {
-					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
+					sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
 						resolve(res);
 						deleteMessageDraft();
 					}).catch(err => {

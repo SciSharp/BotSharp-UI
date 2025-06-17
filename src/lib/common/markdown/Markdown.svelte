@@ -60,7 +60,7 @@
 </script>
 
 <div
-	id={`markdown-scrollbar-${scrollbarId}`}
+	id={`markdown-scrollbar-${scrollbarId}test`}
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 >

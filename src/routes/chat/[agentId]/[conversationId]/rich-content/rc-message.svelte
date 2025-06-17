@@ -19,6 +19,6 @@
     style={`${containerStyles}`}
 >
 	<div class="flex-shrink-0 align-self-center">
-        <Markdown containerClasses={markdownClasses} text={message?.rich_content?.message?.text || message?.text} rawText />
+        <Markdown containerClasses={markdownClasses} text={message?.rich_content?.message?.text || message?.text || ''} rawText />
     </div>
 </div>
