@@ -25,7 +25,7 @@
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
-		sendStreamMessage,
+		sendMessageToStreamHub,
 		getConversation,
 		getDialogs,
 		deleteConversationMessage,
@@ -42,6 +42,7 @@
 		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
+		PUBLIC_LIVECHAT_STREAM_ENABLED,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
 	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
@@ -72,6 +73,7 @@
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
+	import { delay } from '$lib/helpers/utils/common';
 
 	
 	const options = {
@@ -176,6 +178,9 @@
 	/** @type {number | undefined} */
 	let notificationTimeout;
 
+	/** @type {import('$conversationTypes').ChatResponseModel[]} */
+	let messageQueue = [];
+
 	/** @type {boolean} */
 	let isLoadPersistLog = false;
 	let isLoadInstantLog = false;
@@ -203,6 +208,7 @@
 	let isComplete = false;
 	let isError = false;
 	let copyClicked = false;
+	let isHandlingQueue = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
@@ -501,28 +507,21 @@
 			is_chat_message: true
 		});
 		refresh();
-		console.log('Before receiving llm stream message.');
 	}
 
-	let processing = false;
-	/** @type {import('$conversationTypes').ChatResponseModel[]} */
-	let messageQueue = [];
-
+	
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	async function onReceiveLlmStreamMessage(message) {
-		// console.log('On receiving llm stream message', message.text);
+	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
-		
-		await handleMesssageQueue(message);
+		messageQueue.push(message);
+		setTimeout(() => handleMesssageQueue(message), 0);
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	async function handleMesssageQueue(message) {
-		messageQueue.push(message);
+		if (isHandlingQueue) return;
 
-		if (processing) return;
-
-		processing = true;
+		isHandlingQueue = true;
 		while (messageQueue.length > 0) {
 			const lastMsg = dialogs[dialogs.length - 1];
 			if (lastMsg?.sender?.role !== UserRole.Assistant
@@ -537,21 +536,21 @@
 				continue;
 			}
 
-			for (const char of item.text) {
-				dialogs[dialogs.length - 1].text += char;
-				refresh();
-				await new Promise(resolve => setTimeout(() => {
-					resolve('');
-				}, 30));
+			try {
+				for (const char of item.text) {
+					dialogs[dialogs.length - 1].text += char;
+					refresh();
+					await delay(30);
+				}
+			} catch (err) {
+				console.log(`Error when processing message queue`, err);
 			}
 		}
-		processing = false;
+		isHandlingQueue = false;
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	function afterReceiveLlmStreamMessage(message) {
-		console.log('After receiving llm stream message.');
-	}
+	function afterReceiveLlmStreamMessage(message) {}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
@@ -643,7 +642,7 @@
 	 * @param {import('$conversationTypes').MessageData?} data
 	 * @param {string?} conversationId
 	 */
-    function sendChatMessage(msgText, data = null, conversationId = null) {
+    async function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
 		clearInstantLogs();
 		renewUserSentMessages(msgText);
@@ -670,66 +669,49 @@
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
-			return new Promise((resolve, reject) => {
-				uploadConversationFiles(agentId, convId, files).then(resMessageId => {
-					messageData = { ...messageData, inputMessageId: resMessageId };
-					if (!!filePayload) {
-						messageData = {
-							...messageData,
-							// @ts-ignore
-							postback: {
-								...postback,
-								payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
-							}
-						};
+			const resMessageId = await uploadConversationFiles(agentId, convId, files);
+			messageData = { ...messageData, inputMessageId: resMessageId };
+			if (!!filePayload) {
+				messageData = {
+					...messageData,
+					// @ts-ignore
+					postback: {
+						...postback,
+						payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
 					}
+				};
+			}
 
-					sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
-						resolve(res);
-						deleteMessageDraft();
-					}).catch(err => {
-						reject(err);
-					}).finally(() => {
-						isSendingMsg = false;
-					});
-				});
-			});
+			if (PUBLIC_LIVECHAT_STREAM_ENABLED === 'true') {
+				await sendMessageToStreamHub(agentId, convId, msgText, messageData);
+			} else {
+				await sendMessageToHub(agentId, convId, msgText, messageData);
+			}
+			deleteMessageDraft();
+			isSendingMsg = false;
 		} else {
-			return new Promise((resolve, reject) => {
-				if (!!messageData?.inputMessageId) {
-					getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
-						const filePayload = buildFilePayload(retFiles);
-						if (!!filePayload) {
-							messageData = {
-								...messageData,
-								// @ts-ignore
-								postback: {
-									...postback,
-									payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
-								}
-							};
+			if (!!messageData?.inputMessageId) {
+				const retFiles = await getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User);
+				const filePayload = buildFilePayload(retFiles);
+				if (!!filePayload) {
+					messageData = {
+						...messageData,
+						// @ts-ignore
+						postback: {
+							...postback,
+							payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
 						}
-
-						sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
-							resolve(res);
-							deleteMessageDraft();
-						}).catch(err => {
-							reject(err);
-						}).finally(() => {
-							isSendingMsg = false;
-						});
-					});
-				} else {
-					sendStreamMessage(agentId, convId, msgText, messageData).then(res => {
-						resolve(res);
-						deleteMessageDraft();
-					}).catch(err => {
-						reject(err);
-					}).finally(() => {
-						isSendingMsg = false;
-					});
+					};
 				}
-			});
+			}
+
+			if (PUBLIC_LIVECHAT_STREAM_ENABLED === 'true') {
+				await sendMessageToStreamHub(agentId, convId, msgText, messageData);
+			} else {
+				await sendMessageToHub(agentId, convId, msgText, messageData);
+			}
+			deleteMessageDraft();
+			isSendingMsg = false;
 		}
     }
 

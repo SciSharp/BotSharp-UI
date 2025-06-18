@@ -162,9 +162,9 @@ export const signalr = {
       }
     });
 
-    connection.on('AfterReceiveLlmStreamMessage', async data => {
+    connection.on('AfterReceiveLlmStreamMessage', data => {
       if (conversationId === data?.conversation_id) {
-        await this.afterReceiveLlmStreamMessage(data);
+        this.afterReceiveLlmStreamMessage(data);
       }
     });
   },

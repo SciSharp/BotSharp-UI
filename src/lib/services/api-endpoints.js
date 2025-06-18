@@ -60,7 +60,7 @@ export const endpoints = {
     conversationInitUrl: `${host}/conversation/{agentId}`,
     conversationMessageUrl: `${host}/conversation/{agentId}/{conversationId}`,
 
-    conversationStreamMessageUrl: `${host}/conversation/{agentId}/{conversationId}/stream`,
+    conversationMessageStreamUrl: `${host}/conversation/{agentId}/{conversationId}/stream`,
 
     notificationUrl: `${host}/conversation/{conversationId}/notification`,
     conversationsUrl: `${host}/conversations`,

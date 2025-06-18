@@ -53,11 +53,17 @@ export async function getConversations(filter) {
  * @param {string} conversationId
  * @param {string} messageId
  * @param {string} source
+ * @returns {Promise<any[]>}
  */
 export async function getConversationFiles(conversationId, messageId, source) {
     const url = replaceUrl(endpoints.conversationAttachmentUrl, { conversationId: conversationId, messageId: messageId, source: source });
-    const response = await axios.get(url);
-    return response?.data;
+    return new Promise((resolve, reject) => {
+        axios.get(url).then(response => {
+            resolve(response?.data);
+        }).catch(err => {
+            reject(err);
+        });
+    });
 }
 
 /**
@@ -101,13 +107,18 @@ export async function sendMessageToHub(agentId, conversationId, text, data = nul
     });
     const userStates = buildConversationUserStates(conversationId);
     const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
-    const response = await axios.post(url, {
-        text: text,
-        states: totalStates,
-        postback: data?.postback,
-        input_message_id: data?.inputMessageId
+    return new Promise((resolve, reject) => {
+        axios.post(url, {
+            text: text,
+            states: totalStates,
+            postback: data?.postback,
+            input_message_id: data?.inputMessageId
+        }).then(response => {
+            resolve(response?.data);
+        }).catch(err => {
+            reject(err);
+        });
     });
-    return response.data;
 }
 
 
@@ -118,20 +129,26 @@ export async function sendMessageToHub(agentId, conversationId, text, data = nul
  * @param {string} text - The text message sent to CSR
  * @param {import('$conversationTypes').MessageData?} data - Additional data
  */
-export async function sendStreamMessage(agentId, conversationId, text, data = null) {
-    let url = replaceUrl(endpoints.conversationStreamMessageUrl, {
+export async function sendMessageToStreamHub(agentId, conversationId, text, data = null) {
+    const url = replaceUrl(endpoints.conversationMessageStreamUrl, {
         agentId: agentId,
         conversationId: conversationId
     });
     const userStates = buildConversationUserStates(conversationId);
     const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
-    const response = await axios.post(url, {
-        text: text,
-        states: totalStates,
-        postback: data?.postback,
-        input_message_id: data?.inputMessageId
+
+    return new Promise((resolve, reject) => {
+        axios.post(url, {
+            text: text,
+            states: totalStates,
+            postback: data?.postback,
+            input_message_id: data?.inputMessageId
+        }).then(response => {
+            resolve(response?.data);
+        }).catch(err => {
+            reject(err);
+        });
     });
-    return response.data;
 }
 
 /**
@@ -296,14 +313,18 @@ export async function updateConversationMessage(conversationId, request) {
  * @returns {Promise<string>}
  */
 export async function uploadConversationFiles(agentId, converationId, files) {
-    let url = replaceUrl(endpoints.fileUploadUrl, {
+    const url = replaceUrl(endpoints.fileUploadUrl, {
         agentId: agentId,
         conversationId: converationId
     });
-    const response = await axios.post(url, {
-        files: files
+
+    return new Promise((resolve, reject) => {
+        axios.post(url, { files: files }).then(response => {
+            resolve(response?.data);
+        }).catch(err => {
+            reject(err);
+        });
     });
-    return response.data;
 }
 
 /**
