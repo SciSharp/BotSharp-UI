@@ -203,13 +203,11 @@
 	let isComplete = false;
 	let isError = false;
 	let copyClicked = false;
-
-	let isStreaming = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = true; // TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
-		loadEditor = !isSendingMsg && !isThinking && loadTextEditor;
+		loadEditor = !isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0;
 	}
 
 	$: {
@@ -498,37 +496,49 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function beforeReceiveLlmStreamMessage(message) {
-		isStreaming = true;
 		dialogs.push({
 			...message,
 			is_chat_message: true
 		});
 		refresh();
-		console.log('Before receiving llm stream message.', dialogs);
+		console.log('Before receiving llm stream message.');
 	}
 
 	let processing = false;
-	/** @type {string[]} */
+	/** @type {import('$conversationTypes').ChatResponseModel[]} */
 	let messageQueue = [];
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	async function onReceiveLlmStreamMessage(message) {
-		console.log('On receiving llm stream message', message.text);
-		isSendingMsg = false;
+		// console.log('On receiving llm stream message', message.text);
 		isThinking = false;
-		messageQueue.push(message.text);
-		await handleMesssageQueue();
+		
+		await handleMesssageQueue(message);
 	}
 
-	async function handleMesssageQueue() {
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	async function handleMesssageQueue(message) {
+		messageQueue.push(message);
+
 		if (processing) return;
 
 		processing = true;
 		while (messageQueue.length > 0) {
 			const lastMsg = dialogs[dialogs.length - 1];
-			const text = messageQueue.shift() || '';
-			for (const char of text) {
-				lastMsg.text += char;
+			if (lastMsg?.sender?.role !== UserRole.Assistant
+				|| lastMsg?.message_id !== message.message_id
+			) {
+				continue;
+			}
+
+			const item = messageQueue.shift();
+			messageQueue = [...messageQueue];
+			if (!item) {
+				continue;
+			}
+
+			for (const char of item.text) {
+				dialogs[dialogs.length - 1].text += char;
 				refresh();
 				await new Promise(resolve => setTimeout(() => {
 					resolve('');
@@ -540,8 +550,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function afterReceiveLlmStreamMessage(message) {
-		isStreaming = false;
-		console.log('After receiving llm stream message.', dialogs);
+		console.log('After receiving llm stream message.');
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */

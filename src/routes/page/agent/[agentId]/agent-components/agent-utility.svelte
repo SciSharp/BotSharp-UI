@@ -439,6 +439,7 @@
                                                 >
                                                     <Markdown
                                                         rawText
+                                                        scrollable
                                                         containerClasses={'markdown-div'}
                                                         containerStyles={`max-width: ${Math.floor(windowWidth*0.55)}px;`}
                                                         text={description}

@@ -12,13 +12,17 @@
 
     /** @type {string} */
     export let markdownClasses = '';
+
+    $: text = message?.rich_content?.message?.text || message?.text || '';
 </script>
 
-<div
-    class={`ctext-wrap bg-primary ${containerClasses}`}
-    style={`${containerStyles}`}
->
-	<div class="flex-shrink-0 align-self-center">
-        <Markdown containerClasses={markdownClasses} text={message?.rich_content?.message?.text || message?.text || ''} rawText />
+{#if text}
+    <div
+        class={`ctext-wrap bg-primary ${containerClasses}`}
+        style={`${containerStyles}`}
+    >
+        <div class="flex-shrink-0 align-self-center">
+            <Markdown containerClasses={markdownClasses} text={text} rawText />
+        </div>
     </div>
-</div>
+{/if}

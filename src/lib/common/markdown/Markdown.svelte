@@ -18,6 +18,9 @@
 	/** @type {boolean} */
 	export let rawText = false;
 
+	/** @type {boolean} */
+	export let scrollable = false;
+
 	const scrollbarId = uuidv4();
 
 	const options = {
@@ -33,7 +36,9 @@
 	};
 
 	onMount(() => {
-		initScrollbar();
+		if (scrollable) {
+			initScrollbar();
+		}
 	});
 
 	function initScrollbar() {
@@ -60,7 +65,7 @@
 </script>
 
 <div
-	id={`markdown-scrollbar-${scrollbarId}test`}
+	id={`markdown-scrollbar-${scrollbarId}`}
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 >
