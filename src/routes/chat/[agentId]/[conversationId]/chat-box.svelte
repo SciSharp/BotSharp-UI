@@ -1759,17 +1759,24 @@
 													{#if message.sender.role == UserRole.Client}
 														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
-														<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+														{
+															@const isShowIcon = (message?.rich_content?.message?.text || message?.text) || message?.uuid !== lastBotMsg?.uuid
+														}
+														<img
+															class="rounded-circle avatar-sm"
+															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
+															alt="avatar"
+															src={PUBLIC_LIVECHAT_ENTRY_ICON}
+														>
 													{/if}
 												</div>
 												<div class="msg-container">
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
-													
-													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid && messageQueue.length === 0}
+													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{
-															@const msgText = message?.rich_content?.message?.text || message?.text
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && messageQueue.length === 0
 														}	
-														<div style={`display: ${msgText ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
+														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id} 
