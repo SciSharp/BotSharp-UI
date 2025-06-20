@@ -3,6 +3,7 @@
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
+	import { page } from '$app/stores';
 	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -15,6 +16,7 @@
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
 	import CardAgent from './card-agent.svelte';
+	import { setUrlQueryParams } from '$lib/helpers/utils/common';
 	
 	
   	const firstPage = 1;
@@ -32,7 +34,7 @@
 	};
 
 	/** @type {import('$agentTypes').AgentFilter} */
-	let filter = { ... initFilter };
+	let filter = { ...initFilter };
 
 	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
@@ -57,6 +59,21 @@
 	let selectedAgentLabels = [];
 
 	onMount(async () => {
+		const { pageNum, pageSizeNum } = getQueryParams();
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` },
+			{ key: 'pageSize', value: `${pageSizeNum}` }
+		], () => replaceUrl());
+ 
+		filter = {
+			...filter,
+			pager: {
+				...filter.pager,
+				page: pageNum,
+				size: pageSizeNum
+			}
+		};
+
 		user = await myInfo();
 		getPagedAgents();
 		getAgentLabelOptions();
@@ -70,6 +87,11 @@
 				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
 				similarName: event.payload || null
 			};
+
+			setUrlQueryParams($page.url, [
+				{ key: 'page', value: `${filter.pager.page}` }
+			], () => () => replaceUrl());
+
 			getPagedAgents();
 		});
 	});
@@ -131,6 +153,22 @@
 		refreshPager(agents.count, filter.pager.page, filter.pager.size);
 	}
 
+	function getQueryParams() {
+		const pNum = Number($page.url.searchParams.get('page'));
+		const pSize = Number($page.url.searchParams.get('pageSize'));
+		const pageNum = pNum > 0 ? pNum : firstPage;
+		const pageSizeNum = pSize > 0 ? Math.min(pSize, 30) : pageSize;
+
+		return {
+			pageNum,
+			pageSizeNum
+		};
+	}
+	
+	function replaceUrl() {
+		goto(`${$page.url.pathname}${$page.url.search}`, { replaceState: true });
+	}
+
 	function refreshAgents() {
 		agents = {
 			items: agents?.items?.map(t => { return { ...t }; }) || [],
@@ -148,12 +186,16 @@
 	}
 
 	/**
-	 * @param {number} pageNum
+	 * @param {number} pn
 	 */
-	function pageTo(pageNum) {
+	function pageTo(pn) {
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pn}` }
+		], () => replaceUrl());
+
 		pager = {
 			...pager,
-			page: pageNum
+			page: pn
 		};
 
 		filter = {

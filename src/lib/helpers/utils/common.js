@@ -82,3 +82,21 @@ export function removeDuplicates(arr, key) {
  * @param {(string | null)[]} args
  */
 export const classnames = (...args) => args.filter(Boolean).join(' ');
+
+
+/**
+ * @param {URL} url
+ * @param {import('$commonTypes').KeyValuePair[]} pairs
+ * @param {() => void} [callback]
+ */
+export function setUrlQueryParams(url, pairs, callback) {
+    if (!pairs?.length) {
+        return;
+    }
+
+    pairs?.map(p => {
+        url.searchParams.set(p.key, p.value);
+    });
+    
+    callback?.();
+}

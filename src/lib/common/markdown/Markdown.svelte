@@ -18,6 +18,9 @@
 	/** @type {boolean} */
 	export let rawText = false;
 
+	/** @type {boolean} */
+	export let scrollable = false;
+
 	const scrollbarId = uuidv4();
 
 	const options = {
@@ -33,7 +36,9 @@
 	};
 
 	onMount(() => {
-		initScrollbar();
+		if (scrollable) {
+			initScrollbar();
+		}
 	});
 
 	function initScrollbar() {
