@@ -208,6 +208,7 @@
 	let isComplete = false;
 	let isError = false;
 	let copyClicked = false;
+	let isStreaming = false;
 	let isHandlingQueue = false;
 	
 	$: {
@@ -492,6 +493,7 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
+		isStreaming = true;
 		dialogs.push({
 			...message,
 			is_chat_message: true
@@ -513,6 +515,7 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
+		isStreaming = true;
 		messageQueue.push(message);
 		setTimeout(() => handleMesssageQueue(message), 0);
 	}
@@ -550,7 +553,9 @@
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	function afterReceiveLlmStreamMessage(message) {}
+	function afterReceiveLlmStreamMessage(message) {
+		isStreaming = false;
+	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
@@ -1759,8 +1764,12 @@
 												</div>
 												<div class="msg-container">
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
-													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+													
+													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid && messageQueue.length === 0}
+														{
+															@const msgText = message?.rich_content?.message?.text || message?.text
+														}	
+														<div style={`display: ${msgText ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id} 
