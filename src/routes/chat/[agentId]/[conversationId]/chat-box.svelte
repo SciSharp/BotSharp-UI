@@ -526,16 +526,16 @@
 
 		isHandlingQueue = true;
 		while (messageQueue.length > 0) {
+			const item = messageQueue.shift();
+			messageQueue = [...messageQueue];
+			if (!item) {
+				continue;
+			}
+
 			const lastMsg = dialogs[dialogs.length - 1];
 			if (lastMsg?.sender?.role !== UserRole.Assistant
 				|| lastMsg?.message_id !== message.message_id
 			) {
-				continue;
-			}
-
-			const item = messageQueue.shift();
-			messageQueue = [...messageQueue];
-			if (!item) {
 				continue;
 			}
 
