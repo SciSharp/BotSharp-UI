@@ -543,7 +543,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refresh();
-					await delay(30);
+					await delay(50);
 				}
 			} catch (err) {
 				console.log(`Error when processing message queue`, err);
@@ -1774,7 +1774,7 @@
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{
-															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && messageQueue.length === 0
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming
 														}	
 														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
