@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import { _ } from 'svelte-i18n';
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
@@ -21,6 +22,11 @@
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel } from '$lib/helpers/enums';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
 	
 
 	const duration = 3000;
@@ -79,6 +85,25 @@
     ];
 
     onMount(async () => {
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
+		filter = {
+			...filter,
+			pager: {
+				...filter.pager,
+				page: pageNum,
+				size: pageSizeNum
+			}
+		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.pager.page}` },
+			{ key: 'pageSize', value: `${filter.pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		isLoading = true;
 		Promise.all([
 			loadAgentOptions(),
@@ -123,7 +148,7 @@
 
 	function refresh() {
 		refreshConversations();
-		refreshPager(conversations.count, filter.pager.page, filter.pager.size);
+		refreshPager(conversations.count, filter.pager.page);
 	}
 
 	function refreshConversations() {
@@ -134,10 +159,10 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter.pager,
 			page: page,
-			size: pageCount,
 			count: totalItemsCount
 		};
 	}
@@ -153,6 +178,10 @@
 			...filter,
 			pager: pager
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 		getPagedConversations();
 	}
@@ -209,8 +238,16 @@
 	function initFilterPager() {
 		filter = {
 			...filter,
-			pager: { page: firstPage, size: pageSize, count: 0 },
+			pager: {
+				...filter.pager,
+				page: firstPage,
+				count: 0
+			}
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.pager.page}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
 	/**
@@ -337,7 +374,7 @@
 				query: query,
 				keyLimit: 20,
 				agentIds: searchOption.agentId ? [searchOption.agentId] : null
-			}).then(res => {
+			}).then((/** @type {any[]} */ res) => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
 		});

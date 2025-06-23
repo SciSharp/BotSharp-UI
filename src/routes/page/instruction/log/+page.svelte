@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+	import { page } from '$app/stores';
 	import { _ } from 'svelte-i18n';
     import util from "lodash";
 	import { Button, Card, CardBody, Col, Input, Row, Table } from '@sveltestrap/sveltestrap';
@@ -13,6 +14,11 @@
 	import LogItem from './log-item.svelte';
 	import { removeDuplicates } from '$lib/helpers/utils/common';
 	import StateSearch from '$lib/common/StateSearch.svelte';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
 
     const firstPage = 1;
 	const pageSize = 15;
@@ -59,6 +65,22 @@
     ];
 
     onMount(async () => {
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
+		filter = {
+			...filter,
+			page: pageNum,
+			size: pageSizeNum
+		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.page}` },
+			{ key: 'pageSize', value: `${filter.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		
         Promise.all([
             initAgentOptions(),
             initLlmConfigs(),
@@ -104,9 +126,6 @@
     }
 
     function initLogs() {
-        filter = {
-            ...initPager
-        };
         return getPagedInstructionLogs();
     }
 
@@ -126,7 +145,7 @@
     /** @param {import('$commonTypes').PagedItems<import('$instructTypes').InstructionLogModel>} logs */
     function refresh(logs) {
 		refreshLogs(logs);
-		refreshPager(logs.count, filter.page, filter.size);
+		refreshPager(logs.count, filter.page);
 	}
 
     /** @param {import('$commonTypes').PagedItems<import('$instructTypes').InstructionLogModel>} logs */
@@ -135,14 +154,13 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter,
 			page: page,
-			size: pageCount,
 			count: totalItemsCount
 		};
 	}
-
 
     /**
 	 * @param {any} e
@@ -198,6 +216,10 @@
             templateNames: template ? [template] : [],
 			states: states
         };
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${firstPage}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
     }
 
 	function getSearchStates() {
@@ -213,9 +235,13 @@
 	function pageTo(pageNum) {
 		filter = {
 			...filter,
-			page: pageNum,
-            size: pageSize
+			page: pageNum
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		getPagedInstructionLogs();
 	}
 
