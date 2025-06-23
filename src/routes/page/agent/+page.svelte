@@ -16,7 +16,11 @@
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
 	import CardAgent from './card-agent.svelte';
-	import { setUrlQueryParams } from '$lib/helpers/utils/common';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
 	
 	
   	const firstPage = 1;
@@ -59,12 +63,11 @@
 	let selectedAgentLabels = [];
 
 	onMount(async () => {
-		const { pageNum, pageSizeNum } = getQueryParams();
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${pageNum}` },
-			{ key: 'pageSize', value: `${pageSizeNum}` }
-		], () => replaceUrl());
- 
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
 		filter = {
 			...filter,
 			pager: {
@@ -74,6 +77,11 @@
 			}
 		};
 
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.pager.page}` },
+			{ key: 'pageSize', value: `${filter.pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		user = await myInfo();
 		getPagedAgents();
 		getAgentLabelOptions();
@@ -82,7 +90,11 @@
 			if (event.name !== GlobalEvent.Search) return;
 
 			filter = {
-				pager: initFilter.pager,
+				pager: {
+					...filter.pager,
+					page: firstPage,
+					count: 0
+				},
 				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
 				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
 				similarName: event.payload || null
@@ -90,7 +102,7 @@
 
 			setUrlQueryParams($page.url, [
 				{ key: 'page', value: `${filter.pager.page}` }
-			], () => () => replaceUrl());
+			], () => () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 			getPagedAgents();
 		});
@@ -150,23 +162,7 @@
 
 	function refresh() {
 		refreshAgents();
-		refreshPager(agents.count, filter.pager.page, filter.pager.size);
-	}
-
-	function getQueryParams() {
-		const pNum = Number($page.url.searchParams.get('page'));
-		const pSize = Number($page.url.searchParams.get('pageSize'));
-		const pageNum = pNum > 0 ? pNum : firstPage;
-		const pageSizeNum = pSize > 0 ? Math.min(pSize, 30) : pageSize;
-
-		return {
-			pageNum,
-			pageSizeNum
-		};
-	}
-	
-	function replaceUrl() {
-		goto(`${$page.url.pathname}${$page.url.search}`, { replaceState: true });
+		refreshPager(agents.count, filter.pager.page);
 	}
 
 	function refreshAgents() {
@@ -177,31 +173,31 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter.pager,
 			page: page,
-			size: pageCount || 0,
 			count: totalItemsCount || 0
 		};
 	}
 
 	/**
-	 * @param {number} pn
+	 * @param {number} pageNum
 	 */
-	function pageTo(pn) {
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${pn}` }
-		], () => replaceUrl());
-
+	function pageTo(pageNum) {
 		pager = {
 			...pager,
-			page: pn
+			page: pageNum
 		};
 
 		filter = {
       		...filter,
 			pager: pager
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 		getPagedAgents();
 	}
