@@ -3,6 +3,7 @@
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
+	import { page } from '$app/stores';
 	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -15,6 +16,11 @@
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
 	import CardAgent from './card-agent.svelte';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
 	
 	
   	const firstPage = 1;
@@ -32,7 +38,7 @@
 	};
 
 	/** @type {import('$agentTypes').AgentFilter} */
-	let filter = { ... initFilter };
+	let filter = { ...initFilter };
 
 	/** @type {import('$commonTypes').Pagination} */
 	let pager = filter.pager;
@@ -57,6 +63,25 @@
 	let selectedAgentLabels = [];
 
 	onMount(async () => {
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
+		filter = {
+			...filter,
+			pager: {
+				...filter.pager,
+				page: pageNum,
+				size: pageSizeNum
+			}
+		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.pager.page}` },
+			{ key: 'pageSize', value: `${filter.pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		user = await myInfo();
 		getPagedAgents();
 		getAgentLabelOptions();
@@ -65,11 +90,20 @@
 			if (event.name !== GlobalEvent.Search) return;
 
 			filter = {
-				pager: initFilter.pager,
+				pager: {
+					...filter.pager,
+					page: firstPage,
+					count: 0
+				},
 				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
 				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
 				similarName: event.payload || null
 			};
+
+			setUrlQueryParams($page.url, [
+				{ key: 'page', value: `${filter.pager.page}` }
+			], () => () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 			getPagedAgents();
 		});
 	});
@@ -128,7 +162,7 @@
 
 	function refresh() {
 		refreshAgents();
-		refreshPager(agents.count, filter.pager.page, filter.pager.size);
+		refreshPager(agents.count, filter.pager.page);
 	}
 
 	function refreshAgents() {
@@ -139,10 +173,10 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter.pager,
 			page: page,
-			size: pageCount || 0,
 			count: totalItemsCount || 0
 		};
 	}
@@ -160,6 +194,10 @@
       		...filter,
 			pager: pager
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 		getPagedAgents();
 	}

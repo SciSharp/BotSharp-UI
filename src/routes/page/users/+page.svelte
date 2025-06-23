@@ -1,5 +1,6 @@
 <script>
     import { onDestroy, onMount } from 'svelte';
+	import { page } from '$app/stores';
     import {
 		Button,
 		Card,
@@ -20,6 +21,12 @@
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
 	import { getRoleOptions } from '$lib/services/role-service';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
+
 	
     const duration = 3000;
 	const firstPage = 1;
@@ -60,6 +67,22 @@
 	};
 
     onMount(async () => {
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
+		filter = {
+			...filter,
+			page: pageNum,
+			size: pageSizeNum
+		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.page}` },
+			{ key: 'pageSize', value: `${filter.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		init();
 
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
@@ -67,10 +90,14 @@
 
 			const userNames = event.payload ? [event.payload] : undefined;
 			filter = {
+				...filter,
 				page: firstPage,
-				size: pageSize,
 				user_names: userNames
 			};
+			setUrlQueryParams($page.url, [
+				{ key: 'page', value: `${filter.page}` }
+			], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 			getPagedUsers();
 		});
     });
@@ -121,7 +148,7 @@
     /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
     function refresh(users) {
 		refreshUsers(users);
-		refreshPager(users.count, filter.page, filter.size);
+		refreshPager(users.count, filter.page);
 	}
 
     /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
@@ -130,10 +157,10 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter,
 			page: page,
-			size: pageCount,
 			count: totalItemsCount
 		};
 	}
@@ -157,15 +184,23 @@
             roles: !!role ? [role] : [],
             types: !!type ? [type] : []
         };
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.page}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
     }
 
     /** @param {number} pageNum */
 	function pageTo(pageNum) {
 		filter = {
 			...filter,
-			page: pageNum,
-            size: pageSize
+			page: pageNum
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		getPagedUsers();
 	}
 

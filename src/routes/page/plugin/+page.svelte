@@ -1,14 +1,20 @@
 <script>
+	import { onMount, onDestroy } from 'svelte';
+	import { page } from '$app/stores';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import Plugins from './plugin-list.svelte';
-    import { onDestroy, onMount } from 'svelte';
     import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
+	import {
+		getPagingQueryParams,
+		setUrlQueryParams,
+		goToUrl
+	} from '$lib/helpers/utils/common';
 
 	const firstPage = 1;
 	const pageSize = 12;
@@ -31,15 +37,42 @@
 	let unsubscriber;
 
     onMount(async () => {
+		const { pageNum, pageSizeNum } = getPagingQueryParams({
+			page: $page.url.searchParams.get("page"),
+			pageSize: $page.url.searchParams.get("pageSize")
+		}, { defaultPageSize: pageSize });
+
+		filter = {
+			...filter,
+			pager: {
+				...filter.pager,
+				page: pageNum,
+				size: pageSizeNum
+			}
+		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${filter.pager.page}` },
+			{ key: 'pageSize', value: `${filter.pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		await getPagedPlugins();
 
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
 
 			filter = {
-				pager: { page: firstPage, size: pageSize, count: 0 },
+				pager: {
+					...filter.pager,
+					page: firstPage,
+					count: 0
+				},
 				similarName: event.payload || null
 			};
+			setUrlQueryParams($page.url, [
+				{ key: 'page', value: `${filter.pager.page}` }
+			], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 			getPagedPlugins();
 		});
     });
@@ -55,7 +88,7 @@
 
 	function refresh() {
 		refreshPlugins();
-		refreshPager(plugins.count, filter.pager.page, filter.pager.size);
+		refreshPager(plugins.count, filter.pager.page);
 	}
 
 	function refreshPlugins() {
@@ -71,10 +104,10 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage, pageCount = pageSize) {
+	function refreshPager(totalItemsCount, page = firstPage) {
 		pager = {
+			...filter.pager,
 			page: page,
-			size: pageCount || 0,
 			count: totalItemsCount || 0
 		};
 	}
@@ -83,6 +116,10 @@
 	 * @param {number} pageNum
 	 */
 	function pageTo(pageNum) {
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pageNum}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+
 		pager = {
 			...pager,
 			page: pageNum
