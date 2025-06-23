@@ -87,12 +87,12 @@ export const classnames = (...args) => args.filter(Boolean).join(' ');
 
 
 /**
- * @param {{ page: number | string | null, pageSize: number | string | null }} args
+ * @param {{ page: any, pageSize: any }} args
  * @param {{ defaultPageSize: number, maxPageSize?: number }} defaults
  */
 export function getPagingQueryParams(args, defaults = { defaultPageSize: 12, maxPageSize: 30 }) {
-    const pNum = Number(args.page);
-    const pSize = Number(args.pageSize);
+    const pNum = Number(args.page) || 0;
+    const pSize = Number(args.pageSize) || 0;
     const pageNum = pNum > 0 ? pNum : 1;
     const pageSizeNum = pSize > 0 ? Math.min(pSize, defaults.maxPageSize || 30) : defaults.defaultPageSize;
 
