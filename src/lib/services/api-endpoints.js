@@ -60,8 +60,6 @@ export const endpoints = {
     conversationInitUrl: `${host}/conversation/{agentId}`,
     conversationMessageUrl: `${host}/conversation/{agentId}/{conversationId}`,
 
-    conversationMessageStreamUrl: `${host}/conversation/{agentId}/{conversationId}/stream`,
-
     notificationUrl: `${host}/conversation/{conversationId}/notification`,
     conversationsUrl: `${host}/conversations`,
     conversationCountUrl: `${host}/conversations/count`,

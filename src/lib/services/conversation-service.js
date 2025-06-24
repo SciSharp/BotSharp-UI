@@ -123,35 +123,6 @@ export async function sendMessageToHub(agentId, conversationId, text, data = nul
 
 
 /**
- * send a message to the hub
- * @param {string} agentId - The agent id
- * @param {string} conversationId - The conversation id
- * @param {string} text - The text message sent to CSR
- * @param {import('$conversationTypes').MessageData?} data - Additional data
- */
-export async function sendMessageToStreamHub(agentId, conversationId, text, data = null) {
-    const url = replaceUrl(endpoints.conversationMessageStreamUrl, {
-        agentId: agentId,
-        conversationId: conversationId
-    });
-    const userStates = buildConversationUserStates(conversationId);
-    const totalStates = !!data?.states && data?.states?.length > 0 ? [...data.states, ...userStates] : [...userStates];
-
-    return new Promise((resolve, reject) => {
-        axios.post(url, {
-            text: text,
-            states: totalStates,
-            postback: data?.postback,
-            input_message_id: data?.inputMessageId
-        }).then(response => {
-            resolve(response?.data);
-        }).catch(err => {
-            reject(err);
-        });
-    });
-}
-
-/**
  * pin a conversation to dashboard
  * @param {string} agentId - The agent id
  * @param {string} conversationId - The conversation id
