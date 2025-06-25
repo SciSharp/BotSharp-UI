@@ -487,7 +487,7 @@
 		latestStateLog = message.states;
 		refresh();
 
-		if (window.parent && window.parent.location != window.location) {
+		if (isFrame) {
 			window.parent.postMessage(message, "*");
 		}
     }
