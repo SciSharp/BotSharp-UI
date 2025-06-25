@@ -678,7 +678,10 @@
 		let messageData = {
 			...data,
 			postback: postback,
-			states: [{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }]
+			states: [
+				...data?.states || [],
+				{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }
+			]
 		};
 
 		/** @type {any[]} */
