@@ -41,6 +41,7 @@
 		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
+		PUBLIC_LIVECHAT_STREAM_ENABLED,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
 	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
@@ -491,18 +492,20 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
-		if (dialogs[dialogs.length - 1]?.message_id === message.message_id
-			&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
-		) {
-			dialogs[dialogs.length - 1] = {
-				...message,
-				is_chat_message: true
-			};
-		} else {
-			dialogs.push({
-				...message,
-				is_chat_message: true
-			});
+		if (!message.is_streaming) {
+			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
+				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+			) {
+				dialogs[dialogs.length - 1] = {
+					...message,
+					is_chat_message: true
+				};
+			} else {
+				dialogs.push({
+					...message,
+					is_chat_message: true
+				});
+			}
 		}
 		
 		latestStateLog = message.states;
@@ -674,7 +677,8 @@
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,
-			postback: postback
+			postback: postback,
+			states: [{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }]
 		};
 
 		/** @type {any[]} */
