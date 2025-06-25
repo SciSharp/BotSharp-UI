@@ -486,6 +486,10 @@
 		});
 		latestStateLog = message.states;
 		refresh();
+
+		if (window.parent && window.parent.location != window.location) {
+			window.parent.postMessage(message, "*");
+		}
     }
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
