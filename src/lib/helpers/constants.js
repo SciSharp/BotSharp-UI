@@ -6,7 +6,11 @@ export const USER_SENDERS = [
     UserRole.Admin,
     UserRole.User,
     UserRole.Client,
-    UserRole.Root
+    UserRole.Root,
+    UserRole.Engineer,
+    UserRole.Csr,
+    UserRole.Technician,
+    UserRole.Operation
 ];
 
 export const ADMIN_ROLES = [
@@ -15,7 +19,8 @@ export const ADMIN_ROLES = [
 ];
 
 export const BOT_SENDERS = [
-    UserRole.Assistant
+    UserRole.Assistant,
+    UserRole.Bot
 ];
 
 export const TEXT_EDITORS = [
