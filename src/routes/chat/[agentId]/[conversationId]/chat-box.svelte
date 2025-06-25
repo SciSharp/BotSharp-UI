@@ -674,14 +674,16 @@
 		// 	postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		// }
 
+		const states = [...data?.states || []];
+		if (PUBLIC_LIVECHAT_STREAM_ENABLED === 'true') {
+			states.push({ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED });
+		}
+
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,
 			postback: postback,
-			states: [
-				...data?.states || [],
-				{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }
-			]
+			states: states
 		};
 
 		/** @type {any[]} */
