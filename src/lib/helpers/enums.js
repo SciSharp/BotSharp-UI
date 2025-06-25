@@ -4,7 +4,12 @@ const userRole = {
     User: "user",
     Client: "client",
     Function: "function",
+    Engineer: "engineer",
+    Csr: "csr",
+    Technician: "technician",
+    Operation: "operation",
     Assistant: "assistant",
+    Bot: "bot",
     Root: "root"
 };
 export const UserRole = Object.freeze(userRole);
