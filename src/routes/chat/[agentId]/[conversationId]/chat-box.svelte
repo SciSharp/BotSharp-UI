@@ -674,16 +674,14 @@
 		// 	postback = buildPostbackMessage(dialogs, data?.payload || msgText, data?.truncateMsgId);
 		// }
 
-		const states = [...data?.states || []];
-		if (PUBLIC_LIVECHAT_STREAM_ENABLED === 'true') {
-			states.push({ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED });
-		}
-
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,
 			postback: postback,
-			states: states
+			states: [
+				...data?.states || [],
+				{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }
+			]
 		};
 
 		/** @type {any[]} */
@@ -707,30 +705,24 @@
 					}
 				};
 			}
-
-			await sendMessageToHub(agentId, convId, msgText, messageData);
-			deleteMessageDraft();
-			isSendingMsg = false;
-		} else {
-			if (!!messageData?.inputMessageId) {
-				const retFiles = await getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User);
-				const filePayload = buildFilePayload(retFiles);
-				if (!!filePayload) {
-					messageData = {
-						...messageData,
-						// @ts-ignore
-						postback: {
-							...postback,
-							payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
-						}
-					};
-				}
+		} else if (!!messageData?.inputMessageId) {
+			const retFiles = await getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User);
+			const filePayload = buildFilePayload(retFiles);
+			if (!!filePayload) {
+				messageData = {
+					...messageData,
+					// @ts-ignore
+					postback: {
+						...postback,
+						payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
+					}
+				};
 			}
-
-			await sendMessageToHub(agentId, convId, msgText, messageData);
-			deleteMessageDraft();
-			isSendingMsg = false;
 		}
+
+		await sendMessageToHub(agentId, convId, msgText, messageData);
+		deleteMessageDraft();
+		isSendingMsg = false;
     }
 
     function startListen() {
