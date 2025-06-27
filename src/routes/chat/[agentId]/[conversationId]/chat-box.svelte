@@ -510,6 +510,10 @@
 		
 		latestStateLog = message.states;
 		refresh();
+
+		if (isFrame) {
+			window.parent.postMessage(message, "*");
+		}
     }
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
