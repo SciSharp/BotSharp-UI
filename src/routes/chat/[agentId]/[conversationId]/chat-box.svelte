@@ -562,7 +562,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refresh();
-					await delay(12);
+					await delay(15);
 				}
 			} catch (err) {
 				console.log(`Error when processing message queue`, err);
