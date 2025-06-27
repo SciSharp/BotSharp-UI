@@ -44,7 +44,7 @@
 		PUBLIC_LIVECHAT_STREAM_ENABLED,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import DialogModal from '$lib/common/DialogModal.svelte';
@@ -359,7 +359,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function initUserSentMessages(dialogs) {
-		const curConvMessages = dialogs?.filter(x => USER_SENDERS.includes(x.sender?.role || '')).map(x => {
+		const curConvMessages = dialogs?.filter(x => !BOT_SENDERS.includes(x.sender?.role || '')).map(x => {
 			return {
 				conversationId: params.conversationId,
 				text: x.text || ''
@@ -888,7 +888,7 @@
 		let postback = null;
 		if (!messageId) return postback;
 
-		const found = dialogs.find(x => x.message_id === messageId && USER_SENDERS.includes(x.sender?.role || ''));
+		const found = dialogs.find(x => x.message_id === messageId && !BOT_SENDERS.includes(x.sender?.role || ''));
 		const content = found?.payload;
 		if (content) {
 			postback = buildPostbackMessage(dialogs, content, messageId);
@@ -1716,9 +1716,9 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
-										<li id={'test_k' + message.message_id} class:right={USER_SENDERS.includes(message.sender?.role)}>
+										<li id={'test_k' + message.message_id} class:right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="conv-msg-container">
-												{#if USER_SENDERS.includes(message.sender?.role)}
+												{#if !BOT_SENDERS.includes(message.sender?.role)}
 												<div class="msg-container">
 													<div
 														tabindex="0"
