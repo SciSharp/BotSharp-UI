@@ -50,6 +50,11 @@
     }
 </script>
 
-<div id={`js-interpreter-scrollbar-${scrollbarId}`}>
-    <div id={`chart-${message?.message_id}`}></div>
+<div>
+    {#if message?.text}
+        <div class="mb-3">{message.text}</div>
+    {/if}
+    <div id={`js-interpreter-scrollbar-${scrollbarId}`}>
+        <div id={`chart-${message?.message_id}`} style="min-width: 1000px;"></div>
+    </div>
 </div>
