@@ -1,7 +1,9 @@
 <script>
 	import Markdown from "$lib/common/markdown/Markdown.svelte";
+	import { RichType } from "$lib/helpers/enums";
+	import RcJsInterpreter from "./rc-js-interpreter.svelte";
 
-    /** @type {any} */
+    /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;
 
     /** @type {string} */
@@ -12,13 +14,21 @@
 
     /** @type {string} */
     export let markdownClasses = '';
+
+    $: text = message?.rich_content?.message?.text || message?.text || '';
 </script>
 
-<div
-    class={`ctext-wrap bg-primary ${containerClasses}`}
-    style={`${containerStyles}`}
->
-	<div class="flex-shrink-0 align-self-center">
-        <Markdown containerClasses={markdownClasses} text={message?.rich_content?.message?.text || message?.text} rawText />
+{#if text}
+    <div
+        class={`ctext-wrap bg-primary ${containerClasses}`}
+        style={`${containerStyles}`}
+    >
+        <div class="flex-shrink-0 align-self-center">
+            {#if message?.rich_content?.message?.rich_type === RichType.JsCode}
+                <RcJsInterpreter message={message} scrollable />
+            {:else}
+                <Markdown containerClasses={markdownClasses} text={text} rawText />
+            {/if}
+        </div>
     </div>
-</div>
+{/if}
