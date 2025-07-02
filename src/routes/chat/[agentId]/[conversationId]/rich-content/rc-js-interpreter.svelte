@@ -11,7 +11,7 @@
     /** @type {boolean} */
 	export let scrollable = false;
 
-    const scrollbarId = uuidv4();
+    const scrollbarId = `js-interpreter-scrollbar-${uuidv4()}`;
     const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -33,7 +33,7 @@
     });
 
     function initScrollbar() {
-        const elem = document.querySelector(`#js-interpreter-scrollbar-${scrollbarId}`);
+        const elem = document.querySelector(`#${scrollbarId}`);
 		if (elem) {
 			// @ts-ignore
 			const scrollbar = OverlayScrollbars(elem, options);
@@ -77,7 +77,7 @@
     {#if message?.text}
         <div class="mb-3">{message.text}</div>
     {/if}
-    <div id={`js-interpreter-scrollbar-${scrollbarId}`}>
+    <div id={`${scrollbarId}`}>
         <div id={`chart-${message?.message_id}`} style="min-width: 1000px; max-height: 500px;"></div>
     </div>
 </div>
