@@ -41,12 +41,35 @@
     }
 
     function initCode() {
-        const text = message?.rich_content?.message?.text || message?.text || '';
-        const parsedText = marked.lexer(text);
-        // @ts-ignore
-        const codeText = parsedText.find(token => token.type === 'code' || token.type === 'html')?.text || '';
-        const code = codeText.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/i, '$1');
-        eval(code);
+        try {
+            const text = message?.rich_content?.message?.text || message?.text || '';
+            const parsedText = marked.lexer(text);
+            // @ts-ignore
+            const codeText = parsedText.filter(x => !!x.text).map(x => x.text).join('');
+            loadScript(codeText);
+        } catch (error) {
+            console.error('Error parsing js code:', error);
+        }
+    }
+
+    /** @param {string} codeText */
+    function loadScript(codeText) {
+        const code = codeText.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, '$1');
+        const matchedSrcs = codeText.match(/<script\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/i);
+        if (matchedSrcs && matchedSrcs[1]) {
+            const curScripts = document.head.getElementsByTagName("script");
+            const found = Array.from(curScripts).find(x => x.src === matchedSrcs[1]);
+            if (found) {
+                found.remove();
+            }
+
+            const script = document.createElement('script');
+            script.src = matchedSrcs[1];
+            script.onload = () => eval(code);
+            document.head.appendChild(script);
+        } else {
+            eval(code);
+        }
     }
 </script>
 
