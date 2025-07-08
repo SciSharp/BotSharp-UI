@@ -24,7 +24,8 @@
         style={`${containerStyles}`}
     >
         <div class="flex-shrink-0 align-self-center">
-            {#if message?.rich_content?.message?.rich_type === RichType.JsCode}
+            {#if message?.rich_content?.message?.rich_type === RichType.ProgramCode
+                && message?.rich_content?.message?.language === 'javascript'}
                 <RcJsInterpreter message={message} scrollable />
             {:else}
                 <Markdown containerClasses={markdownClasses} text={text} rawText />

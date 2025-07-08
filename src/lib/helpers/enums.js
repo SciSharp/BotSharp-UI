@@ -28,7 +28,7 @@ const richType = {
     MultiSelect: 'multi-select_template',
     Generic: 'generic_template',
     Upload: 'upload_template',
-    JsCode: 'js_code',
+    ProgramCode: 'program_code',
 }
 export const RichType = Object.freeze(richType);
 
