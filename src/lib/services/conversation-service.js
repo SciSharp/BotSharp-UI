@@ -2,8 +2,8 @@ import axios from 'axios';
 import qs from 'qs';
 import { replaceUrl } from '$lib/helpers/http';
 import { conversationUserStateStore } from '$lib/helpers/store.js';
-import { endpoints } from './api-endpoints.js';
 import { buildConversationUserStates } from '$lib/helpers/conversation.js';
+import { endpoints } from './api-endpoints.js';
 
 /**
  * New conversation
