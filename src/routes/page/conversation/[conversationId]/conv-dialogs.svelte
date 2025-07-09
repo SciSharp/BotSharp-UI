@@ -14,7 +14,7 @@
 
     const maxTextLength = 4096;
     const duration = 1500;
-    const dialogCount = 50;
+    const dialogCount = 100;
 
     /** @type {import('$conversationTypes').ChatResponseModel[]} */
     let dialogs = [];

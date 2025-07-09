@@ -91,7 +91,7 @@
 	const chatWidthThreshold = 500;
 	const maxTextLength = 64000;
 	const duration = 2000;
-	const dialogCount = 50;
+	const dialogCount = 100;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	
 	/** @type {import('$agentTypes').AgentModel} */
