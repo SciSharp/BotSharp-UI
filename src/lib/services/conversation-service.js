@@ -3,6 +3,7 @@ import qs from 'qs';
 import { replaceUrl } from '$lib/helpers/http';
 import { conversationUserStateStore } from '$lib/helpers/store.js';
 import { endpoints } from './api-endpoints.js';
+import { buildConversationUserStates } from '$lib/helpers/conversation.js';
 
 /**
  * New conversation
@@ -165,26 +166,6 @@ export async function sendNotification(conversationId, text, data = null) {
         postback: data?.postback
     });
     return response.data;
-}
-
-/**
- * @param {string} conversationId
- */
-function buildConversationUserStates(conversationId) {
-    const userStates = conversationUserStateStore.get(conversationId);
-    if (!!userStates && userStates.conversationId == conversationId) {
-        // @ts-ignore
-        const states = userStates.states?.map(state => {
-            return {
-                key: state.key.data,
-                value: state.value.data,
-                active_rounds: state.active_rounds.data || -1
-            };
-        }) || [];
-        // conversationUserStateStore.resetOne(conversationId);
-        return states;
-    }
-    return [];
 }
 
 /**
