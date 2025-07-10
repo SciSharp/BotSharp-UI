@@ -1,4 +1,5 @@
 import { PUBLIC_SERVICE_URL } from "$env/static/public";
+import { buildConversationUserStates } from "$lib/helpers/conversation";
 import { AudioRecordingWorklet } from "$lib/helpers/realtime/pcmProcessor";
 
 // @ts-ignore
@@ -42,7 +43,10 @@ export const realtimeChat = {
             console.log("WebSocket connected");
 
             socket?.send(JSON.stringify({
-                event: "start"
+                event: "start",
+                body: {
+                    payload: JSON.stringify(buildConversationUserStates(conversationId))
+                }
             }));
 
             mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
