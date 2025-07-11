@@ -55,21 +55,43 @@
     /** @param {string} codeText */
     function loadScript(codeText) {
         const code = codeText.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gi, '$1');
-        const matchedSrcs = codeText.match(/<script\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/i);
-        if (matchedSrcs && matchedSrcs[1]) {
+        const scriptTags = [...codeText.matchAll(/<script\s+[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi)];
+        const matchedSrcs = scriptTags.filter(x => !!x[1]).map(x => x[1]);
+
+        if (matchedSrcs.length > 0) {
+            const promises = matchedSrcs.map(x => loadScriptSrc(x));
+            Promise.all(promises).then(() => setTimeout(() => eval(code), 0));
+        } else {
+            setTimeout(() => eval(code), 0);
+        }
+    }
+
+    /** @param {string} src */
+    function loadScriptSrc(src) {
+        return new Promise(resolve => {
             const curScripts = document.head.getElementsByTagName("script");
-            const found = Array.from(curScripts).find(x => x.src === matchedSrcs[1]);
+            const found = Array.from(curScripts).find(x => x.src === src);
             if (found) {
                 found.remove();
             }
 
             const script = document.createElement('script');
-            script.src = matchedSrcs[1];
-            script.onload = () => eval(code);
+            script.async = false;
+            script.src = src;
+            script.onload = () => {
+                setTimeout(() => {
+                    console.log(`Script loaded: ${src}`);
+                    resolve(true);
+                }, 0);
+            }
+            script.onerror = () => {
+                setTimeout(() => {
+                    console.log(`Error when loading script: ${src}`);
+                    resolve(false);
+                }, 0);
+            }
             document.head.appendChild(script);
-        } else {
-            eval(code);
-        }
+        });
     }
 </script>
 
