@@ -138,15 +138,15 @@
     /** @param {any} e */
     function onAgentSelected(e) {
         selectedAgent = e.detail.agent || null;
-        let text = selectedAgent?.instruction;
+        let localText = selectedAgent?.instruction;
 
         const template = e.detail.template || null;
         selectedTemplate = template?.name || null;
         if (!!template) {
-            text = template?.content;
+            localText = template?.content;
         }
-        
-        instruction = text || '';
+
+        instruction = localText || '';
         const providerName = selectedAgent?.llm_config?.provider || null;
         const modelName = selectedAgent?.llm_config?.model || null;
         selectedProvider = llmConfigs?.find(x => x.provider === providerName) || null;
