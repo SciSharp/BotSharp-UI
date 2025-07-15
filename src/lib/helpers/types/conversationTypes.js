@@ -7,6 +7,7 @@
  * @typedef {Object} ConversationFilter
  * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string?} [agentId] - The agent id.
+ * @property {string[]?} [agentIds] - The agent ids.
  * @property {string?} [channel] - The conversation channel.
  * @property {string?} [status] - The conversation status.
  * @property {string?} [taskId] - The task id.
@@ -298,6 +299,7 @@ IRichContent.prototype.language;
 /**
  * @typedef {Object} ConversationSearchOption
  * @property {string?} [agentId]
+ * @property {string[]} [agentIds]
  * @property {string?} [channel]
  * @property {string?} [taskId]
  * @property {string?} [status]
