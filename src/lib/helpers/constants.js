@@ -20,7 +20,8 @@ export const ADMIN_ROLES = [
 
 export const BOT_SENDERS = [
     UserRole.Assistant,
-    UserRole.Bot
+    UserRole.Bot,
+    UserRole.System
 ];
 
 export const TEXT_EDITORS = [
