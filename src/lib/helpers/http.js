@@ -212,7 +212,7 @@ export function replaceNewLine(text) {
  * @returns {string}
  */
 export function replaceMarkdown(text) {
-    let res = text.replace(/#([\s]+)/g, '\\# ').replace(/[-|=]{3,}/g, '');
+    let res = text.replace(/#([\s]+)/g, '\\# ').replace(/[-|=]{3,}/g, '@@@');
 
     let regex1 = new RegExp('\\*(.*)\\*', 'g');
     let regex2 = new RegExp('\\*([\\*]+)\\*', 'g');

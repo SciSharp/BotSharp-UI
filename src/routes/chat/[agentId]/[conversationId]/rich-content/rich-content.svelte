@@ -48,11 +48,11 @@
     }
 </script>
 
+
+
 {#if message?.rich_content?.editor === EditorType.File}
     <ChatAttachmentOptions options={options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
-{/if}
-
-{#if message?.rich_content?.editor !== EditorType.File}
+{:else}
     {#if !isComplexElement}
         <RcPlainOptions options={options} isMultiSelect={isMultiSelect} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
     {:else}

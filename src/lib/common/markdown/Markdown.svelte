@@ -21,8 +21,7 @@
 	/** @type {boolean} */
 	export let scrollable = false;
 
-	const scrollbarId = uuidv4();
-
+	const scrollbarId = `markdown-scrollbar-${uuidv4()}`;
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -42,7 +41,7 @@
 	});
 
 	function initScrollbar() {
-        const elem = document.querySelector(`#markdown-scrollbar-${scrollbarId}`);
+        const elem = document.querySelector(`#${scrollbarId}`);
 		if (elem) {
 			// @ts-ignore
 			const scrollbar = OverlayScrollbars(elem, options);
@@ -65,7 +64,7 @@
 </script>
 
 <div
-	id={`markdown-scrollbar-${scrollbarId}`}
+	id={`${scrollbarId}`}
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 >

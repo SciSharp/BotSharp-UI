@@ -106,6 +106,16 @@ IRichContent.prototype.elements;
 IRichContent.prototype.quick_replies;
 
 /**
+ * The language of the code rich content.
+ *
+ * @name language
+ * @type {string}
+ * @instance
+ */
+IRichContent.prototype.language;
+
+
+/**
  * @typedef {Object} TextMessage
  * @property {string} text
  * @property {string} rich_type 
