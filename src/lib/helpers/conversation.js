@@ -2,6 +2,7 @@ import { conversationUserStateStore } from "./store";
 
 /**
  * @param {string} conversationId
+ * @returns {import('$conversationTypes').ConversationStateModel[]}
  */
 export function buildConversationUserStates(conversationId) {
     const userStates = conversationUserStateStore.get(conversationId);

@@ -18,6 +18,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Select from '$lib/common/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
@@ -55,23 +56,24 @@
 	/** @type {string[]} */
 	let searchStateStrs = [];
 
-	/** @type {import('$commonTypes').IdName[]} */
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentOptions = [];
 
-	/** @type {import('$commonTypes').IdName[]} */
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let statusOptions = [
-		{ id: 'open', name: 'Active' },
-		{ id: 'closed', name: 'Completed' }
+		{ value: 'open', label: 'Active' },
+		{ value: 'closed', label: 'Completed' }
 	];
 
-	/** @type {import('$commonTypes').IdName[]} */
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let channelOptions = Object.entries(ConversationChannel).map(([k, v]) => (
-		{ id: k.toLowerCase(), name: v }
+		{ value: k.toLowerCase(), label: v }
 	));
 
 	/** @type {import('$conversationTypes').ConversationSearchOption} */
 	let searchOption = {
 		agentId: null,
+		agentIds: [],
 		channel: null,
 		status: null,
 		taskId: null,
@@ -134,8 +136,8 @@
 			getAgentOptions().then(res => {
 				agentOptions = res?.map(x => {
 					return {
-						id: x.id,
-						name: x.name
+						label: x.name || '',
+						value: x.id || ''
 					};
 				}) || [];
 				resolve(agentOptions);
@@ -276,6 +278,7 @@
 		filter = {
 			...filter,
 			agentId: searchOption.agentId,
+			agentIds: searchOption.agentIds,
 			channel: searchOption.channel,
 			status: searchOption.status,
 			taskId: searchOption.taskId,
@@ -339,25 +342,28 @@
 	 * @param {string} type
 	 */
 	function changeOption(e, type) {
+		// @ts-ignore
+		const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
+
 		if (type === 'agent') {
 			searchOption = {
 				...searchOption,
-				agentId: e.target.value || null
+				agentIds: selectedValues
 			};
 		} else if (type === 'task') {
 			searchOption = {
 				...searchOption,
-				taskId: e.target.value || null
+				taskId: selectedValues.length > 0 ? selectedValues[0] : null
 			};
 		} else if (type === 'channel') {
 			searchOption = {
 				...searchOption,
-				channel: e.target.value || null
+				channel: selectedValues.length > 0 ? selectedValues[0] : null
 			};
 		} else if (type === 'status') {
 			searchOption = {
 				...searchOption,
-				status: e.target.value || null
+				status: selectedValues.length > 0 ? selectedValues[0] : null
 			};
 		} else if (type === 'tags') {
 			searchOption = {
@@ -424,33 +430,46 @@
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">
-						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={e => changeOption(e, 'agent')}>
-							<option value={null}>{$_('Select Agent')}</option>
-							{#each agentOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.agentId}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
+						<Select
+							tag={'agent-select'}
+							placeholder={'Select Agents'}
+							selectedText={'agents'}
+							multiSelect
+							searchMode
+							selectedValues={searchOption.agentIds}
+							options={agentOptions}
+							on:select={e => changeOption(e, 'agent')}
+						/>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idTask" value={searchOption.taskId} on:change={e => changeOption(e, 'task')}>
-							<option value={null}>{$_('Select Task')}</option>
-						</select>
+						<Select
+							tag={'task-select'}
+							placeholder={'Select Task'}
+							selectedText={'task'}
+							selectedValues={[]}
+							options={[]}
+							on:select={e => changeOption(e, 'task')}
+						/>
 					</Col>					
 					<Col lg="2">
-						<select class="form-select" id="idStatus" value={searchOption.status} on:change={e => changeOption(e, 'status')}>
-							<option value={null}>{$_('Select Status')}</option>
-							{#each statusOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.status}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
+						<Select
+							tag={'task-select'}
+							placeholder={'Select Status'}
+							selectedText={'status'}
+							selectedValues={searchOption.status ? [searchOption.status] : []}
+							options={statusOptions}
+							on:select={e => changeOption(e, 'status')}
+						/>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idChannel" value={searchOption.channel} on:change={e => changeOption(e, 'channel')}>
-							<option value={null}>{$_('Select Channel')}</option>
-							{#each channelOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.channel}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
+						<Select
+							tag={'channel-select'}
+							placeholder={'Select Channel'}
+							selectedText={'channel'}
+							selectedValues={searchOption.channel ? [searchOption.channel] : []}
+							options={channelOptions}
+							on:select={e => changeOption(e, 'channel')}
+						/>
 					</Col>
 					<Col lg="2">
 						<Input

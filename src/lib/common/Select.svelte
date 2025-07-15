@@ -1,5 +1,5 @@
 <script>
-	import { onMount, createEventDispatcher, tick, afterUpdate } from "svelte";
+	import { onMount, createEventDispatcher, tick } from "svelte";
     import { Input } from "@sveltestrap/sveltestrap";
     import { clickoutsideDirective } from "$lib/helpers/directives";
 
@@ -12,7 +12,13 @@
     export let options = [];
 
     /** @type {boolean} */
+    export let multiSelect = false;
+
+    /** @type {boolean} */
     export let selectAll = true;
+
+    /** @type {boolean} */
+    export let disabled = false;
 
     /** @type {string} */
     export let searchPlaceholder = '';
@@ -24,7 +30,7 @@
     export let selectedText = '';
 
     /** @type {string[]} */
-    export let selectedLabels;
+    export let selectedValues = [];
 
     /** @type {string} */
     export let containerClasses = "";
@@ -37,6 +43,9 @@
 
     /** @type {boolean} */
     export let searchMode = false;
+
+    /** @type {boolean} */
+    export let loadMore = false;
 
     /** @type {null | undefined | (() => Promise<any>)} */
     export let onScrollMoreOptions = null;
@@ -64,6 +73,48 @@
     let loading = false;
 
     onMount(() => {
+        initOptions();
+    });
+
+    $: {
+        innerOptions = verifySelectedOptions(innerOptions, selectedValues);
+        refOptions = verifySelectedOptions(innerOptions, selectedValues);
+        changeDisplayText();
+    }
+
+    $: {
+        if (loadMore) {
+            if (options.length > refOptions.length) {
+                const curKeys = refOptions.map(x => x.value);
+                const newOptions = options.filter(x => !curKeys.includes(x.value)).map(x => {
+                    return {
+                        label: x.label,
+                        value: x.value,
+                        checked: false
+                    };
+                });
+
+                innerOptions = [
+                    ...innerOptions,
+                    ...newOptions
+                ];
+
+                refOptions = [
+                    ...refOptions,
+                    ...newOptions
+                ];
+
+                changeDisplayText();
+            }
+        } else {
+            innerOptions = verifySelectedOptions(options, selectedValues);
+            refOptions = verifySelectedOptions(options, selectedValues);
+            changeDisplayText();
+        }
+    }
+
+
+    function initOptions() {
         innerOptions = options.map(x => {
             return {
                 label: x.label,
@@ -79,47 +130,27 @@
                 checked: false
             }
         });
-    });
-
-    $: {
-        innerOptions = innerOptions.map(x => {
-            x.checked = !!selectedLabels?.includes(x.label);
-            return {...x};
-        });
-        refOptions = refOptions.map(x => {
-            x.checked = !!selectedLabels?.includes(x.label);
-            return {...x};
-        });
-        changeDisplayText();
     }
 
-    $: {
-        if (options.length > refOptions.length) {
-            const curKeys = refOptions.map(x => x.label);
-            const newOptions = options.filter(x => !curKeys.includes(x.label)).map(x => {
-                return {
-                    label: x.label,
-                    value: x.value,
-                    checked: false
-                };
-            });
-
-            innerOptions = [
-                ...innerOptions,
-                ...newOptions
-            ];
-
-            refOptions = [
-                ...refOptions,
-                ...newOptions
-            ];
-
-            changeDisplayText();
-        }
+    /**
+	 * @param {any[]} list
+	 * @param {string[]} selecteds
+	 */
+    function verifySelectedOptions(list, selecteds) {
+        return list?.map(x => {
+            const item = { ...x, checked: false };
+            if (multiSelect) {
+                item.checked = !!selecteds?.includes(item.value);
+            } else {
+                item.checked = selecteds.length > 0 && selecteds[0] === item.value;
+            }
+            return item;
+        }) || [];
     }
-
 
     async function toggleOptionList() {
+        if (disabled) return;
+
         showOptionList = !showOptionList;
         if (showOptionList) {
             await tick();
@@ -131,8 +162,10 @@
     /** @param {any} e */
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
+        const innerValue = searchValue.toLowerCase();
+
         if (searchValue) {
-            innerOptions = [...refOptions.filter(x => x.value.includes(searchValue))];
+            innerOptions = [...refOptions.filter(x => x.label.toLowerCase().includes(innerValue))];
         } else {
             innerOptions = [...refOptions];
         }
@@ -147,21 +180,28 @@
 	 */
     function checkOption(e, option) {
         innerOptions = innerOptions.map(x => {
-            if (x.label == option.label) {
-                x.checked = e == null ? !x.checked : e.target.checked;
+            const item = { ...x };
+            if (item.value == option.value) {
+                item.checked = e == null ? !item.checked : e.target.checked;
+            } else if (!multiSelect) {
+                item.checked = false;
             }
-            return { ...x };
+            return item;
         });
 
         refOptions = refOptions.map(x => {
-            if (x.label == option.label) {
-                x.checked = e == null ? !x.checked : e.target.checked;
+            const item = { ...x };
+            if (item.value == option.value) {
+                item.checked = e == null ? !item.checked : e.target.checked;
+            } else if (!multiSelect) {
+                item.checked = false;
             }
-            return { ...x };
+            return item;
         });
 
         changeDisplayText();
         sendEvent();
+        hideOptionList();
     }
 
     /** @param {any} e */
@@ -178,9 +218,9 @@
 
     /** @param {boolean} checked */
     function syncChangesToRef(checked) {
-        const keys = innerOptions.map(x => x.label);
+        const keys = innerOptions.map(x => x.value);
         refOptions = refOptions.map(x => {
-            if (keys.includes(x.label)) {
+            if (keys.includes(x.value)) {
                 return {
                     ...x,
                     checked: checked
@@ -192,20 +232,25 @@
     }
 
     function changeDisplayText() {
-        const count = refOptions.filter(x => x.checked).length;
-        if (count === 0) {
-            displayText = '';
-        } else if (count === options.length) {
-            displayText = `All selected ${selectedText} (${count})`;
+        if (multiSelect) {
+            const count = refOptions.filter(x => x.checked).length;
+            if (count === 0) {
+                displayText = '';
+            } else if (count === options.length) {
+                displayText = `All selected ${selectedText} (${count})`;
+            } else {
+                displayText = `Selected ${selectedText} (${count})`;
+            }
         } else {
-            displayText = `Selected ${selectedText} (${count})`;
+            const selected = refOptions.find(x => x.checked);
+            displayText = selected?.label || '';
         }
 
         verifySelectAll();
     }
 
     function verifySelectAll() {
-        if (!selectAll) return;
+        if (!selectAll || !multiSelect) return;
 
         const innerCount = innerOptions.filter(x => x.checked).length;
         if (innerCount < innerOptions.length) {
@@ -266,6 +311,26 @@
             }
         }
     }
+
+    function clearSelection() {
+        innerOptions = innerOptions.map(x => {
+            return { ...x, checked: false }
+        });
+
+        refOptions = refOptions.map(x => {
+            return { ...x, checked: false }
+        });
+
+        changeDisplayText();
+        sendEvent();
+        hideOptionList();
+    }
+
+    function hideOptionList() {
+        if (!multiSelect) {
+            showOptionList = false;
+        }
+    }
 </script>
 
 
@@ -277,22 +342,24 @@
 >
     <!-- svelte-ignore a11y-click-events-have-key-events -->
     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <ul
+    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <div
         class="display-container"
         id={`multiselect-btn-${tag}`}
         on:click={() => toggleOptionList()}
     >
         <Input
             type="text"
-            class='clickable'
+            class={`clickable ${disabled ? 'disabled' : ''}`}
             value={displayText}
             placeholder={placeholder}
+            disabled={disabled}
             readonly
         />
         <div class={`display-suffix ${showOptionList ? 'show-list' : ''}`}>
             <i class="bx bx-chevron-down" />
         </div>
-    </ul>
+    </div>
     {#if showOptionList}
         <ul class="option-list" id={`multiselect-list-${tag}`} on:scroll={() => innerScroll()}>
             {#if searchMode}
@@ -309,22 +376,39 @@
                 </div>
             {/if}
             {#if innerOptions.length > 0}
-                {#if selectAll}
+                {#if selectAll && multiSelect}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <li
                         class="option-item clickable"
-                        on:click={() => checkSelectAll(null)}
+                        on:click|preventDefault|stopPropagation={() => {
+                            checkSelectAll(null);
+                        }}
                     >
                         <div class="line-align-center select-box">
                             <Input
                                 type="checkbox"
+                                style="pointer-events: none;"
                                 checked={selectAllChecked}
-                                on:change={e => checkSelectAll(e)}
+                                readonly
                             />
                         </div>
                         <div class="line-align-center select-name fw-bold">
                             {'Select all'}
+                        </div>
+                    </li>
+                {/if}
+                {#if !multiSelect}
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <li
+                        class="option-item clickable"
+                        on:click|preventDefault|stopPropagation={() => {
+                            clearSelection();
+                        }}
+                    >
+                        <div class="line-align-center text-secondary">
+                            {`Clear selection`}
                         </div>
                     </li>
                 {/if}
@@ -333,13 +417,16 @@
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <li
                         class="option-item clickable"
-                        on:click={() => checkOption(null, option)}
+                        on:click|preventDefault|stopPropagation={() => {
+                            checkOption(null, option);
+                        }}
                     >
                         <div class="line-align-center select-box">
                             <Input
                                 type="checkbox"
+                                style="pointer-events: none;"
                                 checked={option.checked}
-                                on:change={e => checkOption(e, option)}
+                                readonly
                             />
                         </div>
                         <div class="line-align-center select-name">

@@ -45,7 +45,9 @@ export const realtimeChat = {
             socket?.send(JSON.stringify({
                 event: "start",
                 body: {
-                    payload: JSON.stringify(buildConversationUserStates(conversationId))
+                    payload: JSON.stringify({
+                        states: buildConversationUserStates(conversationId)
+                    })
                 }
             }));
 
