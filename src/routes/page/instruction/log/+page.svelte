@@ -14,6 +14,7 @@
 	import LogItem from './log-item.svelte';
 	import { removeDuplicates } from '$lib/helpers/utils/common';
 	import StateSearch from '$lib/common/StateSearch.svelte';
+	import Select from '$lib/common/Select.svelte';
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
@@ -35,7 +36,7 @@
     /** @type {import('$instructTypes').InstructionLogModel[]} */
 	let logItems = [];
 
-    /** @type {import('$commonTypes').IdName[]} */
+    /** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentOptions = [];
 
     /** @type {import('$commonTypes').LlmConfig[]} */
@@ -49,9 +50,9 @@
 
     /** @type {any} */
 	let searchOption = {
-		agentId: null,
-		provider: null,
-		model: null,
+		agentIds: [],
+		providers: [],
+		models: [],
         template: '',
 		states: []
 	};
@@ -93,8 +94,8 @@
 			getAgentOptions().then(res => {
 				agentOptions = res?.map(x => {
 					return {
-						id: x.id,
-						name: x.name
+						label: x.name || '',
+						value: x.id || ''
 					};
 				}) || [];
 				resolve(agentOptions);
@@ -110,10 +111,10 @@
 			getLlmConfigs().then(res => {
 				llmConfigs = res || [];
                 providerOptions = llmConfigs.map(x => ({
-                    id: x.provider,
-                    name: x.provider,
+					label: x.provider,
+					value: x.provider,
                     models: x.models || []
-                })).sort((a, b) => a.name.localeCompare(b.name));
+                })).sort((a, b) => a.label.localeCompare(b.label));
                 modelOptions = [];
 				resolve(llmConfigs);
 			}).catch((error) => {
@@ -167,29 +168,36 @@
 	 * @param {string} type
 	 */
 	function changeOption(e, type) {
-        const value = e.target.value;
+		// @ts-ignore
+		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
+
 		if (type === 'agent') {
 			searchOption = {
 				...searchOption,
-				agentId: value || null
+				agentIds: selectedValues
 			};
 		} else if (type === 'provider') {
 			searchOption = {
 				...searchOption,
-				provider: value || null,
-                model: null,
+				// @ts-ignore
+				providers: selectedValues,
+                models: [],
 			};
 
-            const models = llmConfigs.find(x => x.provider === value)?.models?.map(x => ({
-                id: x.name,
-                name: x.name
-            })) || [];
-            const uniqueModels = removeDuplicates(models, 'id');
-            modelOptions = uniqueModels.sort((a, b) => a.name.localeCompare(b.name)) || [];
+			if (selectedValues.length > 0) {
+				const models = llmConfigs.find(x => x.provider === selectedValues[0])?.models?.map(x => ({
+					label: x.name,
+					value: x.name
+				})) || [];
+				const uniqueModels = removeDuplicates(models, 'label');
+				modelOptions = uniqueModels.sort((a, b) => a.label.localeCompare(b.label)) || [];
+			} else {
+				modelOptions = [];
+			}
 		} else if (type === 'model') {
             searchOption = {
 				...searchOption,
-				model: value || null
+				models: selectedValues
 			};
         }
 	}
@@ -201,18 +209,18 @@
     }
 
     function prepareFilter() {
-        const agentId = searchOption.agentId || null;
-        const provider = searchOption.provider || null;
-        const model = searchOption.model || null;
+        const agentIds = searchOption.agentIds;
+        const providers = searchOption.providers;
+        const models = searchOption.models;
         const template = util.trim(searchOption.template) || null;
 		const states = getSearchStates();
 
         filter = {
             ...filter,
             page: firstPage,
-            agentIds: agentId ? [agentId] : [],
-            providers: provider ? [provider] : [],
-            models: model ? [model] : [],
+            agentIds: agentIds,
+            providers: providers,
+            models: models,
             templateNames: template ? [template] : [],
 			states: states
         };
@@ -251,7 +259,7 @@
 			getInstructionLogSearchKeys({
 				query: query,
 				keyLimit: 20,
-				agentIds: searchOption.agentId ? [searchOption.agentId] : null
+				agentIds: searchOption.agentIds
 			}).then(res => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
@@ -303,28 +311,38 @@
 			<CardBody class="border-bottom">
 				<Row class="g-3">
 					<Col lg="3">
-						<select class="form-select" id="idAgent" value={searchOption.agentId} on:change={e => changeOption(e, 'agent')}>
-							<option value={null}>{$_('Select Agent')}</option>
-							{#each agentOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.agentId}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
+						<Select
+							tag={'agent-select'}
+							placeholder={'Select Agents'}
+							selectedText={'agents'}
+							multiSelect
+							searchMode
+							selectedValues={searchOption.agentIds}
+							options={agentOptions}
+							on:select={e => changeOption(e, 'agent')}
+						/>
 					</Col>
 					<Col lg="2">
-						<select class="form-select" id="idProvider" value={searchOption.provider} on:change={e => changeOption(e, 'provider')}>
-							<option value={null}>{$_('Select Llm Provider')}</option>
-							{#each providerOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.provider}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
-					</Col>					
+						<Select
+							tag={'llm-provider-select'}
+							placeholder={'Select LLM Provider'}
+							searchMode
+							selectedValues={searchOption.providers}
+							options={providerOptions}
+							on:select={e => changeOption(e, 'provider')}
+						/>
+					</Col>
 					<Col lg="3">
-						<select class="form-select" id="idModel" value={searchOption.model} on:change={e => changeOption(e, 'model')}>
-							<option value={null}>{$_('Select Llm Model')}</option>
-							{#each modelOptions as op}
-								<option value={`${op.id}`} selected={op.id === searchOption.model}>{$_(`${op.name}`)}</option>
-							{/each}
-						</select>
+						<Select
+							tag={'llm-model-select'}
+							placeholder={'Select LLM Model'}
+							selectedText={'models'}
+							multiSelect
+							searchMode
+							selectedValues={searchOption.models}
+							options={modelOptions}
+							on:select={e => changeOption(e, 'model')}
+						/>
 					</Col>
 					<Col lg="3">
 						<Input bind:value={searchOption.template} maxlength={100} placeholder={'Search template...'} />

@@ -1,6 +1,17 @@
 .multiselect-container {
     position: relative;
 
+    &.disabled {
+        .display-container {
+            cursor: not-allowed;
+
+            .display-suffix {
+                opacity: 0.65;
+                cursor: not-allowed;
+            }
+        }
+    }
+
     .display-container {
         .display-suffix {
             position: absolute;
@@ -15,6 +26,13 @@
 
         input[type='text'] {
             padding-right: 1.5rem;
+
+            &.disabled {
+                background-color: var(--bs-secondary-bg) !important;
+                color: var(--bs-secondary-color);
+                cursor: not-allowed;
+                opacity: 0.65;
+            }
         }
 
         .show-list {

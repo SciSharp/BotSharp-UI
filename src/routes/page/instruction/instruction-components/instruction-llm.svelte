@@ -1,6 +1,7 @@
 <script>
     import { afterUpdate, createEventDispatcher, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
+    import Select from '$lib/common/Select.svelte';
 
     const svelteDispatch = createEventDispatcher();
 
@@ -16,7 +17,7 @@
     /** @type {any} */
     export let selectedModel = null;
 
-    /** @type {any[]} */
+    /** @type {import('$commonTypes').LabelValuePair[]} */
     let providerOptions = [];
     /** @type {any[]} */
     let modelOptions = [];
@@ -36,23 +37,25 @@
     /** @param {import('$commonTypes').LlmConfig[]} llmConfigs */
     function collectLlmOptions(llmConfigs) {
         providerOptions = llmConfigs?.map(x => ({
-            id: x.provider,
-            name: x.provider
-        }))?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+            label: x.provider,
+            value: x.provider
+        }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
     }
 
     /** @param {any} e */
     function selectProvider(e) {
-        const selected = e.target.value || null;
-        selectedProvider = llmConfigs?.find(x => x.provider === selected) || null;
+        // @ts-ignore
+		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
+        selectedProvider = llmConfigs?.find(x => x.provider === selectedValues[0]) || null;
         onProviderChanged();
         disPatchEvent();
     }
 
     /** @param {any} e */
     function selectModel(e) {
-        const selected = e.target.value || null;
-        selectedModel = modelOptions.find(x => x.id === selected);
+        // @ts-ignore
+		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
+        selectedModel = modelOptions.find(x => x.id === selectedValues[0]);
         disPatchEvent();
     }
 
@@ -60,11 +63,13 @@
     function onProviderChanged(targetModel = null) {
         modelOptions = selectedProvider?.models?.map(x => ({
             id: x.name,
-            name: x.name
-        }))?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+            name: x.name,
+            label: x.name,
+            value: x.name
+        }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
 
         if (!!targetModel) {
-            selectedModel = modelOptions.find(x => x.name === targetModel) || null;
+            selectedModel = modelOptions.find(x => x.value === targetModel) || null;
         } else {
             selectedModel = modelOptions.length > 0 ? modelOptions[0] : null;
         }
@@ -83,24 +88,42 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Provider</div>
-            <select class="form-select" id="provider" value={selectedProvider?.provider || null} disabled={disabled} on:change={e => selectProvider(e)}>
+            <!-- <select class="form-select" id="provider" value={selectedProvider?.provider || null} disabled={disabled} on:change={e => selectProvider(e)}>
                 <option value={null} disabled selected>{$_('Select Provider')}</option>
                 {#each providerOptions as op}
                     <option value={`${op.id}`} selected={op.id === selectedProvider?.provider}>{$_(`${op.name}`)}</option>
                 {/each}
-            </select>
+            </select> -->
+            <Select
+                tag={'provider-select'}
+                placeholder={'Select Provider'}
+                searchMode
+                disabled={disabled}
+                selectedValues={selectedProvider?.provider ? [selectedProvider.provider] : []}
+                options={providerOptions}
+                on:select={e => selectProvider(e)}
+            />
         </div>
     </div>
 
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Model</div>
-            <select class="form-select" id="model" value={selectedModel?.id || null} disabled={disabled} on:change={e => selectModel(e)}>
+            <!-- <select class="form-select" id="model" value={selectedModel?.id || null} disabled={disabled} on:change={e => selectModel(e)}>
                 <option value={null} disabled selected>{$_('Select Model')}</option>
                 {#each modelOptions as op}
                     <option value={`${op.id}`} selected={op.id === selectedModel?.id}>{$_(`${op.name}`)}</option>
                 {/each}
-            </select>
+            </select> -->
+            <Select
+                tag={'model-select'}
+                placeholder={'Select Model'}
+                searchMode
+                disabled={disabled}
+                selectedValues={selectedModel?.id ? [selectedModel.id] : []}
+                options={modelOptions}
+                on:select={e => selectModel(e)}
+            />
         </div>
     </div>
 </div>

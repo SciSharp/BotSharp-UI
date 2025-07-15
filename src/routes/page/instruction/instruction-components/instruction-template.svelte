@@ -1,6 +1,7 @@
 <script>
     import { createEventDispatcher, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
+    import Select from '$lib/common/Select.svelte';
 
     const svelteDispatch = createEventDispatcher();
 
@@ -10,7 +11,7 @@
     /** @type {boolean} */
     export let disabled = false;
 
-    /** @type {any[]} */
+    /** @type {import('$commonTypes').LabelValuePair[]} */
     let agentOptions = [];
     /** @type {any[]} */
     let templateOptions = [];
@@ -29,33 +30,37 @@
 	 */
     function collectAgentOptions(agents) {
         agentOptions = agents?.filter(x => x.templates?.length > 0).map(x => ({
-            id: x.id,
-            name: x.name
-        }))?.sort((a, b) => a.name.localeCompare(b.name)) || [];
+            label: x.name,
+            value: x.id
+        }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
     }
 
     /** @param {any} e */
     function selectAgent(e) {
-        const selected = e.target.value || null;
+        // @ts-ignore
+		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
         selectedTemplate = null;
-        selectedAgent = agents?.find(x => x.id === selected) || null;
+        selectedAgent = agents?.find(x => x.id === selectedValues[0]) || null;
         templateOptions = selectedAgent?.templates?.map(x => ({
             id: x.name,
             name: x.name,
+            label: x.name,
+            value: x.name,
             content: x.content
         })) || [];
 
-        disPatchEvent();
+        dispatchEvent();
     }
 
     /** @param {any} e */
     function selectTemplate(e) {
-        const selected = e.target.value || null;
-        selectedTemplate = templateOptions.find(x => x.id === selected) || null;
-        disPatchEvent();
+        // @ts-ignore
+		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
+        selectedTemplate = templateOptions.find(x => x.value === selectedValues[0]) || null;
+        dispatchEvent();
     }
 
-    function disPatchEvent() {
+    function dispatchEvent() {
         svelteDispatch('agentSelected', {
             agent: selectedAgent,
             template: selectedTemplate
@@ -68,24 +73,42 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Agent</div>
-            <select class="form-select" id="agent" value={selectedAgent?.id || null} disabled={disabled} on:change={e => selectAgent(e)}>
+            <!-- <select class="form-select" id="agent" value={selectedAgent?.id || null} disabled={disabled} on:change={e => selectAgent(e)}>
                 <option value={null}>{$_('Select Agent')}</option>
                 {#each agentOptions as op}
                     <option value={`${op.id}`} selected={op.id === selectedAgent?.id}>{$_(`${op.name}`)}</option>
                 {/each}
-            </select>
+            </select> -->
+            <Select
+                tag={'agent-select'}
+                placeholder={'Select Agent'}
+                searchMode
+                disabled={disabled}
+                selectedValues={selectedAgent?.id ? [selectedAgent.id] : []}
+                options={agentOptions}
+                on:select={e => selectAgent(e)}
+            />
         </div>
     </div>
 
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Template</div>
-            <select class="form-select" id="template" value={selectedTemplate?.id || null} disabled={disabled} on:change={e => selectTemplate(e)}>
+            <!-- <select class="form-select" id="template" value={selectedTemplate?.id || null} disabled={disabled} on:change={e => selectTemplate(e)}>
                 <option value={null}>{$_('Select Template')}</option>
                 {#each templateOptions as op}
                     <option value={`${op.id}`} selected={op.id === selectedTemplate?.id}>{$_(`${op.name}`)}</option>
                 {/each}
-            </select>
+            </select> -->
+            <Select
+                tag={'template-select'}
+                placeholder={'Select Template'}
+                searchMode
+                disabled={disabled}
+                selectedValues={selectedTemplate?.id ? [selectedTemplate.id] : []}
+                options={templateOptions}
+                on:select={e => selectTemplate(e)}
+            />
         </div>
     </div>
 </div>
