@@ -16,7 +16,7 @@
     /** @type {any[]} */
     let templateOptions = [];
 
-    /** @type {import('$agentTypes').AgentModel?} */
+    /** @type {import('$agentTypes').AgentModel | null | undefined} */
     let selectedAgent = null;
     /** @type {any} */
     let selectedTemplate = null;
@@ -40,7 +40,7 @@
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
         selectedTemplate = null;
-        selectedAgent = agents?.find(x => x.id === selectedValues[0]) || null;
+        selectedAgent = selectedValues.length > 0 ? agents?.find(x => x.id === selectedValues[0]) : null;
         templateOptions = selectedAgent?.templates?.map(x => ({
             id: x.name,
             name: x.name,
@@ -56,14 +56,14 @@
     function selectTemplate(e) {
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
-        selectedTemplate = templateOptions.find(x => x.value === selectedValues[0]) || null;
+        selectedTemplate = selectedValues.length > 0 ? templateOptions.find(x => x.value === selectedValues[0]) : null;
         dispatchEvent();
     }
 
     function dispatchEvent() {
         svelteDispatch('agentSelected', {
-            agent: selectedAgent,
-            template: selectedTemplate
+            agent: selectedAgent || null,
+            template: selectedTemplate || null
         });
     }
 </script>

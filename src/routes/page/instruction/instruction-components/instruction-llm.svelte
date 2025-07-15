@@ -11,7 +11,7 @@
     /** @type {boolean} */
     export let disabled = false;
 
-    /** @type {import('$commonTypes').LlmConfig?} */
+    /** @type {import('$commonTypes').LlmConfig | null | undefined} */
     export let selectedProvider = null;
 
     /** @type {any} */
@@ -46,17 +46,17 @@
     function selectProvider(e) {
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
-        selectedProvider = llmConfigs?.find(x => x.provider === selectedValues[0]) || null;
+        selectedProvider = selectedValues.length > 0 ? llmConfigs?.find(x => x.provider === selectedValues[0]) : null;
         onProviderChanged();
-        disPatchEvent();
+        dispatchEvent();
     }
 
     /** @param {any} e */
     function selectModel(e) {
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
-        selectedModel = modelOptions.find(x => x.id === selectedValues[0]);
-        disPatchEvent();
+        selectedModel = selectedValues.length > 0 ? modelOptions.find(x => x.id === selectedValues[0]) : null;
+        dispatchEvent();
     }
 
     /** @param {any?} targetModel */
@@ -75,9 +75,9 @@
         }
     }
 
-    function disPatchEvent() {
+    function dispatchEvent() {
         svelteDispatch('llmSelected', {
-            provider: selectedProvider,
+            provider: selectedProvider || null,
             model: selectedModel?.name
         });
     }
@@ -88,12 +88,6 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Provider</div>
-            <!-- <select class="form-select" id="provider" value={selectedProvider?.provider || null} disabled={disabled} on:change={e => selectProvider(e)}>
-                <option value={null} disabled selected>{$_('Select Provider')}</option>
-                {#each providerOptions as op}
-                    <option value={`${op.id}`} selected={op.id === selectedProvider?.provider}>{$_(`${op.name}`)}</option>
-                {/each}
-            </select> -->
             <Select
                 tag={'provider-select'}
                 placeholder={'Select Provider'}
@@ -109,12 +103,6 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Model</div>
-            <!-- <select class="form-select" id="model" value={selectedModel?.id || null} disabled={disabled} on:change={e => selectModel(e)}>
-                <option value={null} disabled selected>{$_('Select Model')}</option>
-                {#each modelOptions as op}
-                    <option value={`${op.id}`} selected={op.id === selectedModel?.id}>{$_(`${op.name}`)}</option>
-                {/each}
-            </select> -->
             <Select
                 tag={'model-select'}
                 placeholder={'Select Model'}
