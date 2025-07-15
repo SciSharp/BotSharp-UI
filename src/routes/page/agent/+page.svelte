@@ -9,7 +9,7 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import PlainPagination from '$lib/common/PlainPagination.svelte';
-	import MultiSelect from '$lib/common/MultiSelect.svelte';
+	import Select from '$lib/common/Select.svelte';
   	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
   	import { myInfo } from '$lib/services/auth-service';
@@ -255,21 +255,23 @@
 		{/if}
 	</div>
 	<div class="agent-filter">
-		<MultiSelect
+		<Select
 			tag={'agent-label-select'}
 			placeholder={'Select labels'}
 			selectedText={'labels'}
+			multiSelect
 			searchMode
-			selectedLabels={selectedAgentLabels}
+			selectedValues={selectedAgentLabels}
 			options={agentLabelOptions}
 			on:select={e => selectAgentLabelOption(e)}
 		/>
-		<MultiSelect
+		<Select
 			tag={'agent-type-select'}
 			placeholder={'Select types'}
 			selectedText={'types'}
+			multiSelect
 			searchMode
-			selectedLabels={selectedAgentTypes}
+			selectedValues={selectedAgentTypes}
 			options={agentTypeOptions}
 			on:select={e => selectAgentTypeOption(e)}
 		/>
