@@ -1,17 +1,6 @@
 .multiselect-container {
     position: relative;
 
-    &.disabled {
-        .display-container {
-            cursor: not-allowed;
-
-            .display-suffix {
-                opacity: 0.65;
-                cursor: not-allowed;
-            }
-        }
-    }
-
     .display-container {
         .display-suffix {
             position: absolute;
