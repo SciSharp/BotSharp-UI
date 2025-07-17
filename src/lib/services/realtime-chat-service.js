@@ -132,11 +132,10 @@ function buildWebsocketUrl() {
     const host = PUBLIC_SERVICE_URL.split('://');
 
     if (PUBLIC_SERVICE_URL.startsWith('https')) {
-        url = `wss:${host[1]}`;
+        url = `wss://${host[1]}`;
     } else if (PUBLIC_SERVICE_URL.startsWith('http')) {
-        url = `ws:${host[1]}`;
+        url = `ws://${host[1]}`;
     }
-
     return url;
 }
 
