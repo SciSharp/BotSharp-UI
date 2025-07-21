@@ -51,11 +51,6 @@
 			}
 		};
 
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${filter.pager.page}` },
-			{ key: 'pageSize', value: `${filter.pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
-
 		await getPagedPlugins();
 
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
@@ -69,9 +64,6 @@
 				},
 				similarName: event.payload || null
 			};
-			setUrlQueryParams($page.url, [
-				{ key: 'page', value: `${filter.pager.page}` }
-			], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 			getPagedPlugins();
 		});
@@ -104,22 +96,23 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage) {
+	function refreshPager(totalItemsCount, pageNum = firstPage) {
 		pager = {
 			...filter.pager,
-			page: page,
+			page: pageNum,
 			count: totalItemsCount || 0
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pager.page}` },
+			{ key: 'pageSize', value: `${pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
 	/**
 	 * @param {number} pageNum
 	 */
 	function pageTo(pageNum) {
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${pageNum}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
-
 		pager = {
 			...pager,
 			page: pageNum

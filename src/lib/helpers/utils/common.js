@@ -121,8 +121,9 @@ export function setUrlQueryParams(url, pairs, callback) {
 
 /**
  * @param {string} url
- * @param {boolean} replaceState
+ * @param {{ replaceState?: boolean, noScroll?: boolean }} [opts]
  */
-export function goToUrl(url, replaceState = true) {
-    goto(url, { replaceState: replaceState });
+export function goToUrl(url, opts = {}) {
+    const { replaceState = true, noScroll = true } = opts;
+    goto(url, { replaceState, noScroll });
 }
