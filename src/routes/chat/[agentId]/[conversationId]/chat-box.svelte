@@ -508,6 +508,7 @@
 			}
 		}
 		
+		isStreaming = false;
 		latestStateLog = message.states;
 		refresh();
 
