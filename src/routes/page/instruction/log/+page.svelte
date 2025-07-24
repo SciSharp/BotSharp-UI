@@ -76,11 +76,6 @@
 			page: pageNum,
 			size: pageSizeNum
 		};
-
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${filter.page}` },
-			{ key: 'pageSize', value: `${filter.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 		
         Promise.all([
             initAgentOptions(),
@@ -155,12 +150,17 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage) {
+	function refreshPager(totalItemsCount, pageNum = firstPage) {
 		pager = {
 			...filter,
-			page: page,
+			page: pageNum,
 			count: totalItemsCount
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pager.page}` },
+			{ key: 'pageSize', value: `${pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
     /**
@@ -224,10 +224,6 @@
             templateNames: template ? [template] : [],
 			states: states
         };
-
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${firstPage}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
     }
 
 	function getSearchStates() {
@@ -245,10 +241,6 @@
 			...filter,
 			page: pageNum
 		};
-
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${pageNum}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 
 		getPagedInstructionLogs();
 	}
@@ -295,7 +287,7 @@
 								</div>
 								<div class="search-btn-text">{'State Search'}</div>
 							</div>
-						</Button>						
+						</Button>
 					</div>
 				</div>
 			</CardBody>
