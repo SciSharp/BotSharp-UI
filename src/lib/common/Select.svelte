@@ -402,7 +402,7 @@
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
                     <li
-                        class="option-item clickable"
+                        class="option-item clickable justify-content-center"
                         on:click|preventDefault|stopPropagation={() => {
                             clearSelection();
                         }}
@@ -422,12 +422,18 @@
                         }}
                     >
                         <div class="line-align-center select-box">
-                            <Input
-                                type="checkbox"
-                                style="pointer-events: none;"
-                                checked={option.checked}
-                                readonly
-                            />
+                            {#if multiSelect}
+                                <Input
+                                    type="checkbox"
+                                    style="pointer-events: none;"
+                                    checked={option.checked}
+                                    readonly
+                                />
+                            {:else if option.checked}
+                                <i class="bx bx-check text-primary" />
+                            {:else}
+                                {' '}
+                            {/if}
                         </div>
                         <div class="line-align-center select-name">
                             {option.label}
