@@ -79,6 +79,7 @@
     $: {
         innerOptions = verifySelectedOptions(innerOptions, selectedValues);
         refOptions = verifySelectedOptions(innerOptions, selectedValues);
+        applySearchFilter();
         changeDisplayText();
     }
 
@@ -105,10 +106,14 @@
                 ];
 
                 changeDisplayText();
+            } else {
+                applySearchFilter();
+                changeDisplayText();
             }
         } else {
             innerOptions = verifySelectedOptions(options, selectedValues);
             refOptions = verifySelectedOptions(options, selectedValues);
+            applySearchFilter();
             changeDisplayText();
         }
     }
@@ -162,6 +167,11 @@
     /** @param {any} e */
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
+        applySearchFilter();
+        verifySelectAll();
+    }
+
+    function applySearchFilter() {
         const innerValue = searchValue.toLowerCase();
 
         if (searchValue) {
@@ -169,10 +179,7 @@
         } else {
             innerOptions = [...refOptions];
         }
-
-        verifySelectAll();
     }
-
 
     /**
      * @param {any} e
