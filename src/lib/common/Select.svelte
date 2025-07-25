@@ -106,6 +106,9 @@
                 ];
 
                 changeDisplayText();
+            } else {
+                applySearchFilter();
+                changeDisplayText();
             }
         } else {
             innerOptions = verifySelectedOptions(options, selectedValues);
