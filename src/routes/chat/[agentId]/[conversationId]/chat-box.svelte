@@ -625,8 +625,6 @@
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
-			// const retIndication = data.indication || '';
-			// indication = retIndication.split('|')[0];
 		} else if (data?.sender_action == SenderAction.TypingOff) {
 			isThinking = false;
 			indication = '';
