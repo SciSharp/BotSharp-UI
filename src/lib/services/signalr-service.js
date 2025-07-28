@@ -49,6 +49,9 @@ export const signalr = {
   /** @type {import('$conversationTypes').OnMessageReceived} */
   afterReceiveLlmStreamMessage: () => {},
 
+  /** @type {import('$conversationTypes').OnMessageReceived} */
+  onIndicationReceived: () => {},
+
   // start the connection
   /** @param {string} conversationId */
   async start(conversationId) {
@@ -94,47 +97,41 @@ export const signalr = {
       }
     });
 
-    connection.on('OnMessageReceivedFromAssistant', (json) => {
+    connection.on('OnMessageReceivedFromAssistant', (message) => {
       // do something when receiving a message, such as updating the UI or showing a notification
-      const message = JSON.parse(json);
-      if (conversationId === message.conversation_id) {
+      if (conversationId === message?.conversation_id) {
         console.log(`[OnMessageReceivedFromAssistant] ${message.sender.role}: ${message.text}`);
         this.onMessageReceivedFromAssistant(message);
       }
     });
 
-    connection.on('OnNotificationGenerated', (json) => {
-      const message = JSON.parse(json);
+    connection.on('OnNotificationGenerated', (message) => {
       if (conversationId === message?.conversation_id) {
         this.onNotificationGenerated(message);
       }
     });
 
     connection.on('OnConversationContentLogGenerated', (log) => {
-      const jsonLog = JSON.parse(log);
-      if (conversationId === jsonLog?.conversation_id) {
-        this.onConversationContentLogGenerated(jsonLog);
+      if (conversationId === log?.conversation_id) {
+        this.onConversationContentLogGenerated(log);
       }
     });
 
     connection.on('OnConversateStateLogGenerated', (log) => {
-      const jsonData = JSON.parse(log);
-      if (conversationId === jsonData?.conversation_id) {
-        this.onConversationStateLogGenerated(jsonData);
+      if (conversationId === log?.conversation_id) {
+        this.onConversationStateLogGenerated(log);
       }
     });
 
     connection.on('OnStateChangeGenerated', (log) => {
-      const jsonData = JSON.parse(log);
-      if (conversationId === jsonData?.conversation_id) {
-        this.onStateChangeGenerated(jsonData);
+      if (conversationId === log?.conversation_id) {
+        this.onStateChangeGenerated(log);
       }
     });
 
     connection.on('OnAgentQueueChanged', (log) => {
-      const jsonData = JSON.parse(log);
-      if (conversationId === jsonData?.conversation_id) {
-        this.onAgentQueueChanged(jsonData);
+      if (conversationId === log?.conversation_id) {
+        this.onAgentQueueChanged(log);
       }
     });
 
@@ -165,6 +162,12 @@ export const signalr = {
     connection.on('AfterReceiveLlmStreamMessage', data => {
       if (conversationId === data?.conversation_id) {
         this.afterReceiveLlmStreamMessage(data);
+      }
+    });
+
+    connection.on('OnIndicationReceived', data => {
+      if (conversationId === data?.conversation_id) {
+        this.onIndicationReceived(data);
       }
     });
   },

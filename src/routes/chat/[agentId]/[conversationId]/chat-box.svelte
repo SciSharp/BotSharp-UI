@@ -244,6 +244,7 @@
 		signalr.beforeReceiveLlmStreamMessage = beforeReceiveLlmStreamMessage;
 		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
 		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
+		signalr.onIndicationReceived = onIndicationReceived;
 		
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
@@ -578,6 +579,12 @@
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function onIndicationReceived(message) {
+		const retIndication = message.indication || '';
+		indication = retIndication.split('|')[0];
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
 		sendReceivedNotification(message);
 	}
@@ -618,8 +625,8 @@
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
-			const retIndication = data.indication || '';
-			indication = retIndication.split('|')[0];
+			// const retIndication = data.indication || '';
+			// indication = retIndication.split('|')[0];
 		} else if (data?.sender_action == SenderAction.TypingOff) {
 			isThinking = false;
 			indication = '';
@@ -1784,7 +1791,7 @@
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{
-															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue
 														}	
 														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
