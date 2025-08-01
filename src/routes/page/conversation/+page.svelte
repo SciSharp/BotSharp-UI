@@ -119,7 +119,7 @@
 			
 			await loadConversations();
 		} catch (error) {
-			console.error('Error loading conversation data:', error);
+			console.error('Error loading data:', error);
 		} finally {
 			isLoading = false;
 		}
