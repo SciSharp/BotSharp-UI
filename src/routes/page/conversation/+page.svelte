@@ -102,13 +102,27 @@
 		};
 
 		isLoading = true;
-		Promise.all([
-			loadAgentOptions(),
-			loadSearchOption(),
-			loadConversations()])
-		.finally(() => {
-			isLoading = false
-		});
+		try {
+			const [agents] = await Promise.all([
+				loadAgentOptions(),
+				loadSearchOption()
+			]);
+			
+			searchOption = {
+				...searchOption,
+				agentIds: agents?.length > 0 ? [agents[0].value] : []
+			};
+			filter = {
+				...filter,
+				agentIds: searchOption.agentIds
+			};
+			
+			await loadConversations();
+		} catch (error) {
+			console.error('Error loading conversation data:', error);
+		} finally {
+			isLoading = false;
+		}
     });
 
 	function loadConversations() {
