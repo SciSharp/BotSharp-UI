@@ -580,6 +580,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onIndicationReceived(message) {
+		isThinking = true;
 		const retIndication = message.indication || '';
 		indication = retIndication.split('|')[0];
 	}
