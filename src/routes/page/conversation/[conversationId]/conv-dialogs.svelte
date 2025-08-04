@@ -5,7 +5,7 @@
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
     import { getDialogs, getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
-	import { IMAGE_DATA_PREFIX, USER_SENDERS } from '$lib/helpers/constants';
+	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
 	import DialogModal from '$lib/common/DialogModal.svelte';
@@ -38,7 +38,7 @@
      * @returns {boolean}
     */
     function showInRight(dialog) {
-        return USER_SENDERS.includes(dialog?.sender?.role || '');
+        return !BOT_SENDERS.includes(dialog?.sender?.role || '');
     }
 
     function goToChat() {

@@ -101,19 +101,28 @@
 			}
 		};
 
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${filter.pager.page}` },
-			{ key: 'pageSize', value: `${filter.pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
-
 		isLoading = true;
-		Promise.all([
-			loadAgentOptions(),
-			loadSearchOption(),
-			loadConversations()])
-		.finally(() => {
-			isLoading = false
-		});
+		try {
+			const [agents] = await Promise.all([
+				loadAgentOptions(),
+				loadSearchOption()
+			]);
+			
+			searchOption = {
+				...searchOption,
+				agentIds: agents?.length > 0 ? [agents[0].value] : []
+			};
+			filter = {
+				...filter,
+				agentIds: searchOption.agentIds
+			};
+			
+			await loadConversations();
+		} catch (error) {
+			console.error('Error loading data:', error);
+		} finally {
+			isLoading = false;
+		}
     });
 
 	function loadConversations() {
@@ -161,12 +170,17 @@
 	}
 
 	/** @param {number} totalItemsCount */
-	function refreshPager(totalItemsCount, page = firstPage) {
+	function refreshPager(totalItemsCount, pageNum = firstPage) {
 		pager = {
 			...filter.pager,
-			page: page,
+			page: pageNum,
 			count: totalItemsCount
 		};
+
+		setUrlQueryParams($page.url, [
+			{ key: 'page', value: `${pager.page}` },
+			{ key: 'pageSize', value: `${pager.size}` }
+		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
 	/** @param {number} pageNum */
@@ -181,15 +195,12 @@
 			pager: pager
 		};
 
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${pageNum}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
-
 		getPagedConversations();
 	}
 
 
 	async function reloadConversations() {
+		initFilterPager();
 		conversations = await getConversations({ ...filter });
 		refreshPager(conversations.count);
 	}
@@ -246,10 +257,6 @@
 				count: 0
 			}
 		};
-
-		setUrlQueryParams($page.url, [
-			{ key: 'page', value: `${filter.pager.page}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
 	/**

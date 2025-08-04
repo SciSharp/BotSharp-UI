@@ -42,6 +42,13 @@ export const signalr = {
   /** @type {import('$conversationTypes').OnConversationMessageDeleted} */
   onConversationMessageDeleted: () => {},
 
+  /** @type {import('$conversationTypes').OnMessageReceived} */
+  beforeReceiveLlmStreamMessage: () => {},
+  /** @type {import('$conversationTypes').OnMessageReceived} */
+  onReceiveLlmStreamMessage: async () => {},
+  /** @type {import('$conversationTypes').OnMessageReceived} */
+  afterReceiveLlmStreamMessage: () => {},
+
   // start the connection
   /** @param {string} conversationId */
   async start(conversationId) {
@@ -140,6 +147,24 @@ export const signalr = {
     connection.on('OnMessageDeleted', (data) => {
       if (conversationId === data?.conversation_id) {
         this.onConversationMessageDeleted(data);
+      }
+    });
+
+    connection.on('BeforeReceiveLlmStreamMessage', data => {
+      if (conversationId === data?.conversation_id) {
+        this.beforeReceiveLlmStreamMessage(data);
+      }
+    });
+
+    connection.on('OnReceiveLlmStreamMessage', data => {
+      if (conversationId === data?.conversation_id) {
+        this.onReceiveLlmStreamMessage(data);
+      }
+    });
+
+    connection.on('AfterReceiveLlmStreamMessage', data => {
+      if (conversationId === data?.conversation_id) {
+        this.afterReceiveLlmStreamMessage(data);
       }
     });
   },

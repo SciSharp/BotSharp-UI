@@ -41,9 +41,10 @@
 		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
 		PUBLIC_LIVECHAT_ENABLE_TRAINING,
+		PUBLIC_LIVECHAT_STREAM_ENABLED,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, USER_SENDERS, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import DialogModal from '$lib/common/DialogModal.svelte';
@@ -71,6 +72,7 @@
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
+	import { delay } from '$lib/helpers/utils/common';
 
 	
 	const options = {
@@ -175,6 +177,9 @@
 	/** @type {number | undefined} */
 	let notificationTimeout;
 
+	/** @type {import('$conversationTypes').ChatResponseModel[]} */
+	let messageQueue = [];
+
 	/** @type {boolean} */
 	let isLoadPersistLog = false;
 	let isLoadInstantLog = false;
@@ -202,11 +207,13 @@
 	let isComplete = false;
 	let isError = false;
 	let copyClicked = false;
+	let isStreaming = false;
+	let isHandlingQueue = false;
 	
 	$: {
 		// const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = true; // TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
-		loadEditor = !isSendingMsg && !isThinking && loadTextEditor;
+		loadEditor = !isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0;
 	}
 
 	$: {
@@ -233,6 +240,11 @@
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
+
+		signalr.beforeReceiveLlmStreamMessage = beforeReceiveLlmStreamMessage;
+		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
+		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
+		
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
@@ -347,7 +359,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function initUserSentMessages(dialogs) {
-		const curConvMessages = dialogs?.filter(x => USER_SENDERS.includes(x.sender?.role || '')).map(x => {
+		const curConvMessages = dialogs?.filter(x => !BOT_SENDERS.includes(x.sender?.role || '')).map(x => {
 			return {
 				conversationId: params.conversationId,
 				text: x.text || ''
@@ -480,10 +492,23 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
-		dialogs.push({
-			...message,
-			is_chat_message: true
-		});
+		if (!message.is_streaming) {
+			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
+				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+			) {
+				dialogs[dialogs.length - 1] = {
+					...message,
+					is_chat_message: true
+				};
+			} else {
+				dialogs.push({
+					...message,
+					is_chat_message: true
+				});
+			}
+		}
+		
+		isStreaming = false;
 		latestStateLog = message.states;
 		refresh();
 
@@ -491,6 +516,66 @@
 			window.parent.postMessage(message, "*");
 		}
     }
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function beforeReceiveLlmStreamMessage(message) {
+		isStreaming = true;
+		if (dialogs[dialogs.length - 1]?.message_id !== message.message_id
+			|| dialogs[dialogs.length - 1]?.sender?.role !== UserRole.Assistant
+		) {
+			dialogs.push({
+				...message,
+				is_chat_message: true
+			});
+		}
+		refresh();
+	}
+
+	
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function onReceiveLlmStreamMessage(message) {
+		isThinking = false;
+		isStreaming = true;
+		messageQueue.push(message);
+		setTimeout(() => handleMesssageQueue(message), 0);
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	async function handleMesssageQueue(message) {
+		if (isHandlingQueue) return;
+
+		isHandlingQueue = true;
+		while (messageQueue.length > 0) {
+			const item = messageQueue.shift();
+			messageQueue = [...messageQueue];
+			if (!item) {
+				continue;
+			}
+
+			const lastMsg = dialogs[dialogs.length - 1];
+			if (lastMsg?.sender?.role !== UserRole.Assistant
+				|| lastMsg?.message_id !== message.message_id
+			) {
+				continue;
+			}
+
+			try {
+				for (const char of item.text) {
+					dialogs[dialogs.length - 1].text += char;
+					refresh();
+					await delay(15);
+				}
+			} catch (err) {
+				console.log(`Error when processing message queue`, err);
+			}
+		}
+		isHandlingQueue = false;
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function afterReceiveLlmStreamMessage(message) {
+		isStreaming = false;
+	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onNotificationGenerated(message) {
@@ -582,7 +667,7 @@
 	 * @param {import('$conversationTypes').MessageData?} data
 	 * @param {string?} conversationId
 	 */
-    function sendChatMessage(msgText, data = null, conversationId = null) {
+    async function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
 		clearInstantLogs();
 		renewUserSentMessages(msgText);
@@ -597,7 +682,11 @@
 		/** @type {import('$conversationTypes').MessageData?} */
 		let messageData = {
 			...data,
-			postback: postback
+			postback: postback,
+			states: [
+				...data?.states || [],
+				{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }
+			]
 		};
 
 		/** @type {any[]} */
@@ -609,67 +698,36 @@
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
-			return new Promise((resolve, reject) => {
-				uploadConversationFiles(agentId, convId, files).then(resMessageId => {
-					messageData = { ...messageData, inputMessageId: resMessageId };
-					if (!!filePayload) {
-						messageData = {
-							...messageData,
-							// @ts-ignore
-							postback: {
-								...postback,
-								payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
-							}
-						};
+			const resMessageId = await uploadConversationFiles(agentId, convId, files);
+			messageData = { ...messageData, inputMessageId: resMessageId };
+			if (!!filePayload) {
+				messageData = {
+					...messageData,
+					// @ts-ignore
+					postback: {
+						...postback,
+						payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
 					}
-
-					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
-						resolve(res);
-						deleteMessageDraft();
-					}).catch(err => {
-						reject(err);
-					}).finally(() => {
-						isSendingMsg = false;
-					});
-				});
-			});
-		} else {
-			return new Promise((resolve, reject) => {
-				if (!!messageData?.inputMessageId) {
-					getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User).then(retFiles => {
-						const filePayload = buildFilePayload(retFiles);
-						if (!!filePayload) {
-							messageData = {
-								...messageData,
-								// @ts-ignore
-								postback: {
-									...postback,
-									payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
-								}
-							};
-						}
-
-						sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
-							resolve(res);
-							deleteMessageDraft();
-						}).catch(err => {
-							reject(err);
-						}).finally(() => {
-							isSendingMsg = false;
-						});
-					});
-				} else {
-					sendMessageToHub(agentId, convId, msgText, messageData).then(res => {
-						resolve(res);
-						deleteMessageDraft();
-					}).catch(err => {
-						reject(err);
-					}).finally(() => {
-						isSendingMsg = false;
-					});
-				}
-			});
+				};
+			}
+		} else if (!!messageData?.inputMessageId) {
+			const retFiles = await getConversationFiles(convId, messageData.inputMessageId, FileSourceType.User);
+			const filePayload = buildFilePayload(retFiles);
+			if (!!filePayload) {
+				messageData = {
+					...messageData,
+					// @ts-ignore
+					postback: {
+						...postback,
+						payload: `${postback?.payload || msgText || ''}\r\n${filePayload}`
+					}
+				};
+			}
 		}
+
+		await sendMessageToHub(agentId, convId, msgText, messageData);
+		deleteMessageDraft();
+		isSendingMsg = false;
     }
 
     function startListen() {
@@ -831,7 +889,7 @@
 		let postback = null;
 		if (!messageId) return postback;
 
-		const found = dialogs.find(x => x.message_id === messageId && USER_SENDERS.includes(x.sender?.role || ''));
+		const found = dialogs.find(x => x.message_id === messageId && !BOT_SENDERS.includes(x.sender?.role || ''));
 		const content = found?.payload;
 		if (content) {
 			postback = buildPostbackMessage(dialogs, content, messageId);
@@ -1659,9 +1717,9 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
-										<li id={'test_k' + message.message_id} class:right={USER_SENDERS.includes(message.sender?.role)}>
+										<li id={'test_k' + message.message_id} class:right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="conv-msg-container">
-												{#if USER_SENDERS.includes(message.sender?.role)}
+												{#if !BOT_SENDERS.includes(message.sender?.role)}
 												<div class="msg-container">
 													<div
 														tabindex="0"
@@ -1711,13 +1769,24 @@
 													{#if message.sender.role == UserRole.Client}
 														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
-														<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+														{
+															@const isShowIcon = (message?.rich_content?.message?.text || message?.text) || message?.uuid !== lastBotMsg?.uuid
+														}
+														<img
+															class="rounded-circle avatar-sm"
+															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
+															alt="avatar"
+															src={PUBLIC_LIVECHAT_ENTRY_ICON}
+														>
 													{/if}
 												</div>
 												<div class="msg-container">
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														<div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;">
+														{
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming
+														}	
+														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id} 

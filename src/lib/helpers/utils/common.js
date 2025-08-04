@@ -83,8 +83,20 @@ export function removeDuplicates(arr, key) {
 /**
  * @param {(string | null)[]} args
  */
-export const classnames = (...args) => args.filter(Boolean).join(' ');
+export function classnames(...args) {
+    return args.filter(Boolean).join(' ');
+}
 
+/**
+ * @param {number} milliseconds
+ */
+export function delay(milliseconds = 100) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve('');
+        }, milliseconds);
+    });
+};
 
 /**
  * @param {{ page: any, pageSize: any }} args
@@ -121,8 +133,9 @@ export function setUrlQueryParams(url, pairs, callback) {
 
 /**
  * @param {string} url
- * @param {boolean} replaceState
+ * @param {{ replaceState?: boolean, noScroll?: boolean }} [opts]
  */
-export function goToUrl(url, replaceState = true) {
-    goto(url, { replaceState: replaceState });
+export function goToUrl(url, opts = {}) {
+    const { replaceState = true, noScroll = true } = opts;
+    goto(url, { replaceState, noScroll });
 }

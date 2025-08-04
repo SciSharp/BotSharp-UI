@@ -162,6 +162,7 @@ IRichContent.prototype.language;
  * @property {Date} created_at - The message sent time.
  * @property {boolean} has_message_files
  * @property {boolean} is_chat_message
+ * @property {boolean} is_streaming
  */
 
 /**
