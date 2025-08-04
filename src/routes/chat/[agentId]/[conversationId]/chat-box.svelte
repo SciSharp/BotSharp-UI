@@ -426,6 +426,7 @@
 		// trigger UI render
 		dialogs = await refreshDialogs();
 		lastBotMsg = null;
+		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
 		lastMsg = dialogs.slice(-1)[0];
 		assignMessageDisclaimer(dialogs)
