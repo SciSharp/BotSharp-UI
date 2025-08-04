@@ -94,6 +94,7 @@
 	const maxTextLength = 64000;
 	const duration = 2000;
 	const dialogCount = 100;
+	const USE_MESSAGE_QUEUE = false;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	
 	/** @type {import('$agentTypes').AgentModel} */
@@ -414,15 +415,22 @@
 		return BOT_SENDERS.includes(lastMsg?.sender?.role || '') ? lastMsg : null;
 	}
 
-	async function refresh() {
+	async function refreshDialogs() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item, uuid: uuidv4() }; }) || [];
+		await tick();
+		groupedDialogs = groupDialogs(dialogs);
+		return dialogs;
+    }
+
+	async function refresh() {
+		// trigger UI render
+		dialogs = await refreshDialogs();
 		lastBotMsg = null;
 		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
 		lastMsg = dialogs.slice(-1)[0];
 		assignMessageDisclaimer(dialogs)
-		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
 		autoScrollToBottom();
@@ -537,8 +545,18 @@
 	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
 		isStreaming = true;
-		messageQueue.push(message);
-		setTimeout(() => handleMesssageQueue(message), 0);
+
+		if (!USE_MESSAGE_QUEUE) {
+			if (lastMsg?.sender?.role === UserRole.Assistant
+				&& lastMsg?.message_id === message.message_id
+			) {
+				dialogs[dialogs.length - 1].text += message.text;
+				refreshDialogs();
+			}
+		} else {
+			messageQueue.push(message);
+			setTimeout(() => handleMesssageQueue(message), 0);
+		}
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -563,8 +581,8 @@
 			try {
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
-					refresh();
-					await delay(15);
+					refreshDialogs();
+					await delay(10);
 				}
 			} catch (err) {
 				console.log(`Error when processing message queue`, err);
@@ -576,6 +594,7 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function afterReceiveLlmStreamMessage(message) {
 		isStreaming = false;
+		refresh();
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
