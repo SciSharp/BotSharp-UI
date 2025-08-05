@@ -328,7 +328,7 @@
 				size: pageSize,
 				start_id: params.startId,
 				with_vector: enableVector,
-				included_payloads: includedPayloads,
+				included_payloads: [],
 				search_pairs: searchPairs
 			};
 

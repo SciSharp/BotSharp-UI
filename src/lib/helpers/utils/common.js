@@ -139,3 +139,20 @@ export function goToUrl(url, opts = {}) {
     const { replaceState = true, noScroll = true } = opts;
     goto(url, { replaceState, noScroll });
 }
+
+/**
+ * @param {string} str
+ */
+export function splitTextByCase(str) {
+    if (!str) return str;
+
+    let words = str.split("_");
+    if (words.length === 0) {
+        // split by camel case
+        words = str.split(/(?=[A-Z])/);
+    }
+
+    let text = words.map(word => word.toLowerCase()).join(' ');
+    text = text.charAt(0).toUpperCase() + text.slice(1);
+    return text;
+}

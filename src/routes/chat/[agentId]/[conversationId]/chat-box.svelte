@@ -550,8 +550,10 @@
 			if (lastMsg?.sender?.role === UserRole.Assistant
 				&& lastMsg?.message_id === message.message_id
 			) {
-				dialogs[dialogs.length - 1].text += message.text;
-				refreshDialogs();
+				setTimeout(() => {
+					dialogs[dialogs.length - 1].text += message.text;
+					refreshDialogs();
+				}, 0);
 			}
 		} else {
 			messageQueue.push(message);
