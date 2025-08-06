@@ -74,100 +74,115 @@ export const signalr = {
     // register handlers for the hub methods
     connection.on('OnConversationInitFromClient', (conversation) => {
       // do something when receiving a message, such as updating the UI or showing a notification
-      if (conversationId === conversation.id) {
-        console.log(`[OnConversationInitFromClient] ${conversation.id}: ${conversation.title}`);
-        this.onConversationInitFromClient(conversation);
+      const obj = JSON.parse(conversation);
+      if (conversationId === obj?.id) {
+        console.log(`[OnConversationInitFromClient] ${obj.id}: ${obj.title}`);
+        this.onConversationInitFromClient(obj);
       }
     });
 
     // register handlers for the hub methods
     connection.on('OnMessageReceivedFromClient', (message) => {
       // do something when receiving a message, such as updating the UI or showing a notification
-      if (conversationId === message.conversation_id) {
-        console.log(`[OnMessageReceivedFromClient] ${message.sender.role}: ${message.text}`);
-        this.onMessageReceivedFromClient(message);
+      const obj = JSON.parse(message);
+      if (conversationId === obj?.conversation_id) {
+        console.log(`[OnMessageReceivedFromClient] ${obj.sender.role}: ${obj.text}`);
+        this.onMessageReceivedFromClient(obj);
       }
     });
 
     connection.on('OnMessageReceivedFromCsr', (message) => {
       // do something when receiving a message, such as updating the UI or showing a notification
-      if (conversationId === message.conversation_id) {
-        console.log(`[OnMessageReceivedFromCsr] ${message.role}: ${message.content}`);
-        this.onMessageReceivedFromCsr(message);
+      const obj = JSON.parse(message);
+      if (conversationId === obj?.conversation_id) {
+        console.log(`[OnMessageReceivedFromCsr] ${obj.role}: ${obj.content}`);
+        this.onMessageReceivedFromCsr(obj);
       }
     });
 
     connection.on('OnMessageReceivedFromAssistant', (message) => {
       // do something when receiving a message, such as updating the UI or showing a notification
-      if (conversationId === message?.conversation_id) {
-        console.log(`[OnMessageReceivedFromAssistant] ${message.sender.role}: ${message.text}`);
-        this.onMessageReceivedFromAssistant(message);
+      const obj = JSON.parse(message);
+      if (conversationId === obj?.conversation_id) {
+        console.log(`[OnMessageReceivedFromAssistant] ${obj.sender.role}: ${obj.text}`);
+        this.onMessageReceivedFromAssistant(obj);
       }
     });
 
     connection.on('OnNotificationGenerated', (message) => {
-      if (conversationId === message?.conversation_id) {
-        this.onNotificationGenerated(message);
+      const obj = JSON.parse(message);
+      if (conversationId === obj?.conversation_id) {
+        this.onNotificationGenerated(obj);
       }
     });
 
     connection.on('OnConversationContentLogGenerated', (log) => {
-      if (conversationId === log?.conversation_id) {
-        this.onConversationContentLogGenerated(log);
+      const obj = JSON.parse(log);
+      if (conversationId === obj?.conversation_id) {
+        this.onConversationContentLogGenerated(obj);
       }
     });
 
     connection.on('OnConversateStateLogGenerated', (log) => {
-      if (conversationId === log?.conversation_id) {
-        this.onConversationStateLogGenerated(log);
+      const obj = JSON.parse(log);
+      if (conversationId === obj?.conversation_id) {
+        this.onConversationStateLogGenerated(obj);
       }
     });
 
     connection.on('OnStateChangeGenerated', (log) => {
-      if (conversationId === log?.conversation_id) {
-        this.onStateChangeGenerated(log);
+      const obj = JSON.parse(log);
+      if (conversationId === obj?.conversation_id) {
+        this.onStateChangeGenerated(obj);
       }
     });
 
     connection.on('OnAgentQueueChanged', (log) => {
-      if (conversationId === log?.conversation_id) {
-        this.onAgentQueueChanged(log);
+      const obj = JSON.parse(log);
+      if (conversationId === obj?.conversation_id) {
+        this.onAgentQueueChanged(obj);
       }
     });
 
     connection.on('OnSenderActionGenerated', (data) => {
-      if (conversationId === data?.conversation_id) {
-        this.onSenderActionGenerated(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.onSenderActionGenerated(obj);
       }
     });
 
     connection.on('OnMessageDeleted', (data) => {
-      if (conversationId === data?.conversation_id) {
-        this.onConversationMessageDeleted(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.onConversationMessageDeleted(obj);
       }
     });
 
     connection.on('BeforeReceiveLlmStreamMessage', data => {
-      if (conversationId === data?.conversation_id) {
-        this.beforeReceiveLlmStreamMessage(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.beforeReceiveLlmStreamMessage(obj);
       }
     });
 
     connection.on('OnReceiveLlmStreamMessage', data => {
-      if (conversationId === data?.conversation_id) {
-        this.onReceiveLlmStreamMessage(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.onReceiveLlmStreamMessage(obj);
       }
     });
 
     connection.on('AfterReceiveLlmStreamMessage', data => {
-      if (conversationId === data?.conversation_id) {
-        this.afterReceiveLlmStreamMessage(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.afterReceiveLlmStreamMessage(obj);
       }
     });
 
     connection.on('OnIndicationReceived', data => {
-      if (conversationId === data?.conversation_id) {
-        this.onIndicationReceived(data);
+      const obj = JSON.parse(data);
+      if (conversationId === obj?.conversation_id) {
+        this.onIndicationReceived(obj);
       }
     });
   },

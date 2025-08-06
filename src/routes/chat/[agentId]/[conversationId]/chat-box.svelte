@@ -430,7 +430,8 @@
 		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
 		lastMsg = dialogs.slice(-1)[0];
-		assignMessageDisclaimer(dialogs)
+		assignMessageDisclaimer(dialogs);
+		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
 		autoScrollToBottom();
