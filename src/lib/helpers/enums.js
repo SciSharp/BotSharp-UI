@@ -27,7 +27,8 @@ const richType = {
     Button: 'button_template',
     MultiSelect: 'multi-select_template',
     Generic: 'generic_template',
-    Upload: 'upload_template'
+    Upload: 'upload_template',
+    ProgramCode: 'program_code',
 }
 export const RichType = Object.freeze(richType);
 
