@@ -94,6 +94,7 @@
 	const maxTextLength = 64000;
 	const duration = 2000;
 	const dialogCount = 100;
+	const USE_MESSAGE_QUEUE = false;
 	const MESSAGE_STORAGE_KEY = 'message_draft_';
 	
 	/** @type {import('$agentTypes').AgentModel} */
@@ -244,6 +245,7 @@
 		signalr.beforeReceiveLlmStreamMessage = beforeReceiveLlmStreamMessage;
 		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
 		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
+		signalr.onIndicationReceived = onIndicationReceived;
 		
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
@@ -413,15 +415,22 @@
 		return BOT_SENDERS.includes(lastMsg?.sender?.role || '') ? lastMsg : null;
 	}
 
-	async function refresh() {
+	async function refreshDialogs() {
 		// trigger UI render
 		dialogs = dialogs?.map(item => { return { ...item, uuid: uuidv4() }; }) || [];
+		await tick();
+		groupedDialogs = groupDialogs(dialogs);
+		return dialogs;
+    }
+
+	async function refresh() {
+		// trigger UI render
+		dialogs = await refreshDialogs();
 		lastBotMsg = null;
 		await tick();
 		lastBotMsg = findLastBotMessage(dialogs);
 		lastMsg = dialogs.slice(-1)[0];
 		assignMessageDisclaimer(dialogs)
-		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
 		autoScrollToBottom();
@@ -536,8 +545,20 @@
 	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
 		isStreaming = true;
-		messageQueue.push(message);
-		setTimeout(() => handleMesssageQueue(message), 0);
+
+		if (!USE_MESSAGE_QUEUE) {
+			if (lastMsg?.sender?.role === UserRole.Assistant
+				&& lastMsg?.message_id === message.message_id
+			) {
+				setTimeout(() => {
+					dialogs[dialogs.length - 1].text += message.text;
+					refreshDialogs();
+				}, 0);
+			}
+		} else {
+			messageQueue.push(message);
+			setTimeout(() => handleMesssageQueue(message), 0);
+		}
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -562,8 +583,8 @@
 			try {
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
-					refresh();
-					await delay(15);
+					refreshDialogs();
+					await delay(10);
 				}
 			} catch (err) {
 				console.log(`Error when processing message queue`, err);
@@ -575,6 +596,14 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function afterReceiveLlmStreamMessage(message) {
 		isStreaming = false;
+		refresh();
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	function onIndicationReceived(message) {
+		isThinking = true;
+		const retIndication = message.indication || '';
+		indication = retIndication.split('|')[0];
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -618,8 +647,6 @@
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
-			const retIndication = data.indication || '';
-			indication = retIndication.split('|')[0];
 		} else if (data?.sender_action == SenderAction.TypingOff) {
 			isThinking = false;
 			indication = '';
@@ -1784,7 +1811,7 @@
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{
-															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue
 														}	
 														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}

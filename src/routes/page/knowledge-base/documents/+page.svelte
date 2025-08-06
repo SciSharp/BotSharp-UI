@@ -28,6 +28,7 @@
 	import Loader from '$lib/common/Loader.svelte';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Select from '$lib/common/Select.svelte';
 	import {
 		KnowledgeCollectionType,
 		KnowledgePayloadName,
@@ -67,7 +68,7 @@
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
 
-	/** @type {string[]} */
+	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let collections = [];
 
 	/** @type {string | null | undefined } */
@@ -287,13 +288,13 @@
 	function getCollections() {
 		return new Promise((resolve, reject) => {
 			getVectorKnowledgeCollections(collectionType).then(res => {
-				const retCollections = res?.map(x => x.name) || [];
+				const retCollections = res?.map(x => ({ label: x.name, value: x.name })) || [];
 				collections = [ ...retCollections ];
-				selectedCollection = collections[0];
+				selectedCollection = collections[0]?.value;
 				resolve(res);
 			}).catch(err => {
 				collections = [];
-				selectedCollection = collections[0];
+				selectedCollection = collections[0]?.value;
 				reject(err);
 			});
 		});
@@ -327,7 +328,7 @@
 				size: pageSize,
 				start_id: params.startId,
 				with_vector: enableVector,
-				included_payloads: includedPayloads,
+				included_payloads: [],
 				search_pairs: searchPairs
 			};
 
@@ -590,8 +591,8 @@
 
 	/** @param {any} e */
 	function changeCollection(e) {
-		const value = e.target.value;
-		selectedCollection = value;
+		const selectedValues = e?.detail?.selecteds || [];
+		selectedCollection = selectedValues[0]?.value;
         docUploadrCmp?.onCollectionChanged();
 		reset();
 	}
@@ -950,14 +951,14 @@
 								</div>
 								<div class="collection-dropdown-container">
 									<div class="line-align-center collection-dropdown">
-										<Input
-											type="select"
-											on:change={(e) => changeCollection(e)}
-										>
-											{#each collections as option, idx (idx)}
-												<option value={option} selected={option === selectedCollection}>{option}</option>
-											{/each}
-										</Input>
+										<Select
+											tag={'kn-doc-collection-select'}
+											placeholder={'Select Collection'}
+											searchMode
+											selectedValues={selectedCollection ? [selectedCollection] : []}
+											options={collections}
+											on:select={e => changeCollection(e)}
+										/>
 									</div>
 									<div
 										class="line-align-center"

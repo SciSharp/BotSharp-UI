@@ -163,6 +163,7 @@ IRichContent.prototype.language;
  * @property {boolean} has_message_files
  * @property {boolean} is_chat_message
  * @property {boolean} is_streaming
+ * @property {string} [indication]
  */
 
 /**

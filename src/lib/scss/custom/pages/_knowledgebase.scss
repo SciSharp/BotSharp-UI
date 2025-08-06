@@ -210,6 +210,9 @@
             margin: 1px 0px 15px 0px;
             font-size: 10px;
             padding-left: 4rem;
+            overflow-y: auto;
+            scrollbar-width: none;
+            max-height: 200px;
             
             .more-dtail-item {
                 list-style-type: square;

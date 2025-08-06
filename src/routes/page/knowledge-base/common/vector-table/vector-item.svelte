@@ -4,9 +4,16 @@
     import { fly } from 'svelte/transition';
     import Swal from 'sweetalert2';
 	import Loader from "$lib/common/Loader.svelte";
-	import { KnowledgeCollectionType } from "$lib/helpers/enums";
+	import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
+	import { splitTextByCase } from "$lib/helpers/utils/common";
 
     const svelteDispatch = createEventDispatcher();
+
+    const excludedPayloads = [
+		KnowledgePayloadName.Text,
+		KnowledgePayloadName.Question,
+		KnowledgePayloadName.Answer
+	];
 
     /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel} */
     export let item;
@@ -165,27 +172,24 @@
                             out:fly={{ y: -5, duration: 200 }}
                         >
                             <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
-                            {#if item?.data?.dataSource}
-                                <li class="more-detail-item wrappable">Data source: {item?.data?.dataSource}</li>
-                            {/if}
-                            {#if item?.data?.fileName}
-                                <li class="more-detail-item wrappable">File name: {item?.data?.fileName}</li>
-                            {/if}
-                            {#if item?.data?.fileSource}
-                                <li class="more-detail-item wrappable">File source: {item?.data?.fileSource}</li>
-                            {/if}
-                            {#if item?.data?.fileUrl}
-                                <li class="more-detail-item wrappable">
-                                    <span>File url:</span>
-                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                    <span
-                                        class="link clickable"
-                                        on:click={() => window.open(item?.data?.fileUrl)}
-                                    >
-                                        link
-                                    </span>
-                                </li>
+                            {#if item?.data && Object.keys(item.data).length > 0}
+                                {#each Object.keys(item.data) as key, idx (`${key}-${item?.id}`)}
+                                    {#if key === KnowledgePayloadName.FileUrl}
+                                        <li class="more-detail-item wrappable">
+                                            <span>File url:</span>
+                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                            <span
+                                                class="link clickable"
+                                                on:click={() => window.open(item?.data?.fileUrl)}
+                                            >
+                                                link
+                                            </span>
+                                        </li>
+                                    {:else if (!excludedPayloads.includes(key))}
+                                        <li class="more-detail-item wrappable">{splitTextByCase(key)}: {item.data[key]}</li>
+                                    {/if}
+                                {/each}
                             {/if}
                             {#if item?.vector}
                                 <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>
