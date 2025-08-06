@@ -1,7 +1,9 @@
 <script>
 	import Markdown from "$lib/common/markdown/Markdown.svelte";
+	import { RichType } from "$lib/helpers/enums";
+	import RcJsInterpreter from "./rc-js-interpreter.svelte";
 
-    /** @type {any} */
+    /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;
 
     /** @type {string} */
@@ -22,7 +24,12 @@
         style={`${containerStyles}`}
     >
         <div class="flex-shrink-0 align-self-center">
-            <Markdown containerClasses={markdownClasses} text={text} rawText />
+            {#if message?.rich_content?.message?.rich_type === RichType.ProgramCode
+                && message?.rich_content?.message?.language === 'javascript'}
+                <RcJsInterpreter message={message} scrollable />
+            {:else}
+                <Markdown containerClasses={markdownClasses} text={text} rawText />
+            {/if}
         </div>
     </div>
 {/if}
