@@ -23,7 +23,7 @@
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
  * @property {string[]} [included_payloads] - Included payload keys.
- * @property {{ key: string, value: string }[]} [search_pairs] - Search pairs.
+ * @property {{ key: string, value: string }[]} [filters] - Search filters.
  */
 
 /**

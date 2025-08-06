@@ -329,7 +329,7 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				included_payloads: [],
-				search_pairs: searchPairs
+				filters: searchPairs
 			};
 
 			getVectorKnowledgePageList(

@@ -294,7 +294,7 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				included_payloads: includedPayloads,
-				search_pairs: params.useSearhPair ? [
+				filters: params.useSearhPair ? [
 					{ key: KnowledgePayloadName.Text, value: text },
 					{ key: KnowledgePayloadName.Answer, value: text }
 				] : []
