@@ -41,6 +41,14 @@
     }
 }
 
+.operator-tooltip {
+    .tooltip-inner {
+        width: fit-content !important;
+        max-width: 300px !important;
+        text-align: left !important;
+    }
+}
+
 .knowledge-textarea {
     border-radius: 5px;
     border-color: var(--#{$prefix}light) !important;
@@ -360,6 +368,9 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        scrollbar-width: thin;
     
         .knowledge-adv-search-item {
             display: flex;

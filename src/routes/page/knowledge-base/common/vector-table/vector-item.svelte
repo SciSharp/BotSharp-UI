@@ -191,8 +191,8 @@
                                     {/if}
                                 {/each}
                             {/if}
-                            {#if item?.vector}
-                                <li class="more-detail-item wrappable">Vector dimension: {item?.vector?.length}</li>
+                            {#if item?.vector_dimension}
+                                <li class="more-detail-item wrappable">Vector dimension: {item?.vector_dimension}</li>
                             {/if}
                         </ul>
                     {/if}
