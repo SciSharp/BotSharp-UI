@@ -253,6 +253,24 @@
             font-size: 15px;
         }
     }
+
+    .payload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 230px;
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        .payload-item {
+            display: flex;
+            gap: 10px;
+
+            .payload-item-content {
+                flex: 0.5;
+            }
+        }
+    }
 }
 
 .knowledge-doc-upload-container {

@@ -88,12 +88,8 @@
 	let searchItems = [{ uuid: uuidv4(), key: '', value: '', checked: true }];
 	/** @type {string} */
 	let selectedOperator = 'or';
-
-	/** @type {any} */
-	let innerSearch = {
-		filters: [],
-		operator: 'or'
-	};
+	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
+	let innerSearchGroups = [];
 
 	/** @type {boolean} */
     let showDemo = true;
@@ -118,7 +114,7 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * searchFilters: import('$commonTypes').KeyValuePair[]
+	 * filterGroups: any[]
 	 * }}
 	*/
 	const defaultParams = {
@@ -126,7 +122,7 @@
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		searchFilters: []
+		filterGroups: []
 	};
 
     $: disabled = isLoading || isLoadingMore || isSearching;
@@ -153,8 +149,7 @@
 				...defaultParams,
 				isReset: true,
 				skipLoader: true,
-				searchFilters: innerSearch.filters,
-				filterOperator: innerSearch.operator
+				filterGroups: innerSearchGroups
 			}).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
@@ -177,18 +172,14 @@
 		searchDone = false;
 		isFromSearch = false;
 
-		innerSearch = {
-			filters: buildSearchFilters(searchItems),
-			operator: selectedOperator
-		}
+		innerSearchGroups = buildSearchFilterGroups(searchItems);
 
 		if (textSearch) {
 			getData({
 				...defaultParams,
 				isReset: true,
 				skipLoader: true,
-				searchFilters: innerSearch.filters,
-				filterOperator: innerSearch.operator
+				filterGroups: innerSearchGroups
 			}).then(() => {
 				isFromSearch = true;
 			}).finally(() => {
@@ -200,8 +191,7 @@
 				text: util.trim(text),
 				confidence: Number(validateConfidenceNumber(confidence)),
 				with_vector: enableVector,
-				filters: innerSearch.filters,
-				filter_operator: innerSearch.operator
+				filter_groups: innerSearchGroups
 			};
 
 			searchVectorKnowledge(selectedCollection, params).then(res => {
@@ -236,8 +226,7 @@
 			startId: null,
 			isReset: true,
 			skipLoader: skipLoader,
-			searchFilters: innerSearch.filters,
-			filterOperator: innerSearch.operator
+			filterGroups: innerSearchGroups
 		});
 	}
 
@@ -259,10 +248,7 @@
 		isFromSearch = false;
 		textSearch = false;
 		selectedOperator = 'or';
-		innerSearch = {
-			filters: [],
-			operator: selectedOperator
-		};
+		innerSearchGroups = [];
 	}
 
 
@@ -330,14 +316,12 @@
 	 * @param {{
 	 * startId: string | null,
 	 * isReset: boolean,
-	 * searchFilters: any[],
-	 * filterOperator: string }} params
+	 * filterGroups: any[] }} params
 	 */
 	function getKnowledgeListData(params = {
 		startId: null,
 		isReset: false,
-		searchFilters: [],
-		filterOperator: 'or'
+		filterGroups: []
 	}) {
 		return new Promise((resolve, reject) => {
 			const filter = {
@@ -345,8 +329,7 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				fields: [],
-				filters: params.searchFilters,
-				filter_operator: params.filterOperator
+				filter_groups: params.filterGroups
 			};
 
 			getVectorKnowledgePageList(
@@ -375,16 +358,14 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * searchFilters: any[],
-	 * filterOperator: string }} params
+	 * filterGroups: any[] }} params
 	 */
 	function getData(params = {
 		startId: null,
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		searchFilters: [],
-		filterOperator: 'or'
+		filterGroups: []
 	}) {
 		return new Promise((resolve, reject) => {
 			if (!params.skipLoader) {
@@ -423,8 +404,7 @@
 			...defaultParams,
 			startId: nextId || null,
 			isLocalLoading: true,
-			searchFilters: innerSearch.filters,
-			filterOperator: innerSearch.operator
+			filterGroups: innerSearchGroups
 		};
 		getData(params);
 	}
@@ -523,7 +503,6 @@
 		if (!!editItem) {
 			const {
 				text,
-				answer,
 				...payload
 			} = e.data;
 			updateVectorKnowledgeData(
@@ -531,7 +510,7 @@
 				editCollection,
 				e.data?.text,
 				e.data?.dataSource,
-				{ ...payload }
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -558,7 +537,8 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.data.dataSource
+				e.data.dataSource,
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -589,11 +569,13 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
-			found.data = {
-				...found.data,
+			const newData = {
 				text: newItem.data?.text || '',
 				dataSource: newItem.data?.dataSource,
+				...newItem.payload
 			};
+
+			found.data = { ...newData };
 			items = [ ...items ];
 		}
 	}
@@ -724,19 +706,20 @@
 	/**
 	 *  @param {any[]} items
 	 */
-	function buildSearchFilters(items) {
+	function buildSearchFilterGroups(items) {
 		/** @type {any[]} */
-		let searchFilters = [];
+		let groups = [];
 		if (textSearch && !!text) {
-			searchFilters = [ ...searchFilters, { key: KnowledgePayloadName.Text, value: text } ];
+			groups = [ ...groups, { filter_operator: 'or', filters: [{ key: KnowledgePayloadName.Text, value: text }] } ];
 		}
 
 		if (isAdvSearchOn && items?.length > 0) {
-			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value)).map(x => ({ key: x.key, value: x.value }));
-			searchFilters = [ ...searchFilters, ...validItems ];
+			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value))
+									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }));
+			groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
 		}
 
-		return searchFilters;
+		return groups;
 	}
 </script>
 
@@ -760,6 +743,12 @@
         collectionType={collectionType}
 		item={editItem}
 		open={isOpenEditKnowledge}
+		allowPayload
+		payloadLimit={10}
+		excludedPayloads={[
+			KnowledgePayloadName.Text,
+        	KnowledgePayloadName.DataSource
+		]}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleKnowledgeEditModal()}

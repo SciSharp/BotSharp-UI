@@ -15,8 +15,7 @@
  * @property {number} [limit] - Data limit.
  * @property {number} [confidence] - Confidence.
  * @property {boolean} [with_vector] - Include vector or not.
- * @property {{ key: string, value: string }[]} [filters] - Search filters.
- * @property {string} [filter_operator] - The filter operator.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filters.
  */
 
 /**
@@ -25,8 +24,13 @@
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
  * @property {string[]} [fields] - Included payload fields.
- * @property {{ key: string, value: string }[]} [filters] - Search filters.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filters.
+ */
+
+/**
+ * @typedef {Object} VectorFilterGroup
  * @property {string} [filter_operator] - The filter operator.
+ * @property {{ key: string, value: string }[]} [filters] - Search filters.
  */
 
 /**

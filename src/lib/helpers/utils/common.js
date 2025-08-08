@@ -147,7 +147,7 @@ export function splitTextByCase(str) {
     if (!str) return str;
 
     let words = str.split("_");
-    if (words.length === 0) {
+    if (words.length === 1) {
         // split by camel case
         words = str.split(/(?=[A-Z])/);
     }
