@@ -15,7 +15,7 @@
  * @property {number} [limit] - Data limit.
  * @property {number} [confidence] - Confidence.
  * @property {boolean} [with_vector] - Include vector or not.
- * @property {VectorFilterGroup[]} [filter_groups] - Search filters.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
  */
 
 /**
@@ -24,7 +24,7 @@
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
  * @property {string[]} [fields] - Included payload fields.
- * @property {VectorFilterGroup[]} [filter_groups] - Search filters.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
  */
 
 /**
