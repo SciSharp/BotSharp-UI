@@ -4,6 +4,7 @@
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
 	import Swal from 'sweetalert2';
+	import { v4 as uuidv4 } from 'uuid';
 	import {
         Button,
         Card,
@@ -83,8 +84,12 @@
 	/** @type {string} */
 	let editModalTitle = "Edit knowledge";
 
-	/** @type {import('$commonTypes').KeyValuePair[]} */
-	let searchItems = [];
+	/** @type {{ uuid: string, key: string, value: string, checked: boolean }[]} */
+	let searchItems = [{ uuid: uuidv4(), key: '', value: '', checked: true }];
+	/** @type {string} */
+	let selectedOperator = 'or';
+	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
+	let innerSearchGroups = [];
 
 	/** @type {boolean} */
     let showDemo = true;
@@ -98,6 +103,7 @@
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
 	let textSearch = false;
+	let isAdvSearchOn = false;
 	let disableSearchBtn = false;
 
     /** @type {any} */
@@ -108,7 +114,7 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * useSearhPair: boolean
+	 * filterGroups: any[]
 	 * }}
 	*/
 	const defaultParams = {
@@ -116,7 +122,7 @@
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		useSearhPair: false
+		filterGroups: []
 	};
 
     $: disabled = isLoading || isLoadingMore || isSearching;
@@ -131,6 +137,7 @@
 		}
 	}
 
+
 	onMount(() => {
 		initData();
 	});
@@ -141,7 +148,8 @@
 			getData({
 				...defaultParams,
 				isReset: true,
-				skipLoader: true
+				skipLoader: true,
+				filterGroups: innerSearchGroups
 			}).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
@@ -156,9 +164,6 @@
 
 	function toggleTextSearch() {
 		textSearch = !textSearch;
-		if (!textSearch) {
-			searchItems = [];
-		}
 	}
 
 	function search() {
@@ -167,12 +172,14 @@
 		searchDone = false;
 		isFromSearch = false;
 
+		innerSearchGroups = buildSearchFilterGroups(searchItems);
+
 		if (textSearch) {
 			getData({
 				...defaultParams,
 				isReset: true,
 				skipLoader: true,
-				useSearhPair: true
+				filterGroups: innerSearchGroups
 			}).then(() => {
 				isFromSearch = true;
 			}).finally(() => {
@@ -180,12 +187,14 @@
 				searchDone = true;
 			});
 		} else {
-			searchVectorKnowledge(selectedCollection,
-			{
+			const params = {
 				text: util.trim(text),
 				confidence: Number(validateConfidenceNumber(confidence)),
-				with_vector: enableVector
-			}).then(res => {
+				with_vector: enableVector,
+				filter_groups: innerSearchGroups
+			};
+
+			searchVectorKnowledge(selectedCollection, params).then(res => {
 				items = res || [];
 				isFromSearch = true;
 			}).finally(() => {
@@ -216,7 +225,8 @@
 			...defaultParams,
 			startId: null,
 			isReset: true,
-			skipLoader: skipLoader
+			skipLoader: skipLoader,
+			filterGroups: innerSearchGroups
 		});
 	}
 
@@ -237,6 +247,8 @@
 		searchDone = false;
 		isFromSearch = false;
 		textSearch = false;
+		selectedOperator = 'or';
+		innerSearchGroups = [];
 	}
 
 
@@ -304,32 +316,20 @@
 	 * @param {{
 	 * startId: string | null,
 	 * isReset: boolean,
-	 * useSearhPair: boolean }} params
+	 * filterGroups: any[] }} params
 	 */
 	function getKnowledgeListData(params = {
 		startId: null,
 		isReset: false,
-		useSearhPair: false
+		filterGroups: []
 	}) {
 		return new Promise((resolve, reject) => {
-			/** @type {import('$commonTypes').KeyValuePair[]} */
-			let searchPairs = [];
-			if (params.useSearhPair) {
-				if (!!text) {
-					searchPairs = [ ...searchPairs, { key: KnowledgePayloadName.Text, value: text } ];
-				}
-
-				if (textSearch && searchItems.length > 0) {
-					searchPairs = [ ...searchPairs, ...searchItems ];
-				}
-			}
-
 			const filter = {
 				size: pageSize,
 				start_id: params.startId,
 				with_vector: enableVector,
-				included_payloads: [],
-				search_pairs: searchPairs
+				fields: [],
+				filter_groups: params.filterGroups
 			};
 
 			getVectorKnowledgePageList(
@@ -358,14 +358,14 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * useSearhPair: boolean }} params
+	 * filterGroups: any[] }} params
 	 */
 	function getData(params = {
 		startId: null,
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		useSearhPair: false
+		filterGroups: []
 	}) {
 		return new Promise((resolve, reject) => {
 			if (!params.skipLoader) {
@@ -400,23 +400,12 @@
 	}
 
 	function loadMore() {
-		let params = { ...defaultParams };
-
-		if (textSearch) {
-			params = {
-				...params,
-				startId: nextId || null,
-				isLocalLoading: true,
-				useSearhPair: true
-			};
-		} else {
-			params = {
-				...params,
-				startId: nextId || null,
-				isLocalLoading: true,
-			};
-		}
-
+		const params = {
+			...defaultParams,
+			startId: nextId || null,
+			isLocalLoading: true,
+			filterGroups: innerSearchGroups
+		};
 		getData(params);
 	}
 
@@ -508,21 +497,18 @@
 	function confirmEdit(e) {
 		isLoading = true;
 		isOpenEditKnowledge = false;
-		const dataSource = e.data?.dataSource || VectorDataSource.User;
-		e.data.dataSource = dataSource;
+		e.payload = {
+			...e.payload || {},
+			dataSource: e.payload?.dataSource || VectorDataSource.User
+		};
 
 		if (!!editItem) {
-			const {
-				text,
-				answer,
-				...payload
-			} = e.data;
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.data?.dataSource,
-				{ ...payload }
+				e.payload?.dataSource,
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -549,7 +535,8 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.data.dataSource
+				e.payload?.dataSource,
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -580,11 +567,12 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
-			found.data = {
-				...found.data,
+			const newData = {
 				text: newItem.data?.text || '',
-				dataSource: newItem.data?.dataSource,
+				...newItem.payload
 			};
+
+			found.data = { ...newData };
 			items = [ ...items ];
 		}
 	}
@@ -712,9 +700,23 @@
         }
     }
 
-	/** @param {any} e */
-	function onSearchItemsChanged(e) {
-		searchItems = e.detail.searchItems || [];
+	/**
+	 *  @param {any[]} items
+	 */
+	function buildSearchFilterGroups(items) {
+		/** @type {any[]} */
+		let groups = [];
+		if (textSearch && !!text) {
+			groups = [ ...groups, { filter_operator: 'or', filters: [{ key: KnowledgePayloadName.Text, value: text }] } ];
+		}
+
+		if (isAdvSearchOn && items?.length > 0) {
+			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value))
+									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }));
+			groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
+		}
+
+		return groups;
 	}
 </script>
 
@@ -738,6 +740,11 @@
         collectionType={collectionType}
 		item={editItem}
 		open={isOpenEditKnowledge}
+		allowPayload
+		payloadLimit={10}
+		excludedPayloads={[
+			KnowledgePayloadName.Text
+		]}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleKnowledgeEditModal()}
@@ -859,6 +866,7 @@
 								<Input
 									type="switch"
 									checked={textSearch}
+									disabled={disabled}
 									on:change={e => toggleTextSearch()}
 								/>
 							</div>
@@ -877,16 +885,12 @@
                         </div>
                     </div>
 
-					{#if textSearch}
-						<AdvancedSearch
-							on:changeitems={e => onSearchItemsChanged(e)}
-							disabled={disabled}
-							items={[
-								{ key: KnowledgePayloadName.FileName, displayName: "File name" },
-								{ key: KnowledgePayloadName.FileSource, displayName: "File source" }
-							]}
-						/>
-					{/if}
+					<AdvancedSearch
+						bind:showAdvSearch={isAdvSearchOn}
+						bind:items={searchItems}
+						bind:operator={selectedOperator}
+						disabled={disabled}
+					/>
 				
 					{#if isSearching}
 						<div class="knowledge-loader mt-5">
@@ -930,6 +934,7 @@
 									>
                                         <Button
                                             class="btn btn-sm btn-soft-primary knowledge-btn-icon"
+											disabled={disabled}
                                             on:click={() => onKnowledgeCreate()}
                                         >
                                             <i class="mdi mdi-plus" />
@@ -943,6 +948,7 @@
 									>
                                         <Button
                                             class="btn btn-sm btn-soft-danger knowledge-btn-icon"
+											disabled={disabled}
                                             on:click={() => onKnowledgeDeleteAll()}
                                         >
                                             <i class="mdi mdi-minus" />
@@ -968,6 +974,7 @@
 									>
 										<Button
 											class="btn btn-sm btn-soft-primary collection-action-btn"
+											disabled={disabled}
 											on:click={() => toggleCollectionCreate()}
 										>
 											<i class="mdi mdi-plus" />
@@ -981,6 +988,7 @@
 									>
 										<Button
 											class="btn btn-sm btn-soft-danger collection-action-btn"
+											disabled={disabled}
 											on:click={() => deleteCollection()}
 										>
 											<i class="mdi mdi-minus" />
@@ -1021,6 +1029,7 @@
 									<div class="mt-4 text-center">
 										<Button
 											class="btn btn-soft-primary"
+											disabled={disabled}
 											on:click={() => loadMore()}
 										>
 											{'Load more'}

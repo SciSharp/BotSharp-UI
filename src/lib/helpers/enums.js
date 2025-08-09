@@ -186,3 +186,10 @@ const llmModelType = {
     Audio: 5
 };
 export const LlmModelType = Object.freeze(llmModelType);
+
+const reasoningEffortLevel = {
+    Low: "low",
+    Medium: "medium",
+    High: "high"
+};
+export const ReasoningEffortLevel = Object.freeze(reasoningEffortLevel);

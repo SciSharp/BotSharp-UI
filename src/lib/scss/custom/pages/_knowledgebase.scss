@@ -41,6 +41,14 @@
     }
 }
 
+.operator-tooltip {
+    .tooltip-inner {
+        width: fit-content !important;
+        max-width: 300px !important;
+        text-align: left !important;
+    }
+}
+
 .knowledge-textarea {
     border-radius: 5px;
     border-color: var(--#{$prefix}light) !important;
@@ -245,6 +253,24 @@
             font-size: 15px;
         }
     }
+
+    .payload-container {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        max-height: 280px;
+        overflow-y: auto;
+        scrollbar-width: none;
+
+        .payload-item {
+            display: flex;
+            gap: 10px;
+
+            .payload-item-content {
+                flex: 0.5;
+            }
+        }
+    }
 }
 
 .knowledge-doc-upload-container {
@@ -360,6 +386,9 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        max-height: 300px;
+        overflow-y: auto;
+        scrollbar-width: none;
     
         .knowledge-adv-search-item {
             display: flex;

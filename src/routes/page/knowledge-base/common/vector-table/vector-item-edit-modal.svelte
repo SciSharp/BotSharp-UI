@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onMount, tick } from "svelte";
 	import {
         Button,
         Form,
@@ -8,10 +8,12 @@
         ModalBody,
         ModalFooter,
         ModalHeader,
-        Row
+        Row,
+        Input
     } from "@sveltestrap/sveltestrap";
-    import { KnowledgeCollectionType } from "$lib/helpers/enums";
-    import _ from "lodash";
+    import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
+    import util from "lodash";
+    import { v4 as uuidv4 } from 'uuid';
 	
 
     /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
@@ -35,6 +37,18 @@
     /** @type {string} */
     export let size = 'md';
 
+    /** @type {boolean} */
+    export let allowPayload = true;
+
+    /** @type {number} */
+    export let payloadLimit = 10;
+
+    /** @type {string[]} */
+    export let excludedPayloads = [
+        KnowledgePayloadName.Text,
+        KnowledgePayloadName.DataSource
+    ];
+
     /** @type {() => void} */
     export let toggleModal;
 
@@ -46,8 +60,13 @@
 
     $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
     $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
-    $: disableConfirmBtn = !_.trim(question.text) || (isQuestionAnswerCollection && !_.trim(answer.text));
+    $: disableConfirmBtn = !util.trim(question.text) || (isQuestionAnswerCollection && !util.trim(answer.text));
 
+    /** @type {{ uuid: string, key: string, value: string }[]} */
+    let innerPayloads = [];
+
+    /** @type {HTMLElement} */
+    let scrollContainer;
 
     let question = {
         text: '',
@@ -76,11 +95,74 @@
             ...answer,
             text: item?.data?.answer || ''
         };
+
+        innerPayloads = Object.keys(item?.data || {}).filter(key => !excludedPayloads.includes(key)).map(key => {
+            return {
+                uuid: uuidv4(),
+                key: key,
+                value: item?.data[key]
+            };
+        });
+    }
+
+    /** @param {any} e */
+    async function addPayloadItem(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        innerPayloads = [...innerPayloads, { uuid: uuidv4(), key: '', value: ''}];
+
+        if (allowPayload && scrollContainer) {
+            await tick();
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    }
+
+    /**
+     * @param {any} e
+	 * @param {number} idx
+     * @param {string} key
+	 */
+    function changePayloadItem(e, idx, key) {
+        const found = innerPayloads.find((_, index) => index === idx);
+        if (found) {
+            if (key === 'key') {
+                found.key = e.target.value;
+            } else if (key === 'value') {
+                found.value = e.target.value;
+            }
+            innerPayloads = innerPayloads.map((x, index) => {
+                return index === idx ? { ...found } : x;
+            });
+        }
+    }
+
+    /** @param {number} idx */
+    function removePayloadItem(idx) {
+        innerPayloads = innerPayloads.filter((_, index) => index !== idx);
     }
 
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
+
+        if (!allowPayload) {
+            innerPayloads = [];
+        }
+
+        const validPayloads = innerPayloads.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }))
+                                           .filter(x => !!x.key && !!x.value && !excludedPayloads.includes(x.key));
+                    
+        const obj = validPayloads.reduce((acc, cur) => {
+            // @ts-ignore
+            acc[cur.key] = cur.value;
+            return acc;
+        }, {});
 
         const newItem = {
             ...item,
@@ -88,7 +170,8 @@
                 ...item?.data,
                 text: question.text,
                 answer: answer.text
-            }
+            },
+            payload: obj || {}
         };
         confirm?.(newItem);
     }
@@ -169,6 +252,71 @@
                     />
                     <div class="text-secondary text-end text-count">
                         {question.text?.length || 0}/{question.maxLength}
+                    </div>
+                </FormGroup>
+            </Row>
+            {/if}
+
+            {#if allowPayload}
+            <Row class="mt-2">
+                <FormGroup>
+                    <div class="payload-container" bind:this={scrollContainer}>
+                        {#if innerPayloads.length > 0}
+                        <div class="payload-item">
+                            <div class="payload-item-content fw-bold">{'Name'}</div>
+                            <div class="payload-item-content fw-bold">{'Value'}</div>
+                            <div></div>
+                        </div>
+                        {/if}
+                        {#each innerPayloads as payload, idx (payload.uuid)}
+                        <div class="payload-item">
+                            <div class="payload-item-content line-align-center">
+                                <Input
+                                    type="text"
+                                    maxlength={1000}
+                                    value={payload.key}
+                                    on:input={e => changePayloadItem(e, idx, 'key')}
+                                />
+                            </div>
+                            <div class="payload-item-content line-align-center">
+                                <Input
+                                    type="text"
+                                    maxlength={1000}
+                                    value={payload.value}
+                                    on:input={e => changePayloadItem(e, idx, 'value')}
+                                />
+                            </div>
+                            <div class="line-align-center" style="flex: 0 0 12px;">
+                                <div class="line-align-center">
+                                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                    <i
+                                        class="bx bx-no-entry text-danger clickable"
+                                        on:click={() => removePayloadItem(idx)}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                        {/each}
+
+                        {#if innerPayloads.length < payloadLimit}
+                            <div class="payload-item">
+                                <div class="payload-item-content line-align-center">
+                                    <div class="fw-bold">{''}</div>
+                                </div>
+                                <div class="payload-item-content line-align-center">
+                                    <div class="d-flex justify-content-end">
+                                        <Button
+                                            color="link"
+                                            style="width: fit-content"
+                                            on:click={e => addPayloadItem(e)}
+                                        >
+                                            {'Add Payload +'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </div>
+                        {/if}
                     </div>
                 </FormGroup>
             </Row>

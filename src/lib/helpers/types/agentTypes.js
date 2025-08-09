@@ -17,6 +17,7 @@
  * @property {string?} model
  * @property {number} max_recursion_depth
  * @property {number?} [max_output_tokens]
+ * @property {string?} [reasoning_effort_level]
  */
 
 

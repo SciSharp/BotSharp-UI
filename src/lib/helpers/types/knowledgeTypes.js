@@ -15,6 +15,7 @@
  * @property {number} [limit] - Data limit.
  * @property {number} [confidence] - Confidence.
  * @property {boolean} [with_vector] - Include vector or not.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
  */
 
 /**
@@ -22,8 +23,14 @@
  * @property {string | null} [start_id] - The start id.
  * @property {number} size - Page size.
  * @property {boolean} [with_vector] - Include vector or not.
- * @property {string[]} [included_payloads] - Included payload keys.
- * @property {{ key: string, value: string }[]} [search_pairs] - Search pairs.
+ * @property {string[]} [fields] - Included payload fields.
+ * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
+ */
+
+/**
+ * @typedef {Object} VectorFilterGroup
+ * @property {string} [filter_operator] - The filter operator.
+ * @property {{ key: string, value: string }[]} [filters] - Search filters.
  */
 
 /**
@@ -32,6 +39,7 @@
  * @property {any} data - The knowledge data.
  * @property {number} [score] - The knowledge score.
  * @property {number[]} [vector] - The knowledge vector.
+ * @property {number} [vector_dimension] - The vector dimension.
  */
 
 /**
