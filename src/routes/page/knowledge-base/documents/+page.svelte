@@ -497,19 +497,17 @@
 	function confirmEdit(e) {
 		isLoading = true;
 		isOpenEditKnowledge = false;
-		const dataSource = e.data?.dataSource || VectorDataSource.User;
-		e.data.dataSource = dataSource;
+		e.payload = {
+			...e.payload || {},
+			dataSource: e.payload?.dataSource || VectorDataSource.User
+		};
 
 		if (!!editItem) {
-			const {
-				text,
-				...payload
-			} = e.data;
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.data?.dataSource,
+				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -537,7 +535,7 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.data.dataSource,
+				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -571,7 +569,6 @@
 		if (found) {
 			const newData = {
 				text: newItem.data?.text || '',
-				dataSource: newItem.data?.dataSource,
 				...newItem.payload
 			};
 
@@ -746,8 +743,7 @@
 		allowPayload
 		payloadLimit={10}
 		excludedPayloads={[
-			KnowledgePayloadName.Text,
-        	KnowledgePayloadName.DataSource
+			KnowledgePayloadName.Text
 		]}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}

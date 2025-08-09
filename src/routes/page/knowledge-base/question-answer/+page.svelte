@@ -485,24 +485,21 @@
 	function confirmEdit(e) {
 		isLoading = true;
 		isOpenEditKnowledge = false;
-		const dataSource = e.data?.dataSource || VectorDataSource.User;
-		e.data.dataSource = dataSource;
+		e.payload = {
+			...e.payload || {},
+			dataSource: e.payload?.dataSource || VectorDataSource.User
+		};
 
 		if (!!editItem) {
-			const {
-				text,
-				...payload
-			} = e.data;
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.data.dataSource,
+				e.payload?.dataSource,
 				{ answer: e.data?.answer, ...e.payload }
 			).then(res => {
 				if (res) {
 					isComplete = true;
-					e.data.dataSource = dataSource;
 					refreshItems(e);
 					resetEditData();
 					successText = "Knowledge has been updated!";
@@ -526,7 +523,7 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.data.dataSource,
+				e.payload?.dataSource,
 				{ answer: e.data?.answer, ...e.payload }
 			).then(res => {
 				if (res) {
@@ -561,7 +558,6 @@
 			const newData = {
 				text: newItem.data?.text || '',
 				answer: newItem.data?.answer || '',
-				dataSource: newItem.data?.dataSource,
 				...newItem.payload
 			};
 
@@ -698,8 +694,7 @@
 		excludedPayloads={[
 			KnowledgePayloadName.Text,
 			KnowledgePayloadName.Question,
-			KnowledgePayloadName.Answer,
-        	KnowledgePayloadName.DataSource
+			KnowledgePayloadName.Answer
 		]}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}

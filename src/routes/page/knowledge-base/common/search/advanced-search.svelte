@@ -71,16 +71,25 @@
         }
     }
 
-    async function addItem() {
+    /** @param {any} e */
+    async function addItem(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         items = [
             ...items,
             { uuid: uuidv4(), key: '', value: '', checked: true }
         ];
 
         // Wait for DOM to update, then scroll to bottom
-        await tick();
         if (scrollContainer) {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+            await tick();
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
         }
     }
 
@@ -223,7 +232,7 @@
                             <Button
                                 color="link"
                                 style="width: fit-content"
-                                on:click={() => addItem()}
+                                on:click={e => addItem(e)}
                             >
                                 {'Add +'}
                             </Button>

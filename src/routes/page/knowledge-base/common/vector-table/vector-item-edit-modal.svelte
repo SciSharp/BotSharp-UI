@@ -105,12 +105,21 @@
         });
     }
 
-    async function addPayloadItem() {
+    /** @param {any} e */
+    async function addPayloadItem(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
         innerPayloads = [...innerPayloads, { uuid: uuidv4(), key: '', value: ''}];
 
-        await tick();
-        if (scrollContainer) {
-            scrollContainer.scrollTop = scrollContainer.scrollHeight;
+        if (allowPayload && scrollContainer) {
+            await tick();
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
         }
     }
 
@@ -147,7 +156,7 @@
         }
 
         const validPayloads = innerPayloads.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }))
-                                        .filter(x => !!x.key && !!x.value && !excludedPayloads.includes(x.key));
+                                           .filter(x => !!x.key && !!x.value && !excludedPayloads.includes(x.key));
                     
         const obj = validPayloads.reduce((acc, cur) => {
             // @ts-ignore
@@ -300,7 +309,7 @@
                                         <Button
                                             color="link"
                                             style="width: fit-content"
-                                            on:click={() => addPayloadItem()}
+                                            on:click={e => addPayloadItem(e)}
                                         >
                                             {'Add Payload +'}
                                         </Button>
