@@ -14,6 +14,8 @@
  * @property {boolean?} [isLoadLatestStates]
  * @property {import('$commonTypes').KeyValuePair[]} [states] - The conversation status.
  * @property {string[]} [tags] - The tags.
+ * @property {string?} [startTime]
+ * @property {string?} [endTime]
  */
 
 /**
@@ -41,6 +43,8 @@
  * @property {number?} [convLimit] - The conversation limit.
  * @property {boolean?} [preload] - Whether it is preloading or not.
  * @property {string[]?} [agentIds]
+ * @property {string?} [startTime]
+ * @property {string?} [endTime]
  */
 
 
@@ -307,6 +311,7 @@ IRichContent.prototype.language;
  * @property {string?} [status]
  * @property {UserStateDetailModel[]} states
  * @property {string[]} tags
+ * @property {string?} [timeRange]
  */
 
 /**

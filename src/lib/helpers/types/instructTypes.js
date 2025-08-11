@@ -23,6 +23,8 @@
  * @property {string[]?} [providers]
  * @property {string[]?} [models]
  * @property {string[]?} [templateNames]
+ * @property {string?} [startTime]
+ * @property {string?} [endTime]
  * @property {{key: string, value: string}[]?} [states]
  */
 
@@ -49,6 +51,8 @@
  * @property {number?} [logLimit] - The log limit.
  * @property {boolean?} [preload] - Whether it is preloading or not.
  * @property {string[]?} [agentIds]
+ * @property {string?} [startTime]
+ * @property {string?} [endTime]
  */
 
 export default {};
