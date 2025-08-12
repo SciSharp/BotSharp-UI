@@ -187,7 +187,7 @@
                                             </span>
                                         </li>
                                     {:else if (!excludedPayloads.includes(key))}
-                                        <li class="more-detail-item wrappable">{splitTextByCase(key)}: {item.data[key]}</li>
+                                        <li class="more-detail-item wrappable">{key}: {item.data[key]}</li>
                                     {/if}
                                 {/each}
                             {/if}
