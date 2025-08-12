@@ -12,7 +12,7 @@
 	import { getInstructionLogs, getInstructionLogSearchKeys } from '$lib/services/instruct-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import LogItem from './log-item.svelte';
-	import { removeDuplicates } from '$lib/helpers/utils/common';
+	import { convertTimeRange, removeDuplicates } from '$lib/helpers/utils/common';
 	import StateSearch from '$lib/common/StateSearch.svelte';
 	import Select from '$lib/common/Select.svelte';
 	import {
@@ -20,12 +20,19 @@
 		setUrlQueryParams,
 		goToUrl
 	} from '$lib/helpers/utils/common';
+	import { TimeRange } from '$lib/helpers/enums';
+	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
 
     const firstPage = 1;
 	const pageSize = 15;
     let isLoading = false;
 
     const initPager = { page: firstPage, size: pageSize };
+
+	const timeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
+		label: x.label,
+		value: x.value
+	}));
 
     /** @type {import('$commonTypes').Pagination} */
 	let pager = { page: firstPage, size: pageSize, count: 0 }
@@ -54,7 +61,14 @@
 		providers: [],
 		models: [],
         template: '',
+		timeRange: TimeRange.Today,
 		states: []
+	};
+
+	/** @type {{ startTime: string | null, endTime: string | null }} */
+	let innerTimeRange = {
+		startTime: null,
+		endTime: null
 	};
 
 	/** @type {boolean} */
@@ -70,9 +84,12 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
+		innerTimeRange = convertTimeRange(searchOption.timeRange);
 
 		filter = {
 			...filter,
+			startTime: innerTimeRange.startTime,
+			endTime: innerTimeRange.endTime,
 			page: pageNum,
 			size: pageSizeNum
 		};
@@ -199,7 +216,12 @@
 				...searchOption,
 				models: selectedValues
 			};
-        }
+        } else if (type === 'timeRange') {
+			searchOption = {
+				...searchOption,
+				timeRange: selectedValues.length > 0 ? selectedValues[0] : null
+			};
+		}
 	}
 
 
@@ -214,6 +236,7 @@
         const models = searchOption.models;
         const template = util.trim(searchOption.template) || null;
 		const states = getSearchStates();
+		innerTimeRange = convertTimeRange(searchOption.timeRange);
 
         filter = {
             ...filter,
@@ -222,6 +245,8 @@
             providers: providers,
             models: models,
             templateNames: template ? [template] : [],
+			startTime: innerTimeRange.startTime,
+			endTime: innerTimeRange.endTime,
 			states: states
         };
     }
@@ -251,7 +276,9 @@
 			getInstructionLogSearchKeys({
 				query: query,
 				keyLimit: 20,
-				agentIds: searchOption.agentIds
+				agentIds: searchOption.agentIds,
+				startTime: innerTimeRange.startTime,
+				endTime: innerTimeRange.endTime
 			}).then(res => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
@@ -305,7 +332,7 @@
 					<Col lg="3">
 						<Select
 							tag={'agent-select'}
-							placeholder={'Select Agents'}
+							placeholder={'Select agents'}
 							selectedText={'agents'}
 							multiSelect
 							searchMode
@@ -317,17 +344,17 @@
 					<Col lg="2">
 						<Select
 							tag={'llm-provider-select'}
-							placeholder={'Select LLM Provider'}
+							placeholder={'Select LLM provider'}
 							searchMode
 							selectedValues={searchOption.providers}
 							options={providerOptions}
 							on:select={e => changeOption(e, 'provider')}
 						/>
 					</Col>
-					<Col lg="3">
+					<Col lg="2">
 						<Select
 							tag={'llm-model-select'}
-							placeholder={'Select LLM Model'}
+							placeholder={'Select LLM model'}
 							selectedText={'models'}
 							multiSelect
 							searchMode
@@ -336,8 +363,18 @@
 							on:select={e => changeOption(e, 'model')}
 						/>
 					</Col>
-					<Col lg="3">
+					<Col lg="2">
 						<Input bind:value={searchOption.template} maxlength={100} placeholder={'Search template...'} />
+					</Col>
+					<Col lg="2">
+						<Select
+							tag={'instruct-datetime-select'}
+							placeholder={'Select time range'}
+							selectedText={''}
+							selectedValues={searchOption.timeRange ? [searchOption.timeRange] : []}
+							options={timeRangeOptions}
+							on:select={e => changeOption(e, 'timeRange')}
+						/>
 					</Col>
 					<Col lg="1">
 						<Button

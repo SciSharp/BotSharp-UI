@@ -1,4 +1,4 @@
-import { EditorType, UserRole } from "./enums";
+import { EditorType, TimeRange, UserRole } from "./enums";
 
 export const CHAT_FRAME_ID = "chatbox-frame";
 
@@ -46,3 +46,19 @@ export const IMAGE_DATA_PREFIX = 'data:image';
 
 export const INTEGER_REGEX = "[0-9]+";
 export const DECIMAL_REGEX = "[0-9.]+";
+
+export const TIME_RANGE_OPTIONS = [
+    { label: TimeRange.Last15Minutes, value: TimeRange.Last15Minutes, qty: 15, unit: 'minutes' },
+    { label: TimeRange.Last30Minutes, value: TimeRange.Last30Minutes, qty: 30, unit: 'minutes' },
+    { label: TimeRange.Last1Hour, value: TimeRange.Last1Hour, qty: 1, unit: 'hours' },
+    { label: TimeRange.Last3Hours, value: TimeRange.Last3Hours, qty: 3, unit: 'hours' },
+    { label: TimeRange.Last12Hours, value: TimeRange.Last12Hours, qty: 12, unit: 'hours' },
+    { label: TimeRange.Today, value: TimeRange.Today, qty: 1, unit: 'days' },
+    { label: TimeRange.Yesterday, value: TimeRange.Yesterday, qty: 1, unit: 'days' },
+    { label: TimeRange.Last3Days, value: TimeRange.Last3Days, qty: 3, unit: 'days' },
+    { label: TimeRange.Last7Days, value: TimeRange.Last7Days, qty: 7, unit: 'days' },
+    { label: TimeRange.Last30Days, value: TimeRange.Last30Days, qty: 30, unit: 'days' },
+    { label: TimeRange.Last90Days, value: TimeRange.Last90Days, qty: 90, unit: 'days' },
+    { label: TimeRange.Last180Days, value: TimeRange.Last180Days, qty: 180, unit: 'days' },
+    { label: TimeRange.LastYear, value: TimeRange.LastYear, qty: 365, unit: 'days' }
+];

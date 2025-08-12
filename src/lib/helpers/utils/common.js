@@ -1,4 +1,7 @@
 import { goto } from '$app/navigation';
+import moment from 'moment';
+import { TIME_RANGE_OPTIONS } from '../constants';
+import { TimeRange } from '../enums';
 
 export function range(size = 3, startAt = 0) {
     return [...Array(size).keys()].map((i) => i + startAt);
@@ -155,4 +158,61 @@ export function splitTextByCase(str) {
     let text = words.map(word => word.toLowerCase()).join(' ');
     text = text.charAt(0).toUpperCase() + text.slice(1);
     return text;
+}
+
+/**
+ * @param {string} timeRange
+ * @returns {{ startTime: string | null, endTime: string | null }}
+ */
+export function convertTimeRange(timeRange) {
+    let ret = { startTime: null, endTime: null };
+
+    if (!timeRange) {
+        return ret;
+    }
+
+    const found = TIME_RANGE_OPTIONS.find(x => x.value === timeRange);
+    if (!found) {
+        return ret;
+    }
+
+    switch (found.value) {
+        case TimeRange.Last15Minutes:
+        case TimeRange.Last30Minutes:
+        case TimeRange.Last1Hour:
+        case TimeRange.Last3Hours:
+        case TimeRange.Last12Hours:
+        case TimeRange.Last3Days:
+        case TimeRange.Last7Days:
+        case TimeRange.Last30Days:
+        case TimeRange.Last90Days:
+        case TimeRange.Last180Days:
+        case TimeRange.LastYear:
+            ret = {
+                ...ret,
+                // @ts-ignore
+                startTime: moment().subtract(found.qty, found.unit).utc().format()
+            };
+            break;
+        case TimeRange.Today:
+            ret = {
+                ...ret,
+                // @ts-ignore
+                startTime: moment().startOf('day').utc().format()
+            };
+            break;
+        case TimeRange.Yesterday:
+            ret = {
+                ...ret,
+                // @ts-ignore
+                startTime: moment().subtract(1, 'days').startOf('day').utc().format(),
+                // @ts-ignore
+                endTime: moment().subtract(1, 'days').endOf('day').utc().format()
+            };
+            break;
+        default:
+            break;
+    }
+
+    return ret;
 }

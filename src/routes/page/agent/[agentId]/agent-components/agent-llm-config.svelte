@@ -100,6 +100,12 @@
     }
 
     /** @param {any} e */
+    function changeReasoningEffortLevel(e) {
+        config.reasoning_effort_level = e.target.value || null;
+        handleAgentChange();
+    }
+
+    /** @param {any} e */
     function validateIntegerInput(e) {
         const reg = new RegExp(INTEGER_REGEX, 'g');
         if (e.key !== 'Backspace' && !reg.test(e.key)) {
@@ -172,6 +178,21 @@
                     on:keydown={e => validateIntegerInput(e)}
                     on:change={e => changeMaxOutputToken(e)}
                 />
+            </div>
+        </div>
+
+        <div class="mb-3 row">
+            <label for="example-text-input" class="col-md-3 col-form-label">
+                Reasoning effort
+            </label>
+            <div class="col-md-9">
+                <Input type="select" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
+                    {#each reasonLevelOptions as option}
+                        <option value={option.value} selected={option.value == config.reasoning_effort_level}>
+                            {option.label}
+                        </option>
+                    {/each}
+                </Input>
             </div>
         </div>
     </CardBody>

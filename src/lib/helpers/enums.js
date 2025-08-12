@@ -188,8 +188,26 @@ const llmModelType = {
 export const LlmModelType = Object.freeze(llmModelType);
 
 const reasoningEffortLevel = {
+    Minimal: "minimal",
     Low: "low",
     Medium: "medium",
     High: "high"
 };
 export const ReasoningEffortLevel = Object.freeze(reasoningEffortLevel);
+
+const timeRange = {
+    Last15Minutes: "Last 15 minutes",
+    Last30Minutes: "Last 30 minutes",
+    Last1Hour: "Last 1 hour",
+    Last3Hours: "Last 3 hours",
+    Last12Hours: "Last 12 hours",
+    Today: "Today",
+    Yesterday: "Yesterday",
+    Last3Days: "Last 3 days",
+    Last7Days: "Last 7 days",
+    Last30Days: "Last 30 days",
+    Last90Days: "Last 90 days",
+    Last180Days: "Last 180 days",
+    LastYear: "Last year"
+};
+export const TimeRange = Object.freeze(timeRange);

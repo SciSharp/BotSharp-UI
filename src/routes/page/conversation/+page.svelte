@@ -22,11 +22,15 @@
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
-	import { ConversationChannel } from '$lib/helpers/enums';
+	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
+	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
-		goToUrl
+		goToUrl,
+
+		convertTimeRange
+
 	} from '$lib/helpers/utils/common';
 	
 
@@ -70,6 +74,17 @@
 		{ value: k.toLowerCase(), label: v }
 	));
 
+	const timeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
+		label: x.label,
+		value: x.value
+	}));
+
+	/** @type {{ startTime: string | null, endTime: string | null }} */
+	let innerTimeRange = {
+		startTime: null,
+		endTime: null
+	};
+
 	/** @type {import('$conversationTypes').ConversationSearchOption} */
 	let searchOption = {
 		agentId: null,
@@ -77,6 +92,7 @@
 		channel: null,
 		status: null,
 		taskId: null,
+		timeRange: TimeRange.Last3Hours,
 		states: [],
 		tags: []
 	};
@@ -91,9 +107,12 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '');
 
 		filter = {
 			...filter,
+			startTime: innerTimeRange.startTime,
+			endTime: innerTimeRange.endTime,
 			pager: {
 				...filter.pager,
 				page: pageNum,
@@ -103,21 +122,11 @@
 
 		isLoading = true;
 		try {
-			const [agents] = await Promise.all([
+			await Promise.all([
 				loadAgentOptions(),
-				loadSearchOption()
+				loadSearchOption(),
+				loadConversations()
 			]);
-			
-			searchOption = {
-				...searchOption,
-				agentIds: agents?.length > 0 ? [agents[0].value] : []
-			};
-			filter = {
-				...filter,
-				agentIds: searchOption.agentIds
-			};
-			
-			await loadConversations();
 		} catch (error) {
 			console.error('Error loading data:', error);
 		} finally {
@@ -282,6 +291,8 @@
 
 	function refreshFilter() {
 		const searchStates = getSearchStates();
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '');
+
 		filter = {
 			...filter,
 			agentId: searchOption.agentId,
@@ -290,7 +301,9 @@
 			status: searchOption.status,
 			taskId: searchOption.taskId,
 			states: searchStates,
-			tags: searchOption.tags
+			tags: searchOption.tags,
+			startTime: innerTimeRange.startTime,
+			endTime: innerTimeRange.endTime
 		};
 	}
 
@@ -377,6 +390,11 @@
 				...searchOption,
 				tags: e.target.value?.length > 0 ? [e.target.value] : []
 			};
+		} else if (type === 'timeRange') {
+			searchOption = {
+				...searchOption,
+				timeRange: selectedValues.length > 0 ? selectedValues[0] : null
+			};
 		}
 	}
 
@@ -386,7 +404,9 @@
 			getConversationStateSearchKeys({
 				query: query,
 				keyLimit: 20,
-				agentIds: searchOption.agentId ? [searchOption.agentId] : null
+				agentIds: searchOption.agentId ? [searchOption.agentId] : null,
+				startTime: innerTimeRange.startTime,
+				endTime: innerTimeRange.endTime
 			}).then((/** @type {any[]} */ res) => {
 				resolve(res || []);
 			}).catch(() => resolve([]));
@@ -448,7 +468,7 @@
 							on:select={e => changeOption(e, 'agent')}
 						/>
 					</Col>
-					<Col lg="2">
+					<!-- <Col lg="2">
 						<Select
 							tag={'task-select'}
 							placeholder={'Select Task'}
@@ -457,7 +477,7 @@
 							options={[]}
 							on:select={e => changeOption(e, 'task')}
 						/>
-					</Col>					
+					</Col>					 -->
 					<Col lg="2">
 						<Select
 							tag={'task-select'}
@@ -484,6 +504,16 @@
 							placeholder={'Tag'}
 							maxlength={100}
 							on:input={e => changeOption(e, "tags")}
+						/>
+					</Col>
+					<Col lg="2">
+						<Select
+							tag={'conversation-datetime-select'}
+							placeholder={'Select time range'}
+							selectedText={''}
+							selectedValues={searchOption.timeRange ? [searchOption.timeRange] : []}
+							options={timeRangeOptions}
+							on:select={e => changeOption(e, 'timeRange')}
 						/>
 					</Col>
 					<Col lg="1">
