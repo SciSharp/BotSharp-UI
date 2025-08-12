@@ -188,6 +188,7 @@ const llmModelType = {
 export const LlmModelType = Object.freeze(llmModelType);
 
 const reasoningEffortLevel = {
+    Minimal: "minimal",
     Low: "low",
     Medium: "medium",
     High: "high"

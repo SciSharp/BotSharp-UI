@@ -183,7 +183,7 @@
 
         <div class="mb-3 row">
             <label for="example-text-input" class="col-md-3 col-form-label">
-                Reasoning level
+                Reasoning effort
             </label>
             <div class="col-md-9">
                 <Input type="select" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
