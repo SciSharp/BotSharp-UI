@@ -87,9 +87,9 @@
         const found = innerKnowledgeBases.find((_, index) => index === idx);
         if (!found) return;
         
-        const vals = e.target.value.split("#");
-        found.name = vals[0];
-        found.type = vals[1];
+        const val = JSON.parse(e.target.value);
+        found.name = val?.name;
+        found.type = val?.type;
         innerRefresh(innerKnowledgeBases);
         handleAgentChange();
     }
@@ -219,7 +219,7 @@
                                     on:change={e => changeKnowledgeBase(e, uid)}
                                 >
                                     {#each [...knowledgeBaseOptions] as option}
-                                        <option value={`${option.name}#${option.type}`} selected={option.name == knowledge.name}>
+                                        <option value={`${JSON.stringify(option)}`} selected={option.name == knowledge.name}>
                                             {option.displayName || option.name}
                                         </option>
                                     {/each}
