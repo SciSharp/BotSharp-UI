@@ -13,6 +13,12 @@
     /** @type {string} */
     export let operator = 'or';
 
+    /** @type {string} */
+    export let sortOrder = "desc";
+
+    /** @type {string} */
+    export let sortField = '';
+
     /** @type {number} */
     export let maxLength = 1000;
 
@@ -34,6 +40,21 @@
             value: 'or',
             label: 'OR',
             tip: 'At least one of the conditions should match.'
+        }
+    ];
+
+    const sortDirections = [
+        {
+            id: 'sort-asc',
+            value: 'asc',
+            label: 'ASC',
+            tip: 'Ascending sort.'
+        },
+        {   
+            id: 'sort-desc',
+            value: 'desc',
+            label: 'DESC',
+            tip: 'Descending sort.'
         }
     ];
 
@@ -119,13 +140,6 @@
                 return index === idx ? { ...found } : x;
             });
         }
-    }
-
-    /**
-     * @param {any} e
-     */
-    function changeLogicalOperator(e) {
-        operator = e.target.value;
     }
 </script>
 
@@ -242,31 +256,77 @@
             {/if}
         </div>
 
-        <div class="mt-2">
-            <div class="d-flex align-items-center gap-5">
-                <span class="fw-bold">Search operator:</span>
-                {#each logicalOperators as op, idx (idx)}
-                    <div class="d-flex align-items-center gap-1">
-                        <Input
-                            type="radio"
-                            id={op.id}
-                            name="searchOperator"
-                            value={op.value}
-                            disabled={disabled}
-                            bind:group={operator}
-                            on:change={e => changeLogicalOperator(e)}
-                        />
-                        <label for={op.id} class="mb-0 d-flex gap-1">
-                            <span>{op.label}</span>
-                            <span class="line-align-center" id={`tooltip-${op.id}`}>
-                                <i class="bx bx-info-circle" />
-                            </span>
-                            <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
-                                <div>{op.tip}</div>
-                            </Tooltip>
-                        </label>
-                    </div>
-                {/each}
+        <div class="operator-container">
+            <div class="operator-item align-items-center gap-5">
+                <div class="fw-bold operator-title">Search operator:</div>
+                <div class="d-flex align-items-center gap-5">
+                    {#each logicalOperators as op, idx (idx)}
+                        <div class="d-flex align-items-center gap-1">
+                            <Input
+                                type="radio"
+                                id={op.id}
+                                name="searchOperator"
+                                value={op.value}
+                                disabled={disabled}
+                                bind:group={operator}
+                            />
+                            <label for={op.id} class="mb-0 d-flex gap-1">
+                                <span>{op.label}</span>
+                                {#if op.tip}
+                                <span class="line-align-center" id={`tooltip-${op.id}`}>
+                                    <i class="bx bx-info-circle" />
+                                </span>
+                                <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
+                                    <div>{op.tip}</div>
+                                </Tooltip>
+                                {/if}
+                            </label>
+                        </div>
+                    {/each}
+                </div>
+            </div>
+        </div>
+
+        <div class="operator-container">
+            <div class="operator-item align-items-center gap-5">
+                <div class="fw-bold operator-title">Sort by field:</div>
+                <div>
+                    <Input
+                        type="text"
+                        name="searchSortField"
+                        bind:value={sortField}
+                        disabled={disabled}
+                        maxlength={maxLength}
+                    />
+                </div>
+            </div>
+            <div class="operator-item align-items-center gap-5">
+                <div class="operator-title"></div>
+                <div class="d-flex align-items-center gap-5" style="margin-top: 5px;">
+                    {#each sortDirections as op, idx (idx)}
+                        <div class="d-flex align-items-center gap-1">
+                            <Input
+                                type="radio"
+                                id={op.id}
+                                name="searchSort"
+                                value={op.value}
+                                disabled={disabled}
+                                bind:group={sortOrder}
+                            />
+                            <label for={op.id} class="mb-0 d-flex gap-1">
+                                <span>{op.label}</span>
+                                {#if op.tip}
+                                <span class="line-align-center" id={`tooltip-${op.id}`}>
+                                    <i class="bx bx-info-circle" />
+                                </span>
+                                <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
+                                    <div>{op.tip}</div>
+                                </Tooltip>
+                                {/if}
+                            </label>
+                        </div>
+                    {/each}
+                </div>
             </div>
         </div>
     {/if}

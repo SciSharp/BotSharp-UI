@@ -43,11 +43,6 @@
 	const step = 0.1;
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.QuestionAnswer;
-	const includedPayloads = [
-		KnowledgePayloadName.Text,
-		KnowledgePayloadName.Answer,
-		KnowledgePayloadName.DataSource
-	];
 	
 	/** @type {string} */
 	let text = "";
@@ -83,6 +78,14 @@
 	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
 	let innerSearchGroups = [];
 
+	let sortField = '';
+	let sortOrder = 'desc';
+	/** @type {import('$knowledgeTypes').VectorSort?} */
+	let innerSort = {
+		field: '',
+		order: 'desc'
+	};
+
 	/** @type {boolean} */
 	let showDemo = true;
 	let isSearching = false;
@@ -103,7 +106,8 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * filterGroups: any[]
+	 * filterGroups: any[],
+	 * sort: any
 	 * }}
 	*/
 	const defaultParams = {
@@ -111,7 +115,8 @@
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		filterGroups: []
+		filterGroups: [],
+		sort: null
 	};
 
 	$: disabled = isLoading || isLoadingMore || isSearching;
@@ -137,7 +142,8 @@
 				...defaultParams,
 				isReset: true,
 				skipLoader: true,
-				filterGroups: innerSearchGroups
+				filterGroups: innerSearchGroups,
+				sort: null
 			}).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
@@ -161,13 +167,15 @@
 		isFromSearch = false;
 
 		innerSearchGroups = buildSearchFilterGroups(searchItems);
+		innerSort = buildSearchSort(sortField, sortOrder);
 
 		if (textSearch) {
 			getData({
 				...defaultParams,
 				isReset: true,
 				skipLoader: true,
-				filterGroups: innerSearchGroups
+				filterGroups: innerSearchGroups,
+				sort: innerSort
 			}).then(() => {
 				isFromSearch = true;
 			}).finally(() => {
@@ -214,7 +222,8 @@
 			startId: null,
 			isReset: true,
 			skipLoader: skipLoader,
-			filterGroups: innerSearchGroups
+			filterGroups: innerSearchGroups,
+			sort: innerSort
 		});
 	}
 
@@ -237,6 +246,12 @@
 		textSearch = false;
 		selectedOperator = 'or';
 		innerSearchGroups = [];
+		sortField = '';
+		sortOrder = 'desc';
+		innerSort = {
+			field: sortField,
+			order: sortOrder
+		};
 	}
 
 
@@ -304,12 +319,14 @@
 	 * @param {{
 	 * startId: string | null,
 	 * isReset: boolean,
-	 * filterGroups: any[] }} params
+	 * filterGroups: any[],
+	 * sort: any }} params
 	 */
 	function getKnowledgeListData(params = {
 		startId: null,
 		isReset: false,
-		filterGroups: []
+		filterGroups: [],
+		sort: null
 	}) {
 		return new Promise((resolve, reject) => {
 			const filter = {
@@ -317,7 +334,8 @@
 				start_id: params.startId,
 				with_vector: enableVector,
 				fields: [],
-				filter_groups: params.filterGroups
+				filter_groups: params.filterGroups,
+				order_by: !!params.sort?.field ? params.sort : null
 			};
 
 			getVectorKnowledgePageList(
@@ -346,14 +364,16 @@
 	 * isReset: boolean,
 	 * isLocalLoading: boolean,
 	 * skipLoader: boolean,
-	 * filterGroups: any[] }} params
+	 * filterGroups: any[],
+	 * sort: any }} params
 	 */
 	function getData(params = {
 		startId: null,
 		isReset: false,
 		isLocalLoading: false,
 		skipLoader: false,
-		filterGroups: []
+		filterGroups: [],
+		sort: null
 	}) {
 		return new Promise((resolve, reject) => {
 			if (!params.skipLoader) {
@@ -392,7 +412,8 @@
 			...defaultParams,
 			startId: nextId || null,
 			isLocalLoading: true,
-			filterGroups: innerSearchGroups
+			filterGroups: innerSearchGroups,
+			sort: innerSort
 		};
 		getData(params);
 	}
@@ -662,10 +683,24 @@
 		if (isAdvSearchOn && items?.length > 0) {
 			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value))
 									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }));
-			groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
+			
+			if (validItems.length > 0) {
+				groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
+			}
 		}
 
 		return groups;
+	}
+
+	/**
+	 *  @param {string} field
+	 *  @param {string} order
+	 */
+	function buildSearchSort(field, order) {
+		return isAdvSearchOn ? {
+			field: field,
+			order: order
+		} : null;
 	}
 </script>
 
@@ -840,6 +875,8 @@
 						bind:showAdvSearch={isAdvSearchOn}
 						bind:items={searchItems}
 						bind:operator={selectedOperator}
+						bind:sortField={sortField}
+						bind:sortOrder={sortOrder}
 						disabled={disabled}
 					/>
 				

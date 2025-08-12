@@ -420,6 +420,24 @@
             }
         }
     }
+
+    .operator-container {
+        margin-top: 20px;
+
+        .operator-item {
+            display: flex;
+
+            @media (max-width: 420px) {
+                flex-direction: column;
+                gap: 10px !important;
+                text-align: center;
+            }
+
+            .operator-title {
+                width: 120px;
+            }
+        }
+    }
 }
 
 

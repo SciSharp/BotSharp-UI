@@ -25,12 +25,19 @@
  * @property {boolean} [with_vector] - Include vector or not.
  * @property {string[]} [fields] - Included payload fields.
  * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
+ * @property {VectorSort?} [order_by] - Sort by.
  */
 
 /**
  * @typedef {Object} VectorFilterGroup
  * @property {string} [filter_operator] - The filter operator.
  * @property {{ key: string, value: string }[]} [filters] - Search filters.
+ */
+
+/**
+ * @typedef {Object} VectorSort
+ * @property {string?} [field] - The sort field.
+ * @property {string?} [order] - The sort order.
  */
 
 /**
