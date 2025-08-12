@@ -312,7 +312,6 @@
                                 value={op.value}
                                 disabled={disabled}
                                 bind:group={sortOrder}
-                                on:change={e => {}}
                             />
                             <label for={op.id} class="mb-0 d-flex gap-1">
                                 <span>{op.label}</span>
