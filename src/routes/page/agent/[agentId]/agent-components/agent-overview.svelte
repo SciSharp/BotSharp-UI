@@ -319,7 +319,7 @@
                     <tr>
                         <th class="agent-prop-key" style="vertical-align: middle">
                             <div class="mt-1">
-                                Function visibility mode
+                                Function visibility
                             </div>
                         </th>
                         <td>							
@@ -338,7 +338,7 @@
                     <tr>
                         <th class="agent-prop-key" style="vertical-align: middle">
                             <div class="mt-1">
-                                Max message count
+                                Max messages
                             </div>
                         </th>
                         <td>							
