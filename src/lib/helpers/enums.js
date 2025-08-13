@@ -83,6 +83,12 @@ const routingMode = {
 };
 export const RoutingMode = Object.freeze(routingMode);
 
+const functionVisMode = {
+    Manual: "manual",
+    Auto: "auto"
+};
+export const FunctionVisMode = Object.freeze(functionVisMode);
+
 const agentTaskStatus = {
     Scheduled: 'scheduled',
     New: 'new',
