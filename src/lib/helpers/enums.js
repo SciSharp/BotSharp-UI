@@ -83,6 +83,12 @@ const routingMode = {
 };
 export const RoutingMode = Object.freeze(routingMode);
 
+const functionVisMode = {
+    Manual: "manual",
+    Auto: "auto"
+};
+export const FunctionVisMode = Object.freeze(functionVisMode);
+
 const agentTaskStatus = {
     Scheduled: 'scheduled',
     New: 'new',
@@ -116,6 +122,15 @@ const knowledgePayloadName = {
     FileUrl: 'fileUrl'
 };
 export const KnowledgePayloadName = Object.freeze(knowledgePayloadName);
+
+const vectorPayloadDataType = {
+    String: { id: 1, name: 'String' },
+    Boolean: { id: 2, name: 'Boolean' },
+    Integer: { id: 3, name: 'Integer' },
+    Double: { id: 4, name: 'Double' },
+    Datetime: { id: 5, name: 'Datetime' },
+};
+export const VectorPayloadDataType = Object.freeze(vectorPayloadDataType);
 
 const vectorDataSource = {
     Api: 'api',

@@ -22,7 +22,8 @@
 		deleteVectorCollection,
 		deleteVectorKnowledgeData,
 		deleteAllVectorKnowledgeData,
-		createVectorCollection
+		createVectorCollection,
+		getVectorCollectionDetails
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -30,7 +31,12 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Select from '$lib/common/Select.svelte';
-	import { KnowledgeCollectionType, KnowledgePayloadName, VectorDataSource } from '$lib/helpers/enums';
+	import {
+		KnowledgeCollectionType,
+		KnowledgePayloadName,
+		VectorDataSource,
+		VectorPayloadDataType
+	} from '$lib/helpers/enums';
 	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
@@ -52,6 +58,9 @@
 
 	/** @type {string} */
 	let selectedCollection;
+
+	/** @type {import('$knowledgeTypes').VectorCollectionDetails | null} */
+	let collectionDetails = null;
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -138,13 +147,16 @@
 	function initData() {
 		isLoading = true;
     	getCollections().then(() => {
-			getData({
-				...defaultParams,
-				isReset: true,
-				skipLoader: true,
-				filterGroups: innerSearchGroups,
-				sort: null
-			}).finally(() => isLoading = false);
+			Promise.all([
+				getCollectionDetail(),
+				getData({
+					...defaultParams,
+					isReset: true,
+					skipLoader: true,
+					filterGroups: innerSearchGroups,
+					sort: null
+				})
+			]).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -217,14 +229,17 @@
 	/** @param {boolean} skipLoader */
 	function reset(skipLoader = false) {
 		resetStates();
-		getData({
-			...defaultParams,
-			startId: null,
-			isReset: true,
-			skipLoader: skipLoader,
-			filterGroups: innerSearchGroups,
-			sort: innerSort
-		});
+		Promise.all([
+			getCollectionDetail(),
+			getData({
+				...defaultParams,
+				startId: null,
+				isReset: true,
+				skipLoader: skipLoader,
+				filterGroups: innerSearchGroups,
+				sort: innerSort
+			})
+		]);
 	}
 
 	function initPage() {
@@ -357,6 +372,17 @@
 		});
 	}
 
+	function getCollectionDetail() {
+		return new Promise((resolve, reject) => {
+			getVectorCollectionDetails(selectedCollection).then(res => {
+				collectionDetails = res || null;
+				resolve(collectionDetails);
+			}).catch(err => {
+				collectionDetails = null;
+				resolve(collectionDetails);
+			});
+		});
+	}
 
 	/**
 	 * @param {{
@@ -508,7 +534,14 @@
 		isOpenEditKnowledge = false;
 		e.payload = {
 			...e.payload || {},
-			dataSource: e.payload?.dataSource || VectorDataSource.User
+			answer: {
+				data_value: e.data?.answer,
+				data_type: VectorPayloadDataType.String.name
+			},
+			dataSource: {
+				data_value: e.payload?.dataSource?.data_value || VectorDataSource.User,
+				data_type: VectorPayloadDataType.String.name
+			}
 		};
 
 		if (!!editItem) {
@@ -516,8 +549,7 @@
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
-				{ answer: e.data?.answer, ...e.payload }
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -544,8 +576,7 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
-				{ answer: e.data?.answer, ...e.payload }
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -576,10 +607,25 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
+			const payload = Object.keys(newItem.payload || {}).reduce((acc, key) => {
+				// @ts-ignore
+				acc[key] = {
+					data_value: newItem.payload[key]?.data_value,
+					data_type: newItem.payload[key]?.data_type
+				};
+				return acc;
+			}, {});
+
 			const newData = {
-				text: newItem.data?.text || '',
-				answer: newItem.data?.answer || '',
-				...newItem.payload
+				text: {
+					data_value: newItem.data?.text || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				answer: {
+					data_value: newItem.data?.answer || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				...payload
 			};
 
 			found.data = { ...newData };

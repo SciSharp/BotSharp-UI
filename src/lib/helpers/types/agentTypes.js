@@ -46,6 +46,7 @@
  * @property {string} description - Agent description.
  * @property {string} type - Agent type
  * @property {string?} mode - Agent routing mode
+ * @property {string?} function_visibility_mode - Agent function visibility mode
  * @property {string} instruction - System prompt
  * @property {ChannelInstruction[]} channel_instructions - Channel instructions
  * @property {boolean} disabled
