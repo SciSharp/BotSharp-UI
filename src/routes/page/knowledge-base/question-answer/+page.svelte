@@ -22,7 +22,8 @@
 		deleteVectorCollection,
 		deleteVectorKnowledgeData,
 		deleteAllVectorKnowledgeData,
-		createVectorCollection
+		createVectorCollection,
+		getVectorCollectionDetails
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -57,6 +58,9 @@
 
 	/** @type {string} */
 	let selectedCollection;
+
+	/** @type {import('$knowledgeTypes').VectorCollectionDetails | null} */
+	let collectionDetails = null;
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -143,13 +147,16 @@
 	function initData() {
 		isLoading = true;
     	getCollections().then(() => {
-			getData({
-				...defaultParams,
-				isReset: true,
-				skipLoader: true,
-				filterGroups: innerSearchGroups,
-				sort: null
-			}).finally(() => isLoading = false);
+			Promise.all([
+				getCollectionDetail(),
+				getData({
+					...defaultParams,
+					isReset: true,
+					skipLoader: true,
+					filterGroups: innerSearchGroups,
+					sort: null
+				})
+			]).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -222,14 +229,17 @@
 	/** @param {boolean} skipLoader */
 	function reset(skipLoader = false) {
 		resetStates();
-		getData({
-			...defaultParams,
-			startId: null,
-			isReset: true,
-			skipLoader: skipLoader,
-			filterGroups: innerSearchGroups,
-			sort: innerSort
-		});
+		Promise.all([
+			getCollectionDetail(),
+			getData({
+				...defaultParams,
+				startId: null,
+				isReset: true,
+				skipLoader: skipLoader,
+				filterGroups: innerSearchGroups,
+				sort: innerSort
+			})
+		]);
 	}
 
 	function initPage() {
@@ -362,6 +372,17 @@
 		});
 	}
 
+	function getCollectionDetail() {
+		return new Promise((resolve, reject) => {
+			getVectorCollectionDetails(selectedCollection).then(res => {
+				collectionDetails = res || null;
+				resolve(collectionDetails);
+			}).catch(err => {
+				collectionDetails = null;
+				resolve(collectionDetails);
+			});
+		});
+	}
 
 	/**
 	 * @param {{

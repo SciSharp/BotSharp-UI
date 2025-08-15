@@ -100,4 +100,19 @@
  * @property {number} dimension
  */
 
+/**
+ * @typedef {Object} VectorCollectionDetails
+ * @property {string} status
+ * @property {number} vectors_count
+ * @property {number} points_count
+ * @property {PayloadSchemaDetail[]} payload_schema
+ */
+
+/**
+ * @typedef {Object} PayloadSchemaDetail
+ * @property {string} field_name
+ * @property {string} field_data_type
+ * @property {number} data_count
+ */
+
 export default {};

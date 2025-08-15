@@ -228,3 +228,16 @@ export async function searchGraphKnowledge(text, method = "local") {
     const response = await axios.post(url, { query: text, method: method });
     return response.data;
 }
+
+/**
+ * @param {string} collection
+ * @returns {Promise<import('$knowledgeTypes').VectorCollectionDetails>}
+ */
+export async function getVectorCollectionDetails(collection) {
+    const url = replaceUrl(endpoints.vectorCollectionDetailsUrl, {
+        collection: collection
+    });
+
+    const response = await axios.get(url);
+    return response.data;
+}
