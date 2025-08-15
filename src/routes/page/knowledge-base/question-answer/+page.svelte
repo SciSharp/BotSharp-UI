@@ -30,7 +30,12 @@
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Select from '$lib/common/Select.svelte';
-	import { KnowledgeCollectionType, KnowledgePayloadName, VectorDataSource } from '$lib/helpers/enums';
+	import {
+		KnowledgeCollectionType,
+		KnowledgePayloadName,
+		VectorDataSource,
+		VectorPayloadDataType
+	} from '$lib/helpers/enums';
 	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
@@ -508,7 +513,14 @@
 		isOpenEditKnowledge = false;
 		e.payload = {
 			...e.payload || {},
-			dataSource: e.payload?.dataSource || VectorDataSource.User
+			answer: {
+				data_value: e.data?.answer,
+				data_type: VectorPayloadDataType.String.name
+			},
+			dataSource: {
+				data_value: e.payload?.dataSource?.data_value || VectorDataSource.User,
+				data_type: VectorPayloadDataType.String.name
+			}
 		};
 
 		if (!!editItem) {
@@ -516,8 +528,7 @@
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
-				{ answer: e.data?.answer, ...e.payload }
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -544,8 +555,7 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
-				{ answer: e.data?.answer, ...e.payload }
+				e.payload
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -576,10 +586,25 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
+			const payload = Object.keys(newItem.payload || {}).reduce((acc, key) => {
+				// @ts-ignore
+				acc[key] = {
+					data_value: newItem.payload[key]?.data_value,
+					data_type: newItem.payload[key]?.data_type
+				};
+				return acc;
+			}, {});
+
 			const newData = {
-				text: newItem.data?.text || '',
-				answer: newItem.data?.answer || '',
-				...newItem.payload
+				text: {
+					data_value: newItem.data?.text || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				answer: {
+					data_value: newItem.data?.answer || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				...payload
 			};
 
 			found.data = { ...newData };

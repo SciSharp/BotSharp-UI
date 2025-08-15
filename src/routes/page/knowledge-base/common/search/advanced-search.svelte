@@ -191,6 +191,7 @@
                 <div class="search-item-content line-align-center">
                     <div class="fw-bold">{'Value'}</div>
                 </div>
+                <div style="flex: 0 0 10px;"></div>
             </div>
             {#each items as item, idx (item.uuid)}
                 <div class="knowledge-adv-search-item">

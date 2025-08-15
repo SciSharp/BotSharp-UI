@@ -5,7 +5,6 @@
     import Swal from 'sweetalert2';
 	import Loader from "$lib/common/Loader.svelte";
 	import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
-	import { splitTextByCase } from "$lib/helpers/utils/common";
 
     const svelteDispatch = createEventDispatcher();
 
@@ -80,11 +79,11 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class={`knowledge-text-qa ${isDocumentCollection ? 'knowledge-text' : ''}`}>
-        <div class="ellipsis">{item?.data?.question || item?.data?.text || ''}</div>
+        <div class="ellipsis">{item?.data?.text?.data_value || item?.data?.question?.data_value || ''}</div>
     </td>
     {#if isQuestionAnswerCollection}
         <td class="knowledge-text-qa">
-            <div class="ellipsis">{item?.data?.answer || ''}</div>
+            <div class="ellipsis">{item?.data?.answer?.data_value || ''}</div>
         </td>
     {/if}
     <td class="knowledge-op">
@@ -133,20 +132,20 @@
                             <div class="wrappable fw-bold text-primary">
                                 {'Question:'}
                             </div>
-                            <div class="wrappable">{item?.data?.question || item?.data?.text || ''}</div>
+                            <div class="wrappable">{item?.data?.text?.data_value || item?.data?.question?.data_value || ''}</div>
                         </li>
                         <li>
                             <div class="wrappable fw-bold text-primary">
                                 {'Answer:'}
                             </div>
-                            <div class="wrappable">{item?.data?.answer || ''}</div>
+                            <div class="wrappable">{item?.data?.answer?.data_value || ''}</div>
                         </li>
                     {:else if isDocumentCollection}
                         <li>
                             <div class="wrappable fw-bold text-primary">
                                 {'Text:'}
                             </div>
-                            <div class="wrappable">{item?.data?.text || ''}</div>
+                            <div class="wrappable">{item?.data?.text?.data_value || ''}</div>
                         </li>
                     {/if}
 
@@ -155,7 +154,7 @@
                             <div class="wrappable fw-bold text-primary">
                                 {'Score:'}
                             </div>
-                            <div class="wrappable">{`${item.score.toFixed(6)}`}</div>
+                            <div class="wrappable">{`${item.score?.toFixed(6)}`}</div>
                         </li>
                     {/if}
                 </ul>
@@ -171,28 +170,34 @@
                             in:fly={{ y: -5, duration: 300 }}
                             out:fly={{ y: -5, duration: 200 }}
                         >
-                            <li class="more-detail-item wrappable">Data id: {item?.id || ''}</li>
-                            {#if item?.data && Object.keys(item.data).length > 0}
+                            <li class="more-detail-item wrappable">
+                                Data point id: {item?.id || ''}
+                            </li>
+                            {#if item?.vector_dimension}
+                                <li class="more-detail-item wrappable">
+                                    Vector dimension: {item?.vector_dimension}
+                                </li>
+                            {/if}
+                            {#if item?.data}
                                 {#each Object.keys(item.data) as key, idx (`${key}-${item?.id}`)}
-                                    {#if key === KnowledgePayloadName.FileUrl}
+                                    {#if (!excludedPayloads.includes(key))}
                                         <li class="more-detail-item wrappable">
-                                            <span>File url:</span>
-                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                            <span
-                                                class="link clickable"
-                                                on:click={() => window.open(item?.data?.fileUrl)}
-                                            >
-                                                link
-                                            </span>
+                                            <span>{key} {`(${item.data[key]?.data_type?.toLowerCase()})`}: </span>
+                                            {#if key === KnowledgePayloadName.FileUrl}
+                                                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                                <span
+                                                    class="link clickable"
+                                                    on:click={() => window.open(item.data[key]?.data_value)}
+                                                >
+                                                    link
+                                                </span>
+                                            {:else}
+                                                <span>{item.data[key]?.data_value}</span>
+                                            {/if}
                                         </li>
-                                    {:else if (!excludedPayloads.includes(key))}
-                                        <li class="more-detail-item wrappable">{key}: {item.data[key]}</li>
                                     {/if}
                                 {/each}
-                            {/if}
-                            {#if item?.vector_dimension}
-                                <li class="more-detail-item wrappable">Vector dimension: {item?.vector_dimension}</li>
                             {/if}
                         </ul>
                     {/if}

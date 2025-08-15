@@ -11,9 +11,14 @@
         Row,
         Input
     } from "@sveltestrap/sveltestrap";
-    import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
+    import {
+        KnowledgeCollectionType,
+        KnowledgePayloadName,
+        VectorPayloadDataType
+    } from "$lib/helpers/enums";
     import util from "lodash";
     import { v4 as uuidv4 } from 'uuid';
+	import Select from "$lib/common/Select.svelte";
 	
 
     /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
@@ -58,11 +63,17 @@
     /** @type {() => void} */
     export let cancel;
 
+
+    const dataTypeOptions = Object.entries(VectorPayloadDataType).map(([k, v]) => ({
+        label: v.name.toLowerCase(),
+        value: v.name
+    }));
+
     $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
     $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
     $: disableConfirmBtn = !util.trim(question.text) || (isQuestionAnswerCollection && !util.trim(answer.text));
 
-    /** @type {{ uuid: string, key: string, value: string }[]} */
+    /** @type {{ uuid: string, key: string, value: any }[]} */
     let innerPayloads = [];
 
     /** @type {HTMLElement} */
@@ -88,19 +99,23 @@
         question = {
             ...question,
             rows: isQuestionAnswerCollection ? 3 : 10,
-            text: item?.data?.text || item?.data?.question || ''
+            text: item?.data?.text?.data_value || item?.data?.question?.data_value || ''
         };
 
         answer = {
             ...answer,
-            text: item?.data?.answer || ''
+            text: item?.data?.answer?.data_value || ''
         };
 
         innerPayloads = Object.keys(item?.data || {}).filter(key => !excludedPayloads.includes(key)).map(key => {
+            const foundType = dataTypeOptions.find(x => x.value === item?.data[key]?.data_type);
             return {
                 uuid: uuidv4(),
                 key: key,
-                value: item?.data[key]
+                value: {
+                    ...item?.data[key] || {},
+                    data_type: foundType?.value
+                }
             };
         });
     }
@@ -110,7 +125,7 @@
         e.preventDefault();
         e.stopPropagation();
 
-        innerPayloads = [...innerPayloads, { uuid: uuidv4(), key: '', value: ''}];
+        innerPayloads = [...innerPayloads, { uuid: uuidv4(), key: '', value: { data_value: '' } }];
 
         if (allowPayload && scrollContainer) {
             await tick();
@@ -133,8 +148,12 @@
         if (found) {
             if (key === 'key') {
                 found.key = e.target.value;
-            } else if (key === 'value') {
-                found.value = e.target.value;
+            } else if (key === 'data_value') {
+                found.value.data_value = e.target.value;
+            } else if (key === 'data_type') {
+                // @ts-ignore
+                const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
+                found.value.data_type = selectedValues[0] || null;
             }
             innerPayloads = innerPayloads.map((x, index) => {
                 return index === idx ? { ...found } : x;
@@ -155,24 +174,29 @@
             innerPayloads = [];
         }
 
-        const validPayloads = innerPayloads.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }))
-                                           .filter(x => !!x.key && !!x.value && !excludedPayloads.includes(x.key));
-                    
+        const validPayloads = innerPayloads.map(x => ({
+            key: util.trim(x.key),
+            value: {
+                data_value: util.trim(x.value.data_value),
+                data_type: x.value.data_type || `${VectorPayloadDataType.String.id}`
+            } 
+        })).filter(x => !!x.key && !!x.value.data_value && !excludedPayloads.includes(x.key));
+
         const obj = validPayloads.reduce((acc, cur) => {
             // @ts-ignore
-            acc[cur.key] = cur.value;
+            acc[cur.key] = {...cur.value}
             return acc;
         }, {});
 
         const newItem = {
             ...item,
             data: {
-                ...item?.data,
                 text: question.text,
                 answer: answer.text
             },
             payload: obj || {}
         };
+
         confirm?.(newItem);
     }
 
@@ -263,14 +287,15 @@
                     <div class="payload-container" bind:this={scrollContainer}>
                         {#if innerPayloads.length > 0}
                         <div class="payload-item">
-                            <div class="payload-item-content fw-bold">{'Name'}</div>
-                            <div class="payload-item-content fw-bold">{'Value'}</div>
-                            <div></div>
+                            <div class="payload-item-content fw-bold" style="flex: 0.4;">{'Name'}</div>
+                            <div class="payload-item-content fw-bold" style="flex: 0.4;">{'Data Value'}</div>
+                            <div class="payload-item-content fw-bold" style="flex: 0.2;">{'Data Type'}</div>
+                            <div style="flex: 0 0 12px;"></div>
                         </div>
                         {/if}
                         {#each innerPayloads as payload, idx (payload.uuid)}
                         <div class="payload-item">
-                            <div class="payload-item-content line-align-center">
+                            <div class="payload-item-content line-align-center" style="flex: 0.4;">
                                 <Input
                                     type="text"
                                     maxlength={1000}
@@ -278,12 +303,21 @@
                                     on:input={e => changePayloadItem(e, idx, 'key')}
                                 />
                             </div>
-                            <div class="payload-item-content line-align-center">
+                            <div class="payload-item-content line-align-center" style="flex: 0.4;">
                                 <Input
                                     type="text"
                                     maxlength={1000}
-                                    value={payload.value}
-                                    on:input={e => changePayloadItem(e, idx, 'value')}
+                                    value={payload.value.data_value}
+                                    on:input={e => changePayloadItem(e, idx, 'data_value')}
+                                />
+                            </div>
+                            <div class="payload-item-content line-align-center" style="flex: 0.2;">
+                                <Select
+                                    tag={'payload-data-type-select'}
+                                    placeholder={'Select'}
+                                    selectedValues={payload.value.data_type ? [payload.value.data_type] : []}
+                                    options={dataTypeOptions}
+                                    on:select={e => changePayloadItem(e, idx, 'data_type')}
                                 />
                             </div>
                             <div class="line-align-center" style="flex: 0 0 12px;">
@@ -300,10 +334,7 @@
                         {/each}
 
                         {#if innerPayloads.length < payloadLimit}
-                            <div class="payload-item">
-                                <div class="payload-item-content line-align-center">
-                                    <div class="fw-bold">{''}</div>
-                                </div>
+                            <div class="payload-item justify-content-end">
                                 <div class="payload-item-content line-align-center">
                                     <div class="d-flex justify-content-end">
                                         <Button

@@ -61,18 +61,16 @@ export async function getVectorKnowledgePageList(collection, filter) {
 /**
  * @param {string} collection
  * @param {string} text
- * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(collection, text, dataSource, payload = null) {
+export async function createVectorKnowledgeData(collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
         collection: collection
     });
 
     const request = {
         text: text,
-        data_source: dataSource,
         payload: {
             ...payload,
         }
@@ -86,11 +84,10 @@ export async function createVectorKnowledgeData(collection, text, dataSource, pa
  * @param {string} id
  * @param {string} collection
  * @param {string} text
- * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, collection, text, dataSource, payload = null) {
+export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
         collection: collection
     });
@@ -98,7 +95,6 @@ export async function updateVectorKnowledgeData(id, collection, text, dataSource
     const request = {
         id: id,
         text: text,
-        data_source: dataSource,
         payload: {
             ...payload
         }

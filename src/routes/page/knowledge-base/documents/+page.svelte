@@ -33,7 +33,8 @@
 	import {
 		KnowledgeCollectionType,
 		KnowledgePayloadName,
-		VectorDataSource
+		VectorDataSource,
+		VectorPayloadDataType
 	} from '$lib/helpers/enums';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
@@ -517,7 +518,10 @@
 		isOpenEditKnowledge = false;
 		e.payload = {
 			...e.payload || {},
-			dataSource: e.payload?.dataSource || VectorDataSource.User
+			dataSource: {
+				data_value: e.payload?.dataSource?.data_value || VectorDataSource.User,
+				data_type: VectorPayloadDataType.String.name
+			}
 		};
 
 		if (!!editItem) {
@@ -525,7 +529,6 @@
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -553,7 +556,6 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -585,9 +587,21 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
+			const payload = Object.keys(newItem.payload || {}).reduce((acc, key) => {
+				// @ts-ignore
+				acc[key] = {
+					data_value: newItem.payload[key]?.data_value,
+					data_type: newItem.payload[key]?.data_type
+				};
+				return acc;
+			}, {});
+
 			const newData = {
-				text: newItem.data?.text || '',
-				...newItem.payload
+				text: {
+					data_value: newItem.data?.text || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				...payload
 			};
 
 			found.data = { ...newData };
