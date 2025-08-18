@@ -278,7 +278,7 @@
                                             No index items. Click "Add" to create one.
                                         </div>
                                     {:else}
-                                        {#each indexesToAdd as item, idx}
+                                        {#each indexesToAdd as item, idx (idx)}
                                             <div class="mb-3 p-3 border rounded">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <small class="text-muted">Index Item {idx + 1}</small>
@@ -394,7 +394,7 @@
                                             No items to delete. Click "Add" to specify items for deletion.
                                         </div>
                                     {:else}
-                                        {#each indexesToDelete as item, idx}
+                                        {#each indexesToDelete as item, idx (idx)}
                                             <div class="mb-3 p-3 border rounded border-warning">
                                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                                     <small class="text-warning">Delete Item {idx + 1}</small>

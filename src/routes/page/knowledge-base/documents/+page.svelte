@@ -937,7 +937,7 @@
                     <div class="mt-3 knowledge-search-footer">
                         <div class="search-input">
                             <div class="line-align-center input-text fw-bold">
-                                <span>{'Confidence:'}</span>
+                                <span>{'Confidence'}</span>
                             </div>
 							<div style="display: flex; gap: 5px;">
 								<div class="line-align-center confidence-box">
@@ -1068,7 +1068,7 @@
 									</div>
 								</div>
 
-								<div class="d-flex flex-wrap justify-content-between" style="gap: 10px;">
+								<div class="collection-action-container">
 									{#if selectedCollection}
 									<div
 										class="line-align-center"

@@ -83,8 +83,8 @@
 	/** @type {string} */
 	let editModalTitle = "Edit knowledge";
 
-	/** @type {{ uuid: string, key: string, value: string, checked: boolean }[]} */
-	let searchItems = [{ uuid: uuidv4(), key: '', value: '', checked: true }];
+	/** @type {{ uuid: string, key: string, value: string, data_type: '', checked: boolean }[]} */
+	let searchItems = [{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }];
 	/** @type {string} */
 	let selectedOperator = 'or';
 	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
@@ -921,7 +921,7 @@
                     <div class="mt-3 knowledge-search-footer">
                         <div class="search-input">
                             <div class="line-align-center input-text fw-bold">
-                                <span>{'Confidence:'}</span>
+                                <span>{'Confidence'}</span>
                             </div>
 							<div style="display: flex; gap: 5px;">
 								<div class="line-align-center confidence-box">
@@ -1040,7 +1040,7 @@
 									</div>
 								</div>
 
-								<div class="d-flex flex-wrap justify-content-between" style="gap: 10px;">
+								<div class="collection-action-container">
 									{#if selectedCollection}
 									<div class="line-align-center">
 										<Button

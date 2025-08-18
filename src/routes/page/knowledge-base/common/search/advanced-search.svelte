@@ -217,7 +217,7 @@
                             on:change={e => toggleItem(e, idx)}
                         />
                     </div>
-                    <div class="search-item-content line-align-center">
+                    <div class="search-item-content line-align-center" data-label="Name">
                         <Input
                             type="text"
                             disabled={!item.checked || disabled}
@@ -226,7 +226,7 @@
                             on:input={e => changeItem(e, idx, 'key')}
                         />
                     </div>
-                    <div class="search-item-content line-align-center">
+                    <div class="search-item-content line-align-center" data-label="Value">
                         <Input
                             type="text"
                             disabled={!item.checked || disabled}
@@ -235,7 +235,7 @@
                             on:input={e => changeItem(e, idx, 'value')}
                         />
                     </div>
-                    <div class="search-item-content line-align-center">
+                    <div class="search-item-content line-align-center" data-label="Data type">
                         <Select
                             tag={'search-payload-data-type-select'}
                             placeholder={'Select'}
@@ -259,7 +259,7 @@
                 </div>
             {/each}
             {#if items.length < limit}
-                <div class="knowledge-adv-search-item">
+                <div class="knowledge-adv-search-item add-item-row">
                     <div class="search-item-cb line-align-center">
                         <div class="fw-bold">{''}</div>
                     </div>
