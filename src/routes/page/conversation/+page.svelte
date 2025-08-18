@@ -92,7 +92,7 @@
 		channel: null,
 		status: null,
 		taskId: null,
-		timeRange: TimeRange.Last3Hours,
+		timeRange: TimeRange.Last12Hours,
 		states: [],
 		tags: []
 	};
