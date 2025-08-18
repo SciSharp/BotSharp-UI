@@ -3,11 +3,13 @@
     import { fly } from 'svelte/transition';
     import { Input, Tooltip, Button } from '@sveltestrap/sveltestrap';
     import { v4 as uuidv4 } from 'uuid';
+	import Select from '$lib/common/Select.svelte';
+	import { VectorPayloadDataType } from '$lib/helpers/enums';
     
     /** @type {boolean} */
     export let showAdvSearch = false;
 
-    /** @type {{ uuid: string, key: string, value: string, checked: boolean }[]} */
+    /** @type {{ uuid: string, key: string, value: string, data_type: string, checked: boolean }[]} */
     export let items = [];
 
     /** @type {string} */
@@ -58,6 +60,11 @@
         }
     ];
 
+    const dataTypeOptions = Object.entries(VectorPayloadDataType).map(([k, v]) => ({
+        label: v.name.toLowerCase(),
+        value: v.name
+    }));
+
     /** @type {HTMLElement} */
     let scrollContainer;
 
@@ -74,7 +81,7 @@
     }
 
     function reset() {
-        items = [{ uuid: uuidv4(), key: '', value: '', checked: true }];
+        items = [{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }];
     }
 
     
@@ -98,7 +105,7 @@
 
         items = [
             ...items,
-            { uuid: uuidv4(), key: '', value: '', checked: true }
+            { uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }
         ];
 
         // Wait for DOM to update, then scroll to bottom
@@ -134,7 +141,12 @@
                 found.key = e.target.value;
             } else if (key === 'value') {
                 found.value = e.target.value;
+            } else if (key === 'data_type') {
+                // @ts-ignore
+                const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
+                found.data_type = selectedValues[0] || null;
             }
+
             items = items.map((x, index) => {
                 return index === idx ? { ...found } : x;
             });
@@ -190,6 +202,9 @@
                 <div class="search-item-content line-align-center">
                     <div class="fw-bold">{'Value'}</div>
                 </div>
+                <div class="search-item-content line-align-center">
+                    <div class="fw-bold">{'Data type'}</div>
+                </div>
                 <div style="flex: 0 0 10px;"></div>
             </div>
             {#each items as item, idx (item.uuid)}
@@ -220,6 +235,16 @@
                             on:input={e => changeItem(e, idx, 'value')}
                         />
                     </div>
+                    <div class="search-item-content line-align-center">
+                        <Select
+                            tag={'search-payload-data-type-select'}
+                            placeholder={'Select'}
+                            disabled={!item.checked || disabled}
+                            selectedValues={item.data_type ? [item.data_type] : []}
+                            options={dataTypeOptions}
+                            on:select={e => changeItem(e, idx, 'data_type')}
+                        />
+                    </div>
                     <div class="search-item-cb line-align-center" style="flex: 0 0 12px;">
                         <div class="line-align-center">
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -236,6 +261,9 @@
             {#if items.length < limit}
                 <div class="knowledge-adv-search-item">
                     <div class="search-item-cb line-align-center">
+                        <div class="fw-bold">{''}</div>
+                    </div>
+                    <div class="search-item-content line-align-center">
                         <div class="fw-bold">{''}</div>
                     </div>
                     <div class="search-item-content line-align-center">

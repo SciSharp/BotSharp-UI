@@ -30,8 +30,41 @@
 
 /**
  * @typedef {Object} VectorFilterGroup
- * @property {string} [filter_operator] - The filter operator.
- * @property {{ key: string, value: string }[]} [filters] - Search filters.
+ * @property {string} [logical_operator] - The logical operator.
+ * @property {VectorFilterSubGroup[]} [filters] - Search filters.
+ */
+
+/**
+ * @typedef {Object} VectorFilterSubGroup
+ * @property {string} [logical_operator] - The logical operator.
+ * @property {VectorFilterOperand[]} [operands] - Search operands.
+ */
+
+/**
+ * @typedef {Object} VectorFilterOperand
+ * @property {VectorFilterMatch?} [match] - The match filter.
+ * @property {VectorFilterRange?} [range] -The range filter.
+ */
+
+/**
+ * @typedef {Object} VectorFilterMatch
+ * @property {string} key - The field name.
+ * @property {string} value - The field value.
+ * @property {string} operator - The operator.
+ * @property {string} data_type -The field data type.
+ */
+
+/**
+ * @typedef {Object} VectorFilterRange
+ * @property {string} key - The field name.
+ * @property {string} data_type -The field data type.
+ * @property {VectorFilterRangeCondition[]} conditions -The conditions.
+ */
+
+/**
+ * @typedef {Object} VectorFilterRangeCondition
+ * @property {string} value - The field value.
+ * @property {string} operator -The operator.
  */
 
 /**

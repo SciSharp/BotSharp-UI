@@ -48,7 +48,7 @@
 
     const maxLength = 500;
     const indexTypeOptions = Object.entries(VectorIndexSchemaType).map(([k, v]) => ({
-        label: k,
+        label: k.toLowerCase(),
         value: v
     }));
 

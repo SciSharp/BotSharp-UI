@@ -717,25 +717,38 @@
         });
 	}
 
+
 	/**
 	 *  @param {any[]} items
+	 *  @returns {import('$knowledgeTypes').VectorFilterGroup[]}
 	 */
 	function buildSearchFilterGroups(items) {
-		/** @type {any[]} */
+		/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
 		let groups = [];
+
 		if (textSearch && !!text) {
-			groups = [ ...groups, { filter_operator: 'or', filters: [
-				{ key: KnowledgePayloadName.Text, value: text },
-				{ key: KnowledgePayloadName.Answer, value: text }
-			] } ];
+			groups = [ ...groups, { logical_operator: 'or', filters: [
+				{
+					logical_operator: 'or',
+					operands: [
+						{ match: { key: KnowledgePayloadName.Text, value: text, data_type: VectorPayloadDataType.String.name, operator: 'eq' }},
+						{ match: { key: KnowledgePayloadName.Answer, value: text, data_type: VectorPayloadDataType.String.name, operator: 'eq' }}
+					]
+				},
+			]}];
 		}
 
 		if (isAdvSearchOn && items?.length > 0) {
 			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value))
-									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }));
+									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value), data_type: x.data_type || VectorPayloadDataType.String.name }));
 			
 			if (validItems.length > 0) {
-				groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
+				groups = [ ...groups, { logical_operator: 'or', filters: [
+					{
+						logical_operator: selectedOperator,
+						operands: validItems.map(x => ({ match: { ...x, operator: 'eq' } }))
+					}
+				]}];
 			}
 		}
 
