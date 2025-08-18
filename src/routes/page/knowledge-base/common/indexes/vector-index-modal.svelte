@@ -116,7 +116,6 @@
         indexesToAdd = [...indexesToAdd, { field_name: '', field_schema_type: '' }];
 
         if (addIndexScrollContainer) {
-            console.log(addIndexScrollContainer);
             await tick();
             setTimeout(() => {
                 addIndexScrollContainer.scrollTo({

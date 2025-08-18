@@ -124,11 +124,11 @@ const knowledgePayloadName = {
 export const KnowledgePayloadName = Object.freeze(knowledgePayloadName);
 
 const vectorPayloadDataType = {
-    String: { id: 1, name: 'String' },
-    Boolean: { id: 2, name: 'Boolean' },
-    Integer: { id: 3, name: 'Integer' },
-    Double: { id: 4, name: 'Double' },
-    Datetime: { id: 5, name: 'Datetime' },
+    String: Object.freeze({ id: 1, name: 'String' }),
+    Boolean: Object.freeze({ id: 2, name: 'Boolean' }),
+    Integer: Object.freeze({ id: 3, name: 'Integer' }),
+    Double: Object.freeze({ id: 4, name: 'Double' }),
+    Datetime: Object.freeze({ id: 5, name: 'Datetime' }),
 };
 export const VectorPayloadDataType = Object.freeze(vectorPayloadDataType);
 
