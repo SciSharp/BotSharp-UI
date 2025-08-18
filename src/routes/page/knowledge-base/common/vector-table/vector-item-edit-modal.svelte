@@ -123,7 +123,6 @@
     /** @param {any} e */
     async function addPayloadItem(e) {
         e.preventDefault();
-        e.stopPropagation();
 
         innerPayloads = [...innerPayloads, { uuid: uuidv4(), key: '', value: { data_value: '' } }];
 

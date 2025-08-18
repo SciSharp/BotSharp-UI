@@ -77,7 +77,7 @@ export async function deleteAgent(agentId) {
  */
 export async function refreshAgents() {
     const url = endpoints.agentRefreshUrl;
-    const response = await axios.post(url);
+    const response = await axios.post(url, {});
     return response.data;
 }
 

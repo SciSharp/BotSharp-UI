@@ -95,7 +95,6 @@
     /** @param {any} e */
     async function addItem(e) {
         e.preventDefault();
-        e.stopPropagation();
 
         items = [
             ...items,

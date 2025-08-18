@@ -132,6 +132,15 @@ const vectorPayloadDataType = {
 };
 export const VectorPayloadDataType = Object.freeze(vectorPayloadDataType);
 
+const vectorIndexSchemaType = {
+    Text: "text",
+    Integer: "integer",
+    Float: "float",
+    Boolean: "bool",
+    Datetime: "datetime"
+};
+export const VectorIndexSchemaType = Object.freeze(vectorIndexSchemaType);
+
 const vectorDataSource = {
     Api: 'api',
     User: 'user',

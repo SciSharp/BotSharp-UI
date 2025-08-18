@@ -126,15 +126,12 @@
 }
 
 .knowledge-table-header {
-    justify-content: space-between;
-
     .knowledge-header-text {
         margin-bottom: 0px !important;
         padding: 0.47rem 0.75rem;
     }
 
     .collection-dropdown-container {
-        width: 20%;
         display: flex;
         gap: 5px;
         justify-content: flex-end;
@@ -454,6 +451,102 @@
     
         .invalid {
             justify-content: space-between;
+        }
+    }
+}
+
+.vector-index-container {
+    .index-layout-container {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr auto 1fr;
+        grid-template-areas: "existing arrows delete";
+        align-items: start;
+    }
+
+    .index-block:first-child {
+        grid-area: existing;
+    }
+
+    .index-block:last-child {
+        grid-area: delete;
+    }
+
+    .arrow-container {
+        grid-area: arrows;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px; /* Match the fixed height of the cards */
+    }
+
+    .arrow-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .index-block-card {
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+
+        .card-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+            padding: 5px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .field-item {
+            flex: 1;
+        }
+    }
+
+    .arrow-horizontal {
+        display: inline;
+    }
+
+    .arrow-vertical {
+        display: none;
+    }
+
+    @media (max-width: 991.98px) {
+        .index-layout-container {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "existing"
+                "arrows"
+                "delete";
+        }
+
+        .arrow-container {
+            height: auto;
+            min-height: 60px;
+            padding: 1rem 0;
+        }
+
+        .arrow-buttons {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .arrow-horizontal {
+            display: none;
+        }
+
+        .arrow-vertical {
+            display: inline;
+        }
+
+        .field-row {
+            flex-direction: column;
+            gap: 0;
         }
     }
 }

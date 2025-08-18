@@ -23,7 +23,9 @@
 		deleteVectorKnowledgeData,
 		deleteAllVectorKnowledgeData,
 		createVectorCollection,
-		getVectorCollectionDetails
+		getVectorCollectionDetails,
+		createVectorIndexes,
+		deleteVectorIndexes
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -42,6 +44,7 @@
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import AdvancedSearch from '../common/search/advanced-search.svelte';
+	import VectorIndexModal from '../common/indexes/vector-index-modal.svelte';
 	
 	const pageSize = 8;
   	const duration = 2000;
@@ -106,6 +109,7 @@
 	let isError = false;
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
+	let isOpenIndexModal = false;
 	let textSearch = false;
 	let isAdvSearchOn = false;
 	let disableSearchBtn = false;
@@ -748,6 +752,38 @@
 			order: order
 		} : null;
 	}
+
+	/** @param {any} e */
+	async function confirmIndex(e) {
+		isOpenIndexModal = false;
+		isLoading = true;
+		const { addIndexes, deleteIndexes } = e;
+		try {
+			if (addIndexes?.length > 0) {
+				await createVectorIndexes(selectedCollection, addIndexes);
+			}
+			if (deleteIndexes?.length > 0) {
+				await deleteVectorIndexes(selectedCollection, deleteIndexes);
+			}
+			successText = "Indexes have been updated!";
+            isComplete = true;
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
+		} catch {
+			errorText = "Failed to update indexes."
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	function toggleIndexModal() {
+		isOpenIndexModal = !isOpenIndexModal;
+	}
 </script>
 
 <HeadTitle title="{$_('Q&A Knowledge')}" />
@@ -780,6 +816,19 @@
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleKnowledgeEditModal()}
+	/>
+{/if}
+
+{#if isOpenIndexModal}
+	<VectorIndexModal
+		className={'vector-index-container'}
+		title={''}
+		size={'xl'}
+		collection={selectedCollection}
+		open={isOpenIndexModal}
+		toggleModal={() => isOpenIndexModal = !isOpenIndexModal}
+		confirm={(e) => confirmIndex(e)}
+		cancel={() => toggleIndexModal()}
 	/>
 {/if}
 
@@ -943,7 +992,7 @@
 				<Card>
 					<CardBody>
 						<div class="mt-2">
-							<div class="d-flex flex-wrap mb-3 knowledge-table-header">
+							<div class="d-flex flex-wrap mb-3 justify-content-between knowledge-table-header">
 								<div class="d-flex" style="gap: 5px;">
 									<h5 class="font-size-16 knowledge-header-text">
 										<div>{$_('Knowledges')}</div>
@@ -977,44 +1026,61 @@
                                         </Button>
 									</div>
 								</div>
-								<div class="collection-dropdown-container">
-									<div class="line-align-center collection-dropdown">
-										<Select
-											tag={'kn-qa-collection-select'}
-											placeholder={'Select Collection'}
-											searchMode
-											selectedValues={selectedCollection ? [selectedCollection] : []}
-											options={collections}
-											on:select={e => changeCollection(e)}
-										/>
-									</div>
-									<div
-										class="line-align-center"
-										data-bs-toggle="tooltip"
-										data-bs-placement="top"
-										title="Add collection"
-									>
+
+								<div class="d-flex flex-wrap justify-content-between" style="gap: 10px;">
+									{#if selectedCollection}
+									<div class="line-align-center">
 										<Button
-											class="btn btn-sm btn-soft-primary collection-action-btn"
-											disabled={disabled}
-											on:click={() => toggleCollectionCreate()}
+											class="btn btn-sm btn-soft-primary"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
+											title="Create/delete payload indexes"
+											on:click={() => toggleIndexModal()}
 										>
-											<i class="mdi mdi-plus" />
+											Index
 										</Button>
 									</div>
-									<div
-										class="line-align-center"
-										data-bs-toggle="tooltip"
-										data-bs-placement="top"
-										title="Delete collection"
-									>
-										<Button
-											class="btn btn-sm btn-soft-danger collection-action-btn"
-											disabled={disabled}
-											on:click={() => deleteCollection()}
+									{/if}
+
+									<div class="collection-dropdown-container">
+										<div class="line-align-center collection-dropdown">
+											<Select
+												tag={'kn-qa-collection-select'}
+												placeholder={'Select Collection'}
+												searchMode
+												selectedValues={selectedCollection ? [selectedCollection] : []}
+												options={collections}
+												on:select={e => changeCollection(e)}
+											/>
+										</div>
+										<div
+											class="line-align-center"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
+											title="Add collection"
 										>
-											<i class="mdi mdi-minus" />
-										</Button>
+											<Button
+												class="btn btn-sm btn-soft-primary collection-action-btn"
+												disabled={disabled}
+												on:click={() => toggleCollectionCreate()}
+											>
+												<i class="mdi mdi-plus" />
+											</Button>
+										</div>
+										<div
+											class="line-align-center"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
+											title="Delete collection"
+										>
+											<Button
+												class="btn btn-sm btn-soft-danger collection-action-btn"
+												disabled={disabled}
+												on:click={() => deleteCollection()}
+											>
+												<i class="mdi mdi-minus" />
+											</Button>
+										</div>
 									</div>
 								</div>
 							</div>
