@@ -115,4 +115,10 @@
  * @property {number} data_count
  */
 
+/**
+ * @typedef {Object} VectorCollectionIndexOptions
+ * @property {string} field_name
+ * @property {string} field_schema_type
+ */
+
 export default {};

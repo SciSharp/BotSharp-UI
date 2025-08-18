@@ -241,3 +241,37 @@ export async function getVectorCollectionDetails(collection) {
     const response = await axios.get(url);
     return response.data;
 }
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
+ */
+export async function createVectorIndexes(collection, options) {
+    const url = replaceUrl(endpoints.vectorIndexesCreateUrl, {
+        collection: collection
+    });
+
+    const response = await axios.post(url, {
+        options: options || []
+    });
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
+ */
+export async function deleteVectorIndexes(collection, options) {
+    const url = replaceUrl(endpoints.vectorIndexesDeleteUrl, {
+        collection: collection
+    });
+
+    const response = await axios.delete(url, {
+        data: {
+            options: options || []
+        }
+    });
+    return response.data;
+}

@@ -70,4 +70,10 @@
  * @property {string?} [displayName]
  */
 
+/**
+ * @typedef {Object} SuccessFailResponse
+ * @property {any[]} success
+ * @property {any[]} fail
+ */
+
 export default {};
