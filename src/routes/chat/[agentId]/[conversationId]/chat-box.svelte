@@ -535,7 +535,7 @@
 		) {
 			dialogs.push({
 				...message,
-				is_chat_message: true
+				is_chat_message: false
 			});
 		}
 		refresh();
