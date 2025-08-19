@@ -100,6 +100,6 @@
         <div class="mb-3">{message.text}</div>
     {/if}
     <div id={`${scrollbarId}`}>
-        <div id={`chart-${message?.message_id}`} style="min-width: 1000px; max-height: 500px;"></div>
+        <div id={`chart-${message?.message_id}`}></div>
     </div>
 </div>

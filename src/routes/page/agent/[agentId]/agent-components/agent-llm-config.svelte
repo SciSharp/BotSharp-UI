@@ -12,9 +12,11 @@
     export let handleAgentChange = () => {};
 
     export const fetchLlmConfig = () => {
+        const reasoningEffort = models.find(x => x.name === config.model)?.reasoning != null ? config.reasoning_effort_level : null;
         return {
             ...config,
-            max_output_tokens: Number(config.max_output_tokens) > 0 ? Number(config.max_output_tokens) : null
+            max_output_tokens: Number(config.max_output_tokens) > 0 ? Number(config.max_output_tokens) : null,
+            reasoning_effort_level: reasoningEffort
         };
     }
 
@@ -36,6 +38,8 @@
 
     /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
+
+    $: isReasoningModel = models.find(x => x.name === config.model)?.reasoning != null;
 
     onMount(async () =>{
         await init();
@@ -63,6 +67,7 @@
         if (!!!provider) {
             models = [];
             config.model = null;
+            config.reasoning_effort_level = null;
             handleAgentChange();
             return;
         }
@@ -181,6 +186,7 @@
             </div>
         </div>
 
+        {#if isReasoningModel}
         <div class="mb-3 row">
             <label for="example-text-input" class="col-md-3 col-form-label">
                 Reasoning effort
@@ -195,5 +201,6 @@
                 </Input>
             </div>
         </div>
+        {/if}
     </CardBody>
 </Card>

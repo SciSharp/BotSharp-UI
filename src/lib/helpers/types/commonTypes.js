@@ -55,6 +55,7 @@
  * @typedef {Object} LlmModelSetting
  * @property {string} name
  * @property {string} type
+ * @property {any} reasoning
  */
 
 
