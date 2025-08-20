@@ -61,18 +61,16 @@ export async function getVectorKnowledgePageList(collection, filter) {
 /**
  * @param {string} collection
  * @param {string} text
- * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(collection, text, dataSource, payload = null) {
+export async function createVectorKnowledgeData(collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
         collection: collection
     });
 
     const request = {
         text: text,
-        data_source: dataSource,
         payload: {
             ...payload,
         }
@@ -86,11 +84,10 @@ export async function createVectorKnowledgeData(collection, text, dataSource, pa
  * @param {string} id
  * @param {string} collection
  * @param {string} text
- * @param {string} dataSource
  * @param {any} payload
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, collection, text, dataSource, payload = null) {
+export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
     const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
         collection: collection
     });
@@ -98,7 +95,6 @@ export async function updateVectorKnowledgeData(id, collection, text, dataSource
     const request = {
         id: id,
         text: text,
-        data_source: dataSource,
         payload: {
             ...payload
         }
@@ -230,5 +226,52 @@ export async function deleteVectorCollection(collection) {
 export async function searchGraphKnowledge(text, method = "local") {
     const url = endpoints.graphKnowledgeSearchUrl;
     const response = await axios.post(url, { query: text, method: method });
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @returns {Promise<import('$knowledgeTypes').VectorCollectionDetails>}
+ */
+export async function getVectorCollectionDetails(collection) {
+    const url = replaceUrl(endpoints.vectorCollectionDetailsUrl, {
+        collection: collection
+    });
+
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
+ */
+export async function createVectorIndexes(collection, options) {
+    const url = replaceUrl(endpoints.vectorIndexesCreateUrl, {
+        collection: collection
+    });
+
+    const response = await axios.post(url, {
+        options: options || []
+    });
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
+ */
+export async function deleteVectorIndexes(collection, options) {
+    const url = replaceUrl(endpoints.vectorIndexesDeleteUrl, {
+        collection: collection
+    });
+
+    const response = await axios.delete(url, {
+        data: {
+            options: options || []
+        }
+    });
     return response.data;
 }

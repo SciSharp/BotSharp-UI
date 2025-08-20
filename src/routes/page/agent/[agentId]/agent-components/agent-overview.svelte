@@ -3,8 +3,9 @@
     import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n';
     import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
+    import Select from '$lib/common/Select.svelte';
     import { utcToLocal } from '$lib/helpers/datetime';
-	import { RoutingMode, AgentType } from '$lib/helpers/enums';
+	import { RoutingMode, AgentType, FunctionVisMode } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 
     const limit = 10;
@@ -27,6 +28,9 @@
 		{ id: v, name: v }
 	));
 
+    const functionVisibilityModeOptions = Object.entries(FunctionVisMode).map(([k, v]) => (
+		{ label: v, value: v }
+	));
    
     onMount(() => {
         init();
@@ -73,9 +77,19 @@
     /**
 	 * @param {any} e
 	 */
-    function changeMode(e) {
+    function changeRoutingMode(e) {
         const value = e.target.value || null;
         agent.mode = value;
+        handleAgentChange();
+    }
+
+    /**
+	 * @param {any} e
+	 */
+    function changeFunctionVisibilityMode(e) {
+        // @ts-ignore
+        const values = e?.detail?.selecteds?.map(x => x.value) || [];
+        agent.function_visibility_mode = values[0] || null;
         handleAgentChange();
     }
 
@@ -145,7 +159,7 @@
                             <div class="mt-2 mb-2" style="width: fit-content;">
                                 <Input
                                     type="select"
-                                    on:change={e => changeMode(e)}
+                                    on:change={e => changeRoutingMode(e)}
                                 >
                                     {#each [...routingModeOptions] as option}
                                         <option value={option.id} selected={option.id === agent.mode}>
@@ -305,7 +319,26 @@
                     <tr>
                         <th class="agent-prop-key" style="vertical-align: middle">
                             <div class="mt-1">
-                                Max message count
+                                Function visibility
+                            </div>
+                        </th>
+                        <td>							
+                            <div class="mt-2 mb-2">
+                                <Select
+                                    tag={'function-visibility-mode-select'}
+                                    containerStyles={'width: 50%; min-width: 100px;'}
+                                    placeholder={'Select'}
+                                    selectedValues={agent.function_visibility_mode ? [agent.function_visibility_mode] : []}
+                                    options={functionVisibilityModeOptions}
+                                    on:select={e => changeFunctionVisibilityMode(e)}
+                                />
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="agent-prop-key" style="vertical-align: middle">
+                            <div class="mt-1">
+                                Max messages
                             </div>
                         </th>
                         <td>							

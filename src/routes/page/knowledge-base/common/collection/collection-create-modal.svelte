@@ -71,9 +71,9 @@
 
     function reset() {
         collection = '';
-        dimension = 3072;
+        dimension = 1536;
         provider = 'openai';
-        model = 'text-embedding-3-large';
+        model = 'text-embedding-3-small';
     }
 
     function toggle() {

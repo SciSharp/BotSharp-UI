@@ -88,6 +88,7 @@ export const endpoints = {
     // knowledge base
     vectorCollectionExistUrl: `${host}/knowledge/vector/{collection}/exist`,
     vectorCollectionsUrl: `${host}/knowledge/vector/collections`,
+    vectorCollectionDetailsUrl: `${host}/knowledge/vector/{collection}/details`,
     vectorKnowledgePageListUrl: `${host}/knowledge/vector/{collection}/page`,
     vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
     vectorKnowledgeCreateUrl: `${host}/knowledge/vector/{collection}/create`,
@@ -97,6 +98,8 @@ export const endpoints = {
     vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,
     vectorCollectionCreateUrl: `${host}/knowledge/vector/create-collection`,
     vectorCollectionDeleteUrl: `${host}/knowledge/vector/{collection}/delete-collection`,
+    vectorIndexesCreateUrl: `${host}/knowledge/vector/{collection}/payload/indexes`,
+    vectorIndexesDeleteUrl: `${host}/knowledge/vector/{collection}/payload/indexes`,
     
     graphKnowledgeSearchUrl: `${host}/knowledge/graph/search`,
 

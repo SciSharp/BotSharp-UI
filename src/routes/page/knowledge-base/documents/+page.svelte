@@ -23,6 +23,8 @@
 		deleteVectorKnowledgeData,
 		deleteAllVectorKnowledgeData,
 		createVectorCollection,
+		createVectorIndexes,
+		deleteVectorIndexes
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -33,11 +35,13 @@
 	import {
 		KnowledgeCollectionType,
 		KnowledgePayloadName,
-		VectorDataSource
+		VectorDataSource,
+		VectorPayloadDataType
 	} from '$lib/helpers/enums';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
+	import VectorIndexModal from '../common/indexes/vector-index-modal.svelte';
 	import AdvancedSearch from '../common/search/advanced-search.svelte';
 	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
 	import { DECIMAL_REGEX } from '$lib/helpers/constants';
@@ -76,8 +80,8 @@
 	/** @type {string} */
 	let editModalTitle = "Edit knowledge";
 
-	/** @type {{ uuid: string, key: string, value: string, checked: boolean }[]} */
-	let searchItems = [{ uuid: uuidv4(), key: '', value: '', checked: true }];
+	/** @type {{ uuid: string, key: string, value: string, data_type: string, checked: boolean }[]} */
+	let searchItems = [{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }];
 	/** @type {string} */
 	let selectedOperator = 'or';
 	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
@@ -102,6 +106,7 @@
 	let isError = false;
 	let isOpenEditKnowledge = false;
 	let isOpenCreateCollection = false;
+	let isOpenIndexModal = false;
 	let textSearch = false;
 	let isAdvSearchOn = false;
 	let disableSearchBtn = false;
@@ -147,13 +152,15 @@
 	function initData() {
 		isLoading = true;
     	getCollections().then(() => {
-			getData({
-				...defaultParams,
-				isReset: true,
-				skipLoader: true,
-				filterGroups: innerSearchGroups,
-				sort: null
-			}).finally(() => isLoading = false);
+			Promise.all([
+				getData({
+					...defaultParams,
+					isReset: true,
+					skipLoader: true,
+					filterGroups: innerSearchGroups,
+					sort: null
+				})
+			]).finally(() => isLoading = false);
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -226,14 +233,16 @@
 	/** @param {boolean} skipLoader */
 	function reset(skipLoader = false) {
 		resetStates();
-		getData({
-			...defaultParams,
-			startId: null,
-			isReset: true,
-			skipLoader: skipLoader,
-			filterGroups: innerSearchGroups,
-			sort: innerSort
-		});
+		Promise.all([
+			getData({
+				...defaultParams,
+				startId: null,
+				isReset: true,
+				skipLoader: skipLoader,
+				filterGroups: innerSearchGroups,
+				sort: innerSort
+			})
+		]);
 	}
 
 	function initPage() {
@@ -365,7 +374,6 @@
 			});
 		});
 	}
-
 
 	/**
 	 * @param {{
@@ -517,7 +525,10 @@
 		isOpenEditKnowledge = false;
 		e.payload = {
 			...e.payload || {},
-			dataSource: e.payload?.dataSource || VectorDataSource.User
+			dataSource: {
+				data_value: e.payload?.dataSource?.data_value || VectorDataSource.User,
+				data_type: VectorPayloadDataType.String.name
+			}
 		};
 
 		if (!!editItem) {
@@ -525,7 +536,6 @@
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -553,7 +563,6 @@
 			createVectorKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.payload?.dataSource,
 				e.payload
 			).then(res => {
 				if (res) {
@@ -585,9 +594,21 @@
 	function refreshItems(newItem) {
 		const found = items?.find(x => x.id == newItem?.id);
 		if (found) {
+			const payload = Object.keys(newItem.payload || {}).reduce((acc, key) => {
+				// @ts-ignore
+				acc[key] = {
+					data_value: newItem.payload[key]?.data_value,
+					data_type: newItem.payload[key]?.data_type
+				};
+				return acc;
+			}, {});
+
 			const newData = {
-				text: newItem.data?.text || '',
-				...newItem.payload
+				text: {
+					data_value: newItem.data?.text || '',
+					data_type: VectorPayloadDataType.String.name
+				},
+				...payload
 			};
 
 			found.data = { ...newData };
@@ -681,7 +702,7 @@
     }
 
     /** @param {any} e */
-    function onDocDelected(e) {
+    function onDocDeleted(e) {
         reset();
         const success = e.detail.success;
         if (success) {
@@ -720,20 +741,32 @@
 
 	/**
 	 *  @param {any[]} items
+	 *  @returns {import('$knowledgeTypes').VectorFilterGroup[]}
 	 */
 	function buildSearchFilterGroups(items) {
-		/** @type {any[]} */
+		/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
 		let groups = [];
+
 		if (textSearch && !!text) {
-			groups = [ ...groups, { filter_operator: 'or', filters: [{ key: KnowledgePayloadName.Text, value: text }] } ];
+			groups = [ ...groups, { logical_operator: 'or', filters: [
+				{
+					logical_operator: 'or',
+					operands: [{ match: { key: KnowledgePayloadName.Text, value: text, data_type: VectorPayloadDataType.String.name, operator: 'eq' }}]
+				},
+			]}];
 		}
 
 		if (isAdvSearchOn && items?.length > 0) {
 			const validItems = items.filter(x => x.checked && !!util.trim(x.key) && !!util.trim(x.value))
-									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value) }));
+									.map(x => ({ key: util.trim(x.key), value: util.trim(x.value), data_type: x.data_type || VectorPayloadDataType.String.name }));
 			
 			if (validItems.length > 0) {
-				groups = [ ...groups, { filter_operator: selectedOperator, filters: validItems } ];
+				groups = [ ...groups, { logical_operator: 'or', filters: [
+					{
+						logical_operator: selectedOperator,
+						operands: validItems.map(x => ({ match: { ...x, operator: 'eq' } }))
+					}
+				]}];
 			}
 		}
 
@@ -749,6 +782,38 @@
 			field: field,
 			order: order
 		} : null;
+	}
+
+	/** @param {any} e */
+	async function confirmIndex(e) {
+		isOpenIndexModal = false;
+		isLoading = true;
+		const { addIndexes, deleteIndexes } = e;
+		try {
+			if (addIndexes?.length > 0) {
+				await createVectorIndexes(selectedCollection, addIndexes);
+			}
+			if (deleteIndexes?.length > 0) {
+				await deleteVectorIndexes(selectedCollection, deleteIndexes);
+			}
+			successText = "Indexes have been updated!";
+            isComplete = true;
+            setTimeout(() => {
+                isComplete = false;
+            }, duration);
+		} catch {
+			errorText = "Failed to update indexes."
+            isError = true;
+            setTimeout(() => {
+                isError = false;
+            }, duration);
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	function toggleIndexModal() {
+		isOpenIndexModal = !isOpenIndexModal;
 	}
 </script>
 
@@ -780,6 +845,19 @@
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
 		confirm={(e) => confirmEdit(e)}
 		cancel={() => toggleKnowledgeEditModal()}
+	/>
+{/if}
+
+{#if isOpenIndexModal}
+	<VectorIndexModal
+		className={'vector-index-container'}
+		title={''}
+		size={'xl'}
+		collection={selectedCollection}
+		open={isOpenIndexModal}
+		toggleModal={() => isOpenIndexModal = !isOpenIndexModal}
+		confirm={(e) => confirmIndex(e)}
+		cancel={() => toggleIndexModal()}
 	/>
 {/if}
 
@@ -859,7 +937,7 @@
                     <div class="mt-3 knowledge-search-footer">
                         <div class="search-input">
                             <div class="line-align-center input-text fw-bold">
-                                <span>{'Confidence:'}</span>
+                                <span>{'Confidence'}</span>
                             </div>
 							<div style="display: flex; gap: 5px;">
 								<div class="line-align-center confidence-box">
@@ -945,7 +1023,7 @@
                 disabled={disabled}
                 bind:this={docUploadrCmp}
                 on:docuploaded={(e) => onDocUploaded(e)}
-                on:docdeleted={(e) => onDocDelected(e)}
+                on:docdeleted={(e) => onDocDeleted(e)}
 				on:resetdocs={(e) => onDocsReset(e)}
             />
         {/if}
@@ -955,7 +1033,7 @@
 				<Card>
 					<CardBody>
 						<div class="mt-2">
-							<div class="d-flex flex-wrap mb-3 knowledge-table-header">
+							<div class="d-flex flex-wrap mb-3 justify-content-between knowledge-table-header">
 								<div class="d-flex" style="gap: 5px;">
 									<h5 class="font-size-16 knowledge-header-text">
 										<div>{$_('Knowledges')}</div>
@@ -989,44 +1067,63 @@
                                         </Button>
 									</div>
 								</div>
-								<div class="collection-dropdown-container">
-									<div class="line-align-center collection-dropdown">
-										<Select
-											tag={'kn-doc-collection-select'}
-											placeholder={'Select Collection'}
-											searchMode
-											selectedValues={selectedCollection ? [selectedCollection] : []}
-											options={collections}
-											on:select={e => changeCollection(e)}
-										/>
-									</div>
+
+								<div class="collection-action-container">
+									{#if selectedCollection}
 									<div
 										class="line-align-center"
 										data-bs-toggle="tooltip"
 										data-bs-placement="top"
-										title="Add collection"
+										title="Create/delete payload indexes"
 									>
 										<Button
-											class="btn btn-sm btn-soft-primary collection-action-btn"
-											disabled={disabled}
-											on:click={() => toggleCollectionCreate()}
+											class="btn btn-sm btn-soft-primary"
+											on:click={() => toggleIndexModal()}
 										>
-											<i class="mdi mdi-plus" />
+											Index
 										</Button>
 									</div>
-									<div
-										class="line-align-center"
-										data-bs-toggle="tooltip"
-										data-bs-placement="top"
-										title="Delete collection"
-									>
-										<Button
-											class="btn btn-sm btn-soft-danger collection-action-btn"
-											disabled={disabled}
-											on:click={() => deleteCollection()}
+									{/if}
+
+									<div class="collection-dropdown-container">
+										<div class="line-align-center collection-dropdown">
+											<Select
+												tag={'kn-doc-collection-select'}
+												placeholder={'Select Collection'}
+												searchMode
+												selectedValues={selectedCollection ? [selectedCollection] : []}
+												options={collections}
+												on:select={e => changeCollection(e)}
+											/>
+										</div>
+										<div
+											class="line-align-center"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
+											title="Add collection"
 										>
-											<i class="mdi mdi-minus" />
-										</Button>
+											<Button
+												class="btn btn-sm btn-soft-primary collection-action-btn"
+												disabled={disabled}
+												on:click={() => toggleCollectionCreate()}
+											>
+												<i class="mdi mdi-plus" />
+											</Button>
+										</div>
+										<div
+											class="line-align-center"
+											data-bs-toggle="tooltip"
+											data-bs-placement="top"
+											title="Delete collection"
+										>
+											<Button
+												class="btn btn-sm btn-soft-danger collection-action-btn"
+												disabled={disabled}
+												on:click={() => deleteCollection()}
+											>
+												<i class="mdi mdi-minus" />
+											</Button>
+										</div>
 									</div>
 								</div>
 							</div>

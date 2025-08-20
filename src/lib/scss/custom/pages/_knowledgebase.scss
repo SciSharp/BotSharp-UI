@@ -67,10 +67,13 @@
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
+        gap: 10px;
 
         .search-input {
             display: flex;
             gap: 5px;
+            align-items: center;
+            flex-wrap: wrap;
         }
 
         .confidence-box {
@@ -112,6 +115,141 @@
                 box-shadow: none !important;
             }
         }
+
+        // Responsive design for tablets and mobile
+        @media (max-width: 768px) {
+            flex-direction: column;
+            gap: 15px;
+
+            .search-input {
+                &:first-child {
+                    // Confidence input section - centered
+                    justify-content: center;
+                    align-items: center;
+                    gap: 10px;
+
+                    .confidence-box {
+                        width: 60px;
+                        flex-shrink: 0;
+                    }
+                }
+
+                &:nth-child(2) {
+                    // Toggle section - keep horizontal
+                    justify-content: center;
+                    align-items: center;
+                    gap: 15px;
+                    flex-wrap: wrap;
+
+                    .input-text {
+                        font-size: 13px;
+                    }
+
+                    .search-toggle {
+                        width: 50px;
+                        height: 30px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .form-switch {
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        input {
+                            width: 40px !important;
+                            height: 20px !important;
+                        }
+                    }
+                }
+            }
+
+            // Center the search button
+            .line-align-center {
+                text-align: center;
+            }
+        }
+
+        // Mobile and smaller screens - stack vertically
+        @media (max-width: 480px) {
+            .search-input {
+                &:first-child {
+                    flex-direction: column;
+
+                    .input-text {
+                        text-align: center;
+                    }
+
+                    > div:last-child {
+                        // Confidence input and buttons container
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 5px;
+                        width: 100%;
+
+                        .confidence-box {
+                            width: 80px;
+                        }
+                    }
+                }
+
+                &:nth-child(2) {
+                    // Keep toggle section horizontal on mobile
+                    justify-content: center;
+                    align-items: center;
+                    gap: 12px;
+                    flex-wrap: wrap;
+
+                    .input-text {
+                        font-size: 12px;
+                        padding: 0.3rem 0px;
+                        white-space: nowrap;
+                    }
+
+                    .search-toggle {
+                        width: 55px;
+                        height: 32px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+
+                        .form-switch {
+                            margin: 0;
+                            padding: 0;
+                            display: flex;
+                            align-items: center;
+                        }
+
+                        input {
+                            width: 45px !important;
+                            height: 22px !important;
+                            margin: 0 !important;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Very small screens - further optimizations
+        @media (max-width: 360px) {
+            .search-input {
+                &:first-child {
+                    > div:last-child {
+                        .confidence-box {
+                            width: 70px;
+                        }
+                    }
+                }
+            }
+
+            .input-text {
+                font-size: 11px;
+            }
+        }
     }
 
     .graph-searh-result-container {
@@ -126,15 +264,19 @@
 }
 
 .knowledge-table-header {
-    justify-content: space-between;
-
     .knowledge-header-text {
         margin-bottom: 0px !important;
         padding: 0.47rem 0.75rem;
     }
 
+    .collection-action-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 10px;
+    }
+
     .collection-dropdown-container {
-        width: 20%;
         display: flex;
         gap: 5px;
         justify-content: flex-end;
@@ -152,6 +294,18 @@
         select {
             outline: none !important;
             box-shadow: none !important;
+        }
+    }
+
+    @media (max-width: 600px) {
+        justify-content: center !important;
+
+        .collection-action-container {
+            justify-content: center !important;
+        }
+
+        .collection-dropdown-container {
+            justify-content: center !important;
         }
     }
 }
@@ -258,17 +412,14 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
-        max-height: 280px;
+        min-height: 100px;
+        max-height: 300px;
         overflow-y: auto;
         scrollbar-width: none;
 
         .payload-item {
             display: flex;
             gap: 10px;
-
-            .payload-item-content {
-                flex: 0.5;
-            }
         }
     }
 }
@@ -374,10 +525,16 @@
         justify-content: flex-start;
         gap: 10px;
         font-size: 18px;
-    
+
         input {
             outline: none !important;
             box-shadow: none !important;
+        }
+
+        @media (max-width: 480px) {
+            font-size: 16px;
+            gap: 8px;
+            flex-wrap: wrap;
         }
     }
     
@@ -386,37 +543,104 @@
         display: flex;
         flex-direction: column;
         gap: 10px;
+        min-height: 200px;
         max-height: 300px;
         overflow-y: auto;
         scrollbar-width: none;
-    
+
         .knowledge-adv-search-item {
             display: flex;
             gap: 10px;
-    
+
             .search-item-cb {
                 flex: 0 0 20px;
-    
+
                 .form-check {
                     font-size: 15px;
                     margin-bottom: 0.125rem;
                 }
-    
+
                 input[type="checkbox"] {
                     outline: none !important;
                     box-shadow: none !important;
                 }
             }
-    
+
             .search-item-name {
                 font-size: 15px;
                 flex: 0 0 100px;
             }
-    
+
             .search-item-content {
                 flex: 0.3;
                 min-width: 150px;
                 max-width: 350px;
+            }
+
+            // Responsive behavior for narrow screens
+            @media (max-width: 768px) {
+                flex-direction: column;
+                gap: 8px;
+                padding: 10px;
+                border: 1px solid #e0e0e0;
+                border-radius: 5px;
+                margin-bottom: 5px;
+
+                .search-item-cb {
+                    flex: none;
+                    align-self: flex-start;
+                }
+
+                .search-item-content {
+                    flex: none;
+                    min-width: unset;
+                    max-width: unset;
+                    width: 100%;
+                    position: relative;
+
+                    // Show field labels on mobile
+                    &[data-label]:before {
+                        content: attr(data-label) ":";
+                        display: block;
+                        font-weight: bold;
+                        font-size: 14px;
+                        margin-bottom: 4px;
+                        color: #666;
+                    }
+                }
+
+                // Hide header row on mobile since items are stacked
+                &:first-child {
+                    display: none;
+                }
+            }
+
+            @media (max-width: 480px) {
+                padding: 8px;
+                gap: 6px;
+            }
+
+            // Special styling for the add button row
+            &.add-item-row {
+                @media (max-width: 768px) {
+                    flex-direction: row;
+                    justify-content: center;
+                    border: none;
+
+                    .search-item-cb,
+                    .search-item-content:not(:last-child) {
+                        display: none;
+                    }
+
+                    .search-item-content:last-child {
+                        flex: none;
+                        width: auto;
+
+                        .d-flex {
+                            justify-content: center !important;
+                        }
+                    }
+                }
             }
         }
     }
@@ -427,14 +651,24 @@
         .operator-item {
             display: flex;
 
-            @media (max-width: 420px) {
+            @media (max-width: 768px) {
                 flex-direction: column;
                 gap: 10px !important;
+                align-items: flex-start;
+            }
+
+            @media (max-width: 420px) {
                 text-align: center;
+                align-items: center;
             }
 
             .operator-title {
                 width: 120px;
+
+                @media (max-width: 768px) {
+                    width: auto;
+                    margin-bottom: 5px;
+                }
             }
         }
     }
@@ -457,6 +691,102 @@
     
         .invalid {
             justify-content: space-between;
+        }
+    }
+}
+
+.vector-index-container {
+    .index-layout-container {
+        display: grid;
+        gap: 1rem;
+        grid-template-columns: 1fr auto 1fr;
+        grid-template-areas: "existing arrows delete";
+        align-items: start;
+    }
+
+    .index-block:first-child {
+        grid-area: existing;
+    }
+
+    .index-block:last-child {
+        grid-area: delete;
+    }
+
+    .arrow-container {
+        grid-area: arrows;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px; /* Match the fixed height of the cards */
+    }
+
+    .arrow-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .index-block-card {
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+
+        .card-body-scrollable {
+            flex: 1;
+            overflow-y: auto;
+            max-height: none;
+            padding: 5px;
+        }
+
+        .field-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .field-item {
+            flex: 1;
+        }
+    }
+
+    .arrow-horizontal {
+        display: inline;
+    }
+
+    .arrow-vertical {
+        display: none;
+    }
+
+    @media (max-width: 991.98px) {
+        .index-layout-container {
+            grid-template-columns: 1fr;
+            grid-template-areas:
+                "existing"
+                "arrows"
+                "delete";
+        }
+
+        .arrow-container {
+            height: auto;
+            min-height: 60px;
+            padding: 1rem 0;
+        }
+
+        .arrow-buttons {
+            flex-direction: row;
+            justify-content: center;
+        }
+
+        .arrow-horizontal {
+            display: none;
+        }
+
+        .arrow-vertical {
+            display: inline;
+        }
+
+        .field-row {
+            flex-direction: column;
+            gap: 0;
         }
     }
 }

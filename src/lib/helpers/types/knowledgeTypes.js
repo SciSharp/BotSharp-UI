@@ -30,8 +30,41 @@
 
 /**
  * @typedef {Object} VectorFilterGroup
- * @property {string} [filter_operator] - The filter operator.
- * @property {{ key: string, value: string }[]} [filters] - Search filters.
+ * @property {string} [logical_operator] - The logical operator.
+ * @property {VectorFilterSubGroup[]} [filters] - Search filters.
+ */
+
+/**
+ * @typedef {Object} VectorFilterSubGroup
+ * @property {string} [logical_operator] - The logical operator.
+ * @property {VectorFilterOperand[]} [operands] - Search operands.
+ */
+
+/**
+ * @typedef {Object} VectorFilterOperand
+ * @property {VectorFilterMatch?} [match] - The match filter.
+ * @property {VectorFilterRange?} [range] -The range filter.
+ */
+
+/**
+ * @typedef {Object} VectorFilterMatch
+ * @property {string} key - The field name.
+ * @property {string} value - The field value.
+ * @property {string} operator - The operator.
+ * @property {string} data_type -The field data type.
+ */
+
+/**
+ * @typedef {Object} VectorFilterRange
+ * @property {string} key - The field name.
+ * @property {string} data_type -The field data type.
+ * @property {VectorFilterRangeCondition[]} conditions -The conditions.
+ */
+
+/**
+ * @typedef {Object} VectorFilterRangeCondition
+ * @property {string} value - The field value.
+ * @property {string} operator -The operator.
  */
 
 /**
@@ -98,6 +131,27 @@
  * @property {string} provider
  * @property {string} model
  * @property {number} dimension
+ */
+
+/**
+ * @typedef {Object} VectorCollectionDetails
+ * @property {string} status
+ * @property {number} vectors_count
+ * @property {number} points_count
+ * @property {PayloadSchemaDetail[]} payload_schema
+ */
+
+/**
+ * @typedef {Object} PayloadSchemaDetail
+ * @property {string} field_name
+ * @property {string} field_data_type
+ * @property {number} data_count
+ */
+
+/**
+ * @typedef {Object} VectorCollectionIndexOptions
+ * @property {string} field_name
+ * @property {string} field_schema_type
  */
 
 export default {};

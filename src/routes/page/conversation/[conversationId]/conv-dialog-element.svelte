@@ -1,6 +1,8 @@
 <script>
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import { Button } from '@sveltestrap/sveltestrap';
+	import RcJsInterpreter from '../../../chat/[agentId]/[conversationId]/rich-content/rc-js-interpreter.svelte';
+	import { RichType } from '$lib/helpers/enums';
 
   /** @type {import('$conversationTypes').ChatResponseModel} */
   export let dialog;
@@ -18,11 +20,16 @@
   class="fw-bold"
   class:text-collapse={!!is_collapsed}
 >
-  <Markdown
-    containerClasses={'dialog-item-text'}
-    text={dialog?.rich_content?.message?.text || dialog?.text}
-    rawText
-  />
+  {#if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
+      && dialog?.rich_content?.message?.language === 'javascript'}
+    <RcJsInterpreter message={dialog} scrollable />
+  {:else}
+    <Markdown
+      containerClasses={'dialog-item-text'}
+      text={dialog?.rich_content?.message?.text || dialog?.text}
+      rawText
+    />
+  {/if}
 </div>
 
 <Button

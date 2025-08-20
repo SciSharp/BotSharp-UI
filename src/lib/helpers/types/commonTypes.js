@@ -55,6 +55,7 @@
  * @typedef {Object} LlmModelSetting
  * @property {string} name
  * @property {string} type
+ * @property {any} reasoning
  */
 
 
@@ -68,6 +69,12 @@
  * @typedef {Object} NameBase
  * @property {string} name
  * @property {string?} [displayName]
+ */
+
+/**
+ * @typedef {Object} SuccessFailResponse
+ * @property {any[]} success
+ * @property {any[]} fail
  */
 
 export default {};
