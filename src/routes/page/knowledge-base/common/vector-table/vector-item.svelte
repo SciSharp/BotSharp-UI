@@ -79,11 +79,11 @@
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class={`knowledge-text-qa ${isDocumentCollection ? 'knowledge-text' : ''}`}>
-        <div class="ellipsis">{item?.data?.text?.data_value || item?.data?.question?.data_value || ''}</div>
+        <div class="ellipsis">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
     </td>
     {#if isQuestionAnswerCollection}
         <td class="knowledge-text-qa">
-            <div class="ellipsis">{item?.data?.answer?.data_value || ''}</div>
+            <div class="ellipsis">{item?.payload?.answer?.data_value || ''}</div>
         </td>
     {/if}
     <td class="knowledge-op">
@@ -132,20 +132,20 @@
                             <div class="wrappable fw-bold text-primary">
                                 {'Question:'}
                             </div>
-                            <div class="wrappable">{item?.data?.text?.data_value || item?.data?.question?.data_value || ''}</div>
+                            <div class="wrappable">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
                         </li>
                         <li>
                             <div class="wrappable fw-bold text-primary">
                                 {'Answer:'}
                             </div>
-                            <div class="wrappable">{item?.data?.answer?.data_value || ''}</div>
+                            <div class="wrappable">{item?.payload?.answer?.data_value || ''}</div>
                         </li>
                     {:else if isDocumentCollection}
                         <li>
                             <div class="wrappable fw-bold text-primary">
                                 {'Text:'}
                             </div>
-                            <div class="wrappable">{item?.data?.text?.data_value || ''}</div>
+                            <div class="wrappable">{item?.payload?.text?.data_value || ''}</div>
                         </li>
                     {/if}
 
@@ -178,22 +178,22 @@
                                     Vector dimension: {item?.vector_dimension}
                                 </li>
                             {/if}
-                            {#if item?.data}
-                                {#each Object.keys(item.data) as key, idx (`${key}-${item?.id}`)}
+                            {#if item?.payload}
+                                {#each Object.keys(item.payload) as key, idx (`${key}-${item?.id}`)}
                                     {#if (!excludedPayloads.includes(key))}
                                         <li class="more-detail-item wrappable">
-                                            <span>{key} {`(${item.data[key]?.data_type?.toLowerCase()})`}: </span>
+                                            <span>{key} {`(${item.payload[key]?.data_type?.toLowerCase()})`}: </span>
                                             {#if key === KnowledgePayloadName.FileUrl}
                                                 <!-- svelte-ignore a11y-click-events-have-key-events -->
                                                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                                                 <span
                                                     class="link clickable"
-                                                    on:click={() => window.open(item.data[key]?.data_value)}
+                                                    on:click={() => window.open(item.payload[key]?.data_value)}
                                                 >
                                                     link
                                                 </span>
                                             {:else}
-                                                <span>{item.data[key]?.data_value}</span>
+                                                <span>{item.payload[key]?.data_value}</span>
                                             {/if}
                                         </li>
                                     {/if}

@@ -76,7 +76,7 @@
 /**
  * @typedef {Object} KnowledgeSearchViewModel
  * @property {string} id - The knowledge data id.
- * @property {any} data - The knowledge data.
+ * @property {any} payload - The knowledge payload.
  * @property {number} [score] - The knowledge score.
  * @property {number[]} [vector] - The knowledge vector.
  * @property {number} [vector_dimension] - The vector dimension.
