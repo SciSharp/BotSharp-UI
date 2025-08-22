@@ -99,21 +99,21 @@
         question = {
             ...question,
             rows: isQuestionAnswerCollection ? 3 : 10,
-            text: item?.data?.text?.data_value || item?.data?.question?.data_value || ''
+            text: item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''
         };
 
         answer = {
             ...answer,
-            text: item?.data?.answer?.data_value || ''
+            text: item?.payload?.answer?.data_value || ''
         };
 
-        innerPayloads = Object.keys(item?.data || {}).filter(key => !excludedPayloads.includes(key)).map(key => {
-            const foundType = dataTypeOptions.find(x => x.value === item?.data[key]?.data_type);
+        innerPayloads = Object.keys(item?.payload || {}).filter(key => !excludedPayloads.includes(key)).map(key => {
+            const foundType = dataTypeOptions.find(x => x.value === item?.payload[key]?.data_type);
             return {
                 uuid: uuidv4(),
                 key: key,
                 value: {
-                    ...item?.data[key] || {},
+                    ...item?.payload[key] || {},
                     data_type: foundType?.value
                 }
             };

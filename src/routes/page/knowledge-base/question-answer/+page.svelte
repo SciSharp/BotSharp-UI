@@ -632,7 +632,7 @@
 				...payload
 			};
 
-			found.data = { ...newData };
+			found.payload = { ...newData };
 			items = [ ...items ];
 		}
 	}
