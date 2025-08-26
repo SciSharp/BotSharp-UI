@@ -72,6 +72,11 @@
     /** @type {boolean} */
     let loading = false;
 
+    /**
+     * @type {number | undefined}
+     */
+    let timer;
+
     onMount(() => {
         initOptions();
     });
@@ -79,8 +84,6 @@
     $: {
         innerOptions = verifySelectedOptions(innerOptions, selectedValues);
         refOptions = verifySelectedOptions(innerOptions, selectedValues);
-        applySearchFilter();
-        changeDisplayText();
     }
 
     $: {
@@ -105,22 +108,22 @@
                     ...newOptions
                 ];
 
-                changeDisplayText();
-            } else {
-                applySearchFilter();
-                changeDisplayText();
             }
         } else {
             innerOptions = verifySelectedOptions(options, selectedValues);
             refOptions = verifySelectedOptions(options, selectedValues);
+        }
+    }
+
+    $: {
+        if (innerOptions && refOptions) {
             applySearchFilter();
             changeDisplayText();
         }
     }
 
-
     function initOptions() {
-        innerOptions = options.map(x => {
+        const newInnerOptions = options.map(x => {
             return {
                 label: x.label,
                 value: x.value,
@@ -128,13 +131,16 @@
             }
         });
 
-        refOptions = options.map(x => {
+        const newRefOptions = options.map(x => {
             return {
                 label: x.label,
                 value: x.value,
                 checked: false
             }
         });
+
+        innerOptions = newInnerOptions;
+        refOptions = newRefOptions;
     }
 
     /**
@@ -167,8 +173,15 @@
     /** @param {any} e */
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
-        applySearchFilter();
-        verifySelectAll();
+
+        if (timer) {
+            clearTimeout(timer);
+        }
+        
+        timer = setTimeout(() => {
+            applySearchFilter();
+            verifySelectAll();
+        }, 500);
     }
 
     function applySearchFilter() {
@@ -186,7 +199,7 @@
 	 * @param {any} option
 	 */
     function checkOption(e, option) {
-        innerOptions = innerOptions.map(x => {
+        const newInnerOptions = innerOptions.map(x => {
             const item = { ...x };
             if (item.value == option.value) {
                 item.checked = e == null ? !item.checked : e.target.checked;
@@ -196,7 +209,7 @@
             return item;
         });
 
-        refOptions = refOptions.map(x => {
+        const newRefOptions = refOptions.map(x => {
             const item = { ...x };
             if (item.value == option.value) {
                 item.checked = e == null ? !item.checked : e.target.checked;
@@ -206,7 +219,9 @@
             return item;
         });
 
-        changeDisplayText();
+        innerOptions = newInnerOptions;
+        refOptions = newRefOptions;
+
         sendEvent();
         hideOptionList();
     }
@@ -219,7 +234,6 @@
         });
 
         syncChangesToRef(selectAllChecked);
-        changeDisplayText();
         sendEvent();
     }
 
@@ -320,15 +334,17 @@
     }
 
     function clearSelection() {
-        innerOptions = innerOptions.map(x => {
+        const newInnerOptions = innerOptions.map(x => {
             return { ...x, checked: false }
         });
 
-        refOptions = refOptions.map(x => {
+        const newRefOptions = refOptions.map(x => {
             return { ...x, checked: false }
         });
 
-        changeDisplayText();
+        innerOptions = newInnerOptions;
+        refOptions = newRefOptions;
+
         sendEvent();
         hideOptionList();
     }

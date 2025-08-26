@@ -22,13 +22,18 @@
     let selectedTemplate = null;
 
     $: {
-        collectAgentOptions(agents);
+        initAgentOptions(agents);
     }
 
     /**
 	 * @param {import('$agentTypes').AgentModel[]} agents
 	 */
-    function collectAgentOptions(agents) {
+    function initAgentOptions(agents) {
+        agentOptions = [];
+        templateOptions = [];
+        selectedAgent = null;
+        selectedTemplate = null;
+        
         agentOptions = agents?.map(x => ({
             label: x.name,
             value: x.id
