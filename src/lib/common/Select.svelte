@@ -173,7 +173,11 @@
     /** @param {any} e */
     function changeSearchValue(e) {
         searchValue = e.target.value || '';
-        clearTimeout(timer);
+
+        if (timer) {
+            clearTimeout(timer);
+        }
+        
         timer = setTimeout(() => {
             applySearchFilter();
             verifySelectAll();
