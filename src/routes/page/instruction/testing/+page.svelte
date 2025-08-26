@@ -3,7 +3,7 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import { Button, Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
+	import { Button, Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
 	import LoadingDots from '$lib/common/LoadingDots.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
@@ -11,12 +11,12 @@
 	import InstructionState from '../instruction-components/instruction-state.svelte';
 	import { getAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import { sendChatCompletion } from '$lib/services/instruct-service';
+	import { executeAgentInstruction } from '$lib/services/instruct-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
 	import { LlmModelType } from '$lib/helpers/enums';
 	import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
-	import InstructionTemplate from '../instruction-components/instruction-template.svelte';
+	import InstructionAgent from '../instruction-components/instruction-agent.svelte';
 	import InstructionLlm from '../instruction-components/instruction-llm.svelte';
 
     const maxLength = 64000;
@@ -25,12 +25,13 @@
 
     /** @type {any[]}*/
     const tabs = [
-        { name: 'instruction-template', displayText: 'Template' },
+        { name: 'instruction-agent', displayText: 'Agent' },
         { name: 'instruction-llm', displayText: 'LLM Config' },
         { name: 'instruction-states', displayText: 'States' }
     ];
 
     let isLoading = false;
+    let isError = false;
     let isThinking = false;
     let requestDone = false;
     
@@ -38,6 +39,7 @@
     let instruction = '';
     let result = '';
     let elapsedTime = '';
+    let errorText = 'Please select an agent to proceed!';
 
     /** @type {import('$agentTypes').AgentModel | null} */
     let selectedAgent = null;
@@ -79,21 +81,31 @@
     });
 
     function sendRequest() {
+        if (!selectedAgent) {
+            isError = true;
+            errorText = 'Please select an agent to proceed!';
+            setTimeout(() => {
+                isError = false;
+                errorText = '';
+            }, 1500);
+            return;
+        }
+
         isThinking = true;
         requestDone = false;
         elapsedTime = '';
         const formattedStates = formatStates(states);
         const start = new Date();
-        sendChatCompletion({
+        const agentId = selectedAgent?.id || '';
+        executeAgentInstruction(agentId, {
             text: util.trim(text) || '',
-            instruction: util.trim(instruction) || null,
-            agentId: selectedAgent?.id,
-            provider: selectedProvider?.provider || DEFAULT_PROVIDER,
-            model: selectedModel || DEFAULT_MODEL,
+            instruction: '#TEMPLATE#',
+            provider: selectedProvider?.provider,
+            model: selectedModel,
             template: selectedTemplate,
             states: formattedStates
         }).then(res => {
-            result = res || '';
+            result = res?.text || '';
         }).finally(() => {
             isThinking = false;
             requestDone = true;
@@ -167,7 +179,7 @@
 
 <HeadTitle title="{$_('Instruction')}" />
 <Breadcrumb pagetitle="{$_('Testing')}" title="{$_('Instruction')}"/>
-<LoadingToComplete isLoading={isLoading} />
+<LoadingToComplete isLoading={isLoading} isError={isError} errorText={errorText} />
 
 <div class="d-xl-flex">
 	<div class="w-100">
@@ -244,13 +256,19 @@
                     <div class="line-align-center">
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <i
+                        <!-- <i
                             class="mdi mdi-refresh text-primary clickable"
                             data-bs-toggle="tooltip"
                             data-bs-placement="bottom"
                             title={'Reset'}
                             on:click={e => resetInstruction()}
-                        />
+                        /> -->
+                        <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
+                            <i class="bx bx-info-circle" />
+                        </div>
+                        <Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
+                            <div>Please select an agent to proceed!</div>
+                        </Tooltip>
                     </div>
                 </div>
             </Col>
@@ -264,20 +282,19 @@
                             class='form-control knowledge-textarea'
                             rows={19}
                             maxlength={maxLength}
-                            disabled={isThinking}
-                            placeholder={'Enter instruction...'}
+                            disabled
+                            placeholder={''}
                             bind:value={instruction}
                         />
-                        <div class="text-secondary text-end text-count">
+                        <!-- <div class="text-secondary text-end text-count">
                             <div>{instruction?.length || 0}/{maxLength}</div>
-                        </div>
+                        </div> -->
                     </div>
                 </div>
             </Col>
             <Col lg="5" class="instruction-gap">
                 <Card>
                     <CardBody>
-                        
                         <NavBar
                             id={'instruction-nav-container'}
                             disableDefaultStyles
@@ -297,11 +314,11 @@
                             {/each}
                         </NavBar>
                         
-                        <div class:hide={selectedTab !== 'instruction-template'}>
-                            <InstructionTemplate
+                        <div class:hide={selectedTab !== 'instruction-agent'}>
+                            <InstructionAgent
                                 agents={agents}
                                 disabled={isThinking}
-                                on:agentSelected={e => onAgentSelected(e)}
+                                on:selectAgent={e => onAgentSelected(e)}
                             />
                         </div>
                         <div class:hide={selectedTab !== 'instruction-llm'}>
@@ -310,7 +327,7 @@
                                 disabled={isThinking}
                                 selectedProvider={selectedProvider}
                                 selectedModel={selectedModel}
-                                on:llmSelected={e => onLlmSelected(e)}
+                                on:selectLlm={e => onLlmSelected(e)}
                             />
                         </div>
                         <div class:hide={selectedTab !== 'instruction-states'}>

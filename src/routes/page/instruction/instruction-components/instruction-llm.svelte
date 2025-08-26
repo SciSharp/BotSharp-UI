@@ -14,7 +14,7 @@
     /** @type {import('$commonTypes').LlmConfig | null | undefined} */
     export let selectedProvider = null;
 
-    /** @type {any} */
+    /** @type {string?} */
     export let selectedModel = null;
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
@@ -31,11 +31,16 @@
     });
 
     $: {
-        collectLlmOptions(llmConfigs);
+        initLlmOptions(llmConfigs);
     }
 
     /** @param {import('$commonTypes').LlmConfig[]} llmConfigs */
-    function collectLlmOptions(llmConfigs) {
+    function initLlmOptions(llmConfigs) {
+        selectedProvider = null;
+        selectedModel = null;
+        providerOptions = [];
+        modelOptions = [];
+
         providerOptions = llmConfigs?.map(x => ({
             label: x.provider,
             value: x.provider
@@ -55,30 +60,26 @@
     function selectModel(e) {
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
-        selectedModel = selectedValues.length > 0 ? modelOptions.find(x => x.id === selectedValues[0]) : null;
+        selectedModel = selectedValues.length > 0 ? modelOptions.find(x => x.value === selectedValues[0])?.value : null;
         dispatchEvent();
     }
 
-    /** @param {any?} targetModel */
+    /** @param {string?} targetModel */
     function onProviderChanged(targetModel = null) {
         modelOptions = selectedProvider?.models?.map(x => ({
-            id: x.name,
-            name: x.name,
             label: x.name,
             value: x.name
         }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
 
         if (!!targetModel) {
-            selectedModel = modelOptions.find(x => x.value === targetModel) || null;
-        } else {
-            selectedModel = modelOptions.length > 0 ? modelOptions[0] : null;
+            selectedModel = modelOptions.find(x => x.value === targetModel)?.value || null;
         }
     }
 
     function dispatchEvent() {
-        svelteDispatch('llmSelected', {
+        svelteDispatch('selectLlm', {
             provider: selectedProvider || null,
-            model: selectedModel?.name
+            model: selectedModel
         });
     }
 </script>
@@ -108,7 +109,7 @@
                 placeholder={'Select Model'}
                 searchMode
                 disabled={disabled}
-                selectedValues={selectedModel?.id ? [selectedModel.id] : []}
+                selectedValues={selectedModel ? [selectedModel] : []}
                 options={modelOptions}
                 on:select={e => selectModel(e)}
             />

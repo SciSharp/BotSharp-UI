@@ -6,11 +6,13 @@ import qs from 'qs';
 /**
  * Execute agent instruction by template or user provided prompt.
  * @param {string} agentId
- * @param {import('$instructTypes').InstructMessageModel} instruction
+ * @param {import('$instructTypes').InstructMessageModel} request
+ * @returns {Promise<{ text: string }>}
  */
-export async function executeAgentInstruction(agentId, instruction) {
-    let url = replaceUrl(endpoints.instructCompletionUrl, {agentId: agentId});
-    await axios.post(url, instruction);
+export async function executeAgentInstruction(agentId, request) {
+    const url = replaceUrl(endpoints.instructCompletionUrl, {agentId: agentId});
+    const response = await axios.post(url, request);
+    return response.data;
 }
 
 

@@ -29,7 +29,7 @@
 	 * @param {import('$agentTypes').AgentModel[]} agents
 	 */
     function collectAgentOptions(agents) {
-        agentOptions = agents?.filter(x => x.templates?.length > 0).map(x => ({
+        agentOptions = agents?.map(x => ({
             label: x.name,
             value: x.id
         }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
@@ -61,7 +61,7 @@
     }
 
     function dispatchEvent() {
-        svelteDispatch('agentSelected', {
+        svelteDispatch('selectAgent', {
             agent: selectedAgent || null,
             template: selectedTemplate || null
         });
@@ -73,12 +73,6 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Agent</div>
-            <!-- <select class="form-select" id="agent" value={selectedAgent?.id || null} disabled={disabled} on:change={e => selectAgent(e)}>
-                <option value={null}>{$_('Select Agent')}</option>
-                {#each agentOptions as op}
-                    <option value={`${op.id}`} selected={op.id === selectedAgent?.id}>{$_(`${op.name}`)}</option>
-                {/each}
-            </select> -->
             <Select
                 tag={'agent-select'}
                 placeholder={'Select Agent'}
@@ -94,12 +88,6 @@
     <div class="instruct-setting-item">
         <div class="instruct-setting-dropdown">
             <div class="text-primary fw-bold mb-1">Template</div>
-            <!-- <select class="form-select" id="template" value={selectedTemplate?.id || null} disabled={disabled} on:change={e => selectTemplate(e)}>
-                <option value={null}>{$_('Select Template')}</option>
-                {#each templateOptions as op}
-                    <option value={`${op.id}`} selected={op.id === selectedTemplate?.id}>{$_(`${op.name}`)}</option>
-                {/each}
-            </select> -->
             <Select
                 tag={'template-select'}
                 placeholder={'Select Template'}
