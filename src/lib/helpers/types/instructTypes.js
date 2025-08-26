@@ -1,7 +1,11 @@
 /**
  * @typedef {Object} InstructMessageModel
+ * @property {string} text - The user message.
  * @property {string} [instruction] - User provided prompt instead of predefined template.
- * @property {string} [template] - The template name.
+ * @property {string?} [template] - The template name.
+ * @property {string?} [provider] - The LLM provider.
+ * @property {string?} [model] - The LLM model.
+ * @property {import('$conversationTypes').ConversationStateModel[]} [states]
  */
 
 /**
