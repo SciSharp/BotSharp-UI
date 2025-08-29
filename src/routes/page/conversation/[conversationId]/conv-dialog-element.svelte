@@ -22,7 +22,7 @@
 >
   {#if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
       && dialog?.rich_content?.message?.language === 'javascript'}
-    <RcJsInterpreter message={dialog} scrollable />
+    <RcJsInterpreter message={dialog} scrollable containerStyles={'color: var(--bs-primary);'} />
   {:else}
     <Markdown
       containerClasses={'dialog-item-text'}
