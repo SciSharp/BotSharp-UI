@@ -120,6 +120,7 @@
 							<div class="col-10">
 								<div class="position-relative">
 									<ChatTextArea
+										id={'dashboard-chat-textarea'}
 										className={`chat-input`}
 										maxLength={1024}
 										disabled={false}
