@@ -215,6 +215,9 @@
 		// const editor = lastBotMsg?.rich_content?.editor || '';
 		loadTextEditor = true; // TEXT_EDITORS.includes(editor) || !Object.values(EditorType).includes(editor);
 		loadEditor = !isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0;
+		if (loadEditor) {
+			focusChatTextArea();
+		}
 	}
 
 	$: {
@@ -270,10 +273,24 @@
 				handleChatAction(e);
 			}
 		});
+
+		await focusChatTextArea();
 	});
 
 	function handleLogoutAction() {
 		resetLocalStorage(true);
+	}
+
+	function focusChatTextArea() {
+		return new Promise(resolve => {
+			tick().then(() => {
+				const textarea = document.getElementById('chat-textarea');
+				if (textarea) {
+					textarea.focus();
+				}
+				resolve('focused');
+			});
+		});
 	}
 
 	/** @param {any} e */
@@ -1947,6 +1964,7 @@
 							<div class="col">
 								<div class="position-relative">
 									<ChatTextArea
+										id={'chat-textarea'}
 										className={`chat-input ${!isLite ? 'chat-more-util' : ''}`}
 										maxLength={maxTextLength}
 										disabled={isSendingMsg || isThinking || disableAction}

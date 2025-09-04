@@ -3,6 +3,9 @@
     import _ from "lodash";
 
     /** @type {string} */
+    export let id;
+
+    /** @type {string} */
     export let className = '';
 
     /** @type {string} */
@@ -110,6 +113,7 @@
         </div>
     {/if}
     <textarea
+        id={id}
         class={`form-control ${className}`}
         rows={rows}
         maxlength={maxLength}
