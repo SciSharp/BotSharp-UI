@@ -522,6 +522,7 @@
 		if (!message.is_streaming) {
 			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
 				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+				&& !message.is_append
 			) {
 				dialogs[dialogs.length - 1] = {
 					...message,
@@ -1829,7 +1830,7 @@
 													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{
-															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue
+															@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking
 														}	
 														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
