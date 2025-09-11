@@ -1052,7 +1052,6 @@
                                         </Button>
 									</div>
 								</div>
-
 								<div class="collection-action-container action-container-padding">
 									{#if selectedCollection}
 									<div class="line-align-center">
