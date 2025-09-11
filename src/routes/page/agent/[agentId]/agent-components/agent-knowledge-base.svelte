@@ -45,6 +45,9 @@
     /** @type {import('$agentTypes').AgentKnowledgeBase[]} */
     let innerKnowledgeBases = [];
 
+    /** @type {HTMLElement} */
+    let scrollContainer;
+
     onMount(async () =>{
         getVectorKnowledgeCollections().then(data => {
             const list = data?.map(x => {
@@ -142,6 +145,7 @@
                 disabled: false
             }
         ];
+        scrollToBottom();
         handleAgentChange();
     }
 
@@ -178,6 +182,16 @@
         }) || [];
     }
 
+    function scrollToBottom() {
+        if (scrollContainer) {
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    }
 </script>
 
 <Card>
@@ -187,7 +201,7 @@
             <h6 class="mt-1 mb-3">Make your Agent have memory</h6>
         </div>
 
-        <div class="agent-utility-container">
+        <div class="agent-utility-container" bind:this={scrollContainer}>
             {#each innerKnowledgeBases as knowledge, uid (uid)}
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
