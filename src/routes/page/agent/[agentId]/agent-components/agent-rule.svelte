@@ -41,6 +41,9 @@
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
 
+    /** @type {HTMLElement} */
+    let scrollContainer;
+
     onMount(async () =>{
         getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
@@ -91,6 +94,7 @@
                 disabled: false
             }
         ];
+        scrollToBottom();
         handleAgentChange();
     }
 
@@ -143,6 +147,16 @@
         }) || [];
     }
 
+    function scrollToBottom() {
+        if (scrollContainer) {
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    }
 </script>
 
 <Card>
@@ -152,7 +166,7 @@
             <h6 class="mt-1 mb-3">Wake-up your agent by rules</h6>
         </div>
 
-        <div class="agent-utility-container">
+        <div class="agent-utility-container" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">

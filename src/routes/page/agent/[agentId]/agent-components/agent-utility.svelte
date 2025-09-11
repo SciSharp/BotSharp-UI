@@ -42,6 +42,9 @@
     /** @type {import('$agentTypes').AgentUtility[]} */
     let innerUtilities = [];
 
+    /** @type {HTMLElement} */
+    let scrollContainer;
+
     onMount(async () =>{
         resizeWindow();
         getAgentUtilityOptions().then(data => {
@@ -127,6 +130,8 @@
                 items: []
             }
         ];
+        scrollToBottom();
+        handleAgentChange();
     }
 
     /** @param {number} idx */
@@ -267,6 +272,17 @@
         innerRefresh(innerUtilities);
         handleAgentChange();
 	}
+
+    function scrollToBottom() {
+        if (scrollContainer) {
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    }
 </script>
 
 <svelte:window on:resize={() => resizeWindow()}/>
@@ -278,7 +294,7 @@
             <h6 class="mt-1 mb-3">Tools shared across plugins</h6>
         </div>
 
-        <div class="agent-utility-container">
+        <div class="agent-utility-container" bind:this={scrollContainer}>
             {#if !agent?.is_router}
                 <div class="merge-utility">
                     <Input

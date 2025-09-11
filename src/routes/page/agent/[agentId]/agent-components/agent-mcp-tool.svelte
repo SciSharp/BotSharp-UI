@@ -54,6 +54,9 @@
     /** @type {import('$agentTypes').AgentMcpTool[]} */
     let innerMcps = [];
 
+    /** @type {HTMLElement} */
+    let scrollContainer;
+
 
     onMount(async () => {
         getServerConfigs().then(res => {
@@ -131,6 +134,7 @@
                 functions: []
             }
         ];
+        scrollToBottom();
         handleAgentChange();
     }
 
@@ -207,6 +211,17 @@
         innerRefresh(innerMcps);
         handleAgentChange();
     }
+
+    function scrollToBottom() {
+        if (scrollContainer) {
+            setTimeout(() => {
+                scrollContainer.scrollTo({
+                    top: scrollContainer.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }, 0);
+        }
+    }
 </script>
 
 <Card>
@@ -216,7 +231,7 @@
             <h6 class="mt-1 mb-3">Tools powered by MCP Servers</h6>
         </div>
 
-        <div class="agent-utility-container">
+        <div class="agent-utility-container" bind:this={scrollContainer}>
             {#each innerMcps as mcp, uid (uid)}
                 <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
