@@ -74,6 +74,9 @@
 	/** @type {string | null | undefined } */
 	let nextId;
 
+	/** @type {number | null | undefined} */
+	let totalDataCount;
+
 	/** @type {string} */
 	let editCollection;
 
@@ -208,6 +211,7 @@
 
 			searchVectorKnowledge(selectedCollection, params).then(res => {
 				items = res || [];
+				totalDataCount = items.length;
 				isFromSearch = true;
 			}).finally(() => {
 				isSearching = false;
@@ -368,6 +372,7 @@
 					items = [ ...items, ...newItems ];
 				}
 				nextId = res.next_id;
+				totalDataCount = res.count;
 				resolve(res);
 			}).catch(err => {
 				console.log(err);
@@ -460,6 +465,9 @@
 					isComplete = false;
 				}, duration);
 				items = items?.filter(x => x.id !== id) || [];
+				if (totalDataCount) {
+					totalDataCount -= 1;
+				}
 			} else {
 				throw 'error when deleting vector knowledge!';
 			}
@@ -1004,10 +1012,15 @@
 			<div class="w-100">
 				<Card>
 					<CardBody>
-						<div class="mt-2">
-							<div class="d-flex flex-wrap mb-3 justify-content-between knowledge-table-header">
-								<div class="d-flex" style="gap: 5px;">
-									<h5 class="font-size-16 knowledge-header-text">
+						<div class="mt-2 knowledge-table-header">
+							{#if totalDataCount != null && totalDataCount != undefined}
+								<div class="knowledge-count line-align-center text-muted font-size-11">
+									{`Total data: ${Number(totalDataCount).toLocaleString("en-US")}`}
+								</div>
+							{/if}
+							<div class="d-flex flex-wrap mb-3 justify-content-between">
+								<div class="action-container-padding d-flex" style="gap: 5px;">
+									<h5 class="knowledge-header-text font-size-16">
 										<div>{$_('Knowledges')}</div>
 									</h5>
 									<div
@@ -1039,8 +1052,7 @@
                                         </Button>
 									</div>
 								</div>
-
-								<div class="collection-action-container">
+								<div class="collection-action-container action-container-padding">
 									{#if selectedCollection}
 									<div class="line-align-center">
 										<Button

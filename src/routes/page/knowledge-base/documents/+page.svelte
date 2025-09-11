@@ -71,6 +71,9 @@
 	/** @type {string | null | undefined } */
 	let nextId;
 
+	/** @type {number | null | undefined} */
+	let totalDataCount;
+
 	/** @type {string} */
 	let editCollection;
 
@@ -208,6 +211,7 @@
 
 			searchVectorKnowledge(selectedCollection, params).then(res => {
 				items = res || [];
+				totalDataCount = items.length;
 				isFromSearch = true;
 			}).finally(() => {
 				isSearching = false;
@@ -367,6 +371,7 @@
 					items = [ ...items, ...newItems ];
 				}
 				nextId = res.next_id;
+				totalDataCount = res.count;
 				resolve(res);
 			}).catch(err => {
 				console.log(err);
@@ -447,6 +452,9 @@
 					isComplete = false;
 				}, duration);
 				items = items?.filter(x => x.id !== id) || [];
+				if (totalDataCount) {
+					totalDataCount -= 1;
+				}
 			} else {
 				throw 'error when deleting vector knowledge!';
 			}
@@ -1032,10 +1040,15 @@
 			<div class="w-100">
 				<Card>
 					<CardBody>
-						<div class="mt-2">
-							<div class="d-flex flex-wrap mb-3 justify-content-between knowledge-table-header">
-								<div class="d-flex" style="gap: 5px;">
-									<h5 class="font-size-16 knowledge-header-text">
+						<div class="mt-2 knowledge-table-header">
+							{#if totalDataCount != null && totalDataCount != undefined}
+								<div class="knowledge-count line-align-center text-muted font-size-11">
+									{`Total data: ${Number(totalDataCount).toLocaleString("en-US")}`}
+								</div>
+							{/if}
+							<div class="d-flex flex-wrap mb-3 justify-content-between">
+								<div class="action-container-padding d-flex" style="gap: 5px;">
+									<h5 class="knowledge-header-text font-size-16">
 										<div>{$_('Knowledges')}</div>
 									</h5>
 									<div
@@ -1044,13 +1057,13 @@
 										data-bs-placement="top"
 										title="Add knowledge"
 									>
-                                        <Button
-                                            class="btn btn-sm btn-soft-primary knowledge-btn-icon"
+										<Button
+											class="btn btn-sm btn-soft-primary knowledge-btn-icon"
 											disabled={disabled}
-                                            on:click={() => onKnowledgeCreate()}
-                                        >
-                                            <i class="mdi mdi-plus" />
-                                        </Button>
+											on:click={() => onKnowledgeCreate()}
+										>
+											<i class="mdi mdi-plus" />
+										</Button>
 									</div>
 									<div
 										class="line-align-center"
@@ -1058,17 +1071,16 @@
 										data-bs-placement="top"
 										title="Delete all data"
 									>
-                                        <Button
-                                            class="btn btn-sm btn-soft-danger knowledge-btn-icon"
+										<Button
+											class="btn btn-sm btn-soft-danger knowledge-btn-icon"
 											disabled={disabled}
-                                            on:click={() => onKnowledgeDeleteAll()}
-                                        >
-                                            <i class="mdi mdi-minus" />
-                                        </Button>
+											on:click={() => onKnowledgeDeleteAll()}
+										>
+											<i class="mdi mdi-minus" />
+										</Button>
 									</div>
 								</div>
-
-								<div class="collection-action-container">
+								<div class="collection-action-container action-container-padding">
 									{#if selectedCollection}
 									<div
 										class="line-align-center"

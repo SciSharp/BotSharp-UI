@@ -264,6 +264,10 @@
 }
 
 .knowledge-table-header {
+    .knowledge-count {
+        padding: 0 0.75rem;
+    }
+
     .knowledge-header-text {
         margin-bottom: 0px !important;
         padding: 0.47rem 0.75rem;
@@ -274,6 +278,10 @@
         flex-wrap: wrap;
         justify-content: space-between;
         gap: 10px;
+    }
+
+    .action-container-padding {
+        padding: 5px 0px;
     }
 
     .collection-dropdown-container {
