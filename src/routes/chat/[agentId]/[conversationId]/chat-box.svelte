@@ -522,7 +522,6 @@
 		if (!message.is_streaming) {
 			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
 				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
-				&& !message.is_append
 			) {
 				dialogs[dialogs.length - 1] = {
 					...message,
