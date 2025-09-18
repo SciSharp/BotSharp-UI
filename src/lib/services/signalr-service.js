@@ -22,6 +22,9 @@ export const signalr = {
   onMessageReceivedFromAssistant: () => {},
 
   /** @type {import('$conversationTypes').OnMessageReceived} */
+  onIntermediateMessageReceivedFromAssistant: () => {},
+
+  /** @type {import('$conversationTypes').OnMessageReceived} */
   onNotificationGenerated: () => {},
 
   /** @type {import('$conversationTypes').OnConversationContentLogReceived} */
@@ -106,6 +109,15 @@ export const signalr = {
       if (conversationId === obj?.conversation_id) {
         console.log(`[OnMessageReceivedFromAssistant] ${obj.sender.role}: ${obj.text}`);
         this.onMessageReceivedFromAssistant(obj);
+      }
+    });
+
+    connection.on('OnIntermediateMessageReceivedFromAssistant', (message) => {
+      // do something when receiving a message, such as updating the UI or showing a notification
+      const obj = JSON.parse(message);
+      if (conversationId === obj?.conversation_id) {
+        console.log(`[OnIntermediateMessageReceivedFromAssistant] ${obj.sender.role}: ${obj.text}`);
+        this.onIntermediateMessageReceivedFromAssistant(obj);
       }
     });
 

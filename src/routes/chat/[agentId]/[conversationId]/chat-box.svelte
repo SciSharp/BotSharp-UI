@@ -244,6 +244,7 @@
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
+		signalr.onIntermediateMessageReceivedFromAssistant = onIntermediateMessageReceivedFromAssistant;
 
 		signalr.beforeReceiveLlmStreamMessage = beforeReceiveLlmStreamMessage;
 		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
@@ -522,6 +523,7 @@
 		if (!message.is_streaming) {
 			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
 				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+				&& !dialogs[dialogs.length - 1]?.is_appended
 			) {
 				dialogs[dialogs.length - 1] = {
 					...message,
@@ -545,6 +547,30 @@
     }
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
+    function onIntermediateMessageReceivedFromAssistant(message) {
+		const idx = dialogs.findLastIndex(x => x.is_dummy);
+		if (idx >= 0) {
+			dialogs.splice(idx, 0, {
+				...message,
+				is_chat_message: true,
+				is_appended: true
+			});
+		} else {
+			dialogs.push({
+				...message,
+				is_chat_message: true,
+				is_appended: true
+			});
+		}
+		
+		refresh();
+
+		if (isFrame) {
+			window.parent.postMessage(message, "*");
+		}
+    }
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function beforeReceiveLlmStreamMessage(message) {
 		isStreaming = true;
 		if (dialogs[dialogs.length - 1]?.message_id !== message.message_id
@@ -552,7 +578,8 @@
 		) {
 			dialogs.push({
 				...message,
-				is_chat_message: false
+				is_chat_message: false,
+				is_dummy: true
 			});
 		}
 		refresh();
@@ -566,7 +593,7 @@
 
 		if (!USE_MESSAGE_QUEUE) {
 			if (lastMsg?.sender?.role === UserRole.Assistant
-				&& lastMsg?.message_id === message.message_id
+				&& lastMsg?.is_dummy
 			) {
 				setTimeout(() => {
 					dialogs[dialogs.length - 1].text += message.text;
@@ -593,7 +620,7 @@
 
 			const lastMsg = dialogs[dialogs.length - 1];
 			if (lastMsg?.sender?.role !== UserRole.Assistant
-				|| lastMsg?.message_id !== message.message_id
+				|| !lastMsg?.is_dummy
 			) {
 				continue;
 			}
