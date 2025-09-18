@@ -1078,6 +1078,8 @@
 												on:select={e => changeCollection(e)}
 											/>
 										</div>
+									</div>
+									<div class="collection-add-container">
 										<div
 											class="line-align-center"
 											data-bs-toggle="tooltip"

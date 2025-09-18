@@ -288,6 +288,7 @@
         display: flex;
         gap: 5px;
         justify-content: flex-end;
+        min-width: 300px;
 
         .collection-dropdown {
             width: 100%;
@@ -303,6 +304,12 @@
             outline: none !important;
             box-shadow: none !important;
         }
+    }
+
+    .collection-add-container {
+        display: flex;
+        gap: 5px;
+        justify-content: flex-end;
     }
 
     @media (max-width: 600px) {
