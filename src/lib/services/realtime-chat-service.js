@@ -91,8 +91,8 @@ export const realtimeChat = {
             }
         };
 
-        socket.onclose = () => {
-            console.log("Websocket closed");
+        socket.onclose = (e) => {
+            console.log("Websocket closed", e);
         };
       
         socket.onerror = (/** @type {Event} */ e) => {
@@ -120,7 +120,7 @@ export const realtimeChat = {
             socket.send(JSON.stringify({
                 event: 'disconnect'
             }));
-            socket.close();
+            socket.close(1000, "Normal Closure");
             socket = null;
         }
     }
