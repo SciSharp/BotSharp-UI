@@ -46,7 +46,11 @@ export const realtimeChat = {
                 event: "start",
                 body: {
                     payload: JSON.stringify({
-                        states: buildConversationUserStates(conversationId)
+                        states: buildConversationUserStates(conversationId),
+                        realtime_options: {
+                            input_audio_format: "pcm16",
+                            output_audio_format: "pcm16"
+                        }
                     })
                 }
             }));
