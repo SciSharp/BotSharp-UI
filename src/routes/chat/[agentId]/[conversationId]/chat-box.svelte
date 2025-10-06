@@ -770,8 +770,8 @@
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
-			const resMessageId = await uploadConversationFiles(agentId, convId, files);
-			messageData = { ...messageData, inputMessageId: resMessageId };
+			const obj = await uploadConversationFiles(agentId, convId, files);
+			messageData = { ...messageData, inputMessageId: obj?.messageId };
 			if (!!filePayload) {
 				messageData = {
 					...messageData,

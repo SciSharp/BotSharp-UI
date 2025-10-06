@@ -262,7 +262,7 @@ export async function updateConversationMessage(conversationId, request) {
  * @param {string} agentId The agent id
  * @param {string} converationId The conversation id
  * @param {any[]} files The conversation files
- * @returns {Promise<string>}
+ * @returns {Promise<any>}
  */
 export async function uploadConversationFiles(agentId, converationId, files) {
     const url = replaceUrl(endpoints.fileUploadUrl, {
