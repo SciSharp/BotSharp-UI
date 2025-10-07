@@ -57,7 +57,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
-	import { ChatAction, ConversationTag, EditorType, FileSourceType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { ChatAction, ConversationTag, EditorType, FileSourceType, RichType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
@@ -770,8 +770,8 @@
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
-			const resMessageId = await uploadConversationFiles(agentId, convId, files);
-			messageData = { ...messageData, inputMessageId: resMessageId };
+			const obj = await uploadConversationFiles(agentId, convId, files);
+			messageData = { ...messageData, inputMessageId: obj?.messageId };
 			if (!!filePayload) {
 				messageData = {
 					...messageData,
@@ -1339,7 +1339,10 @@
 	function copyMessage(e, message) {
 		e.preventDefault();
 
-		const text = message?.rich_content?.message?.text || message?.text || '';
+		let text = message?.rich_content?.message?.text || message?.text || '';
+		if (message?.rich_content?.rich_type === RichType.ProgramCode) {
+			text = message?.rich_content?.message?.text;
+		}
 		
 		navigator.clipboard.writeText(text).then(() => {
 			setTimeout(() => {
