@@ -1341,7 +1341,7 @@
 
 		let text = message?.rich_content?.message?.text || message?.text || '';
 		if (message?.rich_content?.message?.rich_type === RichType.ProgramCode) {
-			text = message?.rich_content?.message?.code_script;
+			text = message?.rich_content?.message?.code_script || text;
 		}
 		
 		navigator.clipboard.writeText(text).then(() => {
