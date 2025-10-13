@@ -23,8 +23,7 @@
   {#if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
       && dialog?.rich_content?.message?.language === 'javascript'}
     <RcJsInterpreter message={dialog} scrollable containerStyles={'color: var(--bs-primary);'} />
-  {:else if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
-      && dialog?.rich_content?.message?.language === 'python'}
+  {:else if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode}
     <Markdown
       containerClasses={'dialog-item-text'}
       text={dialog?.text}
