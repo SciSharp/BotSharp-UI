@@ -13,12 +13,14 @@
     import AgentTabs from './agent-tabs.svelte';
     import { page } from '$app/stores';
     import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
     import { _ } from 'svelte-i18n'  
     import Swal from 'sweetalert2'
 	import { goto } from '$app/navigation';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import AgentTemplate from './agent-components/agent-template.svelte';
+	import { globalEventStore } from '$lib/helpers/store';
+	import { GlobalEvent } from '$lib/helpers/enums';
 
     /** @type {import('$agentTypes').AgentModel} */
     let agent;
@@ -30,6 +32,8 @@
     let agentTemplateCmp = null;
     /** @type {any} */
     let agentTabsCmp = null;
+    /** @type {any} */
+	let unsubscriber;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -45,7 +49,20 @@
         }).finally(() => {
             isLoading = false;
         });
+
+        unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
+			if (event.name !== GlobalEvent.Search) return;
+
+            const similarName = event.payload?.trim();
+            if (similarName) {
+                window.location.href = `/page/agent?page=${1}&pageSize=${12}&similarName=${encodeURIComponent(similarName)}`;
+            }
+		});
     });
+
+    onDestroy(() => {
+		unsubscriber?.();
+	});
 
     function updateCurrentAgent() {
         Swal.fire({

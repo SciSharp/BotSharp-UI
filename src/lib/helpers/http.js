@@ -26,9 +26,8 @@ axios.interceptors.response.use(
         // If the request was successful, return the response
         loaderStore.set(false);
         const user = getUserStore();
-
         const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired) {
+        if (isExpired || response?.status === 401) {
             redirectToLogin();
             return Promise.reject('user token expired!');
         }
@@ -39,7 +38,7 @@ axios.interceptors.response.use(
         const user = getUserStore();
         
         const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired || (error.response && error.response.status === 401)) {
+        if (isExpired || error?.response?.status === 401) {
             redirectToLogin();
             return Promise.reject(error);
         } else if (!skipGlobalError(error.config)) {
