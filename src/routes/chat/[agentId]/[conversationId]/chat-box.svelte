@@ -1340,8 +1340,8 @@
 		e.preventDefault();
 
 		let text = message?.rich_content?.message?.text || message?.text || '';
-		if (message?.rich_content?.rich_type === RichType.ProgramCode) {
-			text = message?.rich_content?.message?.text;
+		if (message?.rich_content?.message?.rich_type === RichType.ProgramCode) {
+			text = message?.rich_content?.message?.code_script;
 		}
 		
 		navigator.clipboard.writeText(text).then(() => {

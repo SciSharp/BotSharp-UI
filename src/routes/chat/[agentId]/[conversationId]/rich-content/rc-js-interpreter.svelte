@@ -52,7 +52,7 @@
 
     function initCode() {
         try {
-            const text = message?.rich_content?.message?.text || message?.text || '';
+            const text = message?.rich_content?.message?.code_script || message?.rich_content?.message?.text || message?.text || '';
             const parsedText = marked.lexer(text);
             // @ts-ignore
             const codeText = parsedText.filter(x => !!x.text).map(x => x.text).join('');

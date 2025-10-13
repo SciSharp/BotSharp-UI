@@ -110,6 +110,15 @@ IRichContent.prototype.elements;
 IRichContent.prototype.quick_replies;
 
 /**
+ * The code rich content.
+ *
+ * @name language
+ * @type {string}
+ * @instance
+ */
+IRichContent.prototype.code_script;
+
+/**
  * The language of the code rich content.
  *
  * @name language
