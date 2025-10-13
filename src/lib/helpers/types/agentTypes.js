@@ -32,7 +32,7 @@
  * @property {import('$commonTypes').Pagination} pager - Pagination
  * @property {string[]?} [types]
  * @property {string[]?} [agentNames]
- * @property {string} [similarName]
+ * @property {string?} [similarName]
  * @property {string[]?} [labels]
  * @property {boolean} [isPublic]
  * @property {boolean} [disabled]

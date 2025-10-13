@@ -68,13 +68,16 @@
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
 
+		const similarName = $page.url.searchParams.get("similarName")?.trim();
+
 		filter = {
 			...filter,
 			pager: {
 				...filter.pager,
 				page: pageNum,
 				size: pageSizeNum
-			}
+			},
+			similarName: similarName
 		};
 
 		user = await myInfo();
@@ -92,7 +95,7 @@
 				},
 				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
 				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
-				similarName: event.payload || null
+				similarName: event.payload?.trim() || null
 			};
 
 			getPagedAgents();
@@ -105,7 +108,11 @@
 
   	function getPagedAgents() {
 		isLoading = true;
-    	getAgents(filter, true).then(data => {
+		const innerFilter = {
+			...filter,
+			similarName: filter.similarName ? decodeURIComponent(filter.similarName) : null
+		};
+    	getAgents(innerFilter, true).then(data => {
 			agents = data;
 		}).catch(() => {
 			agents = { items: [], count: 0 };
@@ -171,10 +178,16 @@
 			count: totalItemsCount || 0
 		};
 
-		setUrlQueryParams($page.url, [
+		const queryParams = [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		];
+
+		if (filter.similarName) {
+			queryParams.push({ key: 'similarName', value: encodeURIComponent(filter.similarName) });
+		}
+
+		setUrlQueryParams($page.url, queryParams, () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
 	}
 
 	/**
