@@ -27,8 +27,7 @@
             {#if message?.rich_content?.message?.rich_type === RichType.ProgramCode
                 && message?.rich_content?.message?.language === 'javascript'}
                 <RcJsInterpreter message={message} scrollable />
-            {:else if message?.rich_content?.message?.rich_type === RichType.ProgramCode
-                && message?.rich_content?.message?.language === 'python'}
+            {:else if message?.rich_content?.message?.rich_type === RichType.ProgramCode}
                 <Markdown containerClasses={markdownClasses} text={message?.text} rawText />
             {:else}
                 <Markdown containerClasses={markdownClasses} text={text} rawText />
