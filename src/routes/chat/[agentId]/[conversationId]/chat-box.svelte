@@ -1114,8 +1114,8 @@
 		}).then(async (result) => {
 			if (result.value) {
 				const postback = buildPostback(message?.message_id);
-				deleteConversationMessage(params.conversationId, message?.message_id, true).then(resMessageId => {
-					sendChatMessage(message?.text, { postback: postback, inputMessageId: resMessageId });
+				deleteConversationMessage(params.conversationId, message?.message_id, true).then(res => {
+					sendChatMessage(message?.text, { postback: postback, inputMessageId: res?.messageId });
 				});
 			}
 		});
