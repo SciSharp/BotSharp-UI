@@ -185,7 +185,7 @@ export async function sendNotification(conversationId, text, data = null) {
  * @param {string} conversationId The conversation id
  * @param {string} messageId The target message id to delete
  * @param {boolean} isNewMessage If sending a new message while deleting a message
- * @returns {Promise<string>}
+ * @returns {Promise<any>}
  */
 export async function deleteConversationMessage(conversationId, messageId, isNewMessage = false) {
     let url = replaceUrl(endpoints.conversationMessageDeletionUrl, {
