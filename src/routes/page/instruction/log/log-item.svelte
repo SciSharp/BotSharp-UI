@@ -23,7 +23,7 @@
     <td class="instruction-log-col ellipsis">{item.model}</td>
     <td class="instruction-log-col ellipsis">{item.template_name || 'N/A'}</td>
     <td class="instruction-log-col ellipsis">{item.user_name || 'N/A'}</td>
-    <td class="instruction-log-col ellipsis">{utcToLocal(item.created_time)}</td>
+    <td class="instruction-log-col ellipsis">{utcToLocal(item.created_time, 'MMM D YYYY, hh:mm:ss A')}</td>
     <td>
         <ul class="list-unstyled hstack gap-1 mb-0" style="justify-content: center;">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Detail">
