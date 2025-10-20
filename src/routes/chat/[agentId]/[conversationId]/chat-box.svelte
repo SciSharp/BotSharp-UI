@@ -1179,8 +1179,8 @@
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
 		const postback = buildPostback(truncateMsgId);
-		deleteConversationMessage(params.conversationId, truncateMsgId, true).then(resMessageId => {
-			sendChatMessage(editText, { postback: postback, inputMessageId: resMessageId }).then(() => {
+		deleteConversationMessage(params.conversationId, truncateMsgId, true).then(res => {
+			sendChatMessage(editText, { postback: postback, inputMessageId: res?.messageId }).then(() => {
 				resetEditMsg();
 			}).catch(() => {
 				resetEditMsg();
