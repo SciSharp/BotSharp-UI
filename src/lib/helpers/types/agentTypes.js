@@ -18,6 +18,10 @@
  * @property {number} max_recursion_depth
  * @property {number?} [max_output_tokens]
  * @property {string?} [reasoning_effort_level]
+ * @property {any} [image_generation]
+ * @property {any} [image_edit]
+ * @property {any} [audio_transcription]
+ * @property {any} [realtime]
  */
 
 

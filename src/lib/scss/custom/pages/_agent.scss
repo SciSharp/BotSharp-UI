@@ -143,6 +143,12 @@
     }
 }
 
+.agent-config-container {
+    padding: 10px;
+    border: 1px dashed var(--bs-primary);
+    border-radius: 5px;
+}
+
 .agent-utility-container {
     display: flex;
     flex-direction: column;
@@ -150,6 +156,7 @@
     max-height: 500px;
     overflow-y: auto;
     scrollbar-width: thin;
+    padding: 0px 10px;
 
     .merge-utility {
         display: flex;

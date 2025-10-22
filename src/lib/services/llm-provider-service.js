@@ -1,6 +1,7 @@
 import { endpoints } from './api-endpoints.js';
 import { replaceUrl } from '$lib/helpers/http.js';
 import axios from 'axios';
+import qs from 'qs';
 
 /**
  * Get provider list
@@ -26,19 +27,15 @@ export async function getLlmProviderModels(provider) {
 
 /**
  * Get llm configs
- * @param {import('$commonTypes').LlmConfigOption?} [options]
+ * @param {import('$commonTypes').LlmConfigFilter?} [filter]
  * @returns {Promise<import('$commonTypes').LlmConfig[]>}
  */
-export async function getLlmConfigs(options = null) {
+export async function getLlmConfigs(filter = null) {
     const url = endpoints.llmConfigsUrl;
+    const params = filter != null ? { filter: filter } : null;
     const response = await axios.get(url, {
-        params: {
-            options: options
-        },
-        paramsSerializer: {
-            dots: true,
-            indexes: null,
-        }
+        params: params,
+        paramsSerializer: (params) => qs.stringify(params, { encode: false, allowDots: true, arrayFormat: "indices" })
     });
     return response.data;
 }

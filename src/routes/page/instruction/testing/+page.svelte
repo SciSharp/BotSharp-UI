@@ -72,7 +72,7 @@
             isLoading = true;
             const pagedAgents = await getAgents({ pager: { page: 1, size: 1000, count: 0 } });
             agents = pagedAgents.items || [];
-            llmConfigs = await getLlmConfigs({ type: LlmModelType.Chat });
+            llmConfigs = await getLlmConfigs({ modelTypes: [LlmModelType.Chat] });
         } catch {
             agents = [];
         } finally {

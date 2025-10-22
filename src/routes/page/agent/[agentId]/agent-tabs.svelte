@@ -48,7 +48,7 @@
 
     /** @type {any[]}*/
     let tabs = [
-        { name: 'agent-llm-config', displayText: 'LLm Config' },
+        { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
         { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
