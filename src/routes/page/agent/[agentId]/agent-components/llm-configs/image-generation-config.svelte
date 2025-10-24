@@ -63,12 +63,10 @@
         if (!!!provider) {
             models = [];
             config.model = null;
-            config.reasoning_effort_level = null;
             handleAgentChange();
             return;
         }
 
-        config.is_inherit = false;
         models = getLlmModels(provider);
         config.model = models[0]?.name;
         handleAgentChange();
@@ -76,7 +74,6 @@
 
     /** @param {any} e */
     function changeModel(e) {
-        config.is_inherit = false;
         config.model = e.target.value || null;
         handleAgentChange();
     }
