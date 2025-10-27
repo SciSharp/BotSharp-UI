@@ -37,6 +37,10 @@ export const endpoints = {
     agentUtilityOptionsUrl: `${host}/agent/utility/options`,
     agentRuleOptionsUrl: `${host}/rule/triggers`,
     agentLabelsUrl: `${host}/agent/labels`,
+
+    // agent code script:
+    agentCodeScriptListUrl: `${host}/agent/{agentId}/code-scripts`,
+    agentCodeScriptUpdateUrl: `${host}/agent/{agentId}/code-scripts`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,

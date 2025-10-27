@@ -77,6 +77,12 @@ const agentType = {
 };
 export const AgentType = Object.freeze(agentType);
 
+const agentCodeScriptType = {
+    Src: 'src',
+    Test: 'test'
+};
+export const AgentCodeScriptType = Object.freeze(agentCodeScriptType);
+
 const routingMode = {
     Eager: "eager",
     Lazy: "lazy"

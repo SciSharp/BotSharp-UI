@@ -28,9 +28,7 @@
 		getPagingQueryParams,
 		setUrlQueryParams,
 		goToUrl,
-
 		convertTimeRange
-
 	} from '$lib/helpers/utils/common';
 	
 

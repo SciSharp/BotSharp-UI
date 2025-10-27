@@ -109,6 +109,34 @@
  * @property {string} [direct_agent_id] - Run task directly in this agent.
  */
 
+/** 
+ * @typedef {Object} AgentCodeScriptFilter
+ * @property {string[]?} [scriptNames]
+ * @property {string[]?} [scriptTypes]
+ */
+
+
+/** 
+ * @typedef {Object} AgentCodeScriptViewModel
+ * @property {string?} [uid]
+ * @property {string} name
+ * @property {string} content
+ * @property {string} script_type
+ */
+
+/** 
+ * @typedef {Object} AgentCodeScriptUpdateOptions
+ * @property {boolean?} [delete_if_not_included]
+ * @property {boolean?} [is_upsert]
+ */
+
+/** 
+ * @typedef {Object} AgentCodeScriptUpdateModel
+ * @property {AgentCodeScriptViewModel[]?} [code_scripts]
+ * @property {AgentCodeScriptUpdateOptions?} [options]
+ */
+
+
 /**
  * @typedef {Object} ChannelInstruction
  * @property {string} [uid]
