@@ -2,7 +2,14 @@
     import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
-    import { Button, Card, CardBody, Col, Input, Row } from '@sveltestrap/sveltestrap';
+    import { Button, Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
+    import CodeMirror from "svelte-codemirror-editor";
+    import { indentUnit, indentOnInput, indentService } from "@codemirror/language";
+    import { keymap } from "@codemirror/view";
+    import { defaultKeymap, history, indentWithTab, historyKeymap } from "@codemirror/commands";
+    import { EditorState } from "@codemirror/state";
+    import { python } from "@codemirror/lang-python";
+	import { oneDark } from "@codemirror/theme-one-dark";
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
@@ -11,7 +18,38 @@
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
-	
+
+    const defaultScript = `# Python Demo
+def greet(name):
+    print(f"Hello, {name}!")
+
+if __name__ == "__main__":
+    greet('AI')
+`;
+
+    const extensions = [
+        python(),
+        indentUnit.of("    "),
+        EditorState.tabSize.of(4),
+        indentOnInput(),
+        indentService.of((context, pos) => {
+            const prevLine = pos > 0 ? context.state.doc.lineAt(pos - 1) : null;
+            if (prevLine) {
+                const prevText = prevLine.text;
+                const match = prevText.match(/^(\s*)/);
+                const baseIndent = match ? match[1].length : 0;
+
+                // Check if previous line ends with : (control structure)
+                if (prevText.trimEnd().endsWith(':')) {
+                    return baseIndent + 4;
+                }
+                return baseIndent;
+            }
+            return 0;
+        }),
+        history(),
+        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab])
+    ];
 
     /** @type {boolean} */
     let isLoading = false;
@@ -76,14 +114,14 @@
         selectedAgentId = selectedValues.length > 0 ? selectedValues[0] : null;
 
         if (!!selectedAgentId) {
-            loadAgentCodeScripts(selectedAgentId);
+            initAgentCodeScripts(selectedAgentId);
         } else {
             refreshScriptObj([]);
         }
 	}
 
     /** @param {string} agentId */
-    function loadAgentCodeScripts(agentId) {
+    function initAgentCodeScripts(agentId) {
         return new Promise((resolve, reject) => {
             getAgentCodeScripts(agentId).then(res => {
                 refreshScriptObj(res);
@@ -99,15 +137,19 @@
      */
     function refreshScriptObj(scripts) {
         const srcs = scripts?.filter(x => x.script_type === AgentCodeScriptType.Src)?.map(x => ({ ...x, uid: uuidv4() })) || [];
+        const foundSrc = srcs.find(x => x.name === srcScriptObj?.selectedScript?.name);
         srcScriptObj = {
+            ...srcScriptObj,
             scripts: srcs,
-            selectedScript: srcs.length > 0 ? srcs[0] : null
+            selectedScript: foundSrc ? foundSrc : srcs.length > 0 ? srcs[0] : null
         };
 
         const tests = scripts?.filter(x => x.script_type === AgentCodeScriptType.Test)?.map(x => ({ ...x, uid: uuidv4() })) || [];
+        const foundTest = srcs.find(x => x.name === srcScriptObj?.selectedScript?.name);
         testScriptObj = {
+            ...testScriptObj,
             scripts: tests,
-            selectedScript: tests.length > 0 ? tests[0] : null
+            selectedScript: foundTest ? foundTest : tests.length > 0 ? tests[0] : null
         };
     }
 
@@ -121,8 +163,8 @@
                 ...srcScriptObj.scripts,
                 {
                     uid: uuidv4(),
-                    name: '',
-                    content: '',
+                    name: `src_${srcScriptObj.scripts.length}.py`,
+                    content: defaultScript,
                     script_type: AgentCodeScriptType.Src
                 }
             ];
@@ -136,8 +178,8 @@
                 ...testScriptObj.scripts,
                 {
                     uid: uuidv4(),
-                    name: '',
-                    content: '',
+                    name: `test_${testScriptObj.scripts.length}.py`,
+                    content: defaultScript,
                     script_type: AgentCodeScriptType.Test
                 }
             ];
@@ -190,7 +232,6 @@
 	 */
     function changeScriptContent(e, uid, scriptType) {
         let obj = null;
-
         if (scriptType === AgentCodeScriptType.Src) {
             obj = srcScriptObj;
         } else if (scriptType === AgentCodeScriptType.Test) {
@@ -199,7 +240,7 @@
 
         const found = obj?.scripts?.find(x => x.uid === uid);
         if (found) {
-            found.content = e.target.value;
+            found.content = e.detail;
         }
     }
 
@@ -214,7 +255,8 @@
         const uniqueTestScripts = testScriptObj.scripts.filter(x => x.name?.trim()).filter((script, index, self) =>
             index === self.findIndex(s => s.name === script.name)
         );
-        const scripts = [...uniqueSrcScripts, ...uniqueTestScripts].map(x => ({...x, name: x.name.trim() }));
+        const scripts = [...uniqueSrcScripts, ...uniqueTestScripts].map(x => ({...x, name: x.name.trim() }))
+                                                                   .filter(x => x.name.endsWith('.py'));
 
         const update = {
             code_scripts: scripts,
@@ -251,7 +293,7 @@
         if (!selectedAgentId) {
             return;
         }
-        loadAgentCodeScripts(selectedAgentId);
+        initAgentCodeScripts(selectedAgentId);
     }
 </script>
 
@@ -286,6 +328,14 @@
                 <div class="mb-2" style="display: flex; gap: 10px;">
                     <div class="line-align-center fw-bold">
                         Source scripts
+                    </div>
+                    <div class="line-align-center">
+                        <div class="line-align-center" id="src-tooltip">
+                            <i class="bx bx-info-circle" />
+                        </div>
+                        <Tooltip target="src-tooltip" placement="top">
+                            <div>Support python only</div>
+                        </Tooltip>
                     </div>
                     {#if !!selectedAgentId}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -331,15 +381,15 @@
                         />
                         {/each}
                     </NavBar>
-                    <Input
-                        type="textarea"
-                        class="form-control"
-                        style="scrollbar-width: thin; resize: none;"
-                        value={srcScriptObj.selectedScript?.content}
-                        rows={15}
-                        on:input={(e) => changeScriptContent(e, srcScriptObj.selectedScript?.uid, AgentCodeScriptType.Src)}
-                        placeholder="Enter your content"
-                    />
+                    <div class="code-editor">
+                        <CodeMirror
+                            theme={oneDark}
+                            lineWrapping
+                            extensions={extensions}
+                            value={srcScriptObj.selectedScript?.content || ''}
+                            on:change={e => changeScriptContent(e, srcScriptObj.selectedScript?.uid, AgentCodeScriptType.Src)}
+                        />
+                    </div>
                 {/if}
             </Col>
         </Row>
@@ -353,6 +403,14 @@
                 <div class="mb-2" style="display: flex; gap: 10px;">
                     <div class="line-align-center fw-bold">
                         Test scripts
+                    </div>
+                    <div class="line-align-center">
+                        <div class="line-align-center" id="test-tooltip">
+                            <i class="bx bx-info-circle" />
+                        </div>
+                        <Tooltip target="test-tooltip" placement="top">
+                            <div>Support python only</div>
+                        </Tooltip>
                     </div>
                     {#if !!selectedAgentId}
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -398,15 +456,15 @@
                         />
                         {/each}
                     </NavBar>
-                    <Input
-                        type="textarea"
-                        class="form-control"
-                        style="scrollbar-width: thin; resize: none;"
-                        value={testScriptObj.selectedScript?.content}
-                        rows={15}
-                        on:input={(e) => changeScriptContent(e, testScriptObj.selectedScript?.uid, AgentCodeScriptType.Test)}
-                        placeholder="Enter your content"
-                    />
+                    <div class="code-editor">
+                        <CodeMirror
+                            theme={oneDark}
+                            lineWrapping
+                            extensions={extensions}
+                            value={testScriptObj.selectedScript?.content || ''}
+                            on:change={e => changeScriptContent(e, testScriptObj.selectedScript?.uid, AgentCodeScriptType.Test)}
+                        />
+                    </div>
                 {/if}
             </Col>
         </Row>

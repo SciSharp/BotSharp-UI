@@ -274,3 +274,16 @@
         opacity: 1 !important;
     }
 }
+
+.code-editor {
+    max-height: 500px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    resize: none;
+
+    .cm-editor {
+        min-width: 1000px;
+        overflow-x: auto;
+        scrollbar-width: thin;
+    }
+}
