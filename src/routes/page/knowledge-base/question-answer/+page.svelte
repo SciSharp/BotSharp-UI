@@ -202,11 +202,13 @@
 				searchDone = true;
 			});
 		} else {
+			/** @type {import('$knowledgeTypes').SearchKnowledgeRequest} */
 			const params = {
 				text: util.trim(text),
 				confidence: Number(validateConfidenceNumber(confidence)),
 				with_vector: enableVector,
-				filter_groups: innerSearchGroups
+				filter_groups: innerSearchGroups,
+				search_param: { exact_search: false }
 			};
 
 			searchVectorKnowledge(selectedCollection, params).then(res => {

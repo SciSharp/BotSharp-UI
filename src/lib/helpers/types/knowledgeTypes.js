@@ -16,6 +16,7 @@
  * @property {number} [confidence] - Confidence.
  * @property {boolean} [with_vector] - Include vector or not.
  * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
+ * @property {VectorSearchParam} [search_param] - Search params.
  */
 
 /**
@@ -26,6 +27,11 @@
  * @property {string[]} [fields] - Included payload fields.
  * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
  * @property {VectorSort?} [order_by] - Sort by.
+ */
+
+/**
+ * @typedef {Object} VectorSearchParam
+ * @property {boolean?} [exact_search] - Exact search or not.
  */
 
 /**
