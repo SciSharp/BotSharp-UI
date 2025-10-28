@@ -123,7 +123,7 @@
 	}
 
 	function getAgentLabelOptions() {
-		return getAgentLabels().then(res => {
+		return getAgentLabels(3000).then(res => {
 			agentLabelOptions = res?.map(x => ({ label: x, value: x })) || [];
 		}).catch(() => {
 			agentLabelOptions = [];

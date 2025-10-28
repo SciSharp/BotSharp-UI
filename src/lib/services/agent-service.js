@@ -115,11 +115,14 @@ export async function getAgentRuleOptions() {
 
 /**
  * Get agent labels
+ * @param {number?} [size]
  * @returns {Promise<string[]>}
  */
-export async function getAgentLabels() {
+export async function getAgentLabels(size = null) {
     const url = endpoints.agentLabelsUrl;
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: { size: size }
+    });
     return response.data;
 }
 
