@@ -7,10 +7,12 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
     import Select from '$lib/common/Select.svelte';
+    import { myInfo } from '$lib/services/auth-service';
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import ScriptEditor from './script-editor.svelte';
-
+	import { ADMIN_ROLES } from '$lib/helpers/constants';
+	
     /** @type {boolean} */
     let isLoading = false;
     /** @type {boolean} */
@@ -19,6 +21,9 @@
     let isError = false;
     /** @type {number} */
     let duration = 2000;
+
+    /** @type {import('$userTypes').UserModel} */
+	let user;
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentOptions = [];
@@ -47,7 +52,8 @@
     };
 
     onMount(async () => {
-		loadAgentOptions();
+        user = await myInfo();
+		await loadAgentOptions();
 	});
 
     function loadAgentOptions() {
@@ -201,6 +207,7 @@
     bind:scriptObj={testScriptObj}
 />
 
+{#if ADMIN_ROLES.includes(user?.role || '')}
 <Row>
     <div class="hstack gap-2 my-4">
         <Button
@@ -218,4 +225,5 @@
         </Button>
     </div>
 </Row>
+{/if}
 {/if}
