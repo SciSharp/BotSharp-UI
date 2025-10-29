@@ -191,12 +191,12 @@
 
 {#if !!selectedAgentId}
 <ScriptEditor
-    title={'Source'}
+    title={'Source scripts'}
     scriptType={AgentCodeScriptType.Src}
     bind:scriptObj={srcScriptObj}
 />
 <ScriptEditor
-    title={'Test'}
+    title={'Test scripts'}
     scriptType={AgentCodeScriptType.Test}
     bind:scriptObj={testScriptObj}
 />

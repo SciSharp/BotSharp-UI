@@ -117,7 +117,7 @@ if __name__ == "__main__":
             <Col lg="3">
                 <div class="mb-2" style="display: flex; gap: 10px;">
                     <div class="line-align-center fw-bold">
-                        {title} scripts
+                        {title}
                     </div>
                     <div class="line-align-center">
                         <div class="line-align-center" id="src-tooltip">
