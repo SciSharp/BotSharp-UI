@@ -74,6 +74,7 @@
                 bind:this={audioTranscriptionConfigCmp}
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.audio_transcription}
+                modelType={LlmModelType.Audio}
                 modelCapability={LlmModelCapability.AudioTranscription} 
                 {handleAgentChange}
             />
@@ -82,6 +83,7 @@
                 bind:this={realtimeConfigCmp}
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.realtime}
+                modelType={LlmModelType.Realtime}
                 modelCapability={LlmModelCapability.Realtime} 
                 {handleAgentChange}
             />
