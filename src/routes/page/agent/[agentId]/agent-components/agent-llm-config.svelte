@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { Card, CardBody } from '@sveltestrap/sveltestrap';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
-    import { LlmModelCapability } from '$lib/helpers/enums';
+    import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
 	import ChatConfig from './llm-configs/chat-config.svelte';
 	import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
     
@@ -14,14 +14,12 @@
 
     export const fetchLlmConfig = () => {
         const chatConfig = chatConfigCmp?.fetchConfig();
-        const imageGenerationConfig = imageGenerationConfigCmp?.fetchConfig();
-        const imageEditConfig = imageEditConfigCmp?.fetchConfig();
+        const imageCompositionConfig = imageCompositionConfigCmp?.fetchConfig();
         const audioTranscriptionConfig = audioTranscriptionConfigCmp?.fetchConfig();
         const realtimeConfig = realtimeConfigCmp?.fetchConfig();
         return {
             ...chatConfig,
-            image_generation: imageGenerationConfig ? {...imageGenerationConfig} : null,
-            image_edit: imageEditConfig ? {...imageEditConfig} : null,
+            image_composition: imageCompositionConfig ? {...imageCompositionConfig} : null,
             audio_transcription: audioTranscriptionConfig ? {...audioTranscriptionConfig} : null,
             realtime: realtimeConfig ? {...realtimeConfig} : null
         };
@@ -30,9 +28,7 @@
     /** @type {any} */
     let chatConfigCmp;
     /** @type {any} */
-    let imageGenerationConfigCmp;
-    /** @type {any} */
-    let imageEditConfigCmp;
+    let imageCompositionConfigCmp;
     /** @type {any} */
     let audioTranscriptionConfigCmp;
     /** @type {any} */
@@ -65,19 +61,12 @@
                 {handleAgentChange}
             />
             <LlmBasicConfig
-                title="Image Generation"
-                bind:this={imageGenerationConfigCmp}
+                title="Image Composition"
+                bind:this={imageCompositionConfigCmp}
                 llmConfigOptions={llmConfigs}
-                llmConfig={agent.llm_config?.image_generation}
-                modelCapability={LlmModelCapability.ImageGeneration} 
-                {handleAgentChange}
-            />
-            <LlmBasicConfig
-                title="Image Edit"
-                bind:this={imageEditConfigCmp}
-                llmConfigOptions={llmConfigs}
-                llmConfig={agent.llm_config?.image_edit}
-                modelCapability={LlmModelCapability.ImageEdit} 
+                llmConfig={agent.llm_config?.image_composition}
+                modelType={LlmModelType.Image}
+                modelCapability={LlmModelCapability.ImageComposition} 
                 {handleAgentChange}
             />
             <LlmBasicConfig
