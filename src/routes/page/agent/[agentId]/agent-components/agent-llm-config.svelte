@@ -58,7 +58,12 @@
         </div>
 
         <div class="agent-utility-container">
-            <ChatConfig bind:this={chatConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
+            <ChatConfig
+                bind:this={chatConfigCmp}
+                {agent}
+                {llmConfigs}
+                {handleAgentChange}
+            />
             <LlmBasicConfig
                 title="Image Generation"
                 bind:this={imageGenerationConfigCmp}
