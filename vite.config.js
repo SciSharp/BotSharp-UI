@@ -15,6 +15,16 @@ export default defineConfig({
 		  "svelte-select",
 		  'lodash.get', 'lodash.isequal', 'lodash.clonedeep'
 		],
+		exclude: [
+			"svelte-codemirror-editor",
+			"codemirror",
+			"@codemirror/lang-python",
+			"@codemirror/view",
+			"@codemirror/state",
+			"@codemirror/language",
+			"@codemirror/commands",
+			"@codemirror/theme-one-dark"
+		]
 	},	
 	server: {
 		port: 5015,

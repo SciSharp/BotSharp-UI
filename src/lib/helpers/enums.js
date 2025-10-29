@@ -77,6 +77,12 @@ const agentType = {
 };
 export const AgentType = Object.freeze(agentType);
 
+const agentCodeScriptType = {
+    Src: 'src',
+    Test: 'test'
+};
+export const AgentCodeScriptType = Object.freeze(agentCodeScriptType);
+
 const routingMode = {
     Eager: "eager",
     Lazy: "lazy"
@@ -203,13 +209,33 @@ const globalEvent = {
 export const GlobalEvent = Object.freeze(globalEvent);
 
 const llmModelType = {
-    Text: 1,
-    Chat: 2,
-    Image: 3,
-    Embedding: 4,
-    Audio: 5
+    All: "All",
+    Text: "Text",
+    Chat: "Chat",
+    Image: "Image",
+    Embedding: "Embedding",
+    Audio: "Audio",
+    Realtime: "Realtime",
+    Web: "Web"
 };
 export const LlmModelType = Object.freeze(llmModelType);
+
+const llmModelCapability = {
+    All: "All",
+    Text: "Text",
+    Chat: "Chat",
+    ImageReading: "ImageReading",
+    ImageGeneration: "ImageGeneration",
+    ImageEdit: "ImageEdit",
+    ImageVariation: "ImageVariation",
+    Embedding: "Embedding",
+    AudioTranscription: "AudioTranscription",
+    AudioGeneration: "AudioGeneration",
+    Realtime: "Realtime",
+    WebSearch: "WebSearch",
+    PdfReading: "PdfReading"
+};
+export const LlmModelCapability = Object.freeze(llmModelCapability);
 
 const reasoningEffortLevel = {
     Minimal: "minimal",

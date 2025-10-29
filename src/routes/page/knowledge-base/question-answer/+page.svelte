@@ -50,6 +50,7 @@
   	const duration = 2000;
 	const maxLength = 4096;
 	const step = 0.1;
+	const searchLimit = 10;
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.QuestionAnswer;
 	
@@ -58,6 +59,7 @@
 	let successText = "Done";
 	let errorText = "Error";
     let confidence = '0.5';
+	let elapsedTime = '';
 
 	/** @type {string} */
 	let selectedCollection;
@@ -116,6 +118,7 @@
 	let textSearch = false;
 	let isAdvSearchOn = false;
 	let disableSearchBtn = false;
+	let isExactSearch = false;
 
 	/** @type {{
 	 * startId: string | null,
@@ -135,10 +138,11 @@
 		sort: null
 	};
 
-	$: disabled = isLoading || isLoadingMore || isSearching;
+	$: disableBase = isLoading || isLoadingMore || isSearching;
+    $: disabled = !selectedCollection || disableBase;
 	$: {
 		disableSearchBtn = false;
-		if (isSearching || isLoadingMore) {
+		if (!selectedCollection || isSearching || isLoadingMore) {
 			disableSearchBtn = true;
 		} else if (textSearch && searchItems.length > 0) {
 			disableSearchBtn = false;
@@ -184,6 +188,8 @@
 		isSearching = true;
 		searchDone = false;
 		isFromSearch = false;
+		elapsedTime = '';
+		const start = new Date();
 
 		innerSearchGroups = buildSearchFilterGroups(searchItems);
 		innerSort = buildSearchSort(sortField, sortOrder);
@@ -200,13 +206,18 @@
 			}).finally(() => {
 				isSearching = false;
 				searchDone = true;
+				const gap = new Date().getTime() - start.getTime();
+            	elapsedTime = `${(gap / 1000).toFixed(3)}s`;
 			});
 		} else {
+			/** @type {import('$knowledgeTypes').SearchKnowledgeRequest} */
 			const params = {
 				text: util.trim(text),
+				limit: searchLimit,
 				confidence: Number(validateConfidenceNumber(confidence)),
 				with_vector: enableVector,
-				filter_groups: innerSearchGroups
+				filter_groups: innerSearchGroups,
+				search_param: { exact_search: isExactSearch }
 			};
 
 			searchVectorKnowledge(selectedCollection, params).then(res => {
@@ -217,6 +228,8 @@
 				isSearching = false;
 				searchDone = true;
 				nextId = null;
+				const gap = new Date().getTime() - start.getTime();
+            	elapsedTime = `${(gap / 1000).toFixed(3)}s`;
 			});
 		}
 	}
@@ -262,11 +275,13 @@
 
 	function resetStates() {
 		text = "";
+		elapsedTime = '';
 		nextId = null;
 		isSearching = false;
 		searchDone = false;
 		isFromSearch = false;
 		textSearch = false;
+		isExactSearch = false;
 		selectedOperator = 'or';
 		innerSearchGroups = [];
 		sortField = '';
@@ -922,8 +937,13 @@
 						bind:value={text}
 						on:keydown={(e) => pressKey(e)}
 					/>
-					<div class="text-secondary text-end text-count">
-						{text?.length || 0}/{maxLength}
+					<div class="text-secondary text-count d-flex justify-content-between">
+						<div>
+							{#if elapsedTime}
+								{`Elapsed time: ${elapsedTime}`}
+							{/if}
+						</div>
+						<div>{text?.length || 0}/{maxLength}</div>
 					</div>
 				
                     <div class="mt-3 knowledge-search-footer">
@@ -976,6 +996,19 @@
 								<span>{'Keyword search'}</span>
 							</div>
 						</div>
+						{#if !textSearch}
+						<div class="search-input justify-content-center">
+							<div class="line-align-center">
+								<Input
+									class='input-text fw-bold'
+									type="checkbox"
+									label="Exact search"
+									disabled={disabled}
+									bind:checked={isExactSearch}
+								/>
+							</div>
+						</div>
+						{/if}
                         <div class="line-align-center">
 							<Button
 								color="primary"
@@ -1088,7 +1121,7 @@
 										>
 											<Button
 												class="btn btn-sm btn-soft-primary collection-action-btn"
-												disabled={disabled}
+												disabled={disableBase}
 												on:click={() => toggleCollectionCreate()}
 											>
 												<i class="mdi mdi-plus" />

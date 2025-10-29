@@ -50,6 +50,7 @@ const config = {
 				"/page/agent",
 				"/page/agent/router",
 				"/page/agent/evaluator",
+				"/page/agent/code-scripts",
 				"/page/agent/reporting/[reportType]",
 				"/page/agent/[agentId]",
 				"/page/agent/[agentId]/build",

@@ -39,10 +39,13 @@
  */
 
 /**
- * @typedef {Object} LlmConfigOption
- * @property {number?} [type]
+ * @typedef {Object} LlmConfigFilter
+ * @property {string[]?} [providers]
+ * @property {string[]?} [modelIds]
+ * @property {string[]?} [modelNames]
+ * @property {string[]?} [modelTypes]
+ * @property {string[]?} [modelCapabilities]
  * @property {boolean?} [multiModal]
- * @property {boolean?} [imageGeneration]
  */
 
 /**
@@ -55,6 +58,8 @@
  * @typedef {Object} LlmModelSetting
  * @property {string} name
  * @property {string} type
+ * @property {string[]} capabilities
+ * @property {boolean} multiModal
  * @property {any} reasoning
  */
 

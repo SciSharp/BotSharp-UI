@@ -72,7 +72,7 @@
             isLoading = true;
             const pagedAgents = await getAgents({ pager: { page: 1, size: 1000, count: 0 } });
             agents = pagedAgents.items || [];
-            llmConfigs = await getLlmConfigs({ type: LlmModelType.Chat });
+            llmConfigs = await getLlmConfigs({ modelTypes: [LlmModelType.Chat] });
         } catch {
             agents = [];
         } finally {
@@ -193,7 +193,7 @@
                 bind:value={text}
                 on:keydown={(e) => pressKey(e)}
             />
-            <div class="text-secondary text-count" style="display: flex; justify-content: space-between;">
+            <div class="text-secondary text-count d-flex justify-content-between">
                 <div>
                     {#if elapsedTime}
                         {`Elapsed time: ${elapsedTime}`}
