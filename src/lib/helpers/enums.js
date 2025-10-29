@@ -228,6 +228,7 @@ const llmModelCapability = {
     ImageGeneration: "ImageGeneration",
     ImageEdit: "ImageEdit",
     ImageVariation: "ImageVariation",
+    ImageComposition: "ImageComposition",
     Embedding: "Embedding",
     AudioTranscription: "AudioTranscription",
     AudioGeneration: "AudioGeneration",
