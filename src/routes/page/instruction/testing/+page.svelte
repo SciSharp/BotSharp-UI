@@ -193,7 +193,7 @@
                 bind:value={text}
                 on:keydown={(e) => pressKey(e)}
             />
-            <div class="text-secondary text-count" style="display: flex; justify-content: space-between;">
+            <div class="text-secondary text-count d-flex justify-content-between">
                 <div>
                     {#if elapsedTime}
                         {`Elapsed time: ${elapsedTime}`}
