@@ -1,12 +1,20 @@
 <script>
     import { Input } from '@sveltestrap/sveltestrap';
-	import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
     
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /** @type {string} */
+    export let title;
+
+    /** @type {string} */
+    export let modelType = '';
+
+    /** @type {string} */
+    export let modelCapability;
+
+    /** @type {any} */
+    export let llmConfig;
 
     /** @type {import('$commonTypes').LlmConfig[]} */
-    export let llmConfigs = [];
+    export let llmConfigOptions = [];
 
     /** @type {() => void} */
     export let handleAgentChange = () => {};
@@ -15,7 +23,7 @@
         if (!config.provider && !config.model) {
             return null;
         }
-
+        
         return {
             ...config,
             provider: config.provider || null,
@@ -23,10 +31,8 @@
         };
     }
 
-    let config = agent.llm_config?.realtime || {};
-
     /** @type {import('$commonTypes').LlmConfig[]} */
-    let innerLlmConfigs = [];
+    let innerLlmConfigOptions = [];
 
     /** @type {string[]} */
     let providers = [];
@@ -34,10 +40,11 @@
     /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
 
+    let config = llmConfig || {};
     $: {
-        if (llmConfigs.length > 0 && innerLlmConfigs.length === 0) {
-            innerLlmConfigs = llmConfigs;
-            const innerProviders = innerLlmConfigs.filter(x => x.models?.some(y => y.type === LlmModelType.Realtime || y.capabilities?.includes(LlmModelCapability.Realtime)));
+        if (llmConfigOptions.length > 0 && innerLlmConfigOptions.length === 0) {
+            innerLlmConfigOptions = llmConfigOptions;
+            const innerProviders = innerLlmConfigOptions.filter(x => x.models?.some(y => (!!modelType && y.type === modelType) || y.capabilities?.includes(modelCapability)));
             providers = ['', ...innerProviders.map(x => x.provider)];
             if (!!config.provider) {
                 models = getLlmModels(config.provider);
@@ -51,8 +58,8 @@
 
     /** @param {string} provider */
     function getLlmModels(provider) {
-        return innerLlmConfigs.find(x => x.provider === provider)?.models
-                             ?.filter(x => x.type === LlmModelType.Realtime || x.capabilities?.includes(LlmModelCapability.Realtime)) || [];
+        return innerLlmConfigOptions.find(x => x.provider === provider)?.models
+                                   ?.filter(x => (!!modelType && x.type === modelType) || x.capabilities?.includes(modelCapability)) || [];
     }
 
     /** @param {any} e */
@@ -81,7 +88,7 @@
 
 <div class="agent-config-container">
     <div class="text-center">
-        <h6 class="mt-1 mb-2">Realtime</h6>
+        <h6 class="mt-1 mb-2">{title}</h6>
     </div>
 
     <div class="mb-3 row">

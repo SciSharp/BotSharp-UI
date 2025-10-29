@@ -2,11 +2,9 @@
     import { onMount } from 'svelte';
     import { Card, CardBody } from '@sveltestrap/sveltestrap';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
+    import { LlmModelCapability } from '$lib/helpers/enums';
 	import ChatConfig from './llm-configs/chat-config.svelte';
-	import ImageGenerationConfig from './llm-configs/image-generation-config.svelte';
-	import ImageEditConfig from './llm-configs/image-edit-config.svelte';
-	import AudioTranscriptionConfig from './llm-configs/audio-transcription-config.svelte';
-	import RealtimeConfig from './llm-configs/realtime-config.svelte';
+	import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
     
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -49,7 +47,6 @@
 
     async function init() {
         llmConfigs = await getLlmConfigs();
-        
     }
 </script>
 
@@ -62,10 +59,38 @@
 
         <div class="agent-utility-container">
             <ChatConfig bind:this={chatConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
-            <ImageGenerationConfig bind:this={imageGenerationConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
-            <ImageEditConfig bind:this={imageEditConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
-            <AudioTranscriptionConfig bind:this={audioTranscriptionConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
-            <RealtimeConfig bind:this={realtimeConfigCmp} {agent} {llmConfigs} {handleAgentChange} />
+            <LlmBasicConfig
+                title="Image Generation"
+                bind:this={imageGenerationConfigCmp}
+                llmConfigOptions={llmConfigs}
+                llmConfig={agent.llm_config?.image_generation}
+                modelCapability={LlmModelCapability.ImageGeneration} 
+                {handleAgentChange}
+            />
+            <LlmBasicConfig
+                title="Image Edit"
+                bind:this={imageEditConfigCmp}
+                llmConfigOptions={llmConfigs}
+                llmConfig={agent.llm_config?.image_edit}
+                modelCapability={LlmModelCapability.ImageEdit} 
+                {handleAgentChange}
+            />
+            <LlmBasicConfig
+                title="Audio Transcription"
+                bind:this={audioTranscriptionConfigCmp}
+                llmConfigOptions={llmConfigs}
+                llmConfig={agent.llm_config?.audio_transcription}
+                modelCapability={LlmModelCapability.AudioTranscription} 
+                {handleAgentChange}
+            />
+            <LlmBasicConfig
+                title="Realtime"
+                bind:this={realtimeConfigCmp}
+                llmConfigOptions={llmConfigs}
+                llmConfig={agent.llm_config?.realtime}
+                modelCapability={LlmModelCapability.Realtime} 
+                {handleAgentChange}
+            />
         </div>
     </CardBody>
 </Card>
