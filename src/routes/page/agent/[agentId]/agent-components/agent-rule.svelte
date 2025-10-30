@@ -1,16 +1,31 @@
 <script>
     import { onMount } from 'svelte';
+    import Swal from 'sweetalert2';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-	import { getAgentRuleOptions } from '$lib/services/agent-service';
+	import { getAgentRuleOptions, generateAgentCodeScript } from '$lib/services/agent-service';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
-	import { ADMIN_ROLES } from '$lib/helpers/constants';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+    import { ADMIN_ROLES } from '$lib/helpers/constants';
+	import { AgentCodeScriptType } from '$lib/helpers/enums';
 
     const limit = 100;
     const textLimit = 1024;
-
+    
+    /** @type {boolean} */
+    let isLoading = false;
+    /** @type {boolean} */
+    let isComplete = false;
+    /** @type {boolean} */
+    let isError = false;
+    /** @type {number} */
+    let duration = 2000;
     let windowWidth = 0;
     let windowHeight = 0;
+
+    /** @type {string} */
+    let successText = '';
+    let errorText = '';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -145,6 +160,72 @@
         handleAgentChange();
     }
 
+    /**
+	 * @param {import("$agentTypes").AgentRule} rule
+	 */
+    function compileCodeScript(rule) {
+        Swal.fire({
+            title: 'Are you sure?',
+            html: `
+                <div>
+                    <p>Are you sure you want to generate code script <b>"${rule.trigger_name}_rule.py"</b>?</p>
+                    <p>This action will overwrite existing code script if any.</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+			cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        }).then(async (result) => {
+            if (result.value) {
+                generateCodeScript(rule);
+            }
+        });
+    }
+
+    /**
+	 * @param {import("$agentTypes").AgentRule} rule
+	 */
+    function generateCodeScript(rule) {
+        return new Promise((resolve, reject) => {
+            isLoading = true;
+            generateAgentCodeScript(agent.id, {
+                text: rule.criteria,
+                options: {
+                    save_to_db: true,
+                    script_name: `${rule.trigger_name}_rule.py`,
+                    script_type: AgentCodeScriptType.Src,
+                    // to do:
+                    // agent_id: agent.id,
+                    // template_name: "rule"
+                }
+            }).then(res => {
+                if (res?.success) {
+                    isLoading = false;
+                    isComplete = true;
+                    successText = "Code script has been generated!";
+                    setTimeout(() => {
+                        isComplete = false;
+                        successText = "";
+                    }, duration);
+                    resolve(res);
+                }  else {
+                    throw "error when generating code script.";
+                }
+            }).catch(() => {
+                isLoading = false;
+                isComplete = false;
+                isError = true;
+                errorText = "Failed to generate code script.";
+                setTimeout(() => {
+                    isError = false;
+                    errorText = "";
+                }, duration);
+                reject();
+            });
+        });
+    }
+
 
     /** @param {import('$agentTypes').AgentRule[]} list */
     function innerRefresh(list) {
@@ -175,6 +256,8 @@
 </script>
 
 <svelte:window on:resize={() => resizeWindow()}/>
+
+<LoadingToComplete {isLoading} {isComplete} {isError} {successText} {errorText} />
 
 <Card>
     <CardBody>
@@ -248,7 +331,13 @@
                                             data-bs-placement="top"
                                             title="Compile code script"
                                         >
-                                            <i class="mdi mdi-file-code" />
+                                            <i
+                                                class="mdi mdi-file-code"
+                                                role="link"
+                                                tabindex="0"
+                                                on:keydown={() => {}}
+                                                on:click={() => compileCodeScript(rule)}
+                                            />
                                         </div>
                                         {/if}
                                     </div>
