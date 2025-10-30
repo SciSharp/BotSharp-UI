@@ -4,7 +4,7 @@
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { truncateByPrefix } from '$lib/helpers/utils/common';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import BotSharpTooltip from '$lib/common/tooltip/BotSharpTooltip.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 
     const limit = 100;
     const prefix = "util-";
@@ -446,7 +446,7 @@
                                                     style="font-size: 15px;"
                                                     id={`utility-${uid}-${fid}`}
                                                 />
-                                                <BotSharpTooltip
+                                                <BotsharpTooltip
                                                     containerClasses="agent-utility-desc"
                                                     style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                     target={`utility-${uid}-${fid}`}
@@ -460,7 +460,7 @@
                                                         containerStyles={`max-width: ${Math.floor(windowWidth*0.55)}px;`}
                                                         text={description}
                                                     />
-                                                </BotSharpTooltip>
+                                                </BotsharpTooltip>
                                             </div>
                                             {/if}
                                         </div>

@@ -1,26 +1,23 @@
 <script>
-	import {
-		Col,
-		Row,
-        Button
-	} from '@sveltestrap/sveltestrap';
+    import { onDestroy, onMount } from 'svelte';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import { _ } from 'svelte-i18n'; 
+    import Swal from 'sweetalert2';
+	import { Col, Row, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import AgentInstruction from './agent-components/agent-instruction.svelte';
+    import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
+	import { AgentExtensions } from '$lib/helpers/utils/agent';
+	import { globalEventStore } from '$lib/helpers/store';
+	import { GlobalEvent } from '$lib/helpers/enums';
+	import { myInfo } from '$lib/services/auth-service';
+    import AgentInstruction from './agent-components/agent-instruction.svelte';
 	import AgentOverview from './agent-components/agent-overview.svelte';
     import AgentFunction from './agent-components/agent-function.svelte';
     import AgentTabs from './agent-tabs.svelte';
-    import { page } from '$app/stores';
-    import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
-    import { onDestroy, onMount } from 'svelte';
-    import { _ } from 'svelte-i18n'  
-    import Swal from 'sweetalert2'
-	import { goto } from '$app/navigation';
-	import { AgentExtensions } from '$lib/helpers/utils/agent';
-	import AgentTemplate from './agent-components/agent-template.svelte';
-	import { globalEventStore } from '$lib/helpers/store';
-	import { GlobalEvent } from '$lib/helpers/enums';
+    import AgentTemplate from './agent-components/agent-template.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     let agent;
@@ -34,6 +31,8 @@
     let agentTabsCmp = null;
     /** @type {any} */
 	let unsubscriber;
+    /** @type {import('$userTypes').UserModel} */
+	let user;
 
     /** @type {boolean} */
     let isLoading = false;
@@ -42,13 +41,11 @@
     const duration = 3000;
     const params = $page.params;
 
-    onMount(() => {
+    onMount(async () => {
         isLoading = true;
-        getAgent(params.agentId).then(data => {
-            agent = data;
-        }).finally(() => {
-            isLoading = false;
-        });
+        user = await myInfo();
+        agent = await getAgent(params.agentId);
+        isLoading = false;
 
         unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
@@ -203,6 +200,7 @@
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
+                    user={user}
                 />
             </div>
         </Col>

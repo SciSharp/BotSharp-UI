@@ -41,6 +41,7 @@ export const endpoints = {
     // agent code script:
     agentCodeScriptListUrl: `${host}/agent/{agentId}/code-scripts`,
     agentCodeScriptUpdateUrl: `${host}/agent/{agentId}/code-scripts`,
+    agentCodeScriptGenerateUrl: `${host}/agent/{agentId}/code-script/generate`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,

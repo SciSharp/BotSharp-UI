@@ -75,7 +75,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
         new RegExp('http(s*)://(.*?)/users', 'g'),
         new RegExp('http(s*)://(.*?)/instruct/chat-completion', 'g'),
-        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g')
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-script/generate', 'g')
     ];
 
     /** @type {RegExp[]} */
