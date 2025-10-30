@@ -204,6 +204,8 @@
  * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {any?} [output_args]
+ * @property {string?} [json_args]
  */
 
 

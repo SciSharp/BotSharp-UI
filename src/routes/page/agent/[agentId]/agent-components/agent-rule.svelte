@@ -2,12 +2,18 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getAgentRuleOptions } from '$lib/services/agent-service';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
+	import { ADMIN_ROLES } from '$lib/helpers/constants';
 
     const limit = 100;
-    const textLimit = 200;
+    const textLimit = 1024;
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
+
+    /** @type {import('$userTypes').UserModel} */
+    export let user;
 
     /** @type {() => void} */
     export let handleAgentChange = () => {};
@@ -49,22 +55,23 @@
             const list = data?.map(x => {
                 return {
                     name: x.trigger_name,
-                    displayName: ""
+                    displayName: "",
+                    json_args: x.json_args
                 };
             }) || [];
             ruleOptions = [{
                 name: "",
                 displayName: ""
             }, ...list];
+            init();
         });
-        init();
     });
 
     function init() {
         const list = agent.rules?.map(x => {
             return {
                 ...x,
-                displayName: "",
+                displayName: ""
             };
         }) || [];
         innerRefresh(list);
@@ -138,11 +145,14 @@
     /** @param {import('$agentTypes').AgentRule[]} list */
     function innerRefresh(list) {
         innerRules = list?.map(x => {
+            const found = ruleOptions.find(y => y.name === x.trigger_name);
             return {
-                trigger_name: x.trigger_name,
-                criteria: x.criteria,
-                displayName: x.displayName,
-                disabled: x.disabled
+                ...x,
+                // json_args: found?.json_args
+                json_args: `\`\`\`json\n${JSON.stringify({
+                    test: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the mo',
+                    name: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Mal'
+                }, null, 2)}\n\`\`\``
             }
         }) || [];
     }
@@ -220,19 +230,61 @@
                         <div class="utility-content">
                             <div class="utility-list-item">
                                 <div class="utility-label line-align-center">
-                                    {'Criteria'}
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Criteria'}
+                                        </div>
+                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name}
+                                        <div
+                                            class="line-align-center clickable text-primary fs-4"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Compile"
+                                        >
+                                            <i class="mdi mdi-file-code" />
+                                        </div>
+                                        {/if}
+                                    </div>
                                 </div>
                                 <div class="utility-value">
                                     <div class="utility-input line-align-center">
                                         <Input
-                                            type="text"
+                                            type="textarea"
+                                            style="resize: none;"
+                                            rows={5}
                                             disabled={rule.disabled}
                                             maxlength={textLimit}
                                             value={rule.criteria}
                                             on:input={e => changeContent(e, uid, 'criteria')}
                                         />
                                     </div>
-                                    <div class="utility-delete line-align-center"></div>
+                                    <div class="utility-delete line-align-center">
+                                        {#if rule.json_args}
+                                            <div class="line-align-center">
+                                                <i
+                                                    class="bx bx-info-circle"
+                                                    style="font-size: 15px;"
+                                                    id={`rule-${uid}`}
+                                                />
+                                                <BotsharpTooltip
+                                                    isOpen
+                                                    containerClasses="agent-utility-desc"
+                                                    style={`min-width: 100px;`}
+                                                    target={`rule-${uid}`}
+                                                    placement="right"
+                                                    persist={false}
+                                                >
+                                                    <Markdown
+                                                        rawText
+                                                        scrollable
+                                                        containerClasses={'markdown-div'}
+                                                        containerStyles={`max-width: 500px; max-height: 100px;`}
+                                                        text={rule.json_args}
+                                                    />
+                                                </BotsharpTooltip>
+                                            </div>
+                                        {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>

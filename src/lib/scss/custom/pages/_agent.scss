@@ -268,6 +268,12 @@
     .markdown-div {
         max-height: 500px;
         font-size: 15px;
+
+        pre {
+            white-space: pre !important;
+            margin-top: 1em;
+            margin-bottom: 1em;
+        }
     }
 
     &.show {
