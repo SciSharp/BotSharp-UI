@@ -262,7 +262,7 @@
     .tooltip-inner {
         text-align: start;
         max-width: fit-content;
-        padding: 20px;
+        padding: 5px 10px;
     }
 
     .markdown-div {
@@ -271,6 +271,7 @@
 
         pre {
             white-space: pre !important;
+            width: fit-content;
             margin-top: 1em;
             margin-bottom: 1em;
         }

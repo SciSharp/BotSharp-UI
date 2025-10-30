@@ -9,6 +9,9 @@
     const limit = 100;
     const textLimit = 1024;
 
+    let windowWidth = 0;
+    let windowHeight = 0;
+
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
@@ -51,6 +54,7 @@
     let scrollContainer;
 
     onMount(async () =>{
+        resizeWindow();
         getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
                 return {
@@ -148,11 +152,7 @@
             const found = ruleOptions.find(y => y.name === x.trigger_name);
             return {
                 ...x,
-                // json_args: found?.json_args
-                json_args: `\`\`\`json\n${JSON.stringify({
-                    test: 'Contrary to popular belief, Lorem Ipsum is not simply random text. It has roots in a piece of classical Latin literature from 45 BC, making it over 2000 years old. Richard McClintock, a Latin professor at Hampden-Sydney College in Virginia, looked up one of the mo',
-                    name: 'The standard chunk of Lorem Ipsum used since the 1500s is reproduced below for those interested. Sections 1.10.32 and 1.10.33 from "de Finibus Bonorum et Mal'
-                }, null, 2)}\n\`\`\``
+                json_args: found?.json_args
             }
         }) || [];
     }
@@ -167,7 +167,14 @@
             }, 0);
         }
     }
+
+    function resizeWindow() {
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
+    }
 </script>
+
+<svelte:window on:resize={() => resizeWindow()}/>
 
 <Card>
     <CardBody>
@@ -234,12 +241,12 @@
                                         <div class="line-align-center">
                                             {'Criteria'}
                                         </div>
-                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name}
+                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.criteria?.trim()}
                                         <div
                                             class="line-align-center clickable text-primary fs-4"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
-                                            title="Compile"
+                                            title="Compile code script"
                                         >
                                             <i class="mdi mdi-file-code" />
                                         </div>
@@ -265,20 +272,22 @@
                                                     class="bx bx-info-circle"
                                                     style="font-size: 15px;"
                                                     id={`rule-${uid}`}
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Output arguments"
                                                 />
                                                 <BotsharpTooltip
-                                                    isOpen
                                                     containerClasses="agent-utility-desc"
-                                                    style={`min-width: 100px;`}
+                                                    style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                     target={`rule-${uid}`}
                                                     placement="right"
-                                                    persist={false}
+                                                    persist
                                                 >
                                                     <Markdown
                                                         rawText
                                                         scrollable
                                                         containerClasses={'markdown-div'}
-                                                        containerStyles={`max-width: 500px; max-height: 100px;`}
+                                                        containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                         text={rule.json_args}
                                                     />
                                                 </BotsharpTooltip>
