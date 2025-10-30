@@ -332,7 +332,7 @@
                                             title="Compile code script"
                                         >
                                             <i
-                                                class="mdi mdi-file-code"
+                                                class="mdi mdi-code-braces-box"
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}

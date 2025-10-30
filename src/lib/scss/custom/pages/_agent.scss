@@ -58,7 +58,7 @@
             }
         }
     }
-    
+
     .list-add {
         font-size: 20px;
 
@@ -94,10 +94,10 @@
         @media (max-width: 423px) {
             height: fit-content;
         }
-    
+
         .agent-prompt-container {
             height: 100%;
-    
+
             .agent-prompt-header {
                 background-color: white;
                 padding: 15px;
@@ -167,7 +167,7 @@
             box-shadow: none !important;
         }
     }
-    
+
     .utility-wrapper {
         border: 1px dotted var(--bs-primary);
         border-radius: 5px;
@@ -291,4 +291,49 @@
         overflow-x: auto;
         scrollbar-width: thin;
     }
+}
+
+// Responsive adjustments for utility
+@media (max-width: 768px) {
+  .agent-utility-container {
+    padding: 0 5px;
+
+    .utility-wrapper {
+      .utility-row-primary {
+        flex-direction: column;
+      }
+
+      .utility-row {
+        .utility-label,
+        .utility-value {
+          width: 100%;
+        }
+
+        .utility-value {
+          flex-direction: column;
+        }
+
+        .utility-input,
+        .utility-delete {
+          width: 100%;
+        }
+
+        .utility-delete {
+          display: flex;
+          justify-content: flex-end;
+          align-items: end;
+          margin-top: 6px;
+        }
+      }
+
+      .utility-row-secondary {
+        .utility-content {
+          .utility-list-item {
+            flex-direction: column;
+            gap: 6px;
+          }
+        }
+      }
+    }
+  }
 }

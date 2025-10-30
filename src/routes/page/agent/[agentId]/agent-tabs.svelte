@@ -50,7 +50,7 @@
     let selectedTab;
 
     /** @type {any[]}*/
-    let tabs = [
+    const tabs = [
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
@@ -60,7 +60,7 @@
     ];
 
     onMount(() => {
-        selectedTab = tabs[4]?.name;
+        selectedTab = tabs[0]?.name;
     });
 
     /** @param {string} selected */
