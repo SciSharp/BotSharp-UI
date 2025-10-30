@@ -75,6 +75,7 @@
                 return {
                     name: x.trigger_name,
                     displayName: "",
+                    output_args: x.output_args,
                     json_args: x.json_args
                 };
             }) || [];
@@ -195,6 +196,9 @@
                     save_to_db: true,
                     script_name: `${rule.trigger_name}_rule.py`,
                     script_type: AgentCodeScriptType.Src,
+                    data: {
+                        'rule_args': { ...rule.output_args }
+                    }
                     // to do:
                     // agent_id: agent.id,
                     // template_name: "rule"
@@ -233,6 +237,7 @@
             const found = ruleOptions.find(y => y.name === x.trigger_name);
             return {
                 ...x,
+                output_args: found?.output_args,
                 json_args: found?.json_args
             }
         }) || [];
@@ -363,7 +368,7 @@
                                                     id={`rule-${uid}`}
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
-                                                    title="Output arguments"
+                                                    title="Rule arguments"
                                                 />
                                                 <BotsharpTooltip
                                                     containerClasses="agent-utility-desc"
