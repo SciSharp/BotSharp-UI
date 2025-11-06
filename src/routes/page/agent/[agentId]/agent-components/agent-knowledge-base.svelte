@@ -205,14 +205,14 @@
                                         on:change={e => toggleKnowledgeBase(e, uid)}
                                     />
                                 </div>
-                                <div
+                                <!-- <div
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable knowledgebase"
                                 >
                                     <i class="bx bx-info-circle fs-6" />
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                         <div class="utility-value">

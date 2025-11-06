@@ -235,14 +235,14 @@
                                         on:change={e => toggleMcp(e, uid)}
                                     />
                                 </div>
-                                <div
+                                <!-- <div
                                     class="line-align-center fs-6"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable MCP"
                                 >
                                     <i class="bx bx-info-circle" />
-                                </div>
+                                </div> -->
                             </div>
                         </div>
                         <div class="utility-value">

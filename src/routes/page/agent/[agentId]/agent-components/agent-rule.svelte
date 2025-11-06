@@ -77,7 +77,8 @@
                     name: x.trigger_name,
                     displayName: "",
                     output_args: x.output_args,
-                    json_args: x.json_args
+                    json_args: x.json_args,
+                    statement: x.statement
                 };
             }) || [];
             ruleOptions = [{
@@ -239,7 +240,8 @@
             return {
                 ...x,
                 output_args: found?.output_args,
-                json_args: found?.json_args
+                json_args: found?.json_args,
+                statement: found?.statement
             }
         }) || [];
     }
@@ -287,14 +289,33 @@
                                         on:change={e => toggleRule(e, uid)}
                                     />
                                 </div>
-                                <div
-                                    class="line-align-center fs-6"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Uncheck to disable rule"
-                                >
-                                    <i class="bx bx-info-circle" />
+                                {#if rule.statement}
+                                <div class="line-align-center">
+                                    <i
+                                        class="bx bx-info-circle text-primary fs-6"
+                                        style="padding-top: 2px;"
+                                        id={`rule-statement-${uid}`}
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Rule arguments"
+                                    />
+                                    <BotsharpTooltip
+                                        containerClasses="agent-utility-desc"
+                                        style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                        target={`rule-statement-${uid}`}
+                                        placement="top"
+                                        persist
+                                    >
+                                        <Markdown
+                                            rawText
+                                            scrollable
+                                            containerClasses={'markdown-div'}
+                                            containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                            text={rule.statement}
+                                        />
+                                    </BotsharpTooltip>
                                 </div>
+                                {/if}
                             </div>
                         </div>
                         <div class="utility-value">
@@ -367,7 +388,7 @@
                                             <div class="line-align-center">
                                                 <i
                                                     class="bx bxs-info-circle text-primary fs-5"
-                                                    id={`rule-${uid}`}
+                                                    id={`rule-args-${uid}`}
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"
                                                     title="Rule arguments"
@@ -375,7 +396,7 @@
                                                 <BotsharpTooltip
                                                     containerClasses="agent-utility-desc"
                                                     style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                    target={`rule-${uid}`}
+                                                    target={`rule-args-${uid}`}
                                                     placement="right"
                                                     persist
                                                 >
