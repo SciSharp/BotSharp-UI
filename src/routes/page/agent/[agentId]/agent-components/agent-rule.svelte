@@ -8,6 +8,7 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
     import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
+	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const limit = 100;
     const textLimit = 1024;
@@ -121,7 +122,7 @@
                 disabled: false
             }
         ];
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
@@ -169,7 +170,7 @@
             title: 'Are you sure?',
             html: `
                 <div>
-                    <p>Are you sure you want to generate code script <b>"${rule.trigger_name}_rule.py"</b>?</p>
+                    <p>Are you sure you want to generate code script <b>"${buildScriptName(rule.trigger_name)}"</b>?</p>
                     <p>This action will overwrite existing code script if any.</p>
                 </div>
             `,
@@ -196,7 +197,7 @@
                     agent_id: AI_PROGRAMMER_AGENT_ID,
                     template_name: RULE_TRIGGER_CODE_GENERATE_TEMPLATE,
                     save_to_db: true,
-                    script_name: `${rule.trigger_name}_rule.py`,
+                    script_name: buildScriptName(rule.trigger_name),
                     script_type: AgentCodeScriptType.Src,
                     data: {
                         'args_example': { ...rule.output_args },
@@ -243,15 +244,16 @@
         }) || [];
     }
 
-    function scrollToBottom() {
-        if (scrollContainer) {
-            setTimeout(() => {
-                scrollContainer.scrollTo({
-                    top: scrollContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 0);
+    /** @param {string} name */
+    function buildScriptName(name) {
+        let scriptName = name?.trim();
+        if (!name) {
+            scriptName = 'unknown_rule.py';
+        } else {
+            scriptName = `${scriptName.replace(/\s+/g, "_")}_rule.py`;
         }
+        
+        return scriptName;
     }
 
     function resizeWindow() {
@@ -286,7 +288,7 @@
                                     />
                                 </div>
                                 <div
-                                    class="line-align-center"
+                                    class="line-align-center fs-6"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable rule"
@@ -311,7 +313,7 @@
                             </div>
                             <div class="utility-delete line-align-center">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable"
+                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
@@ -332,12 +334,13 @@
                                         {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.criteria?.trim()}
                                         <div
                                             class="line-align-center clickable text-primary fs-5"
+                                            style="padding-top: 3px;"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title="Compile code script"
                                         >
                                             <i
-                                                class="mdi mdi-code-braces-box"
+                                                class="mdi mdi-play-circle"
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
@@ -363,8 +366,7 @@
                                         {#if rule.json_args}
                                             <div class="line-align-center">
                                                 <i
-                                                    class="bx bx-info-circle"
-                                                    style="font-size: 15px;"
+                                                    class="bx bxs-info-circle text-primary fs-5"
                                                     id={`rule-${uid}`}
                                                     data-bs-toggle="tooltip"
                                                     data-bs-placement="top"

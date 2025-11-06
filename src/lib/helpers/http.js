@@ -112,7 +112,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/logger/instruction/log/keys', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/content-log', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/state-log', 'g'),
-        new RegExp('http(s*)://(.*?)/mcp/server-configs', 'g')
+        new RegExp('http(s*)://(.*?)/mcp/server-configs', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g')
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {

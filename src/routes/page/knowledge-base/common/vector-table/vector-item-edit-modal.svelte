@@ -324,7 +324,7 @@
                                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                                     <!-- svelte-ignore a11y-no-static-element-interactions -->
                                     <i
-                                        class="bx bx-no-entry text-danger clickable"
+                                        class="bx bxs-no-entry text-danger clickable"
                                         on:click={() => removePayloadItem(idx)}
                                     />
                                 </div>

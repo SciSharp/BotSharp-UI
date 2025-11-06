@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
 	import { getServerConfigs } from '$lib/services/mcp-service';
+	import { scrollToBottom } from '$lib/helpers/utils/common';
     
     const limit = 100;
 
@@ -134,7 +135,7 @@
                 functions: []
             }
         ];
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
@@ -211,17 +212,6 @@
         innerRefresh(innerMcps);
         handleAgentChange();
     }
-
-    function scrollToBottom() {
-        if (scrollContainer) {
-            setTimeout(() => {
-                scrollContainer.scrollTo({
-                    top: scrollContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 0);
-        }
-    }
 </script>
 
 <Card>
@@ -246,7 +236,7 @@
                                     />
                                 </div>
                                 <div
-                                    class="line-align-center"
+                                    class="line-align-center fs-6"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable MCP"
@@ -271,7 +261,7 @@
                             </div>
                             <div class="utility-delete line-align-center">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable"
+                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
@@ -321,7 +311,7 @@
                                         </div>
                                         <div class="utility-delete line-align-center">
                                             <i
-                                                class="bx bxs-no-entry text-danger clickable"
+                                                class="bx bxs-no-entry text-danger clickable fs-6"
                                                 role="link"
                                                 tabindex="0"
                                                 on:keydown={() => {}}
@@ -339,7 +329,7 @@
                                     </div>
                                     <div class="utility-value">
                                         <i
-                                            class="bx bx-list-plus add-list clickable"
+                                            class="bx bx-list-plus add-list clickable fs-6"
                                             role="link"
                                             tabindex="0"
                                             on:keydown={() => {}}

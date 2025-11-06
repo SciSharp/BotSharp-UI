@@ -129,20 +129,20 @@
 
 <div class="agent-config-container">
     <div class="text-center">
-        <h6 class="mt-1 mb-2">Chat</h6>
+        <h6 class="mt-1 mb-3">Chat</h6>
         {#if agent.llm_config?.is_inherit}
-            <div class="mb-2">
+            <div class="mb-3">
                 <i class="bx bx-copy"></i> <span class="text-muted">Inherited</span>    
             </div>
         {/if}
     </div>
 
-    <div class="mb-3 row">
-        <label for="example-large" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for="chat-provider" class="col-form-label llm-config-label">
             Provider
         </label>
-        <div class="col-md-9 config-item-container">
-            <Input type="select" value={config.provider} on:change={e => changeProvider(e)}>
+        <div class="llm-config-input">
+            <Input type="select" id="chat-provider" value={config.provider} on:change={e => changeProvider(e)}>
                 {#each providers as option}
                     <option value={option} selected={option == config.provider}>
                         {option}
@@ -152,12 +152,12 @@
         </div>
     </div>
         
-    <div class="mb-3 row">
-        <label for="example-text-input" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for="chat-model" class="col-form-label llm-config-label">
             Model
         </label>
-        <div class="col-md-9">
-            <Input type="select" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
+        <div class="llm-config-input">
+            <Input type="select" id="chat-model" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
                 {#each models as option}
                     <option value={option.name} selected={option.name == config.model}>
                         {option.name}
@@ -167,12 +167,13 @@
         </div>
     </div>
 
-    <div class="mb-3 row">
-        <label for="example-text-input" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for="chat-max-recursive-depth" class="col-form-label llm-config-label">
             Max recursive depth
         </label>
-        <div class="col-md-9">
+        <div class="llm-config-input">
             <Input
+                id="chat-max-recursive-depth"
                 style="text-align: center;"
                 type="number"
                 min={recursiveDepthLowerLimit}
@@ -183,12 +184,13 @@
         </div>
     </div>
 
-    <div class="mb-3 row">
-        <label for="example-text-input" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for="chat-max-output-tokens" class="col-form-label llm-config-label">
             Max output tokens
         </label>
-        <div class="col-md-9">
+        <div class="llm-config-input">
             <Input
+                id="chat-max-output-tokens"
                 style="text-align: center;"
                 type="number"
                 value={config.max_output_tokens}
@@ -199,12 +201,12 @@
     </div>
 
     {#if isReasoningModel}
-    <div class="mb-3 row">
-        <label for="example-text-input" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for="chat-reasoning-effort" class="col-form-label llm-config-label">
             Reasoning effort
         </label>
-        <div class="col-md-9">
-            <Input type="select" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
+        <div class="llm-config-input">
+            <Input type="select" id="chat-reasoning-effort" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
                 {#each reasonLevelOptions as option}
                     <option value={option.value} selected={option.value == config.reasoning_effort_level}>
                         {option.label}

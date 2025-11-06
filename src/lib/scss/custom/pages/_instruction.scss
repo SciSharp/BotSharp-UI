@@ -57,7 +57,7 @@
         justify-content: center;
 
         .instruct-setting-dropdown {
-            width: 60%;
+            width: 75%;
         }
 
         @media (max-width: 992px) {
@@ -72,12 +72,16 @@
     padding: 20px 10px;
 }
 
-.instruct-state-container {
+.instruct-kv-container {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    padding-top: 20px;
 
-    .instruct-state-item {
+    .instruct-kv-item {
         display: flex;
         gap: 30px;
         justify-content: center;

@@ -1,15 +1,18 @@
 <script>
-	import { Button, Input } from '@sveltestrap/sveltestrap';
+    import { Button, Input } from '@sveltestrap/sveltestrap';
+	import { scrollToBottom } from '$lib/helpers/utils/common';
 
-    const maxLength = 3000;
-    const limit = 8;
+    const maxLength = 4096;
+    const limit = 10;
 
-    /** @type {{key: string, value: string | null}[]} */
+    /** @type {import('$commonTypes').KeyValuePair[]} */
     export let states = [];
 
     /** @type {boolean} */
     export let disabled = false;
 
+    /** @type {HTMLElement} */
+    let scrollContainer;
 
     /** @param {number} idx */
     function removeState(idx) {
@@ -23,15 +26,16 @@
             ...states,
             { key: '', value: ''}
         ];
+        scrollToBottom(scrollContainer);
     }
 </script>
 
 
 <div class="instruct-setting-section instruct-setting-padding">
-    <div class="instruct-state-container">
+    <div class="instruct-kv-container" bind:this={scrollContainer}>
         {#each states as state, idx}
-            <div class="instruct-state-item">
-                <div>
+            <div class="instruct-kv-item">
+                <div style="flex: 0.4;">
                     {#if idx === 0}
                     <div class="text-primary mb-1">
                         {'Key'}
@@ -39,13 +43,14 @@
                     {/if}
                     <Input
                         type="text"
+                        name={`state-key-${idx}`}
                         bind:value={state.key}
                         maxlength={maxLength}
                         disabled={disabled}
-                        placeholder="Enter a state"
+                        placeholder="Enter a name"
                     />
                 </div>
-                <div>
+                <div style="flex: 0.4;">
                     {#if idx === 0}
                     <div class="text-primary mb-1">
                         {'Value'}
@@ -53,25 +58,27 @@
                     {/if}
                     <Input
                         type="text"
+                        name={`state-value-${idx}`}
                         bind:value={state.value}
                         maxlength={maxLength}
                         disabled={disabled}
                         placeholder="Enter a value"
                     />
                 </div>
-                <div class="line-align-center" style={`flex: 0 0 13px; margin-top: ${idx === 0 ? '23px' : '0px'}`}>
+                <div class="line-align-center" style={`flex: 0 0 13px; margin-top: ${idx === 0 ? '23px' : '3px'}`}>
                     <div>
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <i
-                            class="bx bx-no-entry text-danger clickable"
+                            class="bx bxs-no-entry text-danger clickable"
                             on:click={() => removeState(idx)}
                         />
                     </div>
                 </div>
             </div>
         {/each}
-        {#if states.length < limit}
+    </div>
+    {#if states.length < limit}
         <div class="text-center">
             <Button 
                 color="link"
@@ -82,6 +89,5 @@
                 Add +
             </Button>
         </div>
-        {/if}
-    </div>
+    {/if}
 </div>`
