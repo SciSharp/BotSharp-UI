@@ -6,7 +6,7 @@
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-    import { ADMIN_ROLES } from '$lib/helpers/constants';
+    import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 
     const limit = 100;
@@ -191,17 +191,17 @@
         return new Promise((resolve, reject) => {
             isLoading = true;
             generateAgentCodeScript(agent.id, {
-                text: rule.criteria,
+                text: '',
                 options: {
+                    agent_id: AI_PROGRAMMER_AGENT_ID,
+                    template_name: RULE_TRIGGER_CODE_GENERATE_TEMPLATE,
                     save_to_db: true,
                     script_name: `${rule.trigger_name}_rule.py`,
                     script_type: AgentCodeScriptType.Src,
                     data: {
-                        'rule_args': { ...rule.output_args }
+                        'args_example': { ...rule.output_args },
+                        'user_request': rule.criteria
                     }
-                    // to do:
-                    // agent_id: agent.id,
-                    // template_name: "rule"
                 }
             }).then(res => {
                 if (res?.success) {
