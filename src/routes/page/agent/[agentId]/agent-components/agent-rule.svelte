@@ -331,7 +331,7 @@
                                         </div>
                                         {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.criteria?.trim()}
                                         <div
-                                            class="line-align-center clickable text-primary fs-4"
+                                            class="line-align-center clickable text-primary fs-5"
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title="Compile code script"
