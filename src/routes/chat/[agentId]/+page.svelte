@@ -1,14 +1,13 @@
 <script>
-    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
-
     // This page is used to initialize a new conversation for client
+    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import { page } from '$app/stores';
     import { onMount } from 'svelte';
     import { newConversation } from '$lib/services/conversation-service.js';
     import { getToken, setToken } from '$lib/services/auth-service.js'
     import { getUserStore } from '$lib/helpers/store.js';
     import { conversationStore } from '$lib/helpers/store.js';
-	import { LEARNER_ID, TRAINING_MODE } from '$lib/helpers/constants';
+	import { LEARNER_AGENT_ID, TRAINING_MODE } from '$lib/helpers/constants';
 
     const params = $page.params;
     
@@ -43,7 +42,7 @@
         const chatUrl = new URL(`chat/${agentId}/${conversationId}`, window.location.origin);
         
         const searchParams = new URLSearchParams();
-        if (agentId === LEARNER_ID) {
+        if (agentId === LEARNER_AGENT_ID) {
             searchParams.append('mode', TRAINING_MODE);
         }
 
