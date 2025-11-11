@@ -1,17 +1,99 @@
 import axios from 'axios';
 import { getUserStore, globalErrorStore, loaderStore } from '$lib/helpers/store.js';
+import { renewToken } from '$lib/services/auth-service';
+
+// Refresh handling state
+let isRefreshing = false;
+
+/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value:any)=>void, reject: (reason?: any)=>void}[]} */
+const failedQueue = [];
+
+/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value:any)=>void, reject: (reason?: any)=>void}[]} */
+const pendingRequestQueue = [];
+
+/**
+ * Wrap renewToken into a Promise that resolves with the new access token string
+ * @param {string} token
+ * @returns {Promise<string>}
+ */
+function refreshAccessToken(token) {
+    return new Promise((resolve, reject) => {
+        renewToken(token, (newToken) => resolve(newToken), () => reject(new Error('Failed to refresh token')));
+    });
+}
+
+/**
+ * Retry queued requests sequentially with the provided token
+ * @param {string} newToken
+ * @returns {Promise<void>}
+ */
+function processQueueSequentially(newToken) {
+    let chain = Promise.resolve();
+    while (failedQueue.length) {
+        const item = failedQueue.shift();
+        if (!item) continue;
+        const { config, resolve, reject } = item;
+        // Ensure headers exists; Axios may use AxiosHeaders type
+        // @ts-ignore
+        config.headers = config.headers || {};
+        // @ts-ignore
+        config.headers.Authorization = `Bearer ${newToken}`;
+        chain = chain.then(() => axios(config).then(resolve).catch(reject));
+    }
+    return chain;
+}
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
     (config) => {
-        // Add your authentication logic here
         const user = getUserStore();
         if (!skipLoader(config)) {
             loaderStore.set(true);
         }
-        // For example, attach an authentication token to the request headers
-        if (user.token)
+
+        // Proactive token refresh: if expired or a refresh is in progress,
+        // queue this request until a new token is available
+        if (isTokenExired() || isRefreshing) {
+            return new Promise((resolve, reject) => {
+                pendingRequestQueue.push({ config, resolve, reject });
+
+                if (!isRefreshing) {
+                    isRefreshing = true;
+                    refreshAccessToken(user?.token || '')
+                        .then((newToken) => {
+                            isRefreshing = false;
+                            // Release queued requests with the new token
+                            while (pendingRequestQueue.length) {
+                                const item = pendingRequestQueue.shift();
+                                if (!item) continue;
+                                const { config: cfg, resolve: res } = item;
+                                // @ts-ignore
+                                cfg.headers = cfg.headers || {};
+                                // @ts-ignore
+                                cfg.headers.Authorization = `Bearer ${newToken}`;
+                                res(cfg);
+                            }
+                        })
+                        .catch((err) => {
+                            isRefreshing = false;
+                            // Reject queued requests and redirect to login
+                            while (pendingRequestQueue.length) {
+                                const item = pendingRequestQueue.shift();
+                                if (item) item.reject(err);
+                            }
+                            redirectToLogin();
+                        });
+                }
+            });
+        }
+
+        // Attach current token if present
+        if (user.token) {
+            // @ts-ignore
+            config.headers = config.headers || {};
+            // @ts-ignore
             config.headers.Authorization = `Bearer ${user.token}`;
+        }
         return config;
     },
     (error) => {
@@ -25,23 +107,46 @@ axios.interceptors.response.use(
     (response) => {
         // If the request was successful, return the response
         loaderStore.set(false);
-        const user = getUserStore();
-        const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired || response?.status === 401) {
-            redirectToLogin();
-            return Promise.reject('user token expired!');
-        }
         return response;
     },
     (error) => {
         loaderStore.set(false);
-        const user = getUserStore();
-        
-        const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired || error?.response?.status === 401) {
-            redirectToLogin();
-            return Promise.reject(error);
-        } else if (!skipGlobalError(error.config)) {
+        const originalRequest = error?.config;
+
+        // If token expired or 401 returned, attempt a single token refresh and
+        // retry failed requests in sequence.
+        if ((error?.response?.status === 401 || isTokenExired()) && originalRequest && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            return new Promise((resolve, reject) => {
+                // Push the current request into the queue
+                failedQueue.push({ config: originalRequest, resolve, reject });
+
+                // Start refresh if not already in progress
+                if (!isRefreshing) {
+                    isRefreshing = true;
+                    const user = getUserStore();
+
+                    refreshAccessToken(user?.token || '')
+                        .then((newToken) => {
+                            isRefreshing = false;
+                            return processQueueSequentially(newToken);
+                        })
+                        .catch((err) => {
+                            isRefreshing = false;
+
+                            // Reject all queued requests
+                            while (failedQueue.length) {
+                                const item = failedQueue.shift();
+                                if (item) item.reject(err);
+                            }
+
+                            redirectToLogin();
+                            throw err;
+                        });
+                }
+            });
+        } else if (!skipGlobalError(originalRequest)) {
             globalErrorStore.set(true);
             setTimeout(() => {
                 globalErrorStore.set(false);
@@ -53,6 +158,10 @@ axios.interceptors.response.use(
     }
 );
 
+function isTokenExired() {
+    const user = getUserStore();
+    return Date.now() / 1000 > user.expires;
+}
 
 function redirectToLogin() {
     const curUrl = window.location.pathname + window.location.search;
@@ -155,7 +264,7 @@ function skipGlobalError(config) {
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g')
     ];
-    
+
     /** @type {RegExp[]} */
     const deleteRegexes = [
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/delete-collection', 'g'),
@@ -201,7 +310,7 @@ export function replaceUrl(url, args) {
 
 /**
  * Replace new line as <br>
- * @param {string} text 
+ * @param {string} text
  * @returns string
  */
 export function replaceNewLine(text) {
@@ -210,7 +319,7 @@ export function replaceNewLine(text) {
 
 /**
  * Replace unnecessary markdown
- * @param {string} text 
+ * @param {string} text
  * @returns {string}
  */
 export function replaceMarkdown(text) {

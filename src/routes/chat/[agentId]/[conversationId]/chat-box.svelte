@@ -21,7 +21,7 @@
 		conversationUserStateStore,
 		conversationUserMessageStore,
 		conversationUserAttachmentStore,
-		resetLocalStorage
+		resetStorage
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
@@ -279,7 +279,7 @@
 	});
 
 	function handleLogoutAction() {
-		resetLocalStorage(true);
+		resetStorage(true);
 	}
 
 	function focusChatTextArea() {
@@ -766,7 +766,7 @@
 		if (!!!messageData?.inputMessageId) {
 			files = getChatFiles();
 		}
-		resetStorage();
+		resetChatStorage();
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
@@ -1148,7 +1148,7 @@
 	async function handleDeleteMessage(messageId) {
 		isSendingMsg = true;
 		clearInstantLogs();
-		resetStorage();
+		resetChatStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
 		isSendingMsg = false;
 	}
@@ -1293,7 +1293,7 @@
 		latestStateLog = null;
 	}
 
-	function resetStorage() {
+	function resetChatStorage() {
 		conversationUserAttachmentStore.reset();
 	}
 

@@ -41,7 +41,7 @@ export const userStore = writable({ id: "", full_name: "", expires: 0, token: nu
 export function getUserStore() {
     if (browser) {
         // Access localStorage only if in the browser context
-        let json = localStorage.getItem(userKey);
+        let json = sessionStorage.getItem(userKey);
         if (json)
             return JSON.parse(json);
         else
@@ -54,7 +54,7 @@ export function getUserStore() {
 
 userStore.subscribe(value => {
     if (browser && value.token) {
-        localStorage.setItem(userKey, JSON.stringify(value));
+        sessionStorage.setItem(userKey, JSON.stringify(value));
     }
 });
 
@@ -219,13 +219,31 @@ const createKnowledgeBaseDocumentStore = () => {
 export const knowledgeBaseDocumentStore = createKnowledgeBaseDocumentStore();
 
 
-export function resetLocalStorage(resetUser = false) {
+export function resetStorage(resetUser = false) {
     conversationUserStateStore.resetAll();
     conversationUserMessageStore.reset();
     conversationUserAttachmentStore.reset();
-    localStorage.removeItem('conversation');
+    clearLocalStorage(['message']);
 
     if (resetUser) {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem(userKey);
+    }
+}
+
+/** @param {string[]?} keyPrefixes */
+function clearLocalStorage(keyPrefixes = null) {
+    if (!keyPrefixes) {
+        localStorage.clear();
+        return;
+    }
+
+    for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (!key) continue;
+
+        const found = keyPrefixes.find(x => key.startsWith(x));
+        if (found) {
+            localStorage.removeItem(key);
+        }
     }
 }

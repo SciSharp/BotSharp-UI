@@ -10,6 +10,7 @@ export const endpoints = {
 
     // user
     tokenUrl: `${host}/token`,
+    renewTokenUrl: `${host}/renew-token`,
     myInfoUrl: `${host}/user/me`,
     usersUrl: `${host}/users`,
     userDetailUrl: `${host}/user/{id}/details`,

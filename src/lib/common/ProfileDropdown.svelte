@@ -1,6 +1,6 @@
 <script>
 	import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem } from '@sveltestrap/sveltestrap';
-	import { resetLocalStorage } from '$lib/helpers/store';
+	import { resetStorage } from '$lib/helpers/store';
 	import { goto } from '$app/navigation';
 	import { browser } from '$app/environment';
 	import { userStore } from '$lib/helpers/store';
@@ -15,7 +15,7 @@
 
 	function logout() {
 		if (browser){	
-			resetLocalStorage(true);
+			resetStorage(true);
 		}
 
 		const chatFrame = document.getElementById(CHAT_FRAME_ID);
