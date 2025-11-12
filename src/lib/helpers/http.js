@@ -1,15 +1,14 @@
 import axios from 'axios';
 import { getUserStore, globalErrorStore, loaderStore } from '$lib/helpers/store.js';
 import { renewToken } from '$lib/services/auth-service';
+import { delay } from './utils/common';
+
+
+/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}[]} */
+const retryQueue = [];
 
 // Refresh handling state
-let isRefreshing = false;
-
-/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value:any)=>void, reject: (reason?: any)=>void}[]} */
-const failedQueue = [];
-
-/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value:any)=>void, reject: (reason?: any)=>void}[]} */
-const pendingRequestQueue = [];
+let isRefreshingToken = false;
 
 /**
  * Wrap renewToken into a Promise that resolves with the new access token string
@@ -22,76 +21,17 @@ function refreshAccessToken(token) {
     });
 }
 
-/**
- * Retry queued requests sequentially with the provided token
- * @param {string} newToken
- * @returns {Promise<void>}
- */
-function processQueueSequentially(newToken) {
-    let chain = Promise.resolve();
-    while (failedQueue.length) {
-        const item = failedQueue.shift();
-        if (!item) continue;
-        const { config, resolve, reject } = item;
-        // Ensure headers exists; Axios may use AxiosHeaders type
-        // @ts-ignore
-        config.headers = config.headers || {};
-        // @ts-ignore
-        config.headers.Authorization = `Bearer ${newToken}`;
-        chain = chain.then(() => axios(config).then(resolve).catch(reject));
-    }
-    return chain;
-}
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
     (config) => {
+        // Add your authentication logic here
         const user = getUserStore();
         if (!skipLoader(config)) {
             loaderStore.set(true);
         }
-
-        // Proactive token refresh: if expired or a refresh is in progress,
-        // queue this request until a new token is available
-        if (isTokenExired() || isRefreshing) {
-            return new Promise((resolve, reject) => {
-                pendingRequestQueue.push({ config, resolve, reject });
-
-                if (!isRefreshing) {
-                    isRefreshing = true;
-                    refreshAccessToken(user?.token || '')
-                        .then((newToken) => {
-                            isRefreshing = false;
-                            // Release queued requests with the new token
-                            while (pendingRequestQueue.length) {
-                                const item = pendingRequestQueue.shift();
-                                if (!item) continue;
-                                const { config: cfg, resolve: res } = item;
-                                // @ts-ignore
-                                cfg.headers = cfg.headers || {};
-                                // @ts-ignore
-                                cfg.headers.Authorization = `Bearer ${newToken}`;
-                                res(cfg);
-                            }
-                        })
-                        .catch((err) => {
-                            isRefreshing = false;
-                            // Reject queued requests and redirect to login
-                            while (pendingRequestQueue.length) {
-                                const item = pendingRequestQueue.shift();
-                                if (item) item.reject(err);
-                            }
-                            redirectToLogin();
-                        });
-                }
-            });
-        }
-
-        // Attach current token if present
+        // Attach an authentication token to the request headers
         if (user.token) {
-            // @ts-ignore
-            config.headers = config.headers || {};
-            // @ts-ignore
             config.headers.Authorization = `Bearer ${user.token}`;
         }
         return config;
@@ -105,7 +45,6 @@ axios.interceptors.request.use(
 // Add a response interceptor to handle 401 errors globally
 axios.interceptors.response.use(
     (response) => {
-        // If the request was successful, return the response
         loaderStore.set(false);
         return response;
     },
@@ -113,38 +52,10 @@ axios.interceptors.response.use(
         loaderStore.set(false);
         const originalRequest = error?.config;
 
-        // If token expired or 401 returned, attempt a single token refresh and
-        // retry failed requests in sequence.
-        if ((error?.response?.status === 401 || isTokenExired()) && originalRequest && !originalRequest._retry) {
-            originalRequest._retry = true;
-
+        // If token expired or 401 returned, attempt a single token refresh and retry requests in queue.
+        if ((error?.response?.status === 401 || isTokenExired()) && originalRequest) {
             return new Promise((resolve, reject) => {
-                // Push the current request into the queue
-                failedQueue.push({ config: originalRequest, resolve, reject });
-
-                // Start refresh if not already in progress
-                if (!isRefreshing) {
-                    isRefreshing = true;
-                    const user = getUserStore();
-
-                    refreshAccessToken(user?.token || '')
-                        .then((newToken) => {
-                            isRefreshing = false;
-                            return processQueueSequentially(newToken);
-                        })
-                        .catch((err) => {
-                            isRefreshing = false;
-
-                            // Reject all queued requests
-                            while (failedQueue.length) {
-                                const item = failedQueue.shift();
-                                if (item) item.reject(err);
-                            }
-
-                            redirectToLogin();
-                            throw err;
-                        });
-                }
+                enqueue({ config: originalRequest, resolve, reject });
             });
         } else if (!skipGlobalError(originalRequest)) {
             globalErrorStore.set(true);
@@ -157,6 +68,59 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
+
+/** 
+ * @param {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}} retryItem 
+ */
+function enqueue(retryItem) {
+    // Push the current request into the queue
+    retryQueue.push({ ...retryItem });
+
+    // Start refresh token
+    if (!isRefreshingToken) {
+        isRefreshingToken = true;
+        const user = getUserStore();
+
+        refreshAccessToken(user?.token || '')
+            .then((newToken) => {
+                const promise = dequeue(newToken);
+                isRefreshingToken = false;
+                return promise;
+            })
+            .catch((err) => {
+                // Reject all queued requests
+                while (retryQueue.length > 0) {
+                    const item = retryQueue.shift();
+                    if (item) {
+                        item.reject(err);
+                    }
+                }
+                isRefreshingToken = false;
+                redirectToLogin();
+            });
+    }
+}
+
+/**
+ * Retry queued requests sequentially
+ * @param {string} newToken
+ * @returns {Promise<void>}
+ */
+function dequeue(newToken) {
+    let chain = Promise.resolve();
+    while (retryQueue.length > 0) {
+        const item = retryQueue.shift();
+        if (!item) continue;
+        const { config, resolve, reject } = item;
+        // @ts-ignore
+        config.headers = config.headers || {};
+        // @ts-ignore
+        config.headers.Authorization = `Bearer ${newToken}`;
+        chain = chain.then(() => delay(20))
+                     .then(() => { axios(config).then(resolve).catch(reject); });
+    }
+    return chain;
+}
 
 function isTokenExired() {
     const user = getUserStore();
