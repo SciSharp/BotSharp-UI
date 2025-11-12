@@ -62,7 +62,7 @@
 		agentIds: [],
 		providers: [],
 		models: [],
-        similarTemplate: '',
+        template: '',
 		timeRange: TimeRange.Today,
 		states: []
 	};
@@ -246,7 +246,7 @@
             agentIds: agentIds,
             providers: providers,
             models: models,
-            similarTemplateName: template,
+            templateNames: template ? [template] : [],
 			startTime: innerTimeRange.startTime,
 			endTime: innerTimeRange.endTime,
 			states: states
