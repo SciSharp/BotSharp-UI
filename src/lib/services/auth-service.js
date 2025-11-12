@@ -46,13 +46,10 @@ export async function getToken(email, password, onSucceed, onError) {
  * @param {(() => void) | null} [onError]
  */
 export async function renewToken(token, onSucceed = null, onError = null) {
-    const headers = {
-        Authorization: `Bearer ${token}`,
-    };
-
     await fetch(endpoints.renewTokenUrl, {
         method: 'POST',
-        headers: headers,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: token, access_token: token }),
     }).then(response => {
         if (response.ok) {
             return response.json();

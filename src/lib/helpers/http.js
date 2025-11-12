@@ -4,23 +4,92 @@ import { renewToken } from '$lib/services/auth-service';
 import { delay } from './utils/common';
 
 
-/** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}[]} */
-const retryQueue = [];
+const retryQueue = {
+    /** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}[]} */
+    queue: [],
 
-// Refresh handling state
-let isRefreshingToken = false;
+    /** @type {boolean} */
+    isRefreshingToken: false,
 
-/**
- * Wrap renewToken into a Promise that resolves with the new access token string
- * @param {string} token
- * @returns {Promise<string>}
- */
-function refreshAccessToken(token) {
-    return new Promise((resolve, reject) => {
-        renewToken(token, (newToken) => resolve(newToken), () => reject(new Error('Failed to refresh token')));
-    });
-}
+    /** @type {number} */
+    timeout: 20,
 
+    /**
+     * refresh access token
+     * @param {string} token
+     * @returns {Promise<string>}
+     */
+    refreshAccessToken(token) {
+        return new Promise((resolve, reject) => {
+            renewToken(token, (newToken) => resolve(newToken), () => reject(new Error('Failed to refresh token')));
+        });
+    },
+
+    /** @param {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}} item */
+    enqueue(item) {
+        this.queue.push(item);
+
+        if (!this.isRefreshingToken) {
+            const user = getUserStore();
+            if (!isTokenExired(user.expires)) {
+                this.dequeue(user.token);
+            } else {
+                this.isRefreshingToken = true;
+                this.refreshAccessToken(user?.token || '')
+                    .then((newToken) => {
+                        this.isRefreshingToken = false;
+                        const promise = this.dequeue(newToken);
+                        return promise;
+                    })
+                    .catch((err) => {
+                        this.isRefreshingToken = false;
+                        // Reject all queued requests
+                        while (this.queue.length > 0) {
+                            const item = this.queue.shift();
+                            if (item) {
+                                item.reject(err);
+                            }
+                        }
+                        redirectToLogin();
+                    });
+            }
+        }
+    },
+
+    /**
+     * @param {string} newToken
+     * @returns {Promise<void>}
+     */
+    dequeue(newToken) {
+        let chain = Promise.resolve();
+        while (this.queue.length > 0) {
+            const item = this.queue.shift();
+            if (!item?.config) {
+                continue;
+            }
+            
+            const { config } = item;
+            // @ts-ignore
+            config.headers = config.headers || {};
+            // @ts-ignore
+            config.headers.Authorization = `Bearer ${newToken}`;
+
+            chain = chain.then(() => delay(this.timeout))
+                         .then(() => {
+                            return new Promise((resolve) => {
+                                axios(config).then((response) => {
+                                    resolve();
+                                    item.resolve(response);
+                                }).catch((err) => {
+                                    resolve();
+                                    item.reject(err);
+                                });
+                            });
+                         });
+        }
+        return chain;
+    }
+};
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
@@ -54,10 +123,13 @@ axios.interceptors.response.use(
         const user = getUserStore();
 
         // If token expired or 401 returned, attempt a single token refresh and retry requests in queue.
-        if ((error?.response?.status === 401 || isTokenExired(user.expires)) && originalRequest && !originalRequest._retried) {
+        if ((error?.response?.status === 401 || isTokenExired(user.expires))
+            && originalRequest
+            && !originalRequest._retried
+            && !originalRequest.url.includes('renew-token')) {
             originalRequest._retried = true;
             return new Promise((resolve, reject) => {
-                enqueue({ config: originalRequest, resolve, reject });
+                retryQueue.enqueue({ config: originalRequest, resolve, reject });
             });
         } else if (!skipGlobalError(originalRequest)) {
             globalErrorStore.set(true);
@@ -70,62 +142,6 @@ axios.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-
-/** 
- * @param {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}} retryItem 
- */
-function enqueue(retryItem) {
-    // Push the current request into the queue
-    retryQueue.push({ ...retryItem });
-
-    // Start refresh token
-    if (!isRefreshingToken) {
-        const user = getUserStore();
-        if (!isTokenExired(user.expires)) {
-            dequeue(user.token);
-        } else {
-            isRefreshingToken = true;
-            refreshAccessToken(user?.token || '')
-                .then((newToken) => {
-                    isRefreshingToken = false;
-                    const promise = dequeue(newToken);
-                    return promise;
-                })
-                .catch((err) => {
-                    isRefreshingToken = false;
-                    // Reject all queued requests
-                    while (retryQueue.length > 0) {
-                        const item = retryQueue.shift();
-                        if (item) {
-                            item.reject(err);
-                        }
-                    }
-                    redirectToLogin();
-                });
-        }
-    }
-}
-
-/**
- * Retry queued requests sequentially
- * @param {string} newToken
- * @returns {Promise<void>}
- */
-function dequeue(newToken) {
-    let chain = Promise.resolve();
-    while (retryQueue.length > 0) {
-        const item = retryQueue.shift();
-        if (!item) continue;
-        const { config, resolve, reject } = item;
-        // @ts-ignore
-        config.headers = config.headers || {};
-        // @ts-ignore
-        config.headers.Authorization = `Bearer ${newToken}`;
-        chain = chain.then(() => delay(20))
-                     .then(() => { axios(config).then(resolve).catch(reject); });
-    }
-    return chain;
-}
 
 /**
  * @param {number} expires

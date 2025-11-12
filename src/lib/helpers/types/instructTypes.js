@@ -28,6 +28,7 @@
  * @property {string[]?} [providers]
  * @property {string[]?} [models]
  * @property {string[]?} [templateNames]
+ * @property {string?} [similarTemplateName]
  * @property {string?} [startTime]
  * @property {string?} [endTime]
  * @property {{key: string, value: string}[]?} [states]
