@@ -48,7 +48,10 @@ export async function getToken(email, password, onSucceed, onError) {
 export async function renewToken(token, onSucceed = null, onError = null) {
     await fetch(endpoints.renewTokenUrl, {
         method: 'POST',
-        headers: { "Content-Type": "application/json" },
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({ refresh_token: token, access_token: token }),
     }).then(response => {
         if (response.ok) {

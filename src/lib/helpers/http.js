@@ -67,7 +67,7 @@ const retryQueue = {
             if (!item?.config) {
                 continue;
             }
-            
+
             const { config } = item;
             // @ts-ignore
             config.headers = config.headers || {};
