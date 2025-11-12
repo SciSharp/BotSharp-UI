@@ -83,11 +83,12 @@ function enqueue(retryItem) {
 
         refreshAccessToken(user?.token || '')
             .then((newToken) => {
-                const promise = dequeue(newToken);
                 isRefreshingToken = false;
+                const promise = dequeue(newToken);
                 return promise;
             })
             .catch((err) => {
+                isRefreshingToken = false;
                 // Reject all queued requests
                 while (retryQueue.length > 0) {
                     const item = retryQueue.shift();
@@ -95,7 +96,6 @@ function enqueue(retryItem) {
                         item.reject(err);
                     }
                 }
-                isRefreshingToken = false;
                 redirectToLogin();
             });
     }
