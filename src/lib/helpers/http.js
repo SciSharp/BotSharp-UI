@@ -50,10 +50,12 @@ axios.interceptors.response.use(
     },
     (error) => {
         loaderStore.set(false);
-        const originalRequest = error?.config;
+        const originalRequest = error?.config || {};
+        const user = getUserStore();
 
         // If token expired or 401 returned, attempt a single token refresh and retry requests in queue.
-        if ((error?.response?.status === 401 || isTokenExired()) && originalRequest) {
+        if ((error?.response?.status === 401 || isTokenExired(user.expires)) && originalRequest && !originalRequest._retried) {
+            originalRequest._retried = true;
             return new Promise((resolve, reject) => {
                 enqueue({ config: originalRequest, resolve, reject });
             });
@@ -78,26 +80,29 @@ function enqueue(retryItem) {
 
     // Start refresh token
     if (!isRefreshingToken) {
-        isRefreshingToken = true;
         const user = getUserStore();
-
-        refreshAccessToken(user?.token || '')
-            .then((newToken) => {
-                isRefreshingToken = false;
-                const promise = dequeue(newToken);
-                return promise;
-            })
-            .catch((err) => {
-                isRefreshingToken = false;
-                // Reject all queued requests
-                while (retryQueue.length > 0) {
-                    const item = retryQueue.shift();
-                    if (item) {
-                        item.reject(err);
+        if (!isTokenExired(user.expires)) {
+            dequeue(user.token);
+        } else {
+            isRefreshingToken = true;
+            refreshAccessToken(user?.token || '')
+                .then((newToken) => {
+                    isRefreshingToken = false;
+                    const promise = dequeue(newToken);
+                    return promise;
+                })
+                .catch((err) => {
+                    isRefreshingToken = false;
+                    // Reject all queued requests
+                    while (retryQueue.length > 0) {
+                        const item = retryQueue.shift();
+                        if (item) {
+                            item.reject(err);
+                        }
                     }
-                }
-                redirectToLogin();
-            });
+                    redirectToLogin();
+                });
+        }
     }
 }
 
@@ -122,9 +127,11 @@ function dequeue(newToken) {
     return chain;
 }
 
-function isTokenExired() {
-    const user = getUserStore();
-    return Date.now() / 1000 > user.expires;
+/**
+ * @param {number} expires
+ */
+function isTokenExired(expires) {
+    return Date.now() / 1000 > expires;
 }
 
 function redirectToLogin() {
