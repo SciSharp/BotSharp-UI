@@ -32,7 +32,7 @@
 			const data = await response.json();
 
 			if (response.ok && data.message === 'success') {
-				localStorage.setItem('authUser', JSON.stringify(data));
+				sessionStorage.setItem('authUser', JSON.stringify(data));
 				isOpen = true;
 				msg = 'Registration success. Redirecting...';
 				status = 'success';

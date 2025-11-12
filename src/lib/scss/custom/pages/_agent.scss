@@ -58,7 +58,7 @@
             }
         }
     }
-    
+
     .list-add {
         font-size: 20px;
 
@@ -94,10 +94,10 @@
         @media (max-width: 423px) {
             height: fit-content;
         }
-    
+
         .agent-prompt-container {
             height: 100%;
-    
+
             .agent-prompt-header {
                 background-color: white;
                 padding: 15px;
@@ -147,6 +147,22 @@
     padding: 10px;
     border: 1px dashed var(--bs-primary);
     border-radius: 5px;
+
+    .llm-config-item {
+        display: flex;
+        flex-wrap: wrap;
+
+        .llm-config-label {
+            overflow-x: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            flex: 0.25;
+        }
+
+        .llm-config-input {
+            flex: 0.75;
+        }
+    }
 }
 
 .agent-utility-container {
@@ -167,7 +183,7 @@
             box-shadow: none !important;
         }
     }
-    
+
     .utility-wrapper {
         border: 1px dotted var(--bs-primary);
         border-radius: 5px;
@@ -262,12 +278,17 @@
     .tooltip-inner {
         text-align: start;
         max-width: fit-content;
-        padding: 20px;
+        padding: 5px 10px;
     }
 
     .markdown-div {
         max-height: 500px;
         font-size: 15px;
+
+        pre {
+            white-space: pre !important;
+            width: fit-content;
+        }
     }
 
     &.show {
@@ -285,5 +306,62 @@
         min-width: 1000px;
         overflow-x: auto;
         scrollbar-width: thin;
+    }
+}
+
+// Responsive adjustments for utility
+@media (max-width: 1250px) {
+    .agent-config-container {
+        .llm-config-item {
+            flex-direction: column;
+
+            .llm-config-label {
+                width: 100%;
+            }
+
+            .llm-config-input {
+                width: 100%;
+            }
+        }
+    }
+
+    .agent-utility-container {
+        padding: 0 5px;
+
+        .utility-wrapper {
+            .utility-row-primary {
+                flex-direction: column;
+            }
+
+            .utility-row {
+                .utility-label, .utility-value {
+                    width: 100%;
+                }
+
+                .utility-value {
+                    flex-direction: column;
+                }
+
+                .utility-input, .utility-delete {
+                    width: 100%;
+                }
+
+                .utility-delete {
+                    display: flex;
+                    justify-content: flex-end;
+                    align-items: end;
+                    margin-top: 6px;
+                }
+            }
+
+            .utility-row-secondary {
+                .utility-content {
+                    .utility-list-item {
+                        flex-direction: column;
+                        gap: 6px;
+                    }
+                }
+            }
+        }
     }
 }

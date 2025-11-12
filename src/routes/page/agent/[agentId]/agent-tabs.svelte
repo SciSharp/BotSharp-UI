@@ -13,6 +13,9 @@
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
 
+    /** @type {import('$userTypes').UserModel} */
+	export let user;
+
     /** @type {() => void} */
     export let handleAgentChange = () => {};
 
@@ -47,7 +50,7 @@
     let selectedTab;
 
     /** @type {any[]}*/
-    let tabs = [
+    const tabs = [
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
@@ -99,7 +102,7 @@
             <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-event-rule'}>
-            <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
+            <AgentEventRule agent={agent} user={user} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />

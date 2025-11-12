@@ -201,7 +201,7 @@
                         <!-- svelte-ignore a11y-click-events-have-key-events -->
                         <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <i
-                            class="bx bx-no-entry clickable"
+                            class="bx bxs-no-entry clickable"
                             class:hide={states.length === 1}
                             on:click={() => remove(idx)}
                         />

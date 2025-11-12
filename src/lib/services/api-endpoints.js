@@ -10,6 +10,7 @@ export const endpoints = {
 
     // user
     tokenUrl: `${host}/token`,
+    renewTokenUrl: `${host}/renew-token`,
     myInfoUrl: `${host}/user/me`,
     usersUrl: `${host}/users`,
     userDetailUrl: `${host}/user/{id}/details`,
@@ -41,6 +42,7 @@ export const endpoints = {
     // agent code script:
     agentCodeScriptListUrl: `${host}/agent/{agentId}/code-scripts`,
     agentCodeScriptUpdateUrl: `${host}/agent/{agentId}/code-scripts`,
+    agentCodeScriptGenerateUrl: `${host}/agent/{agentId}/code-script/generate`,
     
     // agent task
     agentTaskListUrl: `${host}/agent/tasks`,

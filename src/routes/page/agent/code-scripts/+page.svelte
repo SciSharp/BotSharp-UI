@@ -9,9 +9,9 @@
     import Select from '$lib/common/Select.svelte';
     import { myInfo } from '$lib/services/auth-service';
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
+    import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import ScriptEditor from './script-editor.svelte';
-	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	
     /** @type {boolean} */
     let isLoading = false;

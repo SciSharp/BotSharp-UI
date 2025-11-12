@@ -4,6 +4,7 @@
 	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
 	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
 	import { DECIMAL_REGEX } from '$lib/helpers/constants';
+	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const limit = 100;
     const confidLowerBound = 0;
@@ -145,7 +146,7 @@
                 disabled: false
             }
         ];
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
@@ -181,17 +182,6 @@
             }
         }) || [];
     }
-
-    function scrollToBottom() {
-        if (scrollContainer) {
-            setTimeout(() => {
-                scrollContainer.scrollTo({
-                    top: scrollContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 0);
-        }
-    }
 </script>
 
 <Card>
@@ -215,14 +205,14 @@
                                         on:change={e => toggleKnowledgeBase(e, uid)}
                                     />
                                 </div>
-                                <div
+                                <!-- <div
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable knowledgebase"
                                 >
-                                    <i class="bx bx-info-circle" />
-                                </div>
+                                    <i class="bx bx-info-circle fs-6" />
+                                </div> -->
                             </div>
                         </div>
                         <div class="utility-value">
@@ -241,7 +231,7 @@
                             </div>
                             <div class="utility-delete line-align-center">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable"
+                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}

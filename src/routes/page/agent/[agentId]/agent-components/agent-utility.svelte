@@ -2,9 +2,9 @@
     import { onMount } from 'svelte';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
-	import { truncateByPrefix } from '$lib/helpers/utils/common';
+	import { scrollToBottom, truncateByPrefix } from '$lib/helpers/utils/common';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import BotSharpTooltip from '$lib/common/tooltip/BotSharpTooltip.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 
     const limit = 100;
     const prefix = "util-";
@@ -130,7 +130,7 @@
                 items: []
             }
         ];
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
@@ -272,17 +272,6 @@
         innerRefresh(innerUtilities);
         handleAgentChange();
 	}
-
-    function scrollToBottom() {
-        if (scrollContainer) {
-            setTimeout(() => {
-                scrollContainer.scrollTo({
-                    top: scrollContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 0);
-        }
-    }
 </script>
 
 <svelte:window on:resize={() => resizeWindow()}/>
@@ -311,7 +300,7 @@
                         data-bs-placement="top"
                         title="Merge with entry agent utilities"
                     >
-                        <i class="bx bx-info-circle" />
+                        <i class="bx bx-info-circle fs-6" />
                     </div>
                 </div>
             {/if}
@@ -332,14 +321,14 @@
                                         on:change={e => toggleUtility(e, uid)}
                                     />
                                 </div>
-                                <div
+                                <!-- <div
                                     class="line-align-center"
                                     data-bs-toggle="tooltip"
                                     data-bs-placement="top"
                                     title="Uncheck to disable utility"
                                 >
-                                    <i class="bx bx-info-circle" style="font-size: 15px;" />
-                                </div>
+                                    <i class="bx bx-info-circle fs-6" />
+                                </div> -->
                             </div>
                         </div>
                         <div class="utility-value">
@@ -359,7 +348,7 @@
                             </div>
                             <div class="utility-delete line-align-center">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable"
+                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
@@ -383,8 +372,8 @@
                                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                                             <!-- svelte-ignore a11y-no-static-element-interactions -->
                                             <i
-                                                class="mdi mdi-refresh clickable"
-                                                style="font-size: 15px;"
+                                                class="mdi mdi-refresh clickable fs-6"
+                                                style="padding-top: 3px;"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Reset"
@@ -442,11 +431,10 @@
                                             {#if description}
                                             <div class="line-align-center">
                                                 <i
-                                                    class="bx bx-info-circle"
-                                                    style="font-size: 15px;"
+                                                    class="bx bx-info-circle fs-6"
                                                     id={`utility-${uid}-${fid}`}
                                                 />
-                                                <BotSharpTooltip
+                                                <BotsharpTooltip
                                                     containerClasses="agent-utility-desc"
                                                     style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
                                                     target={`utility-${uid}-${fid}`}
@@ -460,7 +448,7 @@
                                                         containerStyles={`max-width: ${Math.floor(windowWidth*0.55)}px;`}
                                                         text={description}
                                                     />
-                                                </BotSharpTooltip>
+                                                </BotsharpTooltip>
                                             </div>
                                             {/if}
                                         </div>
@@ -474,7 +462,7 @@
                                             </div>
                                             <div class="utility-delete line-align-center">
                                                 <i
-                                                    class="bx bxs-no-entry text-danger clickable"
+                                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                                     role="link"
                                                     tabindex="0"
                                                     on:keydown={() => {}}
@@ -499,7 +487,7 @@
                                             </div>
                                             <div class="utility-delete line-align-center">
                                                 <i
-                                                    class="bx bxs-no-entry text-danger clickable"
+                                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                                     role="link"
                                                     tabindex="0"
                                                     on:keydown={() => {}}

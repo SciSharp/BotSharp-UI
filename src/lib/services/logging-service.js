@@ -1,6 +1,7 @@
 import { replaceUrl } from '$lib/helpers/http.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
+import qs from 'qs';
 
 /**
  * Show backend full log
@@ -49,6 +50,23 @@ export async function getStateLogs(conversationId, filter) {
         params: {
             ...filter
         }
+    });
+    return response.data;
+}
+
+
+/**
+ * Get instruction logs
+ * @param {import('$instructTypes').InstructLogFilter} filter
+ * @returns {Promise<import('$commonTypes').PagedItems<import('$instructTypes').InstructionLogModel>>}
+ */
+export async function getInstructionLogs(filter) {
+    const url = endpoints.instructLogUrl;
+    const response = await axios.get(url, {
+        params: {
+            ...filter
+        },
+        paramsSerializer: (params) => qs.stringify(params, { encode: false, allowDots: true, arrayFormat: "indices" })
     });
     return response.data;
 }

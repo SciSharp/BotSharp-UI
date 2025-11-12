@@ -157,3 +157,17 @@ export async function updateAgentCodeScripts(agentId, update) {
     });
     return response.data;
 }
+
+/**
+ * Generate agent code script
+ * @param {string} agentId
+ * @param {import('$agentTypes').AgentCodeScriptGenerateModel} request
+ * @returns {Promise<import('$agentTypes').CodeGenerationResult>}
+ */
+export async function generateAgentCodeScript(agentId, request) {
+    const url = endpoints.agentCodeScriptGenerateUrl.replace("{agentId}", agentId);
+    const response = await axios.post(url, {
+        ...request
+    });
+    return response.data;
+}

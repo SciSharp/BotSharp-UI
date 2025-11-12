@@ -144,6 +144,21 @@ export function goToUrl(url, opts = {}) {
 }
 
 /**
+ * @param {HTMLElement | null | undefined} container
+ * @param {ScrollBehavior} behavior
+ */
+export function scrollToBottom(container, behavior = 'smooth') {
+    if (container) {
+        setTimeout(() => {
+            container.scrollTo({
+                top: container.scrollHeight,
+                behavior: behavior
+            });
+        }, 0);
+    }
+}
+
+/**
  * @param {string} str
  */
 export function splitTextByCase(str) {

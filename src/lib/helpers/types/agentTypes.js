@@ -135,6 +135,31 @@
  * @property {AgentCodeScriptUpdateOptions?} [options]
  */
 
+/** 
+ * @typedef {Object} AgentCodeScriptGenerateModel
+ * @property {string?} [text]
+ * @property {CodeProcessOptions?} [options]
+ */
+
+/** 
+ * @typedef {Object} CodeProcessOptions
+ * @property {boolean?} [save_to_db] - Whether to save the generated code to database.
+ * @property {string?} [script_name] - The code script name.
+ * @property {string?} [script_type] - The code script type.
+ * @property {string?} [agent_id] - The agent id.
+ * @property {string?} [template_name] - The template name.
+ * @property {any?} [data] - The template data.
+ * @property {string?} [provider] - The llm provider.
+ * @property {string?} [model] - The llm model.
+ */
+
+/** 
+ * @typedef {Object} CodeGenerationResult
+ * @property {boolean?} [success]
+ * @property {string?} [content]
+ * @property {string?} [language]
+ * @property {string?} [error_message]
+ */
 
 /**
  * @typedef {Object} ChannelInstruction
@@ -204,6 +229,9 @@
  * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {any?} [output_args]
+ * @property {string?} [json_args]
+ * @property {string?} [statement]
  */
 
 

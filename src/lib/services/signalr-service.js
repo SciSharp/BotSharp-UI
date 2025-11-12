@@ -63,7 +63,7 @@ export const signalr = {
     connection = new HubConnectionBuilder()
       .withUrl(endpoints.chatHubUrl + `?conversation-id=${conversationId}&access_token=${user.token}`) // the hub URL, change it according to your server
       .withAutomaticReconnect() // enable automatic reconnection
-      .configureLogging(LogLevel.Information) // configure the logging level
+      .configureLogging(LogLevel.Warning) // configure the logging level
       .build();
 
     // start the connection

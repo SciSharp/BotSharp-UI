@@ -88,15 +88,15 @@
 
 <div class="agent-config-container">
     <div class="text-center">
-        <h6 class="mt-1 mb-2">{title}</h6>
+        <h6 class="mt-1 mb-3">{title}</h6>
     </div>
 
-    <div class="mb-3 row">
-        <label for="example-large" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for={`provider-${title}`} class="col-form-label llm-config-label">
             Provider
         </label>
-        <div class="col-md-9 config-item-container">
-            <Input type="select" value={config.provider} on:change={e => changeProvider(e)}>
+        <div class="llm-config-input">
+            <Input type="select" id={`provider-${title}`} value={config.provider} on:change={e => changeProvider(e)}>
                 {#each providers as option}
                     <option value={option} selected={option == config.provider}>
                         {option}
@@ -106,12 +106,12 @@
         </div>
     </div>
         
-    <div class="mb-3 row">
-        <label for="example-text-input" class="col-md-3 col-form-label">
+    <div class="mb-3 row llm-config-item">
+        <label for={`model-${title}`} class="col-form-label llm-config-label">
             Model
         </label>
-        <div class="col-md-9">
-            <Input type="select" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
+        <div class="llm-config-input">
+            <Input type="select" id={`model-${title}`} value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
                 {#each models as option}
                     <option value={option.name} selected={option.name == config.model}>
                         {option.name}

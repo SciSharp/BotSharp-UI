@@ -1,13 +1,38 @@
 <script>
     import { onMount } from 'svelte';
+    import Swal from 'sweetalert2';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-	import { getAgentRuleOptions } from '$lib/services/agent-service';
+	import { getAgentRuleOptions, generateAgentCodeScript } from '$lib/services/agent-service';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
+	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+    import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
+	import { AgentCodeScriptType } from '$lib/helpers/enums';
+	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const limit = 100;
-    const textLimit = 200;
+    const textLimit = 1024;
+    
+    /** @type {boolean} */
+    let isLoading = false;
+    /** @type {boolean} */
+    let isComplete = false;
+    /** @type {boolean} */
+    let isError = false;
+    /** @type {number} */
+    let duration = 2000;
+    let windowWidth = 0;
+    let windowHeight = 0;
+
+    /** @type {string} */
+    let successText = '';
+    let errorText = '';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
+
+    /** @type {import('$userTypes').UserModel} */
+    export let user;
 
     /** @type {() => void} */
     export let handleAgentChange = () => {};
@@ -45,26 +70,30 @@
     let scrollContainer;
 
     onMount(async () =>{
+        resizeWindow();
         getAgentRuleOptions().then(data => {
             const list = data?.map(x => {
                 return {
                     name: x.trigger_name,
-                    displayName: ""
+                    displayName: "",
+                    output_args: x.output_args,
+                    json_args: x.json_args,
+                    statement: x.statement
                 };
             }) || [];
             ruleOptions = [{
                 name: "",
                 displayName: ""
             }, ...list];
+            init();
         });
-        init();
     });
 
     function init() {
         const list = agent.rules?.map(x => {
             return {
                 ...x,
-                displayName: "",
+                displayName: ""
             };
         }) || [];
         innerRefresh(list);
@@ -94,7 +123,7 @@
                 disabled: false
             }
         ];
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
@@ -134,30 +163,110 @@
         handleAgentChange();
     }
 
+    /**
+	 * @param {import("$agentTypes").AgentRule} rule
+	 */
+    function compileCodeScript(rule) {
+        Swal.fire({
+            title: 'Are you sure?',
+            html: `
+                <div>
+                    <p>Are you sure you want to generate code script <b>"${buildScriptName(rule.trigger_name)}"</b>?</p>
+                    <p>This action will overwrite existing code script if any.</p>
+                </div>
+            `,
+            icon: 'warning',
+            showCancelButton: true,
+			cancelButtonText: 'No',
+            confirmButtonText: 'Yes'
+        }).then(async (result) => {
+            if (result.value) {
+                generateCodeScript(rule);
+            }
+        });
+    }
+
+    /**
+	 * @param {import("$agentTypes").AgentRule} rule
+	 */
+    function generateCodeScript(rule) {
+        return new Promise((resolve, reject) => {
+            isLoading = true;
+            generateAgentCodeScript(agent.id, {
+                text: '',
+                options: {
+                    agent_id: AI_PROGRAMMER_AGENT_ID,
+                    template_name: RULE_TRIGGER_CODE_GENERATE_TEMPLATE,
+                    save_to_db: true,
+                    script_name: buildScriptName(rule.trigger_name),
+                    script_type: AgentCodeScriptType.Src,
+                    data: {
+                        'args_example': { ...rule.output_args },
+                        'user_request': rule.criteria
+                    }
+                }
+            }).then(res => {
+                if (res?.success) {
+                    isLoading = false;
+                    isComplete = true;
+                    successText = "Code script has been generated!";
+                    setTimeout(() => {
+                        isComplete = false;
+                        successText = "";
+                    }, duration);
+                    resolve(res);
+                }  else {
+                    throw "error when generating code script.";
+                }
+            }).catch(() => {
+                isLoading = false;
+                isComplete = false;
+                isError = true;
+                errorText = "Failed to generate code script.";
+                setTimeout(() => {
+                    isError = false;
+                    errorText = "";
+                }, duration);
+                reject();
+            });
+        });
+    }
+
 
     /** @param {import('$agentTypes').AgentRule[]} list */
     function innerRefresh(list) {
         innerRules = list?.map(x => {
+            const found = ruleOptions.find(y => y.name === x.trigger_name);
             return {
-                trigger_name: x.trigger_name,
-                criteria: x.criteria,
-                displayName: x.displayName,
-                disabled: x.disabled
+                ...x,
+                output_args: found?.output_args,
+                json_args: found?.json_args,
+                statement: found?.statement
             }
         }) || [];
     }
 
-    function scrollToBottom() {
-        if (scrollContainer) {
-            setTimeout(() => {
-                scrollContainer.scrollTo({
-                    top: scrollContainer.scrollHeight,
-                    behavior: 'smooth'
-                });
-            }, 0);
+    /** @param {string} name */
+    function buildScriptName(name) {
+        let scriptName = name?.trim();
+        if (!name) {
+            scriptName = 'unknown_rule.py';
+        } else {
+            scriptName = `${scriptName.replace(/\s+/g, "_")}_rule.py`;
         }
+        
+        return scriptName;
+    }
+
+    function resizeWindow() {
+        windowWidth = window.innerWidth;
+        windowHeight = window.innerHeight;
     }
 </script>
+
+<svelte:window on:resize={() => resizeWindow()}/>
+
+<LoadingToComplete {isLoading} {isComplete} {isError} {successText} {errorText} />
 
 <Card>
     <CardBody>
@@ -180,14 +289,33 @@
                                         on:change={e => toggleRule(e, uid)}
                                     />
                                 </div>
-                                <div
-                                    class="line-align-center"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Uncheck to disable rule"
-                                >
-                                    <i class="bx bx-info-circle" />
+                                {#if rule.statement}
+                                <div class="line-align-center">
+                                    <i
+                                        class="bx bx-info-circle text-primary fs-6"
+                                        style="padding-top: 2px;"
+                                        id={`rule-statement-${uid}`}
+                                        data-bs-toggle="tooltip"
+                                        data-bs-placement="top"
+                                        title="Rule arguments"
+                                    />
+                                    <BotsharpTooltip
+                                        containerClasses="agent-utility-desc"
+                                        style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                        target={`rule-statement-${uid}`}
+                                        placement="top"
+                                        persist
+                                    >
+                                        <Markdown
+                                            rawText
+                                            scrollable
+                                            containerClasses={'markdown-div'}
+                                            containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                            text={rule.statement}
+                                        />
+                                    </BotsharpTooltip>
                                 </div>
+                                {/if}
                             </div>
                         </div>
                         <div class="utility-value">
@@ -206,7 +334,7 @@
                             </div>
                             <div class="utility-delete line-align-center">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable"
+                                    class="bx bxs-no-entry text-danger clickable fs-6"
                                     role="link"
                                     tabindex="0"
                                     on:keydown={() => {}}
@@ -220,19 +348,69 @@
                         <div class="utility-content">
                             <div class="utility-list-item">
                                 <div class="utility-label line-align-center">
-                                    {'Criteria'}
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Criteria'}
+                                        </div>
+                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.criteria?.trim()}
+                                        <div
+                                            class="line-align-center clickable text-primary fs-5"
+                                            style="padding-top: 3px;"
+                                            data-bs-toggle="tooltip"
+                                            data-bs-placement="top"
+                                            title="Compile code script"
+                                        >
+                                            <i
+                                                class="mdi mdi-play-circle"
+                                                role="link"
+                                                tabindex="0"
+                                                on:keydown={() => {}}
+                                                on:click={() => compileCodeScript(rule)}
+                                            />
+                                        </div>
+                                        {/if}
+                                    </div>
                                 </div>
                                 <div class="utility-value">
                                     <div class="utility-input line-align-center">
                                         <Input
-                                            type="text"
+                                            type="textarea"
+                                            style="resize: none;"
+                                            rows={5}
                                             disabled={rule.disabled}
                                             maxlength={textLimit}
                                             value={rule.criteria}
                                             on:input={e => changeContent(e, uid, 'criteria')}
                                         />
                                     </div>
-                                    <div class="utility-delete line-align-center"></div>
+                                    <div class="utility-delete line-align-center">
+                                        {#if rule.json_args}
+                                            <div class="line-align-center">
+                                                <i
+                                                    class="bx bxs-info-circle text-primary fs-5"
+                                                    id={`rule-args-${uid}`}
+                                                    data-bs-toggle="tooltip"
+                                                    data-bs-placement="top"
+                                                    title="Rule arguments"
+                                                />
+                                                <BotsharpTooltip
+                                                    containerClasses="agent-utility-desc"
+                                                    style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                                    target={`rule-args-${uid}`}
+                                                    placement="right"
+                                                    persist
+                                                >
+                                                    <Markdown
+                                                        rawText
+                                                        scrollable
+                                                        containerClasses={'markdown-div'}
+                                                        containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                                        text={rule.json_args}
+                                                    />
+                                                </BotsharpTooltip>
+                                            </div>
+                                        {/if}
+                                    </div>
                                 </div>
                             </div>
                         </div>

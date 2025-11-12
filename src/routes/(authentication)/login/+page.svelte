@@ -31,7 +31,7 @@
 		PUBLIC_AUTH_ENABLE_FIND_PWD,
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
-	import { resetLocalStorage } from '$lib/helpers/store';
+	import { resetStorage } from '$lib/helpers/store';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -45,7 +45,7 @@
 		const userName = localStorage.getItem('user_name');
 		isRememberMe = userName !== null;
 		if(isRememberMe){
-			username = userName;
+			username = userName || '';
 		}
 	});
 	function handleRememberMe(){
@@ -56,6 +56,8 @@
 			localStorage.removeItem("user_name");
 		}
 	}
+
+	/** @param {any} e */
 	async function onSubmit(e) {
 		isSubmitting = true;
 		handleRememberMe();
@@ -66,7 +68,7 @@
 			status = 'success';
 			const redirectUrl = $page.url.searchParams.get('redirect');
 			isSubmitting = false;
-			resetLocalStorage();
+			resetStorage();
 			if (redirectUrl) {
 				window.location.href = decodeURIComponent(redirectUrl);
 			} else {
@@ -87,16 +89,16 @@
 	}
 
 	function onPasswordToggle() {
-		var x = document.getElementById('user-password');
+		const x = document.getElementById('user-password');
 		if (!x) return;
 
 		if (x.type === 'password') {
 			x.type = 'text';
-			var icon = document.getElementById('password-eye-icon');
+			const icon = document.getElementById('password-eye-icon');
 			icon.className = 'mdi mdi-eye-off-outline';
 		} else {
 			x.type = 'password';
-			var icon = document.getElementById('password-eye-icon');
+			const icon = document.getElementById('password-eye-icon');
 			icon.className = 'mdi mdi-eye-outline';
 		}
 	}

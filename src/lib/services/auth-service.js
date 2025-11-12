@@ -29,7 +29,7 @@ export async function getToken(email, password, onSucceed, onError) {
         if (!result) {
             return;
         }
-        let user = getUserStore();
+        const user = getUserStore();
         user.token = result.access_token;
         user.expires = result.expires;
         userStore.set(user);
@@ -37,6 +37,42 @@ export async function getToken(email, password, onSucceed, onError) {
     })
     .catch(() => {
         onError();
+    });
+}
+
+/**
+ * @param {string} token
+ * @param {((arg0: string) => void) | null} [onSucceed]
+ * @param {(() => void) | null} [onError]
+ */
+export async function renewToken(token, onSucceed = null, onError = null) {
+    await fetch(endpoints.renewTokenUrl, {
+        method: 'POST',
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ refresh_token: token, access_token: token }),
+    }).then(response => {
+        if (response.ok) {
+            return response.json();
+        } else {
+            console.log(response.statusText);
+            onError?.();
+            return false;
+        }
+    }).then(result => {
+        if (!result) {
+            return;
+        }
+        const user = getUserStore();
+        user.token = result.access_token;
+        user.expires = result.expires;
+        userStore.set(user);
+        onSucceed?.(result.access_token);
+    })
+    .catch(() => {
+        onError?.();
     });
 }
 

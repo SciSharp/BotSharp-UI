@@ -21,7 +21,7 @@
 		conversationUserStateStore,
 		conversationUserMessageStore,
 		conversationUserAttachmentStore,
-		resetLocalStorage
+		resetStorage
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
@@ -44,7 +44,7 @@
 		PUBLIC_LIVECHAT_STREAM_ENABLED,
 		PUBLIC_DEBUG_MODE
 	} from '$env/static/public';
-	import { BOT_SENDERS, LEARNER_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
+	import { BOT_SENDERS, LEARNER_AGENT_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import DialogModal from '$lib/common/DialogModal.svelte';
@@ -279,7 +279,7 @@
 	});
 
 	function handleLogoutAction() {
-		resetLocalStorage(true);
+		resetStorage(true);
 	}
 
 	function focusChatTextArea() {
@@ -766,7 +766,7 @@
 		if (!!!messageData?.inputMessageId) {
 			files = getChatFiles();
 		}
-		resetStorage();
+		resetChatStorage();
 
 		if (files?.length > 0 && !!!messageData.inputMessageId) {
 			const filePayload = buildFilePayload(files);
@@ -1148,7 +1148,7 @@
 	async function handleDeleteMessage(messageId) {
 		isSendingMsg = true;
 		clearInstantLogs();
-		resetStorage();
+		resetChatStorage();
 		await deleteConversationMessage(params.conversationId, messageId);
 		isSendingMsg = false;
 	}
@@ -1293,7 +1293,7 @@
 		latestStateLog = null;
 	}
 
-	function resetStorage() {
+	function resetChatStorage() {
 		conversationUserAttachmentStore.reset();
 	}
 
@@ -1724,7 +1724,7 @@
 														Add Tags
 													</DropdownItem>
 												{/if}
-												{#if agent?.id === LEARNER_ID && mode === TRAINING_MODE}
+												{#if agent?.id === LEARNER_AGENT_ID && mode === TRAINING_MODE}
 													<DropdownItem on:click={() => handleSaveKnowledge()}>Save Knowledge</DropdownItem>
 												{/if}											
 												<DropdownItem on:click={() => pinDashboard()}>

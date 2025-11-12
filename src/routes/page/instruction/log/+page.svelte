@@ -9,9 +9,9 @@
 	import TablePagination from '$lib/common/TablePagination.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
-	import { getInstructionLogs, getInstructionLogSearchKeys } from '$lib/services/instruct-service';
+	import { getInstructionLogSearchKeys } from '$lib/services/instruct-service';
+	import { getInstructionLogs } from '$lib/services/logging-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import LogItem from './log-item.svelte';
 	import { convertTimeRange, removeDuplicates } from '$lib/helpers/utils/common';
 	import StateSearch from '$lib/common/StateSearch.svelte';
 	import Select from '$lib/common/Select.svelte';
@@ -22,6 +22,8 @@
 	} from '$lib/helpers/utils/common';
 	import { TimeRange } from '$lib/helpers/enums';
 	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
+	import LogItem from './log-item.svelte';
+	
 
     const firstPage = 1;
 	const pageSize = 15;

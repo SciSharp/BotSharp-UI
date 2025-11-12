@@ -8,26 +8,26 @@
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import InstructionState from '../instruction-components/instruction-state.svelte';
-	import { getAgents } from '$lib/services/agent-service';
+	import { getAgentCodeScripts, getAgents } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import { executeAgentInstruction } from '$lib/services/instruct-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
-	import { LlmModelType } from '$lib/helpers/enums';
+	import { AgentCodeScriptType, LlmModelType } from '$lib/helpers/enums';
 	import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import InstructionAgent from '../instruction-components/instruction-agent.svelte';
 	import InstructionLlm from '../instruction-components/instruction-llm.svelte';
+    import InstructionState from '../instruction-components/instruction-state.svelte';
+    import InstructionCoding from '../instruction-components/instruction-coding.svelte';
 
     const maxLength = 64000;
-    const DEFAULT_PROVIDER = 'openai';
-    const DEFAULT_MODEL = 'gpt-4o-mini';
 
     /** @type {any[]}*/
     const tabs = [
         { name: 'instruction-agent', displayText: 'Agent' },
-        { name: 'instruction-llm', displayText: 'LLM Config' },
-        { name: 'instruction-states', displayText: 'States' }
+        { name: 'instruction-llm', displayText: 'LLM' },
+        { name: 'instruction-states', displayText: 'States' },
+        { name: 'instruction-coding', displayText: 'Coding' }
     ];
 
     let isLoading = false;
@@ -52,6 +52,9 @@
 
     /** @type {string | null} */
     let selectedTemplate = null;
+
+    /** @type {import('$agentTypes').AgentCodeScriptViewModel | null | undefined} */
+    let selectedCodeScript = null;
     
     /** @type {import('$agentTypes').AgentModel[]} */
     let agents = [];
@@ -59,10 +62,14 @@
     /** @type {import('$commonTypes').LlmConfig[]} */
     let llmConfigs = [];
 
-    /** @type {any[]} */
-    let states = [
-        { key: '', value: ''}
-    ];
+    /** @type {import('$agentTypes').AgentCodeScriptViewModel[]} */
+    let codeScripts = [];
+
+    /** @type {import('$commonTypes').KeyValuePair[]} */
+    let states = [{ key: '', value: ''}];
+
+    /** @type {import('$commonTypes').KeyValuePair[]} */
+    let args = [{ key: '', value: ''}];
 
     /** @type {string}*/
     let selectedTab = tabs[0].name;
@@ -94,7 +101,8 @@
         isThinking = true;
         requestDone = false;
         elapsedTime = '';
-        const formattedStates = formatStates(states);
+        const formattedStates = formatKeyValues(states);
+        const formatedArgs = formatKeyValues(args);
         const start = new Date();
         const agentId = selectedAgent?.id || '';
         executeAgentInstruction(agentId, {
@@ -103,7 +111,11 @@
             provider: selectedProvider?.provider,
             model: selectedModel,
             template: selectedTemplate,
-            states: formattedStates
+            states: formattedStates,
+            codeOptions: {
+                script_name: selectedCodeScript?.name,
+                arguments: formatedArgs
+            }
         }).then(res => {
             result = res?.text || '';
         }).finally(() => {
@@ -114,9 +126,9 @@
         });
     }
 
-    /** @param {any[]} states */
-    function formatStates(states) {
-        return states?.filter(x => !!util.trim(x.key) && !!util.trim(x.value)).map(x => {
+    /** @param {import('$commonTypes').KeyValuePair[]} kvs */
+    function formatKeyValues(kvs) {
+        return kvs?.filter(x => !!util.trim(x.key) && !!util.trim(x.value)).map(x => {
             return {
                 key: util.trim(x.key),
                 value: util.trim(x.value)
@@ -163,12 +175,30 @@
         const modelName = selectedAgent?.llm_config?.model || null;
         selectedProvider = llmConfigs?.find(x => x.provider === providerName) || null;
         selectedModel = modelName;
+
+        if (!!selectedAgent?.id) {
+            initAgentCodeScripts(selectedAgent.id);
+        } else {
+            codeScripts = [];
+        }
     }
     
     /** @param {any} e */
     function onLlmSelected(e) {
         selectedProvider = e.detail.provider || null;
         selectedModel = e.detail.model || '';
+    }
+
+    /** @param {string} agentId */
+    function initAgentCodeScripts(agentId) {
+        return new Promise((resolve, reject) => {
+            getAgentCodeScripts(agentId, { scriptTypes: [AgentCodeScriptType.Src] }).then(res => {
+                codeScripts = res || [];
+                resolve(res);
+            }).catch((error) => {
+                reject(error);
+            });
+        });
     }
 
     /** @param {string} selected */
@@ -302,7 +332,7 @@
                         >
                             {#each tabs as tab, idx}
                             <NavItem
-                                containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 2 ? tabs.length : 3})`}
+                                containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
                                 navBtnStyles={'text-transform: none;'}
                                 navBtnId={`${tab.name}-tab`}
                                 dataBsTarget={`#${tab.name}-tab-pane`}
@@ -333,6 +363,14 @@
                         <div class:hide={selectedTab !== 'instruction-states'}>
                             <InstructionState
                                 bind:states={states}
+                                disabled={isThinking}
+                            />
+                        </div>
+                        <div class:hide={selectedTab !== 'instruction-coding'}>
+                            <InstructionCoding
+                                bind:selectedCodeScript={selectedCodeScript}
+                                bind:args={args}
+                                codeScripts={codeScripts}
                                 disabled={isThinking}
                             />
                         </div>

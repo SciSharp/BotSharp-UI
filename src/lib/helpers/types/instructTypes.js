@@ -6,6 +6,7 @@
  * @property {string?} [provider] - The LLM provider.
  * @property {string?} [model] - The LLM model.
  * @property {import('$conversationTypes').ConversationStateModel[]} [states]
+ * @property {CodeInstructOptions?} [codeOptions]
  */
 
 /**
@@ -27,6 +28,7 @@
  * @property {string[]?} [providers]
  * @property {string[]?} [models]
  * @property {string[]?} [templateNames]
+ * @property {string?} [similarTemplateName]
  * @property {string?} [startTime]
  * @property {string?} [endTime]
  * @property {{key: string, value: string}[]?} [states]
@@ -57,6 +59,14 @@
  * @property {string[]?} [agentIds]
  * @property {string?} [startTime]
  * @property {string?} [endTime]
+ */
+
+/**
+ * @typedef {Object} CodeInstructOptions
+ * @property {string?} [processor] - The code processor.
+ * @property {string?} [script_name] - The code script name.
+ * @property {string?} [script_type] - The code script type: src or test.
+ * @property {{key: string, value: string}[]?} [arguments] - The arguments.
  */
 
 export default {};

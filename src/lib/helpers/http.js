@@ -1,5 +1,95 @@
 import axios from 'axios';
 import { getUserStore, globalErrorStore, loaderStore } from '$lib/helpers/store.js';
+import { renewToken } from '$lib/services/auth-service';
+import { delay } from './utils/common';
+
+
+const retryQueue = {
+    /** @type {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}[]} */
+    queue: [],
+
+    /** @type {boolean} */
+    isRefreshingToken: false,
+
+    /** @type {number} */
+    timeout: 20,
+
+    /**
+     * refresh access token
+     * @param {string} token
+     * @returns {Promise<string>}
+     */
+    refreshAccessToken(token) {
+        return new Promise((resolve, reject) => {
+            renewToken(token, (newToken) => resolve(newToken), () => reject(new Error('Failed to refresh token')));
+        });
+    },
+
+    /** @param {{config: import('axios').InternalAxiosRequestConfig, resolve: (value: any) => void, reject: (reason?: any) => void}} item */
+    enqueue(item) {
+        this.queue.push(item);
+
+        if (!this.isRefreshingToken) {
+            const user = getUserStore();
+            if (!isTokenExired(user.expires)) {
+                this.dequeue(user.token);
+            } else {
+                this.isRefreshingToken = true;
+                this.refreshAccessToken(user?.token || '')
+                    .then((newToken) => {
+                        this.isRefreshingToken = false;
+                        const promise = this.dequeue(newToken);
+                        return promise;
+                    })
+                    .catch((err) => {
+                        this.isRefreshingToken = false;
+                        // Reject all queued requests
+                        while (this.queue.length > 0) {
+                            const item = this.queue.shift();
+                            if (item) {
+                                item.reject(err);
+                            }
+                        }
+                        redirectToLogin();
+                    });
+            }
+        }
+    },
+
+    /**
+     * @param {string} newToken
+     * @returns {Promise<void>}
+     */
+    dequeue(newToken) {
+        let chain = Promise.resolve();
+        while (this.queue.length > 0) {
+            const item = this.queue.shift();
+            if (!item?.config) {
+                continue;
+            }
+
+            const { config } = item;
+            // @ts-ignore
+            config.headers = config.headers || {};
+            // @ts-ignore
+            config.headers.Authorization = `Bearer ${newToken}`;
+
+            chain = chain.then(() => delay(this.timeout))
+                         .then(() => {
+                            return new Promise((resolve) => {
+                                axios(config).then((response) => {
+                                    resolve();
+                                    item.resolve(response);
+                                }).catch((err) => {
+                                    resolve();
+                                    item.reject(err);
+                                });
+                            });
+                         });
+        }
+        return chain;
+    }
+};
 
 // Add a request interceptor to attach authentication tokens or headers
 axios.interceptors.request.use(
@@ -9,9 +99,10 @@ axios.interceptors.request.use(
         if (!skipLoader(config)) {
             loaderStore.set(true);
         }
-        // For example, attach an authentication token to the request headers
-        if (user.token)
+        // Attach an authentication token to the request headers
+        if (user.token) {
             config.headers.Authorization = `Bearer ${user.token}`;
+        }
         return config;
     },
     (error) => {
@@ -23,25 +114,24 @@ axios.interceptors.request.use(
 // Add a response interceptor to handle 401 errors globally
 axios.interceptors.response.use(
     (response) => {
-        // If the request was successful, return the response
         loaderStore.set(false);
-        const user = getUserStore();
-        const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired || response?.status === 401) {
-            redirectToLogin();
-            return Promise.reject('user token expired!');
-        }
         return response;
     },
     (error) => {
         loaderStore.set(false);
+        const originalRequest = error?.config || {};
         const user = getUserStore();
-        
-        const isExpired = Date.now() / 1000 > user.expires;
-        if (isExpired || error?.response?.status === 401) {
-            redirectToLogin();
-            return Promise.reject(error);
-        } else if (!skipGlobalError(error.config)) {
+
+        // If token expired or 401 returned, attempt a single token refresh and retry requests in queue.
+        if ((error?.response?.status === 401 || isTokenExired(user.expires))
+            && originalRequest
+            && !originalRequest._retried
+            && !originalRequest.url.includes('renew-token')) {
+            originalRequest._retried = true;
+            return new Promise((resolve, reject) => {
+                retryQueue.enqueue({ config: originalRequest, resolve, reject });
+            });
+        } else if (!skipGlobalError(originalRequest)) {
             globalErrorStore.set(true);
             setTimeout(() => {
                 globalErrorStore.set(false);
@@ -53,6 +143,12 @@ axios.interceptors.response.use(
     }
 );
 
+/**
+ * @param {number} expires
+ */
+function isTokenExired(expires) {
+    return Date.now() / 1000 > expires;
+}
 
 function redirectToLogin() {
     const curUrl = window.location.pathname + window.location.search;
@@ -75,7 +171,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
         new RegExp('http(s*)://(.*?)/users', 'g'),
         new RegExp('http(s*)://(.*?)/instruct/chat-completion', 'g'),
-        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g')
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-script/generate', 'g')
     ];
 
     /** @type {RegExp[]} */
@@ -111,7 +208,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/logger/instruction/log/keys', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/content-log', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/state-log', 'g'),
-        new RegExp('http(s*)://(.*?)/mcp/server-configs', 'g')
+        new RegExp('http(s*)://(.*?)/mcp/server-configs', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g')
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {
@@ -153,7 +251,7 @@ function skipGlobalError(config) {
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g')
     ];
-    
+
     /** @type {RegExp[]} */
     const deleteRegexes = [
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/delete-collection', 'g'),
@@ -199,7 +297,7 @@ export function replaceUrl(url, args) {
 
 /**
  * Replace new line as <br>
- * @param {string} text 
+ * @param {string} text
  * @returns string
  */
 export function replaceNewLine(text) {
@@ -208,7 +306,7 @@ export function replaceNewLine(text) {
 
 /**
  * Replace unnecessary markdown
- * @param {string} text 
+ * @param {string} text
  * @returns {string}
  */
 export function replaceMarkdown(text) {
