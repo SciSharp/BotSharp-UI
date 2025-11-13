@@ -115,12 +115,20 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         loaderStore.set(false);
+        const user = getUserStore();
+        if (!user?.token) {
+            redirectToLogin();
+        }
         return response;
     },
     (error) => {
         loaderStore.set(false);
         const originalRequest = error?.config || {};
         const user = getUserStore();
+        if (!user?.token) {
+            redirectToLogin();
+            return Promise.reject(error);
+        }
 
         // If token expired or 401 returned, attempt a single token refresh and retry requests in queue.
         if ((error?.response?.status === 401 || isTokenExired(user.expires))
