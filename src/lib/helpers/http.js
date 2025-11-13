@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getUserStore, globalErrorStore, loaderStore } from '$lib/helpers/store.js';
+import { getUserStore, globalErrorStore, loaderStore, userStore } from '$lib/helpers/store.js';
 import { renewToken } from '$lib/services/auth-service';
 import { delay } from './utils/common';
 
@@ -13,6 +13,9 @@ const retryQueue = {
 
     /** @type {number} */
     timeout: 20,
+
+    /** @type {number} */
+    maxRenewTokenCount: 30,
 
     /**
      * refresh access token
@@ -35,6 +38,9 @@ const retryQueue = {
                 this.dequeue(user.token);
             } else {
                 this.isRefreshingToken = true;
+                user.renew_token_count = (user.renew_token_count || 0) + 1;
+                // @ts-ignore
+                userStore.set(user);
                 this.refreshAccessToken(user?.token || '')
                     .then((newToken) => {
                         this.isRefreshingToken = false;
@@ -102,6 +108,9 @@ axios.interceptors.request.use(
         // Attach an authentication token to the request headers
         if (user.token) {
             config.headers.Authorization = `Bearer ${user.token}`;
+        } else {
+            retryQueue.queue = [];
+            redirectToLogin();
         }
         return config;
     },
@@ -115,17 +124,15 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         loaderStore.set(false);
-        const user = getUserStore();
-        if (!user?.token) {
-            redirectToLogin();
-        }
         return response;
     },
     (error) => {
         loaderStore.set(false);
         const originalRequest = error?.config || {};
         const user = getUserStore();
-        if (!user?.token) {
+        console.log("renew token count.", user.renew_token_count);
+        if (!user?.token || user.renew_token_count >= retryQueue.maxRenewTokenCount) {
+            retryQueue.queue = [];
             redirectToLogin();
             return Promise.reject(error);
         }
@@ -180,7 +187,8 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/users', 'g'),
         new RegExp('http(s*)://(.*?)/instruct/chat-completion', 'g'),
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
-        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-script/generate', 'g')
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-script/generate', 'g'),
+        new RegExp('http(s*)://(.*?)/renew-token', 'g')
     ];
 
     /** @type {RegExp[]} */

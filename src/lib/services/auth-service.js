@@ -32,6 +32,7 @@ export async function getToken(email, password, onSucceed, onError) {
         const user = getUserStore();
         user.token = result.access_token;
         user.expires = result.expires;
+        user.renew_token_count = 0;
         userStore.set(user);
         onSucceed();
     })

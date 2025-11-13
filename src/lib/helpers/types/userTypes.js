@@ -18,6 +18,7 @@
  * @property {string} [color]
  * @property {string} [token]
  * @property {boolean} [open_detail]
+ * @property {number?} [renew_token_count]
  */
 
 /**
