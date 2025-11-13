@@ -42,10 +42,11 @@ export function getUserStore() {
     if (browser) {
         // Access localStorage only if in the browser context
         let json = sessionStorage.getItem(userKey);
-        if (json)
+        if (json) {
             return JSON.parse(json);
-        else
+        } else {
             return userStore;
+        }
     } else {
         // Return a default value for SSR
         return userStore;
