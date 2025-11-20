@@ -147,8 +147,6 @@
 
 <HeadTitle title="{$_('Role List')}" />
 <Breadcrumb title="{$_('Management')}" pagetitle="{$_('Roles')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={successText} errorText={errorText} />
-
 
 <Row>
 	<Col lg="12">
@@ -160,6 +158,14 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
+					<LoadingToComplete
+						spinnerStyles={'position: absolute;'}
+						isLoading={isLoading}
+						isComplete={isComplete}
+						isError={isError}
+						successText={successText}
+						errorText={errorText}
+					/>
 					<Table class="align-middle nowrap roles-table" bordered>
 						<thead>
 							<tr>

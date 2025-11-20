@@ -260,7 +260,6 @@
 
 <HeadTitle title="{$_('Task List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Task')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} />
 
 <Row>
 	<Col lg="12">
@@ -313,6 +312,11 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive">
+					<LoadingToComplete
+						spinnerStyles={'position: absolute;'}
+						isLoading={isLoading}
+						isComplete={isComplete}
+					/>
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>

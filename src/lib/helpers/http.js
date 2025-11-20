@@ -208,24 +208,32 @@ function skipLoader(config) {
 
     /** @type {RegExp[]} */
     const getRegexes = [
-        new RegExp('http(s*)://(.*?)/setting/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/user/me', 'g'),
         new RegExp('http(s*)://(.*?)/plugin/menu', 'g'),
-        new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/exist', 'g'),
+        new RegExp('http(s*)://(.*?)/settings', 'g'),
+        new RegExp('http(s*)://(.*?)/setting/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/roles', 'g'),
         new RegExp('http(s*)://(.*?)/role/options', 'g'),
         new RegExp('http(s*)://(.*?)/role/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/user/(.*?)/details', 'g'),
+        new RegExp('http(s*)://(.*?)/user/me', 'g'),
+        new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/options', 'g'),
         new RegExp('http(s*)://(.*?)/agent/labels', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/tasks', 'g'),
+        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
+        new RegExp('http(s*)://(.*?)/conversations', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/state/keys', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/llm-configs', 'g'),
+        new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/exist', 'g'),
+        new RegExp('http(s*)://(.*?)/logger/instruction/log', 'g'),
         new RegExp('http(s*)://(.*?)/logger/instruction/log/keys', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/content-log', 'g'),
         new RegExp('http(s*)://(.*?)/logger/conversation/(.*?)/state-log', 'g'),
         new RegExp('http(s*)://(.*?)/mcp/server-configs', 'g'),
-        new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g')
+        
     ];
 
     if (config.method === 'post' && postRegexes.some(regex => regex.test(config.url || ''))) {
@@ -241,6 +249,7 @@ function skipLoader(config) {
     }
 
     if (config.method === 'get' && getRegexes.some(regex => regex.test(config.url || ''))) {
+        console.log('url', config.url);
         return true;
     }
 

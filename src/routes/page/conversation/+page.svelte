@@ -414,7 +414,6 @@
 
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} successText={'Delete completed!'} />
 
 <Row>
 	<Col lg="12">
@@ -529,6 +528,12 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
+					<LoadingToComplete
+						spinnerStyles={'position: absolute;'}
+						isLoading={isLoading}
+						isComplete={isComplete}
+						successText={'Delete completed!'}
+					/>
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>

@@ -5,14 +5,20 @@
     export let isLoading = false;
     export let isComplete = false;
     export let isError = false;
+    export let spinnerClasses = '';
+    export let spinnerStyles = '';
+    export let spinnerSize = 50;
 
     export let successText = 'Update completed!';
     export let errorText = 'Error!';
-    export let spinnerSize = 50;
 </script>
 
 {#if isLoading}
-    <Loader size={spinnerSize} />
+    <Loader
+        size={spinnerSize}
+        containerClasses={spinnerClasses}
+        containerStyles={spinnerStyles}
+    />
 {/if}
 
 

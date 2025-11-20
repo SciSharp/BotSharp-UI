@@ -232,8 +232,6 @@
 
 <HeadTitle title="{$_('User List')}" />
 <Breadcrumb title="{$_('Management')}" pagetitle="{$_('Users')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} isError={isError} successText={successText} errorText={errorText} />
-
 
 <Row>
 	<Col lg="12">
@@ -272,6 +270,14 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
+					<LoadingToComplete
+						spinnerStyles={'position: absolute;'}
+						isLoading={isLoading}
+						isComplete={isComplete}
+						isError={isError}
+						successText={successText}
+						errorText={errorText}
+					/>
 					<Table class="align-middle nowrap users-table" bordered>
 						<thead>
 							<tr>

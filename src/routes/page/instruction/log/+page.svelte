@@ -23,6 +23,7 @@
 	import { TimeRange } from '$lib/helpers/enums';
 	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
 	import LogItem from './log-item.svelte';
+	import Loader from '$lib/common/Loader.svelte';
 	
 
     const firstPage = 1;
@@ -291,7 +292,6 @@
 
 <HeadTitle title="{$_('Instruction Log')}" />
 <Breadcrumb pagetitle="{$_('Log')}" title="{$_('Instruction')}"/>
-<LoadingToComplete isLoading={isLoading} />
 
 <Row>
 	<Col lg="12">
@@ -393,6 +393,7 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
+					<LoadingToComplete spinnerStyles={'position: absolute;'} isLoading={isLoading} />
 					<Table class="align-middle nowrap users-table" bordered>
 						<thead>
 							<tr>
@@ -407,9 +408,7 @@
 						</thead>
 						<tbody>
 							{#each logItems as item, idx (idx)}
-                                <LogItem
-                                    item={item}
-                                />
+                                <LogItem item={item} />
                             {/each}
 						</tbody>
 					</Table>

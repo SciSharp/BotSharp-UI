@@ -1,5 +1,6 @@
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
+import qs from 'qs';
 
 /**
  * Get role options
@@ -17,7 +18,10 @@ export async function getRoleOptions() {
  * @returns {Promise<import('$roleTypes').RoleModel[]>}
  */
 export async function getRoles(filter = null) {
-    const response = await axios.post(endpoints.rolesUrl, filter);
+    const response = await axios.get(endpoints.rolesUrl, {
+        params: filter,
+        paramsSerializer: (params) => qs.stringify(params, { encode: false, allowDots: true, arrayFormat: "indices" })
+    });
     return response.data;
 }
 
