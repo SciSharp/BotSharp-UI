@@ -185,7 +185,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
         new RegExp('http(s*)://(.*?)/users', 'g'),
-        new RegExp('http(s*)://(.*?)/instruct/chat-completion', 'g'),
+        new RegExp('http(s*)://(.*?)/instruct/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-script/generate', 'g'),
         new RegExp('http(s*)://(.*?)/renew-token', 'g')
@@ -217,10 +217,13 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/user/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/user/me', 'g'),
         new RegExp('http(s*)://(.*?)/address/options(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/agents', 'g'),
         new RegExp('http(s*)://(.*?)/agent/options', 'g'),
         new RegExp('http(s*)://(.*?)/agent/labels', 'g'),
         new RegExp('http(s*)://(.*?)/agent/tasks', 'g'),
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation', 'g'),
+        new RegExp('http(s*)://(.*?)/conversations/(.*?)/dialogs', 'g'),
         new RegExp('http(s*)://(.*?)/conversations', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/state/keys', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
@@ -249,7 +252,6 @@ function skipLoader(config) {
     }
 
     if (config.method === 'get' && getRegexes.some(regex => regex.test(config.url || ''))) {
-        console.log('url', config.url);
         return true;
     }
 
