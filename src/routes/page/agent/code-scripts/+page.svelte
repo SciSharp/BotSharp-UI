@@ -175,63 +175,60 @@
 <HeadTitle title="{$_('Code Scripts')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Code Scripts')}" />
 
+<LoadingToComplete
+    {isLoading}
+    {isComplete}
+    {isError}
+/>
 
-<div style="position: relative;">
-    <LoadingToComplete
-        spinnerStyles={'position: absolute;'}
-        {isLoading}
-        {isComplete}
-        {isError}
-    />
-    <Card>
-        <CardBody class="border-bottom">
-            <Row class="g-3">
-                <Col lg="3" class="d-flex flex-column gap-1">
-                    <div class="fw-bold">Agent</div>
-                    <Select
-                        tag={'agent-select'}
-                        placeholder={'Select agent'}
-                        selectedText={'agents'}
-                        searchMode
-                        selectedValues={selectedAgentId ? [selectedAgentId] : []}
-                        options={agentOptions}
-                        on:select={e => changeAgent(e)}
-                    />
-                </Col>
-            </Row>
-        </CardBody>
-    </Card>
-
-    {#if !!selectedAgentId}
-        <ScriptEditor
-            title={'Source scripts'}
-            scriptType={AgentCodeScriptType.Src}
-            bind:scriptObj={srcScriptObj}
-        />
-        <ScriptEditor
-            title={'Test scripts'}
-            scriptType={AgentCodeScriptType.Test}
-            bind:scriptObj={testScriptObj}
-        />
-
-        {#if ADMIN_ROLES.includes(user?.role || '')}
-        <Row>
-            <div class="hstack gap-2 my-4">
-                <Button
-                    class="btn btn-soft-primary"
-                    disabled={!selectedAgentId}
-                    on:click={() => saveCodeScripts()}
-                >
-                    {$_('Save')}
-                </Button>
-                <Button
-                    class="btn btn-warning"
-                    disabled={!selectedAgentId}
-                    on:click={() => resetCodeScripts()}>
-                    {$_('Reset')}
-                </Button>
-            </div>
+<Card>
+    <CardBody class="border-bottom">
+        <Row class="g-3">
+            <Col lg="3" class="d-flex flex-column gap-1">
+                <div class="fw-bold">Agent</div>
+                <Select
+                    tag={'agent-select'}
+                    placeholder={'Select agent'}
+                    selectedText={'agents'}
+                    searchMode
+                    selectedValues={selectedAgentId ? [selectedAgentId] : []}
+                    options={agentOptions}
+                    on:select={e => changeAgent(e)}
+                />
+            </Col>
         </Row>
-        {/if}
+    </CardBody>
+</Card>
+
+{#if !!selectedAgentId}
+    <ScriptEditor
+        title={'Source scripts'}
+        scriptType={AgentCodeScriptType.Src}
+        bind:scriptObj={srcScriptObj}
+    />
+    <ScriptEditor
+        title={'Test scripts'}
+        scriptType={AgentCodeScriptType.Test}
+        bind:scriptObj={testScriptObj}
+    />
+
+    {#if ADMIN_ROLES.includes(user?.role || '')}
+    <Row>
+        <div class="hstack gap-2 my-4">
+            <Button
+                class="btn btn-soft-primary"
+                disabled={!selectedAgentId}
+                on:click={() => saveCodeScripts()}
+            >
+                {$_('Save')}
+            </Button>
+            <Button
+                class="btn btn-warning"
+                disabled={!selectedAgentId}
+                on:click={() => resetCodeScripts()}>
+                {$_('Reset')}
+            </Button>
+        </div>
+    </Row>
     {/if}
-</div>
+{/if}

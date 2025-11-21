@@ -18,6 +18,7 @@
 
 	const firstPage = 1;
 	const pageSize = 12;
+	let isPageMounted = false;
 
 	/** @type {import('$commonTypes').PagedItems<import('$pluginTypes').PluginDefModel>} */
     let plugins = { items: [], count: 0 };
@@ -37,6 +38,7 @@
 	let unsubscriber;
 
     onMount(async () => {
+		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
@@ -70,6 +72,7 @@
     });
 
 	onDestroy(() => {
+		isPageMounted = false;
 		unsubscriber?.();
 	});
 
@@ -106,7 +109,10 @@
 		setUrlQueryParams($page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		], () => {
+			if (!isPageMounted) return;
+			goToUrl(`${$page.url.pathname}${$page.url.search}`);
+		});
 	}
 
 	/**

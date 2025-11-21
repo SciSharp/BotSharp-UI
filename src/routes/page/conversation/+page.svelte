@@ -40,6 +40,7 @@
 	let isLoading = false;
 	let isComplete = false;
 	let showStateSearch = false;
+	let isPageMounted = false;
 
     /** @type {import('$commonTypes').PagedItems<import('$conversationTypes').ConversationModel>} */
     let conversations = { count: 0, items: [] };
@@ -101,6 +102,7 @@
     ];
 
     onMount(async () => {
+		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
@@ -187,7 +189,10 @@
 		setUrlQueryParams($page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		], () => {
+			if (!isPageMounted) return;
+			goToUrl(`${$page.url.pathname}${$page.url.search}`);
+		});
 	}
 
 	/** @param {number} pageNum */
@@ -415,6 +420,12 @@
 <HeadTitle title="{$_('Conversation List')}" />
 <Breadcrumb title="{$_('Communication')}" pagetitle="{$_('Conversations')}" />
 
+<LoadingToComplete
+	isLoading={isLoading}
+	isComplete={isComplete}
+	successText={'Delete completed!'}
+/>
+
 <Row>
 	<Col lg="12">
 		<Card>
@@ -465,16 +476,6 @@
 							on:select={e => changeOption(e, 'agent')}
 						/>
 					</Col>
-					<!-- <Col lg="2">
-						<Select
-							tag={'task-select'}
-							placeholder={'Select Task'}
-							selectedText={'task'}
-							selectedValues={[]}
-							options={[]}
-							on:select={e => changeOption(e, 'task')}
-						/>
-					</Col>					 -->
 					<Col lg="2">
 						<Select
 							tag={'task-select'}
@@ -528,12 +529,6 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
-					<LoadingToComplete
-						spinnerStyles={'position: absolute;'}
-						isLoading={isLoading}
-						isComplete={isComplete}
-						successText={'Delete completed!'}
-					/>
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>

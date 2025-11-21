@@ -176,6 +176,19 @@ export function splitTextByCase(str) {
 }
 
 /**
+ * @param {string} url
+ */
+export function getCleanUrl(url) {
+    if (!url) return url;
+
+    if (url.startsWith('/')) {
+        url = url.substring(1);
+    }
+
+    return url;
+}
+
+/**
  * @param {string} timeRange
  * @returns {{ startTime: string | null, endTime: string | null }}
  */

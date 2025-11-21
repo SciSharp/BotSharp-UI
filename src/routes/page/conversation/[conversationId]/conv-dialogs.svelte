@@ -64,7 +64,10 @@
     }
 </script>
 
-<LoadingToComplete isComplete={isComplete} successText={'Notification sent!'} />
+<LoadingToComplete
+    isComplete={isComplete}
+    successText={'Notification sent!'}
+/>
 
 <DialogModal
     title={'Notification'}

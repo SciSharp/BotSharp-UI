@@ -38,6 +38,7 @@
     let isLoading = false;
 	let isComplete = false;
 	let isError = false;
+	let isPageMounted = false;
     let successText = 'User has been updated!';
     let errorText = 'Failed to update user!';
 
@@ -67,6 +68,7 @@
 	};
 
     onMount(async () => {
+		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
@@ -95,6 +97,7 @@
     });
 
 	onDestroy(() => {
+		isPageMounted = false;
 		unsubscriber?.();
 	});
 
@@ -159,7 +162,10 @@
 		setUrlQueryParams($page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		], () => {
+			if (!isPageMounted) return;
+			goToUrl(`${$page.url.pathname}${$page.url.search}`);
+		});
 	}
 
     function search() {
@@ -233,6 +239,14 @@
 <HeadTitle title="{$_('User List')}" />
 <Breadcrumb title="{$_('Management')}" pagetitle="{$_('Users')}" />
 
+<LoadingToComplete
+	isLoading={isLoading}
+	isComplete={isComplete}
+	isError={isError}
+	successText={successText}
+	errorText={errorText}
+/>
+
 <Row>
 	<Col lg="12">
 		<Card>
@@ -270,14 +284,6 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
-					<LoadingToComplete
-						spinnerStyles={'position: absolute;'}
-						isLoading={isLoading}
-						isComplete={isComplete}
-						isError={isError}
-						successText={successText}
-						errorText={errorText}
-					/>
 					<Table class="align-middle nowrap users-table" bordered>
 						<thead>
 							<tr>

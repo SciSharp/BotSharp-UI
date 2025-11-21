@@ -2,6 +2,7 @@
     // This page is used to initialize a new conversation for client
     import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
     import { newConversation } from '$lib/services/conversation-service.js';
     import { getToken, setToken } from '$lib/services/auth-service.js'
@@ -39,15 +40,16 @@
         }
 
         conversationId = conversation.id;
-        const chatUrl = new URL(`chat/${agentId}/${conversationId}`, window.location.origin);
-        
+        const path = `chat/${agentId}/${conversationId}`;
+
         const searchParams = new URLSearchParams();
         if (agentId === LEARNER_AGENT_ID) {
             searchParams.append('mode', TRAINING_MODE);
         }
 
-        chatUrl.search = searchParams?.toString();
-        window.location.href = chatUrl.toString();
+        const search = searchParams?.toString();
+        const url = search ? `${path}?${search}` : path;
+        goto(url);
     });
 </script>
 

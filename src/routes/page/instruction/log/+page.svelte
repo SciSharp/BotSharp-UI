@@ -23,12 +23,11 @@
 	import { TimeRange } from '$lib/helpers/enums';
 	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
 	import LogItem from './log-item.svelte';
-	import Loader from '$lib/common/Loader.svelte';
-	
 
     const firstPage = 1;
 	const pageSize = 15;
     let isLoading = false;
+	let isPageMounted = false;
 
     const initPager = { page: firstPage, size: pageSize };
 
@@ -83,6 +82,7 @@
     ];
 
     onMount(async () => {
+		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
@@ -180,7 +180,10 @@
 		setUrlQueryParams($page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		], () => {
+			if (!isPageMounted) return;
+			goToUrl(`${$page.url.pathname}${$page.url.search}`);
+		});
 	}
 
     /**
@@ -293,6 +296,8 @@
 <HeadTitle title="{$_('Instruction Log')}" />
 <Breadcrumb pagetitle="{$_('Log')}" title="{$_('Instruction')}"/>
 
+<LoadingToComplete isLoading={isLoading} />
+
 <Row>
 	<Col lg="12">
 		<Card>
@@ -393,7 +398,6 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive thin-scrollbar">
-					<LoadingToComplete spinnerStyles={'position: absolute;'} isLoading={isLoading} />
 					<Table class="align-middle nowrap users-table" bordered>
 						<thead>
 							<tr>

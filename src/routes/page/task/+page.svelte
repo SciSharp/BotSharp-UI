@@ -71,7 +71,9 @@
 	));
 
     onMount(async () => {
+		isLoading = true;
 		await getPagedAgentTasks();
+		isLoading = false;
 
 		const scrollElements = document.querySelectorAll('.scrollbar');
 		scrollElements.forEach((item) => {
@@ -80,7 +82,7 @@
     });
 
 	async function getPagedAgentTasks() {
-		tasks = await getAgentTasks( filter);
+		tasks = await getAgentTasks(filter);
 		refresh();
 	}
 
@@ -118,13 +120,6 @@
 		};
 
 		getPagedAgentTasks();
-	}
-
-
-	async function reloadConversations() {
-		filter = { ...initFilter };
-		tasks = await getAgentTasks(filter);
-		refreshPager(tasks.count);
 	}
 
 	/**
@@ -261,6 +256,11 @@
 <HeadTitle title="{$_('Task List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Task')}" />
 
+<LoadingToComplete
+	isLoading={isLoading}
+	isComplete={isComplete}
+/>
+
 <Row>
 	<Col lg="12">
 		<Card>
@@ -312,11 +312,6 @@
 			</CardBody>
 			<CardBody>
 				<div class="table-responsive">
-					<LoadingToComplete
-						spinnerStyles={'position: absolute;'}
-						isLoading={isLoading}
-						isComplete={isComplete}
-					/>
 					<Table class="align-middle nowrap" bordered>
 						<thead>
 							<tr>

@@ -210,182 +210,179 @@
 <HeadTitle title="{$_('Instruction')}" />
 <Breadcrumb pagetitle="{$_('Testing')}" title="{$_('Instruction')}"/>
 
+<LoadingToComplete
+    isLoading={isLoading}
+    isError={isError}
+    errorText={errorText}
+/>
 
-<div style="position: relative;">
-    <LoadingToComplete
-        spinnerStyles={'position: absolute;'}
-        isLoading={isLoading}
-        isError={isError}
-        errorText={errorText}
-    />
-    <div class="d-xl-flex">
-        <div class="w-100">
-            <div class="instruction-container mb-4">
-                <textarea
-                    class='form-control knowledge-textarea'
-                    rows={8}
-                    maxlength={maxLength}
-                    disabled={isThinking}
-                    placeholder={'Enter input message...'}
-                    bind:value={text}
-                    on:keydown={(e) => pressKey(e)}
-                />
-                <div class="text-secondary text-count d-flex justify-content-between">
-                    <div>
-                        {#if elapsedTime}
-                            {`Elapsed time: ${elapsedTime}`}
-                        {/if}
-                    </div>
-                    <div>{text?.length || 0}/{maxLength}</div>
+<div class="d-xl-flex">
+    <div class="w-100">
+        <div class="instruction-container mb-4">
+            <textarea
+                class='form-control knowledge-textarea'
+                rows={8}
+                maxlength={maxLength}
+                disabled={isThinking}
+                placeholder={'Enter input message...'}
+                bind:value={text}
+                on:keydown={(e) => pressKey(e)}
+            />
+            <div class="text-secondary text-count d-flex justify-content-between">
+                <div>
+                    {#if elapsedTime}
+                        {`Elapsed time: ${elapsedTime}`}
+                    {/if}
                 </div>
-            
-                <div class="mt-2 text-end">
-                    <Button
-                        color="primary"
-                        disabled={!text || util.trim(text).length === 0 || isThinking}
-                        on:click={() => sendRequest()}
-                    >
-                        {'Send'}
-                    </Button>
-                </div>
-            
-                {#if isThinking}
-                    <div class="knowledge-loader mt-4">
-                        <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
-                    </div>
-                {:else if requestDone && !!result}
-                    <div
-                        class="instruction-result-container mt-3"
-                        in:fly={{ y: -10, duration: 500 }}
-                    >
-                        <div class="instruct-header text-primary fw-bold">
-                            <div>{'Response'}</div>
-                            <div>
-                                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <i
-                                    class="mdi mdi-close-thick text-danger clickable"
-                                    on:click={() => closeResponse()}
-                                />
-                            </div>
-                        </div>
-                        <div class="instruction-result-body instruction-section instruction-border mt-2">
-                            <Markdown containerClasses={'markdown-dark text-dark'} text={result} rawText />
-                        </div>
-                    </div>
-                {:else if requestDone && !result}
-                    <div class="mt-3">
-                        <h4 class="text-secondary text-center">{"Ehhh, no idea..."}</h4>
-                    </div>
-                {/if}
+                <div>{text?.length || 0}/{maxLength}</div>
             </div>
+        
+            <div class="mt-2 text-end">
+                <Button
+                    color="primary"
+                    disabled={!text || util.trim(text).length === 0 || isThinking}
+                    on:click={() => sendRequest()}
+                >
+                    {'Send'}
+                </Button>
+            </div>
+        
+            {#if isThinking}
+                <div class="knowledge-loader mt-4">
+                    <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+                </div>
+            {:else if requestDone && !!result}
+                <div
+                    class="instruction-result-container mt-3"
+                    in:fly={{ y: -10, duration: 500 }}
+                >
+                    <div class="instruct-header text-primary fw-bold">
+                        <div>{'Response'}</div>
+                        <div>
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <i
+                                class="mdi mdi-close-thick text-danger clickable"
+                                on:click={() => closeResponse()}
+                            />
+                        </div>
+                    </div>
+                    <div class="instruction-result-body instruction-section instruction-border mt-2">
+                        <Markdown containerClasses={'markdown-dark text-dark'} text={result} rawText />
+                    </div>
+                </div>
+            {:else if requestDone && !result}
+                <div class="mt-3">
+                    <h4 class="text-secondary text-center">{"Ehhh, no idea..."}</h4>
+                </div>
+            {/if}
         </div>
     </div>
+</div>
 
-    <div class="d-xl-flex mt-4 mb-5">
-        <div class="w-100">
-            <Row>
-                <Col lg="7">
-                    <div class="instruct-text-header text-primary fw-bold mb-2">
-                        <div class="line-align-center">
-                            {'Instruction'}
-                        </div>
-                        <div class="line-align-center">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                            <!-- <i
-                                class="mdi mdi-refresh text-primary clickable"
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="bottom"
-                                title={'Reset'}
-                                on:click={e => resetInstruction()}
-                            /> -->
-                            <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
-                                <i class="bx bx-info-circle" />
-                            </div>
-                            <Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
-                                <div>Please select an agent to proceed!</div>
-                            </Tooltip>
-                        </div>
+<div class="d-xl-flex mt-4 mb-5">
+    <div class="w-100">
+        <Row>
+            <Col lg="7">
+                <div class="instruct-text-header text-primary fw-bold mb-2">
+                    <div class="line-align-center">
+                        {'Instruction'}
                     </div>
-                </Col>
-                <Col lg="5"></Col>
-            </Row>
-            <Row class="instruct-setting-container">
-                <Col lg="7">
-                    <div>
-                        <div class="instruct-setting-section" style="gap: 2px;">
-                            <textarea
-                                class='form-control knowledge-textarea'
-                                rows={19}
-                                maxlength={maxLength}
-                                disabled
-                                placeholder={''}
-                                bind:value={instruction}
+                    <div class="line-align-center">
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <!-- <i
+                            class="mdi mdi-refresh text-primary clickable"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="bottom"
+                            title={'Reset'}
+                            on:click={e => resetInstruction()}
+                        /> -->
+                        <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
+                            <i class="bx bx-info-circle" />
+                        </div>
+                        <Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
+                            <div>Please select an agent to proceed!</div>
+                        </Tooltip>
+                    </div>
+                </div>
+            </Col>
+            <Col lg="5"></Col>
+        </Row>
+        <Row class="instruct-setting-container">
+            <Col lg="7">
+                <div>
+                    <div class="instruct-setting-section" style="gap: 2px;">
+                        <textarea
+                            class='form-control knowledge-textarea'
+                            rows={19}
+                            maxlength={maxLength}
+                            disabled
+                            placeholder={''}
+                            bind:value={instruction}
+                        />
+                        <!-- <div class="text-secondary text-end text-count">
+                            <div>{instruction?.length || 0}/{maxLength}</div>
+                        </div> -->
+                    </div>
+                </div>
+            </Col>
+            <Col lg="5" class="instruction-gap">
+                <Card>
+                    <CardBody>
+                        <NavBar
+                            id={'instruction-nav-container'}
+                            disableDefaultStyles
+                            containerClasses={'nav-tabs-secondary'}
+                        >
+                            {#each tabs as tab, idx}
+                            <NavItem
+                                containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
+                                navBtnStyles={'text-transform: none;'}
+                                navBtnId={`${tab.name}-tab`}
+                                dataBsTarget={`#${tab.name}-tab-pane`}
+                                ariaControls={`${tab.name}-tab-pane`}
+                                navBtnText={tab.displayText}
+                                active={tab.name === selectedTab}
+                                onClick={() => handleTabClick(tab.name)}
                             />
-                            <!-- <div class="text-secondary text-end text-count">
-                                <div>{instruction?.length || 0}/{maxLength}</div>
-                            </div> -->
+                            {/each}
+                        </NavBar>
+                        
+                        <div class:hide={selectedTab !== 'instruction-agent'}>
+                            <InstructionAgent
+                                agents={agents}
+                                disabled={isThinking}
+                                on:selectAgent={e => onAgentSelected(e)}
+                            />
                         </div>
-                    </div>
-                </Col>
-                <Col lg="5" class="instruction-gap">
-                    <Card>
-                        <CardBody>
-                            <NavBar
-                                id={'instruction-nav-container'}
-                                disableDefaultStyles
-                                containerClasses={'nav-tabs-secondary'}
-                            >
-                                {#each tabs as tab, idx}
-                                <NavItem
-                                    containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
-                                    navBtnStyles={'text-transform: none;'}
-                                    navBtnId={`${tab.name}-tab`}
-                                    dataBsTarget={`#${tab.name}-tab-pane`}
-                                    ariaControls={`${tab.name}-tab-pane`}
-                                    navBtnText={tab.displayText}
-                                    active={tab.name === selectedTab}
-                                    onClick={() => handleTabClick(tab.name)}
-                                />
-                                {/each}
-                            </NavBar>
-                            
-                            <div class:hide={selectedTab !== 'instruction-agent'}>
-                                <InstructionAgent
-                                    agents={agents}
-                                    disabled={isThinking}
-                                    on:selectAgent={e => onAgentSelected(e)}
-                                />
-                            </div>
-                            <div class:hide={selectedTab !== 'instruction-llm'}>
-                                <InstructionLlm
-                                    llmConfigs={llmConfigs}
-                                    disabled={isThinking}
-                                    selectedProvider={selectedProvider}
-                                    selectedModel={selectedModel}
-                                    on:selectLlm={e => onLlmSelected(e)}
-                                />
-                            </div>
-                            <div class:hide={selectedTab !== 'instruction-states'}>
-                                <InstructionState
-                                    bind:states={states}
-                                    disabled={isThinking}
-                                />
-                            </div>
-                            <div class:hide={selectedTab !== 'instruction-coding'}>
-                                <InstructionCoding
-                                    bind:selectedCodeScript={selectedCodeScript}
-                                    bind:args={args}
-                                    codeScripts={codeScripts}
-                                    disabled={isThinking}
-                                />
-                            </div>
-                        </CardBody>
-                    </Card>
-                    
-                </Col>
-            </Row>
-        </div>
+                        <div class:hide={selectedTab !== 'instruction-llm'}>
+                            <InstructionLlm
+                                llmConfigs={llmConfigs}
+                                disabled={isThinking}
+                                selectedProvider={selectedProvider}
+                                selectedModel={selectedModel}
+                                on:selectLlm={e => onLlmSelected(e)}
+                            />
+                        </div>
+                        <div class:hide={selectedTab !== 'instruction-states'}>
+                            <InstructionState
+                                bind:states={states}
+                                disabled={isThinking}
+                            />
+                        </div>
+                        <div class:hide={selectedTab !== 'instruction-coding'}>
+                            <InstructionCoding
+                                bind:selectedCodeScript={selectedCodeScript}
+                                bind:args={args}
+                                codeScripts={codeScripts}
+                                disabled={isThinking}
+                            />
+                        </div>
+                    </CardBody>
+                </Card>
+                
+            </Col>
+        </Row>
     </div>
 </div>

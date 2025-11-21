@@ -1,11 +1,9 @@
 <script>
-    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
-    import { page } from '$app/stores';
     import { onMount } from 'svelte';
+    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import { getSettingDetail } from '$lib/services/setting-service';
     import { getAgents } from '$lib/services/agent-service.js'
-    
-    const params = $page.params;
+
     /** @type {import('$agentTypes').AgentFilter} */
     const filter = {
         pager: { page: 1, size: 10, count: 0 }

@@ -16,9 +16,10 @@ export async function getSettings() {
  * Get agent list
  * @param {import('$agentTypes').AgentFilter} filter
  * @param {boolean} checkAuth
+ * @param {AbortSignal | null} signal
  * @returns {Promise<import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>>}
  */
-export async function getAgents(filter, checkAuth = false) {
+export async function getAgents(filter, checkAuth = false, signal = null) {
     let url = endpoints.agentListUrl;
     const response = await axios.get(url, {
         params: {
@@ -28,7 +29,8 @@ export async function getAgents(filter, checkAuth = false) {
         paramsSerializer: {
             dots: true,
             indexes: null,
-        }
+        },
+        signal: signal || undefined
     });
     return response.data;
 }

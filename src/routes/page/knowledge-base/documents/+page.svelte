@@ -24,7 +24,10 @@
 		deleteAllVectorKnowledgeData,
 		createVectorCollection,
 		createVectorIndexes,
-		deleteVectorIndexes
+		deleteVectorIndexes,
+
+		getVectorCollectionDetails
+
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -63,6 +66,9 @@
 
     /** @type {string} */
     let selectedCollection;
+
+	/** @type {import('$knowledgeTypes').VectorCollectionDetails | null} */
+	let collectionDetails = null;
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
 	let items = [];
@@ -159,15 +165,18 @@
 	function initData() {
 		isLoading = true;
     	getCollections().then(() => {
-			Promise.all([
-				getData({
-					...defaultParams,
-					isReset: true,
-					skipLoader: true,
-					filterGroups: innerSearchGroups,
-					sort: null
-				})
-			]).finally(() => isLoading = false);
+			if (selectedCollection) {
+				Promise.all([
+					getCollectionDetail(),
+					getData({
+						...defaultParams,
+						isReset: true,
+						skipLoader: true,
+						filterGroups: innerSearchGroups,
+						sort: null
+					})
+				]).finally(() => isLoading = false);
+			}
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -391,6 +400,18 @@
 			}).catch(err => {
 				console.log(err);
 				reject(err);
+			});
+		});
+	}
+
+	function getCollectionDetail() {
+		return new Promise((resolve, reject) => {
+			getVectorCollectionDetails(selectedCollection).then(res => {
+				collectionDetails = res || null;
+				resolve(collectionDetails);
+			}).catch(err => {
+				collectionDetails = null;
+				resolve(collectionDetails);
 			});
 		});
 	}

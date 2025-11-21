@@ -1,20 +1,28 @@
 <script>
+	import { onMount } from 'svelte';
 	import { Svelvet, ThemeToggle, Group } from 'svelvet';
+	import { page } from '$app/stores';
+	import { getAgent } from '$lib/services/agent-service.js';
 	import Thickness from './components/Thickness.svelte';
 	import AzureOpenAI from './components/LlmProviders/AzureOpenAI.svelte';
 	import Agent from './components/Agent.svelte';
-	import { page } from '$app/stores';
-	import { getAgent } from '$lib/services/agent-service.js';
-	import { onMount } from 'svelte';
 
+	/** @type {number} */
 	let zoom = 0.8;
-	const params = $page.params;
 
-    /** @type {import('$agentTypes').AgentModel} */
-    let agent;	
-	onMount(async () => {
-		agent = await getAgent(params.agentId);
-	});
+	/** @type {import('$agentTypes').AgentModel} */
+    let agent;
+
+	$: agentId = $page.params.agentId;
+	$: if (agentId) {
+		loadAgent(agentId);
+	}
+    	
+	onMount(async () => {});
+
+	async function loadAgent(/** @type {string} */ id) {
+		agent = await getAgent(id);
+	}
 </script>
 
 <div id="svelet-agent-build">

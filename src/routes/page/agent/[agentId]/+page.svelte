@@ -39,20 +39,29 @@
     let isComplete = false;
 
     const duration = 3000;
-    const params = $page.params;
+
+    $: agentId = $page.params.agentId;
+
+    $: if (agentId) {
+        loadAgent(agentId);
+    }
+
+    async function loadAgent(/** @type {string} */ id) {
+        isLoading = true;
+        agent = await getAgent(id);
+        isLoading = false;
+    }
 
     onMount(async () => {
-        isLoading = true;
         user = await myInfo();
-        agent = await getAgent(params.agentId);
-        isLoading = false;
 
         unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
 
             const similarName = event.payload?.trim();
             if (similarName) {
-                window.location.href = `/page/agent?page=${1}&pageSize=${12}&similarName=${encodeURIComponent(similarName)}`;
+                const url = `page/agent?page=${1}&pageSize=${12}&similarName=${encodeURIComponent(similarName)}`;
+                window.location.href = url;
             }
 		});
     });
@@ -183,7 +192,11 @@
 
 <HeadTitle title="{$_('Agent Overview')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
-<LoadingToComplete isLoading={isLoading} isComplete={isComplete} />
+
+<LoadingToComplete
+    isLoading={isLoading}
+    isComplete={isComplete}
+/>
 
 {#if agent}
 <div>
