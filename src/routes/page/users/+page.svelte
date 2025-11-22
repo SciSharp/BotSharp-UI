@@ -162,9 +162,9 @@
 		setUrlQueryParams($page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
-		], () => {
+		], (url) => {
 			if (!isPageMounted) return;
-			goToUrl(`${$page.url.pathname}${$page.url.search}`);
+			goToUrl(`${url.pathname}${url.search}`);
 		});
 	}
 

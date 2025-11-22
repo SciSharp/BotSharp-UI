@@ -120,18 +120,19 @@ export function getPagingQueryParams(args, defaults = { defaultPageSize: 12, max
 /**
  * @param {URL} url
  * @param {import('$commonTypes').KeyValuePair[]} pairs
- * @param {() => void} [callback]
+ * @param {(args0: URL) => void} [callback]
  */
 export function setUrlQueryParams(url, pairs, callback) {
     if (!pairs?.length) {
         return;
     }
 
+    url.search = '';
     pairs?.map(p => {
         url.searchParams.set(p.key, p.value);
     });
     
-    callback?.();
+    callback?.(url);
 }
 
 /**

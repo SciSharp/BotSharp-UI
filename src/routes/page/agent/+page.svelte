@@ -199,9 +199,9 @@
 			queryParams.push({ key: 'similarName', value: encodeURIComponent(filter.similarName) });
 		}
 
-		setUrlQueryParams($page.url, queryParams, () => {
+		setUrlQueryParams($page.url, queryParams, (url) => {
 			if (!isPageMounted) return;
-			goToUrl(`${$page.url.pathname}${$page.url.search}`)
+			goToUrl(`${url.pathname}${url.search}`)
 		});
 	}
 
@@ -243,6 +243,9 @@
 	function reset() {
 		selectedAgentTypes = [];
 		selectedAgentLabels = [];
+
+		filter = { ...initFilter };
+		getPagedAgents();
 	}
 
 	function refreshFilter() {
@@ -273,7 +276,7 @@
 	<div>
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
 		<Button color="primary" on:click={() => createNewAgent()}>
-			<i class="bx bx-copy" /> {$_('New Agent')}
+			<i class="mdi mdi-content-copy" /> {$_('New Agent')}
 		</Button>
 		{/if}
 	</div>
@@ -308,10 +311,10 @@
 			<i class="mdi mdi-magnify" />
 		</Button>
 		<Button
-			class="btn btn-light"
+			class="btn btn-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
-			title="Reset filters"
+			title="Reset"
 			on:click={(e) => reset()}
 		>
 			<i class="mdi mdi-restore" />

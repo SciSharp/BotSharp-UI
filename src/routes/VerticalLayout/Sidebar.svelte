@@ -202,9 +202,15 @@
 
 	/** @param {string} url */
 	const goToPage = (url) => {
-		if (!url) return;
+		if (!url) {
+			return;
+		}
 
 		url = getCleanUrl(url);
+		if (url === getCleanUrl($page.url.pathname)) {
+			return;
+		}
+
 		globalEventStore.reset();
 		goto(url);
 	}
