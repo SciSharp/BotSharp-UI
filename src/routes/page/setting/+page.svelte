@@ -94,6 +94,7 @@
 
 <HeadTitle title="{$_('Settings')}" />
 <Breadcrumb title="{$_('Settings')}" pagetitle="{$_('Detail')}" />
+
 <LoadingToComplete
     isLoading={isLoading}
     isComplete={isComplete}

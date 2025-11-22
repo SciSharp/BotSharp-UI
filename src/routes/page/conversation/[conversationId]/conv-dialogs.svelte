@@ -3,7 +3,7 @@
     import { _ } from 'svelte-i18n' 
     import util from "lodash";
     import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
-    import { getDialogs, getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
+    import { getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
 	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
@@ -14,10 +14,6 @@
 
     const maxTextLength = 4096;
     const duration = 1500;
-    const dialogCount = 100;
-
-    /** @type {import('$conversationTypes').ChatResponseModel[]} */
-    let dialogs = [];
 
     /** @type {boolean} */
     let isOpenNotificationModal = false;
@@ -29,9 +25,8 @@
     /** @type {import('$conversationTypes').ConversationModel} */
     export let conversation;
 
-    onMount(async () => {
-        dialogs = await getDialogs(conversation.id, dialogCount);
-    });
+    /** @type {import('$conversationTypes').ChatResponseModel[]} */
+    export let dialogs = [];
 
     /** 
      * @param {import('$conversationTypes').ChatResponseModel} dialog
@@ -69,7 +64,10 @@
     }
 </script>
 
-<LoadingToComplete isComplete={isComplete} successText={'Notification sent!'} />
+<LoadingToComplete
+    isComplete={isComplete}
+    successText={'Notification sent!'}
+/>
 
 <DialogModal
     title={'Notification'}

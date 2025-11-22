@@ -1,10 +1,37 @@
 .agents-header-container {
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-between;
+    gap: 15px;
+    align-items: center;
+
+    @media (max-width: 576px) {
+        flex-direction: column;
+        justify-content: center;
+        gap: 12px;
+
+        > div {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    }
 
     .agent-filter {
         display: flex;
-        gap: 10px
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+
+        @media (max-width: 576px) {
+            width: 100%;
+            flex-direction: column;
+            gap: 8px;
+
+            > * {
+                width: 100%;
+            }
+        }
     }
 }
 

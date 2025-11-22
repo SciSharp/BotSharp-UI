@@ -266,7 +266,13 @@
 
 <svelte:window on:resize={() => resizeWindow()}/>
 
-<LoadingToComplete {isLoading} {isComplete} {isError} {successText} {errorText} />
+<LoadingToComplete
+    {isLoading}
+    {isComplete}
+    {isError}
+    {successText}
+    {errorText}
+/>
 
 <Card>
     <CardBody>

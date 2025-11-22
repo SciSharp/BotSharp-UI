@@ -204,3 +204,17 @@ button:focus {
     text-overflow: ellipsis;
   }
 }
+
+.text-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  font-weight: 500;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: none;
+    background: none;
+  }
+}

@@ -209,10 +209,15 @@
 
 <HeadTitle title="{$_('Instruction')}" />
 <Breadcrumb pagetitle="{$_('Testing')}" title="{$_('Instruction')}"/>
-<LoadingToComplete isLoading={isLoading} isError={isError} errorText={errorText} />
+
+<LoadingToComplete
+    isLoading={isLoading}
+    isError={isError}
+    errorText={errorText}
+/>
 
 <div class="d-xl-flex">
-	<div class="w-100">
+    <div class="w-100">
         <div class="instruction-container mb-4">
             <textarea
                 class='form-control knowledge-textarea'
@@ -276,7 +281,7 @@
 </div>
 
 <div class="d-xl-flex mt-4 mb-5">
-	<div class="w-100">
+    <div class="w-100">
         <Row>
             <Col lg="7">
                 <div class="instruct-text-header text-primary fw-bold mb-2">

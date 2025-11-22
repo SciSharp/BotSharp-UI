@@ -1,14 +1,24 @@
 <script>
-  import Link from "svelte-link";
-  import { Badge, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
-  import { utcToLocal } from '$lib/helpers/datetime';
+  import { goto } from '$app/navigation';
   import { _ } from 'svelte-i18n';
+  import { Badge, Button, Card, CardBody, Col } from '@sveltestrap/sveltestrap';
+  import { utcToLocal } from '$lib/helpers/datetime';
 	import { LEARNER_AGENT_ID } from "$lib/helpers/constants";
 	import { AgentExtensions } from "$lib/helpers/utils/agent";
+	import { globalEventStore } from '$lib/helpers/store';
 
   /** @type {import('$agentTypes').AgentModel[]} */
   export let agents;
 
+  /**
+	 * @param {string} url
+	 */
+  function goToPage(url) {
+    if (!url) return;
+    
+    globalEventStore.reset();
+    goto(url);
+  }
 </script>
 
 {#each agents as agent}
@@ -29,9 +39,9 @@
           <div class="flex-grow-1 overflow-hidden">
             <div class="agent-card-header">
               <h5 class="text-truncate font-size-15 line-align-center mb-0">
-                <Link href= "page/agent/{agent.id}" class="text-dark">
+                <Button class="text-dark text-btn font-size-15" on:click={() => goToPage(`page/agent/${agent.id}`)}>
                   {agent.name}
-                </Link>
+                </Button>
               </h5>
               {#if agent.is_router}
               <div
@@ -40,9 +50,9 @@
                 data-bs-placement="bottom"
                 title="Go to flowchart"
               >
-                <Link href={`page/agent/router?agent_id=${agent.id}`} target="_blank">
+                <Button class="text-dark text-btn font-size-15" on:click={() => goToPage(`page/agent/router?agent_id=${agent.id}`)}>
                   <i class="mdi mdi-sitemap" />
-                </Link>
+                </Button>
               </div>
               {/if}
             </div>
@@ -102,20 +112,20 @@
             {utcToLocal(agent.updated_datetime, 'MMM D, YYYY')}
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1">
-            <Link href="page/agent/{agent.id}/build" class="btn btn-primary btn-sm" target="_blank" disabled>
+            <Button class="btn btn-primary btn-sm" on:click={() => goToPage(`page/agent/${agent.id}/build`)} disabled>
               <i class="bx bx-wrench" /> {$_('Build')}
-            </Link>
+            </Button>
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1 mt-1 mb-1">
-            <Link href={`/chat/${LEARNER_AGENT_ID}`} class="btn btn-primary btn-sm" target="_blank" disabled>
+            <Button class="btn btn-primary btn-sm" on:click={() => goToPage(`chat/${LEARNER_AGENT_ID}`)} disabled>
               <i class="bx bx-book-open" /> {$_('Train')}
-            </Link>
+            </Button>
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1">
-            <Link href= "chat/{agent.id}" class="btn btn-primary btn-sm" target="_blank" disabled={!AgentExtensions.chatable(agent)}>
+            <Button class="btn btn-primary btn-sm" color="primary" on:click={() => goToPage(`chat/${agent.id}`)} disabled={!AgentExtensions.chatable(agent)}>
               <i class="bx bx-chat" /> {$_('Test')}
-            </Link>
+            </Button>
           </li>
           {/if}
         </ul>

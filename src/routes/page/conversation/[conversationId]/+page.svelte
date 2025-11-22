@@ -1,23 +1,35 @@
 <script>
+    import { onMount } from 'svelte';
+    import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    import Swal from 'sweetalert2';
+    import { _ } from 'svelte-i18n';
     import { Col, Row, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import Dialog from './conv-dialogs.svelte';
+    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+    import { getConversation, deleteConversation, getDialogs } from '$lib/services/conversation-service.js';
     import Overview from './conv-overview.svelte'
     import States from './conv-states.svelte';
-    import { getConversation, deleteConversation } from '$lib/services/conversation-service.js';
-    import { onMount } from 'svelte';
-    import { page } from '$app/stores';
-    import Swal from 'sweetalert2'
-    import { _ } from 'svelte-i18n'  
+    import Dialog from './conv-dialogs.svelte';
 
     const params = $page.params;
+    const dialogCount = 100;
+
+    let isLoading = false;
 
     /** @type {import('$conversationTypes').ConversationModel} */
     let conversation;
 
+    /** @type {import('$conversationTypes').ChatResponseModel[]} */
+    let dialogs = [];
+
+
     onMount(async () => {
+        isLoading = true;
         conversation = await getConversation(params.conversationId, true);
+        isLoading = false;
+        dialogs = await getDialogs(conversation.id, dialogCount);
     });  
 
     function handleConversationDeletion() {
@@ -32,7 +44,7 @@
         }).then(async (result) => {
             if (result.value) {
                 await deleteConversation(conversation.id);
-                window.location.href = "page/conversation";
+                goto("page/conversation");
             }
         });
     }
@@ -42,24 +54,26 @@
 <HeadTitle title={conversation?.title || 'Not found'} />
 <Breadcrumb title="{$_('Conversation')}" pagetitle="{$_('Conversation Detail')}" />
 
+<LoadingToComplete {isLoading} />
+
 {#if conversation}
-<Row>
-    <Col style="flex: 40%;">
-        <Overview conversation={conversation} />
-        <States conversation={conversation} />
-    </Col>
-    <Col style="flex: 60%;">
-        <Dialog conversation={conversation} />        
-    </Col>
-</Row>
-<Row>
-    <div class="mb-4">
-        <Button
-            class="btn btn-danger btn-hover rounded"
-            on:click={() => handleConversationDeletion()}
-        >
-            <i class="mdi mdi-delete"></i>{$_('Delete Conversation')}
-        </Button>
-    </div>
-</Row>
+    <Row>
+        <Col style="flex: 40%;">
+            <Overview {conversation} />
+            <States {conversation} />
+        </Col>
+        <Col style="flex: 60%;">
+            <Dialog {conversation} {dialogs} />
+        </Col>
+    </Row>
+    <Row>
+        <div class="mb-4">
+            <Button
+                class="btn btn-danger btn-hover rounded"
+                on:click={() => handleConversationDeletion()}
+            >
+                <i class="mdi mdi-delete"></i>{$_('Delete Conversation')}
+            </Button>
+        </div>
+    </Row>
 {/if}

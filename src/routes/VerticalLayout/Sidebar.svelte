@@ -1,14 +1,15 @@
 <script>
-// @ts-nocheck
-
+	// @ts-nocheck
 	import { onMount, afterUpdate } from 'svelte';
+	import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
+	import { page } from '$app/stores';
+	import { _ } from 'svelte-i18n';
+	import Link from 'svelte-link';
 	import 'overlayscrollbars/overlayscrollbars.css';
 	import { OverlayScrollbars } from 'overlayscrollbars';
-	import Link from 'svelte-link';
-	import { page } from '$app/stores';
-	import { browser } from '$app/environment';
-	import { _ } from 'svelte-i18n';
 	import { globalEventStore } from '$lib/helpers/store';
+	import { getCleanUrl } from '$lib/helpers/utils/common';
 
 	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
 	export let menu;
@@ -16,9 +17,9 @@
 	// after routing complete call afterUpdate function
 	afterUpdate(() => {
 		removeActiveDropdown();
-		const curUrl = getPathUrl();
+		const curUrl = getCleanUrl($page.url.pathname);
 		if (curUrl) {
-			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
+			const item = document.querySelector(".vertical-menu a[id='" + curUrl + "']");
 			if (item) {
 				item.classList.add('mm-active');
 				const parent1 = item.parentElement;
@@ -62,12 +63,13 @@
 
 	onMount(async () => {
 		const menuElement = document.querySelector('#vertical-menu');
+		// @ts-ignore
 		OverlayScrollbars(menuElement, options);
 		activeMenu();
 
-		const curUrl = getPathUrl();
+		const curUrl = getCleanUrl($page.url.pathname);
 		if (curUrl) {
-			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']");
+			const item = document.querySelector(".vertical-menu a[id='" + curUrl + "']");
 			if (item) {
 				item.classList.add('mm-active');
 				item.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -183,26 +185,34 @@
 
 	const menuItemScroll = () => {
 		if (browser) {
-			const curUrl = getPathUrl();
-			let item = document.querySelector(".vertical-menu a[href='" + curUrl + "']")?.offsetTop;
-			if (item && item > 300) {
-				item = item - 300;
+			const curUrl = getCleanUrl($page.url.pathname);
+			const item = document.querySelector(".vertical-menu a[id='" + curUrl + "']");
+			// @ts-ignore
+			let offset = item?.offsetTop;
+			if (offset && offset > 300) {
+				offset = offset - 300;
 				const menuElement = document.getElementById('vertical-menu');
 				menuElement?.scrollTo({
-					top: item,
+					top: offset,
 					behavior: 'smooth'
 				});
 			}
 		}
 	};
 
-	const getPathUrl = () => {
-		const path = $page.url.pathname;
-		return path?.startsWith('/') ? path.substring(1) : path;
-	};
+	/** @param {string} url */
+	const goToPage = (url) => {
+		if (!url) {
+			return;
+		}
 
-	const goToPage = () => {
+		url = getCleanUrl(url);
+		if (url === getCleanUrl($page.url.pathname)) {
+			return;
+		}
+
 		globalEventStore.reset();
+		goto(url);
 	}
 </script>
 
@@ -217,7 +227,7 @@
 						<li class="menu-title" key="t-menu">{$_(item.label)}</li>
 					{:else if item.subMenu}
 						<li>
-							<Link href={null} class="has-arrow waves-effect">
+							<Link class="has-arrow waves-effect clickable" href={null}>
 								<i class={item.icon} />
 								<span>{$_(item.label)}</span>
 							</Link>
@@ -225,25 +235,34 @@
 								{#each item.subMenu as subMenu}
 									{#if subMenu.isChildItem}
 										<li>
-											<Link href="#" class="has-arrow waves-effect">
+											<Link class="has-arrow waves-effect clickable" href={null}>
 												<span>{$_(subMenu.label)}</span>
 											</Link>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
-													<li><Link href={childItem.link} on:click={() => goToPage()}>{$_(childItem.label)}</Link></li>
+													<li>
+														<Link class="clickable" id={getCleanUrl(childItem.link)} href={null} on:click={() => goToPage(childItem.link)}>
+															{$_(childItem.label)}
+														</Link>
+													</li>
 												{/each}
 											</ul>
 										</li>
 									{:else}
-										<li><Link href={subMenu.link} on:click={() => goToPage()}>{$_(subMenu.label)}</Link></li>
+										<li>
+											<Link class="clickable" id={getCleanUrl(subMenu.link)} href={null} on:click={() => goToPage(subMenu.link)}>
+												{$_(subMenu.label)}
+											</Link>
+										</li>
 									{/if}
 								{/each}
 							</ul>
 						</li>
 					{:else}
 						<li>
-							<Link class="waves-effect" href={item.link} on:click={() => goToPage()} >
-								<i class={item.icon} /> <span>{$_(item.label)}</span>
+							<Link class="waves-effect clickable" id={getCleanUrl(item.link)} href={null} on:click={() => goToPage(item.link)} >
+								<i class={item.icon} /> 
+								<span>{$_(item.label)}</span>
 							</Link>
 						</li>
 					{/if}

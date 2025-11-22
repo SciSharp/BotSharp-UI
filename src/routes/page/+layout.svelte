@@ -5,9 +5,8 @@
 </svelte:head>
 
 <script>
-	import VerticalLayout from '../VerticalLayout/Index.svelte';
-	import '$lib/helpers/http';
 	import LiveChat from '$lib/common/LiveChatEntry.svelte';
+	import VerticalLayout from '../VerticalLayout/Index.svelte';
 
 	let component = VerticalLayout;
 </script>

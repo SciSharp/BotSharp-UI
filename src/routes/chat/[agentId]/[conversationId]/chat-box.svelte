@@ -3,6 +3,7 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -21,7 +22,7 @@
 		conversationUserStateStore,
 		conversationUserMessageStore,
 		conversationUserAttachmentStore,
-		resetStorage
+		resetStorage,
 	} from '$lib/helpers/store.js';
 	import {
 		sendMessageToHub,
@@ -73,6 +74,7 @@
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
 	import { delay } from '$lib/helpers/utils/common';
+	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 
 	
 	const options = {
@@ -718,10 +720,11 @@
 
 	/** @param {import('$conversationTypes').ConversationModel} conversation */
 	function redirectToNewConversation(conversation) {
-		const url = new URL(`chat/${params.agentId}/${conversation.id}`, window.location.origin);
+		const path = `chat/${params.agentId}/${conversation.id}`;
 		const searchParams = $page.url.searchParams;
-		url.search = searchParams?.toString();
-		window.location.href = url.toString();
+		const search = searchParams?.toString();
+		const url = search ? `${path}?${search}` : path;
+		goto(url);
 	}
 
 	function pinDashboard() {
@@ -1522,7 +1525,13 @@
 
 <svelte:window on:resize={() => resizeChatWindow()}/>
 
+<GlobalHeader
+	bind:isLoading={isLoading}
+	bind:hasError={isError}
+/>
+
 <LoadingToComplete
+	spinnerStyles={'position: fixed;'}
 	spinnerSize={35}
 	isLoading={isLoading}
 	isComplete={isComplete}

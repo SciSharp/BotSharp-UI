@@ -158,16 +158,18 @@
 	function initData() {
 		isLoading = true;
     	getCollections().then(() => {
-			Promise.all([
-				getCollectionDetail(),
-				getData({
-					...defaultParams,
-					isReset: true,
-					skipLoader: true,
-					filterGroups: innerSearchGroups,
-					sort: null
-				})
-			]).finally(() => isLoading = false);
+			if (selectedCollection) {
+				Promise.all([
+					getCollectionDetail(),
+					getData({
+						...defaultParams,
+						isReset: true,
+						skipLoader: true,
+						filterGroups: innerSearchGroups,
+						sort: null
+					})
+				]).finally(() => isLoading = false);
+			}
 		}).finally(() => {
 			isLoading = false;
 		});

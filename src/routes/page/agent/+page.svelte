@@ -15,12 +15,12 @@
   	import { myInfo } from '$lib/services/auth-service';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { globalEventStore } from '$lib/helpers/store';
-	import CardAgent from './card-agent.svelte';
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
 		goToUrl
 	} from '$lib/helpers/utils/common';
+	import CardAgent from './card-agent.svelte';
 	
 	
   	const firstPage = 1;
@@ -28,6 +28,10 @@
 
 	/** @type {boolean} */
     let isLoading = false;
+	let isPageMounted = false;
+
+	/** @type {AbortController | null | undefined} */
+	let abortController;
 
 	/** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>} */
   	let agents = { items: [], count: 0 };
@@ -63,6 +67,7 @@
 	let selectedAgentLabels = [];
 
 	onMount(async () => {
+		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
@@ -103,16 +108,23 @@
 	});
 
 	onDestroy(() => {
+		isPageMounted = false;
 		unsubscriber?.();
 	});
 
   	function getPagedAgents() {
 		isLoading = true;
+
+		if (abortController) {
+			abortController.abort();
+		}
+		abortController = new AbortController();
+
 		const innerFilter = {
 			...filter,
 			similarName: filter.similarName ? decodeURIComponent(filter.similarName) : null
 		};
-    	getAgents(innerFilter, true).then(data => {
+    	getAgents(innerFilter, true, abortController?.signal).then(data => {
 			agents = data;
 		}).catch(() => {
 			agents = { items: [], count: 0 };
@@ -187,7 +199,10 @@
 			queryParams.push({ key: 'similarName', value: encodeURIComponent(filter.similarName) });
 		}
 
-		setUrlQueryParams($page.url, queryParams, () => goToUrl(`${$page.url.pathname}${$page.url.search}`));
+		setUrlQueryParams($page.url, queryParams, (url) => {
+			if (!isPageMounted) return;
+			goToUrl(`${url.pathname}${url.search}`)
+		});
 	}
 
 	/**
@@ -228,6 +243,9 @@
 	function reset() {
 		selectedAgentTypes = [];
 		selectedAgentLabels = [];
+
+		filter = { ...initFilter };
+		getPagedAgents();
 	}
 
 	function refreshFilter() {
@@ -249,13 +267,16 @@
 
 <HeadTitle title="{$_('List')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
-<LoadingToComplete isLoading={isLoading} />
+
+<LoadingToComplete
+	isLoading={isLoading}
+/>
 
 <div class="agents-header-container mb-4">
 	<div>
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
 		<Button color="primary" on:click={() => createNewAgent()}>
-			<i class="bx bx-copy" /> {$_('New Agent')}
+			<i class="mdi mdi-content-copy" /> {$_('New Agent')}
 		</Button>
 		{/if}
 	</div>
@@ -290,10 +311,10 @@
 			<i class="mdi mdi-magnify" />
 		</Button>
 		<Button
-			class="btn btn-light"
+			class="btn btn-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
-			title="Reset filters"
+			title="Reset"
 			on:click={(e) => reset()}
 		>
 			<i class="mdi mdi-restore" />

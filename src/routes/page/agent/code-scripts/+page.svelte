@@ -174,7 +174,12 @@
 
 <HeadTitle title="{$_('Code Scripts')}" />
 <Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Code Scripts')}" />
-<LoadingToComplete {isLoading} {isComplete} {isError} />
+
+<LoadingToComplete
+    {isLoading}
+    {isComplete}
+    {isError}
+/>
 
 <Card>
     <CardBody class="border-bottom">
@@ -196,34 +201,34 @@
 </Card>
 
 {#if !!selectedAgentId}
-<ScriptEditor
-    title={'Source scripts'}
-    scriptType={AgentCodeScriptType.Src}
-    bind:scriptObj={srcScriptObj}
-/>
-<ScriptEditor
-    title={'Test scripts'}
-    scriptType={AgentCodeScriptType.Test}
-    bind:scriptObj={testScriptObj}
-/>
+    <ScriptEditor
+        title={'Source scripts'}
+        scriptType={AgentCodeScriptType.Src}
+        bind:scriptObj={srcScriptObj}
+    />
+    <ScriptEditor
+        title={'Test scripts'}
+        scriptType={AgentCodeScriptType.Test}
+        bind:scriptObj={testScriptObj}
+    />
 
-{#if ADMIN_ROLES.includes(user?.role || '')}
-<Row>
-    <div class="hstack gap-2 my-4">
-        <Button
-            class="btn btn-soft-primary"
-            disabled={!selectedAgentId}
-            on:click={() => saveCodeScripts()}
-        >
-            {$_('Save')}
-        </Button>
-        <Button
-            class="btn btn-warning"
-            disabled={!selectedAgentId}
-            on:click={() => resetCodeScripts()}>
-            {$_('Reset')}
-        </Button>
-    </div>
-</Row>
-{/if}
+    {#if ADMIN_ROLES.includes(user?.role || '')}
+    <Row>
+        <div class="hstack gap-2 my-4">
+            <Button
+                class="btn btn-soft-primary"
+                disabled={!selectedAgentId}
+                on:click={() => saveCodeScripts()}
+            >
+                {$_('Save')}
+            </Button>
+            <Button
+                class="btn btn-warning"
+                disabled={!selectedAgentId}
+                on:click={() => resetCodeScripts()}>
+                {$_('Reset')}
+            </Button>
+        </div>
+    </Row>
+    {/if}
 {/if}
