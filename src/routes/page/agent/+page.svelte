@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
 	import { page } from '$app/stores';
-	import { Button, Col, Row } from '@sveltestrap/sveltestrap';
+	import { Button, Col, Input, Row } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
@@ -281,6 +281,13 @@
 		{/if}
 	</div>
 	<div class="agent-filter">
+		<Input
+			type="text"
+			placeholder="Search by name"
+			style="width: fit-content;"
+			value={filter.similarName}
+			on:input={e => filter.similarName = e.target.value?.trim()}
+		/>
 		<Select
 			tag={'agent-label-select'}
 			placeholder={'Select labels'}
