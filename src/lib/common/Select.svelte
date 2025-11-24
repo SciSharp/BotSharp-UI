@@ -373,6 +373,7 @@
     >
         <Input
             type="text"
+            name={'select-display-text'}
             class={`clickable ${disabled ? 'disabled' : ''}`}
             value={displayText}
             placeholder={placeholder}
@@ -392,6 +393,7 @@
                     </div>
                     <Input
                         type="text"
+                        name={'select-search-text'}
                         value={searchValue}
                         placeholder={searchPlaceholder}
                         on:input={e => changeSearchValue(e)}
@@ -411,6 +413,7 @@
                         <div class="line-align-center select-box">
                             <Input
                                 type="checkbox"
+                                name={'select-select-all'}
                                 style="pointer-events: none;"
                                 checked={selectAllChecked}
                                 readonly
@@ -448,6 +451,7 @@
                             {#if multiSelect}
                                 <Input
                                     type="checkbox"
+                                    name={`select-checkbox-${option.value}`}
                                     style="pointer-events: none;"
                                     checked={option.checked}
                                     readonly

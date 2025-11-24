@@ -20,10 +20,14 @@
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
 	import Select from '$lib/common/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
-	import { getConversations, deleteConversation, getConversationStateSearchKeys } from '$lib/services/conversation-service.js';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
 	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
+	import {
+		getConversations,
+		deleteConversation,
+		getConversationStateSearchKeys
+	} from '$lib/services/conversation-service.js';
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
