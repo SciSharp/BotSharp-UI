@@ -61,10 +61,12 @@
 	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentLabelOptions = [];
 
-	/** @type {string[]} */
-	let selectedAgentTypes = [];
-	/** @type {string[]} */
-	let selectedAgentLabels = [];
+	/** @type {{ name: string, types: string[], labels: string[] }} */
+	let searchItem = {
+		name: '',
+		types: [],
+		labels: []
+	};
 
 	onMount(async () => {
 		isPageMounted = true;
@@ -98,8 +100,8 @@
 					page: firstPage,
 					count: 0
 				},
-				types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
-				labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
+				types: searchItem.types?.length > 0 ? searchItem.types : null,
+				labels: searchItem.labels?.length > 0 ? searchItem.labels : null,
 				similarName: event.payload?.trim() || null
 			};
 
@@ -221,17 +223,34 @@
 
 		getPagedAgents();
 	}
+
+	/** @param {any} e */
+	function changeSearchName(e) {
+		searchItem.name = e.target.value || '';
+		filter = {
+			...filter,
+			similarName: searchItem.name?.trim()
+		};
+	}
+
+	/** @param {any} e */
+	function searchKeyDown(e) {
+		if (e.key === 'Enter' && filter?.similarName) {
+			e.preventDefault();
+			search();
+		}
+	}
 	
 	/** @param {any} e */
 	function selectAgentTypeOption(e) {
 		// @ts-ignore
-		selectedAgentTypes = e.detail.selecteds?.map(x => x.label) || [];
+		searchItem.types = e.detail.selecteds?.map(x => x.label) || [];
 	}
 
 	/** @param {any} e */
 	function selectAgentLabelOption(e) {
 		// @ts-ignore
-		selectedAgentLabels = e.detail.selecteds?.map(x => x.label) || [];
+		searchItem.labels = e.detail.selecteds?.map(x => x.label) || [];
 	}
 
 	function search() {
@@ -241,8 +260,11 @@
 	}
 
 	function reset() {
-		selectedAgentTypes = [];
-		selectedAgentLabels = [];
+		searchItem = {
+			name: '',
+			types: [],
+			labels: []
+		};
 
 		filter = { ...initFilter };
 		getPagedAgents();
@@ -251,8 +273,8 @@
 	function refreshFilter() {
 		filter = {
 			...filter,
-			types: selectedAgentTypes?.length > 0 ? selectedAgentTypes : null,
-			labels: selectedAgentLabels?.length > 0 ? selectedAgentLabels : null,
+			types: searchItem.types?.length > 0 ? searchItem.types : null,
+			labels: searchItem.labels?.length > 0 ? searchItem.labels : null,
 			pager: initFilter.pager
 		};
 	}
@@ -285,8 +307,9 @@
 			type="text"
 			placeholder="Search by name"
 			style="width: fit-content;"
-			value={filter.similarName}
-			on:input={e => filter.similarName = e.target.value?.trim()}
+			value={searchItem.name}
+			on:input={e => changeSearchName(e)}
+			on:keydown={e => searchKeyDown(e)}
 		/>
 		<Select
 			tag={'agent-label-select'}
@@ -294,7 +317,7 @@
 			selectedText={'labels'}
 			multiSelect
 			searchMode
-			selectedValues={selectedAgentLabels}
+			selectedValues={searchItem.labels}
 			options={agentLabelOptions}
 			on:select={e => selectAgentLabelOption(e)}
 		/>
@@ -304,7 +327,7 @@
 			selectedText={'types'}
 			multiSelect
 			searchMode
-			selectedValues={selectedAgentTypes}
+			selectedValues={searchItem.types}
 			options={agentTypeOptions}
 			on:select={e => selectAgentTypeOption(e)}
 		/>
