@@ -307,6 +307,7 @@
 			type="text"
 			placeholder="Search by name"
 			style="width: fit-content;"
+			maxlength={500}
 			value={searchItem.name}
 			on:input={e => changeSearchName(e)}
 			on:keydown={e => searchKeyDown(e)}

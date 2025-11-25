@@ -96,7 +96,7 @@
 						type="text"
 						class="form-control"
 						placeholder="{$_('Search')}..."
-						maxlength={100}
+						maxlength={500}
 						bind:value={searchText}
 						on:keydown={e => search(e)}
 					/>
