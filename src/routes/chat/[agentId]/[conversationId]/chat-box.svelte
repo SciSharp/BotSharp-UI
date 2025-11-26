@@ -3,7 +3,6 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
 	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -724,7 +723,7 @@
 		const searchParams = $page.url.searchParams;
 		const search = searchParams?.toString();
 		const url = search ? `${path}?${search}` : path;
-		goto(url);
+		window.location.href = url;
 	}
 
 	function pinDashboard() {
