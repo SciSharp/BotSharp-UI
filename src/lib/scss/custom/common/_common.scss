@@ -217,4 +217,12 @@ button:focus {
     text-decoration: none;
     background: none;
   }
+
+  &:active {
+    background: none !important;
+    box-shadow: none !important;
+    outline: none !important;
+    text-decoration: none !important;
+    transform: none !important;
+  }
 }
