@@ -82,4 +82,10 @@
  * @property {any[]} fail
  */
 
+/**
+ * @typedef {Object} TableItemConfig
+ * @property {string} dataName
+ * @property {string} displayName
+ */
+
 export default {};

@@ -288,10 +288,11 @@
         display: flex;
         gap: 5px;
         justify-content: flex-end;
-        min-width: 300px;
+        flex-wrap: wrap;
 
         .collection-dropdown {
-            width: 100%;
+            flex: 1 1 auto;
+            min-width: 150px;
         }
 
         .collection-action-btn {
@@ -303,6 +304,17 @@
         select {
             outline: none !important;
             box-shadow: none !important;
+        }
+
+        @media (max-width: 350px) {
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+
+            .collection-dropdown {
+                width: 100%;
+                min-width: 100%;
+            }
         }
     }
 
@@ -385,14 +397,18 @@
 
         .more-detail-list {
             margin: 1px 0px 15px 0px;
-            font-size: 10px;
+            font-size: 12px;
             padding-left: 4rem;
             overflow-y: auto;
             scrollbar-width: none;
             max-height: 200px;
             
-            .more-dtail-item {
+            .more-detail-item {
                 list-style-type: square;
+            }
+
+            ul {
+                font-size: 15px;
             }
         }
     }

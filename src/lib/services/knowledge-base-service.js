@@ -275,3 +275,36 @@ export async function deleteVectorIndexes(collection, options) {
     });
     return response.data;
 }
+
+
+
+
+/**
+ * @returns {Promise<string[]>}
+ */
+export async function getTokenizers() {
+    const url = endpoints.tokenizersUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * @returns {Promise<string[]>}
+ */
+export async function getTokenizerDataLoaders() {
+    const url = endpoints.tokenizerDataLoadersUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
+ * @param {import('$knowledgeTypes').TokenizeRequest} request
+ * @returns {Promise<import('$knowledgeTypes').TokenizeResponse>}
+ */
+export async function tokenize(request) {
+    const url = endpoints.tokenizeUrl;
+    const response = await axios.post(url, {
+        ...request
+    });
+    return response.data;
+}

@@ -861,7 +861,7 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Document Knowledge')}" />
+<HeadTitle title="{$_('Document Knowledge')}" addOn="Knowledge Base" />
 <Breadcrumb pagetitle="{$_('Document Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
@@ -1096,7 +1096,7 @@
 					<CardBody>
 						<div class="mt-2 knowledge-table-header">
 							{#if totalDataCount != null && totalDataCount != undefined}
-								<div class="knowledge-count line-align-center text-muted font-size-11">
+								<div class="knowledge-count line-align-center text-muted font-size-12">
 									{`Total data: ${Number(totalDataCount).toLocaleString("en-US")}`}
 								</div>
 							{/if}

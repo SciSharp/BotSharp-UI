@@ -161,11 +161,12 @@ export function scrollToBottom(container, behavior = 'smooth') {
 
 /**
  * @param {string} str
+ * @param {string} separator
  */
-export function splitTextByCase(str) {
+export function splitTextByCase(str, separator = '_') {
     if (!str) return str;
 
-    let words = str.split("_");
+    let words = str.split(separator);
     if (words.length === 1) {
         // split by camel case
         words = str.split(/(?=[A-Z])/);
