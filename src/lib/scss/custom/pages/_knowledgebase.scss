@@ -363,6 +363,9 @@
         border-color: var(--#{$prefix}light) !important;
         background-color: var(--#{$prefix}light) !important;
         position: relative;
+        overflow-y: auto;
+        scrollbar-width: none;
+        max-height: 300px;
 
         ul {
             margin: 15px 0px;
@@ -399,9 +402,6 @@
             margin: 1px 0px 15px 0px;
             font-size: 12px;
             padding-left: 4rem;
-            overflow-y: auto;
-            scrollbar-width: none;
-            max-height: 200px;
             
             .more-detail-item {
                 list-style-type: square;
