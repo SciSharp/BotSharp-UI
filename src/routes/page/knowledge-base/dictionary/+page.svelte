@@ -10,9 +10,9 @@
         Table
     } from '@sveltestrap/sveltestrap';
     import {
-		getTokenizers,
-		getTokenizerDataLoaders,
-		tokenize
+		getNERAnalyzers,
+		getNERDataLoaders,
+		nerAnalyze
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -40,19 +40,19 @@
 	let elapsedTime = '';
 
 	/** @type {string | null} */
-	let selectedTokenizer = null;
+	let selectedAnalyzer = null;
 
     /** @type {string[]} */
     let selectedDataLoaders = [];
 
-	/** @type {import('$knowledgeTypes').TokenizeResult[]} */
+	/** @type {import('$knowledgeTypes').NERResult[]} */
 	let items = [];
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
-	let tokenizers = [];
+	let analyzers = [];
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-    let tokenizerDataLoaders = [];
+    let dataLoaders = [];
 
 	/** @type {number | null | undefined} */
 	let totalDataCount;
@@ -68,7 +68,7 @@
 
 	$: {
 		disableSearchBtn = false;
-		if (!selectedTokenizer || isSearching) {
+		if (!selectedAnalyzer || isSearching) {
 			disableSearchBtn = true;
 		} else if (!text || util.trim(text).length === 0) {
 			disableSearchBtn = true;
@@ -82,8 +82,8 @@
 	function initData() {
 		isLoading = true;
         Promise.all([
-            getTokenizerProviders(),
-            getTokenizerDataLoaderProviders()
+            getAnalyzerProviders(),
+            getDataLoaderProviders()
         ]).finally(() => {
 			isLoading = false;
 		});
@@ -102,7 +102,7 @@
 		elapsedTime = '';
 		const start = new Date();
 
-        getTokenizeResult().finally(() => {
+        getAnalysisResult().finally(() => {
             isSearching = false;
             searchDone = true;
             const gap = new Date().getTime() - start.getTime();
@@ -137,45 +137,45 @@
         selectedDataLoaders = [];
 	}
 
-	function getTokenizerProviders() {
+	function getAnalyzerProviders() {
 		return new Promise((resolve, reject) => {
-			getTokenizers().then(res => {
+			getNERAnalyzers().then(res => {
 				const retProviders = res?.map(x => ({  label: x, value: x })) || [];
-				tokenizers = [ ...retProviders ];
-				selectedTokenizer = tokenizers[0]?.value;
+				analyzers = [ ...retProviders ];
+				selectedAnalyzer = analyzers[0]?.value;
 				resolve(res);
 			}).catch(err => {
-				tokenizers = [];
-				selectedTokenizer = tokenizers[0]?.value;
+				analyzers = [];
+				selectedAnalyzer = null;
 				reject(err);
 			});
 		});
 	}
 
-    function getTokenizerDataLoaderProviders() {
+    function getDataLoaderProviders() {
 		return new Promise((resolve, reject) => {
-			getTokenizerDataLoaders().then(res => {
+			getNERDataLoaders().then(res => {
 				const retProviders = res?.map(x => ({  label: x, value: x })) || [];
-				tokenizerDataLoaders = [ ...retProviders ];
+				dataLoaders = [ ...retProviders ];
 				resolve(res);
 			}).catch(err => {
-				tokenizerDataLoaders = [];
+				dataLoaders = [];
 				reject(err);
 			});
 		});
 	}
 
-    function getTokenizeResult() {
+    function getAnalysisResult() {
         return new Promise((resolve, reject) => {
             const request = {
                 text: util.trim(text),
-                provider: selectedTokenizer,
+                provider: selectedAnalyzer,
                 options: {
                     data_providers: selectedDataLoaders?.length > 0 ? selectedDataLoaders : null
                 }
             };
 
-            tokenize(request).then(res => {
+            nerAnalyze(request).then(res => {
                 items = res?.results || [];
                 totalDataCount = items.length;
                 resolve(res);
@@ -188,13 +188,13 @@
     }
 
 	/** @param {any} e */
-	function changeTokenizer(e) {
+	function changeAnalyzer(e) {
 		const selectedValues = e?.detail?.selecteds || [];
-		selectedTokenizer = selectedValues[0]?.value;
+		selectedAnalyzer = selectedValues[0]?.value;
 	}
 
     /** @param {any} e */
-	function changeTokenizerDataLoaders(e) {
+	function changeDataLoaders(e) {
 		const selectedValues = e?.detail?.selecteds || [];
 		// @ts-ignore
 		selectedDataLoaders = selectedValues.map(x => x.value);
@@ -314,27 +314,27 @@
 								<div class="collection-action-container action-container-padding">
 									<div class="collection-dropdown-container">
 										<div class="line-align-center collection-dropdown">
-                                            <div>Tokenizer</div>
+                                            <div>Analyzer</div>
 											<Select
-												tag={'tokenizer-select'}
-												placeholder={'Select Tokenizer'}
+												tag={'ner-analyzer-select'}
+												placeholder={'Select Analyzer'}
 												searchMode
-												selectedValues={selectedTokenizer ? [selectedTokenizer] : []}
-												options={tokenizers}
-												on:select={e => changeTokenizer(e)}
+												selectedValues={selectedAnalyzer ? [selectedAnalyzer] : []}
+												options={analyzers}
+												on:select={e => changeAnalyzer(e)}
 											/>
 										</div>
                                         <div class="line-align-center collection-dropdown">
-                                            <div>Data Loaders</div>
+                                            <div>Data Providers</div>
 											<Select
-												tag={'tokenizer-data-loader-select'}
-												placeholder={'Select Data Loaders'}
+												tag={'ner-data-loader-select'}
+												placeholder={'Select Data Providers'}
 												searchMode
                                                 selectAll
                                                 multiSelect
 												selectedValues={selectedDataLoaders}
-												options={tokenizerDataLoaders}
-												on:select={e => changeTokenizerDataLoaders(e)}
+												options={dataLoaders}
+												on:select={e => changeDataLoaders(e)}
 											/>
 										</div>
 									</div>

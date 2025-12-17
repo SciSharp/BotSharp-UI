@@ -26,7 +26,7 @@
 		createVectorIndexes,
 		deleteVectorIndexes,
 		getVectorCollectionDetails,
-		getKnowledgeDocumentProcessors
+		getKnowledgeProcessors
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -464,7 +464,7 @@
 
 	function getDocProcessors() {
 		return new Promise((resolve, reject) => {
-			getKnowledgeDocumentProcessors().then(res => {
+			getKnowledgeProcessors().then(res => {
 				const retProcessors = res?.map(x => ({  label: x, value: x })) || [];
 				docProcessors = [ ...retProcessors ];
 				resolve(res);

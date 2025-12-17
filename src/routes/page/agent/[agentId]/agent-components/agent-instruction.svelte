@@ -87,6 +87,22 @@
         handleAgentChange();
     }
 
+    /** @param {any} e */
+    function onKeyDown(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+
+            if (e.target) {
+                const start = e.target.selectionStart || 0;
+                const end = e.target.selectionEnd || 0;
+                const value = e.target.value || '';
+                e.target.value = value.substring(0, start) + "\t" + value.substring(end);
+                e.target.selectionStart = start + 1;
+                e.target.selectionEnd = start + 1;
+            }
+        }
+    }
+
     function addChannel() {
         inner_instructions = [
             ...inner_instructions,
@@ -193,6 +209,7 @@
                 value={selected_instruction.instruction}
                 rows={20}
                 on:input={(e) => changePrompt(e)}
+                on:keydown={(e) => onKeyDown(e)}
                 placeholder="Enter your instruction"
             />
         </FormGroup>
