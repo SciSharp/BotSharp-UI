@@ -482,7 +482,7 @@
     }
 
     .doc-upload-footer {
-        margin-top: 30px;
+        margin-top: 0px;
 
         .load-doc-btn {
             font-size: 12px;
@@ -818,6 +818,27 @@
         .field-row {
             flex-direction: column;
             gap: 0;
+        }
+    }
+}
+
+
+.knowledge-upload-modal-container {
+    .doc-upload-body {
+        width: 100%;
+        height: 100%;
+
+        .gallery-item, .doc-drop-zone {
+            width: 100%;
+            min-height: 200px;
+        }
+
+        i {
+            font-size: 5em;
+        }
+
+        .doc-drop-icon {
+            text-align: center;
         }
     }
 }

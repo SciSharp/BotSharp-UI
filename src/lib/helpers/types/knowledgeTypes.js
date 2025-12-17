@@ -98,6 +98,7 @@
 /**
  * @typedef {Object} VectorKnowledgeUploadRequest
  * @property {import('$fileTypes').FileModel[]} files - The files.
+ * @property {any} [options]
  */
 
 /**

@@ -193,6 +193,15 @@ export async function getKnowledgeDocumentPageList(collection, request) {
     return response.data;
 }
 
+/**
+ * @returns {Promise<string[]>}
+ */
+export async function getKnowledgeDocumentProcessors() {
+    const url = endpoints.knowledgeDocumentProcessorsUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
 
 /**
  * @param {import('$knowledgeTypes').CreateVectorCollectionRequest} request
