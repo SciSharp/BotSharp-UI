@@ -25,9 +25,8 @@
 		createVectorCollection,
 		createVectorIndexes,
 		deleteVectorIndexes,
-
-		getVectorCollectionDetails
-
+		getVectorCollectionDetails,
+		getKnowledgeDocumentProcessors
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -41,13 +40,14 @@
 		VectorDataSource,
 		VectorPayloadDataType
 	} from '$lib/helpers/enums';
+	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 	import VectorItem from '../common/vector-table/vector-item.svelte';
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import VectorIndexModal from '../common/indexes/vector-index-modal.svelte';
 	import AdvancedSearch from '../common/search/advanced-search.svelte';
 	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
-	import { DECIMAL_REGEX } from '$lib/helpers/constants';
+	import KnowledgeUploadModal from './knowledge-upload-modal.svelte';
 	
 	const pageSize = 8;
   	const duration = 2000;
@@ -106,6 +106,9 @@
 		order: 'desc'
 	};
 
+	/** @type {import('$commonTypes').LabelValuePair[]} */
+	let docProcessors = [];
+
 	/** @type {boolean} */
     let showDemo = true;
     let isSearching = false;
@@ -122,6 +125,8 @@
 	let isAdvSearchOn = false;
 	let disableSearchBtn = false;
 	let isExactSearch = false;
+	let isOpenUploadModal = false;
+	let showDocList = false;
 
     /** @type {any} */
     let docUploadrCmp;
@@ -168,6 +173,7 @@
 			if (selectedCollection) {
 				Promise.all([
 					getCollectionDetail(),
+					getDocProcessors(),
 					getData({
 						...defaultParams,
 						isReset: true,
@@ -456,6 +462,19 @@
 		});
 	}
 
+	function getDocProcessors() {
+		return new Promise((resolve, reject) => {
+			getKnowledgeDocumentProcessors().then(res => {
+				const retProcessors = res?.map(x => ({  label: x, value: x })) || [];
+				docProcessors = [ ...retProcessors ];
+				resolve(res);
+			}).catch(err => {
+				docProcessors = [];
+				reject(err);
+			});
+		});
+	}
+
 	/** @param {boolean} isLocalLoading */
 	function toggleLoader(isLocalLoading) {
 		if (isLocalLoading) {
@@ -740,9 +759,12 @@
         });
 	}
 
-    /** @param {any} e */
-    function onDocUploaded(e) {
-        reset();
+    /**
+	 * @param {any} e
+	 * @param {boolean} skipLoader
+	 */
+    function onDocUploaded(e, skipLoader = false) {
+        reset(skipLoader);
     }
 
     /** @param {any} e */
@@ -859,9 +881,13 @@
 	function toggleIndexModal() {
 		isOpenIndexModal = !isOpenIndexModal;
 	}
+
+	function toggleUploadModal() {
+		isOpenUploadModal = !isOpenUploadModal;
+	}
 </script>
 
-<HeadTitle title="{$_('Document Knowledge')}" />
+<HeadTitle title="{$_('Document Knowledge')}" addOn="Knowledge Base" />
 <Breadcrumb pagetitle="{$_('Document Knowledge')}" title="{$_('Knowledge Base')}"/>
 
 <LoadingToComplete
@@ -904,6 +930,21 @@
 		cancel={() => toggleIndexModal()}
 	/>
 {/if}
+
+<KnowledgeUploadModal
+	className={'knowledge-upload-modal-container'}
+	size={'md'}
+	accept={'.txt,.pdf'}
+	collection={selectedCollection}
+	open={isOpenUploadModal}
+	processors={docProcessors}
+	toggleModal={() => toggleUploadModal()}
+	on:docuploaded={(e) => {
+		showDocList = false;
+		isOpenUploadModal = false;
+		onDocUploaded(e, true);
+	}}
+/>
 
 <CollectionCreateModal
 	title={'Create new collection'}
@@ -1082,9 +1123,13 @@
         {#if selectedCollection}
             <KnowledgeDocumentUpload
                 collection={selectedCollection}
+				accept={'.txt'}
+				disableFileUpload={true}
+				disableFileDelete={false}
                 disabled={disabled}
                 bind:this={docUploadrCmp}
-                on:docuploaded={(e) => onDocUploaded(e)}
+				bind:showDocList={showDocList}
+                on:docuploaded={(e) => onDocUploaded(e, true)}
                 on:docdeleted={(e) => onDocDeleted(e)}
 				on:resetdocs={(e) => onDocsReset(e)}
             />
@@ -1096,7 +1141,7 @@
 					<CardBody>
 						<div class="mt-2 knowledge-table-header">
 							{#if totalDataCount != null && totalDataCount != undefined}
-								<div class="knowledge-count line-align-center text-muted font-size-11">
+								<div class="knowledge-count line-align-center text-muted font-size-12">
 									{`Total data: ${Number(totalDataCount).toLocaleString("en-US")}`}
 								</div>
 							{/if}
@@ -1131,6 +1176,20 @@
 											on:click={() => onKnowledgeDeleteAll()}
 										>
 											<i class="mdi mdi-minus" />
+										</Button>
+									</div>
+									<div
+										class="line-align-center"
+										data-bs-toggle="tooltip"
+										data-bs-placement="top"
+										title="Upload doc"
+									>
+										<Button
+											class="btn btn-sm btn-soft-info knowledge-btn-icon"
+											disabled={disabled}
+											on:click={() => toggleUploadModal()}
+										>
+											<i class="mdi mdi-file-upload" />
 										</Button>
 									</div>
 								</div>

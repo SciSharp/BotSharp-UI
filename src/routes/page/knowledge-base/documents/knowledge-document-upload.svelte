@@ -1,5 +1,4 @@
 <script>
-	import KnowledgeUploadResult from './knowledge-upload-result.svelte';
     import { onMount, onDestroy, createEventDispatcher } from 'svelte';
     import { fly } from 'svelte/transition';
 	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
@@ -10,24 +9,24 @@
     import FileDropZone from '$lib/common/FileDropZone.svelte';
     import FileGallery from '$lib/common/FileGallery.svelte';
     import LoadingDots from '$lib/common/LoadingDots.svelte';
+    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
     import { KnowledgeDocSource } from '$lib/helpers/enums';
+    import { isHtml } from '$lib/helpers/utils/file';
 	import {
         getKnowledgeDocumentPageList,
         uploadKnowledgeDocuments,
         deleteKnowledgeDocument,
         deleteAllKnowledgeDocuments
     } from '$lib/services/knowledge-base-service';
-	import { isHtml } from '$lib/helpers/utils/file';
+    import KnowledgeUploadResult from './knowledge-upload-result.svelte';
 
     const svelteDispatch = createEventDispatcher();
 
-    const accept = ".txt";
-    const acceptDisplayList = "txt";
-    const fileMaxSize = 10 * 1024 * 1024;
     const startPage = 1;
     const docPageSize = 8;
+    const defaultProcessor = 'botsharp-txt-knowledge';
 
     const options = {
 		scrollbars: {
@@ -48,7 +47,22 @@
     export let fileLimit = 3;
 
     /** @type {boolean} */
+    export let showDocList = false;
+
+    /** @type {boolean} */
     export let disabled = false;
+
+    /** @type {boolean} */
+    export let disableFileUpload = false;
+
+    /** @type {boolean} */
+    export let disableFileDelete = false;
+
+    /** @type {string} */
+    export let accept = ".txt,.pdf";
+
+    /** @type {number} mb */
+    export let fileMaxSize = 10;
 
     /** @type {() => void} */
     export const onCollectionChanged = () => {
@@ -59,9 +73,9 @@
 
     /** @type {boolean} */
     let showUploader = false;
-    let showDocList = false;
     let disableFileDrop = false;
     let isLoading = false;
+    let isLoadingFiles = false;
     let noMoreDocs = false;
 
     /** @type {number} */
@@ -155,7 +169,14 @@
                 });
 
                 disabled = true;
-				uploadKnowledgeDocuments(collection, { files: files }).then(res => {
+                isLoading = true;
+				uploadKnowledgeDocuments(collection,
+                {
+                    files: files,
+                    options: {
+                        processor: defaultProcessor
+                    }
+                }).then(res => {
                     successFiles = res.success || [];
                     failedFiles = res.failed || [];
                     uploadFiles = [];
@@ -171,6 +192,7 @@
                     failedFiles = files.map(x => x.file_name);
                 }).finally(() => {
                     disabled = false;
+                    isLoading = false;
                 });
             }
         });
@@ -184,7 +206,7 @@
     }
 
     function loadMoreDocs() {
-        if (isLoading) return;
+        if (isLoadingFiles) return;
         
         getKnowledgeDocumentList().then(() => {
             autoScrollToBottom();
@@ -192,7 +214,7 @@
     }
 
     function getKnowledgeDocumentList() {
-        isLoading = true;
+        isLoadingFiles = true;
         disabled = true;
         noMoreDocs = false;
 
@@ -214,13 +236,13 @@
                 } else {
                     noMoreDocs = true;
                 }
-                isLoading = false;
                 disabled = false;
                 resolve(res);
             }).catch(err => {
-                isLoading = false;
                 disabled = false;
                 reject(err);
+            }).finally(() => {
+                isLoadingFiles = false;
             });
         });
         
@@ -333,6 +355,8 @@
     }
 </script>
 
+<LoadingToComplete {isLoading} />
+
 <div
     class="knowledge-doc-upload-container"
     in:fly={{ y: -10, duration: 500 }}
@@ -347,7 +371,7 @@
             on:change={e => toggleUploader(e)}
         />
         <div class="line-align-center">
-            <div>{`${showUploader ? 'Upload' : 'View'} Documents`}</div>
+            <div>{`${showUploader && !disableFileUpload ? 'Upload' : 'View'} Documents`}</div>
         </div>
         {#if showUploader}
             <div class="line-align-center" id="upload-tooltip">
@@ -356,8 +380,8 @@
             <Tooltip target="upload-tooltip" placement="top" class="demo-tooltip-note">
                 <ul>
                     <li>{`At most ${fileLimit} ${fileLimit > 1 ? 'documents are' : 'document is'} allowed for each upload.`}</li>
-                    <li>{'Each document cannot exceed 10 MB.'}</li>
-                    <li>{`Allowed document types: ${acceptDisplayList}`}</li>
+                    <li>{`Each document cannot exceed ${fileMaxSize} MB.`}</li>
+                    <li>{`Document types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
                 </ul>
             </Tooltip>
         {/if}
@@ -368,49 +392,51 @@
             in:fly={{ y: -10, duration: 500 }}
             out:fly={{ y: -10, duration: 200 }}
         >
-            <FileGallery
-                containerClasses={'doc-upload-body'}
-                files={uploadFiles}
-                showFileName
-                needDelete
-                disabled={disabled}
-                onDelete={idx => deleteUploadFile(idx)}
-                showPrefix={true}
-                showSuffix={uploadFiles?.length > 0}
-            >
-                <FileDropZone
-                    slot="prefix"
-                    accept={accept}
-                    containerClasses={'doc-drop-zone'}
-                    disabled={disabled || disableFileDrop}
-                    fileLimit={localFileUploadLimit}
-                    maxSize={fileMaxSize}
-                    on:drop={e => handleFileDrop(e)}
+            {#if !disableFileUpload}
+                <FileGallery
+                    containerClasses={'doc-upload-body'}
+                    files={uploadFiles}
+                    showFileName
+                    needDelete
+                    disabled={disabled}
+                    onDelete={idx => deleteUploadFile(idx)}
+                    showPrefix={true}
+                    showSuffix={uploadFiles?.length > 0}
                 >
-                    <i class="bx bx-cloud-upload" />
-                </FileDropZone>
-                <div
-                    slot="suffix"
-                    class="doc-card-btn"
-                >
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <i
-                        class="mdi mdi-arrow-up-bold-circle clickable"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Submit"
-                        on:click={() => handleFileSubmit()}
-                    />
-                </div>
-            </FileGallery>
+                    <FileDropZone
+                        slot="prefix"
+                        accept={accept}
+                        containerClasses={'doc-drop-zone'}
+                        disabled={disabled || disableFileDrop}
+                        fileLimit={localFileUploadLimit}
+                        maxSize={fileMaxSize * 1024 * 1024}
+                        on:drop={e => handleFileDrop(e)}
+                    >
+                        <i class="bx bx-cloud-upload" />
+                    </FileDropZone>
+                    <div
+                        slot="suffix"
+                        class="doc-card-btn"
+                    >
+                        <!-- svelte-ignore a11y-click-events-have-key-events -->
+                        <!-- svelte-ignore a11y-no-static-element-interactions -->
+                        <i
+                            class="mdi mdi-arrow-up-bold-circle clickable"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Submit"
+                            on:click={() => handleFileSubmit()}
+                        />
+                    </div>
+                </FileGallery>
+            {/if}
 
             <KnowledgeUploadResult
                 successFiles={successFiles}
                 failedFiles={failedFiles}
             />
 
-            <div class="doc-upload-footer">
+            <div class="doc-upload-footer" style={`margin-top: ${!disableFileUpload ? '30px;' : '0px;'}`}>
                 <div class="load-doc-btn">
                     <Button
                         class={`btn btn-md knowledge-demo-btn ${showDocList ? 'btn-soft-warning' : 'btn-soft-primary'}`}
@@ -429,7 +455,7 @@
                             </div>
                         {/if}
                     </Button>
-                    {#if showDocList}
+                    {#if showDocList && !disableFileDelete}
                         <div class="reset-docs-btn line-align-center">
                             <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <!-- svelte-ignore a11y-no-static-element-interactions -->
@@ -451,7 +477,7 @@
                                     files={savedFiles}
                                     showFileName
                                     disabled={disabled}
-                                    needDelete
+                                    needDelete={!disableFileDelete}
                                     onDelete={idx => handleDeleteSavedFile(idx)}
                                     needDownload
                                     onDownload={idx => handleDownloadSavedFile(idx)}
@@ -469,12 +495,12 @@
                                         />
                                     </div>
                                 </FileGallery>
-                            {:else if !isLoading && savedFiles.length === 0}
+                            {:else if !isLoadingFiles && savedFiles.length === 0}
                                 <div class="mt-3 text-center">
                                     <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
                                 </div>
                             {/if}
-                            {#if isLoading}
+                            {#if isLoadingFiles}
                                 <div class="knowledge-loader mt-3 mb-3">
                                     <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
                                 </div>

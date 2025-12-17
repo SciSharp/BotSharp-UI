@@ -98,6 +98,7 @@
 /**
  * @typedef {Object} VectorKnowledgeUploadRequest
  * @property {import('$fileTypes').FileModel[]} files - The files.
+ * @property {any} [options]
  */
 
 /**
@@ -158,6 +159,35 @@
  * @typedef {Object} VectorCollectionIndexOptions
  * @property {string} field_name
  * @property {string} field_schema_type
+ */
+
+/**
+ * @typedef {Object} TokenizeRequest
+ * @property {string} text
+ * @property {string?} [provider]
+ * @property {TokenizeOptions?} [options]
+ */
+
+/**
+ * @typedef {Object} TokenizeOptions
+ * @property {string[]?} [data_providers]
+ * @property {number?} [max_ngram]
+ * @property {number?} [cutoff]
+ * @property {number?} [top_k]
+ */
+
+/**
+ * @typedef {Object} TokenizeResponse
+ * @property {TokenizeResult[]} [results]
+ * @property {boolean?} [success]
+ * @property {string?} [error_message]
+ */
+
+/**
+ * @typedef {Object} TokenizeResult
+ * @property {string} token
+ * @property {string?} [canonical_text]
+ * @property {any} data
  */
 
 export default {};
