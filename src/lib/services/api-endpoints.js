@@ -115,9 +115,9 @@ export const endpoints = {
     knowledgeDocumentPageListUrl: `${host}/knowledge/document/{collection}/page`,
     knowledgeProcessorsUrl: `${host}/knowledge/processors`,
 
-    nerAnalyzersUrl: `${host}/knowledge/NER/analyzers`,
-    nerDataLoadersUrl: `${host}/knowledge/NER/data-providers`,
-    nerAnalyzeUrl: `${host}/knowledge/NER/analyze`,
+    entityAnalyzersUrl: `${host}/knowledge/entity/analyzers`,
+    entityDataLoadersUrl: `${host}/knowledge/entity/data-providers`,
+    entityAnalyzeUrl: `${host}/knowledge/entity/analyze`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

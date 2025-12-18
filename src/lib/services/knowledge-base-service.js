@@ -291,8 +291,8 @@ export async function deleteVectorIndexes(collection, options) {
 /**
  * @returns {Promise<string[]>}
  */
-export async function getNERAnalyzers() {
-    const url = endpoints.nerAnalyzersUrl;
+export async function getEntityAnalyzers() {
+    const url = endpoints.entityAnalyzersUrl;
     const response = await axios.get(url);
     return response.data;
 }
@@ -300,18 +300,18 @@ export async function getNERAnalyzers() {
 /**
  * @returns {Promise<string[]>}
  */
-export async function getNERDataLoaders() {
-    const url = endpoints.nerDataLoadersUrl;
+export async function getEntityDataLoaders() {
+    const url = endpoints.entityDataLoadersUrl;
     const response = await axios.get(url);
     return response.data;
 }
 
 /**
- * @param {import('$knowledgeTypes').NERAnalyzeRequest} request
- * @returns {Promise<import('$knowledgeTypes').NERResponse>}
+ * @param {import('$knowledgeTypes').EntityAnalysisRequest} request
+ * @returns {Promise<import('$knowledgeTypes').EntityAnalysisResponse>}
  */
-export async function nerAnalyze(request) {
-    const url = endpoints.nerAnalyzeUrl;
+export async function analyzeEntity(request) {
+    const url = endpoints.entityAnalyzeUrl;
     const response = await axios.post(url, {
         ...request
     });

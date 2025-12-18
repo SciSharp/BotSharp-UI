@@ -162,14 +162,14 @@
  */
 
 /**
- * @typedef {Object} NERAnalyzeRequest
+ * @typedef {Object} EntityAnalysisRequest
  * @property {string} text
  * @property {string?} [provider]
- * @property {NERAnalyzeOptions?} [options]
+ * @property {EntityAnalysisOptions?} [options]
  */
 
 /**
- * @typedef {Object} NERAnalyzeOptions
+ * @typedef {Object} EntityAnalysisOptions
  * @property {string[]?} [data_providers]
  * @property {number?} [max_ngram]
  * @property {number?} [cutoff]
@@ -177,14 +177,14 @@
  */
 
 /**
- * @typedef {Object} NERResponse
- * @property {NERResult[]} [results]
+ * @typedef {Object} EntityAnalysisResponse
+ * @property {EntityAnalysisResult[]} [results]
  * @property {boolean?} [success]
  * @property {string?} [error_message]
  */
 
 /**
- * @typedef {Object} NERResult
+ * @typedef {Object} EntityAnalysisResult
  * @property {string} token
  * @property {string?} [canonical_text]
  * @property {any} data

@@ -10,9 +10,9 @@
         Table
     } from '@sveltestrap/sveltestrap';
     import {
-		getNERAnalyzers,
-		getNERDataLoaders,
-		nerAnalyze
+		getEntityAnalyzers,
+		getEntityDataLoaders,
+		analyzeEntity
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/HeadTitle.svelte';
@@ -45,7 +45,7 @@
     /** @type {string[]} */
     let selectedDataLoaders = [];
 
-	/** @type {import('$knowledgeTypes').NERResult[]} */
+	/** @type {import('$knowledgeTypes').EntityAnalysisResult[]} */
 	let items = [];
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
@@ -139,7 +139,7 @@
 
 	function getAnalyzerProviders() {
 		return new Promise((resolve, reject) => {
-			getNERAnalyzers().then(res => {
+			getEntityAnalyzers().then(res => {
 				const retProviders = res?.map(x => ({  label: x, value: x })) || [];
 				analyzers = [ ...retProviders ];
 				selectedAnalyzer = analyzers[0]?.value;
@@ -154,7 +154,7 @@
 
     function getDataLoaderProviders() {
 		return new Promise((resolve, reject) => {
-			getNERDataLoaders().then(res => {
+			getEntityDataLoaders().then(res => {
 				const retProviders = res?.map(x => ({  label: x, value: x })) || [];
 				dataLoaders = [ ...retProviders ];
 				resolve(res);
@@ -175,7 +175,7 @@
                 }
             };
 
-            nerAnalyze(request).then(res => {
+            analyzeEntity(request).then(res => {
                 items = res?.results || [];
                 totalDataCount = items.length;
                 resolve(res);
@@ -316,7 +316,7 @@
 										<div class="line-align-center collection-dropdown">
                                             <div>Analyzer</div>
 											<Select
-												tag={'ner-analyzer-select'}
+												tag={'entity-analyzer-select'}
 												placeholder={'Select Analyzer'}
 												searchMode
 												selectedValues={selectedAnalyzer ? [selectedAnalyzer] : []}
@@ -327,7 +327,7 @@
                                         <div class="line-align-center collection-dropdown">
                                             <div>Data Providers</div>
 											<Select
-												tag={'ner-data-loader-select'}
+												tag={'entity-data-loader-select'}
 												placeholder={'Select Data Providers'}
 												searchMode
                                                 selectAll
