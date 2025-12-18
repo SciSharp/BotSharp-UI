@@ -1671,7 +1671,9 @@
 										<i class="mdi mdi-circle text-success align-middle" />
 									</div>
 									<div class="ellipsis">
-										<span>{conversationUser?.full_name || conversationUser?.user_name || ''}</span>
+										<span>
+											{conversationUser?.full_name || conversationUser?.user_name
+											|| currentUser?.full_name || currentUser?.user_name || ''}</span>
 									</div>
 								</div>
 							</div>
