@@ -113,11 +113,11 @@ export const endpoints = {
     knowledgeDocumentDeleteUrl: `${host}/knowledge/document/{collection}/delete/{fileId}`,
     knowledgeDocumentDeleteAllUrl: `${host}/knowledge/document/{collection}/delete`,
     knowledgeDocumentPageListUrl: `${host}/knowledge/document/{collection}/page`,
-    knowledgeDocumentProcessorsUrl: `${host}/knowledge/document/processors`,
+    knowledgeProcessorsUrl: `${host}/knowledge/processors`,
 
-    tokenizersUrl: `${host}/knowledge/tokenizer/providers`,
-    tokenizerDataLoadersUrl: `${host}/knowledge/tokenizer/data-providers`,
-    tokenizeUrl: `${host}/knowledge/tokenize`,
+    entityAnalyzersUrl: `${host}/knowledge/entity/analyzers`,
+    entityDataLoadersUrl: `${host}/knowledge/entity/data-providers`,
+    entityAnalyzeUrl: `${host}/knowledge/entity/analyze`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

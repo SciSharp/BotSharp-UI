@@ -196,8 +196,8 @@ export async function getKnowledgeDocumentPageList(collection, request) {
 /**
  * @returns {Promise<string[]>}
  */
-export async function getKnowledgeDocumentProcessors() {
-    const url = endpoints.knowledgeDocumentProcessorsUrl;
+export async function getKnowledgeProcessors() {
+    const url = endpoints.knowledgeProcessorsUrl;
     const response = await axios.get(url);
     return response.data;
 }
@@ -291,8 +291,8 @@ export async function deleteVectorIndexes(collection, options) {
 /**
  * @returns {Promise<string[]>}
  */
-export async function getTokenizers() {
-    const url = endpoints.tokenizersUrl;
+export async function getEntityAnalyzers() {
+    const url = endpoints.entityAnalyzersUrl;
     const response = await axios.get(url);
     return response.data;
 }
@@ -300,18 +300,18 @@ export async function getTokenizers() {
 /**
  * @returns {Promise<string[]>}
  */
-export async function getTokenizerDataLoaders() {
-    const url = endpoints.tokenizerDataLoadersUrl;
+export async function getEntityDataLoaders() {
+    const url = endpoints.entityDataLoadersUrl;
     const response = await axios.get(url);
     return response.data;
 }
 
 /**
- * @param {import('$knowledgeTypes').TokenizeRequest} request
- * @returns {Promise<import('$knowledgeTypes').TokenizeResponse>}
+ * @param {import('$knowledgeTypes').EntityAnalysisRequest} request
+ * @returns {Promise<import('$knowledgeTypes').EntityAnalysisResponse>}
  */
-export async function tokenize(request) {
-    const url = endpoints.tokenizeUrl;
+export async function analyzeEntity(request) {
+    const url = endpoints.entityAnalyzeUrl;
     const response = await axios.post(url, {
         ...request
     });

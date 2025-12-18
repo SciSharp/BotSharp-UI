@@ -162,14 +162,14 @@
  */
 
 /**
- * @typedef {Object} TokenizeRequest
+ * @typedef {Object} EntityAnalysisRequest
  * @property {string} text
  * @property {string?} [provider]
- * @property {TokenizeOptions?} [options]
+ * @property {EntityAnalysisOptions?} [options]
  */
 
 /**
- * @typedef {Object} TokenizeOptions
+ * @typedef {Object} EntityAnalysisOptions
  * @property {string[]?} [data_providers]
  * @property {number?} [max_ngram]
  * @property {number?} [cutoff]
@@ -177,14 +177,14 @@
  */
 
 /**
- * @typedef {Object} TokenizeResponse
- * @property {TokenizeResult[]} [results]
+ * @typedef {Object} EntityAnalysisResponse
+ * @property {EntityAnalysisResult[]} [results]
  * @property {boolean?} [success]
  * @property {string?} [error_message]
  */
 
 /**
- * @typedef {Object} TokenizeResult
+ * @typedef {Object} EntityAnalysisResult
  * @property {string} token
  * @property {string?} [canonical_text]
  * @property {any} data

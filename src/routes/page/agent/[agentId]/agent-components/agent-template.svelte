@@ -80,6 +80,22 @@
         handleAgentChange();
     }
 
+    /** @param {any} e */
+    function onKeyDown(e) {
+        if (e.key === 'Tab') {
+            e.preventDefault();
+
+            if (e.target) {
+                const start = e.target.selectionStart || 0;
+                const end = e.target.selectionEnd || 0;
+                const value = e.target.value || '';
+                e.target.value = value.substring(0, start) + "\t" + value.substring(end);
+                e.target.selectionStart = start + 1;
+                e.target.selectionEnd = start + 1;
+            }
+        }
+    }
+
     function addTemplate() {
         inner_templates = [
             ...inner_templates,
@@ -164,10 +180,11 @@
                 type="textarea"
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
+                placeholder="Enter your content"
                 value={selected_template.content}
                 rows={15}
                 on:input={(e) => changePrompt(e)}
-                placeholder="Enter your content"
+                on:keydown={(e) => onKeyDown(e)}
             />
             {/if}
         </FormGroup>
