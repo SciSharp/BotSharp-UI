@@ -239,10 +239,12 @@ const llmModelCapability = {
 export const LlmModelCapability = Object.freeze(llmModelCapability);
 
 const reasoningEffortLevel = {
+    None: "none",
     Minimal: "minimal",
     Low: "low",
     Medium: "medium",
-    High: "high"
+    High: "high",
+    XHigh: "xhigh"
 };
 export const ReasoningEffortLevel = Object.freeze(reasoningEffortLevel);
 

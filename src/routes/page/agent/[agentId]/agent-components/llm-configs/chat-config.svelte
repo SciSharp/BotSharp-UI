@@ -24,9 +24,9 @@
     }
 
     const recursiveDepthLowerLimit = 1;
-    
+
     /** @type {import('$commonTypes').LabelValuePair[]} */
-	const reasonLevelOptions = [
+	const defaultReasonLevelOptions = [
         { value: '', label: '' },
         ...Object.entries(ReasoningEffortLevel).map(([k, v]) => ({
             value: v,
@@ -45,6 +45,9 @@
     /** @type {import('$commonTypes').LlmModelSetting[]} */
     let models = [];
 
+    /** @type {import('$commonTypes').LabelValuePair[]} */
+    let reasoningLevelOptions = defaultReasonLevelOptions;
+
     $: isReasoningModel = models.find(x => x.name === config.model)?.reasoning != null;
     $: {
         if (llmConfigs.length > 0 && innerLlmConfigs.length === 0) {
@@ -58,6 +61,7 @@
             const foundModel = models.find(x => x.name === config.model);
             config.provider = foundProvider || null;
             config.model = foundModel?.name || null;
+            onModelChanged(config);
         }
     }
 
@@ -83,6 +87,7 @@
         config.is_inherit = false;
         models = getLlmModels(provider);
         config.model = models[0]?.name;
+        onModelChanged(config);
         handleAgentChange();
     }
 
@@ -90,6 +95,7 @@
     function changeModel(e) {
         config.is_inherit = false;
         config.model = e.target.value || null;
+        onModelChanged(config);
         handleAgentChange();
     }
 
@@ -124,6 +130,36 @@
         if (e.key !== 'Backspace' && !reg.test(e.key)) {
             e.preventDefault();
         }
+    }
+
+    /** @param {import('$agentTypes').AgentLlmConfig | null} config */
+    function onModelChanged(config) {
+        reasoningLevelOptions = getReasoningLevelOptions(config?.model);
+
+        if (config && !reasoningLevelOptions.some(x => x.value === config.reasoning_effort_level)) {
+            const defaultOption = reasoningLevelOptions.find(x => !!x.value)?.value || null;
+            config.reasoning_effort_level = defaultOption;
+        }
+    }
+
+    /** @param {string | null | undefined} model */
+    function getReasoningLevelOptions(model) {
+        let options = defaultReasonLevelOptions;
+        const foundModel = models.find(x => x.name === model);
+        if (foundModel?.reasoning == null) {
+            return options;
+        }
+        
+        const defaultOptions = foundModel?.reasoning?.parameters?.EffortLevel?.options;
+        if (defaultOptions?.length > 0) {
+            options = [
+                { value: '', label: '' },
+                // @ts-ignore
+                ...defaultOptions.map(x => ({ value: x, label: x }))
+            ];
+        }
+
+        return options;
     }
 </script>
 
@@ -203,11 +239,11 @@
     {#if isReasoningModel}
     <div class="mb-3 row llm-config-item">
         <label for="chat-reasoning-effort" class="col-form-label llm-config-label">
-            Reasoning effort
+            Reasoning level
         </label>
         <div class="llm-config-input">
             <Input type="select" id="chat-reasoning-effort" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
-                {#each reasonLevelOptions as option}
+                {#each reasoningLevelOptions as option}
                     <option value={option.value} selected={option.value == config.reasoning_effort_level}>
                         {option.label}
                     </option>
