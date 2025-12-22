@@ -27,7 +27,9 @@
  * @property {string?} [scriptSrc]
  * @property {string?} [scriptType]
  * @property {string?} [url]
- *  @property {string?} [htmlTag]
+ * @property {string?} [htmlTag]
+ * @property {string?} [htmlStyle]
+ * @property {string?} [appendTokenName]
  */
 
 /**
