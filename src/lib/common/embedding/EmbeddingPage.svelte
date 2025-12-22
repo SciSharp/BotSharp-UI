@@ -95,7 +95,7 @@
 <Row>
 	<Col lg="12">
 		<Card>
-			<CardBody id={`${htmlTagId}`}></CardBody>
+			<CardBody style="padding: 0px; height: calc(100vh - 230px);" id={`${htmlTagId}`}></CardBody>
         </Card>
     </Col>
 </Row>
