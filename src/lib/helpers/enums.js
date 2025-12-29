@@ -168,7 +168,7 @@ const chatAction = {
     Chat: 'chat',
     NewChat: 'new-chat',
     ReceiveNotification: 'receive-notification',
-    NewWindow: 'new-window',
+    NewWindow: 'new-window'
 };
 export const ChatAction = Object.freeze(chatAction);
 
