@@ -10,11 +10,11 @@
     let label = '';
 </script>
 
-<HeadTitle title="{$_(label || 'Theme')}" addOn={`${lodash.capitalize($page.params.theme || '')}`} />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_(label || 'Theme')}" />
+<HeadTitle title="{$_(label || 'Agent')}" addOn={`${lodash.capitalize($page.params.embed || '')}`} />
+<Breadcrumb title="{$_('Agent')}" pagetitle="{$_(label || 'Agent')}" />
 
 <EmbeddingPage
-    htmlTagId="agent-theme-content"
-    slugName="themeType"
+    htmlTagId="agent-embed-content"
+    slugName="embedType"
     bind:label={label}
 />

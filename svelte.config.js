@@ -54,7 +54,7 @@ const config = {
 				"/page/agent/[agentId]",
 				"/page/agent/[agentId]/build",
 				"/page/agent/[agentId]/train",
-				"/page/agent/[theme]/[themeType]",
+				"/page/agent/[embed]/[embedType]",
 				"/page/instruction/testing",
 				"/page/instruction/log",
 				"/page/conversation",
