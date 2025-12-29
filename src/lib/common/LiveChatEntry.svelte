@@ -37,6 +37,8 @@
                 showBubbleMsg = false;
                 receivedMsg = '';
             }, receivedMsg?.length > 200 ? 8000 : 3000);
+        } else if (e.data.action == ChatAction.NewWindow && e.data.url) {
+            window.open(e.data.url, '_blank');
         }
     };
 
