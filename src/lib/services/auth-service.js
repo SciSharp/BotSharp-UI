@@ -1,18 +1,24 @@
-import { userStore, getUserStore } from '$lib/helpers/store.js';
+import { userStore, getUserStore, resetStorage, setTenantId, clearTenantId, getTenantId, clearTenantName, notifyTenantChanged } from '$lib/helpers/store.js';
 import { endpoints } from './api-endpoints.js';
 import axios from 'axios';
 
 /**
  * @param {string} email
  * @param {string} password
+ * @param {string} tenantId
  * @param {function} onSucceed
  * @param {function} onError
  */
-export async function getToken(email, password, onSucceed, onError) {
+export async function getToken(email, password, tenantId, onSucceed, onError) {
     const credentials = btoa(`${email}:${password}`);
+    /** @type {Record<string, string>} */
     const headers = {
         Authorization: `Basic ${credentials}`,
     };
+
+    if (tenantId) {
+        headers['__tenant'] = tenantId;
+    }
 
     await fetch(endpoints.tokenUrl, {
         method: 'POST',
@@ -34,6 +40,15 @@ export async function getToken(email, password, onSucceed, onError) {
         user.expires = result.expires;
         user.renew_token_count = 0;
         userStore.set(user);
+
+        if (tenantId) {
+            setTenantId(tenantId);
+            notifyTenantChanged();
+        } else {
+            clearTenantId();
+            clearTenantName();
+        }
+
         onSucceed();
     })
     .catch(() => {
@@ -47,11 +62,13 @@ export async function getToken(email, password, onSucceed, onError) {
  * @param {(() => void) | null} [onError]
  */
 export async function renewToken(token, onSucceed = null, onError = null) {
+    const tenantId = getTenantId();
     await fetch(endpoints.renewTokenUrl, {
         method: 'POST',
         headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            "Authorization": `Bearer ${token}`,
+            ...(tenantId ? { "__tenant": tenantId } : {})
         },
         body: JSON.stringify({ refresh_token: token, access_token: token }),
     }).then(response => {
@@ -137,4 +154,25 @@ export async function register(firstName, lastName, email, password, onSucceed) 
 export async function uploadUserAvatar(file) {
     const response = await axios.post(endpoints.userAvatarUrl, { ...file });
     return response?.data;
+}
+
+export async function getTenantOptions() {
+    try {
+        const response = await fetch(`${endpoints.userTenantsUrl}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        return result;
+    } catch (error) {
+        return null;
+    }
 }

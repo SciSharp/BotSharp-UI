@@ -14,7 +14,7 @@
 		Alert
 	} from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/HeadTitle.svelte';
-	import { getToken } from '$lib/services/auth-service.js';
+	import { getToken, getTenantOptions } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import {
@@ -31,7 +31,7 @@
 		PUBLIC_AUTH_ENABLE_FIND_PWD,
 	} from '$env/static/public';
 	import { onMount } from 'svelte';
-	import { resetStorage } from '$lib/helpers/store';
+	import { resetStorage, setTenantName, clearTenantName } from '$lib/helpers/store';
 
 	let username = PUBLIC_ADMIN_USERNAME;
 	let password = PUBLIC_ADMIN_PASSWORD;
@@ -40,13 +40,20 @@
 	let status = '';
 	let isSubmitting = false;
 	let isRememberMe = false;
+	let tenantId = '';
+	/** @type {{ tenantId: string, name: string }[]} */
+	let tenantOptions = [];
+	let tenantOptionsLoaded = false;
 
-	onMount(() => {
+	onMount(async () => {
 		const userName = localStorage.getItem('user_name');
 		isRememberMe = userName !== null;
 		if(isRememberMe){
 			username = userName || '';
 		}
+
+		// Load tenant options when opening the login page
+		await getTenamtOptions();
 	});
 	function handleRememberMe(){
 		if(isRememberMe){
@@ -62,10 +69,29 @@
 		isSubmitting = true;
 		handleRememberMe();
 		e.preventDefault();
-		await getToken(username, password, () => {
+
+		// Ensure tenant options have been fetched at least once
+		if (!tenantOptionsLoaded) {
+			await getTenamtOptions();
+		}
+
+		if (tenantOptions?.length > 0 && !tenantId) {
+			isSubmitting = false;
+			return;
+		}
+
+		await getToken(username, password, tenantOptions?.length > 0 ? tenantId : '', () => {
 			isOpen = true;
 			msg = 'Authentication success';
 			status = 'success';
+
+			if (tenantOptions?.length > 0) {
+					const selected = tenantOptions.find((x) => x.tenantId === tenantId);
+					setTenantName(selected?.name || '');
+				} else {
+					clearTenantName();
+				}
+
 			const redirectUrl = $page.url.searchParams.get('redirect');
 			isSubmitting = false;
 			resetStorage();
@@ -86,6 +112,34 @@
 			}, 3000);
 		});
 		isSubmitting = false;
+	}
+
+	async function getTenamtOptions() {
+		try {
+			let data = await getTenantOptions();
+			const raw = Array.isArray(data) ? data : [];
+			tenantOptions = raw
+				.map((/** @type {any} */ x) => ({
+					tenantId: x?.tenantId || x?.id || '',
+					name: x?.name || x?.tenantName || x?.displayName || x?.id || x?.tenantId || ''
+				}))
+				.filter((/** @type {{tenantId: string}} */ x) => !!x.tenantId);
+
+			if (tenantOptions.length === 0) {
+				tenantId = '';
+			} else if (tenantOptions.length === 1) {
+				tenantId = tenantOptions[0].tenantId;
+			} else {
+				// keep current selection if still valid
+				const stillValid = tenantOptions.some((x) => x.tenantId === tenantId);
+				if (!stillValid) tenantId = '';
+			}
+		} catch (error) {
+			tenantOptions = [];
+			tenantId = '';
+		} finally {
+			tenantOptionsLoaded = true;
+		}
 	}
 
 	function onPasswordToggle() {
@@ -143,6 +197,26 @@
 						<div class="p-2">
 							<Alert {isOpen} color={status}>{msg}</Alert>
 							<Form class="form-horizontal" on:submit={onSubmit}>
+								{#if tenantOptions.length > 0}
+									<div class="mb-3">
+										<Label for="tenant" class="form-label">Tenant</Label>
+										<Input
+											type="select"
+											class="form-select"
+											id="tenant"
+											disabled={isSubmitting}
+											bind:value={tenantId}
+										>
+											{#if tenantOptions.length > 1}
+												<option value="" disabled selected={tenantId === ''}>Please select</option>
+											{/if}
+											{#each tenantOptions as t (t.tenantId)}
+												<option value={t.tenantId}>{t.name}</option>
+											{/each}
+										</Input>
+									</div>
+								{/if}
+
 								<div class="mb-3">
 									<Label for="username" class="form-label">Username</Label>
 									<Input

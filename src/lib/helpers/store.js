@@ -7,6 +7,8 @@ const conversationKey = "conversation";
 const conversationUserStatesKey = "conversation_user_states";
 const conversationSearchOptionKey = "conversation_search_option";
 const conversationUserMessageKey = "conversation_user_messages";
+const tenantKey = "tenant_id";
+const tenantNameKey = "tenant_name";
 
 /** @type {Writable<import('$commonTypes').GlobalEvent>} */
 const createGlobalEventStore = () => {
@@ -52,6 +54,76 @@ export function getUserStore() {
         return userStore;
     }
 };
+
+
+/** @returns {string} */
+export function getTenantId() {
+    if (!browser) return '';
+    return sessionStorage.getItem(tenantKey) || '';
+}
+
+/** @param {string} tenantId */
+export function setTenantId(tenantId) {
+    if (!browser) return;
+    if (!tenantId) {
+        sessionStorage.removeItem(tenantKey);
+        return;
+    }
+    sessionStorage.setItem(tenantKey, tenantId);
+}
+
+export function clearTenantId() {
+    if (!browser) return;
+    sessionStorage.removeItem(tenantKey);
+}
+
+/** @returns {string} */
+export function getTenantName() {
+    if (!browser) return '';
+    return sessionStorage.getItem(tenantNameKey) || '';
+}
+
+/** @param {string} tenantName */
+export function setTenantName(tenantName) {
+    if (!browser) return;
+    if (!tenantName) {
+        sessionStorage.removeItem(tenantNameKey);
+    } else {
+        sessionStorage.setItem(tenantNameKey, tenantName);
+    }
+
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tenantChanged', {
+            detail: {
+                tenantId: getTenantId(),
+                tenantName: getTenantName()
+            }
+        }));
+    }
+}
+
+export function clearTenantName() {
+    if (!browser) return;
+    sessionStorage.removeItem(tenantNameKey);
+    if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('tenantChanged', {
+            detail: {
+                tenantId: getTenantId(),
+                tenantName: ''
+            }
+        }));
+    }
+}
+
+export function notifyTenantChanged() {
+    if (!browser || typeof window === 'undefined') return;
+    window.dispatchEvent(new CustomEvent('tenantChanged', {
+        detail: {
+            tenantId: getTenantId(),
+            tenantName: getTenantName()
+        }
+    }));
+}
 
 userStore.subscribe(value => {
     if (browser && value.token) {
@@ -228,6 +300,8 @@ export function resetStorage(resetUser = false) {
 
     if (resetUser) {
         sessionStorage.removeItem(userKey);
+        sessionStorage.removeItem(tenantKey);
+        sessionStorage.removeItem(tenantNameKey);
     }
 }
 
