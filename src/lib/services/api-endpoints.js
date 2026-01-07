@@ -17,6 +17,9 @@ export const endpoints = {
     userUpdateUrl: `${host}/user`,
     usrCreationUrl: `${host}/user`,
     userAvatarUrl: `${host}/user/avatar`,
+
+    //tenant
+    userTenantsUrl: `${host}/tenants/options`,
     
     // setting
     settingListUrl: `${host}/settings`,

@@ -1,5 +1,6 @@
 <script>
 	import { browser } from '$app/environment';
+	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { Input } from '@sveltestrap/sveltestrap';
 	import LanguageDropdown from '$lib/common/LanguageDropdown.svelte';
@@ -8,8 +9,9 @@
 	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
-	import { globalEventStore } from '$lib/helpers/store';
+	import { globalEventStore, getTenantName } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
+
 
 	/** @type {any} */
 	export let user;
@@ -19,6 +21,19 @@
 
 	/** @type {string} */
 	let searchText = '';
+
+	/** @type {string} */
+    let tenantName = '';
+
+    onMount(() => {
+        tenantName = getTenantName();
+        const handler = (/** @type {any} */ e) => {
+            tenantName = e?.detail?.tenantName || getTenantName() || '';
+        };
+        window.addEventListener('tenantChanged', handler);
+        return () => window.removeEventListener('tenantChanged', handler);
+    });
+
 
 	const toggleSideBar = () => {
 		if (browser) {
@@ -105,6 +120,9 @@
 			</form>
 		</div>
 		<div class="d-flex">
+			{#if tenantName}
+                <span class="ms-2 me-2 align-self-center text-muted">Tenant: {tenantName}</span>
+            {/if}
 			<LanguageDropdown />
 			<FullScreenDropdown />
 			<NotificationDropdown />

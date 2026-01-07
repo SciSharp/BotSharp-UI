@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getUserStore, globalErrorStore, loaderStore, userStore } from '$lib/helpers/store.js';
+import { getUserStore, globalErrorStore, loaderStore, userStore, getTenantId } from '$lib/helpers/store.js';
 import { renewToken } from '$lib/services/auth-service';
 import { delay } from './utils/common';
 
@@ -79,6 +79,11 @@ const retryQueue = {
             config.headers = config.headers || {};
             // @ts-ignore
             config.headers.Authorization = `Bearer ${newToken}`;
+                        const tenantId = getTenantId();
+            if (tenantId) {
+                // @ts-ignore
+                config.headers['__tenant'] = tenantId;
+            }
 
             chain = chain.then(() => delay(this.timeout))
                          .then(() => {
@@ -102,12 +107,17 @@ axios.interceptors.request.use(
     (config) => {
         // Add your authentication logic here
         const user = getUserStore();
+        const tenantId = getTenantId();
         if (!skipLoader(config)) {
             loaderStore.set(true);
         }
         // Attach an authentication token to the request headers
         if (user.token) {
             config.headers.Authorization = `Bearer ${user.token}`;
+            
+            if (tenantId) {
+                config.headers['__tenant'] = tenantId;
+            }
         } else {
             retryQueue.queue = [];
             redirectToLogin();
