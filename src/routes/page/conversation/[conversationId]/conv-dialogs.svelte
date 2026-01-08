@@ -8,7 +8,7 @@
 	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
-	import DialogModal from '$lib/common/DialogModal.svelte';
+	import DialogModal from '$lib/common/modals/DialogModal.svelte';
 	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
     import ConvDialogElement from './conv-dialog-element.svelte';
 

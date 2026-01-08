@@ -3,15 +3,9 @@
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
     import { Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
-    import CodeMirror from "svelte-codemirror-editor";
-    import { keymap } from "@codemirror/view";
-    import { indentUnit, indentOnInput, indentService } from "@codemirror/language";
-    import { defaultKeymap, history, indentWithTab, historyKeymap } from "@codemirror/commands";
-    import { EditorState } from "@codemirror/state";
-    import { python } from "@codemirror/lang-python";
-	import { oneDark } from "@codemirror/theme-one-dark";
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+	import CodeScript from '$lib/common/shared/CodeScript.svelte';
 
     const defaultScript = `# Python Demo
 def greet(name):
@@ -20,31 +14,6 @@ def greet(name):
 if __name__ == "__main__":
     greet('AI')
 `;
-
-    const extensions = [
-        python(),
-        indentUnit.of("    "),
-        EditorState.tabSize.of(4),
-        indentOnInput(),
-        indentService.of((context, pos) => {
-            const prevLine = pos > 0 ? context.state.doc.lineAt(pos - 1) : null;
-            if (prevLine) {
-                const prevText = prevLine.text;
-                const match = prevText.match(/^(\s*)/);
-                const baseIndent = match ? match[1].length : 0;
-
-                // Check if previous line ends with : (control structure)
-                if (prevText.trimEnd().endsWith(':')) {
-                    return baseIndent + 4;
-                }
-                return baseIndent;
-            }
-            return 0;
-        }),
-        history(),
-        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab])
-    ];
-
     
     /** @type {string} */
     export let title;
@@ -56,11 +25,10 @@ if __name__ == "__main__":
     */
     export let scriptObj;
 
-
     /** @type {string} */
     export let scriptType;
 
-
+    
     function addScript() {
         const scripts = [
             ...scriptObj.scripts,
@@ -104,7 +72,7 @@ if __name__ == "__main__":
     function changeScriptContent(e, uid) {
         const found = scriptObj?.scripts?.find(x => x.uid === uid);
         if (found) {
-            found.content = e.detail;
+            found.content = e.detail.text;
         }
     }
 </script>
@@ -170,13 +138,13 @@ if __name__ == "__main__":
                         {/each}
                     </NavBar>
                     <div class="code-editor">
-                        <CodeMirror
-                            theme={oneDark}
-                            lineWrapping
-                            extensions={extensions}
-                            value={scriptObj.selectedScript?.content || ''}
+                        {#key scriptObj.selectedScript?.uid}
+                        <CodeScript
+                            language={'python'}
+                            scriptText={scriptObj.selectedScript?.content || ''}
                             on:change={e => changeScriptContent(e, scriptObj.selectedScript?.uid)}
                         />
+                        {/key}
                     </div>
                 {/if}
             </Col>

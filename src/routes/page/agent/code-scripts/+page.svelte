@@ -225,7 +225,8 @@
             <Button
                 class="btn btn-warning"
                 disabled={!selectedAgentId}
-                on:click={() => resetCodeScripts()}>
+                on:click={() => resetCodeScripts()}
+            >
                 {$_('Reset')}
             </Button>
         </div>
