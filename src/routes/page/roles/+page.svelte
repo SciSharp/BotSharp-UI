@@ -9,9 +9,9 @@
 	} from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n';
     import moment from 'moment';
-	import HeadTitle from "$lib/common/HeadTitle.svelte";
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';

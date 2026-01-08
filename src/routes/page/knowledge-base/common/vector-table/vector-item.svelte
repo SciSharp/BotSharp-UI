@@ -3,7 +3,7 @@
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
     import Swal from 'sweetalert2';
-	import Loader from "$lib/common/Loader.svelte";
+	import Loader from "$lib/common/spinners/Loader.svelte";
 	import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
 
     const svelteDispatch = createEventDispatcher();

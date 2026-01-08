@@ -5,7 +5,7 @@
 	import { getAgentRuleOptions, generateAgentCodeScript } from '$lib/services/agent-service';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';

@@ -27,12 +27,12 @@
 		createVectorIndexes,
 		deleteVectorIndexes
     } from '$lib/services/knowledge-base-service';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-    import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import Loader from '$lib/common/Loader.svelte';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import Select from '$lib/common/Select.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+    import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import Loader from '$lib/common/spinners/Loader.svelte';
+	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import {
 		KnowledgeCollectionType,
 		KnowledgePayloadName,

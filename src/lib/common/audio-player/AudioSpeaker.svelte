@@ -2,7 +2,7 @@
 	import { initSpeech, stopAll, clearSpeakerInstantce } from "$lib/common/audio-player/store";
 	import { onMount, onDestroy } from "svelte";
   import { v4 as uuidv4 } from 'uuid';
-	import Stretch from "../Stretch.svelte";
+	import Stretch from "../shared/Stretch.svelte";
 
   /** @type {string} */
   export let text;

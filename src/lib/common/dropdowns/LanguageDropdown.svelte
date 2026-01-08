@@ -5,16 +5,16 @@
 		DropdownMenu,
 		DropdownItem,
 	} from '@sveltestrap/sveltestrap';
-
 	import { setupI18n } from "$lib/helpers/i18n";
-
 	import languages from "$lib/common/data/languages";
 	import { onMount } from "svelte";
 
-	 let selectedLang;
+	/** @type {string} */
+	let selectedLang;
 
 	let isOpen = false;
 
+	/** @param {string} lang */
 	function handleLocaleChange(lang) {
 		setupI18n({ withLocale: lang });
 		selectedLang = lang

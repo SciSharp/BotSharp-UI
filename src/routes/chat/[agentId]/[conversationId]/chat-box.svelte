@@ -48,12 +48,12 @@
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
 	import DialogModal from '$lib/common/modals/DialogModal.svelte';
 	import StateModal from '$lib/common/modals/StateModal.svelte';
 	import PlainModal from '$lib/common/modals/PlainModal.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
@@ -69,7 +69,7 @@
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
-	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
+	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import ChatUtil from './chat-util/chat-util.svelte';
 	import ChatFileUploader from './chat-util/chat-file-uploader.svelte';
 	import ChatFileGallery from './chat-util/chat-file-gallery.svelte';

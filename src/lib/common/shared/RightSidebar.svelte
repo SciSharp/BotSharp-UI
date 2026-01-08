@@ -2,7 +2,6 @@
 	import Link from 'svelte-link';
 	import 'overlayscrollbars/overlayscrollbars.css';
 	import { OverlayScrollbars } from 'overlayscrollbars';
-
 	import { onMount } from 'svelte';
 
 	export let sidebarColor = 'dark';

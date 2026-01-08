@@ -5,7 +5,7 @@
     import { v4 as uuidv4 } from 'uuid';
     import moment from "moment";
     import Swal from 'sweetalert2';
-    import Loader from '$lib/common/Loader.svelte';
+    import Loader from '$lib/common/spinners/Loader.svelte';
 	import { UserAction } from '$lib/helpers/enums';
 	import { getRoleDetails } from '$lib/services/role-service';
     

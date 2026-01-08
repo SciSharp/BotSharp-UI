@@ -5,7 +5,7 @@
 </svelte:head>
 
 <script>
-	import LiveChat from '$lib/common/LiveChatEntry.svelte';
+	import LiveChat from '$lib/common/shared/LiveChatEntry.svelte';
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
 
 	let component = VerticalLayout;

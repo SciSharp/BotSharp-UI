@@ -1,5 +1,5 @@
 <script>
-	import CollapsibleCard from "$lib/common/CollapsibleCard.svelte";
+	import CollapsibleCard from "$lib/common/shared/CollapsibleCard.svelte";
 	import { directToAgentPage } from "$lib/helpers/utils/common";
 	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
 

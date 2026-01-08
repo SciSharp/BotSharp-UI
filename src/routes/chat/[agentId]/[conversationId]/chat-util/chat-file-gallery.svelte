@@ -1,5 +1,5 @@
 <script>
-	import FileGallery from "$lib/common/FileGallery.svelte";
+	import FileGallery from "$lib/common/files/FileGallery.svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
 	import { afterUpdate, getContext, onDestroy } from "svelte";
 

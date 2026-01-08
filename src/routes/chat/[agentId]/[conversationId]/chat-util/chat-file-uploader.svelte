@@ -1,6 +1,6 @@
 <script>
     import { onDestroy, createEventDispatcher } from 'svelte';
-    import FileDropZone from '$lib/common/FileDropZone.svelte';
+    import FileDropZone from '$lib/common/files/FileDropZone.svelte';
 	import { conversationUserAttachmentStore } from '$lib/helpers/store';
 
     const svelteDispatch = createEventDispatcher();

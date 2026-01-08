@@ -1,6 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
-	import { getChartColorsArray } from '$lib/common/ChartColorsArray.svelte';
+	import { getChartColorsArray } from '$lib/common/shared/ChartColorsArray.svelte';
     import ApexCharts from 'apexcharts';
 	export let chartColor;
 

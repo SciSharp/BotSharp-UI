@@ -6,12 +6,12 @@
         ModalBody,
         ModalHeader
     } from "@sveltestrap/sveltestrap";
-    import Select from "$lib/common/Select.svelte";
-    import FileDropZone from '$lib/common/FileDropZone.svelte';
-    import FileGallery from '$lib/common/FileGallery.svelte';
+    import Select from "$lib/common/dropdowns/Select.svelte";
+    import FileDropZone from '$lib/common/files/FileDropZone.svelte';
+    import FileGallery from '$lib/common/files/FileGallery.svelte';
 	import { uploadKnowledgeDocuments } from "$lib/services/knowledge-base-service";
 	import { KnowledgeDocSource } from "$lib/helpers/enums";
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 
     const svelteDispatch = createEventDispatcher();
 

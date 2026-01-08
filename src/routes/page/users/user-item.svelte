@@ -5,7 +5,7 @@
     import { v4 as uuidv4 } from 'uuid';
     import Swal from 'sweetalert2';
     import lodash from "lodash";
-    import Loader from '$lib/common/Loader.svelte';
+    import Loader from '$lib/common/spinners/Loader.svelte';
 	import { UserAction } from '$lib/helpers/enums';
     import { getUserDetails } from '$lib/services/user-service';
 	

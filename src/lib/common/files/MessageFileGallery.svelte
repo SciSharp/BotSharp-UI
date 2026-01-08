@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { PUBLIC_SERVICE_URL } from '$env/static/public';
-	import FileGallery from '$lib/common/FileGallery.svelte';
+	import FileGallery from '$lib/common/files/FileGallery.svelte';
 	import { userStore } from '$lib/helpers/store';
 	import { isAudio, AUDIO_ICON } from '$lib/helpers/utils/file';
 	import { isExternalUrl } from '$lib/helpers/utils/common';

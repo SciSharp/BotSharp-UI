@@ -1,6 +1,6 @@
 <script>
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import { _ } from 'svelte-i18n'
 	import {
 		Card,

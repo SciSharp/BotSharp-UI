@@ -18,7 +18,7 @@
     } from "$lib/helpers/enums";
     import util from "lodash";
     import { v4 as uuidv4 } from 'uuid';
-	import Select from "$lib/common/Select.svelte";
+	import Select from "$lib/common/dropdowns/Select.svelte";
 	
 
     /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */

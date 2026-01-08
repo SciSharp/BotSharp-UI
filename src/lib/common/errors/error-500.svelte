@@ -1,7 +1,7 @@
 <script>
 	import Link from 'svelte-link';
 	import { Col, Container, Row } from '@sveltestrap/sveltestrap';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 </script>
 
 <HeadTitle title="500 Error Page" />

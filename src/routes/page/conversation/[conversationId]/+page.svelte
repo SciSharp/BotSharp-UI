@@ -5,9 +5,9 @@
     import Swal from 'sweetalert2';
     import { _ } from 'svelte-i18n';
     import { Col, Row, Button } from '@sveltestrap/sveltestrap';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { getConversation, deleteConversation, getDialogs } from '$lib/services/conversation-service.js';
     import Overview from './conv-overview.svelte'
     import States from './conv-states.svelte';

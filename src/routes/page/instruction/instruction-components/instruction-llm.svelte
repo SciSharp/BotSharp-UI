@@ -1,7 +1,7 @@
 <script>
     import { afterUpdate, createEventDispatcher, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-    import Select from '$lib/common/Select.svelte';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     const svelteDispatch = createEventDispatcher();
 

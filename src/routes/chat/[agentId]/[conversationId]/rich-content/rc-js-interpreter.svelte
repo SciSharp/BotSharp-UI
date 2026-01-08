@@ -4,7 +4,7 @@
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
     import { v4 as uuidv4 } from 'uuid';
-	import LoadingDots from "$lib/common/LoadingDots.svelte";
+	import LoadingDots from "$lib/common/spinners/LoadingDots.svelte";
 
     /** @type {import('$conversationTypes').ChatResponseModel?} */
     export let message;

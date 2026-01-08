@@ -2,8 +2,8 @@
     import { _ } from 'svelte-i18n';
     import { page } from '$app/stores';
     import lodash from 'lodash';
-	import HeadTitle from "$lib/common/HeadTitle.svelte";
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import EmbeddingPage from '$lib/common/embedding/EmbeddingPage.svelte';
 
     /** @type {string?} */

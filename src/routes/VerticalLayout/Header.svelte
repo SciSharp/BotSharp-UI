@@ -3,10 +3,10 @@
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { Input } from '@sveltestrap/sveltestrap';
-	import LanguageDropdown from '$lib/common/LanguageDropdown.svelte';
-	import FullScreenDropdown from '$lib/common/FullScreenDropdown.svelte';
-	import NotificationDropdown from '$lib/common/NotificationDropdown.svelte';
-	import ProfileDropdown from '$lib/common/ProfileDropdown.svelte';
+	import LanguageDropdown from '$lib/common/dropdowns/LanguageDropdown.svelte';
+	import FullScreenDropdown from '$lib/common/dropdowns/FullScreenDropdown.svelte';
+	import NotificationDropdown from '$lib/common/dropdowns/NotificationDropdown.svelte';
+	import ProfileDropdown from '$lib/common/dropdowns/ProfileDropdown.svelte';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { PUBLIC_LOGO_URL } from '$env/static/public';
 	import { globalEventStore, getTenantName } from '$lib/helpers/store';
