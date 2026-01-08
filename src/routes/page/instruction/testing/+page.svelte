@@ -4,12 +4,12 @@
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
 	import { Button, Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import { getAgentCodeScripts, getAgents } from '$lib/services/agent-service';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { executeAgentInstruction } from '$lib/services/instruct-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
 	import { AgentCodeScriptType, LlmModelType } from '$lib/helpers/enums';

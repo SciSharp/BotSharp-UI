@@ -16,12 +16,12 @@
 		TabPane,
         Button
 	} from '@sveltestrap/sveltestrap';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
+    import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import { getSettings, getSettingDetail } from '$lib/services/setting-service';
     import { JSONEditor } from 'svelte-jsoneditor';
 	import { refreshAgents } from '$lib/services/agent-service';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     
     const duration = 3000;
     let isLoading = false;

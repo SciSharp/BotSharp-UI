@@ -3,10 +3,10 @@
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
     import { Button, Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-    import Select from '$lib/common/Select.svelte';
+    import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+    import Select from '$lib/common/dropdowns/Select.svelte';
     import { myInfo } from '$lib/services/auth-service';
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
     import { ADMIN_ROLES } from '$lib/helpers/constants';
@@ -225,7 +225,8 @@
             <Button
                 class="btn btn-warning"
                 disabled={!selectedAgentId}
-                on:click={() => resetCodeScripts()}>
+                on:click={() => resetCodeScripts()}
+            >
                 {$_('Reset')}
             </Button>
         </div>

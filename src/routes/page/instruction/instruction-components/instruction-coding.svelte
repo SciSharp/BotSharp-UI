@@ -1,6 +1,6 @@
 <script>
     import { Button, Input } from '@sveltestrap/sveltestrap';
-	import Select from '$lib/common/Select.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const maxLength = 4096;

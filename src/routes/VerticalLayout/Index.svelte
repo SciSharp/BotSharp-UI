@@ -1,11 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import RightSidebar from '$lib/common/RightSidebar.svelte';
+	import RightSidebar from '$lib/common/shared/RightSidebar.svelte';
 	import { getPluginMenu } from '$lib/services/plugin-service';
 	import { myInfo } from '$lib/services/auth-service';
 	import { globalMenuStore } from '$lib/helpers/store';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 	import Header from './Header.svelte';
 	import Sidebar from './Sidebar.svelte';

@@ -4,9 +4,9 @@
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
 	import { Button } from '@sveltestrap/sveltestrap';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
+	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import { searchGraphKnowledge } from '$lib/services/knowledge-base-service';
     
 	const maxLength = 4096;

@@ -11,10 +11,10 @@
 		Table
 	} from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n';
-	import HeadTitle from "$lib/common/HeadTitle.svelte";
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import TablePagination from '$lib/common/TablePagination.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import TablePagination from '$lib/common/shared/TablePagination.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { getUsers, updateUser } from '$lib/services/user-service';
 	import UserItem from './user-item.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';

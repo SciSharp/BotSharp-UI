@@ -47,12 +47,19 @@
 	import { BOT_SENDERS, LEARNER_AGENT_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
-	import DialogModal from '$lib/common/DialogModal.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import LoadingDots from '$lib/common/LoadingDots.svelte';
-	import StateModal from '$lib/common/StateModal.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+	import DialogModal from '$lib/common/modals/DialogModal.svelte';
+	import StateModal from '$lib/common/modals/StateModal.svelte';
+	import PlainModal from '$lib/common/modals/PlainModal.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
+	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import { realtimeChat } from '$lib/services/realtime-chat-service';
+	import { webSpeech } from '$lib/services/web-speech';
+	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
+	import { delay } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -62,20 +69,15 @@
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
-	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
+	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import ChatUtil from './chat-util/chat-util.svelte';
 	import ChatFileUploader from './chat-util/chat-file-uploader.svelte';
 	import ChatFileGallery from './chat-util/chat-file-gallery.svelte';
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
-	import { realtimeChat } from '$lib/services/realtime-chat-service';
-	import { webSpeech } from '$lib/services/web-speech';
-	import { delay } from '$lib/helpers/utils/common';
-	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
-
 	
+
 	const options = {
 		scrollbars: {
 			visibility: 'auto',
@@ -117,6 +119,8 @@
 	let notificationText = '';
 	let successText = "Done";
 	let errorText = "Error";
+	let codeScript = '';
+	let codeLanguage = 'python';
 
 	/** @type {number} */
 	let messageInputTimeout;
@@ -192,6 +196,7 @@
 	let isOpenEditBotMsgModal = false;
 	let isOpenUserAddStateModal = false;
 	let isOpenTagModal = false;
+	let isOpenCodeScriptModal = false;
 	let isSendingMsg = false;
 	let isThinking = false;
 	let isListening = false;
@@ -1353,6 +1358,26 @@
 		});
 	}
 
+	/**
+	 * @param {any} e
+	 * @param {any} message
+	 */
+	function openCodeScriptModal(e, message) {
+		e.preventDefault();
+
+		codeScript = message?.rich_content?.message?.code_script || '';
+		codeLanguage = message?.rich_content?.message?.language || 'python';
+		isOpenCodeScriptModal = true;
+	}
+
+	function toggleCodeScriptModal() {
+		isOpenCodeScriptModal = !isOpenCodeScriptModal;
+		if (!isOpenCodeScriptModal) {
+			codeScript = '';
+			codeLanguage = '';
+		}
+	}
+
 	function toggleNotificationModal() {
 		isDisplayNotification = !isDisplayNotification;
 		if (!isDisplayNotification) {
@@ -1628,6 +1653,17 @@
 		<div>{`${(botText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
+
+<PlainModal
+	title={'Code script'}
+	isOpen={isOpenCodeScriptModal}
+	toggleModal={() => toggleCodeScriptModal()}
+>
+	<CodeScript
+		language={codeLanguage || 'python'}
+		scriptText={codeScript}
+	/>
+</PlainModal>
 
 <StateModal
 	isOpen={isOpenUserAddStateModal}
@@ -1936,6 +1972,22 @@
 																	{/if}
 																</div>
 															</div>
+															{#if message?.rich_content?.message?.rich_type === RichType.ProgramCode}
+															<div style="font-size: 17px;">
+																<!-- svelte-ignore a11y-click-events-have-key-events -->
+																<!-- svelte-ignore a11y-no-static-element-interactions -->
+																<div
+																	class="line-align-center text-primary"
+																	style="height: 85%;"
+																	data-bs-toggle="tooltip"
+																	data-bs-placement="top"
+																	title="Code script"
+																	on:click={e => openCodeScriptModal(e, message)}
+																>
+																	<i class="bx bx-terminal clickable" />
+																</div>
+															</div>
+															{/if}
 														</div>
 													{/if}
 													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}

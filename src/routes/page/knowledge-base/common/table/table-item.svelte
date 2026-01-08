@@ -1,7 +1,7 @@
 <script>
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
-	import Loader from "$lib/common/Loader.svelte";
+	import Loader from "$lib/common/spinners/Loader.svelte";
     import JSONTree from 'svelte-json-tree';
 	import { formatObject, splitTextByCase } from "$lib/helpers/utils/common";
 

@@ -6,10 +6,10 @@
     import Swal from 'sweetalert2';
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-    import FileDropZone from '$lib/common/FileDropZone.svelte';
-    import FileGallery from '$lib/common/FileGallery.svelte';
-    import LoadingDots from '$lib/common/LoadingDots.svelte';
-    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+    import FileDropZone from '$lib/common/files/FileDropZone.svelte';
+    import FileGallery from '$lib/common/files/FileGallery.svelte';
+    import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+    import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { isExternalUrl } from '$lib/helpers/utils/common';
 	import { knowledgeBaseDocumentStore, userStore } from '$lib/helpers/store';
     import { KnowledgeDocSource } from '$lib/helpers/enums';

@@ -3,8 +3,8 @@
   import { _ } from 'svelte-i18n';
   import { page } from '$app/stores';
   import { Col, Row } from '@sveltestrap/sveltestrap';
-  import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-  import HeadTitle from '$lib/common/HeadTitle.svelte';
+  import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+  import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
   import { getAgents } from '$lib/services/agent-service.js';
 	import { AgentType } from '$lib/helpers/enums';
   import RoutingFlow from './routing-flow.svelte'

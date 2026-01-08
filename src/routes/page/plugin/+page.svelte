@@ -1,12 +1,12 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
 	import { page } from '$app/stores';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import Plugins from './plugin-list.svelte';
     import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
-	import PlainPagination from '$lib/common/PlainPagination.svelte';
+	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';

@@ -2,8 +2,8 @@
     import { onMount } from 'svelte';
     import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
     import { _ } from 'svelte-i18n';
-    import InPlaceEdit from '$lib/common/InPlaceEdit.svelte';
-    import Select from '$lib/common/Select.svelte';
+    import InPlaceEdit from '$lib/common/shared/InPlaceEdit.svelte';
+    import Select from '$lib/common/dropdowns/Select.svelte';
     import { utcToLocal } from '$lib/helpers/datetime';
 	import { RoutingMode, AgentType, FunctionVisMode } from '$lib/helpers/enums';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';

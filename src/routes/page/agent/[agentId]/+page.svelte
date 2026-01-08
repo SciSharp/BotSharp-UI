@@ -5,9 +5,9 @@
     import { _ } from 'svelte-i18n'; 
     import Swal from 'sweetalert2';
 	import { Col, Row, Button } from '@sveltestrap/sveltestrap';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { deleteAgent, getAgent, saveAgent } from '$lib/services/agent-service.js';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { globalEventStore } from '$lib/helpers/store';

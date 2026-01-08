@@ -6,10 +6,10 @@
     import { getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
 	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
-	import MessageFileGallery from '$lib/common/MessageFileGallery.svelte';
+	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
-	import DialogModal from '$lib/common/DialogModal.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import DialogModal from '$lib/common/modals/DialogModal.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import ConvDialogElement from './conv-dialog-element.svelte';
 
     const maxTextLength = 4096;

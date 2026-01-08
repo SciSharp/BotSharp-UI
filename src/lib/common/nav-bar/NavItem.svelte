@@ -1,5 +1,5 @@
 <script>
-	import InPlaceEdit from "../InPlaceEdit.svelte";
+	import InPlaceEdit from "../shared/InPlaceEdit.svelte";
 
 
     /** @type {string} */

@@ -2,9 +2,9 @@
 	import { onMount } from 'svelte';
 	import { PUBLIC_BRAND_NAME } from '$env/static/public';
 	import { Row, Col, Card, CardBody, CardTitle, Table } from '@sveltestrap/sveltestrap';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import FileDropZone from '$lib/common/FileDropZone.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import FileDropZone from '$lib/common/files/FileDropZone.svelte';
 	import { myInfo, uploadUserAvatar } from '$lib/services/auth-service';
 	import { _ } from 'svelte-i18n';
 	import { userStore } from '$lib/helpers/store';

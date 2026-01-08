@@ -1,6 +1,6 @@
 <script>
     import { fly } from 'svelte/transition';
-	import RemoteSearchInput from "$lib/common/RemoteSearchInput.svelte";
+	import RemoteSearchInput from "$lib/common/shared/RemoteSearchInput.svelte";
 	import { Button, Input } from "@sveltestrap/sveltestrap";
 
     const limit = 5;

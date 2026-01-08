@@ -16,7 +16,7 @@
     import util from "lodash";
 	import { getVectorCollectionDetails } from "$lib/services/knowledge-base-service";
 	import { VectorIndexSchemaType } from "$lib/helpers/enums";
-    import Select from "$lib/common/Select.svelte";
+    import Select from "$lib/common/dropdowns/Select.svelte";
 
     /** @type {string} */
     export let collection;

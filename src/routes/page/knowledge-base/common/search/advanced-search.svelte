@@ -3,7 +3,7 @@
     import { fly } from 'svelte/transition';
     import { Input, Tooltip, Button } from '@sveltestrap/sveltestrap';
     import { v4 as uuidv4 } from 'uuid';
-	import Select from '$lib/common/Select.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { VectorPayloadDataType } from '$lib/helpers/enums';
     
     /** @type {boolean} */

@@ -13,7 +13,7 @@
 		Button,
 		Alert
 	} from '@sveltestrap/sveltestrap';
-	import Headtitle from '$lib/common/HeadTitle.svelte';
+	import Headtitle from '$lib/common/shared/HeadTitle.svelte';
 	import { getToken, getTenantOptions } from '$lib/services/auth-service.js';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';

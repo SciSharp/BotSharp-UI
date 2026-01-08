@@ -1,11 +1,11 @@
 <script>
 	import { Col, Row } from '@sveltestrap/sveltestrap';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
   	import { getAgents } from '$lib/services/agent-service.js';
   	import { onMount } from 'svelte';
-	import PlainPagination from '$lib/common/PlainPagination.svelte';
-	import { _ } from 'svelte-i18n'
+	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
+	import { _ } from 'svelte-i18n';
 
   	const firstPage = 1;
 	const pageSize = 12;

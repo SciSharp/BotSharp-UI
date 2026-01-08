@@ -4,17 +4,17 @@
 	import { _ } from 'svelte-i18n';
     import util from "lodash";
 	import { Button, Card, CardBody, Col, Input, Row, Table } from '@sveltestrap/sveltestrap';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-    import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import TablePagination from '$lib/common/TablePagination.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import TablePagination from '$lib/common/shared/TablePagination.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
 	import { getInstructionLogSearchKeys } from '$lib/services/instruct-service';
 	import { getInstructionLogs } from '$lib/services/logging-service';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { convertTimeRange, removeDuplicates } from '$lib/helpers/utils/common';
-	import StateSearch from '$lib/common/StateSearch.svelte';
-	import Select from '$lib/common/Select.svelte';
+	import StateSearch from '$lib/common/shared/StateSearch.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,

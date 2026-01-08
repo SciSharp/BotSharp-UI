@@ -2,7 +2,7 @@
     import Link from "svelte-link";
     import { fade } from 'svelte/transition';
     import { Container, Row, Col } from '@sveltestrap/sveltestrap';
-    import HeadTitle from "$lib/common/HeadTitle.svelte";
+    import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
     import { 
         PUBLIC_LOGO_URL, 
         PUBLIC_BRAND_NAME, 

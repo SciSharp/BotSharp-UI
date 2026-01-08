@@ -1,5 +1,5 @@
 <script>
-    import { createEventDispatcher } from 'svelte'
+    import { createEventDispatcher } from 'svelte';
     import collapse from 'svelte-collapse';
 
     /** @type {boolean} */
@@ -11,7 +11,7 @@
     /** @type {string} */
     export let easing = 'ease';
 
-    const dispatch = createEventDispatcher()
+    const dispatch = createEventDispatcher();
 
     function handleToggle () {
         open = !open;

@@ -5,11 +5,11 @@
 	import Swal from 'sweetalert2';
 	import { page } from '$app/stores';
 	import { Button, Col, Input, Row } from '@sveltestrap/sveltestrap';
-	import Breadcrumb from '$lib/common/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/HeadTitle.svelte';
-	import LoadingToComplete from '$lib/common/LoadingToComplete.svelte';
-	import PlainPagination from '$lib/common/PlainPagination.svelte';
-	import Select from '$lib/common/Select.svelte';
+	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
   	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
   	import { myInfo } from '$lib/services/auth-service';
