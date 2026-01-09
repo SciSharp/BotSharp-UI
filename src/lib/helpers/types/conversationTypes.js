@@ -30,6 +30,7 @@
  * @property {string} status - The conversation status.
  * @property {Object} states - The conversation states.
  * @property {string[]} tags - The conversation tags.
+ * @property {boolean?} accessible - Whether the conversation is accessible.
  * @property {boolean?} is_realtime_enabled - Whether the realtime feature is enabled.
  * @property {Date} updated_time - The conversation updated time.
  * @property {Date} created_time - The conversation created time.

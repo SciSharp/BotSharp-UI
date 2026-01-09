@@ -3,6 +3,7 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
 	import { page } from '$app/stores';
+	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
@@ -226,9 +227,9 @@
 		}
 	}
 
-	$: {
-		disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !AgentExtensions.chatable(agent);
-	}
+	// $: {
+	// 	disableAction = !ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !AgentExtensions.chatable(agent);
+	// }
 
 	setContext('chat-window-context', {
 		autoScrollToBottom: autoScrollToBottom
@@ -237,6 +238,11 @@
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		conversation = await getConversation(params.conversationId, true);
+		if (conversation == null || conversation.accessible === false) {
+			goto('/error', { replaceState: true });
+			return;
+		}
+
 		dialogs = await getDialogs(params.conversationId, dialogCount);
 		conversationUser = conversation?.user;
 		selectedTags = conversation?.tags || [];
