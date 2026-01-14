@@ -87,6 +87,7 @@
         config.is_inherit = false;
         models = getLlmModels(provider);
         config.model = models[0]?.name;
+        config.reasoning_effort_level = null;
         onModelChanged(config);
         handleAgentChange();
     }
@@ -96,6 +97,7 @@
         config.is_inherit = false;
         config.model = e.target.value || null;
         onModelChanged(config);
+        config.reasoning_effort_level = null;
         handleAgentChange();
     }
 
@@ -135,11 +137,6 @@
     /** @param {import('$agentTypes').AgentLlmConfig | null} config */
     function onModelChanged(config) {
         reasoningLevelOptions = getReasoningLevelOptions(config?.model);
-
-        if (config && !reasoningLevelOptions.some(x => x.value === config.reasoning_effort_level)) {
-            const defaultOption = reasoningLevelOptions.find(x => !!x.value)?.value || null;
-            config.reasoning_effort_level = defaultOption;
-        }
     }
 
     /** @param {string | null | undefined} model */
