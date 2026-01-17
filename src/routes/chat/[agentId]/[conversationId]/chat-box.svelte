@@ -381,7 +381,7 @@
 	}
 
 	function initChatView() {
-		isFrame = window.location != window.parent.location;
+		isFrame = window.self != window.top;
 		mode = $page.url.searchParams.get('mode') || '';
 		// initial condition
 		isPersistLogClosed = false;
