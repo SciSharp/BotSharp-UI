@@ -3,7 +3,6 @@
     import { derived } from 'svelte/store';
     import { page } from '$app/stores';
     import { _ } from 'svelte-i18n';
-    import { Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
 	import { getUserStore, globalMenuStore } from '$lib/helpers/store';
 	
     /** @type {string} */
@@ -92,14 +91,8 @@
 	};
 </script>
 
-<Row>
-	<Col lg="12">
-		<Card>
-			<CardBody
-                id={`${htmlTagId}`}
-                style="padding: 0px; height: calc(100vh - 230px);"
-            >
-            </CardBody>
-        </Card>
-    </Col>
-</Row>
+<div
+    id={`${htmlTagId}`}
+    class="embedding-container"
+>
+</div>
