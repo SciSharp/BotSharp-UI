@@ -229,9 +229,17 @@
  * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {AgentAction?} [action]
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
+ */
+
+/**
+ * @typedef {Object} AgentAction
+ * @property {string?} [name]
+ * @property {boolean} disabled
+ * @property {any} [config]
  */
 
 

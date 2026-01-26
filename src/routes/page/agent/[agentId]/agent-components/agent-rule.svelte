@@ -2,10 +2,11 @@
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-	import { getAgentRuleOptions, generateAgentCodeScript } from '$lib/services/agent-service';
+    import { getAgentRuleOptions, generateAgentCodeScript, getAgentRuleActions } from '$lib/services/agent-service';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+    import CodeScript from '$lib/common/shared/CodeScript.svelte';
     import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
@@ -42,7 +43,8 @@
             return {
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
-                criteria: x.criteria?.trim()
+                criteria: x.criteria?.trim(),
+                action: !!x.action?.name ? x.action : null 
             };
         });
 
@@ -63,6 +65,9 @@
     /** @type {any[]} */
     let ruleOptions = [];
 
+    /** @type {any[]} */
+    let actionOptions = [];
+
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
 
@@ -71,23 +76,33 @@
 
     onMount(async () =>{
         resizeWindow();
-        getAgentRuleOptions().then(data => {
-            const list = data?.map(x => {
-                return {
-                    name: x.trigger_name,
-                    displayName: "",
-                    output_args: x.output_args,
-                    json_args: x.json_args,
-                    statement: x.statement
-                };
-            }) || [];
-            ruleOptions = [{
-                name: "",
-                displayName: ""
-            }, ...list];
-            init();
-        });
+        Promise.all([
+            loadAgentRuleOptions(),
+            loadAgentRuleActions()
+        ]);
     });
+
+    function loadAgentRuleOptions() {
+        return new Promise((resolve, reject) => {
+            getAgentRuleOptions().then(data => {
+                const list = data?.map(x => {
+                    return {
+                        name: x.trigger_name,
+                        displayName: "",
+                        output_args: x.output_args,
+                        json_args: x.json_args,
+                        statement: x.statement
+                    };
+                }) || [];
+                ruleOptions = [{
+                    name: "",
+                    displayName: ""
+                }, ...list];
+                init();
+                resolve('done');
+            });
+        });
+    }
 
     function init() {
         const list = agent.rules?.map(x => {
@@ -97,6 +112,18 @@
             };
         }) || [];
         innerRefresh(list);
+    }
+
+    function loadAgentRuleActions() {
+        return new Promise((resolve, reject) => {
+            getAgentRuleActions().then(data => {
+                const list = data?.map(x => ({ name: x })) || [];
+                actionOptions = [{
+                    name: ""
+                }, ...list];
+                resolve('done');
+            });
+        });
     }
     
     /**
@@ -155,12 +182,25 @@
         const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        const val = e.target.value;
         if (field === 'criteria') {
-            found.criteria = val;
+            found.criteria = e.target.value;
+            innerRefresh(innerRules);
+            handleAgentChange();
+        } else if (field === 'action-config') {
+            if (found.action == null) {
+                found.action = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            try {
+                found.action.config = JSON.parse(e.detail?.text || '{}');
+                handleAgentChange();
+            } catch {
+                // ignore invalid JSON while typing
+            }
         }
-        innerRefresh(innerRules);
-        handleAgentChange();
     }
 
     /**
@@ -256,6 +296,44 @@
         }
         
         return scriptName;
+    }
+
+    /**
+	 * @param {any} e
+	 * @param {number} idx
+	 */
+    function changeAction(e, idx) {
+        const found = innerRules.find((_, index) => index === idx);
+        if (!found) return;
+        
+        const val = e.target.value;
+        found.action = {
+            ...found.action || {},
+            name: val,
+            disabled: found.action?.disabled || false
+        };
+        innerRefresh(innerRules);
+        handleAgentChange();
+    }
+
+    /**
+     * @param {any} e
+	 * @param {number} uid
+	 */
+    function toggleAction(e, uid) {
+        const found = innerRules.find((_, index) => index === uid);
+        if (!found) return;
+
+        if (!found.action) {
+            found.action = {
+                name: '',
+                disabled: false
+            };
+        }
+
+        found.action.disabled = !e.target.checked;
+        innerRefresh(innerRules);
+        handleAgentChange();
     }
 
     function resizeWindow() {
@@ -419,6 +497,65 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+
+                    <div class="utility-row utility-row-secondary">
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Action'}
+                                        </div>
+                                        <div class="line-align-center">
+                                            <Input
+                                                type="checkbox"
+                                                checked={!rule.action?.disabled}
+                                                on:change={e => toggleAction(e, uid)}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="select"
+                                            disabled={rule.disabled}
+                                            on:change={e => changeAction(e, uid)}
+                                        >
+                                            {#each [...actionOptions] as option}
+                                                <option value={option.name} selected={option.name == rule.action?.name}>
+                                                    {option.name}
+                                                </option>
+                                            {/each}
+                                        </Input>
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            {#if rule.action?.name}
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Config'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                            <CodeScript
+                                                language="json"
+                                                containerClasses="agent-action-config"
+                                                scriptText={JSON.stringify(rule.action?.config || {}, null, 2)}
+                                                on:change={(e) => changeContent(e, uid, 'action-config')}
+                                            />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            {/if}
                         </div>
                     </div>
                 </div>

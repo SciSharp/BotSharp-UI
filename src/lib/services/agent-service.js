@@ -116,6 +116,16 @@ export async function getAgentRuleOptions() {
 }
 
 /**
+ * Get agent rule actions
+ * @returns {Promise<string[]>}
+ */
+export async function getAgentRuleActions() {
+    const url = endpoints.agentRuleActionsUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * Get agent labels
  * @param {number?} [size]
  * @returns {Promise<string[]>}
