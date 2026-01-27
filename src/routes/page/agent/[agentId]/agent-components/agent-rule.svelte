@@ -548,6 +548,7 @@
                                             <CodeScript
                                                 language="json"
                                                 containerClasses="agent-action-config"
+                                                useBasicSetup={false}
                                                 scriptText={JSON.stringify(rule.action?.config || {}, null, 2)}
                                                 on:change={(e) => changeContent(e, uid, 'action-config')}
                                             />

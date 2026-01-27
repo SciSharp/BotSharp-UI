@@ -20,6 +20,12 @@
     /** @type {string} */
     export let containerClasses = '';
 
+    /** @type {boolean} */
+    export let darkTheme = true;
+
+    /** @type {boolean} */
+    export let useBasicSetup = true;
+
 
     /** @type {import("@codemirror/state").Extension[]} */
     const baseExtensions = [
@@ -73,8 +79,9 @@
 
 <CodeMirror
     class={`code-script-container ${containerClasses}`}
-    theme={oneDark}
     lineWrapping
+    basic={useBasicSetup}
+    theme={darkTheme ? oneDark : null}
     extensions={extensions}
     value={scriptText}
     on:change={e => handleChange(e)}
