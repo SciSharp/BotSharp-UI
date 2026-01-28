@@ -226,17 +226,25 @@
 /**
  * @typedef {Object} AgentRule
  * @property {string} trigger_name 
- * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
- * @property {AgentAction?} [action]
+ * @property {AgentRuleCriteria?} [rule_criteria]
+ * @property {AgentRuleAction?} [rule_action]
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
  */
 
 /**
- * @typedef {Object} AgentAction
+ * @typedef {Object} AgentRuleCriteria
+ * @property {string?} [name]
+ * @property {string?} [criteria_text]
+ * @property {boolean} disabled
+ * @property {any} [config]
+ */
+
+/**
+ * @typedef {Object} AgentRuleAction
  * @property {string?} [name]
  * @property {boolean} disabled
  * @property {any} [config]

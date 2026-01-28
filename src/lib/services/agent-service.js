@@ -116,6 +116,16 @@ export async function getAgentRuleOptions() {
 }
 
 /**
+ * Get agent rule criteria providers
+ * @returns {Promise<string[]>}
+ */
+export async function getAgentRuleCriteriaProviders() {
+    const url = endpoints.agentRuleCriteriaProvidersUrl;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * Get agent rule actions
  * @returns {Promise<string[]>}
  */
