@@ -151,7 +151,7 @@
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
         
-        if (field === 'trigger') {
+        if (field === 'rule') {
             found.trigger_name = e.target.value;
         } else if (field === 'criteria') {
             found.rule_criteria = { 
