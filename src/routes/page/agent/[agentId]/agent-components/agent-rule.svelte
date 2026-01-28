@@ -2,11 +2,12 @@
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-	import { getAgentRuleOptions, generateAgentCodeScript } from '$lib/services/agent-service';
+    import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
+    import { getAgentRuleOptions, generateAgentCodeScript, getAgentRuleActions, getAgentRuleCriteriaProviders } from '$lib/services/agent-service';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
-    import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
+    import CodeScript from '$lib/common/shared/CodeScript.svelte';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 
@@ -42,7 +43,8 @@
             return {
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
-                criteria: x.criteria?.trim()
+                rule_criteria: x.rule_criteria,
+                rule_action: x.rule_action 
             };
         });
 
@@ -63,6 +65,12 @@
     /** @type {any[]} */
     let ruleOptions = [];
 
+    /** @type {any[]} */
+    let criteriaOptions = [];
+
+    /** @type {any[]} */
+    let actionOptions = [];
+
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
 
@@ -71,23 +79,34 @@
 
     onMount(async () =>{
         resizeWindow();
-        getAgentRuleOptions().then(data => {
-            const list = data?.map(x => {
-                return {
-                    name: x.trigger_name,
-                    displayName: "",
-                    output_args: x.output_args,
-                    json_args: x.json_args,
-                    statement: x.statement
-                };
-            }) || [];
-            ruleOptions = [{
-                name: "",
-                displayName: ""
-            }, ...list];
-            init();
-        });
+        Promise.all([
+            loadAgentRuleOptions(),
+            loadAgentRuleCriteriaProviders(),
+            loadAgentRuleActions()
+        ]);
     });
+
+    function loadAgentRuleOptions() {
+        return new Promise((resolve, reject) => {
+            getAgentRuleOptions().then(data => {
+                const list = data?.map(x => {
+                    return {
+                        name: x.trigger_name,
+                        displayName: "",
+                        output_args: x.output_args,
+                        json_args: x.json_args,
+                        statement: x.statement
+                    };
+                }) || [];
+                ruleOptions = [{
+                    name: "",
+                    displayName: ""
+                }, ...list];
+                init();
+                resolve('done');
+            });
+        });
+    }
 
     function init() {
         const list = agent.rules?.map(x => {
@@ -98,17 +117,56 @@
         }) || [];
         innerRefresh(list);
     }
+
+    function loadAgentRuleActions() {
+        return new Promise((resolve, reject) => {
+            getAgentRuleActions().then(data => {
+                const list = data?.map(x => ({ name: x })) || [];
+                actionOptions = [{
+                    name: ""
+                }, ...list];
+                resolve('done');
+            });
+        });
+    }
+
+    function loadAgentRuleCriteriaProviders() {
+        return new Promise((resolve, reject) => {
+            getAgentRuleCriteriaProviders().then(data => {
+                const list = data?.map(x => ({ name: x })) || [];
+                criteriaOptions = [{
+                    name: ""
+                }, ...list];
+                resolve('done');
+            });
+        });
+    }
     
     /**
 	 * @param {any} e
 	 * @param {number} idx
+     * @param {string} field
 	 */
-    function changeRule(e, idx) {
+    function changeRule(e, idx, field) {
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
         
-        const val = e.target.value;
-        found.trigger_name = val;
+        if (field === 'rule') {
+            found.trigger_name = e.target.value;
+        } else if (field === 'criteria') {
+            found.rule_criteria = { 
+                ...found.rule_criteria || {},
+                name: e.target.value,
+                disabled: found.rule_criteria?.disabled || false
+            };
+        } else if (field === 'action') {
+            found.rule_action = {
+                ...found.rule_action || {},
+                name: e.target.value,
+                disabled: found.rule_action?.disabled || false
+            };
+        }
+
         innerRefresh(innerRules);
         handleAgentChange();
     }
@@ -118,7 +176,6 @@
             ...innerRules,
             {
                 trigger_name: '',
-                criteria: '',
                 displayName: '',
                 disabled: false
             }
@@ -136,12 +193,32 @@
     /**
      * @param {any} e
 	 * @param {number} uid
+     * @param {string} field
 	 */
-    function toggleRule(e, uid) {
+    function toggleRule(e, uid, field) {
         const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        found.disabled = !e.target.checked;
+        if (field === 'rule') {
+            found.disabled = !e.target.checked;
+        } else if (field === 'criteria') {
+            if (!found.rule_criteria) {
+                found.rule_criteria = {
+                    name: '',
+                    disabled: false
+                };
+            }
+            found.rule_criteria.disabled = !e.target.checked;
+        } else if (field === 'action') {
+            if (!found.rule_action) {
+                found.rule_action = {
+                    name: '',
+                    disabled: false
+                };
+            }
+            found.rule_action.disabled = !e.target.checked;
+        }
+        
         innerRefresh(innerRules);
         handleAgentChange();
     }
@@ -155,18 +232,56 @@
         const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        const val = e.target.value;
-        if (field === 'criteria') {
-            found.criteria = val;
+        if (field === 'criteria-text') {
+            if (found.rule_criteria == null) {
+                found.rule_criteria = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            found.rule_criteria.criteria_text = e.target.value;
+            innerRefresh(innerRules);
+            handleAgentChange();
+        } else if (field === 'criteria-config') {
+            if (found.rule_criteria == null) {
+                found.rule_criteria = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            try {
+                found.rule_criteria.config = JSON.parse(e.detail?.text || '{}');
+                handleAgentChange();
+            } catch {
+                // ignore invalid JSON while typing
+            }
+        } else if (field === 'action-config') {
+            if (found.rule_action == null) {
+                found.rule_action = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            try {
+                found.rule_action.config = JSON.parse(e.detail?.text || '{}');
+                handleAgentChange();
+            } catch {
+                // ignore invalid JSON while typing
+            }
         }
-        innerRefresh(innerRules);
-        handleAgentChange();
     }
 
     /**
 	 * @param {import("$agentTypes").AgentRule} rule
 	 */
     function compileCodeScript(rule) {
+        if (!!rule.rule_criteria?.disabled) {
+            return;
+        }
+
         Swal.fire({
             title: 'Are you sure?',
             html: `
@@ -202,7 +317,7 @@
                     script_type: AgentCodeScriptType.Src,
                     data: {
                         'args_example': { ...rule.output_args },
-                        'user_request': rule.criteria
+                        'user_request': rule.rule_criteria?.criteria_text
                     }
                 }
             }).then(res => {
@@ -292,7 +407,7 @@
                                     <Input
                                         type="checkbox"
                                         checked={!rule.disabled}
-                                        on:change={e => toggleRule(e, uid)}
+                                        on:change={e => toggleRule(e, uid, 'rule')}
                                     />
                                 </div>
                                 {#if rule.statement}
@@ -329,7 +444,7 @@
                                 <Input
                                     type="select"
                                     disabled={rule.disabled}
-                                    on:change={e => changeRule(e, uid)}
+                                    on:change={e => changeRule(e, uid, 'rule')}
                                 >
                                     {#each [...ruleOptions] as option}
                                         <option value={option.name} selected={option.name == rule.trigger_name}>
@@ -358,7 +473,39 @@
                                         <div class="line-align-center">
                                             {'Criteria'}
                                         </div>
-                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.criteria?.trim()}
+                                        <div class="line-align-center">
+                                            <Input
+                                                type="checkbox"
+                                                checked={!rule.rule_criteria?.disabled}
+                                                on:change={e => toggleRule(e, uid, 'criteria')}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="select"
+                                            disabled={!!rule.rule_criteria?.disabled}
+                                            on:change={e => changeRule(e, uid, 'criteria')}
+                                        >
+                                            {#each [...criteriaOptions] as option}
+                                                <option value={option.name} selected={option.name == rule.rule_criteria?.name}>
+                                                    {option.name}
+                                                </option>
+                                            {/each}
+                                        </Input>
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Text'}
+                                        </div>
+                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.rule_criteria?.criteria_text?.trim()}
                                         <div
                                             class="line-align-center clickable text-primary fs-5"
                                             style="padding-top: 3px;"
@@ -383,10 +530,10 @@
                                             type="textarea"
                                             style="resize: none;"
                                             rows={5}
-                                            disabled={rule.disabled}
+                                            disabled={!!rule.rule_criteria?.disabled}
                                             maxlength={textLimit}
-                                            value={rule.criteria}
-                                            on:input={e => changeContent(e, uid, 'criteria')}
+                                            value={rule.rule_criteria?.criteria_text}
+                                            on:input={e => changeContent(e, uid, 'criteria-text')}
                                         />
                                     </div>
                                     <div class="utility-delete line-align-center">
@@ -419,6 +566,91 @@
                                     </div>
                                 </div>
                             </div>
+                            {#if rule.rule_criteria?.name}
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Config'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                            <CodeScript
+                                                language="json"
+                                                containerClasses="agent-rule-config"
+                                                hideLineNumber={true}
+                                                editable={!rule.rule_criteria?.disabled}
+                                                scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
+                                                on:change={(e) => changeContent(e, uid, 'criteria-config')}
+                                            />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+
+                    <div class="utility-row utility-row-secondary">
+                        <div class="utility-content">
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Action'}
+                                        </div>
+                                        <div class="line-align-center">
+                                            <Input
+                                                type="checkbox"
+                                                checked={!rule.rule_action?.disabled}
+                                                on:change={e => toggleRule(e, uid, 'action')}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                        <Input
+                                            type="select"
+                                            disabled={!!rule.rule_action?.disabled}
+                                            on:change={e => changeRule(e, uid, 'action')}
+                                        >
+                                            {#each [...actionOptions] as option}
+                                                <option value={option.name} selected={option.name == rule.rule_action?.name}>
+                                                    {option.name}
+                                                </option>
+                                            {/each}
+                                        </Input>
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            {#if rule.rule_action?.name}
+                            <div class="utility-list-item">
+                                <div class="utility-label line-align-center">
+                                    <div class="d-flex gap-1">
+                                        <div class="line-align-center">
+                                            {'Config'}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="utility-value">
+                                    <div class="utility-input line-align-center">
+                                            <CodeScript
+                                                language="json"
+                                                containerClasses="agent-rule-config"
+                                                hideLineNumber={true}
+                                                editable={!rule.rule_action?.disabled}
+                                                scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
+                                                on:change={(e) => changeContent(e, uid, 'action-config')}
+                                            />
+                                    </div>
+                                    <div class="utility-delete line-align-center"></div>
+                                </div>
+                            </div>
+                            {/if}
                         </div>
                     </div>
                 </div>
