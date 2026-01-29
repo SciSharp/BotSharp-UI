@@ -538,30 +538,30 @@
                                     </div>
                                     <div class="utility-delete line-align-center">
                                         {#if rule.json_args}
-                                            <div class="line-align-center">
-                                                <i
-                                                    class="bx bxs-info-circle text-primary fs-5"
-                                                    id={`rule-args-${uid}`}
-                                                    data-bs-toggle="tooltip"
-                                                    data-bs-placement="top"
-                                                    title="Rule arguments"
+                                        <div class="line-align-center">
+                                            <i
+                                                class="bx bxs-info-circle text-primary fs-5"
+                                                id={`rule-args-${uid}`}
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Rule arguments"
+                                            />
+                                            <BotsharpTooltip
+                                                containerClasses="agent-utility-desc"
+                                                style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                                target={`rule-args-${uid}`}
+                                                placement="right"
+                                                persist
+                                            >
+                                                <Markdown
+                                                    rawText
+                                                    scrollable
+                                                    containerClasses={'markdown-div'}
+                                                    containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
+                                                    text={rule.json_args}
                                                 />
-                                                <BotsharpTooltip
-                                                    containerClasses="agent-utility-desc"
-                                                    style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                    target={`rule-args-${uid}`}
-                                                    placement="right"
-                                                    persist
-                                                >
-                                                    <Markdown
-                                                        rawText
-                                                        scrollable
-                                                        containerClasses={'markdown-div'}
-                                                        containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                        text={rule.json_args}
-                                                    />
-                                                </BotsharpTooltip>
-                                            </div>
+                                            </BotsharpTooltip>
+                                        </div>
                                         {/if}
                                     </div>
                                 </div>
@@ -577,14 +577,14 @@
                                 </div>
                                 <div class="utility-value">
                                     <div class="utility-input line-align-center">
-                                            <CodeScript
-                                                language="json"
-                                                containerClasses="agent-rule-config"
-                                                hideLineNumber={true}
-                                                editable={!rule.rule_criteria?.disabled}
-                                                scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
-                                                on:change={(e) => changeContent(e, uid, 'criteria-config')}
-                                            />
+                                        <CodeScript
+                                            language="json"
+                                            containerClasses="agent-rule-config"
+                                            hideLineNumber={true}
+                                            editable={!rule.rule_criteria?.disabled}
+                                            scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
+                                            on:change={(e) => changeContent(e, uid, 'criteria-config')}
+                                        />
                                     </div>
                                     <div class="utility-delete line-align-center"></div>
                                 </div>
@@ -638,14 +638,14 @@
                                 </div>
                                 <div class="utility-value">
                                     <div class="utility-input line-align-center">
-                                            <CodeScript
-                                                language="json"
-                                                containerClasses="agent-rule-config"
-                                                hideLineNumber={true}
-                                                editable={!rule.rule_action?.disabled}
-                                                scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
-                                                on:change={(e) => changeContent(e, uid, 'action-config')}
-                                            />
+                                        <CodeScript
+                                            language="json"
+                                            containerClasses="agent-rule-config"
+                                            hideLineNumber={true}
+                                            editable={!rule.rule_action?.disabled}
+                                            scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
+                                            on:change={(e) => changeContent(e, uid, 'action-config')}
+                                        />
                                     </div>
                                     <div class="utility-delete line-align-center"></div>
                                 </div>
