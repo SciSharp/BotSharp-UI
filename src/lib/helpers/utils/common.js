@@ -192,9 +192,10 @@ export function getCleanUrl(url) {
 
 /**
  * @param {string} timeRange
+ * @param {string} [specificDate] - When timeRange is SpecificDay, date in YYYY-MM-DD format (e.g. 2026-01-25)
  * @returns {{ startTime: string | null, endTime: string | null }}
  */
-export function convertTimeRange(timeRange) {
+export function convertTimeRange(timeRange, specificDate) {
     let ret = { startTime: null, endTime: null };
 
     if (!timeRange) {
@@ -239,6 +240,17 @@ export function convertTimeRange(timeRange) {
                 // @ts-ignore
                 endTime: moment().subtract(1, 'days').endOf('day').utc().format()
             };
+            break;
+        case TimeRange.SpecificDay:
+            if (specificDate && moment(specificDate).isValid()) {
+                ret = {
+                    ...ret,
+                    // @ts-ignore
+                    startTime: moment(specificDate).startOf('day').utc().format(),
+                    // @ts-ignore
+                    endTime: moment(specificDate).endOf('day').utc().format()
+                };
+            }
             break;
         default:
             break;

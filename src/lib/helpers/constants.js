@@ -57,6 +57,7 @@ export const TIME_RANGE_OPTIONS = [
     { label: TimeRange.Last12Hours, value: TimeRange.Last12Hours, qty: 12, unit: 'hours' },
     { label: TimeRange.Today, value: TimeRange.Today, qty: 1, unit: 'days' },
     { label: TimeRange.Yesterday, value: TimeRange.Yesterday, qty: 1, unit: 'days' },
+    { label: TimeRange.SpecificDay, value: TimeRange.SpecificDay, isSpecificDay: true },
     { label: TimeRange.Last3Days, value: TimeRange.Last3Days, qty: 3, unit: 'days' },
     { label: TimeRange.Last7Days, value: TimeRange.Last7Days, qty: 7, unit: 'days' },
     { label: TimeRange.Last30Days, value: TimeRange.Last30Days, qty: 30, unit: 'days' },

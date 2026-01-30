@@ -324,6 +324,7 @@ IRichContent.prototype.language;
  * @property {UserStateDetailModel[]} states
  * @property {string[]} tags
  * @property {string?} [timeRange]
+ * @property {string} [specificDate] - When timeRange is SpecificDay, date in YYYY-MM-DD (e.g. 2026-01-25)
  */
 
 /**
