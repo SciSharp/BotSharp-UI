@@ -40,6 +40,12 @@
 	const firstPage = 1;
 	const pageSize = 15;
 
+	// Get today's date in YYYY-MM-DD format
+	const getTodayStr = () => {
+		const d = new Date();
+		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+	};
+
 	/** @type {boolean} */
 	let isLoading = false;
 	let isComplete = false;
@@ -96,6 +102,7 @@
 		status: null,
 		taskId: null,
 		timeRange: TimeRange.Last12Hours,
+		specificDate: '',
 		states: [],
 		tags: []
 	};
@@ -111,7 +118,7 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
-		innerTimeRange = convertTimeRange(searchOption.timeRange || '');
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.specificDate);
 
 		filter = {
 			...filter,
@@ -298,7 +305,7 @@
 
 	function refreshFilter() {
 		const searchStates = getSearchStates();
-		innerTimeRange = convertTimeRange(searchOption.timeRange || '');
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.specificDate);
 
 		filter = {
 			...filter,
@@ -398,9 +405,12 @@
 				tags: e.target.value?.length > 0 ? [e.target.value] : []
 			};
 		} else if (type === 'timeRange') {
+			const timeRange = selectedValues.length > 0 ? selectedValues[0] : null;
+			const isSpecificDay = timeRange === TimeRange.SpecificDay;
 			searchOption = {
 				...searchOption,
-				timeRange: selectedValues.length > 0 ? selectedValues[0] : null
+				timeRange,
+				specificDate: isSpecificDay ? (searchOption.specificDate || getTodayStr()) : ''
 			};
 		}
 	}
@@ -517,6 +527,13 @@
 							options={timeRangeOptions}
 							on:select={e => changeOption(e, 'timeRange')}
 						/>
+						{#if searchOption.timeRange === TimeRange.SpecificDay}
+							<Input
+								type="date"
+								bind:value={searchOption.specificDate}
+								class="mt-2"
+							/>
+						{/if}
 					</Col>
 					<Col lg="1">
 						<Button

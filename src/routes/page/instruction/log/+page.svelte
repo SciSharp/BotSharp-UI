@@ -36,6 +36,12 @@
 		value: x.value
 	}));
 
+	// Get today's date in YYYY-MM-DD format
+	const getTodayStr = () => {
+		const d = new Date();
+		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+	};
+
     /** @type {import('$commonTypes').Pagination} */
 	let pager = { page: firstPage, size: pageSize, count: 0 }
 
@@ -64,6 +70,7 @@
 		models: [],
         template: '',
 		timeRange: TimeRange.Today,
+		specificDate: '',
 		states: []
 	};
 
@@ -87,7 +94,7 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
-		innerTimeRange = convertTimeRange(searchOption.timeRange);
+		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.specificDate);
 
 		filter = {
 			...filter,
@@ -223,9 +230,12 @@
 				models: selectedValues
 			};
         } else if (type === 'timeRange') {
+			const timeRange = selectedValues.length > 0 ? selectedValues[0] : null;
+			const isSpecificDay = timeRange === TimeRange.SpecificDay;
 			searchOption = {
 				...searchOption,
-				timeRange: selectedValues.length > 0 ? selectedValues[0] : null
+				timeRange,
+				specificDate: isSpecificDay ? (searchOption.specificDate || getTodayStr()) : ''
 			};
 		}
 	}
@@ -242,7 +252,7 @@
         const models = searchOption.models;
         const template = util.trim(searchOption.template) || null;
 		const states = getSearchStates();
-		innerTimeRange = convertTimeRange(searchOption.timeRange);
+		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.specificDate);
 
         filter = {
             ...filter,
@@ -382,6 +392,13 @@
 							options={timeRangeOptions}
 							on:select={e => changeOption(e, 'timeRange')}
 						/>
+						{#if searchOption.timeRange === TimeRange.SpecificDay}
+							<Input
+								type="date"
+								bind:value={searchOption.specificDate}
+								class="mt-2"
+							/>
+						{/if}
 					</Col>
 					<Col lg="1">
 						<Button
