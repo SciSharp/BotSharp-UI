@@ -143,10 +143,8 @@
 		{ value: k.toLowerCase(), label: v }
 	));
 
-	// Preset time range options (excluding custom date)
-	const presetTimeRangeOptions = TIME_RANGE_OPTIONS
-		.filter(x => x.value !== CUSTOM_DATE_RANGE)
-		.map(x => ({
+	// Preset time range options
+	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
 			label: x.label,
 			value: x.value
 		}));
