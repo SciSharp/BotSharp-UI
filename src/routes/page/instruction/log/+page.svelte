@@ -374,10 +374,10 @@
 							bind:startDate={searchOption.startDate}
 							bind:endDate={searchOption.endDate}
 							on:change={(e) => {
+								// Only update searchOption, don't trigger query immediately
 								searchOption.timeRange = e.detail.timeRange;
 								searchOption.startDate = e.detail.startDate;
 								searchOption.endDate = e.detail.endDate;
-								search();
 							}}
 						/>
 					</Col>

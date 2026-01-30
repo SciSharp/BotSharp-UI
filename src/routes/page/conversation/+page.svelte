@@ -23,7 +23,6 @@
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
-	import { CUSTOM_DATE_RANGE } from '$lib/helpers/constants';
 	import {
 		getConversations,
 		deleteConversation,
@@ -510,12 +509,10 @@
 							bind:startDate={searchOption.startDate}
 							bind:endDate={searchOption.endDate}
 							on:change={(e) => {
+								// Only update searchOption, don't trigger query immediately
 								searchOption.timeRange = e.detail.timeRange;
 								searchOption.startDate = e.detail.startDate;
 								searchOption.endDate = e.detail.endDate;
-								refreshFilter();
-								initFilterPager();
-								getPagedConversations();
 							}}
 						/>
 					</Col>
