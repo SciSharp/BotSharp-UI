@@ -21,7 +21,7 @@
 		goToUrl
 	} from '$lib/helpers/utils/common';
 	import { TimeRange } from '$lib/helpers/enums';
-	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
+	import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '$lib/helpers/constants';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
 	import LogItem from './log-item.svelte';
 
@@ -32,9 +32,9 @@
 
     const initPager = { page: firstPage, size: pageSize };
 
-	// Preset time range options (excluding SpecificDay)
+	// Preset time range options (excluding custom date)
 	const presetTimeRangeOptions = TIME_RANGE_OPTIONS
-		.filter(x => x.value !== TimeRange.SpecificDay)
+		.filter(x => x.value !== CUSTOM_DATE_RANGE)
 		.map(x => ({
 			label: x.label,
 			value: x.value
@@ -65,7 +65,7 @@
 
 	// Get time range display text
 	const getTimeRangeDisplayText = () => {
-		if (searchOption.timeRange === TimeRange.SpecificDay) {
+		if (searchOption.timeRange === CUSTOM_DATE_RANGE) {
 			if (searchOption.startDate && searchOption.endDate) {
 				const start = formatDateForDisplay(searchOption.startDate);
 				const end = formatDateForDisplay(searchOption.endDate);
@@ -128,7 +128,7 @@
 
 	// Update time range display text reactively
 	$: {
-		if (searchOption.timeRange === TimeRange.SpecificDay && searchOption.startDate && searchOption.endDate) {
+		if (searchOption.timeRange === CUSTOM_DATE_RANGE && searchOption.startDate && searchOption.endDate) {
 			const start = formatDateForDisplay(searchOption.startDate);
 			const end = formatDateForDisplay(searchOption.endDate);
 			if (start === end) {
@@ -136,7 +136,7 @@
 			} else {
 				timeRangeDisplayText = `${start} - ${end}`;
 			}
-		} else if (searchOption.timeRange === TimeRange.SpecificDay) {
+		} else if (searchOption.timeRange === CUSTOM_DATE_RANGE) {
 			timeRangeDisplayText = 'Custom';
 		} else {
 			const selected = presetTimeRangeOptions.find(x => x.value === searchOption.timeRange);
@@ -451,7 +451,8 @@
 							on:click={() => {
 								showDatePicker = !showDatePicker;
 								if (showDatePicker) {
-									datePickerTab = 'relative';
+									// If custom date is selected, switch to custom tab; otherwise use relative tab
+									datePickerTab = searchOption.timeRange === CUSTOM_DATE_RANGE ? 'custom' : 'relative';
 								}
 							}}
 							style="cursor: pointer;"
@@ -573,7 +574,7 @@
 														// Force reactivity by reassigning the object
 														searchOption = {
 															...searchOption,
-															timeRange: TimeRange.SpecificDay
+															timeRange: CUSTOM_DATE_RANGE
 														};
 													}
 													showDatePicker = false;

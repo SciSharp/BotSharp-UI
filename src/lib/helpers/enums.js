@@ -257,7 +257,6 @@ const timeRange = {
     Last12Hours: "Last 12 hours",
     Today: "Today",
     Yesterday: "Yesterday",
-    SpecificDay: "Specific day",
     Last3Days: "Last 3 days",
     Last7Days: "Last 7 days",
     Last30Days: "Last 30 days",

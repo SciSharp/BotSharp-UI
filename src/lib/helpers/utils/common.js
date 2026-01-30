@@ -1,6 +1,6 @@
 import { goto } from '$app/navigation';
 import moment from 'moment';
-import { TIME_RANGE_OPTIONS } from '../constants';
+import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '../constants';
 import { TimeRange } from '../enums';
 
 export function range(size = 3, startAt = 0) {
@@ -192,8 +192,8 @@ export function getCleanUrl(url) {
 
 /**
  * @param {string} timeRange
- * @param {string} [startDate] - When timeRange is SpecificDay, start date in YYYY-MM-DD format (e.g. 2026-01-25)
- * @param {string} [endDate] - When timeRange is SpecificDay, end date in YYYY-MM-DD format (e.g. 2026-01-30). If not provided, uses startDate
+ * @param {string} [startDate] - When timeRange is "Custom date", start date in YYYY-MM-DD format (e.g. 2026-01-25)
+ * @param {string} [endDate] - When timeRange is "Custom date", end date in YYYY-MM-DD format (e.g. 2026-01-30). If not provided, uses startDate
  * @returns {{ startTime: string | null, endTime: string | null }}
  */
 export function convertTimeRange(timeRange, startDate, endDate) {
@@ -242,7 +242,7 @@ export function convertTimeRange(timeRange, startDate, endDate) {
                 endTime: moment().subtract(1, 'days').endOf('day').utc().format()
             };
             break;
-        case TimeRange.SpecificDay:
+        case CUSTOM_DATE_RANGE:
             if (startDate && moment(startDate).isValid()) {
                 const endDateToUse = endDate && moment(endDate).isValid() ? endDate : startDate;
                 ret = {
