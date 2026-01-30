@@ -22,6 +22,7 @@
 	} from '$lib/helpers/utils/common';
 	import { TimeRange } from '$lib/helpers/enums';
 	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
+	import { clickoutsideDirective } from '$lib/helpers/directives';
 	import LogItem from './log-item.svelte';
 
     const firstPage = 1;
@@ -31,15 +32,53 @@
 
     const initPager = { page: firstPage, size: pageSize };
 
-	const timeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
-		label: x.label,
-		value: x.value
-	}));
+	// Preset time range options (excluding SpecificDay)
+	const presetTimeRangeOptions = TIME_RANGE_OPTIONS
+		.filter(x => x.value !== TimeRange.SpecificDay)
+		.map(x => ({
+			label: x.label,
+			value: x.value
+		}));
+
+	/** @type {string} */
+	let datePickerTab = 'relative';
 
 	// Get today's date in YYYY-MM-DD format
 	const getTodayStr = () => {
 		const d = new Date();
 		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+	};
+
+	// Get yesterday's date in YYYY-MM-DD format
+	const getYesterdayStr = () => {
+		const d = new Date();
+		d.setDate(d.getDate() - 1);
+		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+	};
+
+	// Format date for display (YYYY-MM-DD -> MM/DD/YYYY)
+	const formatDateForDisplay = (/** @type {string} */ dateStr) => {
+		if (!dateStr) return '';
+		const [year, month, day] = dateStr.split('-');
+		return `${month}/${day}/${year}`;
+	};
+
+	// Get time range display text
+	const getTimeRangeDisplayText = () => {
+		if (searchOption.timeRange === TimeRange.SpecificDay) {
+			if (searchOption.startDate && searchOption.endDate) {
+				const start = formatDateForDisplay(searchOption.startDate);
+				const end = formatDateForDisplay(searchOption.endDate);
+				if (start === end) {
+					return start;
+				}
+				return `${start} - ${end}`;
+			}
+			return 'Custom';
+		}
+		// Find the label for the selected time range
+		const selected = presetTimeRangeOptions.find(x => x.value === searchOption.timeRange);
+		return selected ? selected.label : '';
 	};
 
     /** @type {import('$commonTypes').Pagination} */
@@ -70,7 +109,8 @@
 		models: [],
         template: '',
 		timeRange: TimeRange.Today,
-		specificDate: '',
+		startDate: '',
+		endDate: '',
 		states: []
 	};
 
@@ -83,6 +123,33 @@
 	/** @type {boolean} */
 	let showStateSearch = false;
 
+	/** @type {string} */
+	let timeRangeDisplayText = '';
+
+	// Update time range display text reactively
+	$: {
+		if (searchOption.timeRange === TimeRange.SpecificDay && searchOption.startDate && searchOption.endDate) {
+			const start = formatDateForDisplay(searchOption.startDate);
+			const end = formatDateForDisplay(searchOption.endDate);
+			if (start === end) {
+				timeRangeDisplayText = start;
+			} else {
+				timeRangeDisplayText = `${start} - ${end}`;
+			}
+		} else if (searchOption.timeRange === TimeRange.SpecificDay) {
+			timeRangeDisplayText = 'Custom';
+		} else {
+			const selected = presetTimeRangeOptions.find(x => x.value === searchOption.timeRange);
+			timeRangeDisplayText = selected ? selected.label : '';
+		}
+	}
+
+	/** @type {boolean} */
+	let showDatePicker = false;
+
+	/** @type {HTMLDivElement | null} */
+	let datePickerRef = null;
+
 	/** @type {{key: string, value: string | null}[]} */
     let states = [
         { key: '', value: ''}
@@ -94,7 +161,7 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
-		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.specificDate);
+		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.startDate, searchOption.endDate);
 
 		filter = {
 			...filter,
@@ -230,13 +297,7 @@
 				models: selectedValues
 			};
         } else if (type === 'timeRange') {
-			const timeRange = selectedValues.length > 0 ? selectedValues[0] : null;
-			const isSpecificDay = timeRange === TimeRange.SpecificDay;
-			searchOption = {
-				...searchOption,
-				timeRange,
-				specificDate: isSpecificDay ? (searchOption.specificDate || getTodayStr()) : ''
-			};
+			// This handler is no longer used, but kept for compatibility
 		}
 	}
 
@@ -252,7 +313,7 @@
         const models = searchOption.models;
         const template = util.trim(searchOption.template) || null;
 		const states = getSearchStates();
-		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.specificDate);
+		innerTimeRange = convertTimeRange(searchOption.timeRange, searchOption.startDate, searchOption.endDate);
 
         filter = {
             ...filter,
@@ -383,21 +444,148 @@
 					<Col lg="2">
 						<Input bind:value={searchOption.template} maxlength={100} placeholder={'Search template...'} />
 					</Col>
-					<Col lg="2">
-						<Select
-							tag={'instruct-datetime-select'}
-							placeholder={'Select time range'}
-							selectedText={''}
-							selectedValues={searchOption.timeRange ? [searchOption.timeRange] : []}
-							options={timeRangeOptions}
-							on:select={e => changeOption(e, 'timeRange')}
-						/>
-						{#if searchOption.timeRange === TimeRange.SpecificDay}
-							<Input
-								type="date"
-								bind:value={searchOption.specificDate}
-								class="mt-2"
-							/>
+					<Col lg="2" class="position-relative">
+						<button
+							type="button"
+							class="form-control text-start d-flex align-items-center justify-content-between"
+							on:click={() => {
+								showDatePicker = !showDatePicker;
+								if (showDatePicker) {
+									datePickerTab = 'relative';
+								}
+							}}
+							style="cursor: pointer;"
+						>
+							<span>{timeRangeDisplayText || 'Select time range'}</span>
+							<i class="bx bx-chevron-down"></i>
+						</button>
+						{#if showDatePicker}
+							<div
+								bind:this={datePickerRef}
+								use:clickoutsideDirective
+								on:clickoutside={(/** @type {any} */ e) => {
+									if (e.detail && e.detail.targetNode && datePickerRef) {
+										if (!datePickerRef.contains(e.detail.targetNode)) {
+											showDatePicker = false;
+										}
+									}
+								}}
+								class="position-absolute top-100 start-0 mt-1 bg-white border rounded shadow-lg"
+								style="z-index: 1050; min-width: 320px; max-width: 350px;"
+							>
+								<ul class="nav nav-tabs border-bottom mb-0 px-2 pt-2" role="tablist">
+									<li class="nav-item flex-fill" role="presentation">
+										<button
+											class="nav-link fw-semibold {datePickerTab === 'relative' ? 'active text-primary' : 'text-muted'}"
+											type="button"
+											role="tab"
+											style="padding: 0.5rem 0.75rem; {datePickerTab === 'relative' ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
+											on:click={() => datePickerTab = 'relative'}
+										>
+											Relative
+										</button>
+									</li>
+									<li class="nav-item flex-fill" role="presentation">
+										<button
+											class="nav-link fw-semibold {datePickerTab === 'custom' ? 'active text-primary' : 'text-muted'}"
+											type="button"
+											role="tab"
+											style="padding: 0.5rem 0.75rem; {datePickerTab === 'custom' ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
+											on:click={() => {
+												datePickerTab = 'custom';
+												// Set default dates to yesterday and today if not already set
+												if (!searchOption.startDate && !searchOption.endDate) {
+													searchOption.startDate = getYesterdayStr();
+													searchOption.endDate = getTodayStr();
+												}
+											}}
+										>
+											Custom
+										</button>
+									</li>
+								</ul>
+								
+								<div class="p-4">
+									{#if datePickerTab === 'relative'}
+										<div class="d-flex flex-column gap-2" style="max-height: 300px; overflow-y: auto;">
+											{#each presetTimeRangeOptions as option}
+												<button
+													type="button"
+													class="btn btn-sm btn-outline-secondary text-start {searchOption.timeRange === option.value ? 'active' : ''}"
+													on:click={(e) => {
+														e.preventDefault();
+														e.stopPropagation();
+														searchOption.timeRange = option.value;
+														searchOption.startDate = '';
+														searchOption.endDate = '';
+														showDatePicker = false;
+														search();
+													}}
+												>
+													{option.label}
+												</button>
+											{/each}
+										</div>
+									{:else if datePickerTab === 'custom'}
+										<div class="mb-3">
+											<label for="start-date-picker-log" class="form-label small mb-2">From:</label>
+											<Input
+												id="start-date-picker-log"
+												type="date"
+												bind:value={searchOption.startDate}
+												class="form-control form-control-sm"
+											/>
+										</div>
+										<div class="mb-4">
+											<label for="end-date-picker-log" class="form-label small mb-2">To:</label>
+											<Input
+												id="end-date-picker-log"
+												type="date"
+												bind:value={searchOption.endDate}
+												class="form-control form-control-sm"
+											/>
+										</div>
+										<div class="d-flex justify-content-end gap-2 mt-3">
+											<Button
+												color="secondary"
+												size="sm"
+												type="button"
+												on:click={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													showDatePicker = false;
+												}}
+											>
+												Cancel
+											</Button>
+											<Button
+												color="primary"
+												size="sm"
+												type="button"
+												on:click={(e) => {
+													e.preventDefault();
+													e.stopPropagation();
+													if (searchOption.startDate) {
+														// If endDate is not provided, default to startDate
+														if (!searchOption.endDate) {
+															searchOption.endDate = searchOption.startDate;
+														}
+														// Force reactivity by reassigning the object
+														searchOption = {
+															...searchOption,
+															timeRange: TimeRange.SpecificDay
+														};
+													}
+													showDatePicker = false;
+													search();
+												}}
+											>
+												Confirm
+											</Button>
+										</div>
+									{/if}
+								</div>
+							</div>
 						{/if}
 					</Col>
 					<Col lg="1">

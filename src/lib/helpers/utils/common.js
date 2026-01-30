@@ -192,10 +192,11 @@ export function getCleanUrl(url) {
 
 /**
  * @param {string} timeRange
- * @param {string} [specificDate] - When timeRange is SpecificDay, date in YYYY-MM-DD format (e.g. 2026-01-25)
+ * @param {string} [startDate] - When timeRange is SpecificDay, start date in YYYY-MM-DD format (e.g. 2026-01-25)
+ * @param {string} [endDate] - When timeRange is SpecificDay, end date in YYYY-MM-DD format (e.g. 2026-01-30). If not provided, uses startDate
  * @returns {{ startTime: string | null, endTime: string | null }}
  */
-export function convertTimeRange(timeRange, specificDate) {
+export function convertTimeRange(timeRange, startDate, endDate) {
     let ret = { startTime: null, endTime: null };
 
     if (!timeRange) {
@@ -242,13 +243,14 @@ export function convertTimeRange(timeRange, specificDate) {
             };
             break;
         case TimeRange.SpecificDay:
-            if (specificDate && moment(specificDate).isValid()) {
+            if (startDate && moment(startDate).isValid()) {
+                const endDateToUse = endDate && moment(endDate).isValid() ? endDate : startDate;
                 ret = {
                     ...ret,
                     // @ts-ignore
-                    startTime: moment(specificDate).startOf('day').utc().format(),
+                    startTime: moment(startDate).startOf('day').utc().format(),
                     // @ts-ignore
-                    endTime: moment(specificDate).endOf('day').utc().format()
+                    endTime: moment(endDateToUse).endOf('day').utc().format()
                 };
             }
             break;
