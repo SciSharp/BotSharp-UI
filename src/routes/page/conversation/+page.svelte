@@ -19,10 +19,10 @@
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
+	import TimeRangePicker from '$lib/common/shared/TimeRangePicker.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
-	import { TIME_RANGE_OPTIONS } from '$lib/helpers/constants';
 	import {
 		getConversations,
 		deleteConversation,
@@ -39,12 +39,6 @@
 	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
-
-	// Get today's date in YYYY-MM-DD format
-	const getTodayStr = () => {
-		const d = new Date();
-		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
-	};
 
 	/** @type {boolean} */
 	let isLoading = false;
@@ -83,10 +77,6 @@
 		{ value: k.toLowerCase(), label: v }
 	));
 
-	const timeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
-		label: x.label,
-		value: x.value
-	}));
 
 	/** @type {{ startTime: string | null, endTime: string | null }} */
 	let innerTimeRange = {
@@ -102,7 +92,8 @@
 		status: null,
 		taskId: null,
 		timeRange: TimeRange.Last12Hours,
-		specificDate: '',
+		startDate: '',
+		endDate: '',
 		states: [],
 		tags: []
 	};
@@ -118,7 +109,7 @@
 			page: $page.url.searchParams.get("page"),
 			pageSize: $page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
-		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.specificDate);
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.startDate, searchOption.endDate);
 
 		filter = {
 			...filter,
@@ -305,7 +296,7 @@
 
 	function refreshFilter() {
 		const searchStates = getSearchStates();
-		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.specificDate);
+		innerTimeRange = convertTimeRange(searchOption.timeRange || '', searchOption.startDate, searchOption.endDate);
 
 		filter = {
 			...filter,
@@ -405,13 +396,7 @@
 				tags: e.target.value?.length > 0 ? [e.target.value] : []
 			};
 		} else if (type === 'timeRange') {
-			const timeRange = selectedValues.length > 0 ? selectedValues[0] : null;
-			const isSpecificDay = timeRange === TimeRange.SpecificDay;
-			searchOption = {
-				...searchOption,
-				timeRange,
-				specificDate: isSpecificDay ? (searchOption.specificDate || getTodayStr()) : ''
-			};
+			// This handler is no longer used, but kept for compatibility
 		}
 	}
 
@@ -519,21 +504,17 @@
 						/>
 					</Col>
 					<Col lg="2">
-						<Select
-							tag={'conversation-datetime-select'}
-							placeholder={'Select time range'}
-							selectedText={''}
-							selectedValues={searchOption.timeRange ? [searchOption.timeRange] : []}
-							options={timeRangeOptions}
-							on:select={e => changeOption(e, 'timeRange')}
+						<TimeRangePicker
+							bind:timeRange={searchOption.timeRange}
+							bind:startDate={searchOption.startDate}
+							bind:endDate={searchOption.endDate}
+							on:change={(e) => {
+								// Only update searchOption, don't trigger query immediately
+								searchOption.timeRange = e.detail.timeRange;
+								searchOption.startDate = e.detail.startDate;
+								searchOption.endDate = e.detail.endDate;
+							}}
 						/>
-						{#if searchOption.timeRange === TimeRange.SpecificDay}
-							<Input
-								type="date"
-								bind:value={searchOption.specificDate}
-								class="mt-2"
-							/>
-						{/if}
 					</Col>
 					<Col lg="1">
 						<Button
