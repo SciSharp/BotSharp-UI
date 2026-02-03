@@ -203,6 +203,21 @@ export function convertTimeRange(timeRange, startDate, endDate) {
         return ret;
     }
 
+    // Handle CUSTOM_DATE_RANGE first, as it's not in TIME_RANGE_OPTIONS
+    if (timeRange === CUSTOM_DATE_RANGE) {
+        if (startDate && moment(startDate).isValid()) {
+            const endDateToUse = endDate && moment(endDate).isValid() ? endDate : startDate;
+            ret = {
+                ...ret,
+                // @ts-ignore
+                startTime: moment(startDate).startOf('day').utc().format(),
+                // @ts-ignore
+                endTime: moment(endDateToUse).endOf('day').utc().format()
+            };
+        }
+        return ret;
+    }
+
     const found = TIME_RANGE_OPTIONS.find(x => x.value === timeRange);
     if (!found) {
         return ret;
@@ -241,18 +256,6 @@ export function convertTimeRange(timeRange, startDate, endDate) {
                 // @ts-ignore
                 endTime: moment().subtract(1, 'days').endOf('day').utc().format()
             };
-            break;
-        case CUSTOM_DATE_RANGE:
-            if (startDate && moment(startDate).isValid()) {
-                const endDateToUse = endDate && moment(endDate).isValid() ? endDate : startDate;
-                ret = {
-                    ...ret,
-                    // @ts-ignore
-                    startTime: moment(startDate).startOf('day').utc().format(),
-                    // @ts-ignore
-                    endTime: moment(endDateToUse).endOf('day').utc().format()
-                };
-            }
             break;
         default:
             break;
