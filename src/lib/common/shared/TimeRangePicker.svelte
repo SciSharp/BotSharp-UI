@@ -1,6 +1,8 @@
 <script>
 	import { createEventDispatcher } from 'svelte';
 	import { Button, Input } from '@sveltestrap/sveltestrap';
+	import Flatpickr from 'svelte-flatpickr';
+	import 'flatpickr/dist/flatpickr.css';
 	import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '$lib/helpers/constants';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
 
@@ -24,6 +26,86 @@
 
 	/** @type {string} */
 	let datePickerTab = 'relative';
+
+	// Temporary dates for custom selection (before confirming)
+	/** @type {string} */
+	let tempStartDate = '';
+	
+	/** @type {string} */
+	let tempEndDate = '';
+
+	// Flatpickr instance reference
+	/** @type {any} */
+	let flatpickrInstance = null;
+
+	// Format date for flatpickr (Date object to YYYY-MM-DD string)
+	/** @param {Date} date */
+	function formatDateForFlatpickr(/** @type {Date} */ date) {
+		if (!date) return '';
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
+	}
+
+	// Flatpickr options for date range selection
+	/** @type {any} */
+	let flatpickrOptions = {
+		mode: 'range',
+		dateFormat: 'Y-m-d',
+		inline: true,
+		allowInput: false,
+		onChange: (/** @type {Date[]} */ selectedDates, /** @type {string} */ dateStr, /** @type {any} */ instance) => {
+			if (selectedDates.length === 1) {
+				// Only start date selected
+				tempStartDate = formatDateForFlatpickr(selectedDates[0]);
+				tempEndDate = '';
+			} else if (selectedDates.length === 2) {
+				// Both dates selected
+				tempStartDate = formatDateForFlatpickr(selectedDates[0]);
+				tempEndDate = formatDateForFlatpickr(selectedDates[1]);
+			}
+		}
+	};
+
+	// Handle manual input changes
+	function handleStartDateChange() {
+		if (tempStartDate && flatpickrInstance) {
+			if (tempEndDate) {
+				flatpickrInstance.setDate([tempStartDate, tempEndDate], false);
+			} else {
+				flatpickrInstance.setDate([tempStartDate], false);
+			}
+		}
+	}
+
+	function handleEndDateChange() {
+		if (tempStartDate && tempEndDate && flatpickrInstance) {
+			flatpickrInstance.setDate([tempStartDate, tempEndDate], false);
+		}
+	}
+
+	// Initialize temp dates when opening custom tab
+	function initCustomDates() {
+		if (startDate) {
+			tempStartDate = startDate;
+		}
+		if (endDate) {
+			tempEndDate = endDate;
+		}
+		if (!tempStartDate && !tempEndDate) {
+			tempStartDate = getYesterdayStr();
+			tempEndDate = getTodayStr();
+		}
+		// Update flatpickr with initial dates
+		if (flatpickrInstance) {
+			if (tempStartDate && tempEndDate) {
+				flatpickrInstance.setDate([tempStartDate, tempEndDate], false);
+			} else if (tempStartDate) {
+				flatpickrInstance.setDate([tempStartDate], false);
+			}
+		}
+	}
 
 	// Preset time range options
 	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
@@ -80,17 +162,21 @@
 		dispatch('change', { timeRange, startDate, endDate });
 	}
 
-	function handleCustomConfirm() {
-		if (startDate) {
-			// If endDate is not provided, default to startDate
-			if (!endDate) {
-				endDate = startDate;
-			}
-			// Force reactivity by reassigning
+	function handleApply() {
+		if (tempStartDate) {
+			const finalEndDate = tempEndDate || tempStartDate;
+			// Update props through binding (will trigger reactivity)
+			startDate = tempStartDate;
+			endDate = finalEndDate;
 			timeRange = CUSTOM_DATE_RANGE;
+			// Dispatch change event with updated values
+			dispatch('change', { 
+				timeRange: CUSTOM_DATE_RANGE, 
+				startDate: tempStartDate, 
+				endDate: finalEndDate 
+			});
 		}
 		showDatePicker = false;
-		dispatch('change', { timeRange, startDate, endDate });
 	}
 
 	function handleCancel() {
@@ -107,6 +193,12 @@
 			if (showDatePicker) {
 				// If custom date is selected, switch to custom tab; otherwise use relative tab
 				datePickerTab = timeRange === CUSTOM_DATE_RANGE ? 'custom' : 'relative';
+				if (datePickerTab === 'custom') {
+					// Delay init to ensure flatpickr is mounted
+					setTimeout(() => {
+						initCustomDates();
+					}, 0);
+				}
 			}
 		}}
 		style="cursor: pointer;"
@@ -148,11 +240,10 @@
 						style="padding: 0.5rem 0.75rem; {datePickerTab === 'custom' ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
 						on:click={() => {
 							datePickerTab = 'custom';
-							// Set default dates to yesterday and today if not already set
-							if (!startDate && !endDate) {
-								startDate = getYesterdayStr();
-								endDate = getTodayStr();
-							}
+							// Delay init to ensure flatpickr is mounted
+							setTimeout(() => {
+								initCustomDates();
+							}, 0);
 						}}
 					>
 						Custom
@@ -178,24 +269,31 @@
 						{/each}
 					</div>
 				{:else if datePickerTab === 'custom'}
+					<!-- Calendar Grid -->
 					<div class="mb-3">
-						<label for="start-date-picker" class="form-label small mb-2">From:</label>
-						<Input
-							id="start-date-picker"
-							type="date"
-							bind:value={startDate}
-							class="form-control form-control-sm"
+						<Flatpickr
+							options={flatpickrOptions}
+							bind:flatpickr={flatpickrInstance}
 						/>
 					</div>
-					<div class="mb-4">
-						<label for="end-date-picker" class="form-label small mb-2">To:</label>
+					
+					<!-- Date Input Fields -->
+					<div class="d-flex align-items-center gap-2 mb-3">
 						<Input
-							id="end-date-picker"
 							type="date"
-							bind:value={endDate}
+							bind:value={tempStartDate}
 							class="form-control form-control-sm"
+							on:change={handleStartDateChange}
+						/>
+						<span class="text-muted small">to</span>
+						<Input
+							type="date"
+							bind:value={tempEndDate}
+							class="form-control form-control-sm"
+							on:change={handleEndDateChange}
 						/>
 					</div>
+					
 					<div class="d-flex justify-content-end gap-2 mt-3">
 						<Button
 							color="secondary"
@@ -216,10 +314,10 @@
 							on:click={(e) => {
 								e.preventDefault();
 								e.stopPropagation();
-								handleCustomConfirm();
+								handleApply();
 							}}
 						>
-							Confirm
+							Apply
 						</Button>
 					</div>
 				{/if}
@@ -227,3 +325,10 @@
 		</div>
 	{/if}
 </div>
+
+<style>
+	/* Hide flatpickr's default input field when using inline mode */
+	:global(.flatpickr-input) {
+		display: none !important;
+	}
+</style>
