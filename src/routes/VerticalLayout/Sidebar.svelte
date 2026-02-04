@@ -76,6 +76,7 @@
 		}
 
 		activeMenu();
+		setupCollapsedMenuPositioning();
 
 		const curUrl = getCleanUrl($page.url.pathname);
 		if (curUrl) {
@@ -111,6 +112,41 @@
 
 		// menuItemScroll()
 	});
+
+	const setupCollapsedMenuPositioning = () => {
+		if (!browser) return;
+
+		const sideMenu = document.querySelector('#side-menu');
+		if (!sideMenu) return;
+
+		// Position fixed submenus on hover when sidebar is collapsed
+		sideMenu.querySelectorAll(':scope > li').forEach((li) => {
+			li.addEventListener('mouseenter', () => {
+				if (!document.body.classList.contains('vertical-collpsed')) return;
+
+				const submenu = li.querySelector(':scope > ul.sub-menu');
+				if (submenu) {
+					const rect = li.getBoundingClientRect();
+					// @ts-ignore
+					submenu.style.top = `${rect.top}px`;
+				}
+			});
+		});
+
+		// Position nested submenus
+		sideMenu.querySelectorAll('.sub-menu li').forEach((li) => {
+			li.addEventListener('mouseenter', () => {
+				if (!document.body.classList.contains('vertical-collpsed')) return;
+
+				const nestedSubmenu = li.querySelector(':scope > ul.sub-menu');
+				if (nestedSubmenu) {
+					const rect = li.getBoundingClientRect();
+					// @ts-ignore
+					nestedSubmenu.style.top = `${rect.top}px`;
+				}
+			});
+		});
+	};
 
 	const activeMenu = () => {
 		if (browser) {
@@ -201,7 +237,7 @@
 			document.body.classList.add('sidebar-enable');
 
 			if (menuElement) {
-				const instance = OverlayScrollbars(menuElement);
+				const instance = OverlayScrollbars(menuElement, options);
 				if (instance) {
 					instance.destroy();
 				}
@@ -211,7 +247,7 @@
 			document.body.classList.remove('sidebar-enable');
 
 			if (menuElement) {
-				const instance = OverlayScrollbars(menuElement);
+				OverlayScrollbars(menuElement, options);
 			}
 		}
 	}
