@@ -41,9 +41,12 @@
 			document.body.classList.toggle('vertical-collpsed');
 
 			if (document.body.classList.contains('vertical-collpsed')) {
-				const Instance = OverlayScrollbars(document.querySelector('#vertical-menu'));
-				if (Instance) {
-					Instance.destroy();
+				const menuElement = document.querySelector('#vertical-menu');
+				if (menuElement) {
+					const instance = OverlayScrollbars(menuElement);
+					if (instance) {
+						instance.destroy();
+					}
 				}
 			} else {
 				const options = {
@@ -58,7 +61,9 @@
 					}
 				};
 				const menuElement = document.querySelector('#vertical-menu');
-				OverlayScrollbars(menuElement, options);
+				if (menuElement) {
+					OverlayScrollbars(menuElement, options);
+				}
 			}
 		}
 	};

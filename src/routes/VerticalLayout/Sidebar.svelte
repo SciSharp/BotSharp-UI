@@ -61,10 +61,20 @@
 		}
 	};
 
+	$: isEmbeddingPage = !!$page.params.embed && !!$page.params.embedType;
+
+	$: if (browser) {
+		toggleEmbedPageSidebar(isEmbeddingPage);
+	}
+
 	onMount(async () => {
+		let scrollbarInstance = null;
 		const menuElement = document.querySelector('#vertical-menu');
 		// @ts-ignore
-		OverlayScrollbars(menuElement, options);
+		if (menuElement && !isEmbeddingPage) {
+			scrollbarInstance = OverlayScrollbars(menuElement, options);
+		}
+
 		activeMenu();
 
 		const curUrl = getCleanUrl($page.url.pathname);
@@ -182,6 +192,29 @@
 			menu.classList.remove('mm-active');
 		});
 	};
+
+	/** @param {boolean} isEmbeddingPage */
+	const toggleEmbedPageSidebar = (isEmbeddingPage) => {
+		const menuElement = document.querySelector('#vertical-menu');
+		if (isEmbeddingPage && !document.body.classList.contains('vertical-collpsed')) {
+			document.body.classList.add('vertical-collpsed');
+			document.body.classList.add('sidebar-enable');
+
+			if (menuElement) {
+				const instance = OverlayScrollbars(menuElement);
+				if (instance) {
+					instance.destroy();
+				}
+			}
+		} else if (!isEmbeddingPage && document.body.classList.contains('vertical-collpsed')) {
+			document.body.classList.remove('vertical-collpsed');
+			document.body.classList.remove('sidebar-enable');
+
+			if (menuElement) {
+				const instance = OverlayScrollbars(menuElement);
+			}
+		}
+	}
 
 	const menuItemScroll = () => {
 		if (browser) {
