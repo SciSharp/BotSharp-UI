@@ -1,0 +1,27 @@
+.multiselect-container {
+    .nav-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background-color: white;
+        border-bottom: 1px solid var(--bs-border-color-translucent);
+        margin-bottom: 0;
+
+        .nav-item {
+            .nav-link {
+                border: none;
+                background: transparent;
+                cursor: pointer;
+                transition: all 0.2s ease-in-out;
+
+                &:hover {
+                    background-color: transparent;
+                }
+
+                &.active {
+                    background-color: transparent;
+                }
+            }
+        }
+    }
+}
