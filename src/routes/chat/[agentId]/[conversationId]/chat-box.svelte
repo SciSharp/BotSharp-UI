@@ -392,8 +392,7 @@
 		}) || [];
 
 		// @ts-ignore
-		const allMessages = curConvMessages || [];
-		const trimmedMessages = trimUserSentMessages(allMessages);
+		const trimmedMessages = trimUserSentMessages(curConvMessages || []);
 
 		prevSentMsgs = trimmedMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
