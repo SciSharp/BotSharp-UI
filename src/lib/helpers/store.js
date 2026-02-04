@@ -241,14 +241,14 @@ export const conversationSearchOptionStore = createConversationSearchOptionStore
 const createConversationUserMessageStore = () => {
     return {
         reset: () => {
-            localStorage.removeItem(conversationUserMessageKey);
+            sessionStorage.removeItem(conversationUserMessageKey);
         },
         get: () => {
-            const json = localStorage.getItem(conversationUserMessageKey);
+            const json = sessionStorage.getItem(conversationUserMessageKey);
             return json ? JSON.parse(json) : {};
         },
         put: (value) => {
-            localStorage.setItem(conversationUserMessageKey, JSON.stringify(value));
+            sessionStorage.setItem(conversationUserMessageKey, JSON.stringify(value));
         }
     }
 };
