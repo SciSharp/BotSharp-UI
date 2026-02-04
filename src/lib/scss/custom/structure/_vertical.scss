@@ -228,6 +228,8 @@
         position: absolute;
         width: $sidebar-collapsed-width !important;
         z-index: 5;
+        overflow-y: auto;
+        scrollbar-width: none;
 
         .simplebar-mask,
         .simplebar-content-wrapper {
@@ -240,6 +242,10 @@
 
         .simplebar-offset {
             bottom: 0 !important;
+        }
+
+        #vertical-menu {
+            height: auto !important;
         }
 
         // Sidebar Menu
@@ -263,7 +269,7 @@
 
             >ul {
                 >li {
-                    position: relative;
+                    position: static;
                     white-space: nowrap;
 
                     >a {
@@ -308,7 +314,7 @@
                         >ul {
                             display: block;
                             left: $sidebar-collapsed-width;
-                            position: absolute;
+                            position: fixed;
                             width: 190px;
                             height: auto !important;
                             box-shadow: 3px 5px 10px 0 rgba(54, 61, 71, .1);
@@ -340,13 +346,15 @@
                     background-color: $sidebar-bg;
 
                     li {
+                        position: relative;
+
                         &:hover {
                             >ul {
                                 display: block;
-                                left: 190px;
+                                left: calc(#{$sidebar-collapsed-width} + 190px);
                                 height: auto !important;
                                 margin-top: -36px;
-                                position: absolute;
+                                position: fixed;
                                 width: 190px;
                             }
                         }
@@ -417,7 +425,7 @@ body[data-sidebar="dark"] {
 
     // Enlarge menu
     &.vertical-collpsed {
-        min-height: 1760px;
+        // min-height: 1760px;
 
         // Side menu
         .vertical-menu {
