@@ -37,7 +37,7 @@
 	// Temporary dates for custom selection (before confirming)
 	/** @type {string} */
 	let tempStartDate = '';
-	
+
 	/** @type {string} */
 	let tempEndDate = '';
 
@@ -65,7 +65,11 @@
 		dateFormat: 'Y-m-d',
 		inline: true,
 		allowInput: false,
-		onChange: (/** @type {Date[]} */ selectedDates, /** @type {string} */ dateStr, /** @type {any} */ instance) => {
+		onChange: (
+			/** @type {Date[]} */ selectedDates,
+			/** @type {string} */ dateStr,
+			/** @type {any} */ instance
+		) => {
 			if (selectedDates.length === 1) {
 				// Only start date selected
 				tempStartDate = formatDateForFlatpickr(selectedDates[0]);
@@ -130,26 +134,38 @@
 	}
 
 	// Preset time range options
-	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map(x => ({
+	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map((x) => ({
 		label: x.label,
 		value: x.value
 	}));
 
 	onMount(() => {
 		loadRecentTimeRanges();
-	});;
+	});
 
 	// Get today's date in YYYY-MM-DD format
 	const getTodayStr = () => {
 		const d = new Date();
-		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+		return (
+			d.getFullYear() +
+			'-' +
+			String(d.getMonth() + 1).padStart(2, '0') +
+			'-' +
+			String(d.getDate()).padStart(2, '0')
+		);
 	};
 
 	// Get yesterday's date in YYYY-MM-DD format
 	const getYesterdayStr = () => {
 		const d = new Date();
 		d.setDate(d.getDate() - 1);
-		return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+		return (
+			d.getFullYear() +
+			'-' +
+			String(d.getMonth() + 1).padStart(2, '0') +
+			'-' +
+			String(d.getDate()).padStart(2, '0')
+		);
 	};
 
 	// Format date for display (YYYY-MM-DD -> MM/DD/YYYY)
@@ -172,12 +188,12 @@
 		} else if (timeRange === CUSTOM_DATE_RANGE) {
 			timeRangeDisplayText = 'Custom';
 		} else {
-			const selected = presetTimeRangeOptions.find(x => x.value === timeRange);
+			const selected = presetTimeRangeOptions.find((x) => x.value === timeRange);
 			timeRangeDisplayText = selected ? selected.label : '';
 		}
 	}
 
-	const dispatch = createEventDispatcher()
+	const dispatch = createEventDispatcher();
 
 	function loadRecentTimeRanges() {
 		try {
@@ -222,11 +238,10 @@
 
 			// Remove duplicate if exists (check by timeRange if it's a relative range, otherwise by dates)
 			if (range.timeRange) {
-				recentTimeRanges = recentTimeRanges.filter(r => r.timeRange !== range.timeRange);
+				recentTimeRanges = recentTimeRanges.filter((r) => r.timeRange !== range.timeRange);
 			} else {
-				recentTimeRanges = recentTimeRanges.filter(r =>
-					r.startDate !== range.startDate ||
-					r.endDate !== range.endDate
+				recentTimeRanges = recentTimeRanges.filter(
+					(r) => r.startDate !== range.startDate || r.endDate !== range.endDate
 				);
 			}
 
@@ -234,8 +249,7 @@
 			recentTimeRanges = [newRange, ...recentTimeRanges].slice(0, MAX_RECENT_ITEMS);
 
 			localStorage.setItem(RECENT_TIME_RANGES_KEY, JSON.stringify(recentTimeRanges));
-		} catch (e) {
-		}
+		} catch (e) {}
 	}
 
 	/** @param {number} index */
@@ -243,8 +257,7 @@
 		recentTimeRanges = recentTimeRanges.filter((_, idx) => idx !== index);
 		try {
 			localStorage.setItem(RECENT_TIME_RANGES_KEY, JSON.stringify(recentTimeRanges));
-		} catch (e) {
-		}
+		} catch (e) {}
 	}
 
 	/** @param {string} optionValue */
@@ -255,7 +268,7 @@
 		} else {
 			timeRange = optionValue;
 
-			const option = TIME_RANGE_OPTIONS.find(x => x.value === optionValue);
+			const option = TIME_RANGE_OPTIONS.find((x) => x.value === optionValue);
 
 			if (option) {
 				saveRecentTimeRange({
@@ -282,10 +295,10 @@
 			timeRange = CUSTOM_DATE_RANGE;
 			saveRecentTimeRange({ startDate, endDate });
 			// Dispatch change event with updated values
-			dispatch('change', { 
-				timeRange: CUSTOM_DATE_RANGE, 
-				startDate: tempStartDate, 
-				endDate: finalEndDate 
+			dispatch('change', {
+				timeRange: CUSTOM_DATE_RANGE,
+				startDate: tempStartDate,
+				endDate: finalEndDate
 			});
 		}
 		showDatePicker = false;
@@ -296,16 +309,18 @@
 	}
 </script>
 
-<div class="multiselect-container"
-	 bind:this={datePickerRef}
-	 use:clickoutsideDirective
-	 on:clickoutside={(/** @type {any} */ e) => {
-				if (e.detail && e.detail.targetNode && datePickerRef) {
-					if (!datePickerRef.contains(e.detail.targetNode)) {
-						showDatePicker = false;
-					}
-				}
-			}}>
+<div
+	class="multiselect-container"
+	bind:this={datePickerRef}
+	use:clickoutsideDirective
+	on:clickoutside={(/** @type {any} */ e) => {
+		if (e.detail && e.detail.targetNode && datePickerRef) {
+			if (!datePickerRef.contains(e.detail.targetNode)) {
+				showDatePicker = false;
+			}
+		}
+	}}
+>
 	<button
 		type="button"
 		class="form-control text-start d-flex align-items-center justify-content-between"
@@ -328,37 +343,51 @@
 		<i class="bx bx-chevron-down"></i>
 	</button>
 	{#if showDatePicker}
-		<ul class="position-absolute top-100 start-0 mt-1 bg-white border rounded shadow-lg"
-			style="z-index: 1050; min-width: 325px; max-width: 350px;">
+		<ul
+			class="position-absolute top-100 start-0 mt-1 bg-white border rounded shadow-lg"
+			style="z-index: 1050; min-width: 325px; max-width: 350px;"
+		>
 			<ul class="nav nav-tabs border-bottom mb-0 px-2 pt-2" role="tablist">
 				<li class="nav-item flex-fill d-flex justify-content-center" role="presentation">
 					<button
-						class="nav-link fw-semibold {datePickerTab === TAB_RELATIVE ? 'active text-primary' : 'text-muted'}"
+						class="nav-link fw-semibold {datePickerTab === TAB_RELATIVE
+							? 'active text-primary'
+							: 'text-muted'}"
 						type="button"
 						role="tab"
-						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_RELATIVE ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
-						on:click={() => datePickerTab = TAB_RELATIVE}
+						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_RELATIVE
+							? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;'
+							: ''}"
+						on:click={() => (datePickerTab = TAB_RELATIVE)}
 					>
 						Relative
 					</button>
 				</li>
 				<li class="nav-item flex-fill d-flex justify-content-center" role="presentation">
 					<button
-						class="nav-link fw-semibold {datePickerTab === TAB_RECENT ? 'active text-primary' : 'text-muted'}"
+						class="nav-link fw-semibold {datePickerTab === TAB_RECENT
+							? 'active text-primary'
+							: 'text-muted'}"
 						type="button"
 						role="tab"
-						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_RECENT ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
-						on:click={() => datePickerTab = TAB_RECENT}
+						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_RECENT
+							? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;'
+							: ''}"
+						on:click={() => (datePickerTab = TAB_RECENT)}
 					>
 						Recent
 					</button>
 				</li>
 				<li class="nav-item flex-fill d-flex justify-content-center" role="presentation">
 					<button
-						class="nav-link fw-semibold {datePickerTab === TAB_CUSTOM ? 'active text-primary' : 'text-muted'}"
+						class="nav-link fw-semibold {datePickerTab === TAB_CUSTOM
+							? 'active text-primary'
+							: 'text-muted'}"
 						type="button"
 						role="tab"
-						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_CUSTOM ? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;' : ''}"
+						style="padding: 0.5rem 0.75rem; {datePickerTab === TAB_CUSTOM
+							? 'border-bottom: 2px solid var(--bs-primary) !important; margin-bottom: -1px;'
+							: ''}"
 						on:click={() => {
 							datePickerTab = TAB_CUSTOM;
 							// Delay init to ensure flatpickr is mounted
@@ -371,81 +400,88 @@
 					</button>
 				</li>
 			</ul>
-			
-			<div class="p-2">
-				{#if datePickerTab === TAB_RELATIVE}
-					<button
-						type="button"
-						class="clear-btn text-center d-flex align-items-center justify-content-center w-100"
-						on:click|preventDefault|stopPropagation={() => {
-							clearSelection();
-						}}
-					>
-						<span class="text-secondary">
-							{`Clear selection`}
-						</span>
-					</button>
-					<div class="d-flex flex-column"
-					     style="max-height: 300px; overflow-y: auto;"
-					>
-						{#each presetTimeRangeOptions as option}
+
+			{#if datePickerTab === TAB_RELATIVE}
+				<div>
+					<ul class="option-list" style="max-height: 300px; overflow-y: auto;">
+						<li class="option-item clickable justify-content-center">
 							<button
+								class="clear-btn line-align-center text-secondary"
 								type="button"
-								class="btn relative-option text-start d-flex align-items-center {timeRange === option.value ? 'active' : ''}"
-								on:click={(e) => {
-									e.preventDefault();
-									e.stopPropagation();
-									handleRelativeOptionClick(option.value);
+								on:click|preventDefault|stopPropagation={() => {
+									clearSelection();
 								}}
 							>
-								<i class="bx bx-check me-2" style="visibility: {timeRange === option.value ? 'visible' : 'hidden'}; font-size: 1.2rem;"></i>
-								<span>{option.label}</span>
+								{`Clear selection`}
 							</button>
+						</li>
+						{#each presetTimeRangeOptions as option}
+							<li class="option-item clickable">
+								<div class="line-align-center select-box">
+									<i
+										class="bx bx-check"
+										style="visibility: {timeRange === option.value ? 'visible' : 'hidden'};"
+									></i>
+								</div>
+								<div class="select-name">
+									<button
+										class="clear-btn"
+										type="button"
+										on:click={(e) => {
+											e.preventDefault();
+											e.stopPropagation();
+											handleRelativeOptionClick(option.value);
+										}}
+									>
+										{option.label}
+									</button>
+								</div>
+							</li>
 						{/each}
-					</div>
-				{:else if datePickerTab === TAB_RECENT}
+					</ul>
+				</div>
+			{:else if datePickerTab === TAB_RECENT}
+				<div>
 					{#if recentTimeRanges.length === 0}
 						<div class="text-muted text-center py-3 w-100">
 							<i class="bx bx-time-five mb-2" style="font-size: 1.5rem;"></i>
 							<p class="mb-0 small">{'No recent time ranges'}</p>
 						</div>
 					{:else}
-						{#each recentTimeRanges as range, index}
-							<!-- svelte-ignore a11y-click-events-have-key-events -->
-							<!-- svelte-ignore a11y-no-static-element-interactions -->
-							<div
-								class="option-item clickable d-flex justify-content-between"
-								role="button"
-								tabindex="0"
-								on:click|preventDefault|stopPropagation={() => {
-									handleRecentOptionClick(range);
-								}}
-							>
-								<div class="line-align-center">
-									{range.label}
-								</div>
-								<button
-									type="button"
-									class="btn btn-sm btn-link text-muted p-0"
-									title="Remove from recent"
-									on:click|preventDefault|stopPropagation={() => {
-										removeRecentTimeRange(index);
-									}}
-								>
-									<i class="bx bx-x"></i>
-								</button>
-							</div>
-						{/each}
+						<ul class="option-list">
+							{#each recentTimeRanges as range, index}
+								<li class="option-item clickable">
+									<div class="select-name">
+										<button
+											class="clear-btn text-start w-100"
+											on:click|preventDefault|stopPropagation={() => {
+												handleRecentOptionClick(range);
+											}}
+										>
+											{range.label}
+										</button>
+									</div>
+									<div class="line-align-center select-box">
+										<button
+											class="clear-btn bx bx-x"
+											on:click|preventDefault|stopPropagation={() => {
+												removeRecentTimeRange(index);
+											}}
+										>
+										</button>
+									</div>
+								</li>
+							{/each}
+						</ul>
 					{/if}
-				{:else if datePickerTab === TAB_CUSTOM}
+				</div>
+			{:else if datePickerTab === TAB_CUSTOM}
+				<div class="p-2">
 					<!-- Calendar Grid -->
 					<div class="mb-3">
-						<Flatpickr
-							options={flatpickrOptions}
-							bind:flatpickr={flatpickrInstance}
-						/>
+						<Flatpickr options={flatpickrOptions} bind:flatpickr={flatpickrInstance} />
 					</div>
-					
+
 					<!-- Date Input Fields -->
 					<div class="d-flex align-items-center gap-2 mb-3">
 						<Input
@@ -462,7 +498,7 @@
 							on:change={handleEndDateChange}
 						/>
 					</div>
-					
+
 					<div class="d-flex justify-content-end gap-2 mt-3">
 						<Button
 							color="secondary"
@@ -489,8 +525,8 @@
 							Apply
 						</Button>
 					</div>
-				{/if}
-			</div>
+				</div>
+			{/if}
 		</ul>
 	{/if}
 </div>
@@ -504,31 +540,10 @@
 	.clear-btn {
 		background-color: transparent;
 		border: none;
-		padding: 0.5rem 0.75rem;
 		transition: background-color 0.15s ease-in-out;
 	}
 
 	.clear-btn:hover {
-		background-color: aliceblue;
-	}
-
-	/* Hover and active styles for relative dropdown items */
-	.relative-option {
-		background-color: transparent;
-		border: none;
-		transition: background-color 0.15s ease-in-out;
-	}
-
-	.relative-option:hover {
-		background-color: aliceblue;
-	}
-
-	.relative-option.active {
-		background-color: transparent;
-		color: inherit;
-	}
-
-	.relative-option.active:hover {
 		background-color: aliceblue;
 	}
 </style>
