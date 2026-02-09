@@ -7,7 +7,6 @@
 	import { clickoutsideDirective } from '$lib/helpers/directives';
 
 	// Constants
-	const RECENT_TIME_RANGES_KEY = 'botsharp_recent_time_ranges';
 	const MAX_RECENT_ITEMS = 10;
 	const TAB_RELATIVE = 'relative';
 	const TAB_RECENT = 'recent';
@@ -47,6 +46,9 @@
 
 	/** @type {Array<{ startDate: string, endDate: string, label: string, timeRange?: string }>} */
 	let recentTimeRanges = [];
+
+	/** @type {string} */
+	export let storageKey = 'botsharp_recent_time_ranges';
 
 	// Format date for flatpickr (Date object to YYYY-MM-DD string)
 	/** @param {Date} date */
@@ -197,7 +199,7 @@
 
 	function loadRecentTimeRanges() {
 		try {
-			const stored = localStorage.getItem(RECENT_TIME_RANGES_KEY);
+			const stored = localStorage.getItem(storageKey);
 			if (stored) {
 				recentTimeRanges = JSON.parse(stored);
 			}
@@ -248,7 +250,7 @@
 			// Add to beginning and limit to MAX_RECENT_ITEMS
 			recentTimeRanges = [newRange, ...recentTimeRanges].slice(0, MAX_RECENT_ITEMS);
 
-			localStorage.setItem(RECENT_TIME_RANGES_KEY, JSON.stringify(recentTimeRanges));
+			localStorage.setItem(storageKey, JSON.stringify(recentTimeRanges));
 		} catch (e) {}
 	}
 
@@ -256,7 +258,7 @@
 	function removeRecentTimeRange(index) {
 		recentTimeRanges = recentTimeRanges.filter((_, idx) => idx !== index);
 		try {
-			localStorage.setItem(RECENT_TIME_RANGES_KEY, JSON.stringify(recentTimeRanges));
+			localStorage.setItem(storageKey, JSON.stringify(recentTimeRanges));
 		} catch (e) {}
 	}
 
