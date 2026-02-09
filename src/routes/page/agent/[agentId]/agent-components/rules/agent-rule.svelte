@@ -10,6 +10,7 @@
     import CodeScript from '$lib/common/shared/CodeScript.svelte';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
+	import AgentRuleItem from './agent-rule-item.svelte';
 
     const limit = 100;
     const textLimit = 1024;
@@ -150,19 +151,20 @@
     function changeRule(e, idx, field) {
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
-        
+
+        const value = e.detail.value;
         if (field === 'rule') {
-            found.trigger_name = e.target.value;
+            found.trigger_name = value;
         } else if (field === 'criteria') {
             found.rule_criteria = { 
                 ...found.rule_criteria || {},
-                name: e.target.value,
+                name: value,
                 disabled: found.rule_criteria?.disabled || false
             };
         } else if (field === 'action') {
             found.rule_action = {
                 ...found.rule_action || {},
-                name: e.target.value,
+                name: value,
                 disabled: found.rule_action?.disabled || false
             };
         }
@@ -177,7 +179,8 @@
             {
                 trigger_name: '',
                 displayName: '',
-                disabled: false
+                disabled: false,
+                collapsed: false
             }
         ];
         scrollToBottom(scrollContainer);
@@ -200,7 +203,7 @@
         if (!found) return;
 
         if (field === 'rule') {
-            found.disabled = !e.target.checked;
+            found.disabled = !e.detail.checked;
         } else if (field === 'criteria') {
             if (!found.rule_criteria) {
                 found.rule_criteria = {
@@ -208,7 +211,7 @@
                     disabled: false
                 };
             }
-            found.rule_criteria.disabled = !e.target.checked;
+            found.rule_criteria.disabled = !e.detail.checked;
         } else if (field === 'action') {
             if (!found.rule_action) {
                 found.rule_action = {
@@ -216,7 +219,7 @@
                     disabled: false
                 };
             }
-            found.rule_action.disabled = !e.target.checked;
+            found.rule_action.disabled = !e.detail.checked;
         }
         
         innerRefresh(innerRules);
@@ -232,6 +235,7 @@
         const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
+        const value = e.detail.value;
         if (field === 'criteria-text') {
             if (found.rule_criteria == null) {
                 found.rule_criteria = {
@@ -240,7 +244,7 @@
                     config: {}
                 };
             }
-            found.rule_criteria.criteria_text = e.target.value;
+            found.rule_criteria.criteria_text = value;
             innerRefresh(innerRules);
             handleAgentChange();
         } else if (field === 'criteria-config') {
@@ -252,7 +256,7 @@
                 };
             }
             try {
-                found.rule_criteria.config = JSON.parse(e.detail?.text || '{}');
+                found.rule_criteria.config = JSON.parse(value || '{}');
                 handleAgentChange();
             } catch {
                 // ignore invalid JSON while typing
@@ -266,13 +270,27 @@
                 };
             }
             try {
-                found.rule_action.config = JSON.parse(e.detail?.text || '{}');
+                found.rule_action.config = JSON.parse(value || '{}');
                 handleAgentChange();
             } catch {
                 // ignore invalid JSON while typing
             }
         }
     }
+
+    /**
+     * @param {any} e
+	 * @param {number} uid
+     * @param {boolean} collapsed
+	 */
+    function toggleCollapse(e, uid, collapsed) {
+		const found = innerRules.find((_, index) => index === uid);
+        if (!found) return;
+
+        found.collapsed = !collapsed;
+        innerRefresh(innerRules);
+        handleAgentChange();
+	}
 
     /**
 	 * @param {import("$agentTypes").AgentRule} rule
@@ -398,10 +416,21 @@
 
         <div class="agent-utility-container" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
-                <div class="utility-wrapper">
+                <!-- <div class="utility-wrapper">
                     <div class="utility-row utility-row-primary">
                         <div class="utility-label fw-bold">
-                            <div class="line-align-center">{`Rule #${uid + 1}`}</div>
+                            <div class="line-align-center">
+                                <i
+                                    class="bx clickable fs-6 collapse-toggle {collapsedRules.has(uid) ? 'bx-chevron-right' : 'bx-chevron-down'}"
+                                    role="button"
+                                    tabindex="0"
+                                    on:keydown={(e) => e.key === 'Enter' && toggleCollapse(uid)}
+                                    on:click={() => toggleCollapse(uid)}
+                                />
+                            </div>
+                            <div class="line-align-center">
+                                {`Rule #${uid + 1}`}
+                            </div>
                             <div class="utility-tooltip">
                                 <div class="line-align-center">
                                     <Input
@@ -465,6 +494,7 @@
                         </div>
                     </div>
 
+                    {#if !collapsedRules.has(uid)}
                     <div class="utility-row utility-row-secondary">
                         <div class="utility-content">
                             <div class="utility-list-item">
@@ -653,7 +683,24 @@
                             {/if}
                         </div>
                     </div>
-                </div>
+                    {/if}
+                </div> -->
+                <AgentRuleItem
+                    rule={rule}
+                    ruleIndex={uid}
+                    collapsed={rule.collapsed || false}
+                    user={user}
+                    ruleOptions={ruleOptions}
+                    criteriaOptions={criteriaOptions}
+                    actionOptions={actionOptions}
+                    windowWidth={windowWidth}
+                    on:toggle={e => toggleRule(e, uid, e.detail.field)}
+                    on:delete={() => deleteRule(uid)}
+                    on:changeOption={e => changeRule(e, uid, e.detail.field)}
+                    on:changeContent={e => changeContent(e, uid, e.detail.field)}
+                    on:compile={e => compileCodeScript(e.detail.rule)}
+                    on:collapse={e => toggleCollapse(e, uid, e.detail.collapsed)}
+                />
             {/each}
 
             {#if innerRules.length < limit}

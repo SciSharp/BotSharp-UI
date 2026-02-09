@@ -233,6 +233,7 @@
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
+ * @property {boolean} [collapsed]
  */
 
 /**

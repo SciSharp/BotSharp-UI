@@ -7,7 +7,7 @@
 	import AgentUtility from './agent-components/agent-utility.svelte';
 	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
-	import AgentEventRule from './agent-components/agent-rule.svelte';
+	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
 	import AgentMcpTool from './agent-components/agent-mcp-tool.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
