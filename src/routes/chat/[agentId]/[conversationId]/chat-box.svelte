@@ -387,16 +387,12 @@
 	function initUserSentMessages(dialogs) {
 		const curConvMessages = dialogs?.filter(x => !BOT_SENDERS.includes(x.sender?.role || '')).map(x => {
 			return {
-				conversationId: params.conversationId,
 				text: x.text || ''
 			};
 		}) || [];
 
-		const savedMessages = conversationUserMessageStore.get();
 		// @ts-ignore
-		const otherConvMessages = savedMessages?.messages?.filter(x => x.conversationId !== params.conversationId) || [];
-		const allMessages = [...otherConvMessages, ...curConvMessages];
-		const trimmedMessages = trimUserSentMessages(allMessages);
+		const trimmedMessages = trimUserSentMessages(curConvMessages || []);
 
 		prevSentMsgs = trimmedMessages.map(x => x.text || '');
 		sentMsgIdx = prevSentMsgs.length;
@@ -409,7 +405,7 @@
 	/** @param {string} msg */
 	function renewUserSentMessages(msg) {
 		const savedMessages = conversationUserMessageStore.get();
-		const allMessages = [...savedMessages?.messages || [], { conversationId: params.conversationId, text: msg || '' }];
+		const allMessages = [...savedMessages?.messages || [], { text: msg || '' }];
 		const trimmedMessages = trimUserSentMessages(allMessages);
 		if (allMessages.length > trimmedMessages.length) {
 			sentMsgIdx -= allMessages.length - trimmedMessages.length;

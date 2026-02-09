@@ -49,6 +49,9 @@ export const IMAGE_DATA_PREFIX = 'data:image';
 export const INTEGER_REGEX = "[0-9]+";
 export const DECIMAL_REGEX = "[0-9.]+";
 
+// Custom date range identifier (not in TimeRange enum)
+export const CUSTOM_DATE_RANGE = "Custom date";
+
 export const TIME_RANGE_OPTIONS = [
     { label: TimeRange.Last15Minutes, value: TimeRange.Last15Minutes, qty: 15, unit: 'minutes' },
     { label: TimeRange.Last30Minutes, value: TimeRange.Last30Minutes, qty: 30, unit: 'minutes' },
