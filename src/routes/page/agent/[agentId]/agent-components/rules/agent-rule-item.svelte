@@ -1,5 +1,6 @@
 <script>
     import { createEventDispatcher } from 'svelte';
+    import { slide } from 'svelte/transition';
     import { Input } from '@sveltestrap/sveltestrap';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
@@ -8,6 +9,7 @@
 
     const svelteDispatch = createEventDispatcher();
 
+    const duration = 200;
     const textLimit = 1024;
 
     /** @type {import('$agentTypes').AgentRule} */
@@ -82,7 +84,7 @@
     function toggleCollapse() {
         svelteDispatch('collapse', {
             ruleIdx: ruleIndex,
-            collapsed: collapsed
+            collapsed: !collapsed
         });
     }
 
@@ -98,7 +100,8 @@
         <div class="utility-label fw-bold">
             <div class="line-align-center">
                 <i
-                    class="bx clickable fs-6 collapse-toggle {collapsed ? 'bx-chevron-right' : 'bx-chevron-down'}"
+                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
                     on:keydown={() => {}}
@@ -172,7 +175,7 @@
     </div>
 
     {#if !collapsed}
-    <div class="utility-row utility-row-secondary">
+    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
         <div class="utility-content">
             <div class="utility-list-item">
                 <div class="utility-label line-align-center">
@@ -300,7 +303,7 @@
         </div>
     </div>
 
-    <div class="utility-row utility-row-secondary">
+    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
         <div class="utility-content">
             <div class="utility-list-item">
                 <div class="utility-label line-align-center">

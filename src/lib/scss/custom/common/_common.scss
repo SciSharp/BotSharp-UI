@@ -226,3 +226,11 @@ button:focus {
     transform: none !important;
   }
 }
+
+.collapse-toggle {
+  transition: transform 0.2s ease-in-out;
+}
+
+.collapse-toggle.rotated {
+  transform: rotate(90deg);
+}

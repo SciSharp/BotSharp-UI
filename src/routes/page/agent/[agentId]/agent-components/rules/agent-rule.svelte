@@ -1,19 +1,15 @@
 <script>
     import { onMount } from 'svelte';
     import Swal from 'sweetalert2';
-    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
-    import { ADMIN_ROLES, AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
+    import { Card, CardBody, Button } from '@sveltestrap/sveltestrap';
+    import { AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
     import { getAgentRuleOptions, generateAgentCodeScript, getAgentRuleActions, getAgentRuleCriteriaProviders } from '$lib/services/agent-service';
-	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
-    import CodeScript from '$lib/common/shared/CodeScript.svelte';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentRuleItem from './agent-rule-item.svelte';
 
     const limit = 100;
-    const textLimit = 1024;
     
     /** @type {boolean} */
     let isLoading = false;
@@ -45,7 +41,8 @@
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
                 rule_criteria: x.rule_criteria,
-                rule_action: x.rule_action 
+                rule_action: x.rule_action,
+                expanded: x.expanded
             };
         });
 
@@ -180,7 +177,7 @@
                 trigger_name: '',
                 displayName: '',
                 disabled: false,
-                collapsed: false
+                expanded: true
             }
         ];
         scrollToBottom(scrollContainer);
@@ -278,16 +275,16 @@
         }
     }
 
-    /**
+        /**
      * @param {any} e
 	 * @param {number} uid
      * @param {boolean} collapsed
 	 */
-    function toggleCollapse(e, uid, collapsed) {
+	function toggleCollapse(e, uid, collapsed) {
 		const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        found.collapsed = !collapsed;
+        found.expanded = !collapsed;
         innerRefresh(innerRules);
         handleAgentChange();
 	}
@@ -416,279 +413,10 @@
 
         <div class="agent-utility-container" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
-                <!-- <div class="utility-wrapper">
-                    <div class="utility-row utility-row-primary">
-                        <div class="utility-label fw-bold">
-                            <div class="line-align-center">
-                                <i
-                                    class="bx clickable fs-6 collapse-toggle {collapsedRules.has(uid) ? 'bx-chevron-right' : 'bx-chevron-down'}"
-                                    role="button"
-                                    tabindex="0"
-                                    on:keydown={(e) => e.key === 'Enter' && toggleCollapse(uid)}
-                                    on:click={() => toggleCollapse(uid)}
-                                />
-                            </div>
-                            <div class="line-align-center">
-                                {`Rule #${uid + 1}`}
-                            </div>
-                            <div class="utility-tooltip">
-                                <div class="line-align-center">
-                                    <Input
-                                        type="checkbox"
-                                        checked={!rule.disabled}
-                                        on:change={e => toggleRule(e, uid, 'rule')}
-                                    />
-                                </div>
-                                {#if rule.statement}
-                                <div class="line-align-center">
-                                    <i
-                                        class="bx bx-info-circle text-primary fs-6"
-                                        style="padding-top: 2px;"
-                                        id={`rule-statement-${uid}`}
-                                        data-bs-toggle="tooltip"
-                                        data-bs-placement="top"
-                                        title="Rule arguments"
-                                    />
-                                    <BotsharpTooltip
-                                        containerClasses="agent-utility-desc"
-                                        style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                        target={`rule-statement-${uid}`}
-                                        placement="top"
-                                        persist
-                                    >
-                                        <Markdown
-                                            rawText
-                                            scrollable
-                                            containerClasses={'markdown-div'}
-                                            containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                            text={rule.statement}
-                                        />
-                                    </BotsharpTooltip>
-                                </div>
-                                {/if}
-                            </div>
-                        </div>
-                        <div class="utility-value">
-                            <div class="utility-input line-align-center">
-                                <Input
-                                    type="select"
-                                    disabled={rule.disabled}
-                                    on:change={e => changeRule(e, uid, 'rule')}
-                                >
-                                    {#each [...ruleOptions] as option}
-                                        <option value={option.name} selected={option.name == rule.trigger_name}>
-                                            {option.displayName || option.name}
-                                        </option>
-                                    {/each}
-                                </Input>
-                            </div>
-                            <div class="utility-delete line-align-center">
-                                <i
-                                    class="bx bxs-no-entry text-danger clickable fs-6"
-                                    role="link"
-                                    tabindex="0"
-                                    on:keydown={() => {}}
-                                    on:click={() => deleteRule(uid)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {#if !collapsedRules.has(uid)}
-                    <div class="utility-row utility-row-secondary">
-                        <div class="utility-content">
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    <div class="d-flex gap-1">
-                                        <div class="line-align-center">
-                                            {'Criteria'}
-                                        </div>
-                                        <div class="line-align-center">
-                                            <Input
-                                                type="checkbox"
-                                                checked={!rule.rule_criteria?.disabled}
-                                                on:change={e => toggleRule(e, uid, 'criteria')}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="select"
-                                            disabled={!!rule.rule_criteria?.disabled}
-                                            on:change={e => changeRule(e, uid, 'criteria')}
-                                        >
-                                            {#each [...criteriaOptions] as option}
-                                                <option value={option.name} selected={option.name == rule.rule_criteria?.name}>
-                                                    {option.name}
-                                                </option>
-                                            {/each}
-                                        </Input>
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    <div class="d-flex gap-1">
-                                        <div class="line-align-center">
-                                            {'Text'}
-                                        </div>
-                                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.rule_criteria?.criteria_text?.trim()}
-                                        <div
-                                            class="line-align-center clickable text-primary fs-5"
-                                            style="padding-top: 3px;"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Compile code script"
-                                        >
-                                            <i
-                                                class="mdi mdi-play-circle"
-                                                role="link"
-                                                tabindex="0"
-                                                on:keydown={() => {}}
-                                                on:click={() => compileCodeScript(rule)}
-                                            />
-                                        </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="textarea"
-                                            style="resize: none;"
-                                            rows={5}
-                                            disabled={!!rule.rule_criteria?.disabled}
-                                            maxlength={textLimit}
-                                            value={rule.rule_criteria?.criteria_text}
-                                            on:input={e => changeContent(e, uid, 'criteria-text')}
-                                        />
-                                    </div>
-                                    <div class="utility-delete line-align-center">
-                                        {#if rule.json_args}
-                                        <div class="line-align-center">
-                                            <i
-                                                class="bx bxs-info-circle text-primary fs-5"
-                                                id={`rule-args-${uid}`}
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Rule arguments"
-                                            />
-                                            <BotsharpTooltip
-                                                containerClasses="agent-utility-desc"
-                                                style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                target={`rule-args-${uid}`}
-                                                placement="right"
-                                                persist
-                                            >
-                                                <Markdown
-                                                    rawText
-                                                    scrollable
-                                                    containerClasses={'markdown-div'}
-                                                    containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                    text={rule.json_args}
-                                                />
-                                            </BotsharpTooltip>
-                                        </div>
-                                        {/if}
-                                    </div>
-                                </div>
-                            </div>
-                            {#if rule.rule_criteria?.name}
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    <div class="d-flex gap-1">
-                                        <div class="line-align-center">
-                                            {'Config'}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <CodeScript
-                                            language="json"
-                                            containerClasses="agent-rule-config"
-                                            hideLineNumber={true}
-                                            editable={!rule.rule_criteria?.disabled}
-                                            scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
-                                            on:change={(e) => changeContent(e, uid, 'criteria-config')}
-                                        />
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                            {/if}
-                        </div>
-                    </div>
-
-                    <div class="utility-row utility-row-secondary">
-                        <div class="utility-content">
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    <div class="d-flex gap-1">
-                                        <div class="line-align-center">
-                                            {'Action'}
-                                        </div>
-                                        <div class="line-align-center">
-                                            <Input
-                                                type="checkbox"
-                                                checked={!rule.rule_action?.disabled}
-                                                on:change={e => toggleRule(e, uid, 'action')}
-                                            />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <Input
-                                            type="select"
-                                            disabled={!!rule.rule_action?.disabled}
-                                            on:change={e => changeRule(e, uid, 'action')}
-                                        >
-                                            {#each [...actionOptions] as option}
-                                                <option value={option.name} selected={option.name == rule.rule_action?.name}>
-                                                    {option.name}
-                                                </option>
-                                            {/each}
-                                        </Input>
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                            {#if rule.rule_action?.name}
-                            <div class="utility-list-item">
-                                <div class="utility-label line-align-center">
-                                    <div class="d-flex gap-1">
-                                        <div class="line-align-center">
-                                            {'Config'}
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="utility-value">
-                                    <div class="utility-input line-align-center">
-                                        <CodeScript
-                                            language="json"
-                                            containerClasses="agent-rule-config"
-                                            hideLineNumber={true}
-                                            editable={!rule.rule_action?.disabled}
-                                            scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
-                                            on:change={(e) => changeContent(e, uid, 'action-config')}
-                                        />
-                                    </div>
-                                    <div class="utility-delete line-align-center"></div>
-                                </div>
-                            </div>
-                            {/if}
-                        </div>
-                    </div>
-                    {/if}
-                </div> -->
                 <AgentRuleItem
                     rule={rule}
                     ruleIndex={uid}
-                    collapsed={rule.collapsed || false}
+                    collapsed={!rule.expanded}
                     user={user}
                     ruleOptions={ruleOptions}
                     criteriaOptions={criteriaOptions}
