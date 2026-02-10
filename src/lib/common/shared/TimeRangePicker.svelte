@@ -204,6 +204,7 @@
 				recentTimeRanges = JSON.parse(stored);
 			}
 		} catch (e) {
+			console.warn(`[TimeRangePicker] Failed to load recent time ranges from localStorage (key: ${storageKey}):`, e);
 			recentTimeRanges = [];
 		}
 	}
@@ -251,7 +252,9 @@
 			recentTimeRanges = [newRange, ...recentTimeRanges].slice(0, MAX_RECENT_ITEMS);
 
 			localStorage.setItem(storageKey, JSON.stringify(recentTimeRanges));
-		} catch (e) {}
+		} catch (e) {
+			console.warn(`[TimeRangePicker] Failed to save recent time range to localStorage (key: ${storageKey}):`, e);
+		}
 	}
 
 	/** @param {number} index */
@@ -259,7 +262,9 @@
 		recentTimeRanges = recentTimeRanges.filter((_, idx) => idx !== index);
 		try {
 			localStorage.setItem(storageKey, JSON.stringify(recentTimeRanges));
-		} catch (e) {}
+		} catch (e) {
+			console.warn(`[TimeRangePicker] Failed to remove recent time range from localStorage (key: ${storageKey}):`, e);
+		}
 	}
 
 	/** @param {string} optionValue */
