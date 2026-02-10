@@ -194,6 +194,7 @@
  * @property {boolean} disabled
  * @property {string?} [visibility_expression]
  * @property {UtilityItem[]} items
+ * @property {boolean} [expanded]
  */
 
 /**

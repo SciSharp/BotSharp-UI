@@ -3,8 +3,7 @@
     import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { scrollToBottom, truncateByPrefix } from '$lib/helpers/utils/common';
-	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
+	import AgentUtilityItem from './agent-utility-item.svelte';
 
     const limit = 100;
     const prefix = "util-";
@@ -86,39 +85,6 @@
         windowHeight = window.innerHeight;
     }
 
-    /**
-	 * @param {any} e
-	 * @param {number} idx
-	 */
-    function changeUtilityCategory(e, idx) {
-        const found = innerUtilities.find((_, index) => index === idx);
-        if (!found) return;
-        
-        const category = e.target.value;
-        found.category = category;
-        found.name = '';
-        found.items = [];
-        innerRefresh(innerUtilities);
-        handleAgentChange();
-    }
-
-    /**
-	 * @param {any} e
-	 * @param {number} idx
-	 */
-    function changeUtilityName(e, idx) {
-        const found = innerUtilities.find((_, index) => index === idx);
-        if (!found) return;
-        
-        const name = e.target.value;
-        found.name = name;
-        
-        const foundUtility = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name == name);
-        found.items = foundUtility?.items?.map((/** @type {any} */ x) => ({...x})) || [];
-
-        innerRefresh(innerUtilities);
-        handleAgentChange();
-    }
 
     function addUtility() {
         innerUtilities = [
@@ -127,68 +93,72 @@
                 category: '',
                 name: '',
                 disabled: false,
-                items: []
+                items: [],
+                expanded: true
             }
         ];
         scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
-    /** @param {number} idx */
-    function deleteUtility(idx) {
-        innerUtilities = innerUtilities.filter((_, index) => index !== idx);
+    /**
+     * @param {any} e
+	 * @param {number} idx
+	 */
+    function deleteUtility(e, idx) {
+        if (e.detail.field == 'utility') {
+            innerUtilities = innerUtilities.filter((_, index) => index !== idx);
+        } else if (e.detail.field == 'utility-item') {
+            const foundUtility = innerUtilities.find((_, index) => index === idx);
+            const foundItem = foundUtility?.items?.find((_, index) => index === e.detail.itemIdx);
+            if (!foundUtility || !foundItem) return;
+
+            if (e.detail.subfield === 'function') {
+                foundItem.function_name = null;
+                foundItem.function_display_name = null;
+                foundItem.template_name = null;
+                foundItem.template_display_name = null;
+            } else if (e.detail.subfield === 'template') {
+                foundItem.template_name = null;
+                foundItem.template_display_name = null;
+            }
+
+            if (foundItem.function_name == null && foundItem.template_name == null) {
+                foundUtility.items = foundUtility.items.filter((_, index) => index !== e.detail.itemIdx);
+            }
+
+            innerRefresh(innerUtilities);
+        }
+
         handleAgentChange();
     }
+
 
     /**
      * @param {any} e
 	 * @param {number} uid
 	 */
-    function changeUtilityVisibility(e, uid) {
+    function changeUtility(e, uid) {
         const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
-        found.visibility_expression = e.target.value || null;
-        innerRefresh(innerUtilities);
-        handleAgentChange();
-    }
-
-    /**
-     * @param {any} e
-	 * @param {number} uid
-     * @param {number} fid
-	 */
-    function changeUtilityItemVisibility(e, uid, fid) {
-        const found = innerUtilities.find((_, index) => index === uid)?.items?.find((_, index) => index === fid);
-        if (!found) return;
-
-        found.visibility_expression = e.target.value || null;
-        innerRefresh(innerUtilities);
-        handleAgentChange();
-    }
-
-    /**
-	 * @param {number} uid
-	 * @param {number} fid
-     * @param {string} type
-	 */
-    function deleteUtilityItem(uid, fid, type) {
-        const foundUtility = innerUtilities.find((_, index) => index === uid);
-        const foundItem = foundUtility?.items?.find((_, index) => index === fid);
-        if (!foundUtility || !foundItem) return;
-
-        if (type === 'function') {
-            foundItem.function_name = null;
-            foundItem.function_display_name = null;
-            foundItem.template_name = null;
-            foundItem.template_display_name = null;
-        } else if (type === 'template') {
-            foundItem.template_name = null;
-            foundItem.template_display_name = null;
-        }
-
-        if (foundItem.function_name == null && foundItem.template_name == null) {
-            foundUtility.items = foundUtility.items.filter((_, index) => index !== fid);
+        if (e.detail.field === 'utility-category') {
+            const category = e.detail.value;
+            found.category = category;
+            found.name = '';
+            found.items = [];
+        } else if (e.detail.field === 'utility-name') {
+            const name = e.detail.value;
+            found.name = name;
+            const foundUtility = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name == name);
+            found.items = foundUtility?.items?.map((/** @type {any} */ x) => ({...x})) || [];
+        } else if (e.detail.field === 'utility-visibility') {
+            found.visibility_expression = e.detail.value || null;
+        } else if (e.detail.field === 'utility-item-visibility') {
+            const foundItem = found.items.find((_, index) => index === e.detail.itemIdx);
+            if (foundItem) {
+                foundItem.visibility_expression = e.detail.value || null;
+            }
         }
 
         innerRefresh(innerUtilities);
@@ -203,7 +173,7 @@
         const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
-        found.disabled = !e.target.checked;
+        found.disabled = !e.detail.checked;
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
@@ -213,6 +183,7 @@
     function innerRefresh(list) {
         innerUtilities = list?.map(x => {
             return {
+                ...x,
                 category: x.category,
                 name: x.name,
                 disabled: x.disabled,
@@ -232,6 +203,31 @@
         handleAgentChange();
     }
 
+    /** @param {number} uid */
+	function resetUtility(uid) {
+		const found = innerUtilities.find((_, index) => index === uid);
+        if (!found) return;
+
+        const originalItems = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name === found.name)?.items || [];
+        found.items = [...originalItems];
+        innerRefresh(innerUtilities);
+        handleAgentChange();
+	}
+
+    /**
+     * @param {any} e
+	 * @param {number} uid
+     * @param {boolean} collapsed
+	 */
+	function toggleCollapse(e, uid, collapsed) {
+		const found = innerUtilities.find((_, index) => index === uid);
+        if (!found) return;
+
+        found.expanded = !collapsed;
+        innerRefresh(innerUtilities);
+        handleAgentChange();
+	}
+
     /**
      * @param {string[]} options
 	 * @param {string} placeholder
@@ -250,28 +246,6 @@
         }, ...list];
         return list;
     }
-
-    /**
-     * @param {string} category
-     * @param {string} name
-     * @param {string} key
-	 */
-    function getUtilityItemDescription(category, name, key) {
-        // @ts-ignore
-        const desc = utilityMapper[category]?.find(x => x.name === name)?.items?.find(x => x.function_name === key)?.description;
-        return desc || '';
-    }
-
-    /** @param {number} uid */
-	function resetUtility(uid) {
-		const found = innerUtilities.find((_, index) => index === uid);
-        if (!found) return;
-
-        const originalItems = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name === found.name)?.items || [];
-        found.items = [...originalItems];
-        innerRefresh(innerUtilities);
-        handleAgentChange();
-	}
 </script>
 
 <svelte:window on:resize={() => resizeWindow()}/>
@@ -309,215 +283,19 @@
                 {
                     @const utilityCategoryOptions = getUtilityOptions(Object.keys(utilityMapper), 'Select a category')
                 }
-                <div class="utility-wrapper">
-                    <div class="utility-row utility-row-primary">
-                        <div class="utility-label fw-bold">
-                            <div class="line-align-center">{`Utility #${uid + 1}`}</div>
-                            <div class="utility-tooltip">
-                                <div class="line-align-center">
-                                    <Input
-                                        type="checkbox"
-                                        checked={!utility.disabled}
-                                        on:change={e => toggleUtility(e, uid)}
-                                    />
-                                </div>
-                                <!-- <div
-                                    class="line-align-center"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
-                                    title="Uncheck to disable utility"
-                                >
-                                    <i class="bx bx-info-circle fs-6" />
-                                </div> -->
-                            </div>
-                        </div>
-                        <div class="utility-value">
-                            <div class="utility-input line-align-center">
-                                <Input
-                                    type="select"
-                                    value={utility.category}
-                                    disabled={utility.disabled}
-                                    on:change={e => changeUtilityCategory(e, uid)}
-                                >
-                                    {#each utilityCategoryOptions as option}
-                                        <option value={option.value} selected={option.value == utility.category}>
-                                            {option.label}
-                                        </option>
-                                    {/each}
-                                </Input>
-                            </div>
-                            <div class="utility-delete line-align-center">
-                                <i
-                                    class="bx bxs-no-entry text-danger clickable fs-6"
-                                    role="link"
-                                    tabindex="0"
-                                    on:keydown={() => {}}
-                                    on:click={() => deleteUtility(uid)}
-                                />
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="utility-row utility-row-secondary">
-                        {#if utility.category}
-                            {
-                                @const utilityOptions = getUtilityOptions(utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name), 'Select a utility')
-                            }
-                            <div class="utility-content">
-                                <div class="utility-list-item">
-                                    <div class="utility-label d-flex" style="gap: 10px;">
-                                        <div class="line-align-center">{'Name'}</div>
-                                        {#if utility.name}
-                                        <div class="line-align-center">
-                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                            <i
-                                                class="mdi mdi-refresh clickable fs-6"
-                                                style="padding-top: 3px;"
-                                                data-bs-toggle="tooltip"
-                                                data-bs-placement="top"
-                                                title="Reset"
-                                                on:click={() => resetUtility(uid)}
-                                            />
-                                        </div>
-                                        {/if}
-                                    </div>
-                                    <div class="utility-value">
-                                        <div class="utility-input line-align-center">
-                                            <Input
-                                                type="select"
-                                                value={utility.name}
-                                                disabled={utility.disabled}
-                                                on:change={e => changeUtilityName(e, uid)}
-                                            >
-                                                {#each utilityOptions as option}
-                                                    <option value={option.value} selected={option.value == utility.name}>
-                                                        {option.label}
-                                                    </option>
-                                                {/each}
-                                            </Input>
-                                        </div>
-                                        <div class="utility-delete line-align-center"></div>
-                                    </div>
-                                </div>
-                                <div class="utility-list-item">
-                                    <div class="utility-label line-align-center">
-                                        {'Visibility'}
-                                    </div>
-                                    <div class="utility-value">
-                                        <div class="utility-input line-align-center">
-                                            <Input
-                                                type="text"
-                                                disabled={utility.disabled}
-                                                maxlength={1000}
-                                                value={utility.visibility_expression}
-                                                on:change={e => changeUtilityVisibility(e, uid)}
-                                            />
-                                        </div>
-                                        <div class="utility-delete line-align-center"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/if}
-                        {#each utility.items as item, fid (fid)}
-                            <div class="utility-content">
-                                {#if item.function_name}
-                                    { 
-                                        @const description = getUtilityItemDescription(utility.category, utility.name, item.function_name)
-                                    }
-                                    <div class="utility-list-item">
-                                        <div class="utility-label d-flex" style="gap: 10px;">
-                                            <div class="line-align-center">{'Function'}</div>
-                                            {#if description}
-                                            <div class="line-align-center">
-                                                <i
-                                                    class="bx bx-info-circle fs-6"
-                                                    id={`utility-${uid}-${fid}`}
-                                                />
-                                                <BotsharpTooltip
-                                                    containerClasses="agent-utility-desc"
-                                                    style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                                    target={`utility-${uid}-${fid}`}
-                                                    placement="right"
-                                                    persist
-                                                >
-                                                    <Markdown
-                                                        rawText
-                                                        scrollable
-                                                        containerClasses={'markdown-div'}
-                                                        containerStyles={`max-width: ${Math.floor(windowWidth*0.55)}px;`}
-                                                        text={description}
-                                                    />
-                                                </BotsharpTooltip>
-                                            </div>
-                                            {/if}
-                                        </div>
-                                        <div class="utility-value">
-                                            <div class="utility-input line-align-center">
-                                                <Input
-                                                    type="text"
-                                                    value={item.function_display_name}
-                                                    disabled
-                                                />
-                                            </div>
-                                            <div class="utility-delete line-align-center">
-                                                <i
-                                                    class="bx bxs-no-entry text-danger clickable fs-6"
-                                                    role="link"
-                                                    tabindex="0"
-                                                    on:keydown={() => {}}
-                                                    on:click={() => deleteUtilityItem(uid, fid, 'function')}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/if}
-                                {#if item.template_name}
-                                    <div class="utility-list-item">
-                                        <div class="utility-label line-align-center">
-                                            {'Template'}
-                                        </div>
-                                        <div class="utility-value">
-                                            <div class="utility-input line-align-center">
-                                                <Input
-                                                    type="text"
-                                                    value={item.template_display_name}
-                                                    disabled
-                                                />
-                                            </div>
-                                            <div class="utility-delete line-align-center">
-                                                <i
-                                                    class="bx bxs-no-entry text-danger clickable fs-6"
-                                                    role="link"
-                                                    tabindex="0"
-                                                    on:keydown={() => {}}
-                                                    on:click={() => deleteUtilityItem(uid, fid, 'template')}
-                                                />
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/if}
-                                <div class="utility-list-item">
-                                    <div class="utility-label line-align-center">
-                                        {'Visibility'}
-                                    </div>
-                                    <div class="utility-value">
-                                        <div class="utility-input line-align-center">
-                                            <Input
-                                                type="text"
-                                                disabled={utility.disabled}
-                                                maxlength={1000}
-                                                value={item.visibility_expression}
-                                                on:change={e => changeUtilityItemVisibility(e, uid, fid)}
-                                            />
-                                        </div>
-                                        <div class="utility-delete line-align-center"></div>
-                                    </div>
-                                </div>
-                            </div>
-                        {/each}
-                    </div>
-                </div>
+                <AgentUtilityItem
+                    utility={utility}
+                    utilityIndex={uid}
+                    utilityMapper={utilityMapper}
+                    utilityCategoryOptions={utilityCategoryOptions}
+                    collapsed={!utility.expanded}
+                    windowWidth={windowWidth}
+                    on:toggle={e => toggleUtility(e, uid)}
+                    on:delete={e => deleteUtility(e, uid)}
+                    on:reset={() => resetUtility(uid)}
+                    on:change={e => changeUtility(e, uid)}
+                    on:collapse={e => toggleCollapse(e, uid, e.detail.collapsed)}
+                />
             {/each}
 
             {#if innerUtilities.length < limit}

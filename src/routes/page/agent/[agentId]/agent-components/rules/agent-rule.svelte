@@ -275,7 +275,7 @@
         }
     }
 
-        /**
+    /**
      * @param {any} e
 	 * @param {number} uid
      * @param {boolean} collapsed
