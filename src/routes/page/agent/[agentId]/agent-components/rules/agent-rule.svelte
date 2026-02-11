@@ -143,12 +143,12 @@
     /**
 	 * @param {any} e
 	 * @param {number} idx
-     * @param {string} field
 	 */
-    function changeRule(e, idx, field) {
+    function changeRule(e, idx) {
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
 
+        const field = e.detail.field;
         const value = e.detail.value;
         if (field === 'rule') {
             found.trigger_name = value;
@@ -230,13 +230,13 @@
 
     /**
      * @param {any} e
-	 * @param {number} uid
-     * @param {string} field
+	 * @param {number} idx
 	 */
-    function toggleRule(e, uid, field) {
-        const found = innerRules.find((_, index) => index === uid);
+    function toggleRule(e, idx) {
+        const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
 
+        const field = e.detail.field;
         if (field === 'rule') {
             found.disabled = !e.detail.checked;
         } else if (field === 'criteria') {
@@ -407,9 +407,9 @@
                     criteriaOptions={criteriaOptions}
                     actionOptions={actionOptions}
                     windowWidth={windowWidth}
-                    on:toggle={e => toggleRule(e, uid, e.detail.field)}
+                    on:toggle={e => toggleRule(e, uid)}
                     on:delete={() => deleteRule(uid)}
-                    on:change={e => changeRule(e, uid, e.detail.field)}
+                    on:change={e => changeRule(e, uid)}
                     on:compile={e => compileCodeScript(e.detail.rule)}
                     on:collapse={e => toggleCollapse(e, uid)}
                 />

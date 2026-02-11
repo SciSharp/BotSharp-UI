@@ -223,6 +223,7 @@
  * @property {string?} [displayName]
  * @property {boolean} disabled
  * @property {number?} [confidence]
+ * @property {boolean} [expanded]
  */
 
 /**

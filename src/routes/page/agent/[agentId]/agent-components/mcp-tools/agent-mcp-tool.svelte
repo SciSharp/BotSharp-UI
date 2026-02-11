@@ -186,7 +186,7 @@
 	 */
      function addMcpContent(e, idx) {
         const found = innerMcps.find((_, index) => index === idx);
-        if (!found) return;
+        if (!found || found.disabled) return;
 
         if (e.detail.field === 'function') {
             found.functions.push({ name: '' });

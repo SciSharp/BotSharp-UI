@@ -136,10 +136,10 @@
 
     /**
      * @param {any} e
-	 * @param {number} uid
+	 * @param {number} idx
 	 */
-    function changeUtility(e, uid) {
-        const found = innerUtilities.find((_, index) => index === uid);
+    function changeUtility(e, idx) {
+        const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
         if (e.detail.field === 'utility-category') {
@@ -167,10 +167,10 @@
 
     /**
      * @param {any} e
-	 * @param {number} uid
+	 * @param {number} idx
 	 */
-    function toggleUtility(e, uid) {
-        const found = innerUtilities.find((_, index) => index === uid);
+    function toggleUtility(e, idx) {
+        const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
         found.disabled = !e.detail.checked;
@@ -203,9 +203,9 @@
         handleAgentChange();
     }
 
-    /** @param {number} uid */
-	function resetUtility(uid) {
-		const found = innerUtilities.find((_, index) => index === uid);
+    /** @param {number} idx */
+	function resetUtility(idx) {
+		const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
         const originalItems = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name === found.name)?.items || [];
@@ -216,10 +216,10 @@
 
     /**
      * @param {any} e
-	 * @param {number} uid
+	 * @param {number} idx
 	 */
-	function toggleCollapse(e, uid) {
-		const found = innerUtilities.find((_, index) => index === uid);
+	function toggleCollapse(e, idx) {
+		const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
         found.expanded = !e.detail.collapsed;

@@ -5,7 +5,7 @@
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import AgentLlmConfig from './agent-components/agent-llm-config.svelte';
 	import AgentUtility from './agent-components/utilities/agent-utility.svelte';
-	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
+	import AgentKnowledgeBase from './agent-components/knowledge-bases/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
 	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
 	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
@@ -60,7 +60,7 @@
     ];
 
     onMount(() => {
-        selectedTab = tabs[5]?.name;
+        selectedTab = tabs[0]?.name;
     });
 
     /** @param {string} selected */

@@ -1,7 +1,7 @@
 <script>
-	import { Input } from '@sveltestrap/sveltestrap';
     import { createEventDispatcher } from 'svelte';
     import { slide } from 'svelte/transition';
+    import { Input } from '@sveltestrap/sveltestrap';
 
     const svelteDispatch = createEventDispatcher();
 
