@@ -8,7 +8,7 @@
 	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
 	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
-	import AgentMcpTool from './agent-components/agent-mcp-tool.svelte';
+	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -60,7 +60,7 @@
     ];
 
     onMount(() => {
-        selectedTab = tabs[0]?.name;
+        selectedTab = tabs[5]?.name;
     });
 
     /** @param {string} selected */

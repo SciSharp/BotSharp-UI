@@ -213,6 +213,7 @@
  * @property {string} server_id 
  * @property {boolean} disabled 
  * @property {import('$commonTypes').NameBase[]} functions
+ * @property {boolean} [expanded]
  */
 
 /**

@@ -264,13 +264,12 @@
     /**
      * @param {any} e
 	 * @param {number} uid
-     * @param {boolean} collapsed
 	 */
-	function toggleCollapse(e, uid, collapsed) {
+	function toggleCollapse(e, uid) {
 		const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        found.expanded = !collapsed;
+        found.expanded = !e.detail.collapsed;
         innerRefresh(innerRules);
         handleAgentChange();
 	}
@@ -412,7 +411,7 @@
                     on:delete={() => deleteRule(uid)}
                     on:change={e => changeRule(e, uid, e.detail.field)}
                     on:compile={e => compileCodeScript(e.detail.rule)}
-                    on:collapse={e => toggleCollapse(e, uid, e.detail.collapsed)}
+                    on:collapse={e => toggleCollapse(e, uid)}
                 />
             {/each}
 

@@ -217,13 +217,12 @@
     /**
      * @param {any} e
 	 * @param {number} uid
-     * @param {boolean} collapsed
 	 */
-	function toggleCollapse(e, uid, collapsed) {
+	function toggleCollapse(e, uid) {
 		const found = innerUtilities.find((_, index) => index === uid);
         if (!found) return;
 
-        found.expanded = !collapsed;
+        found.expanded = !e.detail.collapsed;
         innerRefresh(innerUtilities);
         handleAgentChange();
 	}
@@ -294,7 +293,7 @@
                     on:delete={e => deleteUtility(e, uid)}
                     on:reset={() => resetUtility(uid)}
                     on:change={e => changeUtility(e, uid)}
-                    on:collapse={e => toggleCollapse(e, uid, e.detail.collapsed)}
+                    on:collapse={e => toggleCollapse(e, uid)}
                 />
             {/each}
 
