@@ -85,19 +85,6 @@
     }
 
     /**
-	 * @param {number} fid
-     * @param {string} type
-	 */
-    function deleteUtilityItem(fid, type) {
-        svelteDispatch('delete', {
-            utilityIdx: utilityIndex,
-            field: 'utility-item',
-            subfield: type,
-            itemIdx: fid
-        });
-    }
-
-    /**
      * @param {any} e
 	 * @param {number} fid
 	 */
@@ -107,6 +94,19 @@
             field: 'utility-item-visibility',
             itemIdx: fid,
             value: e.target.value
+        });
+    }
+
+    /**
+	 * @param {number} fid
+     * @param {string} type
+	 */
+    function deleteUtilityItem(fid, type) {
+        svelteDispatch('delete', {
+            utilityIdx: utilityIndex,
+            field: 'utility-item',
+            subfield: type,
+            itemIdx: fid
         });
     }
 

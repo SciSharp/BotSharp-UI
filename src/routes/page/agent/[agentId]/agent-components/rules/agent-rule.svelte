@@ -152,21 +152,59 @@
         const value = e.detail.value;
         if (field === 'rule') {
             found.trigger_name = value;
+            innerRefresh(innerRules);
         } else if (field === 'criteria') {
             found.rule_criteria = { 
                 ...found.rule_criteria || {},
                 name: value,
                 disabled: found.rule_criteria?.disabled || false
             };
+            innerRefresh(innerRules);
         } else if (field === 'action') {
             found.rule_action = {
                 ...found.rule_action || {},
                 name: value,
                 disabled: found.rule_action?.disabled || false
             };
+            innerRefresh(innerRules);
+        } else if (field === 'criteria-text') {
+            if (found.rule_criteria == null) {
+                found.rule_criteria = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            found.rule_criteria.criteria_text = value;
+            innerRefresh(innerRules);
+        } else if (field === 'criteria-config') {
+            if (found.rule_criteria == null) {
+                found.rule_criteria = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            try {
+                found.rule_criteria.config = JSON.parse(value || '{}');
+            } catch {
+                // ignore invalid JSON while typing
+            }
+        } else if (field === 'action-config') {
+            if (found.rule_action == null) {
+                found.rule_action = {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                };
+            }
+            try {
+                found.rule_action.config = JSON.parse(value || '{}');
+            } catch {
+                // ignore invalid JSON while typing
+            }
         }
 
-        innerRefresh(innerRules);
         handleAgentChange();
     }
 
@@ -221,58 +259,6 @@
         
         innerRefresh(innerRules);
         handleAgentChange();
-    }
-
-    /**
-     * @param {any} e
-	 * @param {number} uid
-     * @param {string} field
-	 */
-    function changeContent(e, uid, field) {
-        const found = innerRules.find((_, index) => index === uid);
-        if (!found) return;
-
-        const value = e.detail.value;
-        if (field === 'criteria-text') {
-            if (found.rule_criteria == null) {
-                found.rule_criteria = {
-                    name: '',
-                    disabled: false,
-                    config: {}
-                };
-            }
-            found.rule_criteria.criteria_text = value;
-            innerRefresh(innerRules);
-            handleAgentChange();
-        } else if (field === 'criteria-config') {
-            if (found.rule_criteria == null) {
-                found.rule_criteria = {
-                    name: '',
-                    disabled: false,
-                    config: {}
-                };
-            }
-            try {
-                found.rule_criteria.config = JSON.parse(value || '{}');
-                handleAgentChange();
-            } catch {
-                // ignore invalid JSON while typing
-            }
-        } else if (field === 'action-config') {
-            if (found.rule_action == null) {
-                found.rule_action = {
-                    name: '',
-                    disabled: false,
-                    config: {}
-                };
-            }
-            try {
-                found.rule_action.config = JSON.parse(value || '{}');
-                handleAgentChange();
-            } catch {
-                // ignore invalid JSON while typing
-            }
-        }
     }
 
     /**
@@ -424,8 +410,7 @@
                     windowWidth={windowWidth}
                     on:toggle={e => toggleRule(e, uid, e.detail.field)}
                     on:delete={() => deleteRule(uid)}
-                    on:changeOption={e => changeRule(e, uid, e.detail.field)}
-                    on:changeContent={e => changeContent(e, uid, e.detail.field)}
+                    on:change={e => changeRule(e, uid, e.detail.field)}
                     on:compile={e => compileCodeScript(e.detail.rule)}
                     on:collapse={e => toggleCollapse(e, uid, e.detail.collapsed)}
                 />

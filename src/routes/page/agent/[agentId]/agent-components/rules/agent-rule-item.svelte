@@ -55,28 +55,16 @@
      * @param {string} field
      */
     function changeRule(e, field) {
-        svelteDispatch('changeOption', {
+        svelteDispatch('change', {
             ruleIdx: ruleIndex,
             field: field,
-            value: e.target.value
+            value: e?.target?.value || e?.detail?.text || ''
         });
     }
 
     function deleteRule() {
         svelteDispatch('delete', {
             ruleIdx: ruleIndex
-        });
-    }
-
-    /**
-     * @param {any} e
-     * @param {string} field
-     */
-    function changeContent(e, field) {
-        svelteDispatch('changeContent', {
-            ruleIdx: ruleIndex,
-            field: field,
-            value: e?.target?.value || e?.detail?.text || ''
         });
     }
 
@@ -243,7 +231,7 @@
                             disabled={!!rule.rule_criteria?.disabled}
                             maxlength={textLimit}
                             value={rule.rule_criteria?.criteria_text}
-                            on:input={e => changeContent(e, 'criteria-text')}
+                            on:input={e => changeRule(e, 'criteria-text')}
                         />
                     </div>
                     <div class="utility-delete line-align-center">
@@ -293,7 +281,7 @@
                             hideLineNumber={true}
                             editable={!rule.rule_criteria?.disabled}
                             scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
-                            on:change={(e) => changeContent(e, 'criteria-config')}
+                            on:change={(e) => changeRule(e, 'criteria-config')}
                         />
                     </div>
                     <div class="utility-delete line-align-center"></div>
@@ -354,7 +342,7 @@
                             hideLineNumber={true}
                             editable={!rule.rule_action?.disabled}
                             scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
-                            on:change={(e) => changeContent(e, 'action-config')}
+                            on:change={(e) => changeRule(e, 'action-config')}
                         />
                     </div>
                     <div class="utility-delete line-align-center"></div>
