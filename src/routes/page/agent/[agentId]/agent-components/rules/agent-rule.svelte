@@ -41,7 +41,7 @@
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
                 rule_criteria: x.rule_criteria,
-                rule_action: x.rule_action,
+                rule_actions: x.rule_actions.filter(x => !!x.name),
                 expanded: x.expanded
             };
         });
@@ -160,13 +160,6 @@
                 disabled: found.rule_criteria?.disabled || false
             };
             innerRefresh(innerRules);
-        } else if (field === 'action') {
-            found.rule_action = {
-                ...found.rule_action || {},
-                name: value,
-                disabled: found.rule_action?.disabled || false
-            };
-            innerRefresh(innerRules);
         } else if (field === 'criteria-text') {
             if (found.rule_criteria == null) {
                 found.rule_criteria = {
@@ -190,19 +183,21 @@
             } catch {
                 // ignore invalid JSON while typing
             }
+        } else if (field === 'action') {
+            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
+            if (foundAction) {
+                foundAction.name = value;
+            }
+            innerRefresh(innerRules);
         } else if (field === 'action-config') {
-            if (found.rule_action == null) {
-                found.rule_action = {
-                    name: '',
-                    disabled: false,
-                    config: {}
-                };
-            }
-            try {
-                found.rule_action.config = JSON.parse(value || '{}');
-            } catch {
-                // ignore invalid JSON while typing
-            }
+            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
+            if (foundAction) {
+                try {
+                    foundAction.config = JSON.parse(value || '{}');
+                } catch {
+                    // ignore invalid JSON while typing
+                }
+            }            
         }
 
         handleAgentChange();
@@ -215,16 +210,29 @@
                 trigger_name: '',
                 displayName: '',
                 disabled: false,
-                expanded: true
+                expanded: true,
+                rule_actions: []
             }
         ];
         scrollToBottom(scrollContainer);
         handleAgentChange();
     }
 
-    /** @param {number} idx */
-    function deleteRule(idx) {
-        innerRules = innerRules.filter((_, index) => index !== idx);
+    /**
+     * @param {any} e
+	 * @param {number} idx
+	 */
+    function deleteRule(e, idx) {
+        if (e.detail.field === 'rule') {
+            innerRules = innerRules.filter((_, index) => index !== idx);
+        } else if (e.detail.field === 'action') {
+            const found = innerRules.find((_, index) => index === idx);
+            if (!found) return;
+
+            found.rule_actions = found.rule_actions.filter((_, index) => index !== e.detail.itemIdx);
+            innerRefresh(innerRules);
+        }
+        
         handleAgentChange();
     }
 
@@ -248,13 +256,10 @@
             }
             found.rule_criteria.disabled = !e.detail.checked;
         } else if (field === 'action') {
-            if (!found.rule_action) {
-                found.rule_action = {
-                    name: '',
-                    disabled: false
-                };
+            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
+            if (foundAction) {
+                foundAction.disabled = !e.detail.checked;
             }
-            found.rule_action.disabled = !e.detail.checked;
         }
         
         innerRefresh(innerRules);
@@ -273,6 +278,29 @@
         innerRefresh(innerRules);
         handleAgentChange();
 	}
+
+    /**
+     * @param {any} e
+	 * @param {number} uid
+	 */
+    function addRuleItem(e, uid) {
+        const found = innerRules.find((_, index) => index === uid);
+        if (!found) return;
+
+        if (e.detail.field === 'action') {
+            found.rule_actions = [
+                ...found.rule_actions,
+                {
+                    name: '',
+                    disabled: false,
+                    config: {}
+                }
+            ];
+        }
+        
+        innerRefresh(innerRules);
+        handleAgentChange();
+    }
 
     /**
 	 * @param {import("$agentTypes").AgentRule} rule
@@ -408,8 +436,9 @@
                     actionOptions={actionOptions}
                     windowWidth={windowWidth}
                     on:toggle={e => toggleRule(e, uid)}
-                    on:delete={() => deleteRule(uid)}
+                    on:delete={e => deleteRule(e, uid)}
                     on:change={e => changeRule(e, uid)}
+                    on:add={e => addRuleItem(e, uid)}
                     on:compile={e => compileCodeScript(e.detail.rule)}
                     on:collapse={e => toggleCollapse(e, uid)}
                 />

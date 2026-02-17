@@ -232,7 +232,7 @@
  * @property {string?} [displayName]
  * @property {boolean} disabled
  * @property {AgentRuleCriteria?} [rule_criteria]
- * @property {AgentRuleAction?} [rule_action]
+ * @property {AgentRuleAction[]} rule_actions
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]

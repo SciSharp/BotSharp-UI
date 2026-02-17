@@ -11,6 +11,7 @@
 
     const duration = 200;
     const textLimit = 1024;
+    const actionLimit = 10;
 
     /** @type {import('$agentTypes').AgentRule} */
     export let rule;
@@ -62,12 +63,65 @@
         });
     }
 
-    function deleteRule() {
-        svelteDispatch('delete', {
-            ruleIdx: ruleIndex
+    /**
+     * @param {any} e
+     * @param {string} field
+     * @param {number} idx
+     */
+    function toggleRuleAction(e, field, idx) {
+        svelteDispatch('toggle', {
+            ruleIdx: ruleIndex,
+            field: field,
+            itemIdx: idx,
+            checked: e.target.checked
         });
     }
 
+    /**
+     * @param {any} e
+     * @param {string} field
+     * @param {number} idx
+     */
+    function changeRuleAction(e, field, idx) {
+        svelteDispatch('change', {
+            ruleIdx: ruleIndex,
+            field: field,
+            itemIdx: idx,
+            value: e?.target?.value || e?.detail?.text || ''
+        });
+    }
+
+    /**
+     * @param {string} field
+     */
+    function addRuleItem(field) {
+        svelteDispatch('add', {
+            ruleIdx: ruleIndex,
+            field: field
+        });
+    }
+
+    /**
+     * @param {string} field
+     */
+    function deleteRule(field) {
+        svelteDispatch('delete', {
+            ruleIdx: ruleIndex,
+            field: field
+        });
+    }
+
+    /**
+     * @param {string} field
+     * @param {number} idx
+     */
+    function deleteRuleItem(field, idx) {
+        svelteDispatch('delete', {
+            ruleIdx: ruleIndex,
+            field: field,
+            itemIdx: idx
+        });
+    }
 
     function toggleCollapse() {
         svelteDispatch('collapse', {
@@ -156,7 +210,7 @@
                     role="link"
                     tabindex="0"
                     on:keydown={() => {}}
-                    on:click={() => deleteRule()}
+                    on:click={() => deleteRule('rule')}
                 />
             </div>
         </div>
@@ -292,18 +346,19 @@
     </div>
 
     <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        <div class="utility-content">
+        {#each rule.rule_actions || [] as action, aid (aid)}
+        <div class="utility-content" style={`${aid > 0 ? 'border-top-style: none' : ''}`}>
             <div class="utility-list-item">
                 <div class="utility-label line-align-center">
                     <div class="d-flex gap-1">
                         <div class="line-align-center">
-                            {'Action'}
+                            {`Action #${aid + 1}`}
                         </div>
                         <div class="line-align-center">
                             <Input
                                 type="checkbox"
-                                checked={!rule.rule_action?.disabled}
-                                on:change={e => toggleRule(e, 'action')}
+                                checked={!action?.disabled}
+                                on:change={e => toggleRuleAction(e, 'action', aid)}
                             />
                         </div>
                     </div>
@@ -312,20 +367,28 @@
                     <div class="utility-input line-align-center">
                         <Input
                             type="select"
-                            disabled={!!rule.rule_action?.disabled}
-                            on:change={e => changeRule(e, 'action')}
+                            disabled={!!action?.disabled}
+                            on:change={e => changeRuleAction(e, 'action', aid)}
                         >
                             {#each [...actionOptions] as option}
-                                <option value={option.name} selected={option.name == rule.rule_action?.name}>
+                                <option value={option.name} selected={option.name == action?.name}>
                                     {option.name}
                                 </option>
                             {/each}
                         </Input>
                     </div>
-                    <div class="utility-delete line-align-center"></div>
+                    <div class="utility-delete line-align-center">
+                        <i
+                            class="bx bxs-no-entry text-danger clickable fs-6"
+                            role="link"
+                            tabindex="0"
+                            on:keydown={() => {}}
+                            on:click={() => deleteRuleItem('action', aid)}
+                        />
+                    </div>
                 </div>
             </div>
-            {#if rule.rule_action?.name}
+            {#if action?.name}
             <div class="utility-list-item">
                 <div class="utility-label line-align-center">
                     <div class="d-flex gap-1">
@@ -340,9 +403,9 @@
                             language="json"
                             containerClasses="agent-rule-config"
                             hideLineNumber={true}
-                            editable={!rule.rule_action?.disabled}
-                            scriptText={JSON.stringify(rule.rule_action?.config || {}, null, 2)}
-                            on:change={(e) => changeRule(e, 'action-config')}
+                            editable={!action?.disabled}
+                            scriptText={JSON.stringify(action?.config || {}, null, 2)}
+                            on:change={(e) => changeRuleAction(e, 'action-config', aid)}
                         />
                     </div>
                     <div class="utility-delete line-align-center"></div>
@@ -350,6 +413,29 @@
             </div>
             {/if}
         </div>
+        {/each}
+
+        {#if rule.rule_actions?.length < actionLimit}
+        <div class="utility-content" style="border-top: none;">
+            <div class="utility-list-item">
+                <div class="utility-label">
+                    {rule.rule_actions.length === 0 ? 'Actions' : ''}
+                </div>
+                <div class="utility-value">
+                    <i
+                        class="bx bx-list-plus add-list clickable fs-6"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Add action"
+                        role="link"
+                        tabindex="0"
+                        on:keydown={() => {}}
+                        on:click={() => addRuleItem('action')}
+                    />
+                </div>
+            </div>
+        </div>
+        {/if}
     </div>
     {/if}
 </div>

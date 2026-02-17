@@ -212,6 +212,9 @@
                     <div class="utility-value">
                         <i
                             class="bx bx-list-plus add-list clickable fs-6"
+                            data-bs-toggle="tooltip"
+                            data-bs-placement="top"
+                            title="Add function"
                             role="link"
                             tabindex="0"
                             on:keydown={() => {}}
