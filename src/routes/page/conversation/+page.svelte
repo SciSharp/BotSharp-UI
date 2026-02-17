@@ -505,6 +505,7 @@
 					</Col>
 					<Col lg="2">
 						<TimeRangePicker
+							storageKey="botsharp_conversation_recent_time_ranges"
 							bind:timeRange={searchOption.timeRange}
 							bind:startDate={searchOption.startDate}
 							bind:endDate={searchOption.endDate}
