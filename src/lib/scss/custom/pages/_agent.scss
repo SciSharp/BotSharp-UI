@@ -175,6 +175,16 @@
     border: 1px dashed var(--bs-primary);
     border-radius: 5px;
 
+    .config-header {
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+    }
+
+    .config-header:hover h6 {
+        opacity: 0.8;
+    }
+
     .llm-config-item {
         display: flex;
         flex-wrap: wrap;
@@ -323,6 +333,11 @@
     }
 }
 
+.agent-rule-config {
+    min-height: 0px;
+    max-height: 200px;
+}
+
 .code-editor {
     max-height: 500px;
     overflow-y: auto;
@@ -339,6 +354,16 @@
 // Responsive adjustments for utility
 @media (max-width: 1250px) {
     .agent-config-container {
+        .config-header {
+            cursor: pointer;
+            user-select: none;
+            outline: none;
+        }
+
+        .config-header:hover h6 {
+            opacity: 0.8;
+        }
+
         .llm-config-item {
             flex-direction: column;
 

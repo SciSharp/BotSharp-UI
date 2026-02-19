@@ -1,7 +1,7 @@
 <script>
     import { onMount, createEventDispatcher } from "svelte";
     import CodeMirror from "svelte-codemirror-editor";
-    import { keymap } from "@codemirror/view";
+    import { keymap, lineNumbers } from "@codemirror/view";
     import { indentUnit, indentOnInput, indentService } from "@codemirror/language";
     import { defaultKeymap, history, indentWithTab, historyKeymap } from "@codemirror/commands";
     import { EditorState } from "@codemirror/state";
@@ -20,6 +20,15 @@
     /** @type {string} */
     export let containerClasses = '';
 
+    /** @type {boolean} */
+    export let useDarkTheme = true;
+
+    /** @type {boolean} */
+    export let hideLineNumber = false;
+
+    /** @type {boolean} */
+    export let editable = true;
+
 
     /** @type {import("@codemirror/state").Extension[]} */
     const baseExtensions = [
@@ -27,7 +36,7 @@
         EditorState.tabSize.of(4),
         indentOnInput(),
         history(),
-        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab])
+        keymap.of([...defaultKeymap, ...historyKeymap, indentWithTab]),
     ];
 
     /** @type {import("@codemirror/state").Extension[]} */
@@ -59,6 +68,17 @@
                 javascript(),
                 ...baseExtensions
             ];
+        } else {
+            extensions = [
+                ...baseExtensions
+            ];
+        }
+
+        if (hideLineNumber) {
+            extensions = [
+                lineNumbers({ formatNumber: () => "" }),
+                ...extensions
+            ];
         }
     });
 
@@ -73,8 +93,9 @@
 
 <CodeMirror
     class={`code-script-container ${containerClasses}`}
-    theme={oneDark}
     lineWrapping
+    theme={useDarkTheme ? oneDark : null}
+    editable={editable}
     extensions={extensions}
     value={scriptText}
     on:change={e => handleChange(e)}

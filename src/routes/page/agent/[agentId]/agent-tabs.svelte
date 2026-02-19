@@ -4,11 +4,11 @@
 	import NavBar from "$lib/common/nav-bar/NavBar.svelte";
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import AgentLlmConfig from './agent-components/agent-llm-config.svelte';
-	import AgentUtility from './agent-components/agent-utility.svelte';
-	import AgentKnowledgeBase from './agent-components/agent-knowledge-base.svelte';
+	import AgentUtility from './agent-components/utilities/agent-utility.svelte';
+	import AgentKnowledgeBase from './agent-components/knowledge-bases/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
-	import AgentEventRule from './agent-components/agent-rule.svelte';
-	import AgentMcpTool from './agent-components/agent-mcp-tool.svelte';
+	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
+	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;

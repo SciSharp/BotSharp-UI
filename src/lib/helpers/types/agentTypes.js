@@ -194,6 +194,7 @@
  * @property {boolean} disabled
  * @property {string?} [visibility_expression]
  * @property {UtilityItem[]} items
+ * @property {boolean} [expanded]
  */
 
 /**
@@ -212,6 +213,7 @@
  * @property {string} server_id 
  * @property {boolean} disabled 
  * @property {import('$commonTypes').NameBase[]} functions
+ * @property {boolean} [expanded]
  */
 
 /**
@@ -221,17 +223,36 @@
  * @property {string?} [displayName]
  * @property {boolean} disabled
  * @property {number?} [confidence]
+ * @property {boolean} [expanded]
  */
 
 /**
  * @typedef {Object} AgentRule
  * @property {string} trigger_name 
- * @property {string} criteria
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {AgentRuleCriteria?} [rule_criteria]
+ * @property {AgentRuleAction[]} rule_actions
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
+ * @property {boolean} [expanded]
+ */
+
+/**
+ * @typedef {Object} AgentRuleCriteria
+ * @property {string?} [name]
+ * @property {string?} [criteria_text]
+ * @property {boolean} disabled
+ * @property {any} [config]
+ */
+
+/**
+ * @typedef {Object} AgentRuleAction
+ * @property {string?} [name]
+ * @property {boolean} disabled
+ * @property {any} [config]
+ * @property {string?} [skippingExpression]
  */
 
 
