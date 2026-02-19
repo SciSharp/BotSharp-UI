@@ -38,7 +38,6 @@
     export let windowWidth;
 
 
-
     /**
      * @param {any} e
      * @param {string} field
@@ -242,7 +241,7 @@
                             on:change={e => changeRule(e, 'criteria')}
                         >
                             {#each [...criteriaOptions] as option}
-                                <option value={option.name} selected={option.name == rule.rule_criteria?.name}>
+                                <option value={`${option.name}#${option.defaultConfig}`} selected={option.name == rule.rule_criteria?.name}>
                                     {option.name}
                                 </option>
                             {/each}
@@ -371,7 +370,7 @@
                             on:change={e => changeRuleAction(e, 'action', aid)}
                         >
                             {#each [...actionOptions] as option}
-                                <option value={option.name} selected={option.name == action?.name}>
+                                <option value={`${option.name}#${option.defaultConfig}`} selected={option.name == action?.name}>
                                     {option.name}
                                 </option>
                             {/each}
@@ -389,6 +388,27 @@
                 </div>
             </div>
             {#if action?.name}
+            <div class="utility-list-item">
+                <div class="utility-label line-align-center">
+                    <div class="d-flex gap-1">
+                        <div class="line-align-center">
+                            {'Skipping'}
+                        </div>
+                    </div>
+                </div>
+                <div class="utility-value">
+                    <div class="utility-input line-align-center">
+                        <Input
+                            type="text"
+                            disabled={!!action?.disabled}
+                            maxlength={4096}
+                            value={action?.skippingExpression}
+                            on:input={e => changeRuleAction(e, 'action-skipping-expression', aid)}
+                        />
+                    </div>
+                    <div class="utility-delete line-align-center"></div>
+                </div>
+            </div>
             <div class="utility-list-item">
                 <div class="utility-label line-align-center">
                     <div class="d-flex gap-1">

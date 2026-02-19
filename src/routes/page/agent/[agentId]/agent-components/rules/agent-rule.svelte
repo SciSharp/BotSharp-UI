@@ -119,9 +119,10 @@
     function loadAgentRuleActions() {
         return new Promise((resolve, reject) => {
             getAgentRuleActions().then(data => {
-                const list = data?.map(x => ({ name: x })) || [];
+                const list = data?.map(x => ({ name: x.key, defaultConfig: x.value })) || [];
                 actionOptions = [{
-                    name: ""
+                    name: "",
+                    defaultConfig: ""
                 }, ...list];
                 resolve('done');
             });
@@ -131,9 +132,10 @@
     function loadAgentRuleCriteriaProviders() {
         return new Promise((resolve, reject) => {
             getAgentRuleCriteriaProviders().then(data => {
-                const list = data?.map(x => ({ name: x })) || [];
+                const list = data?.map(x => ({ name: x.key, defaultConfig: x.value })) || [];
                 criteriaOptions = [{
-                    name: ""
+                    name: "",
+                    defaultConfig: ""
                 }, ...list];
                 resolve('done');
             });
@@ -154,10 +156,13 @@
             found.trigger_name = value;
             innerRefresh(innerRules);
         } else if (field === 'criteria') {
+            const name = value.split('#')[0];
+            const defaultConfig = value.split('#')[1];
             found.rule_criteria = { 
                 ...found.rule_criteria || {},
-                name: value,
-                disabled: found.rule_criteria?.disabled || false
+                name: name,
+                disabled: found.rule_criteria?.disabled || false,
+                config: JSON.parse(defaultConfig || '{}')
             };
             innerRefresh(innerRules);
         } else if (field === 'criteria-text') {
@@ -186,7 +191,10 @@
         } else if (field === 'action') {
             const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
             if (foundAction) {
-                foundAction.name = value;
+                const name = value.split('#')[0];
+                const defaultConfig = value.split('#')[1];
+                foundAction.name = name;
+                foundAction.config = JSON.parse(defaultConfig || '{}');
             }
             innerRefresh(innerRules);
         } else if (field === 'action-config') {
@@ -198,6 +206,12 @@
                     // ignore invalid JSON while typing
                 }
             }            
+        } else if (field === 'action-skipping-expression') {
+            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
+            if (foundAction) {
+                foundAction.skippingExpression = value;
+            }
+            innerRefresh(innerRules);
         }
 
         handleAgentChange();

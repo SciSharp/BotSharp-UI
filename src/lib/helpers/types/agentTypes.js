@@ -252,6 +252,7 @@
  * @property {string?} [name]
  * @property {boolean} disabled
  * @property {any} [config]
+ * @property {string?} [skippingExpression]
  */
 
 

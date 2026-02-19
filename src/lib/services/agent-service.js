@@ -117,7 +117,7 @@ export async function getAgentRuleOptions() {
 
 /**
  * Get agent rule criteria providers
- * @returns {Promise<string[]>}
+ * @returns {Promise<import('$commonTypes').KeyValuePair[]>}
  */
 export async function getAgentRuleCriteriaProviders() {
     const url = endpoints.agentRuleCriteriaProvidersUrl;
@@ -127,7 +127,7 @@ export async function getAgentRuleCriteriaProviders() {
 
 /**
  * Get agent rule actions
- * @returns {Promise<string[]>}
+ * @returns {Promise<import('$commonTypes').KeyValuePair[]>}
  */
 export async function getAgentRuleActions() {
     const url = endpoints.agentRuleActionsUrl;
