@@ -101,7 +101,7 @@
         on:keydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
     >
         <h6 class="mt-1 mb-3 d-flex align-items-center justify-content-center gap-2">
-            <i class="mdi {collapsed ? 'mdi-chevron-down' : 'mdi-chevron-right'}"></i>
+            <i class="mdi {collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'}"></i>
             {title}
         </h6>
     </div>
