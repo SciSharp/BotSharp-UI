@@ -3,7 +3,7 @@
     import Swal from 'sweetalert2';
     import { Card, CardBody, Button } from '@sveltestrap/sveltestrap';
     import { AI_PROGRAMMER_AGENT_ID, RULE_TRIGGER_CODE_GENERATE_TEMPLATE } from '$lib/helpers/constants';
-    import { getAgentRuleOptions, generateAgentCodeScript, getAgentRuleActions, getAgentRuleCriteriaProviders } from '$lib/services/agent-service';
+    import { getAgentRuleOptions, generateAgentCodeScript, getAgentRuleCriteriaProviders } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
@@ -41,7 +41,6 @@
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
                 rule_criteria: x.rule_criteria,
-                rule_actions: x.rule_actions.filter(x => !!x.name),
                 expanded: x.expanded
             };
         });
@@ -66,9 +65,6 @@
     /** @type {any[]} */
     let criteriaOptions = [];
 
-    /** @type {any[]} */
-    let actionOptions = [];
-
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
 
@@ -79,8 +75,7 @@
         resizeWindow();
         Promise.all([
             loadAgentRuleOptions(),
-            loadAgentRuleCriteriaProviders(),
-            loadAgentRuleActions()
+            loadAgentRuleCriteriaProviders()
         ]);
     });
 
@@ -114,19 +109,6 @@
             };
         }) || [];
         innerRefresh(list);
-    }
-
-    function loadAgentRuleActions() {
-        return new Promise((resolve, reject) => {
-            getAgentRuleActions().then(data => {
-                const list = data?.map(x => ({ name: x.key, defaultConfig: x.value })) || [];
-                actionOptions = [{
-                    name: "",
-                    defaultConfig: ""
-                }, ...list];
-                resolve('done');
-            });
-        });
     }
 
     function loadAgentRuleCriteriaProviders() {
@@ -188,30 +170,6 @@
             } catch {
                 // ignore invalid JSON while typing
             }
-        } else if (field === 'action') {
-            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
-            if (foundAction) {
-                const name = value.split('#')[0];
-                const defaultConfig = value.split('#')[1];
-                foundAction.name = name;
-                foundAction.config = JSON.parse(defaultConfig || '{}');
-            }
-            innerRefresh(innerRules);
-        } else if (field === 'action-config') {
-            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
-            if (foundAction) {
-                try {
-                    foundAction.config = JSON.parse(value || '{}');
-                } catch {
-                    // ignore invalid JSON while typing
-                }
-            }            
-        } else if (field === 'action-skipping-expression') {
-            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
-            if (foundAction) {
-                foundAction.skippingExpression = value;
-            }
-            innerRefresh(innerRules);
         }
 
         handleAgentChange();
@@ -224,8 +182,7 @@
                 trigger_name: '',
                 displayName: '',
                 disabled: false,
-                expanded: true,
-                rule_actions: []
+                expanded: true
             }
         ];
         scrollToBottom(scrollContainer);
@@ -239,12 +196,6 @@
     function deleteRule(e, idx) {
         if (e.detail.field === 'rule') {
             innerRules = innerRules.filter((_, index) => index !== idx);
-        } else if (e.detail.field === 'action') {
-            const found = innerRules.find((_, index) => index === idx);
-            if (!found) return;
-
-            found.rule_actions = found.rule_actions.filter((_, index) => index !== e.detail.itemIdx);
-            innerRefresh(innerRules);
         }
         
         handleAgentChange();
@@ -269,11 +220,6 @@
                 };
             }
             found.rule_criteria.disabled = !e.detail.checked;
-        } else if (field === 'action') {
-            const foundAction = found.rule_actions?.find((_, index) => index === e.detail.itemIdx);
-            if (foundAction) {
-                foundAction.disabled = !e.detail.checked;
-            }
         }
         
         innerRefresh(innerRules);
@@ -300,17 +246,6 @@
     function addRuleItem(e, uid) {
         const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
-
-        if (e.detail.field === 'action') {
-            found.rule_actions = [
-                ...found.rule_actions,
-                {
-                    name: '',
-                    disabled: false,
-                    config: {}
-                }
-            ];
-        }
         
         innerRefresh(innerRules);
         handleAgentChange();
@@ -447,7 +382,6 @@
                     user={user}
                     ruleOptions={ruleOptions}
                     criteriaOptions={criteriaOptions}
-                    actionOptions={actionOptions}
                     windowWidth={windowWidth}
                     on:toggle={e => toggleRule(e, uid)}
                     on:delete={e => deleteRule(e, uid)}

@@ -11,7 +11,6 @@
 
     const duration = 200;
     const textLimit = 1024;
-    const actionLimit = 10;
 
     /** @type {import('$agentTypes').AgentRule} */
     export let rule;
@@ -30,9 +29,6 @@
 
     /** @type {any[]} */
     export let criteriaOptions = [];
-
-    /** @type {any[]} */
-    export let actionOptions = [];
 
     /** @type {number} */
     export let windowWidth;
@@ -63,62 +59,12 @@
     }
 
     /**
-     * @param {any} e
-     * @param {string} field
-     * @param {number} idx
-     */
-    function toggleRuleAction(e, field, idx) {
-        svelteDispatch('toggle', {
-            ruleIdx: ruleIndex,
-            field: field,
-            itemIdx: idx,
-            checked: e.target.checked
-        });
-    }
-
-    /**
-     * @param {any} e
-     * @param {string} field
-     * @param {number} idx
-     */
-    function changeRuleAction(e, field, idx) {
-        svelteDispatch('change', {
-            ruleIdx: ruleIndex,
-            field: field,
-            itemIdx: idx,
-            value: e?.target?.value || e?.detail?.text || ''
-        });
-    }
-
-    /**
-     * @param {string} field
-     */
-    function addRuleItem(field) {
-        svelteDispatch('add', {
-            ruleIdx: ruleIndex,
-            field: field
-        });
-    }
-
-    /**
      * @param {string} field
      */
     function deleteRule(field) {
         svelteDispatch('delete', {
             ruleIdx: ruleIndex,
             field: field
-        });
-    }
-
-    /**
-     * @param {string} field
-     * @param {number} idx
-     */
-    function deleteRuleItem(field, idx) {
-        svelteDispatch('delete', {
-            ruleIdx: ruleIndex,
-            field: field,
-            itemIdx: idx
         });
     }
 
@@ -342,120 +288,6 @@
             </div>
             {/if}
         </div>
-    </div>
-
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        {#each rule.rule_actions || [] as action, aid (aid)}
-        <div class="utility-content" style={`${aid > 0 ? 'border-top-style: none' : ''}`}>
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {`Action #${aid + 1}`}
-                        </div>
-                        <div class="line-align-center">
-                            <Input
-                                type="checkbox"
-                                checked={!action?.disabled}
-                                on:change={e => toggleRuleAction(e, 'action', aid)}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <Input
-                            type="select"
-                            disabled={!!action?.disabled}
-                            on:change={e => changeRuleAction(e, 'action', aid)}
-                        >
-                            {#each [...actionOptions] as option}
-                                <option value={`${option.name}#${option.defaultConfig}`} selected={option.name == action?.name}>
-                                    {option.name}
-                                </option>
-                            {/each}
-                        </Input>
-                    </div>
-                    <div class="utility-delete line-align-center">
-                        <i
-                            class="bx bxs-no-entry text-danger clickable fs-6"
-                            role="link"
-                            tabindex="0"
-                            on:keydown={() => {}}
-                            on:click={() => deleteRuleItem('action', aid)}
-                        />
-                    </div>
-                </div>
-            </div>
-            {#if action?.name}
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Skipping'}
-                        </div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <Input
-                            type="text"
-                            disabled={!!action?.disabled}
-                            maxlength={4096}
-                            value={action?.skippingExpression}
-                            on:input={e => changeRuleAction(e, 'action-skipping-expression', aid)}
-                        />
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Config'}
-                        </div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <CodeScript
-                            language="json"
-                            containerClasses="agent-rule-config"
-                            hideLineNumber={true}
-                            editable={!action?.disabled}
-                            scriptText={JSON.stringify(action?.config || {}, null, 2)}
-                            on:change={(e) => changeRuleAction(e, 'action-config', aid)}
-                        />
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-            {/if}
-        </div>
-        {/each}
-
-        {#if rule.rule_actions?.length < actionLimit}
-        <div class="utility-content" style="border-top: none;">
-            <div class="utility-list-item">
-                <div class="utility-label">
-                    {rule.rule_actions.length === 0 ? 'Actions' : ''}
-                </div>
-                <div class="utility-value">
-                    <i
-                        class="bx bx-list-plus add-list clickable fs-6"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Add action"
-                        role="link"
-                        tabindex="0"
-                        on:keydown={() => {}}
-                        on:click={() => addRuleItem('action')}
-                    />
-                </div>
-            </div>
-        </div>
-        {/if}
     </div>
     {/if}
 </div>

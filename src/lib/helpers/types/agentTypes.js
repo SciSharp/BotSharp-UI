@@ -232,7 +232,6 @@
  * @property {string?} [displayName]
  * @property {boolean} disabled
  * @property {AgentRuleCriteria?} [rule_criteria]
- * @property {AgentRuleAction[]} rule_actions
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
@@ -245,14 +244,6 @@
  * @property {string?} [criteria_text]
  * @property {boolean} disabled
  * @property {any} [config]
- */
-
-/**
- * @typedef {Object} AgentRuleAction
- * @property {string?} [name]
- * @property {boolean} disabled
- * @property {any} [config]
- * @property {string?} [skippingExpression]
  */
 
 

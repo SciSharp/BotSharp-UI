@@ -235,7 +235,6 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
         new RegExp('http(s*)://(.*?)/rule/triggers', 'g'),
         new RegExp('http(s*)://(.*?)/rule/criteria-providers', 'g'),
-        new RegExp('http(s*)://(.*?)/rule/actions', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/state/keys', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/llm-configs', 'g'),
