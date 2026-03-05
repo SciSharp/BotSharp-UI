@@ -117,10 +117,10 @@ export async function getAgentRuleOptions() {
 
 /**
  * Get agent rule criteria providers
- * @returns {Promise<import('$commonTypes').KeyValuePair[]>}
+ * @returns {Promise<any[]>}
  */
-export async function getAgentRuleCriteriaProviders() {
-    const url = endpoints.agentRuleCriteriaProvidersUrl;
+export async function getAgentRuleConfigOptions() {
+    const url = endpoints.agentRuleConfigOptionsUrl;
     const response = await axios.get(url);
     return response.data;
 }

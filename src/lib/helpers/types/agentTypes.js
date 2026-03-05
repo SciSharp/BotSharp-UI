@@ -231,21 +231,11 @@
  * @property {string} trigger_name 
  * @property {string?} [displayName]
  * @property {boolean} disabled
- * @property {AgentRuleCriteria?} [rule_criteria]
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
  * @property {boolean} [expanded]
  */
-
-/**
- * @typedef {Object} AgentRuleCriteria
- * @property {string?} [name]
- * @property {string?} [criteria_text]
- * @property {boolean} disabled
- * @property {any} [config]
- */
-
 
 /**
  * @typedef {Object} AgentTaskSearchOption

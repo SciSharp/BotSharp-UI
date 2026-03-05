@@ -27,8 +27,8 @@
     /** @type {any[]} */
     export let ruleOptions = [];
 
-    /** @type {any[]} */
-    export let criteriaOptions = [];
+    /** @type {any} */
+    export let configOptions = {};
 
     /** @type {number} */
     export let windowWidth;
@@ -78,6 +78,12 @@
     function compileCodeScript() {
         svelteDispatch('compile', {
             rule: rule
+        });
+    }
+
+    function toggleConfig() {
+        svelteDispatch('config', {
+            ruleIdx: ruleIndex
         });
     }
 </script>
@@ -133,6 +139,22 @@
                     </BotsharpTooltip>
                 </div>
                 {/if}
+
+                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && Object.keys(configOptions || {}).length > 0}
+                <!-- svelte-ignore a11y-no-static-element-interactions -->
+                <div class="line-align-center">
+                    <!-- svelte-ignore a11y-click-events-have-key-events -->
+                    <i
+                        class="bx bx-cog text-primary fs-6 clickable"
+                        style="padding-top: 2px;"
+                        id={`rule-config-${ruleIndex}`}
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Rule config"
+                        on:click={() => toggleConfig()}
+                    />
+                </div>
+                {/if}
             </div>
         </div>
         <div class="utility-value">
@@ -164,7 +186,7 @@
     {#if !collapsed}
     <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
         <div class="utility-content">
-            <div class="utility-list-item">
+            <!-- <div class="utility-list-item">
                 <div class="utility-label line-align-center">
                     <div class="d-flex gap-1">
                         <div class="line-align-center">
@@ -286,7 +308,7 @@
                     <div class="utility-delete line-align-center"></div>
                 </div>
             </div>
-            {/if}
+            {/if} -->
         </div>
     </div>
     {/if}
