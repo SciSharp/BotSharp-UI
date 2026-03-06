@@ -231,6 +231,7 @@
  * @property {string} trigger_name 
  * @property {string?} [displayName]
  * @property {boolean} disabled
+ * @property {any?} [config]
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]

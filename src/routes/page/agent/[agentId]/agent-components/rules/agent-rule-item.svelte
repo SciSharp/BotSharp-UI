@@ -3,14 +3,12 @@
     import { slide } from 'svelte/transition';
     import { Input } from '@sveltestrap/sveltestrap';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import CodeScript from '$lib/common/shared/CodeScript.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
 
     const svelteDispatch = createEventDispatcher();
 
     const duration = 200;
-    const textLimit = 1024;
 
     /** @type {import('$agentTypes').AgentRule} */
     export let rule;
@@ -27,8 +25,8 @@
     /** @type {any[]} */
     export let ruleOptions = [];
 
-    /** @type {any} */
-    export let configOptions = {};
+    /** @type {any[]} */
+    export let configOptions = [];
 
     /** @type {number} */
     export let windowWidth;
@@ -75,11 +73,11 @@
         });
     }
 
-    function compileCodeScript() {
-        svelteDispatch('compile', {
-            rule: rule
-        });
-    }
+    // function compileCodeScript() {
+    //     svelteDispatch('compile', {
+    //         rule: rule
+    //     });
+    // }
 
     function toggleConfig() {
         svelteDispatch('config', {
@@ -140,7 +138,7 @@
                 </div>
                 {/if}
 
-                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && Object.keys(configOptions || {}).length > 0}
+                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && rule.config?.topology_provider}
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <div class="line-align-center">
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -186,6 +184,31 @@
     {#if !collapsed}
     <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
         <div class="utility-content">
+            <div class="utility-list-item">
+                <div class="utility-label line-align-center">
+                    <div class="d-flex gap-1">
+                        <div class="line-align-center">
+                            {'Topology'}
+                        </div>
+                        <div class="line-align-center"></div>
+                    </div>
+                </div>
+                <div class="utility-value">
+                    <div class="utility-input line-align-center">
+                        <Input
+                            type="select"
+                            on:change={e => changeRule(e, 'topology')}
+                        >
+                            {#each [...configOptions] as option}
+                                <option value={`${option.name}`} selected={option.name == rule.config?.topology_provider}>
+                                    {option.name}
+                                </option>
+                            {/each}
+                        </Input>
+                    </div>
+                    <div class="utility-delete line-align-center"></div>
+                </div>
+            </div>
             <!-- <div class="utility-list-item">
                 <div class="utility-label line-align-center">
                     <div class="d-flex gap-1">

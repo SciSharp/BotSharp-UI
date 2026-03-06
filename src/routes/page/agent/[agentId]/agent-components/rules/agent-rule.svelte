@@ -31,7 +31,9 @@
     let errorText = '';
 
     /** @type {any} */
-    let ruleConfig = {};
+    let selectedRuleConfig = {};
+    /** @type {any} */
+    let ruleConfigs = {};
 
     /** @type {import('$agentTypes').AgentModel} */
     export let agent;
@@ -47,6 +49,7 @@
             return {
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
+                config: x.config,
                 expanded: x.expanded
             };
         });
@@ -69,7 +72,7 @@
     let ruleOptions = [];
 
     /** @type {any} */
-    let configOptions = {};
+    let configOptions = [];
 
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = [];
@@ -120,7 +123,13 @@
     function loadAgentRuleConfigOptions() {
         return new Promise((resolve) => {
             getAgentRuleConfigOptions().then(data => {
-                configOptions = data || {};
+                ruleConfigs = data || {};
+                const keys = Object.keys(data || {});
+                const list = keys?.map(x => ({ name: x })) || [];
+                configOptions = [
+                    { name: '' },
+                    ...list
+                ];
                 resolve('done');
             });
         });
@@ -139,7 +148,13 @@
         if (field === 'rule') {
             found.trigger_name = value;
             innerRefresh(innerRules);
-        } 
+        } else if (field === 'topology') {
+            found.config = {
+                ...found.config || {},
+                topology_provider: value
+            };
+            innerRefresh(innerRules);
+        }
         
         // else if (field === 'criteria') {
         //     const name = value.split('#')[0];
@@ -362,25 +377,30 @@
 	 */
     function openRuleConfigModal(e, uid) {
         const found = innerRules.find((_, index) => index === uid);
-        if (!found) return;
+        if (!found || !found.config?.topology_provider) {
+            return;
+        }
 
-        const graph = configOptions['membase'];
-        const params = JSON.stringify({
-            agent: agent.name,
-            agent_id: agent.id,
-            trigger: found.trigger_name || ""
-        });
-        const url = new URL(graph.url, window.location.origin);
-        url.searchParams.set('parameters', params);
-        console.log(url.toString());
+        const config = ruleConfigs[found.config.topology_provider];
+        const customParam = config.customParameters || {};
 
-        ruleConfig = {
-            url: url.toString(),
-            rule: found,
-            title: `${found.trigger_name} config`
-        };
+        if (customParam.htmlTag === 'iframe') {
+            const params = JSON.stringify({
+                agent: agent.name,
+                agentId: agent.id,
+                trigger: found.trigger_name || ""
+            });
+            const url = new URL(customParam.url, window.location.origin);
+            url.searchParams.set(customParam.appendParameterName || 'parameters', encodeURIComponent(params));
 
-        isOpenConfigModal = true;
+            selectedRuleConfig = {
+                agent: agent.name,
+                url: url.toString(),
+                rule: found,
+                title: `${found.trigger_name} config`
+            };
+            isOpenConfigModal = true;
+        }
     }
 
     function resizeWindow() {
@@ -402,12 +422,12 @@
 {#if isOpenConfigModal}
     <PlainModal
         containerClasses={'rule-config-modal'}
-        title={ruleConfig?.rule?.trigger_name || ''}
+        title={selectedRuleConfig?.rule?.trigger_name || ''}
         size={'xl'}
         isOpen={isOpenConfigModal}
         toggleModal={() => isOpenConfigModal = !isOpenConfigModal}
     >
-        <iframe src={ruleConfig.url} title={ruleConfig.title} width="100%" height="100%" />
+        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%" />
     </PlainModal>
 {/if}
 
