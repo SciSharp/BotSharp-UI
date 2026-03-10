@@ -13,8 +13,7 @@
 		Dropdown,
 		DropdownToggle,
 		DropdownMenu,
-		DropdownItem,
-		Input
+		DropdownItem
 	} from '@sveltestrap/sveltestrap';
 	import {
 		conversationStore,
@@ -56,6 +55,7 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import Label from '$lib/common/shared/Label.svelte';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
@@ -64,7 +64,7 @@
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
 	import { isAudio, isExcel, isPdf } from '$lib/helpers/utils/file';
-	import { ChatAction, ConversationTag, EditorType, FileSourceType, RichType, SenderAction, UserRole } from '$lib/helpers/enums';
+	import { ChatAction, EditorType, FileSourceType, RichType, SenderAction, UserRole } from '$lib/helpers/enums';
 	import ChatTextArea from './chat-util/chat-text-area.svelte';
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
@@ -131,12 +131,9 @@
 	/** @type {string[]} */
 	let chatUtilOptions = [];
 	/** @type {string[]} */
-	let selectedTags = [];
+	let convTags = [];
+	let newTagText = '';
 
-	/** @type {import('$commonTypes').KeyValuePair[]} */
-	let tagOptions = Object.entries(ConversationTag).map(([k, v]) => (
-		{ key: k, value: v }
-	));
 	
 	/** @type {any[]} */
     let scrollbars = [];
@@ -239,7 +236,8 @@
 		conversation = await getConversation(params.conversationId, true);
 		dialogs = await getDialogs(params.conversationId, dialogCount);
 		conversationUser = conversation?.user;
-		selectedTags = conversation?.tags || [];
+		convTags = conversation?.tags || [];
+
 		latestStateLog = conversation?.states;
 		initUserSentMessages(dialogs);
 		initChatView();
@@ -1409,44 +1407,55 @@
 	function toggleTagModal() {
 		isOpenTagModal = !isOpenTagModal;
 		if (!isOpenTagModal) {
-			selectedTags = conversation?.tags || [];
+			newTagText = '';
+			convTags = conversation?.tags || [];
 		}
 	}
 
-	/**
-	 * @param {any} e
-	 * @param {string} value
-	 */
-	function changeTagSelection(e, value) {
-		const checked = e.target.checked;
-		if (checked) {
-			selectedTags = [...new Set([...selectedTags, value])];
-		} else {
-			selectedTags = selectedTags.filter(x => x !== value);
+	/** @param {number | string} idx */
+	function removeTag(idx) {
+		const tag = convTags?.[/** @type {number} */ (idx)];
+		if (!tag) return;
+		convTags = convTags.filter(t => t !== tag);
+	}
+
+	function addTag() {
+		const tag = _.trim(newTagText);
+		if (!tag || convTags.includes(tag)) {
+			return;
 		}
+		convTags = [...convTags, tag];
+		newTagText = '';
 	}
 
 	function updateChatTags() {
+		const originalTags = conversation?.tags || [];
+		const toAddTags = convTags.filter(t => !originalTags.includes(t));
+		const toDeleteTags = originalTags.filter((/** @type {string} */ t) => !convTags.includes(t));
+
+		if (toAddTags.length === 0 && toDeleteTags.length === 0) {
+			isOpenTagModal = false;
+			return;
+		}
+
 		isLoading = true;
 		updateConversationTags(
 			params.conversationId,
-			{
-				toAddTags: selectedTags,
-				toDeleteTags: tagOptions.filter(x => !selectedTags.includes(x.value)).map(x => x.value)
-			})
+			{ toAddTags, toDeleteTags })
 		.then(res => {
 			if (res) {
+				conversation.tags = [...convTags];
 				isComplete = true;
-				successText = "Tags has been updated!";
+				successText = "Tags have been updated!";
 				setTimeout(() => {
 					isComplete = false;
 					successText = "";
 				}, duration);
 			} else {
-				throw "Failed to update chat tags.";
+				throw "Failed to update tags.";
 			}
 		}).catch(() => {
-			selectedTags = conversation?.tags || [];
+			convTags = conversation?.tags || [];
 			isError = true;
 			errorText = "Failed to update tags!";
 			setTimeout(() => {
@@ -1567,22 +1576,37 @@
 	closeable
 	toggleModal={() => toggleTagModal()}
 	confirmBtnText={'Confirm'}
-	cancelBtnText={'Cancel'}
+	cancelBtnText={''}
 	confirm={() => updateChatTags()}
-	cancel={() => toggleTagModal()}
 	close={() => toggleTagModal()}
 >
 	<div class="conv-tags-container">
-		{#each tagOptions as op}
-			<div class="conv-tag-unit">
-				<Input
-					type="checkbox"
-					label={op.value}
-					checked={selectedTags.includes(op.value)}
-					on:change={e => changeTagSelection(e, op.value)}
-				/>
-			</div>
+		{#each convTags as tag, idx}
+			<Label
+				text={tag}
+				index={idx}
+				color="info"
+				ellipsis
+				onClose={removeTag}
+			/>
 		{/each}
+	</div>
+	<div class="conv-tag-add">
+		<input
+			class="form-control form-control-sm"
+			type="text"
+			placeholder="Enter new tag..."
+			maxlength={50}
+			bind:value={newTagText}
+			on:keydown={e => { if (e.key === 'Enter') addTag(); }}
+		/>
+		<button
+			class="btn btn-primary btn-sm"
+			disabled={!_.trim(newTagText)}
+			on:click={() => addTag()}
+		>
+			<i class="bx bx-plus" />
+		</button>
 	</div>
 </DialogModal>
 
@@ -1763,7 +1787,7 @@
 														disabled={disableAction}
 														on:click={() => toggleTagModal()}
 													>
-														Add Tags
+														Tags
 													</DropdownItem>
 												{/if}
 												{#if agent?.id === LEARNER_AGENT_ID && mode === TRAINING_MODE}

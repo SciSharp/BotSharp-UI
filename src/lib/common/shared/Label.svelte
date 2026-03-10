@@ -4,6 +4,8 @@
     export let text = "";
     export let className = "";
     export let style = "";
+    export let color = "primary";
+    export let ellipsis = false;
     /** @type {string | number} */
     export let index;
     /** @type {(args0: number | string) => void} */
@@ -20,9 +22,9 @@
 </script>
 
 <div class={`label-container ${className}`} style={`${style}`}>
-    <button class="btn btn-primary btn-sm label-btn">
+    <button class={`btn btn-${color} btn-sm label-btn`}>
         <div style="display: flex;">
-            <span class="d-none d-sm-inline-block me-2 label-text">
+            <span class={`me-2 label-text ${ellipsis ? 'label-ellipsis' : 'd-none d-sm-inline-block'}`}>
                 {text}
             </span>
             <i
@@ -53,6 +55,13 @@
 
     .label-text {
         text-align: left;
+    }
+
+    .label-ellipsis {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        max-width: 120px;
     }
 
     .label-close {
