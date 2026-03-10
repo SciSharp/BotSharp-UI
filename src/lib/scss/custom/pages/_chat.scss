@@ -829,16 +829,14 @@
     display: flex;
     flex-wrap: wrap;
     overflow-y: auto;
-    scrollbar-width: none;
+    scrollbar-width: thin;
     min-height: 80px;
     max-height: 180px;
+}
 
-    .conv-tag-unit {
-        flex: 0 0 50%;
-        
-        label {
-            font-size: 14px;
-            font-weight: 400;
-        }
-    }
+.conv-tag-add {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
 }
