@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 
 const userKey = "user";
@@ -42,17 +42,18 @@ export const userStore = writable({ id: "", full_name: "", expires: 0, token: nu
  */
 export function getUserStore() {
     if (browser) {
-        // Access localStorage only if in the browser context
+        const storeValue = get(userStore);
+        if (storeValue?.token) {
+            return storeValue;
+        }
+
         let json = sessionStorage.getItem(userKey);
         if (json) {
             return JSON.parse(json);
-        } else {
-            return userStore;
         }
-    } else {
-        // Return a default value for SSR
-        return userStore;
     }
+
+    return get(userStore);
 };
 
 
