@@ -1682,6 +1682,7 @@
 	<CodeScript
 		language={codeLanguage || 'python'}
 		scriptText={codeScript}
+		editable={false}
 	/>
 </PlainModal>
 
