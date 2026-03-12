@@ -330,7 +330,7 @@
 >
 	<button
 		type="button"
-		class="form-control text-start d-flex align-items-center justify-content-between"
+		class="form-control text-start d-flex align-items-center justify-content-between clickable"
 		on:click={() => {
 			showDatePicker = !showDatePicker;
 			if (showDatePicker) {
@@ -344,9 +344,10 @@
 				}
 			}
 		}}
-		style="cursor: pointer;"
 	>
-		<span>{timeRangeDisplayText || 'Select time range'}</span>
+		<span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+			{timeRangeDisplayText || 'Select time range'}
+		</span>
 		<i class="bx bx-chevron-down"></i>
 	</button>
 	{#if showDatePicker}

@@ -12,7 +12,7 @@ const retryQueue = {
     isRefreshingToken: false,
 
     /** @type {number} */
-    timeout: 20,
+    timeout: 200,
 
     /** @type {number} */
     maxRenewTokenCount: 30,
