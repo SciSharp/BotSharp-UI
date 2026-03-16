@@ -60,7 +60,7 @@
     ];
 
     onMount(() => {
-        selectedTab = tabs[4]?.name;
+        selectedTab = tabs[0]?.name;
     });
 
     /** @param {string} selected */
