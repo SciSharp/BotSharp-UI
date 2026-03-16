@@ -73,12 +73,6 @@
         });
     }
 
-    // function compileCodeScript() {
-    //     svelteDispatch('compile', {
-    //         rule: rule
-    //     });
-    // }
-
     function toggleConfig() {
         svelteDispatch('config', {
             ruleIdx: ruleIndex
@@ -138,7 +132,7 @@
                 </div>
                 {/if}
 
-                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && rule.config?.topology_provider}
+                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && rule.config?.topology_name}
                 <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <div class="line-align-center">
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
@@ -200,7 +194,7 @@
                             on:change={e => changeRule(e, 'topology')}
                         >
                             {#each [...configOptions] as option}
-                                <option value={`${option.name}`} selected={option.name == rule.config?.topology_provider}>
+                                <option value={`${option.name}`} selected={option.name == rule.config?.topology_name}>
                                     {option.name}
                                 </option>
                             {/each}
@@ -209,129 +203,6 @@
                     <div class="utility-delete line-align-center"></div>
                 </div>
             </div>
-            <!-- <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Criteria'}
-                        </div>
-                        <div class="line-align-center">
-                            <Input
-                                type="checkbox"
-                                checked={!rule.rule_criteria?.disabled}
-                                on:change={e => toggleRule(e, 'criteria')}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <Input
-                            type="select"
-                            disabled={!!rule.rule_criteria?.disabled}
-                            on:change={e => changeRule(e, 'criteria')}
-                        >
-                            {#each [...criteriaOptions] as option}
-                                <option value={`${option.name}#${option.defaultConfig}`} selected={option.name == rule.rule_criteria?.name}>
-                                    {option.name}
-                                </option>
-                            {/each}
-                        </Input>
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Text'}
-                        </div>
-                        {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && !!rule.rule_criteria?.criteria_text?.trim()}
-                        <div
-                            class="line-align-center clickable text-primary fs-5"
-                            style="padding-top: 3px;"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Compile code script"
-                        >
-                            <i
-                                class="mdi mdi-play-circle"
-                                role="link"
-                                tabindex="0"
-                                on:keydown={() => {}}
-                                on:click={() => compileCodeScript()}
-                            />
-                        </div>
-                        {/if}
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <Input
-                            type="textarea"
-                            style="resize: none;"
-                            rows={5}
-                            disabled={!!rule.rule_criteria?.disabled}
-                            maxlength={textLimit}
-                            value={rule.rule_criteria?.criteria_text}
-                            on:input={e => changeRule(e, 'criteria-text')}
-                        />
-                    </div>
-                    <div class="utility-delete line-align-center">
-                        {#if rule.json_args}
-                        <div class="line-align-center">
-                            <i
-                                class="bx bxs-info-circle text-primary fs-5"
-                                id={`rule-args-${ruleIndex}`}
-                                data-bs-toggle="tooltip"
-                                data-bs-placement="top"
-                                title="Rule arguments"
-                            />
-                            <BotsharpTooltip
-                                containerClasses="agent-utility-desc"
-                                style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                target={`rule-args-${ruleIndex}`}
-                                placement="right"
-                                persist
-                            >
-                                <Markdown
-                                    rawText
-                                    scrollable
-                                    containerClasses={'markdown-div'}
-                                    containerStyles={`max-width: ${Math.floor(windowWidth*0.3)}px;`}
-                                    text={rule.json_args}
-                                />
-                            </BotsharpTooltip>
-                        </div>
-                        {/if}
-                    </div>
-                </div>
-            </div>
-            {#if rule.rule_criteria?.name}
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Config'}
-                        </div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <CodeScript
-                            language="json"
-                            containerClasses="agent-rule-config"
-                            hideLineNumber={true}
-                            editable={!rule.rule_criteria?.disabled}
-                            scriptText={JSON.stringify(rule.rule_criteria?.config || {}, null, 2)}
-                            on:change={(e) => changeRule(e, 'criteria-config')}
-                        />
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-            {/if} -->
         </div>
     </div>
     {/if}
