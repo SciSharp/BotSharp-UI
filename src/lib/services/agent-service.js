@@ -116,8 +116,8 @@ export async function getAgentRuleOptions() {
 }
 
 /**
- * Get agent rule criteria providers
- * @returns {Promise<any[]>}
+ * Get agent rule config options
+ * @returns {Promise<any>}
  */
 export async function getAgentRuleConfigOptions() {
     const url = endpoints.agentRuleConfigOptionsUrl;

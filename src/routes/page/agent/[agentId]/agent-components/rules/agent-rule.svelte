@@ -248,7 +248,7 @@
         }
 
         const config = ruleConfigs[found.config.topology_name];
-        const customParam = config.customParameters || {};
+        const customParam = config?.customParameters || {};
 
         if (customParam.htmlTag === 'iframe') {
             const params = JSON.stringify({
