@@ -1,5 +1,5 @@
 <script>
-    import { Modal, ModalBody, ModalHeader } from "@sveltestrap/sveltestrap";
+    import { Modal, ModalBody } from "@sveltestrap/sveltestrap";
 
     /** @type {boolean} */
     export let isOpen;
@@ -16,6 +16,9 @@
     /** @type {string} */
     export let containerStyles = '';
 
+    /** @type {string} */
+    export let bodyStyles = '';
+
     /** @type {() => void} */
     export let toggleModal;
 </script>
@@ -30,7 +33,7 @@
     toggle={() => toggleModal()}
     unmountOnClose
 >
-    <ModalBody>
+    <ModalBody style={bodyStyles}>
         <slot />
     </ModalBody>
 </Modal>
