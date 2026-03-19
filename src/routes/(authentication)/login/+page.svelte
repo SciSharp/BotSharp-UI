@@ -1,338 +1,827 @@
 <script>
-	import Link from 'svelte-link';
-	import { _ } from 'svelte-i18n'
-	import {
-		Row,
-		Col,
-		CardBody,
-		Card,
-		Container,
-		Form,
-		Label,
-		Input,
-		Button,
-		Alert
-	} from '@sveltestrap/sveltestrap';
-	import Headtitle from '$lib/common/shared/HeadTitle.svelte';
-	import { getToken, getTenantOptions } from '$lib/services/auth-service.js';
-	import { goto } from '$app/navigation';
-	import { page } from '$app/stores';
-	import {
-		PUBLIC_SERVICE_URL,
-		PUBLIC_LIVECHAT_HOST,
-		PUBLIC_LOGO_URL,
-		PUBLIC_LOGIN_IMAGE,
-		PUBLIC_BRAND_NAME,
-		PUBLIC_ADMIN_USERNAME,
-		PUBLIC_ADMIN_PASSWORD,
-		PUBLIC_COMPANY_NAME,
-		PUBLIC_ALLOW_SIGNUP,
-		PUBLIC_AUTH_ENABLE_SSO,
-		PUBLIC_AUTH_ENABLE_FIND_PWD,
-	} from '$env/static/public';
-	import { onMount } from 'svelte';
-	import { resetStorage, setTenantName, clearTenantName } from '$lib/helpers/store';
+  import Link from 'svelte-link';
+  import { _ } from 'svelte-i18n'
+  import {
+    Row,
+    Col,
+    CardBody,
+    Card,
+    Container,
+    Form,
+    Label,
+    Input,
+    Button,
+    Alert
+  } from '@sveltestrap/sveltestrap';
+  import Headtitle from '$lib/common/shared/HeadTitle.svelte';
+  import { getToken } from '$lib/services/auth-service.js';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
+  import {
+    PUBLIC_SERVICE_URL,
+    PUBLIC_LIVECHAT_HOST,
+    PUBLIC_LOGO_URL,
+    PUBLIC_LOGIN_IMAGE,
+    PUBLIC_BRAND_NAME,
+    PUBLIC_ADMIN_USERNAME,
+    PUBLIC_ADMIN_PASSWORD,
+    PUBLIC_COMPANY_NAME,
+    PUBLIC_ALLOW_SIGNUP,
+    PUBLIC_AUTH_ENABLE_SSO,
+    PUBLIC_AUTH_ENABLE_FIND_PWD,
+  } from '$env/static/public';
+  import { onMount } from 'svelte';
+  import { resetStorage } from '$lib/helpers/store';
 
-	let username = PUBLIC_ADMIN_USERNAME;
-	let password = PUBLIC_ADMIN_PASSWORD;
-	let isOpen = false;
-	let msg = '';
-	let status = '';
-	let isSubmitting = false;
-	let isRememberMe = false;
-	let tenantId = '';
-	/** @type {{ tenantId: string, name: string }[]} */
-	let tenantOptions = [];
-	let tenantOptionsLoaded = false;
+  let username = PUBLIC_ADMIN_USERNAME;
+  let password = PUBLIC_ADMIN_PASSWORD;
+  let isOpen = false;
+  let msg = '';
+  let status = '';
+  let isSubmitting = false;
+  let isRememberMe = false;
 
-	onMount(async () => {
-		const userName = localStorage.getItem('user_name');
-		isRememberMe = userName !== null;
-		if(isRememberMe){
-			username = userName || '';
-		}
+  onMount(() => {
+    const userName = localStorage.getItem('user_name');
+    isRememberMe = userName !== null;
+    if(isRememberMe){
+      username = userName || '';
+    }
+  });
+  function handleRememberMe(){
+    if(isRememberMe){
+      localStorage.setItem("user_name", username);
+    }
+    else {
+      localStorage.removeItem("user_name");
+    }
+  }
 
-		// Load tenant options when opening the login page
-		await getTenamtOptions();
-	});
-	function handleRememberMe(){
-		if(isRememberMe){
-			localStorage.setItem("user_name", username);
-		}
-		else {
-			localStorage.removeItem("user_name");
-		}
-	}
+  /** @param {any} e */
+  async function onSubmit(e) {
+    isSubmitting = true;
+    handleRememberMe();
+    e.preventDefault();
+    await getToken(username, password, '', () => {
+      isOpen = true;
+      msg = 'Authentication success';
+      status = 'success';
+      const redirectUrl = $page.url.searchParams.get('redirect');
+      isSubmitting = false;
+      resetStorage();
+      if (redirectUrl) {
+        window.location.href = decodeURIComponent(redirectUrl);
+      } else {
+        goto('page/dashboard');
+      }
+    }, () => {
+      isSubmitting = false;
+      isOpen = true;
+      status = 'danger';
+      msg = 'Incorrect user name or password.'
+      setTimeout(() => {
+        isOpen = false;
+        status = '';
+        msg = '';
+      }, 3000);
+    });
+    isSubmitting = false;
+  }
 
-	/** @param {any} e */
-	async function onSubmit(e) {
-		isSubmitting = true;
-		handleRememberMe();
-		e.preventDefault();
+  function onPasswordToggle() {
+    const x = document.getElementById('user-password');
+    if (!x) return;
 
-		// Ensure tenant options have been fetched at least once
-		if (!tenantOptionsLoaded) {
-			await getTenamtOptions();
-		}
-
-		if (tenantOptions?.length > 0 && !tenantId) {
-			isSubmitting = false;
-			return;
-		}
-
-		await getToken(username, password, tenantOptions?.length > 0 ? tenantId : '', () => {
-			isOpen = true;
-			msg = 'Authentication success';
-			status = 'success';
-
-			if (tenantOptions?.length > 0) {
-					const selected = tenantOptions.find((x) => x.tenantId === tenantId);
-					setTenantName(selected?.name || '');
-				} else {
-					clearTenantName();
-				}
-
-			const redirectUrl = $page.url.searchParams.get('redirect');
-			isSubmitting = false;
-			resetStorage();
-			if (redirectUrl) {
-				window.location.href = decodeURIComponent(redirectUrl);
-			} else {
-				goto('page/dashboard');
-			}
-		}, () => {
-			isSubmitting = false;
-			isOpen = true;
-			status = 'danger';
-			msg = 'Incorrect user name or password.'
-			setTimeout(() => {
-				isOpen = false;
-				status = '';
-				msg = '';
-			}, 3000);
-		});
-		isSubmitting = false;
-	}
-
-	async function getTenamtOptions() {
-		try {
-			let data = await getTenantOptions();
-			const raw = Array.isArray(data) ? data : [];
-			tenantOptions = raw
-				.map((/** @type {any} */ x) => ({
-					tenantId: x?.tenantId || x?.id || '',
-					name: x?.name || x?.tenantName || x?.displayName || x?.id || x?.tenantId || ''
-				}))
-				.filter((/** @type {{tenantId: string}} */ x) => !!x.tenantId);
-
-			if (tenantOptions.length === 0) {
-				tenantId = '';
-			} else if (tenantOptions.length === 1) {
-				tenantId = tenantOptions[0].tenantId;
-			} else {
-				// keep current selection if still valid
-				const stillValid = tenantOptions.some((x) => x.tenantId === tenantId);
-				if (!stillValid) tenantId = '';
-			}
-		} catch (error) {
-			tenantOptions = [];
-			tenantId = '';
-		} finally {
-			tenantOptionsLoaded = true;
-		}
-	}
-
-	function onPasswordToggle() {
-		const x = document.getElementById('user-password');
-		if (!x) return;
-
-		if (x.type === 'password') {
-			x.type = 'text';
-			const icon = document.getElementById('password-eye-icon');
-			icon.className = 'mdi mdi-eye-off-outline';
-		} else {
-			x.type = 'password';
-			const icon = document.getElementById('password-eye-icon');
-			icon.className = 'mdi mdi-eye-outline';
-		}
-	}
+    if (x.type === 'password') {
+      x.type = 'text';
+      const icon = document.getElementById('password-eye-icon');
+      icon.className = 'mdi mdi-eye-off-outline';
+    } else {
+      x.type = 'password';
+      const icon = document.getElementById('password-eye-icon');
+      icon.className = 'mdi mdi-eye-outline';
+    }
+  }
 </script>
 
 <Headtitle title="Login" />
-<div class="account-pages my-5 pt-sm-5">
-	<Container>
-		<Row class="justify-content-center">
-			<Col md={8} lg={6} xl={5}>
-				<Card class="overflow-hidden">
-					<div class="bg-primary-subtle">
-						<Row>
-							<Col class="col-7">
-								<div class="text-primary p-4">
-									<h5 class="text-primary">{$_('Welcome Back !')}</h5>
-									<p>Sign in to continue to {PUBLIC_BRAND_NAME}.</p>
+<div class="modern-auth-wrapper">
+
+
+	<Container class="auth-container">
+		<Row class="justify-content-center align-items-center min-vh-100">
+			<Col md={10} lg={8} xl={6}>
+				<div class="auth-card-wrapper">
+					<Card class="auth-card border-0 shadow-lg">
+						<!-- Header Section with Gradient -->
+						<div class="auth-header">
+							<div class="auth-header-content">
+								<div class="auth-logo-section">
+									<a href="/" class="auth-logo-link">
+										<div class="logo-container">
+											<img src={PUBLIC_LOGO_URL} alt="Logo" class="auth-logo-img" />
+										</div>
+									</a>
 								</div>
-							</Col>
-							<Col class="col-5 align-self-end">
-								<img src={PUBLIC_LOGIN_IMAGE} alt="" class="img-fluid" />
-							</Col>
-						</Row>
-					</div>
-					<CardBody class="pt-0">
-						<div class="auth-logo">
-							<Link href="page/dashboard" class="auth-logo-light">
-								<div class="avatar-md profile-user-wid mb-4">
-									<span class="avatar-title rounded-circle bg-light">
-										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
-									</span>
+								<div class="welcome-section">
+									<h2 class="welcome-title">{$_('Welcome Back!')}</h2>
+									<p class="welcome-subtitle">Sign in to continue to {PUBLIC_BRAND_NAME}</p>
 								</div>
-							</Link>
-							<Link href="page/dashboard" class="auth-logo-dark">
-								<div class="avatar-md profile-user-wid mb-4">
-									<span class="avatar-title rounded-circle bg-light">
-										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="55" />
-									</span>
-								</div>
-							</Link>
+							</div>
+							<div class="auth-illustration">
+								<img src={PUBLIC_LOGIN_IMAGE} alt="Login Illustration" class="illustration-img" />
+							</div>
 						</div>
-						<div class="p-2">
-							<Alert {isOpen} color={status}>{msg}</Alert>
-							<Form class="form-horizontal" on:submit={onSubmit}>
-								{#if tenantOptions.length > 0}
-									<div class="mb-3">
-										<Label for="tenant" class="form-label">Tenant</Label>
-										<Input
-											type="select"
-											class="form-select"
-											id="tenant"
-											disabled={isSubmitting}
-											bind:value={tenantId}
-										>
-											{#if tenantOptions.length > 1}
-												<option value="" disabled selected={tenantId === ''}>Please select</option>
-											{/if}
-											{#each tenantOptions as t (t.tenantId)}
-												<option value={t.tenantId}>{t.name}</option>
-											{/each}
-										</Input>
-									</div>
-								{/if}
 
-								<div class="mb-3">
+						<!-- Form Section -->
+						<CardBody class="auth-form-section">
+							<Alert {isOpen} color={status} class="modern-alert">{msg}</Alert>
+
+							<Form class="auth-form" on:submit={onSubmit}>
+								<div class="form-group">
 									<Label for="username" class="form-label">Username</Label>
-									<Input
-										type="text"
-										class="form-control"
-										id="username"
-										placeholder="Enter username"
-										disabled={isSubmitting}
-										bind:value={username}
-									/>
+									<div class="input-wrapper">
+							<i class="mdi mdi-account input-icon" aria-hidden="true"></i>
+										<Input
+											type="text"
+											class="form-control modern-input"
+											id="username"
+											placeholder="Enter your username"
+											disabled={isSubmitting}
+											bind:value={username}
+										/>
+									</div>
 								</div>
 
-								<div class="mb-3">
+								<div class="form-group">
 									<Label class="form-label" for="user-password">Password</Label>
-									<div class="input-group auth-pass-inputgroup">
+									<div class="input-wrapper password-wrapper">
+							<i class="mdi mdi-lock-outline input-icon" aria-hidden="true"></i>
 										<Input
 											type="password"
-											class="form-control"
+											class="form-control modern-input password-input"
 											id="user-password"
-											placeholder="Enter password"
+											placeholder="Enter your password"
 											disabled={isSubmitting}
 											aria-label="Password"
-											aria-describedby="password-addon"
 											bind:value={password}
 										/>
-										<Button
-											color="light"
+										<button
 											type="button"
-											id="password-addon"
+											class="password-toggle"
 											disabled={isSubmitting}
 											on:click={() => onPasswordToggle()}
 										>
 											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
-										</Button>
+										</button>
 									</div>
 								</div>
 
-								<div class="form-check">
-									<input
-										class="form-check-input"
-										type="checkbox"
-										id="remember-check"
-										disabled={isSubmitting}
-										bind:checked={isRememberMe}
-									/>
-									<Label class="form-check-label" for="remember-check">Remember me</Label>
+								<div class="form-options">
+									<div class="remember-me">
+										<input
+											class="form-check-input"
+											type="checkbox"
+											id="remember-check"
+											disabled={isSubmitting}
+											bind:checked={isRememberMe}
+										/>
+										<Label class="form-check-label" for="remember-check">Remember me</Label>
+									</div>
+									{#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true'}
+									<a href="recoverpw" class="forgot-password">
+										Forgot password?
+									</a>
+									{/if}
 								</div>
 
-								<div class="mt-3 d-grid">
+								<div class="login-button-wrapper">
 									<Button
 										color="primary"
 										disabled={isSubmitting}
-										class="waves-effect waves-light"
+										class="login-btn"
 										type="submit"
 									>
-										{!isSubmitting ? 'Log In' : 'Log In...'}
+										{#if isSubmitting}
+											<i class="mdi mdi-loading mdi-spin me-2"></i>
+											Signing in...
+										{:else}
+											<i class="mdi mdi-login me-2"></i>
+											Sign In
+										{/if}
 									</Button>
 								</div>
-								{#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
-								<div class="mt-4 text-center">
-									<h5 class="font-size-14 mb-3">Sign in with</h5>
 
-									<ul class="list-inline">
-										<li class="list-inline-item">
-											<Link
-												class="social-list-item bg-primary text-white border-primary"
-												href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-												disabled={isSubmitting}
-											>
-												<i class="mdi mdi-github" />
-											</Link>
-										</li>		
-										<li class="list-inline-item">
-											<Link
-												class="social-list-item bg-primary text-white border-primary"
-												href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-												disabled={isSubmitting}
-											>
-												<i class="mdi mdi-cloud" />
-											</Link>
-										</li>									
-										<li class="list-inline-item">
-											<Link
-												class="social-list-item bg-danger text-white border-danger"
-												href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-												disabled={isSubmitting}
-											>
-												<i class="mdi mdi-google" />
-											</Link>
-										</li>
-									</ul>
+								{#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
+								<div class="divider">
+									<span class="divider-text">or continue with</span>
 								</div>
-								{/if}
-								{#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true' }
-								<div class="mt-4 text-center">
-									<Link href="recoverpw" class="text-muted" disabled={isSubmitting}>
-										<i class="mdi mdi-lock me-1" /> Forgot your password?
-									</Link>
+
+								<div class="social-login">
+									<a
+										class="social-btn github-btn"
+										href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+										title="Sign in with GitHub"
+									>
+										<i class="mdi mdi-github"></i>
+									</a>
+
+									<a
+										class="social-btn keycloak-btn"
+										href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+										title="Sign in with Keycloak"
+									>
+										<i class="mdi mdi-cloud"></i>
+									</a>
+
+									<a
+										class="social-btn google-btn"
+										href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+										title="Sign in with Google"
+									>
+										<i class="mdi mdi-google"></i>
+									</a>
 								</div>
 								{/if}
 							</Form>
-						</div>
-					</CardBody>
-				</Card>
-				<div class="mt-5 text-center">
-					<p hidden={!(PUBLIC_ALLOW_SIGNUP === 'true')}>
-						Don&apos;t have an account ?
-						<Link href="register" class="fw-medium text-primary" disabled={isSubmitting}>Signup now</Link>
-					</p>
-					<p>
-						© {new Date().getFullYear()}
-						{PUBLIC_COMPANY_NAME}. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by open source community
-					</p>
+						</CardBody>
+					</Card>
+
+					<!-- Footer Section -->
+					<div class="auth-footer">
+						{#if PUBLIC_ALLOW_SIGNUP === 'true'}
+						<p class="signup-text">
+							Don't have an account?
+							<a href="register" class="signup-link">
+								Create one here
+							</a>
+						</p>
+						{/if}
+
+						<p class="copyright-text">
+							Supported by © {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}
+						</p>
+					</div>
 				</div>
 			</Col>
 		</Row>
 	</Container>
 </div>
+
+<style>
+	.modern-auth-wrapper {
+		min-height: 100vh;
+		background: #ffffff;
+		position: relative;
+		overflow: hidden;
+		display: flex;
+		align-items: center;
+	}
+
+
+
+	.auth-container {
+		position: relative;
+		z-index: 2;
+		width: 100%;
+	}
+
+	.auth-card-wrapper {
+		animation: slideInUp 0.8s ease-out;
+	}
+
+	@keyframes slideInUp {
+		from {
+			opacity: 0;
+			transform: translateY(30px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
+	}
+
+	.auth-card {
+		border-radius: 24px !important;
+		background: #ffffff !important;
+		box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1), 0 8px 16px rgba(0, 0, 0, 0.06) !important;
+		border: 1px solid rgba(0, 0, 0, 0.08) !important;
+		overflow: hidden;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.modern-auth-wrapper {
+			background: #f8f9fa;
+		}
+
+		.auth-card {
+			background: #ffffff !important;
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 0 8px 16px rgba(0, 0, 0, 0.08) !important;
+		}
+	}
+
+	.auth-header {
+		background: linear-gradient(135deg, #0065a1 0%, #004d7a 100%);
+		padding: 2.5rem 2rem;
+		color: white;
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		border-radius: 8px 8px 0 0;
+	}
+
+	@media (max-width: 768px) {
+		.auth-header {
+			flex-direction: column;
+			text-align: center;
+			padding: 2rem 1.5rem;
+		}
+	}
+
+	.auth-header-content {
+		flex: 1;
+	}
+
+	.auth-logo-section {
+		margin-bottom: 1.5rem;
+	}
+
+	.auth-logo-link {
+		text-decoration: none;
+	}
+
+	.logo-container {
+		width: 80px;
+		height: 80px;
+		background: #ffffff;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border: 2px solid rgba(255, 255, 255, 0.3);
+		transition: all 0.3s ease;
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.logo-container:hover {
+		transform: scale(1.05);
+		background: #ffffff;
+		box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+	}
+
+	.auth-logo-img {
+		width: 50px;
+		height: 50px;
+		border-radius: 20%;
+		object-fit: cover;
+	}
+
+	.welcome-title {
+		font-size: 2rem;
+		font-weight: 700;
+		margin-bottom: 0.5rem;
+		text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	}
+
+	.welcome-subtitle {
+		font-size: 1.1rem;
+		opacity: 0.9;
+		margin-bottom: 0;
+	}
+
+	.auth-illustration {
+		flex-shrink: 0;
+		margin-left: 2rem;
+	}
+
+	@media (max-width: 768px) {
+		.auth-illustration {
+			margin-left: 0;
+			margin-top: 1.5rem;
+		}
+	}
+
+	.illustration-img {
+		max-width: 150px;
+		height: auto;
+		filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.1));
+	}
+
+	@media (max-width: 768px) {
+		.illustration-img {
+			max-width: 120px;
+		}
+	}
+
+	.auth-form-section {
+		padding: 2.5rem 2rem !important;
+	}
+
+	@media (max-width: 768px) {
+		.auth-form-section {
+			padding: 2rem 1.5rem !important;
+		}
+	}
+
+	.modern-alert {
+		border-radius: 12px !important;
+		border: none !important;
+		font-weight: 500;
+		margin-bottom: 1.5rem;
+	}
+
+	.form-group {
+		margin-bottom: 1.5rem;
+	}
+
+	.form-label {
+		font-weight: 600;
+		color: var(--bs-gray-700);
+		margin-bottom: 0.5rem;
+		font-size: 0.95rem;
+	}
+
+	.input-wrapper {
+		position: relative;
+		display: flex;
+		align-items: center;
+	}
+
+	.input-icon {
+		position: absolute;
+		left: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		color: #6c757d !important;
+		font-size: 1.2rem;
+		z-index: 10;
+		pointer-events: none;
+		display: inline-block;
+		font-family: "Material Design Icons" !important;
+		font-weight: normal;
+		font-style: normal;
+		line-height: 1;
+	}
+
+	:global(.modern-input) {
+		width: 100%;
+		padding-left: 3.25rem !important; /* extra left space for input icon to avoid overlap */
+		padding-right: 1rem !important;
+		height: 3rem;
+		border-radius: 12px !important;
+		border: 2px solid var(--bs-gray-200) !important;
+		background: var(--bs-white) !important;
+		font-size: 1rem;
+		transition: all 0.3s ease;
+		position: relative;
+		z-index: 1;
+	}
+
+	:global(.password-wrapper .modern-input) {
+		padding-right: 3rem !important;
+	}
+
+	:global(.modern-input:focus) {
+		border-color: #0065a1 !important;
+		box-shadow: 0 0 0 0.2rem rgba(0, 101, 161, 0.15) !important;
+		background: var(--bs-white) !important;
+		outline: none;
+	}
+
+	:global(.modern-input::placeholder) {
+		color: var(--bs-gray-400);
+	}
+
+	.password-toggle {
+		position: absolute;
+		right: 0.75rem;
+		top: 50%;
+		transform: translateY(-50%);
+		border: none !important;
+		background: transparent !important;
+		color: var(--bs-gray-500);
+		padding: 0.5rem;
+		border-radius: 6px;
+		transition: all 0.3s ease;
+		z-index: 10;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 2rem;
+		height: 2rem;
+	}
+
+	.password-toggle:hover {
+		background: var(--bs-gray-100) !important;
+		color: var(--bs-gray-700);
+	}
+
+	.password-toggle:focus {
+		box-shadow: none !important;
+		outline: none;
+	}
+
+	.password-toggle i {
+		font-size: 1.1rem;
+		font-family: "Material Design Icons" !important;
+		font-weight: normal;
+		font-style: normal;
+		display: inline-block;
+		line-height: 1;
+	}
+
+	.form-options {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		margin-bottom: 2rem;
+	}
+
+	@media (max-width: 576px) {
+		.form-options {
+			flex-direction: column;
+			gap: 1rem;
+			align-items: flex-start;
+		}
+	}
+
+	.remember-me {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.form-check-input {
+		border-radius: 4px;
+		border: 2px solid var(--bs-gray-300);
+	}
+
+	.form-check-input:checked {
+		background-color: #0065a1;
+		border-color: #0065a1;
+	}
+
+	.form-check-input:focus {
+		box-shadow: 0 0 0 0.2rem rgba(0, 101, 161, 0.15);
+	}
+
+	.form-check-label {
+		font-size: 0.9rem;
+		color: var(--bs-gray-600);
+		margin-bottom: 0;
+	}
+
+	.forgot-password {
+		color: #0065a1;
+		text-decoration: none;
+		font-size: 0.9rem;
+		font-weight: 500;
+		transition: all 0.3s ease;
+	}
+
+	.forgot-password:hover {
+		color: #004d7a;
+		text-decoration: underline;
+	}
+
+	.login-button-wrapper {
+		margin-bottom: 1.5rem;
+		display: flex;
+		justify-content: center;
+	}
+
+	.login-btn {
+		width: auto;
+		min-width: 200px;
+		height: 3.5rem;
+		border-radius: 12px !important;
+		background: linear-gradient(135deg, #0065a1 0%, #004d7a 100%) !important;
+		border: none !important;
+		font-weight: 600;
+		font-size: 1.1rem;
+		transition: all 0.3s ease;
+		position: relative;
+		overflow: hidden;
+		padding: 0 2rem;
+	}
+
+	.login-btn:before {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: -100%;
+		width: 100%;
+		height: 100%;
+		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+		transition: left 0.5s;
+	}
+
+	.login-btn:hover:before {
+		left: 100%;
+	}
+
+	.login-btn:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 10px 25px rgba(0, 101, 161, 0.3);
+	}
+
+	.login-btn:active {
+		transform: translateY(0);
+	}
+
+	.login-btn:disabled {
+		opacity: 0.7;
+		transform: none;
+	}
+
+	.login-btn:disabled:hover {
+		transform: none;
+		box-shadow: none;
+	}
+
+	.divider {
+		position: relative;
+		text-align: center;
+		margin: 2rem 0;
+	}
+
+	.divider:before {
+		content: '';
+		position: absolute;
+		top: 50%;
+		left: 0;
+		right: 0;
+		height: 1px;
+		background: var(--bs-gray-300);
+	}
+
+	.divider-text {
+		background: var(--bs-white);
+		padding: 0 1rem;
+		color: var(--bs-gray-500);
+		font-size: 0.9rem;
+		position: relative;
+		z-index: 1;
+	}
+
+	.social-login {
+		display: flex;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+		justify-content: center;
+	}
+
+	@media (max-width: 576px) {
+		.social-login {
+			flex-direction: row;
+			gap: 0.75rem;
+		}
+	}
+
+	.social-btn {
+		width: 50px;
+		height: 50px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 12px;
+		text-decoration: none;
+		font-weight: 500;
+		transition: all 0.3s ease;
+		border: 2px solid transparent;
+	}
+
+	.social-btn.github-btn {
+		background: #24292e;
+		color: white;
+	}
+
+	.social-btn.github-btn:hover {
+		background: #1a1e22;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 20px rgba(36, 41, 46, 0.3);
+	}
+
+	.social-btn.keycloak-btn {
+		background: #4285f4;
+		color: white;
+	}
+
+	.social-btn.keycloak-btn:hover {
+		background: #357ae8;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 20px rgba(66, 133, 244, 0.3);
+	}
+
+	.social-btn.google-btn {
+		background: #db4437;
+		color: white;
+	}
+
+	.social-btn.google-btn:hover {
+		background: #c23321;
+		transform: translateY(-2px);
+		box-shadow: 0 8px 20px rgba(219, 68, 55, 0.3);
+	}
+
+	.social-btn i {
+		font-size: 1.4rem;
+	}
+
+	.auth-footer {
+		text-align: center;
+		margin-top: 2rem;
+	}
+
+	.signup-text {
+		margin-bottom: 1rem;
+		color: var(--bs-gray-600);
+		font-size: 0.95rem;
+	}
+
+	.signup-link {
+		color: #0065a1;
+		text-decoration: none;
+		font-weight: 600;
+		margin-left: 0.25rem;
+	}
+
+	.signup-link:hover {
+		color: #004d7a;
+		text-decoration: underline;
+	}
+
+	.copyright-text {
+		color: var(--bs-gray-500);
+		font-size: 0.85rem;
+		margin-bottom: 0;
+	}
+
+	.copyright-text i {
+		color: #e74c3c;
+		animation: heartbeat 1.5s ease-in-out infinite;
+	}
+
+	@keyframes heartbeat {
+		0%, 100% {
+			transform: scale(1);
+		}
+		50% {
+			transform: scale(1.1);
+		}
+	}
+
+	/* Dark mode support */
+	@media (prefers-color-scheme: dark) {
+		.form-label {
+			color: var(--bs-gray-300);
+		}
+
+		:global(.modern-input) {
+			background: var(--bs-gray-800);
+			border-color: var(--bs-gray-600) !important;
+			color: var(--bs-white);
+		}
+
+		:global(.modern-input:focus) {
+			background: var(--bs-gray-800);
+			border-color: #0065a1 !important;
+		}
+
+		:global(.modern-input::placeholder) {
+			color: var(--bs-gray-400);
+		}
+
+		.input-icon {
+			color: var(--bs-gray-400);
+		}
+
+		.password-toggle {
+			color: var(--bs-gray-400);
+		}
+
+		.password-toggle:hover {
+			background: var(--bs-gray-700) !important;
+			color: var(--bs-gray-200);
+		}
+
+		.form-check-label {
+			color: var(--bs-gray-300);
+		}
+
+		.divider-text {
+			background: var(--bs-gray-800);
+			color: var(--bs-gray-400);
+		}
+
+		.signup-text {
+			color: var(--bs-gray-300);
+		}
+
+		.copyright-text {
+			color: var(--bs-gray-400);
+		}
+	}
+</style>
