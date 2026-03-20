@@ -55,9 +55,9 @@
                     on:click={() => toggleDetail()}
                 >
                     {#if open}
-                        <i class="bx bx-hide" />
+                        <i class="bx bx-hide"></i>
                     {:else}
-                        <i class="mdi mdi-eye-outline" />
+                        <i class="mdi mdi-eye-outline"></i>
                     {/if}
                 </Button>
             </li>

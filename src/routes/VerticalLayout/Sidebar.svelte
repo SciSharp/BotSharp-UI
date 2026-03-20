@@ -297,7 +297,7 @@
 					{:else if item.subMenu}
 						<li>
 							<Link class="has-arrow waves-effect clickable" href={null}>
-								<i class={item.icon} />
+								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</Link>
 							<ul class="sub-menu mm-collapse">
@@ -330,7 +330,7 @@
 					{:else}
 						<li>
 							<Link class="waves-effect clickable" id={getCleanUrl(item.link)} href={null} on:click={() => goToPage(item.link)} >
-								<i class={item.icon} /> 
+								<i class={item.icon}></i> 
 								<span>{$_(item.label)}</span>
 							</Link>
 						</li>

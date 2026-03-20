@@ -271,7 +271,7 @@
                     disabled={disabled}
                     on:click={() => toggleUserDetail()}
                 >
-                    <i class="bx bxs-edit" />
+                    <i class="bx bxs-edit"></i>
                 </Button>
             </li>
         </ul>
@@ -297,7 +297,7 @@
                             title="Save"
                             on:click={() => save(item.id)}
                         >
-                            <i class="mdi mdi-content-save-all" />
+                            <i class="mdi mdi-content-save-all"></i>
                         </div>
                     </div>
                     <ul class="basic-info">

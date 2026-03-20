@@ -147,7 +147,7 @@
                     style="font-size: 16px;"
                     on:click={() => addTemplate()}
                 >
-                    <i class="mdi mdi-plus-circle-outline" />
+                    <i class="mdi mdi-plus-circle-outline"></i>
                 </div>
             </div>
             

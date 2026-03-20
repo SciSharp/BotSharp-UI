@@ -68,7 +68,7 @@
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by Open Source community
+						<i class="mdi mdi-heart text-danger"></i> by Open Source community
 					</p>
 				</div>
 			</Col>

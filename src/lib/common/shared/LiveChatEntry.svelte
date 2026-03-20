@@ -77,8 +77,7 @@
         height={'650px'}
         class={`border border-2 rounded-3 m-3 float-end ${showChatBox ? 'chat-iframe' : 'hide'}`}
         title="live chat"
-        id={CHAT_FRAME_ID}
-    />
+        id={CHAT_FRAME_ID}></iframe>
 
     {#if !showChatBox}
         <div

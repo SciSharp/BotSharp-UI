@@ -414,7 +414,7 @@
     />
     <slot>
         <div class="add-file-icon">
-            <i class="bx bxs-image-add" />
+            <i class="bx bxs-image-add"></i>
         </div>
     </slot>
 </div>

@@ -172,7 +172,7 @@
                     style="font-size: 16px;"
                     on:click={() => addChannel()}
                 >
-                    <i class="mdi mdi-plus-circle-outline" />
+                    <i class="mdi mdi-plus-circle-outline"></i>
                 </div>
             </div>
             

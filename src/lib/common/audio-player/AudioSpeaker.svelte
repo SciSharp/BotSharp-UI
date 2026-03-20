@@ -93,8 +93,7 @@
         class="bx bx-volume-full clickable"
         data-bs-toggle="tooltip"
         data-bs-placement="top"
-        title="Play"
-      />
+        title="Play"></i>
     {:else}
       <Stretch unit='px' size='5' gap='5' color="var(--bs-primary)" />
     {/if}

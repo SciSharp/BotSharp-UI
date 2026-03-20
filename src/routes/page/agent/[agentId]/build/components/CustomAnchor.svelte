@@ -7,7 +7,7 @@
 	export let hovering;
 </script>
 
-<div class:linked class:hovering class:connecting class="my-anchor" />
+<div class:linked class:hovering class:connecting class="my-anchor"></div>
 
 <style>
 	.my-anchor {

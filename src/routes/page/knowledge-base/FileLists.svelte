@@ -39,7 +39,7 @@
 							class="form-control bg-light border-light rounded"
 							placeholder="{$_('Search')}..."
 						/>
-						<i class="bx bx-search-alt search-icon" />
+						<i class="bx bx-search-alt search-icon"></i>
 					</div>
 				</div>
 				<Dropdown>
@@ -48,7 +48,7 @@
 						class="btn btn-link text-muted dropdown-toggle mt-n2 headerbtn"
 						tag="div"
 					>
-						<i class="mdi mdi-dots-vertical font-size-20" />
+						<i class="mdi mdi-dots-vertical font-size-20"></i>
 					</DropdownToggle>
 
 					<DropdownMenu class="dropdown-menu-end">
@@ -71,7 +71,7 @@
 							<div class="float-end ms-2">
 								<Dropdown>
 									<DropdownToggle class="font-size-16 text-muted" color="" tag="div" >
-										<i class="mdi mdi-dots-horizontal" />
+										<i class="mdi mdi-dots-horizontal"></i>
 									</DropdownToggle>
 									<DropdownMenu class="dropdown-menu-end">
 										<DropdownItem header>{$_('Open')}</DropdownItem>
@@ -84,7 +84,7 @@
 							</div>
 							<div class="avatar-xs me-3 mb-3">
 								<div class="avatar-title bg-transparent rounded">
-									<i class="bx bxs-folder font-size-24 text-warning" />
+									<i class="bx bxs-folder font-size-24 text-warning"></i>
 								</div>
 							</div>
 							<div class="d-flex">

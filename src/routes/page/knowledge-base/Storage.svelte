@@ -63,7 +63,7 @@
     <div class="text-center">
       <h5 class="font-size-15 mb-4">{$_('Storage')}</h5>
       <div class="apex-charts">
-        <div id="storageChart" class="apex-charts" />
+        <div id="storageChart" class="apex-charts"></div>
       </div>
 
       <p class="text-muted mt-4">{$_('0 GB (0%) of 1 GB used')}</p>
@@ -78,7 +78,7 @@
                 <div
                   class="avatar-title rounded bg-transparent text-success font-size-20"
                 >
-                  <i class="mdi mdi-image" />
+                  <i class="mdi mdi-image"></i>
                 </div>
               </div>
 
@@ -103,7 +103,7 @@
                 <div
                   class="avatar-title rounded bg-transparent text-danger font-size-20"
                 >
-                  <i class="mdi mdi-play-circle-outline" />
+                  <i class="mdi mdi-play-circle-outline"></i>
                 </div>
               </div>
 
@@ -128,7 +128,7 @@
                 <div
                   class="avatar-title rounded bg-transparent text-info font-size-20"
                 >
-                  <i class="mdi mdi-music" />
+                  <i class="mdi mdi-music"></i>
                 </div>
               </div>
 
@@ -153,7 +153,7 @@
                 <div
                   class="avatar-title rounded bg-transparent text-primary font-size-20"
                 >
-                  <i class="mdi mdi-file-document" />
+                  <i class="mdi mdi-file-document"></i>
                 </div>
               </div>
 
@@ -178,7 +178,7 @@
                 <div
                   class="avatar-title rounded bg-transparent text-warning font-size-20"
                 >
-                  <i class="mdi mdi-folder" />
+                  <i class="mdi mdi-folder"></i>
                 </div>
               </div>
 

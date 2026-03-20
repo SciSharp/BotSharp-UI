@@ -381,8 +381,7 @@
           <div class="aplayer-bar">
             <div
               class="aplayer-loaded"
-              style="width: {$rdBufTime.bufferPercentage}"
-            />
+              style="width: {$rdBufTime.bufferPercentage}"></div>
             <div class="aplayer-played" style="width: {$rdTime.playPercentage}">
               <div class="aplayer-thumb">
                 <span
@@ -430,8 +429,7 @@
               <div class="aplayer-volume-bar" bind:this={volumeBar}>
                 <div
                   class="aplayer-volume"
-                  style="height: {player?.muted ? '0px' : volumePercentage}"
-                />
+                  style="height: {player?.muted ? '0px' : volumePercentage}"></div>
               </div>
             </div>
           </div>
@@ -492,7 +490,7 @@
           <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
           <li on:click={() => switchAudio(idx) }>
           {#if idx === $playList.playingIndex}
-            <span class="aplayer-list-cur" />
+            <span class="aplayer-list-cur"></span>
           {/if}
             <span class="aplayer-list-index">{idx + 1}</span>
             <span class="aplayer-list-title">{song.name}</span>

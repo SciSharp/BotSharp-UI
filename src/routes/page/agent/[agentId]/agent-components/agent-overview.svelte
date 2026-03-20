@@ -116,7 +116,7 @@
                         on:click={() => chatWithAgent()}
                     >
                         <span>{'Chat with me'}</span>
-                        <span><i class="mdi mdi-chat" /></span>
+                        <span><i class="mdi mdi-chat"></i></span>
                     </Button>
                 {/if}
             </div>

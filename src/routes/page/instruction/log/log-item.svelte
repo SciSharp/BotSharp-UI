@@ -31,7 +31,7 @@
                     class="btn btn-sm btn-soft-warning"
                     on:click={() => toggleLogDetail()}
                 >
-                    <i class="mdi mdi-eye-outline" />
+                    <i class="mdi mdi-eye-outline"></i>
                 </Button>
             </li>
         </ul>

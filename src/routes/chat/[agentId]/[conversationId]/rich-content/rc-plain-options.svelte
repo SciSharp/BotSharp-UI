@@ -177,7 +177,7 @@
     {#if fileOption}
         <ChatFileUploader accept=".png,.jpg,.jpeg" containerClasses={'line-align-center text-primary chat-uploader'}>
             <span style="position: relative; top: 3px;" in:fade={{ duration: duration }}>
-                <i class="bx bx-image-add" />
+                <i class="bx bx-image-add"></i>
             </span>
         </ChatFileUploader>
     {/if}

@@ -112,8 +112,7 @@
                         id={`rule-statement-${ruleIndex}`}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
-                        title="Rule arguments"
-                    />
+                        title="Rule arguments"></i>
                     <BotsharpTooltip
                         containerClasses="agent-utility-desc"
                         style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}

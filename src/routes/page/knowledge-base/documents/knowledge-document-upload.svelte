@@ -375,7 +375,7 @@
         </div>
         {#if showUploader}
             <div class="line-align-center" id="upload-tooltip">
-                <i class="bx bx-info-circle" />
+                <i class="bx bx-info-circle"></i>
             </div>
             <Tooltip target="upload-tooltip" placement="top" class="demo-tooltip-note">
                 <ul>
@@ -412,7 +412,7 @@
                         maxSize={fileMaxSize * 1024 * 1024}
                         on:drop={e => handleFileDrop(e)}
                     >
-                        <i class="bx bx-cloud-upload" />
+                        <i class="bx bx-cloud-upload"></i>
                     </FileDropZone>
                     <div
                         slot="suffix"
@@ -445,12 +445,12 @@
                     >
                         {#if !showDocList}
                             <div class="btn-content">
-                                <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt" /></div>
+                                <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt"></i></div>
                                 <div>{'View Collection Documents'}</div>
                             </div>
                         {:else}
                             <div class="btn-content">
-                                <div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+                                <div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
                                 <div>{'Hide Collection Documents'}</div>
                             </div>
                         {/if}

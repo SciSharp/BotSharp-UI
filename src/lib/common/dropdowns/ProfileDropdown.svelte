@@ -48,17 +48,17 @@
 			on:error={e => handleAvatarLoad(e)}
 		/>
 		<span class="d-none d-xl-inline-block ms-1" key="t-fullname">{user?.full_name}</span>
-		<i class="mdi mdi-chevron-down d-none d-xl-inline-block" />
+		<i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
 	</DropdownToggle>
 	<DropdownMenu end>
 		<!-- item-->
 		<DropdownItem href="page/user/me">
-			<i class="bx bx-user font-size-16 align-middle me-1" />
+			<i class="bx bx-user font-size-16 align-middle me-1"></i>
 			<span>{$_('Profile')}</span>
 		</DropdownItem>
 		<DropdownItem href="#" disabled>
 			<span class="badge bg-success float-end">11</span>
-			<i class="bx bx-wrench font-size-16 align-middle me-1"/>
+			<i class="bx bx-wrench font-size-16 align-middle me-1"></i>
 			<span key="t-settings">{$_('Settings')}</span>
 		</DropdownItem>
 		<DropdownItem divider />
@@ -69,7 +69,7 @@
 				on:keydown={() => {}}
 				on:click={() => logout()}
 			>
-				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger" /> <span>{$_('Logout')}</span>
+				<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span>{$_('Logout')}</span>
 			</div>
 		</DropdownItem>
 	</DropdownMenu>

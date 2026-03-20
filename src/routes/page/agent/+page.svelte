@@ -298,7 +298,7 @@
 	<div>
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
 		<Button color="primary" on:click={() => createNewAgent()}>
-			<i class="mdi mdi-content-copy" /> {$_('New Agent')}
+			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
 		</Button>
 		{/if}
 	</div>
@@ -339,7 +339,7 @@
 			title="Search"
 			on:click={(e) => search()}
 		>
-			<i class="mdi mdi-magnify" />
+			<i class="mdi mdi-magnify"></i>
 		</Button>
 		<Button
 			class="btn btn-warning"
@@ -348,7 +348,7 @@
 			title="Reset"
 			on:click={(e) => reset()}
 		>
-			<i class="mdi mdi-restore" />
+			<i class="mdi mdi-restore"></i>
 		</Button>
 	</div>
 </div>

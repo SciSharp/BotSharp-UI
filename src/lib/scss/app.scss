@@ -11,11 +11,11 @@ File: Main Css File
 @import "custom/fonts/fonts";
 
 //Core files
-@import "./node_modules/bootstrap/scss/functions";
-@import "./node_modules/bootstrap/scss/variables";
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
 @import "variables";
 @import "variables-dark";
-@import "./node_modules/bootstrap/scss/mixins";
+@import "bootstrap/scss/mixins";
 
 // Structure
 @import "custom/structure/general";

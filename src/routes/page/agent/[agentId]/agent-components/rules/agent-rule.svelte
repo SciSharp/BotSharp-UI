@@ -293,7 +293,7 @@
         isOpen={isOpenConfigModal}
         toggleModal={() => isOpenConfigModal = !isOpenConfigModal}
     >
-        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%" />
+        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%"></iframe>
     </PlainModal>
 {/if}
 
@@ -327,7 +327,7 @@
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addRule()}>
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add Rule</span>
                         </span>
                     </Button>

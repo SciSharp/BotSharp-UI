@@ -58,4 +58,4 @@
 	});
 </script>
 
-<div id="radialbarchart" class="apex-charts" dir="ltr" />
+<div id="radialbarchart" class="apex-charts" dir="ltr"></div>

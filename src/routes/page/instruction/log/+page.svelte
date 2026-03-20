@@ -309,9 +309,9 @@
 							<div class="state-search-btn">
 								<div>
 									{#if showStateSearch}
-										<i class="bx bx-hide" />
+										<i class="bx bx-hide"></i>
 									{:else}
-										<i class="bx bx-search-alt" />
+										<i class="bx bx-search-alt"></i>
 									{/if}
 								</div>
 								<div class="search-btn-text">{'State Search'}</div>
@@ -389,7 +389,7 @@
 							class="btn-soft-secondary w-100"
 							on:click={(e) => search()}
 						>
-							<i class="mdi mdi-filter-outline align-middle" />
+							<i class="mdi mdi-filter-outline align-middle"></i>
 							<span class="d-none">{$_('Filter')}</span>
 						</Button>
 					</Col>

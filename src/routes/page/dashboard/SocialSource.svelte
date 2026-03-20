@@ -11,7 +11,7 @@
 			<div class="text-center">
 				<div class="avatar-sm mx-auto mb-4">
 					<span class="avatar-title rounded-circle bg-primary-subtle font-size-24">
-						<i class="mdi mdi-facebook text-primary" />
+						<i class="mdi mdi-facebook text-primary"></i>
 					</span>
 				</div>
 				<p class="font-16 text-muted mb-2" />
@@ -24,7 +24,7 @@
 					{$_('Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus tincidunt.')}
 				</p>
 				<Link class="text-primary font-16">
-					{$_('Learn more')} <i class="mdi mdi-chevron-right" />
+					{$_('Learn more')} <i class="mdi mdi-chevron-right"></i>
 				</Link>
 			</div>
 			<Row class="mt-4">
@@ -32,7 +32,7 @@
 					<div class="social-source text-center mt-3">
 						<div class="avatar-xs mx-auto mb-3">
 							<span class="avatar-title rounded-circle bg-primary font-size-16">
-								<i class="mdi mdi-facebook text-white" />
+								<i class="mdi mdi-facebook text-white"></i>
 							</span>
 						</div>
 						<h5 class="font-size-15">Facebook</h5>
@@ -43,7 +43,7 @@
 					<div class="social-source text-center mt-3">
 						<div class="avatar-xs mx-auto mb-3">
 							<span class="avatar-title rounded-circle bg-info font-size-16">
-								<i class="mdi mdi-twitter text-white" />
+								<i class="mdi mdi-twitter text-white"></i>
 							</span>
 						</div>
 						<h5 class="font-size-15">Twitter</h5>
@@ -54,7 +54,7 @@
 					<div class="social-source text-center mt-3">
 						<div class="avatar-xs mx-auto mb-3">
 							<span class="avatar-title rounded-circle bg-pink font-size-16">
-								<i class="mdi mdi-instagram text-white" />
+								<i class="mdi mdi-instagram text-white"></i>
 							</span>
 						</div>
 						<h5 class="font-size-15">Instagram</h5>

@@ -172,7 +172,7 @@
 											disabled={isSubmitting}
 											on:click={() => onPasswordToggle()}
 										>
-											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
+											<i id="password-eye-icon" class="mdi mdi-eye-outline"></i>
 										</button>
 									</div>
 								</div>
