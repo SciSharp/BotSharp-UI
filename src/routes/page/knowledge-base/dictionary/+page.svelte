@@ -220,12 +220,12 @@
 		>
 			{#if !showDemo}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-search-alt"></i></div>
 					<div>{'Start Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
 					<div>{'Hide Search'}</div>
 				</div>
 			{/if}
@@ -237,7 +237,7 @@
 			on:click={() => reset()}
 		>
 			<div class="btn-content">
-				<div class="knowledge-btn-icon"><i class="bx bx-reset" /></div>
+				<div class="knowledge-btn-icon"><i class="bx bx-reset"></i></div>
 				<div>{'Reset'}</div>
 			</div>
 		</Button>

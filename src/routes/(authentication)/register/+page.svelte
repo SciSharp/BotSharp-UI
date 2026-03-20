@@ -138,17 +138,17 @@
 									<ul class="list-inline">
 										<li class="list-inline-item">
 											<Link href="#" class="social-list-item bg-primary text-white border-primary">
-												<i class="mdi mdi-facebook" />
+												<i class="mdi mdi-facebook"></i>
 											</Link>
 										</li>
 										<li class="list-inline-item">
 											<Link href="#" class="social-list-item bg-info text-white border-info">
-												<i class="mdi mdi-twitter" />
+												<i class="mdi mdi-twitter"></i>
 											</Link>
 										</li>
 										<li class="list-inline-item">
 											<Link href="#" class="social-list-item bg-danger text-white border-danger">
-												<i class="mdi mdi-google" />
+												<i class="mdi mdi-google"></i>
 											</Link>
 										</li>
 									</ul>
@@ -172,7 +172,7 @@
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by Open Source community
+						<i class="mdi mdi-heart text-danger"></i> by Open Source community
 					</p>
 				</div>
 			</Col>

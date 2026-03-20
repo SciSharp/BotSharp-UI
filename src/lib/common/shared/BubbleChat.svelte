@@ -33,7 +33,7 @@
             class="bubble-delete clickable"
             on:click={e => handleClose(e)}
         >
-            <i class="mdi mdi-close" />
+            <i class="mdi mdi-close"></i>
         </div>
         <div class="bubble-text">
             {text}

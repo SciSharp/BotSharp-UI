@@ -171,7 +171,7 @@
                     >
                         <div>
                             <div class="doc-drop-icon">
-                                <i class="bx bx-cloud-upload" />
+                                <i class="bx bx-cloud-upload"></i>
                             </div>
                             <div>
                                 <ul>

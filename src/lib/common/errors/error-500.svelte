@@ -13,7 +13,7 @@
 		  <div class="text-center mb-5">
 			<h1 class="display-2 fw-medium">
 			  5
-			  <i class="bx bx-buoy bx-spin text-primary display-3" />
+			  <i class="bx bx-buoy bx-spin text-primary display-3"></i>
 			  0
 			</h1>
 			<h4 class="text-uppercase">Internal Server Error</h4>

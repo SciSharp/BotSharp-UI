@@ -106,7 +106,7 @@
 				id="vertical-menu-btn"
 				on:click={() => toggleSideBar()}
 			>
-				<i class="fa fa-fw fa-bars" />
+				<i class="fa fa-fw fa-bars"></i>
 			</button>
 
 			<!-- App Search-->
@@ -120,7 +120,7 @@
 						bind:value={searchText}
 						on:keydown={e => search(e)}
 					/>
-					<span class="bx bx-search-alt" />
+					<span class="bx bx-search-alt"></span>
 				</div>
 			</form>
 		</div>

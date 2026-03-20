@@ -26,6 +26,14 @@ export default defineConfig({
 			"@codemirror/theme-one-dark"
 		]
 	},	
+	css: {
+		preprocessorOptions: {
+			scss: {
+				silenceDeprecations: ['import', 'legacy-js-api'],
+				loadPaths: ['node_modules']
+			}
+		}
+	},
 	server: {
 		port: 5015,
 		host: "0.0.0.0",

@@ -38,14 +38,14 @@
             {#if copied}
                 <div class="div-center">
                     <div class="line-align-center">
-                        <i class="bx bx-check" style="font-size: 18px;" /> 
+                        <i class="bx bx-check" style="font-size: 18px;"></i> 
                     </div>
                     <div class="line-align-center">
                         <span style="font-size: 10px;">{'Copied!'}</span>
                     </div>
                 </div>
             {:else}
-                <i class="bx bx-copy clickable" />
+                <i class="bx bx-copy clickable"></i>
             {/if}
         </div>
     </div>

@@ -40,8 +40,7 @@
 		<div
 			class={`animation ${shape === 'cube' ? 'cube' : 'dot'}`}
 			class:pause-animation={pause}
-			style="animation-delay: {version * (+durationNum / 10)}{durationUnit};"
-		/>
+			style="animation-delay: {version * (+durationNum / 10)}{durationUnit};"></div>
 	{/each}
 </div>
 

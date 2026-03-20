@@ -237,7 +237,7 @@
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addMcp()}>
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add MCP</span>
                         </span>
                     </Button>

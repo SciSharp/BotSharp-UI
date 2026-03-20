@@ -104,7 +104,7 @@
                     data-bs-placement="top"
                     title="Uncheck to disable knowledgebase"
                 >
-                    <i class="bx bx-info-circle fs-6" />
+                    <i class="bx bx-info-circle fs-6"></i>
                 </div> -->
             </div>
         </div>

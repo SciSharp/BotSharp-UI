@@ -117,7 +117,7 @@
                     active={selectedTab == tab}
                 >
                     <span class="d-block d-sm-none">
-                        <i class="fas fa-home" />
+                        <i class="fas fa-home"></i>
                     </span>
                     <span class="d-none d-sm-block">{tab}</span>
                 </NavLink>
@@ -150,7 +150,7 @@
         <p class="card-title-desc"></p>
 
         <Button color="primary" on:click={() => readyToRefresh()} disabled={isLoading}>
-            <i class="bx bx-copy" /> {$_('Start Migration')}
+            <i class="bx bx-copy"></i> {$_('Start Migration')}
         </Button>
     </CardBody>
 </Card>

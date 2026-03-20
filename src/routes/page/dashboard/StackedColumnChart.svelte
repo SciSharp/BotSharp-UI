@@ -59,4 +59,4 @@
 	});
 </script>
 
-<div id="stackedColumnchart" class="apex-charts" dir="ltr" />
+<div id="stackedColumnchart" class="apex-charts" dir="ltr"></div>

@@ -37,8 +37,7 @@
 		<div
 			class="rect"
 			class:pause-animation={pause}
-			style="animation-delay: {(version - 1) * (+durationNum / 12)}{durationUnit}"
-		/>
+			style="animation-delay: {(version - 1) * (+durationNum / 12)}{durationUnit}"></div>
 	{/each}
 </div>
 

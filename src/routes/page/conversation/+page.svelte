@@ -441,9 +441,9 @@
 							<div class="state-search-btn">
 								<div>
 									{#if showStateSearch}
-										<i class="bx bx-hide" />
+										<i class="bx bx-hide"></i>
 									{:else}
-										<i class="bx bx-search-alt" />
+										<i class="bx bx-search-alt"></i>
 									{/if}
 								</div>
 								<div class="search-btn-text">{'State Search'}</div>
@@ -524,7 +524,7 @@
 							class="btn-soft-secondary w-100"
 							on:click={(e) => searchConversations(e)}
 						>
-							<i class="mdi mdi-filter-outline align-middle" />
+							<i class="mdi mdi-filter-outline align-middle"></i>
 							<span class="d-none">{$_('Filter')}</span>
 						</Button>
 					</Col>
@@ -563,7 +563,7 @@
 												class="btn btn-sm btn-soft-primary"
 												on:click={() => window.open(`page/conversation/${conv.id}`)}
 											>
-												<i class="mdi mdi-eye-outline" />
+												<i class="mdi mdi-eye-outline"></i>
 											</Button>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
@@ -571,7 +571,7 @@
 												class="btn btn-sm btn-soft-info"
 												on:click={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
 											>
-                                                <i class="mdi mdi-chat" />
+                                                <i class="mdi mdi-chat"></i>
                                             </Button>
 										</li>
 										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -579,7 +579,7 @@
 												class="btn btn-sm btn-soft-danger"
 												on:click={() => openDeleteModal(conv.id)}
 											>
-                                                <i class="mdi mdi-delete-outline" />
+                                                <i class="mdi mdi-delete-outline"></i>
                                             </Button>
 										</li>
 									</ul>

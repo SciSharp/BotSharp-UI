@@ -81,7 +81,7 @@
                         class="clickable"
                         on:click={e => handleClose(e)}
                     >
-                        <i class="mdi mdi-close" />
+                        <i class="mdi mdi-close"></i>
                     </div>
                 </div>
             {/if}

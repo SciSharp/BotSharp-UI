@@ -178,7 +178,7 @@
                     data-bs-placement="top"
                     title="Uncheck to disable utility"
                 >
-                    <i class="bx bx-info-circle fs-6" />
+                    <i class="bx bx-info-circle fs-6"></i>
                 </div> -->
             </div>
         </div>
@@ -284,8 +284,7 @@
                             <div class="line-align-center">
                                 <i
                                     class="bx bx-info-circle fs-6"
-                                    id={`utility-${utilityIndex}-${fid}`}
-                                />
+                                    id={`utility-${utilityIndex}-${fid}`}></i>
                                 <BotsharpTooltip
                                     containerClasses="agent-utility-desc"
                                     style={`min-width: ${Math.floor(windowWidth*0.3)}px;`}

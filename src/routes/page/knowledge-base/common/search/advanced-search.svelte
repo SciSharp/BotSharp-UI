@@ -174,7 +174,7 @@
         </div>
         {#if showAdvSearch}
             <div class="line-align-center" id="adv-search-tooltip">
-                <i class="bx bx-info-circle" />
+                <i class="bx bx-info-circle"></i>
             </div>
             <Tooltip target="adv-search-tooltip" placement="top" class="demo-tooltip-note">
                 <ul>
@@ -302,7 +302,7 @@
                                 <span>{op.label}</span>
                                 {#if op.tip}
                                 <span class="line-align-center" id={`tooltip-${op.id}`}>
-                                    <i class="bx bx-info-circle" />
+                                    <i class="bx bx-info-circle"></i>
                                 </span>
                                 <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
                                     <div>{op.tip}</div>
@@ -345,7 +345,7 @@
                                 <span>{op.label}</span>
                                 {#if op.tip}
                                 <span class="line-align-center" id={`tooltip-${op.id}`}>
-                                    <i class="bx bx-info-circle" />
+                                    <i class="bx bx-info-circle"></i>
                                 </span>
                                 <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
                                     <div>{op.tip}</div>

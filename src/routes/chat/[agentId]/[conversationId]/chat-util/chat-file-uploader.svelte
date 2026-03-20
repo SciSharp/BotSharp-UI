@@ -76,8 +76,7 @@
                     class="bx bx-image-add"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
-                    title="Upload files"
-                />
+                    title="Upload files"></i>
             </span>
         </slot>
     </FileDropZone>

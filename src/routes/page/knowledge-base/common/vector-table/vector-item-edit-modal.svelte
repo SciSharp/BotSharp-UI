@@ -253,8 +253,7 @@
                         placeholder="Enter answer..."
                         rows={answer.rows}
                         maxlength={answer.maxLength}
-                        bind:value={answer.text}
-                    />
+                        bind:value={answer.text}></textarea>
                     <div class="text-secondary text-end text-count">
                         {answer.text?.length || 0}/{answer.maxLength}
                     </div>
@@ -271,8 +270,7 @@
                         placeholder="Enter text..."
                         rows={question.rows}
                         maxlength={question.maxLength}
-                        bind:value={question.text}
-                    />
+                        bind:value={question.text}></textarea>
                     <div class="text-secondary text-end text-count">
                         {question.text?.length || 0}/{question.maxLength}
                     </div>

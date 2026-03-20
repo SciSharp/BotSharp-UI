@@ -32,13 +32,12 @@
                 on:click={handleOnClick}
                 id="toggler"
               >
-                <i class="mdi mdi-folder font-size-16 text-warning me-2" />{" "}
+                <i class="mdi mdi-folder font-size-16 text-warning me-2"></i>{" "}
                 {$_('Files')}{" "}
                 <i
                   class={isOpen
                     ? "mdi mdi-chevron-up accor-down-icon ms-auto"
-                    : "mdi mdi-chevron-down accor-down-icon ms-auto"}
-                />
+                    : "mdi mdi-chevron-down accor-down-icon ms-auto"}></i>
               </Link>
               <Collapse {isOpen} toggler="#toggler">
                 <div class="card border-0 shadow-none ps-2 mb-0">
@@ -56,34 +55,32 @@
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
               <i
-                class="mdi mdi-google-drive font-size-16 text-muted me-2"
-              />{" "}
+                class="mdi mdi-google-drive font-size-16 text-muted me-2"></i>{" "}
               <span class="me-auto">{$_('Google Drive')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
-              <i class="mdi mdi-dropbox font-size-16 me-2 text-primary" />{" "}
+              <i class="mdi mdi-dropbox font-size-16 me-2 text-primary"></i>{" "}
               <span class="me-auto">{$_('Dropbox')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
               <i
-                class="mdi mdi-star-outline text-muted font-size-16 me-2"
-              />{" "}
+                class="mdi mdi-star-outline text-muted font-size-16 me-2"></i>{" "}
               <span class="me-auto">{$_('Starred')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
-              <i class="mdi mdi-trash-can text-danger font-size-16 me-2" />{" "}
+              <i class="mdi mdi-trash-can text-danger font-size-16 me-2"></i>{" "}
               <span class="me-auto">{$_('Trash')}</span>
             </Link>
           </li>
           <li>
             <Link href="#" class="text-body d-flex align-items-center">
-              <i class="mdi mdi-cog text-muted font-size-16 me-2" />{" "}
+              <i class="mdi mdi-cog text-muted font-size-16 me-2"></i>{" "}
               <span class="me-auto">{$_('Setting')}</span>
               <span class="badge bg-success rounded-pill ms-2"> 01 </span>
             </Link>
@@ -94,7 +91,7 @@
       <div class="mt-auto">
         <Alert color="success" dismissible class="px-3 mb-0">
           <div class="mb-3">
-            <i class="bx bxs-folder-open h1 text-success" />
+            <i class="bx bxs-folder-open h1 text-success"></i>
           </div>
 
           <div>
@@ -105,7 +102,7 @@
                 type="button"
                 class="btn btn-link text-decoration-none text-success"
               >
-                {$_('Upgrade')} <i class="mdi mdi-arrow-right" />
+                {$_('Upgrade')} <i class="mdi mdi-arrow-right"></i>
               </button>
             </div>
           </div>

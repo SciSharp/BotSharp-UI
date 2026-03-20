@@ -110,7 +110,7 @@
 							</Row>
 							<div class="mt-4">
 								<Link href="page/user/me" class="btn btn-primary waves-effect waves-light btn-sm">
-									{$_('View Profile')} <i class="mdi mdi-arrow-right ms-1" />
+									{$_('View Profile')} <i class="mdi mdi-arrow-right ms-1"></i>
 								</Link>
 							</div>
 						</div>
@@ -126,11 +126,11 @@
 						<p class="text-muted">{$_('This month')}</p>
 						<h3>$34,252</h3>
 						<p class="text-muted">
-							<span class="text-success me-2"> 12% <i class="mdi mdi-arrow-up" /> </span> {$_('From previous period')}
+							<span class="text-success me-2"> 12% <i class="mdi mdi-arrow-up"></i> </span> {$_('From previous period')}
 						</p>
 						<div class="mt-4">
 							<Link class="btn btn-primary waves-effect waves-light btn-sm"
-								>{$_('View More')} <i class="mdi mdi-arrow-right ms-1" /></Link
+								>{$_('View More')} <i class="mdi mdi-arrow-right ms-1"></i></Link
 							>
 						</div>
 					</Col>
@@ -157,7 +157,7 @@
 							<div class="flex-shrink-0 align-self-center">
 								<div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
 									<span class="avatar-title">
-										<i class="bx bx-copy-alt font-size-24" />
+										<i class="bx bx-copy-alt font-size-24"></i>
 									</span>
 								</div>
 							</div>
@@ -176,7 +176,7 @@
 							<div class="flex-shrink-0 align-self-center">
 								<div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
 									<span class="avatar-title">
-										<i class="bx bx-archive-in font-size-24" />
+										<i class="bx bx-archive-in font-size-24"></i>
 									</span>
 								</div>
 							</div>
@@ -195,7 +195,7 @@
 							<div class="flex-shrink-0 align-self-center">
 								<div class="mini-stat-icon avatar-sm rounded-circle bg-primary">
 									<span class="avatar-title">
-										<i class="bx bx-purchase-tag-alt font-size-24" />
+										<i class="bx bx-purchase-tag-alt font-size-24"></i>
 									</span>
 								</div>
 							</div>

@@ -35,6 +35,6 @@
 
 <div class="dropdown d-none d-lg-inline-block ms-1">
 	<button on:click={toggleFullscreen} class="btn header-item noti-icon waves-effect">
-		<i class={isFullScreenMode ? 'bx bx-fullscreen fs-22' : 'bx bx-exit-fullscreen fs-22'} />
+		<i class={isFullScreenMode ? 'bx bx-fullscreen fs-22' : 'bx bx-exit-fullscreen fs-22'}></i>
 	</button>
 </div>
