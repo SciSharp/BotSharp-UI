@@ -52,17 +52,17 @@
         <ul class="list-unstyled hstack gap-1 mb-0">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
                 <a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-primary">
-                    <i class="mdi mdi-eye-outline" />
+                    <i class="mdi mdi-eye-outline"></i>
                 </a>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Save">
                 <Button on:click={() => handleSaveTask()} class="btn btn-sm btn-soft-info">
-                    <i class="mdi mdi-content-save-all" />
+                    <i class="mdi mdi-content-save-all"></i>
                 </Button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                 <Button on:click={() => handleDeleteTask()} class="btn btn-sm btn-soft-danger">
-                    <i class="mdi mdi-delete-outline" />
+                    <i class="mdi mdi-delete-outline"></i>
                 </Button>
             </li>
         </ul>

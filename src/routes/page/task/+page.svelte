@@ -268,10 +268,10 @@
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('Task List')}</h5>
 					<div class="flex-shrink-0">
-						<!-- <Link class="btn btn-light" on:click={(e) => searchTasks(e)}><i class="mdi mdi-magnify" /></Link> -->
+						<!-- <Link class="btn btn-light" on:click={(e) => searchTasks(e)}><i class="mdi mdi-magnify"></i></Link> -->
 						<Dropdown class="dropdown d-inline-block">
 							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical" /></DropdownToggle
+								<i class="mdi mdi-dots-vertical"></i></DropdownToggle
 							>
 							<DropdownMenu>
 								<DropdownItem>{$_('Action')}</DropdownItem>
@@ -305,7 +305,7 @@
 							color="secondary"
 							on:click={e => searchTasks(e)}
 						>
-							<i class="mdi mdi-filter-outline align-middle" /> {$_('Filter')}
+							<i class="mdi mdi-filter-outline align-middle"></i> {$_('Filter')}
 						</Button>
 					</Col>
 				</Row>

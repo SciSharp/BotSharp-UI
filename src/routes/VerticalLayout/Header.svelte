@@ -106,7 +106,7 @@
 				id="vertical-menu-btn"
 				on:click={() => toggleSideBar()}
 			>
-				<i class="fa fa-fw fa-bars" />
+				<i class="fa fa-fw fa-bars"></i>
 			</button>
 
 			<!-- App Search-->

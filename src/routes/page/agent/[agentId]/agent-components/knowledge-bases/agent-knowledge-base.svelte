@@ -214,7 +214,7 @@
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addKnowledgeBase()}>
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add Knowledge Base</span>
                         </span>
                     </Button>

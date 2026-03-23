@@ -94,9 +94,9 @@
                     on:click={() => toggleKnowledgeDetail()}
                 >
                     {#if open}
-                        <i class="bx bx-hide" />
+                        <i class="bx bx-hide"></i>
                     {:else}
-                        <i class="mdi mdi-eye-outline" />
+                        <i class="mdi mdi-eye-outline"></i>
                     {/if}
                 </Button>
             </li>
@@ -106,7 +106,7 @@
                     disabled={disabled}
                     on:click={() => editKnowledge()}
                 >
-                    <i class="bx bxs-edit" />
+                    <i class="bx bxs-edit"></i>
                 </Button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
@@ -115,7 +115,7 @@
                     disabled={disabled}
                     on:click={() => deleteKnowledge(item?.id)}
                 >
-                    <i class="mdi mdi-delete-outline" />
+                    <i class="mdi mdi-delete-outline"></i>
                 </Button>
             </li>
         </ul>

@@ -89,7 +89,7 @@ if __name__ == "__main__":
                     </div>
                     <div class="line-align-center">
                         <div class="line-align-center" id="src-tooltip">
-                            <i class="bx bx-info-circle" />
+                            <i class="bx bx-info-circle"></i>
                         </div>
                         <Tooltip target="src-tooltip" placement="top">
                             <div>Support python only</div>
@@ -105,7 +105,7 @@ if __name__ == "__main__":
                         style="font-size: 16px;"
                         on:click={() => addScript()}
                     >
-                        <i class="mdi mdi-plus-circle-outline" />
+                        <i class="mdi mdi-plus-circle-outline"></i>
                     </div>
                 </div>
             </Col>

@@ -962,12 +962,12 @@
 		>
 			{#if !showDemo}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-search-alt"></i></div>
 					<div>{'Start Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
 					<div>{'Hide Search'}</div>
 				</div>
 			{/if}
@@ -975,7 +975,7 @@
 
 		{#if showDemo}
 			<div class="knowledge-btn-icon demo-tooltip-icon line-align-center" id="demo-tooltip">
-				<i class="bx bx-info-circle" />
+				<i class="bx bx-info-circle"></i>
 			</div>
 			<Tooltip target="demo-tooltip" placement="top" class="demo-tooltip-note">
 				<ul>
@@ -991,7 +991,7 @@
 			on:click={() => reset()}
 		>
 			<div class="btn-content">
-				<div class="knowledge-btn-icon"><i class="bx bx-reset" /></div>
+				<div class="knowledge-btn-icon"><i class="bx bx-reset"></i></div>
 				<div>{'Reset'}</div>
 			</div>
 		</Button>
@@ -1046,14 +1046,14 @@
 										color="link"
 										on:click={() => stepChangeConfidence('plus', step)}
 									>
-										<i class="mdi mdi-chevron-up" />
+										<i class="mdi mdi-chevron-up"></i>
 									</Button>
 									<Button
 										class="btn btn-sm"
 										color="link"
 										on:click={() => stepChangeConfidence('minus', step)}
 									>
-										<i class="mdi mdi-chevron-down" />
+										<i class="mdi mdi-chevron-down"></i>
 									</Button>
 								</div>
 							</div>
@@ -1161,7 +1161,7 @@
 											disabled={disabled}
 											on:click={() => onKnowledgeCreate()}
 										>
-											<i class="mdi mdi-plus" />
+											<i class="mdi mdi-plus"></i>
 										</Button>
 									</div>
 									<div
@@ -1175,7 +1175,7 @@
 											disabled={disabled}
 											on:click={() => onKnowledgeDeleteAll()}
 										>
-											<i class="mdi mdi-minus" />
+											<i class="mdi mdi-minus"></i>
 										</Button>
 									</div>
 									<div
@@ -1189,7 +1189,7 @@
 											disabled={disabled}
 											on:click={() => toggleUploadModal()}
 										>
-											<i class="mdi mdi-file-upload" />
+											<i class="mdi mdi-file-upload"></i>
 										</Button>
 									</div>
 								</div>
@@ -1234,7 +1234,7 @@
 												disabled={disableBase}
 												on:click={() => toggleCollectionCreate()}
 											>
-												<i class="mdi mdi-plus" />
+												<i class="mdi mdi-plus"></i>
 											</Button>
 										</div>
 										<div
@@ -1248,7 +1248,7 @@
 												disabled={disabled}
 												on:click={() => deleteCollection()}
 											>
-												<i class="mdi mdi-minus" />
+												<i class="mdi mdi-minus"></i>
 											</Button>
 										</div>
 									</div>

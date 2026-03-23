@@ -299,7 +299,7 @@
                             on:click={e => resetInstruction()}
                         /> -->
                         <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
-                            <i class="bx bx-info-circle" />
+                            <i class="bx bx-info-circle"></i>
                         </div>
                         <Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
                             <div>Please select an agent to proceed!</div>

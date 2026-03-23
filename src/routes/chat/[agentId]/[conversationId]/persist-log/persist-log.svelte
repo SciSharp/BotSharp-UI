@@ -184,7 +184,7 @@
                     title="Clean log"
                     on:click={() => handleCleanScreen()}
                 >
-                    <i class="bx bx-trash" />
+                    <i class="bx bx-trash"></i>
                 </button>
             </div>
             <div>
@@ -196,7 +196,7 @@
                     title="Scroll to top"
                     on:click={() => goToTopLog()}
                 >
-                    <i class="mdi mdi-chevron-double-up" />
+                    <i class="mdi mdi-chevron-double-up"></i>
                 </button>
                 <button
                     type="button"
@@ -206,7 +206,7 @@
                     title="Scroll to bottom"
                     on:click={() => scroll()}
                 >
-                    <i class="mdi mdi-chevron-double-down" />
+                    <i class="mdi mdi-chevron-double-down"></i>
                 </button>
             </div>
             <div>
@@ -215,7 +215,7 @@
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
                     on:click={() => closeWindow()}
                 >
-                    <i class="mdi mdi-window-close" />
+                    <i class="mdi mdi-window-close"></i>
                 </button>
             </div>
         </div>

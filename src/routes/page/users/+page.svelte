@@ -276,7 +276,7 @@
 							class="btn-soft-secondary w-100"
 							on:click={(e) => search()}
 						>
-							<i class="mdi mdi-filter-outline align-middle" />
+							<i class="mdi mdi-filter-outline align-middle"></i>
 							<span class="d-none">{$_('Filter')}</span>
 						</Button>
 					</Col>

@@ -100,7 +100,7 @@
                                             on:keydown={() => {}}
                                             on:click={e => handleDeleteFile(e, idx)}
                                         >
-                                            <i class="bx bx-trash" />
+                                            <i class="bx bx-trash"></i>
                                         </div>
                                     {/if}
                                     {#if needDownload && !!file.file_download_url}
@@ -115,9 +115,9 @@
                                             on:click={e => handleDownloadFile(e, idx)}
                                         >
                                             {#if isHtml(file.file_extension || file.file_name)}
-                                                <i class="mdi mdi-web" />
+                                                <i class="mdi mdi-web"></i>
                                             {:else}
-                                                <i class="bx bx-download" />
+                                                <i class="bx bx-download"></i>
                                             {/if}
                                         </div>
                                     {/if}

@@ -9,7 +9,7 @@
 			<CardTitle class="mb-4">{$_('Top Client Usage')}</CardTitle>
 			<div class="text-center">
 				<div class="mb-4">
-					<i class="bx bx-map-pin text-primary display-4" />
+					<i class="bx bx-map-pin text-primary display-4"></i>
 				</div>
 				<h3>1,456</h3>
 				<p>San Francisco</p>

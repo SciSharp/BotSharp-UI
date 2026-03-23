@@ -27,7 +27,7 @@
 
 <Dropdown class="d-none d-lg-inline-block">
 	<DropdownToggle type="button" color="" tag="a" class="btn header-item noti-icon waves-effect">
-		<i class="bx bx-bell bx-tada" />
+		<i class="bx bx-bell bx-tada"></i>
 		<span class="badge bg-danger rounded-pill">1</span>
 	</DropdownToggle>
 	<DropdownMenu class="dropdown-menu-lg" end>
@@ -46,7 +46,7 @@
 					<div class="d-flex">
 						<div class="avatar-xs me-3">
 							<span class="avatar-title bg-primary rounded-circle font-size-16">
-								<i class="bx bx-cart" />
+								<i class="bx bx-cart"></i>
 							</span>
 						</div>
 						<div class="flex-grow-1">
@@ -54,7 +54,7 @@
 							<div class="font-size-12 text-muted">
 								<p class="mb-1" >{$_('If several languages coalesce the grammar')}</p>
 								<p class="mb-0">
-									<i class="mdi mdi-clock-outline" /> <span >3 {$_('min ago')}</span>
+									<i class="mdi mdi-clock-outline"></i> <span >3 {$_('min ago')}</span>
 								</p>
 							</div>
 						</div>

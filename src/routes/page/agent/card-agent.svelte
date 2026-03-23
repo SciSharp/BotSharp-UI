@@ -51,7 +51,7 @@
                 title="Go to flowchart"
               >
                 <Button class="text-dark text-btn font-size-15" on:click={() => goToPage(`page/agent/router?agent_id=${agent.id}`)}>
-                  <i class="mdi mdi-sitemap" />
+                  <i class="mdi mdi-sitemap"></i>
                 </Button>
               </div>
               {/if}
@@ -108,23 +108,23 @@
             <Badge color={agent.is_public ? "success" : "warning"}>{agent.is_public ? $_('Public') : $_('Private')}</Badge>
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1" id="dueDate">
-            <i class="bx bx-calendar me-1" />
+            <i class="bx bx-calendar me-1"></i>
             {utcToLocal(agent.updated_datetime, 'MMM D, YYYY')}
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1">
             <Button class="btn btn-primary btn-sm" on:click={() => goToPage(`page/agent/${agent.id}/build`)} disabled>
-              <i class="bx bx-wrench" /> {$_('Build')}
+              <i class="bx bx-wrench"></i> {$_('Build')}
             </Button>
           </li>
           {#if agent.is_public }      
           <li class="list-inline-item me-1 mt-1 mb-1">
             <Button class="btn btn-primary btn-sm" on:click={() => goToPage(`chat/${LEARNER_AGENT_ID}`)} disabled>
-              <i class="bx bx-book-open" /> {$_('Train')}
+              <i class="bx bx-book-open"></i> {$_('Train')}
             </Button>
           </li>
           <li class="list-inline-item me-1 mt-1 mb-1">
             <Button class="btn btn-primary btn-sm" color="primary" on:click={() => goToPage(`chat/${agent.id}`)} disabled={!AgentExtensions.chatable(agent)}>
-              <i class="bx bx-chat" /> {$_('Test')}
+              <i class="bx bx-chat"></i> {$_('Test')}
             </Button>
           </li>
           {/if}

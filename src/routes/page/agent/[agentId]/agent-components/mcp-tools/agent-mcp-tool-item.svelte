@@ -122,7 +122,7 @@
                     data-bs-placement="top"
                     title="Uncheck to disable MCP"
                 >
-                    <i class="bx bx-info-circle" />
+                    <i class="bx bx-info-circle"></i>
                 </div> -->
             </div>
         </div>

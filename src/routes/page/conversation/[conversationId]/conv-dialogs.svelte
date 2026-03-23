@@ -102,7 +102,7 @@
                         title="Send notification"
                         on:click={() => handleSendNotification()}
                     >
-                        <i class="mdi mdi-bell-ring" />
+                        <i class="mdi mdi-bell-ring"></i>
                     </div>
                 </div>
                 <div>
@@ -115,7 +115,7 @@
                         title="Go to chat"
                         on:click={() => goToChat()}
                     >
-                        <i class="mdi mdi-chat" />
+                        <i class="mdi mdi-chat"></i>
                 </div>
                 </div>
             </div>
@@ -125,11 +125,10 @@
                 {#each dialogs as dialog}
                 <li class="event-list">
                     <div class="event-timeline-dot">
-                      <i
+                      <i 
                         class={"bx " + showInRight(dialog)
                           ? "bx-right-arrow-circle bx-fade-right"
-                          : "bx-right-arrow-circle"}
-                      />
+                          : "bx-right-arrow-circle"}></i>
                     </div>
                     <div class="d-flex" style="gap: 10px;">
                         <div class="flex-shrink-0">

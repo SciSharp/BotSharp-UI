@@ -89,13 +89,12 @@
 								unpinConversationFromDashboard(conversationModel.agent_id, conversationId);
 							}}
 						>
-							<i
+							<i 
 								class="mdi mdi-pin-off"
 								style="font-size: 12px;"
 								data-bs-toggle="tooltip"
 								data-bs-placement="top"
-								title="Unpin"
-							/>
+								title="Unpin"></i>
 						</button>
 					</div>
 				</div>
@@ -143,7 +142,7 @@
 										instruction: text
 									})}
 								>
-									<i class="mdi mdi-send" />
+									<i class="mdi mdi-send"></i>
 								</button>
 							</div>
 						</div>

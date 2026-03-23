@@ -327,7 +327,7 @@
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addRule()}>
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add Rule</span>
                         </span>
                     </Button>

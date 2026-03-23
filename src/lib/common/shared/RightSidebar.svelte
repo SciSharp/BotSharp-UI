@@ -123,7 +123,7 @@
 			<h5 class="m-0 me-2">Settings</h5>
 
 			<Link href="#" class="right-bar-toggle ms-auto" on:click={closebar}>
-				<i class="mdi mdi-close noti-icon" />
+				<i class="mdi mdi-close noti-icon"></i>
 			</Link>
 		</div>
 		<!-- Sidebar Color -->

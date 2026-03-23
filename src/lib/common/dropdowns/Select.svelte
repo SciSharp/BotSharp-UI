@@ -381,7 +381,7 @@
             readonly
         />
         <div class={`display-suffix ${showOptionList ? 'show-list' : ''}`}>
-            <i class="bx bx-chevron-down" />
+            <i class="bx bx-chevron-down"></i>
         </div>
     </div>
     {#if showOptionList}
@@ -389,7 +389,7 @@
             {#if searchMode}
                 <div class="search-box">
                     <div class="search-prefix">
-                        <i class="bx bx-search-alt" />
+                        <i class="bx bx-search-alt"></i>
                     </div>
                     <Input
                         type="text"
@@ -457,7 +457,7 @@
                                     readonly
                                 />
                             {:else if option.checked}
-                                <i class="bx bx-check text-primary" />
+                                <i class="bx bx-check text-primary"></i>
                             {:else}
                                 {' '}
                             {/if}

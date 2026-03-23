@@ -1605,7 +1605,7 @@
 			disabled={!_.trim(newTagText)}
 			on:click={() => addTag()}
 		>
-			<i class="bx bx-plus" />
+			<i class="bx bx-plus"></i>
 		</button>
 	</div>
 </DialogModal>
@@ -1621,7 +1621,7 @@
 	close={() => toggleNotificationModal()}
 >
 	<div slot='title-icon' class="color: text-warning">
-		<i class="mdi mdi-bell-ring" />
+		<i class="mdi mdi-bell-ring"></i>
 	</div>
 	<div class="chat-notification">
 		{notificationText}
@@ -1725,7 +1725,7 @@
 								</div>
 								<div class="text-muted mb-0 chat-head-user">
 									<div>
-										<i class="mdi mdi-circle text-success align-middle" />
+										<i class="mdi mdi-circle text-success align-middle"></i>
 									</div>
 									<div class="ellipsis">
 										<span>
@@ -1743,7 +1743,7 @@
 												class="btn btn-secondary btn-rounded btn-sm"
 												on:click={() => openFullScreen()}
 											>
-												<i class="bx bx-fullscreen" />
+												<i class="bx bx-fullscreen"></i>
 											</button>
 										</div>
 									{/if}
@@ -1751,7 +1751,7 @@
 										{#if !isLite}
 										<Dropdown>
 											<DropdownToggle class="nav-btn dropdown-toggle">
-												<i class="bx bx-dots-horizontal-rounded" />
+												<i class="bx bx-dots-horizontal-rounded"></i>
 											</DropdownToggle>
 											<DropdownMenu class="dropdown-menu-end">
 												{#if !isLoadPersistLog || !isLoadInstantLog}
@@ -1805,13 +1805,12 @@
 											disabled={disableAction}
 											on:click={() => handleNewConversation()}
 										>
-											<i
+											<i 
 												class="mdi mdi-plus"
 												style="font-size: 15px;"
 												data-bs-toggle="tooltip"
 												data-bs-placement="top"
-												title="New Conversation"
-											/>
+												title="New Conversation"></i>
 										</button>
 										{/if}
 									</div>
@@ -1828,7 +1827,7 @@
 												data-bs-placement="bottom"
 												title="New Conversation"
 											>
-												<i class="mdi mdi-plus" />
+												<i class="mdi mdi-plus"></i>
 												<span class="me-2">New</span>
 											</span>
 										</button>
@@ -1841,7 +1840,7 @@
 											{#if !isLite}
 											<span class="me-2">End</span>
 											{/if}
-											<i class="mdi mdi-window-close" />
+											<i class="mdi mdi-window-close"></i>
 										</button>
 									</div>
 								</div>
@@ -1878,7 +1877,7 @@
 															<div class="text-start fw-bold text-white">{@html replaceNewLine(message.text)}</div>
 														</div>
 														<p class="chat-time mb-0 float-end">
-															<i class="bx bx-time-five align-middle me-1" />
+															<i class="bx bx-time-five align-middle me-1"></i>
 															{utcToLocal(message.created_at, 'h:mm:ss A')}
 														</p>
 													</div>
@@ -1897,7 +1896,7 @@
 													{#if !isLite}
 														<Dropdown>
 															<DropdownToggle class="dropdown-toggle" tag="span" disabled={isSendingMsg || isThinking || disableAction}>
-																<i class="bx bx-dots-vertical-rounded" />
+																<i class="bx bx-dots-vertical-rounded"></i>
 															</DropdownToggle>
 															<DropdownMenu class="dropdown-menu-end">
 																<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
@@ -1948,7 +1947,7 @@
 																			title="Like"
 																			on:click={e => likeMessage(e, message)}
 																		>
-																			<i class="mdi mdi-thumb-up-outline text-primary" />
+																			<i class="mdi mdi-thumb-up-outline text-primary"></i>
 																		</div>
 																	</div>
 																{/if}
@@ -1963,7 +1962,7 @@
 																		title="Edit"
 																		on:click={() => openEditBotMsgModal(message)}
 																	>
-																		<i class="bx bxs-edit text-primary" />
+																		<i class="bx bxs-edit text-primary"></i>
 																	</div>
 																</div>
 															{/if}
@@ -1982,14 +1981,14 @@
 																	{#if copyClicked}
 																		<div class="div-center">
 																			<div class="line-align-center">
-																				<i class="bx bx-check" /> 
+																				<i class="bx bx-check"></i> 
 																			</div>
 																			<div class="line-align-center">
 																				<span style="font-size: 10px;">{'Copied!'}</span>
 																			</div>
 																		</div>
 																	{:else}
-																		<i class="bx bx-copy clickable" />
+																		<i class="bx bx-copy clickable"></i>
 																	{/if}
 																</div>
 															</div>
@@ -2005,7 +2004,7 @@
 																	title="Code script"
 																	on:click={e => openCodeScriptModal(e, message)}
 																>
-																	<i class="bx bx-terminal clickable" />
+																	<i class="bx bx-terminal clickable"></i>
 																</div>
 															</div>
 															{/if}
@@ -2070,7 +2069,7 @@
 										disabled={isSendingMsg || isThinking || disableAction}
 										on:click={() => startListen()}
 									>
-										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36" />
+										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36"></i>
 									</button>
 								{/if}
 							</div>
@@ -2096,12 +2095,11 @@
 											on:filedroped={() => refresh()}
 										>
 											<span>
-												<i
+												<i 
 													class="bx bx-image-add"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload images"
-												/>
+													title="Upload images"></i>
 											</span>
 										</ChatFileUploader>
 										<ChatFileUploader
@@ -2111,12 +2109,11 @@
 											on:filedroped={() => refresh()}
 										>
 											<span>
-												<i
+												<i 
 													class="bx bxs-folder-open"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload pdf, excel files"
-												/>
+													title="Upload pdf, excel files"></i>
 											</span>
 										</ChatFileUploader>
 										<ChatFileUploader
@@ -2126,12 +2123,11 @@
 											on:filedroped={() => refresh()}
 										>
 											<span>
-												<i
+												<i 
 													class="bx bxs-music"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
-													title="Upload audios"
-												/>
+													title="Upload audios"></i>
 											</span>
 										</ChatFileUploader>
 									</ChatTextArea>
@@ -2154,7 +2150,7 @@
 									on:click={() => sentTextMessage()}
 								>
 									<span class="d-none d-md-inline-block me-2">Send</span>
-									<i class="mdi mdi-send" />
+									<i class="mdi mdi-send"></i>
 								</button>
 							</div>
 						</div>

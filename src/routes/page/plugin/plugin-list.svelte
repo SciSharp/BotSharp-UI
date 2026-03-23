@@ -71,7 +71,7 @@
 			<Card style="height: 100%">
 				<CardBody class="d-flex flex-column justify-content-between">
 					<div class="favorite-icon">
-						<div><i class="uil uil-heart-alt fs-18" /></div>
+						<div><i class="uil uil-heart-alt fs-18"></i></div>
 					</div>
 					<img src={item.icon_url} alt="{item.name}" height="35" width="35" class="mb-3" />
 					<h5 class="fs-17 mb-2">
@@ -92,10 +92,10 @@
 						</li>
 						{' '}
 						<li>
-							<p class="text-muted fs-14 mb-0"><i class="mdi mdi-map-marker" /> {item.assembly}</p>
+							<p class="text-muted fs-14 mb-0"><i class="mdi mdi-map-marker"></i> {item.assembly}</p>
 						</li>
 						<li>
-							<p class="text-muted fs-14 mb-0"><i class="uil uil-wallet" /> $0.0 / month</p>
+							<p class="text-muted fs-14 mb-0"><i class="uil uil-wallet"></i> $0.0 / month</p>
 						</li>
 					</ul>
 					<div class="mt-3 hstack gap-2">

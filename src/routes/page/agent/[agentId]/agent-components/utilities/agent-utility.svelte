@@ -273,7 +273,7 @@
                         data-bs-placement="top"
                         title="Merge with entry agent utilities"
                     >
-                        <i class="bx bx-info-circle fs-6" />
+                        <i class="bx bx-info-circle fs-6"></i>
                     </div>
                 </div>
             {/if}
@@ -301,7 +301,7 @@
                 <div class="add-utility">
                     <Button color="primary" on:click={() => addUtility()}>
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add utility</span>
                         </span>
                     </Button>
