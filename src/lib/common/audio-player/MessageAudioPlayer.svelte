@@ -1,43 +1,45 @@
 <script>
 	import { stopAll, initAudio, clearAudioInstantce } from "$lib/common/audio-player/store";
-	import { onMount, onDestroy, createEventDispatcher } from "svelte";
+	import { onMount, onDestroy } from "svelte";
   import { v4 as uuidv4 } from 'uuid';
 	import Stretch from "../shared/Stretch.svelte";
 
-  const svelteDispatch = createEventDispatcher();
+  /**
+   * @type {{
+   *   id?: string,
+   *   volume?: number,
+   *   mutex?: boolean,
+   *   containerClasses?: string,
+   *   containerStyles?: string,
+   *   disableDefaultStyles?: boolean,
+   *   ondispatch?: (name: string, detail?: any) => void,
+   *   ondestroy?: () => void
+   * }}
+   */
+  let {
+    id = uuidv4(),
+    volume = 0.7,
+    mutex = true,
+    containerClasses = '',
+    containerStyles = '',
+    disableDefaultStyles = false,
+    ondispatch = () => {},
+    ondestroy = () => {}
+  } = $props();
 
   /**
    * @param {string} name
    * @param {any?} detail
    */
   function dispatch(name, detail = null) {
-    svelteDispatch(name, detail);
-  };
-
-  /** @type {string} */
-  export let id = uuidv4();
-
-  /** @type {number} */
-  export let volume = 0.7;
-
-  /** @type {boolean} */
-  export let mutex = true;
-
-  /** @type {string} */
-  export let containerClasses = "";
-
-  /** @type {string} */
-  export let containerStyles = "";
-
-  /** @type {boolean} */
-  export let disableDefaultStyles = false;
-
+    ondispatch(name, detail);
+  }
 
   /** @type {HTMLAudioElement} */
   let player;
 
   /** @type {boolean} */
-  let speaking = false;
+  let speaking = $state(false);
 
   onMount(() => {
     player = init();
@@ -95,17 +97,17 @@
 
   onDestroy(() => {
     clearAudioInstantce(id);
-    dispatch("destroy");
+    ondestroy();
   });
 </script>
 
-<!-- svelte-ignore a11y-click-events-have-key-events -->
-<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   class="{disableDefaultStyles ? '' : 'chat-speaker-container'} {containerClasses}"
   style={`${containerStyles}`}
 >
-  <span style="display: inline-block;" on:click={() => speak()}>
+  <span style="display: inline-block;" onclick={() => speak()}>
     {#if !speaking}
       <i class="bx bx-volume-full"></i>
     {:else}
