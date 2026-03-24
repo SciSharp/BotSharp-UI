@@ -121,7 +121,7 @@
                 {/if}
             </div>
             <h5 class="mt-1 mb-1 div-center">
-                <InPlaceEdit bind:value={agent.name} on:input={handleAgentChange} />
+                <InPlaceEdit bind:value={agent.name} onInput={handleAgentChange} />
             </h5>
             <p class="text-muted mb-0">{`Updated at ${utcToLocal(agent.updated_datetime)}`}</p>
         </div>

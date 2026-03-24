@@ -1,28 +1,21 @@
 <script>
-
-    /** @type {string} */
-    export let id = "nav-bar";
-
-    /** @type {string} */
-    export let role = "tablist";
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
-
-    /** @type {boolean} */
-    export let disableDefaultStyles = false;
+    let {
+        id = "nav-bar",
+        role = "tablist",
+        containerClasses = "",
+        containerStyles = "",
+        disableDefaultStyles = false,
+        children
+    } = $props();
 </script>
 
 <ul
     class="nav nav-tabs {disableDefaultStyles ? '' : 'nav-tabs-default nav-container'} {containerClasses}"
     style={`${containerStyles}`}
-    id={id}
-    role={role}
+    {id}
+    {role}
 >
-    <slot />
+    {@render children?.()}
 </ul>
 
 <style>

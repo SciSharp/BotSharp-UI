@@ -1,54 +1,46 @@
 <script>
-    import { onMount, onDestroy } from 'svelte';
-    import { derived } from 'svelte/store';
+    import { onMount } from 'svelte';
     import { page } from '$app/stores';
-    import { _ } from 'svelte-i18n';
-	import { getUserStore, globalMenuStore } from '$lib/helpers/store';
-	
-    /** @type {string} */
-    export let htmlTagId = 'embedding-page';
+    import { getUserStore, globalMenuStore } from '$lib/helpers/store';
+
+    let {
+        htmlTagId = 'embedding-page',
+        slugName = 'embedding-slug',
+        label = $bindable('')
+    } = $props();
 
     /** @type {string} */
-    export let slugName = 'embedding-slug';
+    let curSlug = $state('');
 
-    /** @type {string?} */
-    export let label = '';
+    // @ts-ignore
+    let slug = $derived($page.params[slugName]);
 
-    /** @type {any} */
-    let menuUnsubscribe;
-
-    /** @type {string} */
-    let curSlug = '';
-
-    const slug = derived(page, $page => $page.params[slugName]);
-
-    const contentSubscribe = slug.subscribe(value => {
+    $effect(() => {
+        const value = slug;
         if (curSlug && curSlug !== value) {
             location.reload();
         }
         curSlug = value;
     });
 
-    onMount(async () => {
-        menuUnsubscribe = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
+    onMount(() => {
+        const menuUnsubscribe = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
             const url = getPathUrl();
             let found = menu.find(x => x.link === url);
-            label = found?.label || null;
+            label = found?.label || '';
             if (!found?.embeddingInfo) {
                 const subFound = menu.find(x => !!x.subMenu?.find(y => y.link === url));
                 found = subFound?.subMenu?.find(x => x.link === url);
-                label = found?.label || null;
+                label = found?.label || '';
             }
             embed(found?.embeddingInfo || null);
         });
+
+        return () => {
+            menuUnsubscribe?.();
+        };
     });
 
-    onDestroy(() => {
-        menuUnsubscribe?.();
-        contentSubscribe?.();
-    });
-
-    
     /** @param {import('$pluginTypes').EmbeddingInfoModel?} data */
     function embed(data) {
         if (!data) return;
@@ -86,9 +78,9 @@
     }
 
     const getPathUrl = () => {
-		const path = $page.url.pathname;
-		return path?.startsWith('/') ? path.substring(1) : path;
-	};
+        const path = $page.url.pathname;
+        return path?.startsWith('/') ? path.substring(1) : path;
+    };
 </script>
 
 <div

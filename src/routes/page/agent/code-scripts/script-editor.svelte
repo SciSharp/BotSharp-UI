@@ -66,13 +66,13 @@ if __name__ == "__main__":
     }
 
     /**
-	 * @param {any} e
+	 * @param {string} text
 	 * @param {string | null | undefined} uid
 	 */
-    function changeScriptContent(e, uid) {
+    function changeScriptContent(text, uid) {
         const found = scriptObj?.scripts?.find(x => x.uid === uid);
         if (found) {
-            found.content = e.detail.text;
+            found.content = text;
         }
     }
 </script>
@@ -142,7 +142,7 @@ if __name__ == "__main__":
                         <CodeScript
                             language={'python'}
                             scriptText={scriptObj.selectedScript?.content || ''}
-                            on:change={e => changeScriptContent(e, scriptObj.selectedScript?.uid)}
+                            onchange={text => changeScriptContent(text, scriptObj.selectedScript?.uid)}
                         />
                         {/key}
                     </div>

@@ -1,44 +1,47 @@
 <script>
 	import { range, durationUnitRegex } from "$lib/helpers/utils/common";
 
-  /** @type {string} */
-	export let color = '#FF3E00';
+  /**
+   * @type {{
+   *   color?: string,
+   *   unit?: string,
+   *   duration?: string,
+   *   size?: string | number,
+   *   pause?: boolean,
+   *   gap?: string | number,
+   *   containerClasses?: string,
+   *   containerStyles?: string
+   * }}
+   */
+  let {
+    color = '#FF3E00',
+    unit = 'px',
+    duration = '1.2s',
+    size = '60',
+    pause = false,
+    gap = '5',
+    containerClasses = '',
+    containerStyles = ''
+  } = $props();
 
   /** @type {string} */
-	export let unit = 'px';
+	let durationUnit = $derived(duration.match(durationUnitRegex)?.[0] ?? 's');
 
   /** @type {string} */
-	export let duration = '1.2s';
-
-  /** @type {string | number} */
-	export let size = '60';
-
-  /** @type {boolean} */
-	export let pause = false;
-
-  /** @type {string | number} */
-  export let gap = '5';
-
-  /** @type {string} */
-  export let containerClasses = '';
-
-  /** @type {string} */
-  export let containerStyles = '';
-
-  /** @type {string} */
-	let durationUnit = duration.match(durationUnitRegex)?.[0] ?? 's';
-
-  /** @type {string} */
-	let durationNum = duration.replace(durationUnitRegex, '');
+	let durationNum = $derived(duration.replace(durationUnitRegex, ''));
 </script>
 
-<div class={`stretch-wrapper ${containerClasses}`} style={`--size: ${size}${unit}; --color: ${color}; --duration: ${duration}; --gap: ${gap}${unit}; ${containerStyles}`}>
+<div
+	class={`stretch-wrapper ${containerClasses}`}
+	style={`--size: ${size}${unit}; --color: ${color}; --duration: ${duration}; --gap: ${gap}${unit}; ${containerStyles}`}
+>
 	{#each range(5, 1) as version}
 		<div
 			class="rect"
 			class:pause-animation={pause}
 			style="animation-delay: {(version - 1) * (+durationNum / 12)}{durationUnit}"
-		/>
+		>
+		</div>
 	{/each}
 </div>
 

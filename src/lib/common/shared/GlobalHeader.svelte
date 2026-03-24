@@ -1,29 +1,21 @@
 <script>
-	import { onMount, onDestroy } from 'svelte';
+	import { onMount } from 'svelte';
 	import { globalErrorStore, loaderStore } from '$lib/helpers/store';
 
-    /** @type {boolean} */
-	export let isLoading = false;
-	export let hasError = false;
+	let {
+		isLoading = $bindable(false),
+		hasError = $bindable(false)
+	} = $props();
 
-	/** @type {any} */
-	let loaderUnsubscriber;
-	/** @type {any} */
-	let errorUnsubscriber;
+	$effect(() => {
+		isLoading = $loaderStore;
+	});
 
-    onMount(() => {
-        window?.speechSynthesis?.cancel();
-        loaderUnsubscriber = loaderStore.subscribe(value => {
-			isLoading = value;
-		});
+	$effect(() => {
+		hasError = $globalErrorStore;
+	});
 
-		errorUnsubscriber = globalErrorStore.subscribe(value => {
-			hasError = value;
-		});
-    });
-
-    onDestroy(() => {
-        loaderUnsubscriber?.();
-		errorUnsubscriber?.();
-    });
+	onMount(() => {
+		window?.speechSynthesis?.cancel();
+	});
 </script>

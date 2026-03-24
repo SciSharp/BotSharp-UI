@@ -16,10 +16,10 @@
         {#each agent.routing_rules as rule, idx (idx)}
         <div class="routing-rule-container">
             <CollapsibleCard open={idx === 0}>
-                <div slot='header'>
+                {#snippet header()}
                     <h5 class="rule-header">{`Rule #${idx + 1}`}</h5>
-                </div>
-                <div slot='body'>
+                {/snippet}
+                {#snippet body()}
                     <div class="table-responsive rule-body">
                         <Table>
                             <tbody>
@@ -43,12 +43,12 @@
                                 {/if}
                                 <tr>
                                     <th class="agent-prop-key">Required</th>
-                                    <td>{!!rule.required ? `Yes` : `No`}</td>
+                                    <td>{rule.required ? `Yes` : `No`}</td>
                                 </tr>
                                 {#if !!rule.redirectTo}
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td style="cursor: pointer;" on:click={() => directToAgentPage(rule.redirectTo)}>
+                                    <td style="cursor: pointer;" onclick={() => directToAgentPage(rule.redirectTo)}>
                                         {rule.redirect_to_agent || ''}
                                     </td>
                                 </tr>
@@ -62,7 +62,7 @@
                             </tbody>
                         </Table>
                     </div>
-                </div>
+                {/snippet}
             </CollapsibleCard>
         </div>
         {/each}

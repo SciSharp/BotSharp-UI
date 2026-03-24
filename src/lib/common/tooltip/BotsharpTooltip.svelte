@@ -1,75 +1,36 @@
 <script>
-	import { Portal } from '@sveltestrap/sveltestrap';
+    import { Portal } from '@sveltestrap/sveltestrap';
     import { onMount, onDestroy } from 'svelte';
     import { createPopper } from '@popperjs/core';
     import { v4 as uuidv4 } from 'uuid';
-	import { classnames } from '$lib/helpers/utils/common';
+    import { classnames } from '$lib/helpers/utils/common';
     import { clickoutsideDirective } from "$lib/helpers/directives";
-    
-    /**
-     * Additional CSS class names for the tooltip.
-     * @type {string}
-     */
-    export let containerClasses = '';
 
-    /**
-     * Flag to enable animation for the tooltip.
-     * @type {boolean}
-     */
-    export let animation = true;
-
-    /**
-     * Unique identifier for the tooltip.
-     * @type {string}
-     */
-    export let id = `tooltip_${uuidv4()}`;
-
-    /**
-     * Controls the visibility of the tooltip.
-     * @type {boolean}
-     */
-    export let isOpen = false;
-
-    /**
-     * Controls the visibility of the tooltip after hover the attached element.
-     * @type {boolean}
-     */
-    export let persist = false;
-
-    /**
-     * The preferred placement of the tooltip.
-     * @type {string}
-     */
-    export let placement = 'top';
-
-    /**
-     * The target element to which the tooltip is attached.
-     * @type {string | HTMLElement}
-     */
-    export let target = '';
-
-    /**
-     * The theme name override to apply to this component instance.
-     * @type {string | null}
-     */
-    export let theme = null;
-
-    /**
-     * The delay for showing the tooltip (in milliseconds).
-     * @type {number}
-     */
-    export let delay = 0;
+    let {
+        containerClasses = '',
+        animation = true,
+        id = `tooltip_${uuidv4()}`,
+        isOpen = $bindable(false),
+        persist = false,
+        placement = 'top',
+        target = '',
+        theme = null,
+        delay = 0,
+        style = '',
+        children
+    } = $props();
 
     /** @type {string} */
-    let bsPlacement = 'start';
-    /** @type {object} */
+    let bsPlacement = $state('start');
+    /** @type {object | undefined} */
     let popperInstance;
+    // svelte-ignore state_referenced_locally
     /** @type {string} */
-    let popperPlacement = placement;
+    let popperPlacement = $state(placement);
     /** @type {HTMLDivElement | null} */
-    let targetEl;
+    let targetEl = $state(null);
     /** @type {HTMLDivElement | null} */
-    let tooltipEl;
+    let tooltipEl = $state(null);
     /** @type {number} */
     let showTimer;
 
@@ -83,6 +44,13 @@
         }
     };
 
+    let classes = $derived(classnames(
+        containerClasses,
+        'tooltip',
+        `bs-tooltip-${bsPlacement}`,
+        animation ? 'fade' : null,
+        isOpen ? 'show' : null
+    ));
 
     onMount(() => {
         registerEventListeners();
@@ -111,17 +79,22 @@
         }
 
         try {
+            // @ts-ignore
             if (target instanceof HTMLElement) {
                 // @ts-ignore
                 targetEl = target;
             }
-        } catch (e) {}
+        } catch (e) {
+            console.log(e);
+        }
 
         // eslint-disable-next-line eqeqeq
         if (targetEl == null) {
             try {
                 targetEl = document.querySelector(`#${target}`);
-            } catch (e) {}
+            } catch (e) {
+                console.log(e);
+            }
         }
 
         if (targetEl) {
@@ -158,15 +131,7 @@
         }
     }
 
-    $: classes = classnames(
-        containerClasses,
-        'tooltip',
-        `bs-tooltip-${bsPlacement}`,
-        animation ? 'fade' : null,
-        isOpen ? 'show' : null
-    );
-
-    $: {
+    $effect(() => {
         if (isOpen && tooltipEl) {
             // @ts-ignore
             popperInstance = createPopper(targetEl, tooltipEl, {
@@ -179,26 +144,32 @@
             // @ts-ignore
             popperInstance = undefined;
         }
-    }
-    
-    $: if (target) {
-        unregisterEventListeners();
-        registerEventListeners();
-    }
+    });
 
-    $: if (targetEl) {
-        if (isOpen) {
-            targetEl.setAttribute('aria-describedby', id);
-        } else {
-            targetEl.removeAttribute('aria-describedby');
+    $effect(() => {
+        if (target) {
+            unregisterEventListeners();
+            registerEventListeners();
         }
-    }
+    });
 
-    $: if (persist && tooltipEl) {
-        tooltipEl.addEventListener("mouseleave", close);
-    }
+    $effect(() => {
+        if (targetEl) {
+            if (isOpen) {
+                targetEl.setAttribute('aria-describedby', id);
+            } else {
+                targetEl.removeAttribute('aria-describedby');
+            }
+        }
+    });
 
-    $: {
+    $effect(() => {
+        if (persist && tooltipEl) {
+            tooltipEl.addEventListener("mouseleave", close);
+        }
+    });
+
+    $effect(() => {
         if (popperPlacement === 'left') {
             bsPlacement = 'start';
         } else if (popperPlacement === 'right') {
@@ -206,16 +177,16 @@
         } else {
             bsPlacement = popperPlacement;
         }
-    }
+    });
 </script>
 
 {#if isOpen}
-    <svelte:component this={Portal}>
+    <Portal>
         <div
             bind:this={tooltipEl}
             use:clickoutsideDirective
-            on:clickoutside={handleClickOutside}
-            {...$$restProps}
+            onclickoutside={handleClickOutside}
+            {style}
             class={classes}
             {id}
             role="tooltip"
@@ -225,8 +196,8 @@
         >
             <div class="tooltip-arrow" data-popper-arrow></div>
             <div class="tooltip-inner">
-                <slot />
+                {@render children?.()}
             </div>
         </div>
-    </svelte:component>
+    </Portal>
 {/if}

@@ -1,36 +1,34 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
     import collapse from 'svelte-collapse';
 
-    /** @type {boolean} */
-    export let open = true;
-
-    /** @type {number} */
-    export let duration = 0.2;
-
-    /** @type {string} */
-    export let easing = 'ease';
-
-    const dispatch = createEventDispatcher();
+    let {
+        open = $bindable(true),
+        duration = 0.2,
+        easing = 'ease',
+        onopen = /** @type {(() => void) | undefined} */ (undefined),
+        onclose = /** @type {(() => void) | undefined} */ (undefined),
+        header,
+        body
+    } = $props();
 
     function handleToggle () {
         open = !open;
         if (open) {
-            dispatch('open');
+            onopen?.();
         }
         else {
-            dispatch('close');
+            onclose?.();
         }
     }
 </script>
 
 <div class='collapsible-card' class:open aria-expanded={open}>
-    <button type="button" class='collapsible-card-header' on:click={handleToggle}>
-        <slot name='header'/>
+    <button type="button" class='collapsible-card-header' onclick={handleToggle}>
+        {@render header?.()}
     </button>
 
     <div class='collapsible-card-body' use:collapse={{open, duration, easing}}>
-        <slot name='body'/>
+        {@render body?.()}
     </div>
 </div>
 
