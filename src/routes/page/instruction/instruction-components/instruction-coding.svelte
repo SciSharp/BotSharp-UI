@@ -66,7 +66,7 @@
                 disabled={disabled}
                 selectedValues={selectedCodeScript?.name ? [selectedCodeScript.name] : []}
                 options={codeScriptOptions}
-                on:select={e => selectCodeScript(e)}
+                onselect={e => selectCodeScript(e)}
             />
         </div>
     </div>

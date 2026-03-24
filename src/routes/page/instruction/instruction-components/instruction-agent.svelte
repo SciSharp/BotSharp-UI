@@ -85,7 +85,7 @@
                 disabled={disabled}
                 selectedValues={selectedAgent?.id ? [selectedAgent.id] : []}
                 options={agentOptions}
-                on:select={e => selectAgent(e)}
+                onselect={e => selectAgent(e)}
             />
         </div>
     </div>
@@ -100,7 +100,7 @@
                 disabled={disabled}
                 selectedValues={selectedTemplate?.id ? [selectedTemplate.id] : []}
                 options={templateOptions}
-                on:select={e => selectTemplate(e)}
+                onselect={e => selectTemplate(e)}
             />
         </div>
     </div>

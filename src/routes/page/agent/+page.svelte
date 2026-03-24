@@ -320,7 +320,7 @@
 			searchMode
 			selectedValues={searchItem.labels}
 			options={agentLabelOptions}
-			on:select={e => selectAgentLabelOption(e)}
+			onselect={e => selectAgentLabelOption(e)}
 		/>
 		<Select
 			tag={'agent-type-select'}
@@ -330,7 +330,7 @@
 			searchMode
 			selectedValues={searchItem.types}
 			options={agentTypeOptions}
-			on:select={e => selectAgentTypeOption(e)}
+			onselect={e => selectAgentTypeOption(e)}
 		/>
 		<Button
 			class="btn btn-info"

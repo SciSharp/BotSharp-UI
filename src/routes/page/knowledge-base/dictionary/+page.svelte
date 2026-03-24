@@ -321,7 +321,7 @@
 												searchMode
 												selectedValues={selectedAnalyzer ? [selectedAnalyzer] : []}
 												options={analyzers}
-												on:select={e => changeAnalyzer(e)}
+												onselect={e => changeAnalyzer(e)}
 											/>
 										</div>
                                         <div class="line-align-center collection-dropdown">
@@ -334,7 +334,7 @@
                                                 multiSelect
 												selectedValues={selectedDataLoaders}
 												options={dataLoaders}
-												on:select={e => changeDataLoaders(e)}
+												onselect={e => changeDataLoaders(e)}
 											/>
 										</div>
 									</div>

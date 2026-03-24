@@ -1,37 +1,35 @@
 <script>
-	import {
-		Input,
-		Dropdown,
-		DropdownMenu,
-		DropdownItem,
-		Spinner,
-		DropdownToggle
-	} from '@sveltestrap/sveltestrap';
 	import { debounce } from 'lodash';
 
-	/** @type {string} */
-	export let value;
-    /** @type {string} */
-    export let placeholder = '';
-    /** @type {boolean} */
-	export let disabled = false;
-	/** @type {boolean} */
-	export let loading = false;
-	/** @type {number} */
-    export let maxLength = 2000;
-    /** @type {(query: string) => Promise<string[]>} */
-	export let onSearch = query => Promise.resolve([]);
+	/**
+	 * @type {{
+	 *   value: string,
+	 *   placeholder?: string,
+	 *   disabled?: boolean,
+	 *   loading?: boolean,
+	 *   maxLength?: number,
+	 *   onSearch?: (query: string) => Promise<string[]>
+	 * }}
+	 */
+	let {
+		value = $bindable(''),
+		placeholder = '',
+		disabled = false,
+		loading = $bindable(false),
+		maxLength = 2000,
+		onSearch = (/** @type {string} */ query) => Promise.resolve([])
+	} = $props();
 
-    export const clearSearchResults = () => {
+	/** @type {string[]} */
+	let searchResults = $state([]);
+	let isOpen = $state(false);
+
+	export const clearSearchResults = () => {
 		searchResults = [];
 	};
 
-	/** @type {string[]} */
-	let searchResults = [];
-	let isOpen = false;
-
 	// @ts-ignore
-	const debouncedSearch = debounce(async (query) => {
+	const debouncedSearch = debounce(async (/** @type {string} */ query) => {
 		if (query.length) {
 			loading = true;
 			searchResults = await onSearch(query);
@@ -53,38 +51,53 @@
 	}
 
 	/**
-	 * @param { string } result
+	 * @param {string} result
 	 */
 	function selectResult(result) {
 		value = result;
+		isOpen = false;
 	}
 
-	
+	/**
+	 * @param {MouseEvent} e
+	 */
+	function handleClickOutside(e) {
+		const target = /** @type {HTMLElement} */ (e.target);
+		if (!target.closest('.scrollable-dropdown')) {
+			isOpen = false;
+		}
+	}
 </script>
 
-<div class="position-relative">
-	<Dropdown
-		class="scrollable-dropdown"
-		isOpen={isOpen && (searchResults.length > 0 || loading)}
-		toggle={() => (isOpen = !isOpen)}
-	>
-		<DropdownToggle tag="div">
-			<Input type="text" {value} on:input={handleInput} maxlength={maxLength} {disabled} {placeholder} />
-		</DropdownToggle>
-		<DropdownMenu class="w-100 thin-scrollbar">
+<svelte:document onclick={handleClickOutside} />
+
+<div class="position-relative scrollable-dropdown">
+	<div>
+		<input type="text" class="form-control" bind:value oninput={handleInput} maxlength={maxLength} {disabled} {placeholder} />
+	</div>
+	{#if isOpen && (searchResults.length > 0 || loading)}
+		<ul class="dropdown-menu show w-100 thin-scrollbar">
 			{#if loading}
-				<li class="text-center"><Spinner size="sm" /></li>
+				<li class="text-center">
+					<div class="spinner-border spinner-border-sm" role="status">
+						<span class="visually-hidden">Loading...</span>
+					</div>
+				</li>
 			{:else}
-				{#each searchResults as item, index}
-					<DropdownItem
-						active={value === item}
-						title={item}
-                        on:click={() => selectResult(item)}
-					>
-						{item}
-					</DropdownItem>
+				{#each searchResults as item, index (index)}
+					<li>
+						<button
+							type="button"
+							class="dropdown-item"
+							class:active={value === item}
+							title={item}
+							onclick={() => selectResult(item)}
+						>
+							{item}
+						</button>
+					</li>
 				{/each}
 			{/if}
-		</DropdownMenu>
-	</Dropdown>
+		</ul>
+	{/if}
 </div>

@@ -327,7 +327,7 @@
                                                                 placeholder="Select field type"
                                                                 selectedValues={item.field_schema_type ? [item.field_schema_type] : []}
                                                                 options={indexTypeOptions}
-                                                                on:select={(e) => updateIndexFieldType(e, idx)}
+                                                                onselect={(e) => updateIndexFieldType(e, idx)}
                                                             />
                                                         </FormGroup>
                                                     </div>

@@ -472,7 +472,7 @@
 							searchMode
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
-							on:select={e => changeOption(e, 'agent')}
+							onselect={e => changeOption(e, 'agent')}
 						/>
 					</Col>
 					<Col lg="2">
@@ -482,7 +482,7 @@
 							selectedText={'status'}
 							selectedValues={searchOption.status ? [searchOption.status] : []}
 							options={statusOptions}
-							on:select={e => changeOption(e, 'status')}
+							onselect={e => changeOption(e, 'status')}
 						/>
 					</Col>
 					<Col lg="2">
@@ -492,7 +492,7 @@
 							selectedText={'channel'}
 							selectedValues={searchOption.channel ? [searchOption.channel] : []}
 							options={channelOptions}
-							on:select={e => changeOption(e, 'channel')}
+							onselect={e => changeOption(e, 'channel')}
 						/>
 					</Col>
 					<Col lg="2">

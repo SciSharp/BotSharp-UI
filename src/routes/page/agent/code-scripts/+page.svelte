@@ -193,7 +193,7 @@
                     searchMode
                     selectedValues={selectedAgentId ? [selectedAgentId] : []}
                     options={agentOptions}
-                    on:select={e => changeAgent(e)}
+                    onselect={e => changeAgent(e)}
                 />
             </Col>
         </Row>

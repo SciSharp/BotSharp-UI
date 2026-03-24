@@ -340,7 +340,7 @@
 							searchMode
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
-							on:select={e => changeOption(e, 'agent')}
+							onselect={e => changeOption(e, 'agent')}
 						/>
 					</Col>
 					<Col lg="2">
@@ -350,7 +350,7 @@
 							searchMode
 							selectedValues={searchOption.providers}
 							options={providerOptions}
-							on:select={e => changeOption(e, 'provider')}
+							onselect={e => changeOption(e, 'provider')}
 						/>
 					</Col>
 					<Col lg="2">
@@ -362,7 +362,7 @@
 							searchMode
 							selectedValues={searchOption.models}
 							options={modelOptions}
-							on:select={e => changeOption(e, 'model')}
+							onselect={e => changeOption(e, 'model')}
 						/>
 					</Col>
 					<Col lg="2">

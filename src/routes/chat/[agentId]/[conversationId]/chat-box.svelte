@@ -2091,7 +2091,7 @@
 											accept={'.png,.jpg,.jpeg'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
 											disabled={disableAction}
-											on:filedroped={() => refresh()}
+											onfiledroped={() => refresh()}
 										>
 											<span>
 												<i 
@@ -2105,7 +2105,7 @@
 											accept={'.pdf,.xlsx,.xls,.csv'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
 											disabled={disableAction}
-											on:filedroped={() => refresh()}
+											onfiledroped={() => refresh()}
 										>
 											<span>
 												<i 
@@ -2119,7 +2119,7 @@
 											accept={'.wav,.mp3'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
 											disabled={disableAction}
-											on:filedroped={() => refresh()}
+											onfiledroped={() => refresh()}
 										>
 											<span>
 												<i 

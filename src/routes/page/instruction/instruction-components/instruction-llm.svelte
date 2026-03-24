@@ -96,7 +96,7 @@
                 disabled={disabled}
                 selectedValues={selectedProvider?.provider ? [selectedProvider.provider] : []}
                 options={providerOptions}
-                on:select={e => selectProvider(e)}
+                onselect={e => selectProvider(e)}
             />
         </div>
     </div>
@@ -111,7 +111,7 @@
                 disabled={disabled}
                 selectedValues={selectedModel ? [selectedModel] : []}
                 options={modelOptions}
-                on:select={e => selectModel(e)}
+                onselect={e => selectModel(e)}
             />
         </div>
     </div>

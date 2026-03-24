@@ -134,7 +134,7 @@
     /** @param {any} e */
     function handleFileDrop(e) {
         reset();
-        const { acceptedFiles } = e.detail;
+        const { acceptedFiles } = e;
         const savedAttachments = $knowledgeBaseDocumentStore;
         const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
         knowledgeBaseDocumentStore.put({
@@ -403,31 +403,33 @@
                     showPrefix={true}
                     showSuffix={uploadFiles?.length > 0}
                 >
-                    <FileDropZone
-                        slot="prefix"
-                        accept={accept}
-                        containerClasses={'doc-drop-zone'}
-                        disabled={disabled || disableFileDrop}
-                        fileLimit={localFileUploadLimit}
-                        maxSize={fileMaxSize * 1024 * 1024}
-                        on:drop={e => handleFileDrop(e)}
-                    >
-                        <i class="bx bx-cloud-upload"></i>
-                    </FileDropZone>
-                    <div
-                        slot="suffix"
-                        class="doc-card-btn"
-                    >
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <i
-                            class="mdi mdi-arrow-up-bold-circle clickable"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Submit"
-                            on:click={() => handleFileSubmit()}
-                        />
-                    </div>
+                    {#snippet prefix()}
+                        <FileDropZone
+                            accept={accept}
+                            containerClasses={'doc-drop-zone'}
+                            disabled={disabled || disableFileDrop}
+                            fileLimit={localFileUploadLimit}
+                            maxSize={fileMaxSize * 1024 * 1024}
+                            ondrop={handleFileDrop}
+                        >
+                            <i class="bx bx-cloud-upload"></i>
+                        </FileDropZone>
+                    {/snippet}
+                    {#snippet suffix()}
+                        <div
+                            class="doc-card-btn"
+                        >
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <i
+                                class="mdi mdi-arrow-up-bold-circle clickable"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Submit"
+                                on:click={() => handleFileSubmit()}
+                            ></i>
+                        </div>
+                    {/snippet}
                 </FileGallery>
             {/if}
 
@@ -465,7 +467,7 @@
                                 data-bs-placement="top"
                                 title="Delete all docs"
                                 on:click={() => handleDeleteAllSavedFiles()}
-                            />
+                            ></i>
                         </div>
                     {/if}
                 </div>
@@ -483,17 +485,19 @@
                                     onDownload={idx => handleDownloadSavedFile(idx)}
                                     showSuffix={!noMoreDocs}
                                 >
-                                    <div class="doc-card-btn doc-load-more" slot="suffix">
-                                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                        <i
-                                            class="mdi mdi-eye-plus-outline clickable"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Load more"
-                                            on:click={() => loadMoreDocs()}
-                                        />
-                                    </div>
+                                    {#snippet suffix()}
+                                        <div class="doc-card-btn doc-load-more">
+                                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                                            <i
+                                                class="mdi mdi-eye-plus-outline clickable"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Load more"
+                                                on:click={() => loadMoreDocs()}
+                                            ></i>
+                                        </div>
+                                    {/snippet}
                                 </FileGallery>
                             {:else if !isLoadingFiles && savedFiles.length === 0}
                                 <div class="mt-3 text-center">

@@ -1,76 +1,66 @@
 <script>
-	import { onMount, createEventDispatcher, tick } from "svelte";
-    import { Input } from "@sveltestrap/sveltestrap";
+    import { onMount, tick, untrack } from "svelte";
     import { clickoutsideDirective } from "$lib/helpers/directives";
 
-    const svelteDispatch = createEventDispatcher();
+    /**
+     * @type {{
+     *   tag: string,
+     *   options?: import('$commonTypes').LabelValuePair[],
+     *   multiSelect?: boolean,
+     *   selectAll?: boolean,
+     *   disabled?: boolean,
+     *   searchPlaceholder?: string,
+     *   placeholder?: string,
+     *   selectedText?: string,
+     *   selectedValues?: string[],
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   disableDefaultStyles?: boolean,
+     *   searchMode?: boolean,
+     *   loadMore?: boolean,
+     *   onScrollMoreOptions?: null | undefined | (() => Promise<any>),
+     *   onselect?: (e: any) => void
+     * }}
+     */
+    let {
+        tag,
+        options = [],
+        multiSelect = false,
+        selectAll = true,
+        disabled = false,
+        searchPlaceholder = '',
+        placeholder = '',
+        selectedText = '',
+        selectedValues = [],
+        containerClasses = "",
+        containerStyles = "",
+        disableDefaultStyles = false,
+        searchMode = false,
+        loadMore = false,
+        onScrollMoreOptions = null,
+        onselect = () => {}
+    } = $props();
 
     /** @type {string} */
-    export let tag;
-
-    /** @type {import('$commonTypes').LabelValuePair[]} */
-    export let options = [];
+    let searchValue = $state('');
 
     /** @type {boolean} */
-    export let multiSelect = false;
+    let selectAllChecked = $state(false);
 
     /** @type {boolean} */
-    export let selectAll = true;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {string} */
-    export let searchPlaceholder = '';
-
-    /** @type {string} */
-    export let placeholder = '';
-
-    /** @type {string} */
-    export let selectedText = '';
-
-    /** @type {string[]} */
-    export let selectedValues = [];
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
-
-    /** @type {boolean} */
-    export let disableDefaultStyles = false;
-
-    /** @type {boolean} */
-    export let searchMode = false;
-
-    /** @type {boolean} */
-    export let loadMore = false;
-
-    /** @type {null | undefined | (() => Promise<any>)} */
-    export let onScrollMoreOptions = null;
-
-
-    /** @type {string} */
-    let searchValue = '';
-
-    /** @type {boolean} */
-    let selectAllChecked = false;
-
-    /** @type {boolean} */
-    let showOptionList = false;
+    let showOptionList = $state(false);
 
     /** @type {{label: string, value: string, checked: boolean}[]} */
-    let innerOptions = [];
+    let innerOptions = $state([]);
 
     /** @type {{label: string, value: string, checked: boolean}[]} */
-    let refOptions = [];
+    let refOptions = $state([]);
 
     /** @type {string} */
-    let displayText = '';
+    let displayText = $state('');
 
     /** @type {boolean} */
-    let loading = false;
+    let loading = $state(false);
 
     /**
      * @type {number | undefined}
@@ -81,46 +71,42 @@
         initOptions();
     });
 
-    $: {
-        innerOptions = verifySelectedOptions(innerOptions, selectedValues);
-        refOptions = verifySelectedOptions(innerOptions, selectedValues);
-    }
+    $effect(() => {
+        // track options, selectedValues, and loadMore as triggers
+        const _opts = options;
+        const _sv = selectedValues;
+        const _lm = loadMore;
 
-    $: {
-        if (loadMore) {
-            if (options.length > refOptions.length) {
-                const curKeys = refOptions.map(x => x.value);
-                const newOptions = options.filter(x => !curKeys.includes(x.value)).map(x => {
-                    return {
-                        label: x.label,
-                        value: x.value,
-                        checked: false
-                    };
-                });
+        if (_lm) {
+            // Apply selectedValues verification first
+            const currentInner = untrack(() => innerOptions);
+            let newInner = verifySelectedOptions(currentInner, _sv);
+            let newRef = verifySelectedOptions(currentInner, _sv);
 
-                innerOptions = [
-                    ...innerOptions,
-                    ...newOptions
-                ];
-
-                refOptions = [
-                    ...refOptions,
-                    ...newOptions
-                ];
-
+            // Append any new options not yet present
+            if (_opts.length > newRef.length) {
+                const curKeys = newRef.map(x => x.value);
+                const addedOptions = _opts.filter(x => !curKeys.includes(x.value)).map(x => ({
+                    label: x.label,
+                    value: x.value,
+                    checked: false
+                }));
+                newInner = [...newInner, ...addedOptions];
+                newRef = [...newRef, ...addedOptions];
             }
-        } else {
-            innerOptions = verifySelectedOptions(options, selectedValues);
-            refOptions = verifySelectedOptions(options, selectedValues);
-        }
-    }
 
-    $: {
-        if (innerOptions && refOptions) {
+            innerOptions = newInner;
+            refOptions = newRef;
+        } else {
+            innerOptions = verifySelectedOptions(_opts, _sv);
+            refOptions = verifySelectedOptions(_opts, _sv);
+        }
+
+        untrack(() => {
             applySearchFilter();
             changeDisplayText();
-        }
-    }
+        });
+    });
 
     function initOptions() {
         const newInnerOptions = options.map(x => {
@@ -294,8 +280,10 @@
     }
 
     function sendEvent() {
-        svelteDispatch("select", {
-            selecteds: refOptions.filter(x => !!x.checked).map(x => ({ label: x.label, value: x.value }))
+        onselect?.({
+            detail: {
+                selecteds: refOptions.filter(x => !!x.checked).map(x => ({ label: x.label, value: x.value }))
+            }
         });
     }
 
@@ -324,9 +312,9 @@
 
             if (dropdown.scrollHeight - dropdown.scrollTop - dropdown.clientHeight <= 1) {
                 loading = true;
-                onScrollMoreOptions().then(res => {
+                onScrollMoreOptions().then(() => {
                     loading = false;
-                }).catch(err => {
+                }).catch(() => {
                     loading = false;
                 });
             }
@@ -361,20 +349,19 @@
     class="{disableDefaultStyles ? '' : 'multiselect-container'} {containerClasses}"
     style={`${containerStyles}`}
     use:clickoutsideDirective
-    on:clickoutside={(/** @type {any} */ e) => handleClickOutside(e)}
+    onclickoutside={(/** @type {any} */ e) => handleClickOutside(e)}
 >
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="display-container"
         id={`multiselect-btn-${tag}`}
-        on:click={() => toggleOptionList()}
+        onclick={() => toggleOptionList()}
     >
-        <Input
+        <input
             type="text"
             name={'select-display-text'}
-            class={`clickable ${disabled ? 'disabled' : ''}`}
+            class={`form-control clickable ${disabled ? 'disabled' : ''}`}
             value={displayText}
             placeholder={placeholder}
             disabled={disabled}
@@ -385,33 +372,36 @@
         </div>
     </div>
     {#if showOptionList}
-        <ul class="option-list" id={`multiselect-list-${tag}`} on:scroll={() => innerScroll()}>
+        <ul class="option-list" id={`multiselect-list-${tag}`} onscroll={() => innerScroll()}>
             {#if searchMode}
                 <div class="search-box">
                     <div class="search-prefix">
                         <i class="bx bx-search-alt"></i>
                     </div>
-                    <Input
+                    <input
                         type="text"
                         name={'select-search-text'}
+                        class="form-control"
                         value={searchValue}
                         placeholder={searchPlaceholder}
-                        on:input={e => changeSearchValue(e)}
+                        oninput={e => changeSearchValue(e)}
                     />
                 </div>
             {/if}
             {#if innerOptions.length > 0}
                 {#if selectAll && multiSelect}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
                         class="option-item clickable"
-                        on:click|preventDefault|stopPropagation={() => {
+                        onclick={(/** @type {MouseEvent} */ e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             checkSelectAll(null);
                         }}
                     >
                         <div class="line-align-center select-box">
-                            <Input
+                            <input
                                 type="checkbox"
                                 name={'select-select-all'}
                                 style="pointer-events: none;"
@@ -425,11 +415,13 @@
                     </li>
                 {/if}
                 {#if !multiSelect}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
                         class="option-item clickable justify-content-center"
-                        on:click|preventDefault|stopPropagation={() => {
+                        onclick={(/** @type {MouseEvent} */ e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             clearSelection();
                         }}
                     >
@@ -439,17 +431,19 @@
                     </li>
                 {/if}
                 {#each innerOptions as option, idx (idx)}
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
                         class="option-item clickable"
-                        on:click|preventDefault|stopPropagation={() => {
+                        onclick={(/** @type {MouseEvent} */ e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
                             checkOption(null, option);
                         }}
                     >
                         <div class="line-align-center select-box">
                             {#if multiSelect}
-                                <Input
+                                <input
                                     type="checkbox"
                                     name={`select-checkbox-${option.value}`}
                                     style="pointer-events: none;"

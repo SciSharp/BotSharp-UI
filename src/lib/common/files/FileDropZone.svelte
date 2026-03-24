@@ -12,62 +12,95 @@
       isPropagationStopped,
       TOO_MANY_FILES_REJECTION
     } from "$lib/helpers/utils/file";
-    import { onMount, onDestroy, createEventDispatcher } from "svelte";
-  
-    //props
-    /** @type {string} */
-    export let accept;
-    export let disabled = false;
-    export let getFilesFromEvent = fromEvent;
-    export let maxSize = Infinity;
-    export let minSize = 0;
-    export let multiple = true;
-    export let preventDropOnDocument = true;
-    export let noClick = false;
-    export let noKeyboard = false;
-    export let noDrag = false;
-    export let noDragEventsBubbling = false;
-    export let containerClasses = "";
-    export let containerStyles = "";
-    export let disableDefaultStyles = false;
-    export let name = "";
-    /** @type {any} */
-    export let inputElement = undefined;
-    export let required = false;
-    export let dropText = "Drag and drop some files here, or click to select files";
-    export let fileLimit = 5;
+    import { onDestroy } from "svelte";
 
-    let innerDropText = dropText;
-    let innerDisabled = disabled;
-    let isLoading = false;
-    let isError = false;
-    let isSuccess = false;
-    let reason = '';
+    /**
+     * @type {{
+     *   accept?: string,
+     *   disabled?: boolean,
+     *   getFilesFromEvent?: (event: any) => any,
+     *   maxSize?: number,
+     *   minSize?: number,
+     *   multiple?: boolean,
+     *   preventDropOnDocument?: boolean,
+     *   noClick?: boolean,
+     *   noKeyboard?: boolean,
+     *   noDrag?: boolean,
+     *   noDragEventsBubbling?: boolean,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   disableDefaultStyles?: boolean,
+     *   name?: string,
+     *   inputElement?: any,
+     *   required?: boolean,
+     *   dropText?: string,
+     *   fileLimit?: number,
+     *   ondragenter?: (detail: any) => void,
+     *   ondragover?: (detail: any) => void,
+     *   ondragleave?: (detail: any) => void,
+     *   ondrop?: (detail: any) => void,
+     *   ondroprejected?: (detail: any) => void,
+     *   ondropaccepted?: (detail: any) => void,
+     *   onfiledropped?: (detail: any) => void,
+     *   onfiledialogcancel?: () => void,
+     *   children?: import('svelte').Snippet
+     * }}
+     */
+    let {
+        accept = '',
+        disabled = false,
+        getFilesFromEvent = fromEvent,
+        maxSize = Infinity,
+        minSize = 0,
+        multiple = true,
+        preventDropOnDocument = true,
+        noClick = false,
+        noKeyboard = false,
+        noDrag = false,
+        noDragEventsBubbling = false,
+        containerClasses = '',
+        containerStyles = '',
+        disableDefaultStyles = false,
+        name = '',
+        inputElement = $bindable(undefined),
+        required = false,
+        dropText = 'Drag and drop some files here, or click to select files',
+        fileLimit = 5,
+        ondragenter,
+        ondragover,
+        ondragleave,
+        ondrop,
+        ondroprejected,
+        ondropaccepted,
+        onfiledropped,
+        onfiledialogcancel,
+        children
+    } = $props();
+
+    let isLoading = $state(false);
+    let isError = $state(false);
+    let isSuccess = $state(false);
+    let reason = $state('');
 
     const defaultSuccessMesssage = "Upload succeeded!";
     const defaultErrorMesssage = "Upload failed!";
 
-    $: {
-        if (isLoading) {
-            innerDropText = "Uploading...";
-            innerDisabled = true;
-        } else if (isSuccess) {
-            innerDropText = defaultSuccessMesssage;
-            innerDisabled = true;
-        } else if (isError) {
-            innerDropText = reason;
-            innerDisabled = true;
-        } else {
-            innerDropText = dropText;
-            innerDisabled = disabled;
-        }
-    }
+    let innerDropText = $derived.by(() => {
+        if (isLoading) return "Uploading...";
+        if (isSuccess) return defaultSuccessMesssage;
+        if (isError) return reason;
+        return dropText;
+    });
+
+    let innerDisabled = $derived.by(() => {
+        if (isLoading || isSuccess || isError) return true;
+        return disabled;
+    });
 
     const duration = 1500;
-    const dispatch = createEventDispatcher();
-  
+
     //state
-    let state = {
+    let dropState = {
         isFocused: false,
         isFileDialogActive: false,
         isDragActive: false,
@@ -80,27 +113,27 @@
         /** @type {any} */
         fileRejections: []
     };
-  
+
     /** @type {any} */
     let rootRef;
-  
+
     function resetState() {
-        state.isFileDialogActive = false;
-        state.isDragActive = false;
-        state.draggedFiles = [];
-        state.acceptedFiles = [];
-        state.fileRejections = [];
+        dropState.isFileDialogActive = false;
+        dropState.isDragActive = false;
+        dropState.draggedFiles = [];
+        dropState.acceptedFiles = [];
+        dropState.fileRejections = [];
     }
-  
+
     // Fn for opening the file dialog programmatically
     function openFileDialog() {
         if (inputElement) {
             inputElement.value = null; // TODO check if null needs to be set
-            state.isFileDialogActive = true;
+            dropState.isFileDialogActive = true;
             inputElement.click();
         }
     }
-  
+
     // Cb to open the file dialog when SPACE/ENTER occurs on the dropzone
     /** @param {any} event */
     function onKeyDownCb(event) {
@@ -114,13 +147,13 @@
             openFileDialog();
         }
     }
-  
+
     // Update focus state for the dropzone
     function onFocusCb() {
-        state.isFocused = true;
+        dropState.isFocused = true;
     }
     function onBlurCb() {
-        state.isFocused = false;
+        dropState.isFocused = false;
     }
   
     // Cb to open the file dialog when click occurs on the dropzone
@@ -152,10 +185,10 @@
                     return;
                 }
 
-                state.draggedFiles = draggedFiles;
-                state.isDragActive = true;
+                dropState.draggedFiles = draggedFiles;
+                dropState.isDragActive = true;
 
-                dispatch("dragenter", {
+                ondragenter?.({
                     dragEvent: event
                 });
             });
@@ -174,7 +207,7 @@
         }
 
         if (isEvtWithFiles(event)) {
-            dispatch("dragover", {
+            ondragover?.({
                 dragEvent: event
             });
         }
@@ -200,11 +233,11 @@
             return;
         }
 
-        state.isDragActive = false;
-        state.draggedFiles = [];
+        dropState.isDragActive = false;
+        dropState.draggedFiles = [];
 
         if (isEvtWithFiles(event)) {
-            dispatch("dragleave", {
+            ondragleave?.({
                 dragEvent: event
             });
         }
@@ -218,7 +251,7 @@
         dragTargetsRef = [];
 
         if (isEvtWithFiles(event)) {
-            dispatch("filedropped", {
+            onfiledropped?.({
                 event
             });
             Promise.resolve(getFilesFromEvent(event)).then(files => {
@@ -275,17 +308,17 @@
                         inputElement.files = event.dataTransfer.files;
                     }
 
-                    state.acceptedFiles = acceptedFiles;
-                    state.fileRejections = fileRejections;
+                    dropState.acceptedFiles = acceptedFiles;
+                    dropState.fileRejections = fileRejections;
 
-                    dispatch("drop", {
+                    ondrop?.({
                         acceptedFiles,
                         fileRejections,
                         event
                     });
 
                     if (fileRejections.length > 0) {
-                        dispatch("droprejected", {
+                        ondroprejected?.({
                             fileRejections,
                             event
                         });
@@ -299,7 +332,7 @@
                     }
 
                     if (acceptedFiles.length > 0) {
-                        dispatch("dropaccepted", {
+                        ondropaccepted?.({
                             acceptedFiles,
                             event
                         });
@@ -317,11 +350,14 @@
         resetState();
     }
   
-    $: composeHandler = (/** @type {any} */ fn) => (innerDisabled ? null : fn);
-  
-    $: composeKeyboardHandler = (/** @type {any} */ fn) => (noKeyboard ? null : composeHandler(fn));
-  
-    $: composeDragHandler = (/** @type {any} */ fn) => (noDrag ? null : composeHandler(fn));
+    /** @param {any} fn */
+    function composeHandler(fn) { return innerDisabled ? null : fn; }
+
+    /** @param {any} fn */
+    function composeKeyboardHandler(fn) { return noKeyboard ? null : composeHandler(fn); }
+
+    /** @param {any} fn */
+    function composeDragHandler(fn) { return noDrag ? null : composeHandler(fn); }
   
     /** @param {any} event */
     function stopPropagation(event) {
@@ -356,14 +392,14 @@
     // Update file dialog active state when the window is focused on
     function onWindowFocus() {
         // Execute the timeout only if the file dialog is opened in the browser
-        if (state.isFileDialogActive) {
+        if (dropState.isFileDialogActive) {
             setTimeout(() => {
                 if (inputElement) {
                     const { files } = inputElement;
 
                     if (!files.length) {
-                        state.isFileDialogActive = false;
-                        dispatch("filedialogcancel");
+                        dropState.isFileDialogActive = false;
+                        onfiledialogcancel?.();
                     }
                 }
             }, 300);
@@ -381,7 +417,7 @@
     }
 </script>
 
-<svelte:window on:focus={onWindowFocus} on:dragover={onDocumentDragOver} on:drop={onDocumentDrop} />
+<svelte:window onfocus={onWindowFocus} ondragover={onDocumentDragOver} ondrop={onDocumentDrop} />
 
 
 <div
@@ -390,14 +426,14 @@
     role="button"
     class="{disableDefaultStyles ? '' : 'file-dropzone'} {containerClasses}"
     style={`${containerStyles}`}
-    on:keydown={composeKeyboardHandler(onKeyDownCb)}
-    on:focus={composeKeyboardHandler(onFocusCb)}
-    on:blur={composeKeyboardHandler(onBlurCb)}
-    on:click={composeHandler(onClickCb)}
-    on:dragenter={composeDragHandler(onDragEnterCb)}
-    on:dragover={composeDragHandler(onDragOverCb)}
-    on:dragleave={composeDragHandler(onDragLeaveCb)}
-    on:drop={composeDragHandler(onDropCb)}
+    onkeydown={composeKeyboardHandler(onKeyDownCb)}
+    onfocus={composeKeyboardHandler(onFocusCb)}
+    onblur={composeKeyboardHandler(onBlurCb)}
+    onclick={composeHandler(onClickCb)}
+    ondragenter={composeDragHandler(onDragEnterCb)}
+    ondragover={composeDragHandler(onDragOverCb)}
+    ondragleave={composeDragHandler(onDragLeaveCb)}
+    ondrop={composeDragHandler(onDropCb)}
 >
     <input
         {accept}
@@ -407,14 +443,16 @@
         {name}
         autocomplete="off"
         tabindex="-1"
-        on:change={onDropCb}
-        on:click={onInputElementClick}
+        onchange={onDropCb}
+        onclick={onInputElementClick}
         bind:this={inputElement}
         style="display: none;"
     />
-    <slot>
+    {#if children}
+        {@render children()}
+    {:else}
         <div class="add-file-icon">
             <i class="bx bxs-image-add"></i>
         </div>
-    </slot>
+    {/if}
 </div>

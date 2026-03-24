@@ -330,7 +330,7 @@
                                     placeholder={'Select'}
                                     selectedValues={agent.function_visibility_mode ? [agent.function_visibility_mode] : []}
                                     options={functionVisibilityModeOptions}
-                                    on:select={e => changeFunctionVisibilityMode(e)}
+                                    onselect={e => changeFunctionVisibilityMode(e)}
                                 />
                             </div>
                         </td>

@@ -14,7 +14,7 @@
     let {
         states = $bindable([]),
         maxLength = 3000,
-        onSearch = (/** @type {string} */ e) => Promise.resolve([])
+        onSearch = () => Promise.resolve([])
     } = $props();
 
 
@@ -37,11 +37,11 @@
     in:fly={{ y: -10, duration: 500 }}
     out:fly={{ y: -10, duration: 200 }}
 >
-    {#each states as state, idx}
+    {#each states as _state, idx (idx)}
         <div class="state-search-item">
             <div style="flex: 1;">
                 <RemoteSearchInput
-                    bind:value={state.key}
+                    bind:value={states[idx].key}
                     maxLength={maxLength}
                     onSearch={e => onSearch(e)}
                     placeholder="Search States"
@@ -51,9 +51,9 @@
                 <input
                     type="text"
                     class="form-control"
-                    bind:value={state.value}
+                    bind:value={states[idx].value}
                     maxlength={maxLength}
-                    disabled={!state.key}
+                    disabled={!states[idx].key}
                     placeholder="Enter a value"
                 />
             </div>

@@ -1,20 +1,22 @@
 <script>
 	import AudioPlayer from '../audio-player/AudioPlayer.svelte';
 
-  /** @type {import('$fileTypes').AudioFileModel[]} */
-  export let audios = [];
-
-  /** @type {string} */
-  export let id;
-
-  /** @type {string} */
-  export let containerClasses = "";
-
-  /** @type {string} */
-  export let containerStyles = "";
-
-  /** @type {boolean} */
-  export let disableDefaultStyles = false;
+  /**
+   * @type {{
+   *   audios?: import('$fileTypes').AudioFileModel[],
+   *   id?: string,
+   *   containerClasses?: string,
+   *   containerStyles?: string,
+   *   disableDefaultStyles?: boolean
+   * }}
+   */
+  let {
+    audios = [],
+    id = '',
+    containerClasses = '',
+    containerStyles = '',
+    disableDefaultStyles = false
+  } = $props();
 </script>
 
 

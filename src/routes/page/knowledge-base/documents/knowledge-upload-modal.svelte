@@ -62,7 +62,7 @@
 
     /** @param {any} e */
     function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
+        const { acceptedFiles } = e;
 
         if (!acceptedFiles
             || acceptedFiles.length === 0
@@ -151,7 +151,7 @@
                     searchMode
                     selectedValues={selectedProcessor ? [selectedProcessor] : []}
                     options={processors}
-                    on:select={e => changeProcessor(e)}
+                    onselect={e => changeProcessor(e)}
                 />
             </div>
             <div class="mt-2 d-flex flex-column gap-2">
@@ -160,28 +160,29 @@
                     showPrefix={true}
                     disabled={disabled || !selectedProcessor}
                 >
-                    <FileDropZone
-                        slot="prefix"
-                        accept={accept}
-                        containerClasses={'doc-drop-zone'}
-                        disabled={!selectedProcessor}
-                        fileLimit={1}
-                        maxSize={fileMaxSize * 1024 * 1024}
-                        on:drop={e => handleFileDrop(e)}
-                    >
-                        <div>
-                            <div class="doc-drop-icon">
-                                <i class="bx bx-cloud-upload"></i>
-                            </div>
+                    {#snippet prefix()}
+                        <FileDropZone
+                            accept={accept}
+                            containerClasses={'doc-drop-zone'}
+                            disabled={!selectedProcessor}
+                            fileLimit={1}
+                            maxSize={fileMaxSize * 1024 * 1024}
+                            ondrop={handleFileDrop}
+                        >
                             <div>
-                                <ul>
-                                    <li>{'Please select a processor before uploading.'}</li>
-                                    <li>{'File cannot exceed 10 MB.'}</li>
-                                    <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
-                                </ul>
+                                <div class="doc-drop-icon">
+                                    <i class="bx bx-cloud-upload"></i>
+                                </div>
+                                <div>
+                                    <ul>
+                                        <li>{'Please select a processor before uploading.'}</li>
+                                        <li>{'File cannot exceed 10 MB.'}</li>
+                                        <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                    </FileDropZone>
+                        </FileDropZone>
+                    {/snippet}
                 </FileGallery>
             </div>
         </Form>

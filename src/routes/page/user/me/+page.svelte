@@ -30,7 +30,7 @@
 
 	/** @param {any} e */
     async function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
+        const { acceptedFiles } = e;
 		const file = acceptedFiles[0];
 		if (!!!file) return;
 
@@ -71,7 +71,7 @@
 								multiple={false}
 								fileLimit={1}
 								maxSize={fileMaxSize}
-								on:drop={e => handleFileDrop(e)}
+								ondrop={handleFileDrop}
 							>
 								<img
 									src={`${currentUser?.avatar && $userStore?.token ? 

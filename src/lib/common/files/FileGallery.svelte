@@ -5,44 +5,42 @@
     } from '$lib/helpers/utils/file';
     import { LightboxGallery, GalleryThumbnail, GalleryImage } from 'svelte-lightbox';
 
-    /** @type {import('$fileTypes').TextFileModel[]} */
-    export let files = [];
-
-    /** @type {boolean} */
-    export let needDelete = false;
-
-    /** @type {boolean} */
-    export let needDownload = false;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {boolean} */
-    export let showFileName = false;
-
-    /** @type {boolean} */
-    export let showPrefix = false;
-
-    /** @type {boolean} */
-    export let showSuffix = false;
-
-    /** @type {string} */
-    export let gap = '3px';
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
-
-    /** @type {boolean} */
-    export let disableDefaultStyles = false;
-
-    /** @type {(args0: number) => void} */
-    export let onDelete = () => {};
-
-    /** @type {(args0: number) => void} */
-    export let onDownload = () => {};
+    /**
+     * @type {{
+     *   files?: import('$fileTypes').TextFileModel[],
+     *   needDelete?: boolean,
+     *   needDownload?: boolean,
+     *   disabled?: boolean,
+     *   showFileName?: boolean,
+     *   showPrefix?: boolean,
+     *   showSuffix?: boolean,
+     *   gap?: string,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   disableDefaultStyles?: boolean,
+     *   onDelete?: (args0: number) => void,
+     *   onDownload?: (args0: number) => void,
+     *   prefix?: import('svelte').Snippet,
+     *   suffix?: import('svelte').Snippet
+     * }}
+     */
+    let {
+        files = [],
+        needDelete = false,
+        needDownload = false,
+        disabled = false,
+        showFileName = false,
+        showPrefix = false,
+        showSuffix = false,
+        gap = '3px',
+        containerClasses = '',
+        containerStyles = '',
+        disableDefaultStyles = false,
+        onDelete = () => {},
+        onDownload = () => {},
+        prefix,
+        suffix
+    } = $props();
 
     
 
@@ -77,7 +75,7 @@
 >
     {#if showPrefix}
         <div class="gallery-item">
-            <slot name="prefix" />
+            {@render prefix?.()}
         </div>
     {/if}
 
@@ -97,8 +95,8 @@
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title="Delete"
-                                            on:keydown={() => {}}
-                                            on:click={e => handleDeleteFile(e, idx)}
+                                            onkeydown={() => {}}
+                                            onclick={e => handleDeleteFile(e, idx)}
                                         >
                                             <i class="bx bx-trash"></i>
                                         </div>
@@ -111,8 +109,8 @@
                                             data-bs-toggle="tooltip"
                                             data-bs-placement="top"
                                             title={`${isHtml(file.file_extension || file.file_name) ? 'Download' : 'Go to web page'}`}
-                                            on:keydown={() => {}}
-                                            on:click={e => handleDownloadFile(e, idx)}
+                                            onkeydown={() => {}}
+                                            onclick={e => handleDownloadFile(e, idx)}
                                         >
                                             {#if isHtml(file.file_extension || file.file_name)}
                                                 <i class="mdi mdi-web"></i>
@@ -180,7 +178,7 @@
 
     {#if showSuffix}
         <div class="gallery-item">
-            <slot name="suffix" />
+            {@render suffix?.()}
         </div>
     {/if}
 </div>

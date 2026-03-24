@@ -1110,7 +1110,7 @@
 												searchMode
 												selectedValues={selectedCollection ? [selectedCollection] : []}
 												options={collections}
-												on:select={e => changeCollection(e)}
+												onselect={e => changeCollection(e)}
 											/>
 										</div>
 									</div>

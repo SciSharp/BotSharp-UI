@@ -242,7 +242,7 @@
                             disabled={!item.checked || disabled}
                             selectedValues={item.data_type ? [item.data_type] : []}
                             options={dataTypeOptions}
-                            on:select={e => changeItem(e, idx, 'data_type')}
+                            onselect={e => changeItem(e, idx, 'data_type')}
                         />
                     </div>
                     <div class="search-item-cb line-align-center" style="flex: 0 0 12px;">

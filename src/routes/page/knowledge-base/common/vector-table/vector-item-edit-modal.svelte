@@ -316,7 +316,7 @@
                                     placeholder={'Select'}
                                     selectedValues={payload.value.data_type ? [payload.value.data_type] : []}
                                     options={dataTypeOptions}
-                                    on:select={e => changePayloadItem(e, idx, 'data_type')}
+                                    onselect={e => changePayloadItem(e, idx, 'data_type')}
                                 />
                             </div>
                             <div class="line-align-center" style="flex: 0 0 12px;">
