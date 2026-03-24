@@ -1,48 +1,29 @@
 <script>
-	import {
-        Button,
-        Input,
-        Modal,
-        ModalBody,
-        ModalFooter,
-        ModalHeader,
-        Row,
-        Form,
-        FormGroup
-    } from "@sveltestrap/sveltestrap";
+    import { fade } from 'svelte/transition';
+    import { untrack } from 'svelte';
     import _ from "lodash";
 
-    /** @type {boolean} */
-    export let isOpen;
+    let {
+        isOpen = false,
+        size = 'xl',
+        className = '',
+        toggleModal = () => {},
+        confirm = () => {},
+        cancel = () => {},
+        limit = 10,
+        title = "Add states",
+        validateKey = true,
+        validateValue = true,
+        requireActiveRounds = false,
+        states = $bindable([])
+    } = $props();
 
-    /** @type {string} */
-    export let size = 'xl';
-
-    /** @type {string} */
-    export let className = '';
-
-    /** @type {() => void} */
-    export let toggleModal;
-
-    /** @type {() => void} */
-    export let confirm;
-
-    /** @type {() => void} */
-    export let cancel;
-
-    /** @type {number} */
-    export let limit = 10;
-    
-    /** @type {string} */
-    export let title = "Add states";
-
-    /** @type {boolean} */
-    export let validateKey = true;
-    export let validateValue = true;
-    export let requireActiveRounds = false;
-
-    /** @type {import('$conversationTypes').UserStateDetailModel[]} */
-    export let states = [];
+    const sizeClasses = {
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        xl: 'max-w-xl'
+    };
 
     /** @type {import('$conversationTypes').UserStateDetailModel} */
     const defaultState = {
@@ -51,13 +32,22 @@
         active_rounds: { data: -1, isValid: true }
     };
 
-    $: {
+    $effect(() => {
         if (isOpen) {
-            if (states?.length > 0) {
-                states = [...states];
-            } else {
-                states = [{...JSON.parse(JSON.stringify(defaultState))}];
-            }
+            untrack(() => {
+                if (states?.length > 0) {
+                    states = [...states];
+                } else {
+                    states = [{...JSON.parse(JSON.stringify(defaultState))}];
+                }
+            });
+        }
+    });
+
+    /** @param {MouseEvent} e */
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            toggleModal();
         }
     }
 
@@ -70,12 +60,12 @@
         states = states.map(state => {
             const key = _.trim(state.key.data);
             const value = _.trim(state.value.data);
-            if (!!!key && validateKey) {
+            if (!key && validateKey) {
                 state.key.isValid = false;
                 isValidForm = isValidForm && state.key.isValid;
             }
 
-            if (!!!value && validateValue) {
+            if (!value && validateValue) {
                 state.value.isValid = false;
                 isValidForm = isValidForm && state.value.isValid;
             }
@@ -158,73 +148,120 @@
     }
 </script>
 
-<Modal class={className} fade size={size} isOpen={isOpen} unmountOnClose toggle={() => toggleModal && toggleModal()}>
-    <ModalHeader>{title}</ModalHeader>
-    <ModalBody>
-        <Form class="state-form">
-            {#each states as state, idx (idx)}
-            <Row>
-                <div class={`${requireActiveRounds ? 'state-key-input' : 'state-input'}`}>
-                    <FormGroup>
-                        {#if idx === 0}
-                        <label for="key">
-                            {`Key ${validateKey ? '(Required)' : '(Optional)'}`}
-                        </label>
-                        {/if}
-                        <Input class={`${!state.key.isValid ? 'invalid' : ''}`} placeholder="Enter a key" value={state.key.data} maxlength={50} on:input={(e) => changeKey(e, idx)} />
-                    </FormGroup>
-                </div>
-                <div class={`${requireActiveRounds ? 'state-key-input' : 'state-input'}`}>
-                    <FormGroup>
-                        {#if idx === 0}
-                        <label for="value">
-                            {`Value ${validateValue ? '(Required)' : '(Optional)'}`}
-                        </label>
-                        {/if}
-                        <Input class={`${!state.value.isValid ? 'invalid' : ''}`} placeholder="Enter a value" value={state.value.data} maxlength={1000} on:input={(e) => changeValue(e, idx)} />
-                    </FormGroup>
-                </div>
-                {#if requireActiveRounds}
-                <div class="state-num-input">
-                    <FormGroup>
-                        {#if idx === 0}
-                        <label for="value">
-                            {`Active rounds (Optional)`}
-                        </label>
-                        {/if}
-                        <Input type="number" placeholder="Enter a value" value={state.active_rounds.data} on:input={(e) => changeActiveRounds(e, idx)} />
-                    </FormGroup>
-                </div>
-                {/if}
-                <div class="state-delete mb-3 line-align-center" style={`padding-top: ${idx === 0 ? '28px' : '0px'}`}>
-                    <div class="line-align-center">
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <i
-                            class="bx bxs-no-entry clickable"
-                            class:hide={states.length === 1}
-                            on:click={() => remove(idx)}
-                        />
+{#if isOpen}
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div
+    class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] bg-black/50"
+    transition:fade={{ duration: 150 }}
+    onclick={handleBackdropClick}
+>
+    <div class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-xl'} mx-4 ${className}`}>
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="font-semibold text-lg">{title}</div>
+        </div>
+
+        <!-- Body -->
+        <div class="p-3">
+            <form class="state-form">
+                {#each states as state, idx (idx)}
+                <div class="flex w-full gap-2">
+                    <div class="min-w-0" style="flex: 0.4;">
+                        <div class="mb-2">
+                            {#if idx === 0}
+                            <label for="key">
+                                {`Key ${validateKey ? '(*)' : ''}`}
+                            </label>
+                            {/if}
+                            <input
+                                class={`form-control ${!state.key.isValid ? 'invalid' : ''}`}
+                                placeholder="Enter a key"
+                                value={state.key.data}
+                                maxlength={50}
+                                oninput={(e) => changeKey(e, idx)}
+                            />
+                        </div>
+                    </div>
+                    <div class="min-w-0" style="flex: 0.4;">
+                        <div class="mb-2">
+                            {#if idx === 0}
+                            <label for="value">
+                                {`Value ${validateValue ? '(*)' : ''}`}
+                            </label>
+                            {/if}
+                            <input
+                                class={`form-control ${!state.value.isValid ? 'invalid' : ''}`}
+                                placeholder="Enter a value"
+                                value={state.value.data}
+                                maxlength={1000}
+                                oninput={(e) => changeValue(e, idx)}
+                            />
+                        </div>
+                    </div>
+                    {#if requireActiveRounds}
+                    <div class="flex-1 min-w-0 state-num-input">
+                        <div class="mb-2">
+                            {#if idx === 0}
+                            <label for="value">
+                                {`Active rounds`}
+                            </label>
+                            {/if}
+                            <input
+                                type="number"
+                                class="form-control"
+                                placeholder="Enter a value"
+                                value={state.active_rounds.data}
+                                oninput={(e) => changeActiveRounds(e, idx)}
+                            />
+                        </div>
+                    </div>
+                    {/if}
+                    <div class="state-delete mb-2 flex items-end flex-shrink-0">
+                        <div class="flex items-center" style={`height: 36px; ${idx === 0 ? 'margin-top: auto;' : ''}`}>
+                            <!-- svelte-ignore a11y-click-events-have-key-events -->
+                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <i
+                                class="bx bxs-no-entry clickable"
+                                class:hide={states.length === 1}
+                                onclick={() => remove(idx)}
+                            ></i>
+                        </div>
                     </div>
                 </div>
-            </Row>
-            {/each}
-            <Row>
-                <div>
-                    <Button 
-                        color="primary"
-                        class="btn btn-primary"
-                        disabled={states.length >= limit}
-                        on:click={() => addState()}
-                    >
-                        Add +
-                    </Button>
+                {/each}
+                <div class="flex flex-wrap">
+                    <div>
+                        <button
+                            type="button"
+                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            disabled={states.length >= limit}
+                            onclick={() => addState()}
+                        >
+                            Add +
+                        </button>
+                    </div>
                 </div>
-            </Row>
-        </Form>
-    </ModalBody>
-    <ModalFooter>
-      <Button color="primary" on:click={(e) => handleConfirm(e)}>Confirm</Button>
-      <Button color="secondary" on:click={(e) => handleCancel(e)}>Cancel</Button>
-    </ModalFooter>
-</Modal>
+            </form>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-2 p-3 border-t border-gray-200 dark:border-gray-700">
+            <button
+                type="button"
+                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                onclick={(e) => handleConfirm(e)}
+            >
+                Confirm
+            </button>
+            <button
+                type="button"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:text-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
+                onclick={(e) => handleCancel(e)}
+            >
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+{/if}
