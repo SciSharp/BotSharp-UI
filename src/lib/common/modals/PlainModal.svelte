@@ -41,7 +41,7 @@
     >
         <!-- Header -->
         {#if title}
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
             <div class="font-semibold text-lg">{title}</div>
             <button
                 type="button"

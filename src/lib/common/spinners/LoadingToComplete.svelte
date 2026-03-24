@@ -1,16 +1,28 @@
 <script>
-	import { Alert } from "@sveltestrap/sveltestrap";
 	import Loader from "./Loader.svelte";
 
-    export let isLoading = false;
-    export let isComplete = false;
-    export let isError = false;
-    export let spinnerClasses = '';
-    export let spinnerStyles = '';
-    export let spinnerSize = 50;
-
-    export let successText = 'Update completed!';
-    export let errorText = 'Error!';
+	/**
+	 * @type {{
+	 *   isLoading?: boolean,
+	 *   isComplete?: boolean,
+	 *   isError?: boolean,
+	 *   spinnerClasses?: string,
+	 *   spinnerStyles?: string,
+	 *   spinnerSize?: number,
+	 *   successText?: string,
+	 *   errorText?: string
+	 * }}
+	 */
+	let {
+		isLoading = false,
+		isComplete = false,
+		isError = false,
+		spinnerClasses = '',
+		spinnerStyles = '',
+		spinnerSize = 50,
+		successText = 'Update completed!',
+		errorText = 'Error!'
+	} = $props();
 </script>
 
 {#if isLoading}
@@ -24,16 +36,16 @@
 
 {#if isComplete}
     <div class="alert-container">
-        <Alert color="success">
-            <div>{successText}</div>
-        </Alert>
+        <div class="alert alert-success" role="alert">
+            {successText}
+        </div>
     </div>
 {/if}
 
 {#if isError}
     <div class="alert-container">
-        <Alert color="danger">
-            <div>{errorText}</div>
-        </Alert>
+        <div class="alert alert-danger" role="alert">
+            {errorText}
+        </div>
     </div>
 {/if}

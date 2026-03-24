@@ -84,11 +84,11 @@
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-end gap-2 p-4 border-t border-gray-200 dark:border-gray-700">
+        <div class="flex justify-end gap-2 p-3 border-t border-gray-200 dark:border-gray-700">
             {#if !!confirmBtnText}
             <button
                 type="button"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 onclick={(e) => handleConfirm(e)}
                 disabled={disableConfirmBtn}
             >

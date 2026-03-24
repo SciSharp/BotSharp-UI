@@ -883,7 +883,7 @@
     function handleMessageInput(e) {
         const value = e.target.value;
 				saveMessageDraft(value);
-        if (!!!_.trim(value)) {
+        if (!_.trim(value)) {
             return;
         }
 
@@ -1551,7 +1551,7 @@
 </script>
 
 
-<svelte:window on:resize={() => resizeChatWindow()}/>
+<svelte:window onresize={() => resizeChatWindow()}/>
 
 <GlobalHeader
 	bind:isLoading={isLoading}
@@ -1597,12 +1597,12 @@
 			placeholder="Enter new tag..."
 			maxlength={50}
 			bind:value={newTagText}
-			on:keydown={e => { if (e.key === 'Enter') addTag(); }}
+			onkeydown={e => { if (e.key === 'Enter') addTag(); }}
 		/>
 		<button
 			class="btn btn-primary btn-sm"
 			disabled={!_.trim(newTagText)}
-			on:click={() => addTag()}
+			onclick={() => addTag()}
 		>
 			<i class="bx bx-plus"></i>
 		</button>
@@ -1652,7 +1652,7 @@
 	cancel={() => toggleBigMessageModal()}
 	disableConfirmBtn={!_.trim(bigText)}
 >
-	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." on:input={handleInputBigText} />
+	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." oninput={handleInputBigText} />
 	<div class="text-secondary text-end text-count">
 		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
@@ -1740,7 +1740,7 @@
 										<div class="">
 											<button
 												class="btn btn-secondary btn-rounded btn-sm"
-												on:click={() => openFullScreen()}
+												onclick={() => openFullScreen()}
 											>
 												<i class="bx bx-fullscreen"></i>
 											</button>
@@ -1802,7 +1802,7 @@
 										<button
 											class={`btn btn-rounded btn-sm btn-primary large-btn`}
 											disabled={disableAction}
-											on:click={() => handleNewConversation()}
+											onclick={() => handleNewConversation()}
 										>
 											<i 
 												class="mdi mdi-plus"
@@ -1819,7 +1819,7 @@
 										<button
 											class={`btn btn-rounded btn-sm btn-primary btn-left`}
 											disabled={disableAction}
-											on:click={() => handleNewConversation()}
+											onclick={() => handleNewConversation()}
 										>
 											<span
 												data-bs-toggle="tooltip"
@@ -1834,7 +1834,7 @@
 										<button
 											class={`btn btn-rounded btn-sm btn-danger ${!isLite ? 'btn-right' : ''}`}
 											disabled={disableAction}
-											on:click={() => endChat()}
+											onclick={() => endChat()}
 										>
 											{#if !isLite}
 											<span class="me-2">End</span>
@@ -1865,8 +1865,8 @@
 														tabindex="0"
 														aria-label="user-msg-to-log"
 														role="link"
-														on:keydown={() => {}}
-														on:click={() => directToLog(message.message_id)}
+														onkeydown={() => {}}
+														onclick={() => directToLog(message.message_id)}
 													>
 														<div
 															class="ctext-wrap user-msg bg-primary" 
@@ -1944,7 +1944,7 @@
 																			data-bs-toggle="tooltip"
 																			data-bs-placement="top"
 																			title="Like"
-																			on:click={e => likeMessage(e, message)}
+																			onclick={e => likeMessage(e, message)}
 																		>
 																			<i class="mdi mdi-thumb-up-outline text-primary"></i>
 																		</div>
@@ -1959,7 +1959,7 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
-																		on:click={() => openEditBotMsgModal(message)}
+																		onclick={() => openEditBotMsgModal(message)}
 																	>
 																		<i class="bx bxs-edit text-primary"></i>
 																	</div>
@@ -1974,8 +1974,8 @@
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Copy"
-																	on:mouseup={e => copyMessage(e, message)}
-																	on:mousedown={() => copyClicked = true}
+																	onmouseup={e => copyMessage(e, message)}
+																	onmousedown={() => copyClicked = true}
 																>
 																	{#if copyClicked}
 																		<div class="div-center">
@@ -2001,7 +2001,7 @@
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Code script"
-																	on:click={e => openCodeScriptModal(e, message)}
+																	onclick={e => openCodeScriptModal(e, message)}
 																>
 																	<i class="bx bx-terminal clickable"></i>
 																</div>
@@ -2038,7 +2038,7 @@
 													</span>
 												{/if}
 												<div class="flex-shrink-0 align-self-center" style="display: inline-block;">
-													<LoadingDots duration={'1s'} size={10} gap={5} color={'var(--bs-primary)'} />
+													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--bs-primary)'} />
 												</div>
 											</div>
 										</div>
@@ -2066,7 +2066,7 @@
 										type="submit"
 										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 										disabled={isSendingMsg || isThinking || disableAction}
-										on:click={() => startListen()}
+										onclick={() => startListen()}
 									>
 										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36"></i>
 									</button>
@@ -2146,7 +2146,7 @@
 									type="submit"
 									class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
 									disabled={!!!_.trim(text) || isSendingMsg || isThinking || disableAction}
-									on:click={() => sentTextMessage()}
+									onclick={() => sentTextMessage()}
 								>
 									<span class="d-none d-md-inline-block me-2">Send</span>
 									<i class="mdi mdi-send"></i>
