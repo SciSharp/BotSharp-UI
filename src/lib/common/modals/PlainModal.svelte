@@ -1,39 +1,63 @@
 <script>
-    import { Modal, ModalBody } from "@sveltestrap/sveltestrap";
+    import { fade } from 'svelte/transition';
 
-    /** @type {boolean} */
-    export let isOpen;
+    let {
+        isOpen = false,
+        size = 'lg',
+        title = '',
+        containerClasses = '',
+        containerStyles = '',
+        bodyStyles = '',
+        toggleModal = () => {},
+        children
+    } = $props();
 
-    /** @type {string} */
-    export let size = 'lg';
+    const sizeClasses = {
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        xl: 'max-w-xl'
+    };
 
-    /** @type {string | any} */
-    export let title;
-
-    /** @type {string} */
-    export let containerClasses = '';
-
-    /** @type {string} */
-    export let containerStyles = '';
-
-    /** @type {string} */
-    export let bodyStyles = '';
-
-    /** @type {() => void} */
-    export let toggleModal;
+    /** @param {MouseEvent} e */
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            toggleModal();
+        }
+    }
 </script>
 
-<Modal
-    class={containerClasses}
-    style={containerStyles}
-    fade
-    size={size}
-    isOpen={isOpen}
-    header={title}
-    toggle={() => toggleModal()}
-    unmountOnClose
+{#if isOpen}
+<!-- svelte-ignore a11y-no-static-element-interactions -->
+<!-- svelte-ignore a11y-click-events-have-key-events -->
+<div
+    class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] bg-black/50"
+    transition:fade={{ duration: 150 }}
+    onclick={handleBackdropClick}
 >
-    <ModalBody style={bodyStyles}>
-        <slot />
-    </ModalBody>
-</Modal>
+    <div
+        class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-lg'} mx-4 ${containerClasses}`}
+        style={containerStyles}
+    >
+        <!-- Header -->
+        {#if title}
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="font-semibold text-lg">{title}</div>
+            <button
+                type="button"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+                aria-label="Close"
+                onclick={() => toggleModal()}
+            >
+                <i class="mdi mdi-close text-xl"></i>
+            </button>
+        </div>
+        {/if}
+
+        <!-- Body -->
+        <div class="p-3" style={bodyStyles}>
+            {@render children?.()}
+        </div>
+    </div>
+</div>
+{/if}

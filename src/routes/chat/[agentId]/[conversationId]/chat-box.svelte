@@ -1650,7 +1650,7 @@
 	toggleModal={() => toggleBigMessageModal()}
 	confirm={() => sendBigMessage()}
 	cancel={() => toggleBigMessageModal()}
-	disableConfirmBtn={!!!_.trim(bigText)}
+	disableConfirmBtn={!_.trim(bigText)}
 >
 	<textarea class="form-control chat-input" rows="25" maxlength={maxTextLength} bind:value={bigText} placeholder="Enter Message..." on:input={handleInputBigText} />
 	<div class="text-secondary text-end text-count">
@@ -1665,7 +1665,7 @@
 	toggleModal={() => toggleEditBotMsgModal()}
 	confirm={() => saveBotMsg()}
 	cancel={() => toggleEditBotMsgModal()}
-	disableConfirmBtn={!!!_.trim(botText)}
+	disableConfirmBtn={!_.trim(botText)}
 >
 	<textarea class="form-control chat-input" rows="10" maxlength={maxTextLength} bind:value={botText} placeholder="Enter Message..." />
 	<div class="text-secondary text-end text-count">
