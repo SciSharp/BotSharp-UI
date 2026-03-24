@@ -1,7 +1,7 @@
 <script>
     import { fly } from 'svelte/transition';
     import { Button } from '@sveltestrap/sveltestrap';
-    import JSONTree from 'svelte-json-tree';
+    // import JSONTree from 'svelte-json-tree';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
     import { formatObject } from '$lib/helpers/utils/common';
@@ -79,13 +79,13 @@
                         {'States:'}
                     </div>
                     <div class="instruction-log-mt instruction-log-state overflow">
-                        <JSONTree
+                        <!-- <JSONTree
                             value={formatObject(item.states)}
                             defaultExpandedLevel={1}
                             --json-tree-number-color="var(--bs-info)"
                             --json-tree-boolean-color="var(--bs-info)"
                             --json-tree-string-color="var(--bs-info)"
-                        />
+                        /> -->
                     </div>
                 </div>
                 {/if}

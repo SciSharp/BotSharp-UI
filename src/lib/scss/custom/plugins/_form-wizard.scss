@@ -1,6 +1,6 @@
-//
-// Form Wizard
-//
+﻿/*  */
+/* Form Wizard */
+/*  */
 
 
 .form-wizard-wrapper {
@@ -12,7 +12,7 @@
 
 .wizard{
 
-  // step
+  /* step */
   .steps{
     >ul{
       display: flex;
@@ -75,7 +75,7 @@
     }
   }
 
-  // content
+  /* content */
   >.content {
     background-color: transparent;
     padding: 14px;
@@ -94,7 +94,7 @@
     }
   }
 
-  // actions
+  /* actions */
 
   >.actions {
     position: relative;
@@ -128,12 +128,12 @@
       }
   }
 
-  // verticl wixard
+  /* verticl wixard */
   &.vertical-wizard{
     display: flex;
     flex-wrap: wrap;
 
-    // step
+    /* step */
     .steps{
       >ul{
         flex-direction: column;

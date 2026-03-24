@@ -1,4 +1,4 @@
-.knowledge-demo-btn {
+﻿.knowledge-demo-btn {
     display: flex;
     justify-content: space-between;
 
@@ -116,14 +116,14 @@
             }
         }
 
-        // Responsive design for tablets and mobile
+        /* Responsive design for tablets and mobile */
         @media (max-width: 768px) {
             flex-direction: column;
             gap: 15px;
 
             .search-input {
                 &:first-child {
-                    // Confidence input section - centered
+                    /* Confidence input section - centered */
                     justify-content: center;
                     align-items: center;
                     gap: 10px;
@@ -135,7 +135,7 @@
                 }
 
                 &:nth-child(2) {
-                    // Toggle section - keep horizontal
+                    /* Toggle section - keep horizontal */
                     justify-content: center;
                     align-items: center;
                     gap: 15px;
@@ -167,13 +167,13 @@
                 }
             }
 
-            // Center the search button
+            /* Center the search button */
             .line-align-center {
                 text-align: center;
             }
         }
 
-        // Mobile and smaller screens - stack vertically
+        /* Mobile and smaller screens - stack vertically */
         @media (max-width: 480px) {
             .search-input {
                 &:first-child {
@@ -184,7 +184,7 @@
                     }
 
                     > div:last-child {
-                        // Confidence input and buttons container
+                        /* Confidence input and buttons container */
                         display: flex;
                         align-items: center;
                         justify-content: center;
@@ -198,7 +198,7 @@
                 }
 
                 &:nth-child(2) {
-                    // Keep toggle section horizontal on mobile
+                    /* Keep toggle section horizontal on mobile */
                     justify-content: center;
                     align-items: center;
                     gap: 12px;
@@ -234,7 +234,7 @@
             }
         }
 
-        // Very small screens - further optimizations
+        /* Very small screens - further optimizations */
         @media (max-width: 360px) {
             .search-input {
                 &:first-child {
@@ -608,7 +608,7 @@
                 max-width: 350px;
             }
 
-            // Responsive behavior for narrow screens
+            /* Responsive behavior for narrow screens */
             @media (max-width: 768px) {
                 flex-direction: column;
                 gap: 8px;
@@ -629,7 +629,7 @@
                     width: 100%;
                     position: relative;
 
-                    // Show field labels on mobile
+                    /* Show field labels on mobile */
                     &[data-label]:before {
                         content: attr(data-label) ":";
                         display: block;
@@ -640,7 +640,7 @@
                     }
                 }
 
-                // Hide header row on mobile since items are stacked
+                /* Hide header row on mobile since items are stacked */
                 &:first-child {
                     display: none;
                 }
@@ -651,7 +651,7 @@
                 gap: 6px;
             }
 
-            // Special styling for the add button row
+            /* Special styling for the add button row */
             &.add-item-row {
                 @media (max-width: 768px) {
                     flex-direction: row;

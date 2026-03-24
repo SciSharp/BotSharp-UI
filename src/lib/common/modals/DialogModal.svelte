@@ -1,58 +1,37 @@
 <script>
     import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@sveltestrap/sveltestrap";
 
-    /** @type {boolean} */
-    export let isOpen;
-
-    /** @type {boolean} */
-    export let closeable = false;
-
-    /** @type {string} */
-    export let size = 'xl';
-
-    /** @type {string | any} */
-    export let title;
-
-    /** @type {string} */
-    export let className = '';
-
-    /** @type {string} */
-    export let confirmBtnText = 'Confirm';
-
-    /** @type {string} */
-    export let cancelBtnText = 'Cancel';
-
-    /** @type {() => void} */
-    export let toggleModal;
-
-    /** @type {() => void} */
-    export let confirm = () => {};
-
-    /** @type {() => void} */
-    export let cancel = () => {};
-
-    /** @type {() => void} */
-    export let close = () => {};
-
-    /** @type {boolean} */
-    export let disableConfirmBtn = false;
+    let {
+        isOpen = false,
+        closeable = false,
+        size = 'xl',
+        title = '',
+        className = '',
+        confirmBtnText = 'Confirm',
+        cancelBtnText = 'Cancel',
+        toggleModal = () => {},
+        confirm = () => {},
+        cancel = () => {},
+        close = () => {},
+        disableConfirmBtn = false
+    } = $props();
 
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
-        confirm && confirm();
+        confirm?.();
     }
 
     /** @param {any} e */
     function handleCancel(e) {
         e.preventDefault();
-        cancel && cancel();
+        cancel?.();
     }
 
     /** @param {any} e */
     function handleClose(e) {
         e.preventDefault();
-        close && close();
+        close?.();
     }
 </script>
 
@@ -79,7 +58,7 @@
                     <!-- svelte-ignore a11y-click-events-have-key-events -->
                     <div
                         class="clickable"
-                        on:click={e => handleClose(e)}
+                        onclick={e => handleClose(e)}
                     >
                         <i class="mdi mdi-close"></i>
                     </div>

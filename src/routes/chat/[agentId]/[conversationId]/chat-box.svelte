@@ -1155,13 +1155,12 @@
 	}
 
 	/**
-	 * @param {any} e
 	 * @param {import('$conversationTypes').ChatResponseModel} message
 	 */
-	function editMessage(e, message) {
-		e.preventDefault();
+	async function editMessage(message) {
 		truncateMsgId = message?.message_id;
 		editText = message?.text;
+		await tick();
 		isOpenEditMsgModal = true;
 	}
 
@@ -1636,7 +1635,7 @@
 	toggleModal={() => toggleEditMsgModal()}
 	confirm={() => confirmEditMsg()}
 	cancel={() => toggleEditMsgModal()}
-	disableConfirmBtn={!!!_.trim(editText)}
+	disableConfirmBtn={!_.trim(editText)}
 >
 	<textarea class="form-control chat-input" rows="5" maxlength={maxTextLength} bind:value={editText} placeholder="Enter Message..." />
 	<div class="text-secondary text-end text-count">
@@ -1899,7 +1898,7 @@
 																<i class="bx bx-dots-vertical-rounded"></i>
 															</DropdownToggle>
 															<DropdownMenu class="dropdown-menu-end">
-																<DropdownItem on:click={(e) => editMessage(e, message)}>Edit</DropdownItem>
+																<DropdownItem on:click={() => editMessage(message)}>Edit</DropdownItem>
 																<DropdownItem on:click={(e) => resendMessage(e, message)}>Resend</DropdownItem>
 																<DropdownItem on:click={(e) => deleteMessage(e, message.message_id)}>Delete</DropdownItem>
 															</DropdownMenu>

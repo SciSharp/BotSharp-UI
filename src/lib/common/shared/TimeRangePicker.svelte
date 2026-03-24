@@ -1,8 +1,8 @@
 <script>
 	import { onMount, createEventDispatcher } from 'svelte';
 	import { Button, Input } from '@sveltestrap/sveltestrap';
-	import Flatpickr from 'svelte-flatpickr';
-	import 'flatpickr/dist/flatpickr.css';
+	// import Flatpickr from 'svelte-flatpickr';
+	// import 'flatpickr/dist/flatpickr.css';
 	import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '$lib/helpers/constants';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
 
@@ -487,7 +487,7 @@
 				<div class="p-2">
 					<!-- Calendar Grid -->
 					<div class="mb-3">
-						<Flatpickr options={flatpickrOptions} bind:flatpickr={flatpickrInstance} />
+						<!-- <Flatpickr options={flatpickrOptions} bind:flatpickr={flatpickrInstance} /> -->
 					</div>
 
 					<!-- Date Input Fields -->

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Template Name: Skote - Admin & Dashboard Template
 Author: Themesbrand
 Version: 4.1.0.
@@ -7,17 +7,17 @@ Contact: themesbrand@gmail.com
 File: Main Css File
 */
 
-//Fonts
+/* Fonts */
 @import "custom/fonts/fonts";
 
-//Core files
-@import "./node_modules/bootstrap/scss/functions";
-@import "./node_modules/bootstrap/scss/variables";
+/* Core files */
+@import "bootstrap/scss/functions";
+@import "bootstrap/scss/variables";
 @import "variables";
 @import "variables-dark";
-@import "./node_modules/bootstrap/scss/mixins";
+@import "bootstrap/scss/mixins";
 
-// Structure
+/* Structure */
 @import "custom/structure/general";
 @import "custom/structure/topbar";
 @import "custom/structure/page-head";
@@ -27,7 +27,7 @@ File: Main Css File
 @import "custom/structure/horizontal-nav";
 @import "custom/structure/layouts";
 
-// Components
+/* Components */
 @import "custom/components/waves";
 @import "custom/components/avatar";
 @import "custom/components/accordion";
@@ -48,7 +48,7 @@ File: Main Css File
 @import "custom/components/state";
 @import "custom/components/codeScript";
 
-// Plugins
+/* Plugins */
 @import "custom/plugins/custom-scrollbar";
 @import "custom/plugins/calendar";
 @import "custom/plugins/calendar-full";
@@ -80,7 +80,7 @@ File: Main Css File
 @import "custom/plugins/vector-maps";
 @import "custom/plugins/leaflet-maps";
 
-// Pages
+/* Pages */
 @import "custom/pages/authentication";
 @import "custom/pages/ecommerce";
 @import "custom/pages/email";
@@ -99,18 +99,18 @@ File: Main Css File
 @import "custom/pages/roles";
 @import "custom/pages/instruction";
 
-// Common
+/* Common */
 @import "custom/common/animation";
 @import "custom/common/display";
 @import "custom/common/common";
 
-//RTL
-// @import "custom/rtl/bootstrap-rtl";
-// @import "custom/rtl/components-rtl";
-// @import "custom/rtl/float-rtl";
-// @import "custom/rtl/general-rtl";
-// @import "custom/rtl/pages-rtl";
-// @import "custom/rtl/plugins-rtl";
-// @import "custom/rtl/spacing-rtl";
-// @import "custom/rtl/structure-rtl";
-// @import "custom/rtl/text-rtl";
+/* RTL */
+/* @import "custom/rtl/bootstrap-rtl"; */
+/* @import "custom/rtl/components-rtl"; */
+/* @import "custom/rtl/float-rtl"; */
+/* @import "custom/rtl/general-rtl"; */
+/* @import "custom/rtl/pages-rtl"; */
+/* @import "custom/rtl/plugins-rtl"; */
+/* @import "custom/rtl/spacing-rtl"; */
+/* @import "custom/rtl/structure-rtl"; */
+/* @import "custom/rtl/text-rtl"; */

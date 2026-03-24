@@ -1,4 +1,5 @@
 <script>
+	import '../app.css';
 	import { addMessages, init, getLocaleFromNavigator } from 'svelte-i18n';
 	import en from '$lib/langs/en.json';
 	import {

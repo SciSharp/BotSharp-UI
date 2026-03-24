@@ -1,6 +1,6 @@
-// 
-// _badge.scss
-// 
+﻿/*  */
+/* _badge.scss */
+/*  */
 
 
 .badge {
@@ -12,7 +12,7 @@
   }
 }
 
-// Soft badge
+/* Soft badge */
 @mixin badge-variant-soft($bg) {
   color: $bg;
   background-color: rgba($bg, 0.18);
@@ -63,7 +63,7 @@
     padding-left: .6em;
 }
 
-// Dark badge
+/* Dark badge */
 
 .badge.bg-dark{
   color: var(--#{$prefix}light);

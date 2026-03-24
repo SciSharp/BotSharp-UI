@@ -1,9 +1,9 @@
-// custom css
+﻿/* custom css */
 .tab-content .nav-tabs {
   display: none;
 }
   
-// dropzone 
+/* dropzone  */
 .dropzone .dz-message {
   text-align: center;
 }
@@ -43,7 +43,7 @@
       .clear-select {
         height: 18px !important;
         width: 18px !important;
-        // font-size: .8125rem !important;
+        /* font-size: .8125rem !important; */
       }
     }
   }
@@ -52,7 +52,7 @@
     background-color: #282b2e !important;
   }
 
-  // Modal
+  /* Modal */
   .modal {
     .modal-content{
       background-color: var(--bs-modal-bg);
@@ -61,11 +61,11 @@
   }
 }
   
-// select elements
+/* select elements */
 .svelte-select {
   max-height: 20px !important;
   min-height: 37px !important;
-  // background-color: #f3f6f9 !important;
+  /* background-color: #f3f6f9 !important; */
   border-color: #f3f6f9 !important;
   padding-right: 5px !important;
 
@@ -79,7 +79,7 @@
     }
 
     input {
-      // background-color: #f3f6f9 !important;
+      /* background-color: #f3f6f9 !important; */
       font-size: .8125rem !important;
     }
   }
@@ -119,16 +119,16 @@
   }
 }
   
-// data tables
+/* data tables */
 
 .sort {
   &.asc::after {
-    content: "▲"/"";
+    content: "â–²"/"";
     float: right;
   }
 
   &.desc::after{
-    content: "▼"/"";
+    content: "â–¼"/"";
     float: right;
   }
 }
@@ -137,7 +137,7 @@
   overflow-x: hidden;
 }
   
-// swal2
+/* swal2 */
 .swal2-container .swal2-confirm {
   background-color: var(--bs-primary);
 }

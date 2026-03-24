@@ -1,8 +1,8 @@
-// 
-// _demos.scss
-// 
+﻿/*  */
+/* _demos.scss */
+/*  */
 
-// Lightbox 
+/* Lightbox  */
 
 .mfp-popup-form {
     max-width: 1140px;
@@ -11,7 +11,7 @@
   color: var(--#{$prefix}body-color) !important;
 }
 
-// Modals
+/* Modals */
 
 .bs-example-modal {
     position: relative;
@@ -29,7 +29,7 @@
   }
 }
 
-// Icon demo ( Demo only )
+/* Icon demo ( Demo only ) */
 .icon-demo-content {
     text-align: center;
     color: $gray-500;
@@ -55,7 +55,7 @@
 }
 
 
-// Grid
+/* Grid */
 
 .grid-structure {
     .grid-container {
@@ -68,7 +68,7 @@
 }
 
 
-// card radio
+/* card radio */
 
 .card-radio{
   background-color: var(--#{$prefix}secondary-bg);

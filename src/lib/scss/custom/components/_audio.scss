@@ -1,4 +1,4 @@
-.aplayer {
+﻿.aplayer {
     --base-font-size: 12px;
     --aplayer-height: calc(var(--base-font-size) * 5.5);
     --theme-color: #fadfa3;
@@ -168,7 +168,7 @@
                 }
             }
             .aplayer-loading-icon {
-                //display: none;
+                /* display: none; */
                 svg {
                     display: block;
                     position: absolute;
@@ -238,7 +238,7 @@
         }
     }
     .aplayer-list {
-        //overflow: auto;
+        /* overflow: auto; */
         scrollbar-width: none;
         transition: all 0.5s ease;
         will-change: height;

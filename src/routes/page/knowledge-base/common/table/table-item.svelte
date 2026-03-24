@@ -2,7 +2,7 @@
     import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
 	import Loader from "$lib/common/spinners/Loader.svelte";
-    import JSONTree from 'svelte-json-tree';
+    // import JSONTree from 'svelte-json-tree';
 	import { formatObject, splitTextByCase } from "$lib/helpers/utils/common";
 
     /** @type {any} */
@@ -95,13 +95,13 @@
                     >
                         {#if detailKey && item[detailKey]}
                             {#if useJsonDisplay}
-                                <JSONTree
+                                <!-- <JSONTree
                                     value={formatObject(item[detailKey])}
                                     defaultExpandedLevel={1}
                                     --json-tree-number-color="var(--bs-info)"
                                     --json-tree-boolean-color="var(--bs-info)"
                                     --json-tree-string-color="var(--bs-info)"
-                                />
+                                /> -->
                             {:else}
                                 {#each Object.keys(item[detailKey]) as key, idx (idx)}
                                     <li class="more-detail-item wrappable">
