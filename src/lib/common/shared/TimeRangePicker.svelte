@@ -1,7 +1,7 @@
 <script>
 	import { onMount, createEventDispatcher } from 'svelte';
 	import { Button, Input } from '@sveltestrap/sveltestrap';
-	import Flatpickr from 'svelte-flatpickr';
+	import flatpickr from 'flatpickr';
 	import 'flatpickr/dist/flatpickr.css';
 	import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '$lib/helpers/constants';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
@@ -140,6 +140,19 @@
 		label: x.label,
 		value: x.value
 	}));
+
+	/** @param {HTMLElement} node */
+	function initFlatpickr(node) {
+		flatpickrInstance = flatpickr(node, flatpickrOptions);
+		return {
+			destroy() {
+				if (flatpickrInstance) {
+					flatpickrInstance.destroy();
+					flatpickrInstance = null;
+				}
+			}
+		};
+	}
 
 	onMount(() => {
 		loadRecentTimeRanges();
@@ -487,7 +500,7 @@
 				<div class="p-2">
 					<!-- Calendar Grid -->
 					<div class="mb-3">
-						<Flatpickr options={flatpickrOptions} bind:flatpickr={flatpickrInstance} />
+						<div use:initFlatpickr></div>
 					</div>
 
 					<!-- Date Input Fields -->
