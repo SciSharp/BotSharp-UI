@@ -8,11 +8,11 @@
 	import LiveChat from '$lib/common/shared/LiveChatEntry.svelte';
 	import VerticalLayout from '../VerticalLayout/Index.svelte';
 
-	let component = VerticalLayout;
+	let { children } = $props();
 </script>
 
-<svelte:component this={component}>
-	<slot />
-</svelte:component>
+<VerticalLayout>
+	{@render children?.()}
+</VerticalLayout>
 
 <LiveChat />

@@ -51,7 +51,7 @@
 >
 	<button
 		type="button"
-		class="btn header-item waves-effect"
+		class="btn header-item waves-effect d-inline-flex align-items-center"
 		id="page-header-user-dropdown"
 		aria-label="User menu"
 		onclick={() => (isOpen = !isOpen)}

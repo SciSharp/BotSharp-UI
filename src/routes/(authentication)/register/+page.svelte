@@ -1,29 +1,29 @@
 <script>
-	import Link from 'svelte-link';
-	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/shared/HeadTitle.svelte';
 	import { goto } from '$app/navigation';
 	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME } from '$env/static/public';
 
-	let username = '';
-	let emailid = '';
-	let password = '';
-	let isOpen = false;
-	let msg = '';
-	let status = '';
+	let username = $state('');
+	let emailid = $state('');
+	let password = $state('');
+	let isOpen = $state(false);
+	let msg = $state('');
+	let status = $state('');
+
+	/** @param {SubmitEvent} e */
 	async function onSubmit(e) {
 		e.preventDefault();
 		try {
-			if(username.trim() == "" || emailid.trim()=="" || password.trim() == ""){
+			if (username.trim() === '' || emailid.trim() === '' || password.trim() === '') {
 				isOpen = true;
 				msg = 'All Fields are required';
 				status = 'danger';
 				return false;
 			}
-			
+
 			const response = await fetch('https://api-node.themesbrand.website/auth/signup', {
 				method: 'POST',
-				body: JSON.stringify({ email: emailid, password: password,username: username}),
+				body: JSON.stringify({ email: emailid, password: password, username: username }),
 				headers: {
 					'Content-Type': 'application/json'
 				}
@@ -36,9 +36,9 @@
 				isOpen = true;
 				msg = 'Registration success. Redirecting...';
 				status = 'success';
-				setTimeout(function() {
-					goto("login");
-				},1500)
+				setTimeout(function () {
+					goto('login');
+				}, 1500);
 			} else {
 				isOpen = true;
 				msg = 'error';
@@ -57,79 +57,78 @@
 <Headtitle title="Register" />
 
 <div class="account-pages my-5 pt-sm-5">
-	<Container>
-		<Row class="justify-content-center">
-			<Col md={8} lg={8} xl={5}>
-				<Card class="overflow-hidden">
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-8 col-lg-8 col-xl-5">
+				<div class="card overflow-hidden">
 					<div class="bg-primary-subtle">
-						<Row>
-							<Col class="col-7">
+						<div class="row">
+							<div class="col-7">
 								<div class="text-primary p-4">
 									<h5 class="text-primary">Free Register</h5>
 									<p>Get your free account now.</p>
 								</div>
-							</Col>
-							<Col class="col-5 align-self-end">
-								<img src='images/profile-img.png' alt="" class="img-fluid" />
-							</Col>
-						</Row>
+							</div>
+							<div class="col-5 align-self-end">
+								<img src="images/profile-img.png" alt="" class="img-fluid" />
+							</div>
+						</div>
 					</div>
-					<CardBody class="pt-0">
+					<div class="card-body pt-0">
 						<div>
-							<Link href="page/dashboard">
+							<a href="page/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
 									</span>
 								</div>
-							</Link>
+							</a>
 						</div>
 						<div class="p-2">
-							<Alert {isOpen} color={status}>{msg}</Alert>
-							<Form class="needs-validation" on:submit={onSubmit}>
+							{#if isOpen}
+								<div class="alert alert-{status}" role="alert">{msg}</div>
+							{/if}
+							<form class="needs-validation" onsubmit={onSubmit}>
 								<div class="mb-3">
-									<Label for="useremail" class="form-label">Email</Label>
-									<Input
+									<label for="useremail" class="form-label">Email</label>
+									<input
 										type="email"
 										class="form-control"
 										id="useremail"
 										placeholder="Enter email"
 										bind:value={emailid}
-										
 									/>
 									<div class="invalid-feedback">Please Enter Email</div>
 								</div>
 
 								<div class="mb-3">
-									<Label for="username" class="form-label">Username</Label>
-									<Input
+									<label for="username" class="form-label">Username</label>
+									<input
 										type="text"
 										class="form-control"
 										id="username"
 										placeholder="Enter username"
 										bind:value={username}
-										
 									/>
 									<div class="invalid-feedback">Please Enter Username</div>
 								</div>
 
 								<div class="mb-3">
-									<Label for="userpassword" class="form-label">Password</Label>
-									<Input
+									<label for="userpassword" class="form-label">Password</label>
+									<input
 										type="password"
 										class="form-control"
 										id="userpassword"
 										placeholder="Enter password"
 										bind:value={password}
-										
 									/>
 									<div class="invalid-feedback">Please Enter Password</div>
 								</div>
 
 								<div class="mt-4 d-grid">
-									<Button color="primary" class="waves-effect waves-light" type="submit"
-										>Register</Button
-									>
+									<button type="submit" class="btn btn-primary waves-effect waves-light">
+										Register
+									</button>
 								</div>
 
 								<div class="mt-4 text-center">
@@ -137,45 +136,43 @@
 
 									<ul class="list-inline">
 										<li class="list-inline-item">
-											<Link href="#" class="social-list-item bg-primary text-white border-primary">
+											<button type="button" class="social-list-item bg-primary text-white border-primary" aria-label="Sign up with Facebook">
 												<i class="mdi mdi-facebook"></i>
-											</Link>
+											</button>
 										</li>
 										<li class="list-inline-item">
-											<Link href="#" class="social-list-item bg-info text-white border-info">
+											<button type="button" class="social-list-item bg-info text-white border-info" aria-label="Sign up with Twitter">
 												<i class="mdi mdi-twitter"></i>
-											</Link>
+											</button>
 										</li>
 										<li class="list-inline-item">
-											<Link href="#" class="social-list-item bg-danger text-white border-danger">
+											<button type="button" class="social-list-item bg-danger text-white border-danger" aria-label="Sign up with Google">
 												<i class="mdi mdi-google"></i>
-											</Link>
+											</button>
 										</li>
 									</ul>
 								</div>
 
 								<div class="mt-4 text-center">
 									<p class="mb-0">
-										By registering you agree to the <Link href="#" class="text-primary"
-											>Terms of Use</Link
-										>
+										By registering you agree to the <button type="button" class="btn btn-link text-primary p-0 align-baseline">Terms of Use</button>
 									</p>
 								</div>
-							</Form>
+							</form>
 						</div>
-					</CardBody>
-				</Card>
+					</div>
+				</div>
 				<div class="mt-5 text-center">
 					<p>
 						Already have an account ?
-						<Link href="login" class="fw-medium text-primary">Login</Link>
+						<a href="login" class="fw-medium text-primary">Login</a>
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
 						<i class="mdi mdi-heart text-danger"></i> by Open Source community
 					</p>
 				</div>
-			</Col>
-		</Row>
-	</Container>
+			</div>
+		</div>
+	</div>
 </div>

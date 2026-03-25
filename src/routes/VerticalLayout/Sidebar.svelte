@@ -1,21 +1,24 @@
 <script>
-	// @ts-nocheck
-	import { onMount, afterUpdate } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { browser } from '$app/environment';
-	import { goto } from '$app/navigation';
+	import { goto, afterNavigate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { _ } from 'svelte-i18n';
-	import Link from 'svelte-link';
 	import 'overlayscrollbars/overlayscrollbars.css';
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { getCleanUrl } from '$lib/helpers/utils/common';
 
-	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
-	export let menu;
+	/**
+	 * @type {{
+	 *   menu: import('$pluginTypes').PluginMenuDefModel[]
+	 * }}
+	 */
+	let { menu } = $props();
 
-	// after routing complete call afterUpdate function
-	afterUpdate(() => {
+	// after routing complete, update active menu state
+	afterNavigate(async () => {
+		await tick();
 		removeActiveDropdown();
 		const curUrl = getCleanUrl($page.url.pathname);
 		if (curUrl) {
@@ -51,8 +54,8 @@
 
 	const options = {
 		scrollbars: {
-			visibility: 'auto', // You can adjust the visibility ('auto', 'hidden', 'visible')
-			autoHide: 'move', // You can adjust the auto-hide behavior ('move', 'scroll', false)
+			visibility: 'auto',
+			autoHide: 'move',
 			autoHideDelay: 100,
 			dragScroll: true,
 			clickScroll: false,
@@ -61,17 +64,20 @@
 		}
 	};
 
-	$: isEmbeddingPage = !!$page.params.embed && !!$page.params.embedType;
+	let isEmbeddingPage = $derived(!!$page.params.embed && !!$page.params.embedType);
 
-	$: if (browser) {
-		toggleEmbedPageSidebar(isEmbeddingPage);
-	}
+	$effect(() => {
+		if (browser) {
+			toggleEmbedPageSidebar(isEmbeddingPage);
+		}
+	});
 
 	onMount(async () => {
 		let scrollbarInstance = null;
 		const menuElement = document.querySelector('#vertical-menu');
 		// @ts-ignore
 		if (menuElement && !isEmbeddingPage) {
+			// @ts-ignore
 			scrollbarInstance = OverlayScrollbars(menuElement, options);
 		}
 
@@ -237,6 +243,7 @@
 			document.body.classList.add('sidebar-enable');
 
 			if (menuElement) {
+				// @ts-ignore
 				const instance = OverlayScrollbars(menuElement, options);
 				if (instance) {
 					instance.destroy();
@@ -247,27 +254,11 @@
 			document.body.classList.remove('sidebar-enable');
 
 			if (menuElement) {
+				// @ts-ignore
 				OverlayScrollbars(menuElement, options);
 			}
 		}
 	}
-
-	const menuItemScroll = () => {
-		if (browser) {
-			const curUrl = getCleanUrl($page.url.pathname);
-			const item = document.querySelector(".vertical-menu a[id='" + curUrl + "']");
-			// @ts-ignore
-			let offset = item?.offsetTop;
-			if (offset && offset > 300) {
-				offset = offset - 300;
-				const menuElement = document.getElementById('vertical-menu');
-				menuElement?.scrollTo({
-					top: offset,
-					behavior: 'smooth'
-				});
-			}
-		}
-	};
 
 	/** @param {string} url */
 	const goToPage = (url) => {
@@ -296,32 +287,36 @@
 						<li class="menu-title" key="t-menu">{$_(item.label)}</li>
 					{:else if item.subMenu}
 						<li>
-							<Link class="has-arrow waves-effect clickable" href={null}>
+							<!-- svelte-ignore a11y_invalid_attribute -->
+							<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
-							</Link>
+							</a>
 							<ul class="sub-menu mm-collapse">
 								{#each item.subMenu as subMenu}
 									{#if subMenu.isChildItem}
 										<li>
-											<Link class="has-arrow waves-effect clickable" href={null}>
+											<!-- svelte-ignore a11y_invalid_attribute -->
+											<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
 												<span>{$_(subMenu.label)}</span>
-											</Link>
+											</a>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
 													<li>
-														<Link class="clickable" id={getCleanUrl(childItem.link)} href={null} on:click={() => goToPage(childItem.link)}>
+														<!-- svelte-ignore a11y_invalid_attribute -->
+														<a href="javascript:void(0);" class="clickable" id={getCleanUrl(childItem.link)} onclick={() => goToPage(childItem.link)}>
 															{$_(childItem.label)}
-														</Link>
+														</a>
 													</li>
 												{/each}
 											</ul>
 										</li>
 									{:else}
 										<li>
-											<Link class="clickable" id={getCleanUrl(subMenu.link)} href={null} on:click={() => goToPage(subMenu.link)}>
+											<!-- svelte-ignore a11y_invalid_attribute -->
+											<a href="javascript:void(0);" class="clickable" id={getCleanUrl(subMenu.link)} onclick={() => goToPage(subMenu.link)}>
 												{$_(subMenu.label)}
-											</Link>
+											</a>
 										</li>
 									{/if}
 								{/each}
@@ -329,10 +324,11 @@
 						</li>
 					{:else}
 						<li>
-							<Link class="waves-effect clickable" id={getCleanUrl(item.link)} href={null} on:click={() => goToPage(item.link)} >
-								<i class={item.icon}></i> 
+							<!-- svelte-ignore a11y_invalid_attribute -->
+							<a href="javascript:void(0);" class="waves-effect clickable" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
+								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
-							</Link>
+							</a>
 						</li>
 					{/if}
 				{/each}

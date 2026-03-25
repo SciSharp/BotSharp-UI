@@ -10,16 +10,17 @@
 	import Header from './Header.svelte';
 	import Sidebar from './Sidebar.svelte';
 	import Footer from './Footer.svelte';
-	
-	/** @type {import('$pluginTypes').PluginMenuDefModel[]} */
-	let menu;
 
-	/** @type {import("$userTypes").UserModel} */
-	let user;
+	let { children } = $props();
 
-	/** @type {boolean} */
-	let isLoading = false;
-	let hasError = false;
+	/** @type {import('$pluginTypes').PluginMenuDefModel[] | undefined} */
+	let menu = $state(undefined);
+
+	/** @type {import("$userTypes").UserModel | undefined} */
+	let user = $state(undefined);
+
+	let isLoading = $state(false);
+	let hasError = $state(false);
 
 	const toggleRightBar = () => {
 		if (browser) {
@@ -31,7 +32,7 @@
 		}
 	};
 
-	let closebar = () => {
+	const closebar = () => {
 		toggleRightBar();
 	};
 
@@ -48,19 +49,19 @@
 <GlobalHeader bind:isLoading={isLoading} bind:hasError={hasError} />
 
 <div id="layout-wrapper">
-	<Header user={user} toggleRightBar={() => toggleRightBar()} />
+	<Header {user} toggleRightBar={() => toggleRightBar()} />
 	{#if menu}
-	<Sidebar menu={menu}/>
+	<Sidebar {menu} />
 	{/if}
 	<div class="main-content">
 		<div class="page-content">
 			<div class="container-fluid" style="position: relative;">
 				<LoadingToComplete
 					spinnerSize={50}
-					isLoading={isLoading}
+					{isLoading}
 					isError={hasError}
 				/>
-				<slot />
+				{@render children?.()}
 			</div>
 		</div>
 		<Footer />

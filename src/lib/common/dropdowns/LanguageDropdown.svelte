@@ -46,6 +46,7 @@
 			src={languages.find(lang => lang.value === selectedLang)?.flag || 'images/flags/us.jpg'}
 			alt="Language"
 			height="16"
+			style="max-height: 16px; width: auto;"
 		/>
 	</button>
 	<div class="dropdown-menu language-switch dropdown-menu-end" class:show={isOpen}>
