@@ -2,44 +2,30 @@
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n';
     import Swal from 'sweetalert2';
-    import {
-		Card,
-		CardBody,
-		CardText,
-		CardTitle,
-		Col,
-		Nav,
-		NavItem,
-		NavLink,
-		Row,
-		TabContent,
-		TabPane,
-        Button
-	} from '@sveltestrap/sveltestrap';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
-	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import { getSettings, getSettingDetail } from '$lib/services/setting-service';
     import { JSONEditor } from 'svelte-jsoneditor';
-	import { refreshAgents } from '$lib/services/agent-service';
-	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
-    
+    import { refreshAgents } from '$lib/services/agent-service';
+    import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+
     const duration = 3000;
-    let isLoading = false;
-    let isComplete = false;
-    let isError = false;
-    let successText = '';
-    let errorText = '';
+    let isLoading = $state(false);
+    let isComplete = $state(false);
+    let isError = $state(false);
+    let successText = $state('');
+    let errorText = $state('');
 
-    let selectedTab = '1';
+    let selectedTab = $state('1');
     /** @type {string[]} */
-    let settings = [];
+    let settings = $state([]);
 
-    let content = { json: {} };
+    let content = $state({ json: {} });
 
     onMount(async () => {
-        settings = await getSettings();   
+        settings = await getSettings();
         selectedTab = settings[0];
-        handleGetSettingDetail(selectedTab);         
+        handleGetSettingDetail(selectedTab);
     });
 
     /**
@@ -54,7 +40,7 @@
     }
 
     function readyToRefresh() {
-		// @ts-ignore
+        // @ts-ignore
         Swal.fire({
             title: 'Are you sure?',
             text: "You will migrate all agents data to mongoDb.",
@@ -67,7 +53,7 @@
                 refreshAgentData();
             }
         });
-	}
+    }
 
     const refreshAgentData = () => {
         isLoading = true;
@@ -79,7 +65,7 @@
                 isComplete = false;
                 successText = '';
             }, duration);
-        }).catch(err => {
+        }).catch(() => {
             isLoading = false;
             isComplete = false;
             isError = true;
@@ -92,68 +78,67 @@
     };
 </script>
 
-<HeadTitle title="{$_('Settings')}" />
-<Breadcrumb title="{$_('Settings')}" pagetitle="{$_('Detail')}" />
+<HeadTitle title={$_('Settings')} />
+<Breadcrumb title={$_('Settings')} pagetitle={$_('Detail')} />
 
 <LoadingToComplete
-    isLoading={isLoading}
-    isComplete={isComplete}
-    isError={isError}
-    successText={successText}
-    errorText={errorText}
+    {isLoading}
+    {isComplete}
+    {isError}
+    {successText}
+    {errorText}
 />
 
-<Card>
-    <CardBody>
-        <CardTitle class="h4">{$_('System & Plugin Settings')}</CardTitle>
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">{$_('System & Plugin Settings')}</h4>
         <p class="card-title-desc"></p>
 
-        <Nav tabs class="nav-tabs-default nav-justified">
+        <ul class="nav nav-tabs nav-tabs-default nav-justified">
             {#each settings as tab}
-            <NavItem id={tab}>
-                <NavLink
-                    style="cursor: pointer"
-                    on:click={() => handleGetSettingDetail(tab)}
-                    active={selectedTab == tab}
-                >
-                    <span class="d-block d-sm-none">
-                        <i class="fas fa-home"></i>
-                    </span>
-                    <span class="d-none d-sm-block">{tab}</span>
-                </NavLink>
-            </NavItem>                
+                <li class="nav-item" id={tab}>
+                    <button
+                        class="nav-link {selectedTab === tab ? 'active' : ''}"
+                        style="cursor: pointer"
+                        onclick={() => handleGetSettingDetail(tab)}
+                    >
+                        <span class="d-block d-sm-none">
+                            <i class="fas fa-home"></i>
+                        </span>
+                        <span class="d-none d-sm-block">{tab}</span>
+                    </button>
+                </li>
             {/each}
-        </Nav>
+        </ul>
 
-        <TabContent class="p-3 text-muted">
+        <div class="tab-content p-3 text-muted">
             {#each settings as tab}
-            <TabPane tabId={tab} class={selectedTab == tab ? 'active' : ''}>
-                <Row>
-                    <Col sm="12">
-                        <CardText class="mb-0">
-                            <div class="my-json-editor">
-                                <JSONEditor bind:content />
+                {#if selectedTab === tab}
+                    <div class="tab-pane active">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div class="my-json-editor">
+                                    <JSONEditor bind:content />
+                                </div>
                             </div>
-                        </CardText>
-                    </Col>
-                </Row>
-            </TabPane>
+                        </div>
+                    </div>
+                {/if}
             {/each}
-        </TabContent>
-    </CardBody>
-</Card>
+        </div>
+    </div>
+</div>
 
-
-<Card>
-    <CardBody>
-        <CardTitle class="h4">{$_('Migrate agents from file repository to MongoDB')}</CardTitle>
+<div class="card">
+    <div class="card-body">
+        <h4 class="card-title">{$_('Migrate agents from file repository to MongoDB')}</h4>
         <p class="card-title-desc"></p>
 
-        <Button color="primary" on:click={() => readyToRefresh()} disabled={isLoading}>
+        <button class="btn btn-primary" onclick={() => readyToRefresh()} disabled={isLoading}>
             <i class="bx bx-copy"></i> {$_('Start Migration')}
-        </Button>
-    </CardBody>
-</Card>
+        </button>
+    </div>
+</div>
 
 <style>
     .my-json-editor {

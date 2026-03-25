@@ -1,20 +1,17 @@
 <script>
-	import { _ } from 'svelte-i18n'  
-	import Link from 'svelte-link';
-	import {
-		Card,
-		CardBody,
-		Col,
-		Row,
-	} from '@sveltestrap/sveltestrap';
+	import { _ } from 'svelte-i18n';
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
 	import Swal from 'sweetalert2';
 	import { sendToChatBot } from '$lib/helpers/utils/chat';
 	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
 	import { ChatAction } from '$lib/helpers/enums';
 
-    /** @type {import('$pluginTypes').PluginDefModel[]} */
-    export let plugins;
+	/**
+	 * @type {{
+	 *   plugins: import('$pluginTypes').PluginDefModel[]
+	 * }}
+	 */
+	let { plugins } = $props();
 
 	/**
 	 * @param {string} id
@@ -65,11 +62,11 @@
 	}
 </script>
 
-<Row>
+<div class="row">
 	{#each plugins as item}
-		<Col xl={3} md={6} style="margin-bottom: 10px;">
-			<Card style="height: 100%">
-				<CardBody class="d-flex flex-column justify-content-between">
+		<div class="col-xl-3 col-md-6" style="margin-bottom: 10px;">
+			<div class="card" style="height: 100%">
+				<div class="card-body d-flex flex-column justify-content-between">
 					<div class="favorite-icon">
 						<div><i class="uil uil-heart-alt fs-18"></i></div>
 					</div>
@@ -108,7 +105,7 @@
 					<div class="mt-2 hstack pt-2 gap-2 border-top">
 						<button
 							class="btn btn-soft-success btn-sm"
-							on:click={() => clickView(item)}
+							onclick={() => clickView(item)}
 						>
 							{$_('View')}
 						</button>
@@ -116,11 +113,11 @@
 							<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
 						{/if}
 						{#if !item.is_core}
-							<button class="btn btn-soft-warning btn-sm" on:click={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
+							<button class="btn btn-soft-warning btn-sm" onclick={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
 						{/if}
 					</div>
-				</CardBody>
-			</Card>
-		</Col>
+				</div>
+			</div>
+		</div>
 	{/each}
-</Row>
+</div>

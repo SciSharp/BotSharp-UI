@@ -1,16 +1,7 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
-	import { page } from '$app/stores';
-    import {
-		Button,
-		Card,
-		CardBody,
-		Col,
-		Input,
-		Row,
-		Table
-	} from '@sveltestrap/sveltestrap';
-    import { _ } from 'svelte-i18n';
+	import { onDestroy, onMount } from 'svelte';
+	import { page } from '$app/state';
+	import { _ } from 'svelte-i18n';
 	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
@@ -27,51 +18,50 @@
 		goToUrl
 	} from '$lib/helpers/utils/common';
 
-	
-    const duration = 3000;
+	const duration = 3000;
 	const firstPage = 1;
 	const pageSize = 15;
 	const maxLength = 50;
 
-    const initPager = { page: firstPage, size: pageSize };
+	const initPager = { page: firstPage, size: pageSize };
 
-    let isLoading = false;
-	let isComplete = false;
-	let isError = false;
-	let isPageMounted = false;
-    let successText = 'User has been updated!';
-    let errorText = 'Failed to update user!';
+	let isLoading = $state(false);
+	let isComplete = $state(false);
+	let isError = $state(false);
+	let isPageMounted = $state(false);
+	let successText = 'User has been updated!';
+	let errorText = 'Failed to update user!';
 
-    /** @type {import('$commonTypes').Pagination} */    
-    let pager = { ...initPager, count: 0 };
+	/** @type {import('$commonTypes').Pagination} */
+	let pager = $state({ ...initPager, count: 0 });
 
-    /** @type {import('$userTypes').UserFilter} */
-    let filter = { ... initPager };
+	/** @type {import('$userTypes').UserFilter} */
+	let filter = $state({ ...initPager });
 
-    /** @type {import('$userTypes').UserModel[]} */
-    let userItems = [];
+	/** @type {import('$userTypes').UserModel[]} */
+	let userItems = $state([]);
 
-    /** @type {import('$commonTypes').IdName[]} */
-	let agents = [];
+	/** @type {import('$commonTypes').IdName[]} */
+	let agents = $state([]);
 
 	/** @type {string[]} */
-	let roleOptions = [];
+	let roleOptions = $state([]);
 
 	/** @type {any} */
 	let unsubscriber;
 
-    let searchOption = {
+	let searchOption = $state({
 		userName: '',
 		externalId: '',
 		role: '',
 		type: '',
-	};
+	});
 
-    onMount(async () => {
+	onMount(async () => {
 		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
-			page: $page.url.searchParams.get("page"),
-			pageSize: $page.url.searchParams.get("pageSize")
+			page: page.url.searchParams.get("page"),
+			pageSize: page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
 
 		filter = {
@@ -94,7 +84,7 @@
 
 			getPagedUsers();
 		});
-    });
+	});
 
 	onDestroy(() => {
 		isPageMounted = false;
@@ -113,42 +103,42 @@
 		});
 	}
 
-    function getPagedUsers() {
-        userItems = [];
-        isLoading = true;
-        return new Promise((resolve, reject) => {
-            getUsers(filter).then(res => {
-                refresh(res);
-                resolve(res);
-            }).finally(() => {
-                isLoading = false;
-            });
-        });
+	function getPagedUsers() {
+		userItems = [];
+		isLoading = true;
+		return new Promise((resolve) => {
+			getUsers(filter).then(res => {
+				refresh(res);
+				resolve(res);
+			}).finally(() => {
+				isLoading = false;
+			});
+		});
 	}
 
-    function getPagedAgents() {
-        return new Promise((resolve, reject) => {
-            getAgentOptions().then(res => {
-                agents = res?.map(x => {
-                    return {
-                        id: x.id,
-                        name: x.name
-                    };
-                }) || [];
-                resolve(agents);
-            });
-        });
-    }
+	function getPagedAgents() {
+		return new Promise((resolve) => {
+			getAgentOptions().then(res => {
+				agents = res?.map(x => {
+					return {
+						id: x.id,
+						name: x.name
+					};
+				}) || [];
+				resolve(agents);
+			});
+		});
+	}
 
-    /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
-    function refresh(users) {
+	/** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
+	function refresh(users) {
 		refreshUsers(users);
 		refreshPager(users.count, filter.page);
 	}
 
-    /** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
+	/** @param {import('$commonTypes').PagedItems<import('$userTypes').UserModel>} users */
 	function refreshUsers(users) {
-        userItems = [ ...users.items ];
+		userItems = [ ...users.items ];
 	}
 
 	/** @param {number} totalItemsCount */
@@ -159,7 +149,7 @@
 			count: totalItemsCount
 		};
 
-		setUrlQueryParams($page.url, [
+		setUrlQueryParams(page.url, [
 			{ key: 'page', value: `${pager.page}` },
 			{ key: 'pageSize', value: `${pager.size}` }
 		], (url) => {
@@ -168,28 +158,28 @@
 		});
 	}
 
-    function search() {
-        prepareFilter();
-        getPagedUsers();
-    }
+	function search() {
+		prepareFilter();
+		getPagedUsers();
+	}
 
-    function prepareFilter() {
-        const userName = searchOption.userName?.trim();
-        const externalId = searchOption.externalId?.trim();
-        const role = searchOption.role?.trim();
-        const type = searchOption.type?.trim();
+	function prepareFilter() {
+		const userName = searchOption.userName?.trim();
+		const externalId = searchOption.externalId?.trim();
+		const role = searchOption.role?.trim();
+		const type = searchOption.type?.trim();
 
-        filter = {
-            ...filter,
-            page: firstPage,
-            user_names: !!userName ? [userName] : [],
-            external_ids: !!externalId ? [externalId] : [],
-            roles: !!role ? [role] : [],
-            types: !!type ? [type] : []
-        };
-    }
+		filter = {
+			...filter,
+			page: firstPage,
+			user_names: userName ? [userName] : [],
+			external_ids: externalId ? [externalId] : [],
+			roles: role ? [role] : [],
+			types: type ? [type] : []
+		};
+	}
 
-    /** @param {number} pageNum */
+	/** @param {number} pageNum */
 	function pageTo(pageNum) {
 		filter = {
 			...filter,
@@ -199,11 +189,10 @@
 		getPagedUsers();
 	}
 
-    /** @param {any} e */
-    function saveUser(e) {
-        const data = e.detail.updatedData;
-        isLoading = true;
-        updateUser(data).then(res => {
+	/** @param {import('$userTypes').UserModel} data */
+	function saveUser(data) {
+		isLoading = true;
+		updateUser(data).then(res => {
 			if (res) {
 				isLoading = false;
 				isComplete = true;
@@ -222,22 +211,22 @@
 				isError = false;
 			}, duration);
 		});
-    }
+	}
 
-    /** @param {import('$userTypes').UserModel} data */
-    function postUpdate(data) {
-        userItems = userItems?.map(x => {
-            if (x.id === data.id) {
-                return { ...data, open_detail: true };
-            }
-            return x;
-        }) || [];
-    }
+	/** @param {import('$userTypes').UserModel} data */
+	function postUpdate(data) {
+		userItems = userItems?.map(x => {
+			if (x.id === data.id) {
+				return { ...data, open_detail: true };
+			}
+			return x;
+		}) || [];
+	}
 </script>
 
 
-<HeadTitle title="{$_('User List')}" />
-<Breadcrumb title="{$_('Management')}" pagetitle="{$_('Users')}" />
+<HeadTitle title={$_('User List')} />
+<Breadcrumb title={$_('Management')} pagetitle={$_('Users')} />
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -247,44 +236,43 @@
 	errorText={errorText}
 />
 
-<Row>
-	<Col lg="12">
-		<Card>
-			<CardBody class="border-bottom">
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body border-bottom">
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('User List')}</h5>
 				</div>
-			</CardBody>
-			<CardBody class="border-bottom">
-				<Row class="g-3">
-					<Col lg="3">
-						<Input bind:value={searchOption.userName} maxlength={maxLength} placeholder={'Search user name...'} />
-					</Col>
-					<Col lg="3">
-						<Input bind:value={searchOption.externalId} maxlength={maxLength} placeholder={'Search external id...'} />
-					</Col>					
-					<Col lg="3">
-						<Input bind:value={searchOption.role} maxlength={maxLength} placeholder={'Search role...'} />
-					</Col>
-					<Col lg="2">
-						<Input bind:value={searchOption.type} maxlength={maxLength} placeholder={'Search type...'} />
-					</Col>
-					<Col lg="1">
-						<Button
+			</div>
+			<div class="card-body border-bottom">
+				<div class="row g-3">
+					<div class="col-lg-3">
+						<input class="form-control" bind:value={searchOption.userName} maxlength={maxLength} placeholder={'Search user name...'} />
+					</div>
+					<div class="col-lg-3">
+						<input class="form-control" bind:value={searchOption.externalId} maxlength={maxLength} placeholder={'Search external id...'} />
+					</div>
+					<div class="col-lg-3">
+						<input class="form-control" bind:value={searchOption.role} maxlength={maxLength} placeholder={'Search role...'} />
+					</div>
+					<div class="col-lg-2">
+						<input class="form-control" bind:value={searchOption.type} maxlength={maxLength} placeholder={'Search type...'} />
+					</div>
+					<div class="col-lg-1">
+						<button
 							type="button"
-							color="secondary"
-							class="btn-soft-secondary w-100"
-							on:click={(e) => search()}
+							class="btn btn-secondary btn-soft-secondary w-100"
+							onclick={() => search()}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
 							<span class="d-none">{$_('Filter')}</span>
-						</Button>
-					</Col>
-				</Row>
-			</CardBody>
-			<CardBody>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
 				<div class="table-responsive thin-scrollbar">
-					<Table class="align-middle nowrap users-table" bordered>
+					<table class="table table-bordered align-middle nowrap users-table">
 						<thead>
 							<tr>
 								<th scope="col">{$_('User Name')}</th>
@@ -298,19 +286,19 @@
 						</thead>
 						<tbody>
 							{#each userItems as item, idx (idx)}
-                                <UserItem
-                                    item={item}
-                                    agents={agents}
+								<UserItem
+									item={item}
+									agents={agents}
 									roleOptions={roleOptions}
-                                    open={item.open_detail}
-                                    on:save={e => saveUser(e)}
-                                />
-                            {/each}
+									open={item.open_detail}
+									onsave={data => saveUser(data)}
+								/>
+							{/each}
 						</tbody>
-					</Table>
+					</table>
 				</div>
 				<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
-			</CardBody>
-		</Card>
-	</Col>
-</Row>
+			</div>
+		</div>
+	</div>
+</div>

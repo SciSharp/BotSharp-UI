@@ -1,15 +1,13 @@
 <script>
-	import Link from 'svelte-link';
-	import { Card, CardBody, CardTitle, Col } from '@sveltestrap/sveltestrap';
-    import { _ } from 'svelte-i18n'
+    import { _ } from 'svelte-i18n';
 </script>
 
-<Col xl={4}>
-	<Card>
-        <CardBody>
-        <CardTitle class="mb-5">
+<div class="col-xl-4">
+	<div class="card">
+        <div class="card-body">
+        <h4 class="card-title mb-5">
             {$_('Activity')}
-        </CardTitle>
+        </h4>
 
         <ul class="verti-timeline list-unstyled">
             <li class="event-list">
@@ -37,7 +35,7 @@
                     </div>
                     <div class="flex-grow-1">
                         <div>
-                            {$_('Everyone realizes why a new common language would be desirable...')} <Link>{$_('Read more')}</Link>
+                            {$_('Everyone realizes why a new common language would be desirable...')} <a href={'#'}>{$_('Read more')}</a>
                         </div>
                     </div>
                 </div>
@@ -74,9 +72,9 @@
             </li>
         </ul>
         <div class="text-center mt-4">
-            <Link class="btn btn-primary waves-effect waves-light btn-sm">{$_('View More')} <i class="mdi mdi-arrow-right ms-1"></i></Link>
+            <a href={'#'} class="btn btn-primary waves-effect waves-light btn-sm">{$_('View More')} <i class="mdi mdi-arrow-right ms-1"></i></a>
         </div>
 
-    </CardBody>
-    </Card>
-</Col>
+    </div>
+    </div>
+</div>

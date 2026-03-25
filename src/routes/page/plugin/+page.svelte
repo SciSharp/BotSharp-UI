@@ -4,7 +4,7 @@
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import Plugins from './plugin-list.svelte';
-    import { getPlugins } from '$lib/services/plugin-service';
+	import { getPlugins } from '$lib/services/plugin-service';
 	import { PUBLIC_PLUGIN_DEFAULT_ICON } from '$env/static/public';
 	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
 	import { _ } from 'svelte-i18n';
@@ -21,23 +21,24 @@
 	let isPageMounted = false;
 
 	/** @type {import('$commonTypes').PagedItems<import('$pluginTypes').PluginDefModel>} */
-    let plugins = { items: [], count: 0 };
+	let plugins = $state({ items: [], count: 0 });
 
 	/** @type {import('$pluginTypes').PluginFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 }
 	};
 
-    /** @type {import('$pluginTypes').PluginFilter} */
-    let filter = { ... initFilter };
+	/** @type {import('$pluginTypes').PluginFilter} */
+	let filter = $state({ ...initFilter });
 
 	/** @type {import('$commonTypes').Pagination} */
-	let pager = filter.pager;
+	// svelte-ignore state_referenced_locally
+	let pager = $state(filter.pager);
 
 	/** @type {any} */
 	let unsubscriber;
 
-    onMount(async () => {
+	onMount(async () => {
 		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
 			page: $page.url.searchParams.get("page"),
@@ -69,7 +70,7 @@
 
 			getPagedPlugins();
 		});
-    });
+	});
 
 	onDestroy(() => {
 		isPageMounted = false;
@@ -142,8 +143,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Plugin')}" />
-<Breadcrumb title="{$_('Plugin')}" pagetitle="{$_('List')}" />
+<HeadTitle title={$_('Plugin')} />
+<Breadcrumb title={$_('Plugin')} pagetitle={$_('List')} />
 
 <Plugins plugins={plugins.items} />
 <PlainPagination pagination={pager} pageTo={pageTo} />

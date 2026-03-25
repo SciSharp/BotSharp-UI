@@ -1,7 +1,6 @@
 <script>
 	import { onMount } from 'svelte';
 	import { PUBLIC_BRAND_NAME } from '$env/static/public';
-	import { Row, Col, Card, CardBody, CardTitle, Table } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import FileDropZone from '$lib/common/files/FileDropZone.svelte';
@@ -10,33 +9,28 @@
 	import { userStore } from '$lib/helpers/store';
 	import { PUBLIC_SERVICE_URL } from '$env/static/public';
 	import { buildUrl } from '$lib/helpers/utils/common';
-	
+
 	/** @type {import('$userTypes').UserModel} */
-	let currentUser;
-	let isLoading = false;
+	let currentUser = $state(/** @type {any} */ (undefined));
 
 	const fileMaxSize = 10 * 1024 * 1024;
 
 	onMount(async () => {
-		isLoading = true;
 		await myInfo()
 			.then((data) => {
 				currentUser = data;
-			})
-			.finally(() => {
-				isLoading = false;
 			});
 	});
 
 	/** @param {any} e */
-    async function handleFileDrop(e) {
-        const { acceptedFiles } = e;
+	async function handleFileDrop(e) {
+		const { acceptedFiles } = e;
 		const file = acceptedFiles[0];
-		if (!!!file) return;
+		if (!file) return;
 
 		await uploadUserAvatar(file);
 		window.location.reload();
-    }
+	}
 
 	/** @param {any} e */
 	function handleAvatarLoad(e) {
@@ -44,24 +38,24 @@
 	}
 </script>
 
-<HeadTitle title="{$_('My Profile')}" />
-<Breadcrumb title="{$_('Home')}" pagetitle="{$_('My Profile')}" />
-<Row>
-	<Col xl={4}>
-		<Card class="overflow-hidden">
+<HeadTitle title={$_('My Profile')} />
+<Breadcrumb title={$_('Home')} pagetitle={$_('My Profile')} />
+<div class="row">
+	<div class="col-xl-4">
+		<div class="card overflow-hidden">
 			<div class="bg-primary-subtle">
-				<Row class="row">
-					<Col xs={7}>
+				<div class="row">
+					<div class="col-7">
 						<div class="text-primary p-3">
 							<h5 class="text-primary">{$_('Welcome Back !')}</h5>
 							<p>{PUBLIC_BRAND_NAME}</p>
 						</div>
-					</Col>
-				</Row>
+					</div>
+				</div>
 			</div>
-			<CardBody class="pt-0">
-				<Row>
-					<Col sm={4}>
+			<div class="card-body pt-0">
+				<div class="row">
+					<div class="col-sm-4">
 						<div class="avatar-md profile-user-wid mb-4">
 							<FileDropZone
 								accept="image/*"
@@ -74,26 +68,26 @@
 								ondrop={handleFileDrop}
 							>
 								<img
-									src={`${currentUser?.avatar && $userStore?.token ? 
+									src={`${currentUser?.avatar && $userStore?.token ?
 										`${buildUrl(PUBLIC_SERVICE_URL, currentUser?.avatar).href}?access_token=${$userStore?.token}` : ''}`}
 									alt=""
 									class="img-thumbnail rounded-circle"
 									style="width: 100%; height: 100%;"
-									on:error={e => handleAvatarLoad(e)}
+									onerror={e => handleAvatarLoad(e)}
 								/>
 							</FileDropZone>
 						</div>
 						<h5 class="font-size-15 text-truncate">{currentUser?.full_name}</h5>
 						<p class="text-muted mb-0 text-truncate">{currentUser?.role ?? 'Role: N/A'}</p>
-					</Col>
-				</Row>
-			</CardBody>
-		</Card>
-		<Card>
-			<CardBody>
-				<CardTitle class="mb-4">{$_('Personal Information')}</CardTitle>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="card">
+			<div class="card-body">
+				<h4 class="card-title mb-4">{$_('Personal Information')}</h4>
 				<div class="table-responsive">
-					<Table>
+					<table class="table">
 						<tbody>
 							<tr>
 								<th>{$_('First Name')}:</th>
@@ -136,9 +130,9 @@
 								</td>
 							</tr>
 						</tbody>
-					</Table>
+					</table>
 				</div>
-			</CardBody>
-		</Card>
-	</Col>
-</Row>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,36 +1,36 @@
 <script>
+    import { onMount } from 'svelte';
     import Drawflow from 'drawflow';
     import 'drawflow/dist/drawflow.min.css';
     import '$lib/drawflow/drawflow.css';
-    import { onMount } from 'svelte';
+    import 'overlayscrollbars/overlayscrollbars.css';
+    import { OverlayScrollbars } from 'overlayscrollbars';
+    import { page } from '$app/state';
+	import { replaceNewLine } from '$lib/helpers/http';
     import { newConversation } from '$lib/services/conversation-service';
     import { conversationStore } from '$lib/helpers/store.js';
     import { getAgentTaskDetail } from '$lib/services/task-service';
     import { sendMessageToHub } from '$lib/services/conversation-service.js';
-	import 'overlayscrollbars/overlayscrollbars.css';
-    import { OverlayScrollbars } from 'overlayscrollbars';
-    import { page } from '$app/stores';
-	import { replaceNewLine } from '$lib/helpers/http';
 
     /** @type {import('$agentTypes').AgentTaskModel} */
-    let task;
+    let task = $state(/** @type {any} */ (undefined));
 
     /** @type {import('$agentTypes').AgentTemplate[]} */
-    let taskNodes = [];
+    let taskNodes = $state([]);
 
     /** @type {Drawflow} */
-    let editor;
+    let editor = $state(/** @type {any} */ (undefined));
 
     /** @type {string} */
-    let tid;
+    let tid = $state('');
     /** @type {string} */
-    let cid;
+    let cid = $state('');
     /** @type {string} */
-    let mid;    
-    let lastPosX = 120;
-    let lastPosY = 0;
+    let mid = $state('');
+    let lastPosX = $state(120);
+    let lastPosY = $state(0);
     const nodeSpaceX = 50, nodeSpaceY = 50;
-    let messageCount = 0;
+    let messageCount = $state(0);
 
     const options = {
 		scrollbars: {
@@ -46,9 +46,10 @@
 
     onMount(async () => {
         const container = document.getElementById("drawflow");
-        container.style.setProperty('--drawflow-node-width', '300px');
 
         if (container) {
+            container.style.setProperty('--drawflow-node-width', '300px');
+
             editor = new Drawflow(container);
             editor.reroute = true;
             editor.reroute_fix_curvature = true;
@@ -63,8 +64,8 @@
                 console.log("Node selected " + id);
             });            
         }
-        const params = $page.params;
-        const agentId = $page.url.searchParams.get('agentId');
+        const params = page.params;
+        const agentId = page.url.searchParams.get('agentId');
         const taskId = params.taskId;
         task = await getAgentTaskDetail(agentId, taskId);
 
@@ -87,7 +88,8 @@
 
         const scrollElements = document.querySelectorAll('.scrollbar');
 		scrollElements.forEach((item) => {
-			const scrollbar = OverlayScrollbars(item, options);
+			// @ts-ignore
+			OverlayScrollbars(item, options);
 		});
 
         messageCount = 0;
@@ -136,26 +138,13 @@
         }
     }
 
-    async function handleRunTaskSequentiallyInServer() {
-        // clean nodes
-        editor.clear();
-        renderTaskNode();
-
-        // new conversation
-        const conversation = await newConversation(task.agent_id, {taskId: task.id});
-        conversationStore.put(conversation);
-        renderConversationNode(conversation);
-        
-        var response = await sendMessageToHub(task.agent_id, conversation.id, task.content);
-        renderMessageNode(task.content, response, true);
-    }
-
     async function handleRunTaskInteractively() {
         // clean nodes
         editor.clear();
         renderTaskNode();
 
         // new conversation
+        // @ts-ignore
         const conversation = await newConversation(task.direct_agent_id, {taskId: task.id});
         conversationStore.put(conversation);
         renderConversationNode(conversation);
@@ -164,6 +153,7 @@
         let steps = task.content.split('\n');
         for (let i = 0; i < steps.length; i++) {
             let step = steps[i];
+            // @ts-ignore
             const response = await sendMessageToHub(task.direct_agent_id, conversation.id, step, { states: ['hide_context=true'] });
             if (response.text.includes("failed")) {
                 renderMessageNode(step, response, false);
@@ -176,9 +166,9 @@
 </script>
 
 <div>
-    <!--<button class="btn btn-primary me-2" on:click={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute through {task?.agent_name}</button>-->
+    <!--<button class="btn btn-primary me-2" onclick={handleRunTaskSequentiallyInServer}><i class="bx bx-run"></i> Execute through {task?.agent_name}</button>-->
     {#if task?.direct_agent_id}
-    <button class="btn btn-primary" on:click={handleRunTaskInteractively}><i class="bx bx-rocket"></i> Execute Interactively</button>
+    <button class="btn btn-primary" onclick={handleRunTaskInteractively}><i class="bx bx-rocket"></i> Execute Interactively</button>
     {/if}
 </div>
 

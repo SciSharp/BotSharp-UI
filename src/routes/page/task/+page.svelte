@@ -4,19 +4,6 @@
 	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import {
-		Button,
-		Card,
-		CardBody,
-		Col,
-		Dropdown,
-		DropdownItem,
-		DropdownMenu,
-		DropdownToggle,
-		Input,
-		Row,
-		Table
-	} from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
@@ -42,12 +29,12 @@
 		}
 	};
 
-	let isLoading = false;
-	let isComplete = false;
-	let successText = "Update completed!";
+	let isLoading = $state(false);
+	let isComplete = $state(false);
+	let successText = $state("Update completed!");
 
     /** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentTaskModel>} */
-    let tasks = { count: 0, items: [] };
+    let tasks = $state({ count: 0, items: [] });
 
 	/** @type {import('$agentTypes').AgentTaskFilter} */
 	const initFilter = {
@@ -55,16 +42,16 @@
 	};
 
     /** @type {import('$agentTypes').AgentTaskFilter} */
-    let filter = { ... initFilter };
+    let filter = $state({ ... initFilter });
 
 	/** @type {import('$commonTypes').Pagination} */
-	let pager = filter.pager;
+	let pager = $state({ page: firstPage, size: pageSize, count: 0 });
 
 	/** @type {import('$agentTypes').AgentTaskSearchOption} */
-	let searchOption = {
+	let searchOption = $state({
 		agentId: null,
 		status: null
-	};
+	});
 
 	const statusOptions = Object.entries(AgentTaskStatus).map(([k, v]) => (
 		{ key: k, value: v }
@@ -77,7 +64,8 @@
 
 		const scrollElements = document.querySelectorAll('.scrollbar');
 		scrollElements.forEach((item) => {
-			const scrollbar = OverlayScrollbars(item, options);
+			// @ts-ignore
+			OverlayScrollbars(item, options);
 		});
     });
 
@@ -164,9 +152,8 @@
 		}
 	}
 
-	/** @param {any} e */
-	function onTaskSaved(e) {
-		const task = e.detail.task;
+	/** @param {import('$agentTypes').AgentTaskModel} task */
+	function onTaskSaved(task) {
 		if (!task) return;
 
 		openSaveModal(task);
@@ -208,9 +195,8 @@
 
 	
 
-	/** @param {any} e */
-	function onTaskDeleted(e) {
-		const task = e.detail.task;
+	/** @param {import('$agentTypes').AgentTaskModel} task */
+	function onTaskDeleted(task) {
 		if (!task) return;
 
 		openDeleteModal(task.id);
@@ -233,86 +219,68 @@
         });
 	}
 
-	/** @param {string} taskId */
-    function handleTaskDeletion(taskId) {
-        /*deleteConversation(conversationId).then(async () => {
-			isLoading = false;
-			isComplete = true;
-			setTimeout(() => {
-				isComplete = false;
-			}, duration);
-			await reloadConversations();
-		}).catch(err => {
-			isLoading = false;
-			isComplete = false;
-			isError = true;
-			setTimeout(() => {
-				isError = false;
-			}, duration);
-		});*/
-    }
+	/** @param {string} _taskId */
+    function handleTaskDeletion(_taskId) {}
 </script>
 
-<HeadTitle title="{$_('Task List')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Task')}" />
+<HeadTitle title={$_('Task List')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('Task')} />
 
 <LoadingToComplete
 	isLoading={isLoading}
 	isComplete={isComplete}
 />
 
-<Row>
-	<Col lg="12">
-		<Card>
-			<CardBody class="border-bottom">
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body border-bottom">
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('Task List')}</h5>
 					<div class="flex-shrink-0">
-						<!-- <Link class="btn btn-light" on:click={(e) => searchTasks(e)}><i class="mdi mdi-magnify"></i></Link> -->
-						<Dropdown class="dropdown d-inline-block">
-							<DropdownToggle type="menu" class="btn" id="dropdownMenuButton1">
-								<i class="mdi mdi-dots-vertical"></i></DropdownToggle
-							>
-							<DropdownMenu>
-								<DropdownItem>{$_('Action')}</DropdownItem>
-							</DropdownMenu>
-						</Dropdown>
+						<div class="dropdown d-inline-block">
+							<button type="button" class="btn" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions">
+								<i class="mdi mdi-dots-vertical"></i>
+							</button>
+							<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
+								<li><button type="button" class="dropdown-item">{$_('Action')}</button></li>
+							</ul>
+						</div>
 					</div>
 				</div>
-			</CardBody>
-			<CardBody class="border-bottom">
-				<Row class="g-3">
-					<Col xxl="5" lg="5">
-						<Input
+			</div>
+			<div class="card-body border-bottom">
+				<div class="row g-3">
+					<div class="col-xxl-5 col-lg-5">
+						<input
 							type="search"
 							class="form-control"
 							id="searchTableList"
-							placeholder="{$_('Search for ...')}"
+							placeholder={$_('Search for ...')}
 						/>
-					</Col>
-					<Col xxl="5" lg="5">
-						<select class="form-select" id="idStatus" value={searchOption.status} on:change={e => changeOption(e, 'status')}>
+					</div>
+					<div class="col-xxl-5 col-lg-5">
+						<select class="form-select" id="idStatus" value={searchOption.status} onchange={e => changeOption(e, 'status')}>
 							<option value={null}>{$_('Select Status')}</option>
 							{#each statusOptions as op}
 								<option value={`${op.value}`} selected={op.value === searchOption.status}>{$_(`${op.key}`)}</option>
 							{/each}
 						</select>
-					</Col>
-					<Col xxl="2" lg="2">
-						<Button
-							class="btn-soft-secondary w-100"
+					</div>
+					<div class="col-xxl-2 col-lg-2">
+						<button
+							class="btn btn-soft-secondary w-100"
 							type="button"
-							color="secondary"
-							on:click={e => searchTasks(e)}
+							onclick={e => searchTasks(e)}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i> {$_('Filter')}
-						</Button>
-					</Col>
-				</Row>
-			</CardBody>
-			<CardBody>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
 				<div class="table-responsive">
-					<Table class="align-middle nowrap" bordered>
+					<table class="table table-bordered align-middle nowrap">
 						<thead>
 							<tr>
 								<th scope="col">{$_('Name')}</th>
@@ -329,15 +297,15 @@
 							{#each tasks.items as task}
 								<TaskItem
 									task={task}
-									on:save={e => onTaskSaved(e)}
-									on:delete={e => onTaskDeleted(e)}
+									onsave={t => onTaskSaved(t)}
+									ondelete={t => onTaskDeleted(t)}
 								/>
 							{/each}
 						</tbody>
-					</Table>
+					</table>
 				</div>
 				<TablePagination pagination={pager} pageTo={pg => pageTo(pg)} />
-			</CardBody>
-		</Card>
-	</Col>
-</Row>
+			</div>
+		</div>
+	</div>
+</div>

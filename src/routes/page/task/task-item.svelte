@@ -1,45 +1,44 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
     import { _ } from 'svelte-i18n';
-    import { Button } from "@sveltestrap/sveltestrap";
 	import { utcToLocal } from "$lib/helpers/datetime";
 	import { replaceNewLine } from "$lib/helpers/http";
 
-    const svelteDispatch = createEventDispatcher();
-
-    /** @type {import('$agentTypes').AgentTaskModel} */
-    export let task;
-
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   task: import('$agentTypes').AgentTaskModel,
+     *   onsave?: (task: import('$agentTypes').AgentTaskModel) => void,
+     *   ondelete?: (task: import('$agentTypes').AgentTaskModel) => void
+     * }}
+     */
+    let {
+        task,
+        onsave,
+        ondelete
+    } = $props();
 
     function toggleTask() {
         task.enabled = !task.enabled;
     }
 
     function handleSaveTask() {
-        svelteDispatch("save", {
-            task: task
-        });
+        onsave?.(task);
     }
 
     function handleDeleteTask() {
-        svelteDispatch("delete", {
-            task: task
-        });
+        ondelete?.(task);
     }
 </script>
 
 <tr>
-    <td scope="row" class="text-primary">{task.name}</td>
+    <td class="text-primary">{task.name}</td>
     <td>{task.description}</td>
     <td>{task.agent_name}</td>
     <td><div style="max-height: 100px;" class="scrollbar">{@html replaceNewLine(task.content)}</div></td>
     <td>{utcToLocal(task.updated_time)}</td>
     <td>
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
-        <span class="clickable" on:click={() => toggleTask()}>
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <span class="clickable" onclick={() => toggleTask()}>
             {#if task.enabled}
                 <span class="badge bg-success">{$_("Enabled")}</span>
             {:else}
@@ -51,19 +50,19 @@
     <td>
         <ul class="list-unstyled hstack gap-1 mb-0">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                <a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-primary">
+                <a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-primary" aria-label="View">
                     <i class="mdi mdi-eye-outline"></i>
                 </a>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Save">
-                <Button on:click={() => handleSaveTask()} class="btn btn-sm btn-soft-info">
+                <button type="button" onclick={() => handleSaveTask()} class="btn btn-sm btn-soft-info" aria-label="Save">
                     <i class="mdi mdi-content-save-all"></i>
-                </Button>
+                </button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                <Button on:click={() => handleDeleteTask()} class="btn btn-sm btn-soft-danger">
+                <button type="button" onclick={() => handleDeleteTask()} class="btn btn-sm btn-soft-danger" aria-label="Delete">
                     <i class="mdi mdi-delete-outline"></i>
-                </Button>
+                </button>
             </li>
         </ul>
     </td>

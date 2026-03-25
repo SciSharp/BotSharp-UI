@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import { getChartColorsArray } from '$lib/common/shared/ChartColorsArray.svelte';
     import ApexCharts from 'apexcharts';
-	export let chartColor;
 
+	let { chartColor = [] } = $props();
+
+	// svelte-ignore state_referenced_locally
 	const stackedColumnchartColors = getChartColorsArray(chartColor);
 
 	const options = {
@@ -59,4 +61,4 @@
 	});
 </script>
 
-<div id="stackedColumnchart" class="apex-charts" dir="ltr" />
+<div id="stackedColumnchart" class="apex-charts" dir="ltr"></div>
