@@ -3,7 +3,6 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import { Button, Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
 	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
@@ -15,6 +14,7 @@
 	import { AgentCodeScriptType, LlmModelType } from '$lib/helpers/enums';
 	import NavBar from '$lib/common/nav-bar/NavBar.svelte';
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import InstructionAgent from '../instruction-components/instruction-agent.svelte';
 	import InstructionLlm from '../instruction-components/instruction-llm.svelte';
     import InstructionState from '../instruction-components/instruction-state.svelte';
@@ -30,49 +30,49 @@
         { name: 'instruction-coding', displayText: 'Coding' }
     ];
 
-    let isLoading = false;
-    let isError = false;
-    let isThinking = false;
-    let requestDone = false;
-    
-    let text = '';
-    let instruction = '';
-    let result = '';
-    let elapsedTime = '';
-    let errorText = 'Please select an agent to proceed!';
+    let isLoading = $state(false);
+    let isError = $state(false);
+    let isThinking = $state(false);
+    let requestDone = $state(false);
+
+    let text = $state('');
+    let instruction = $state('');
+    let result = $state('');
+    let elapsedTime = $state('');
+    let errorText = $state('Please select an agent to proceed!');
 
     /** @type {import('$agentTypes').AgentModel | null} */
-    let selectedAgent = null;
+    let selectedAgent = $state(null);
 
-    /** @type {import('$commonTypes').LlmConfig?} */
-    let selectedProvider = null;
-
-    /** @type {string | null} */
-    let selectedModel = null;
+    /** @type {import('$commonTypes').LlmConfig | null} */
+    let selectedProvider = $state(null);
 
     /** @type {string | null} */
-    let selectedTemplate = null;
+    let selectedModel = $state(null);
+
+    /** @type {string | null} */
+    let selectedTemplate = $state(null);
 
     /** @type {import('$agentTypes').AgentCodeScriptViewModel | null | undefined} */
-    let selectedCodeScript = null;
-    
+    let selectedCodeScript = $state(null);
+
     /** @type {import('$agentTypes').AgentModel[]} */
-    let agents = [];
+    let agents = $state([]);
 
     /** @type {import('$commonTypes').LlmConfig[]} */
-    let llmConfigs = [];
+    let llmConfigs = $state([]);
 
     /** @type {import('$agentTypes').AgentCodeScriptViewModel[]} */
-    let codeScripts = [];
+    let codeScripts = $state([]);
 
     /** @type {import('$commonTypes').KeyValuePair[]} */
-    let states = [{ key: '', value: ''}];
+    let states = $state([{ key: '', value: ''}]);
 
     /** @type {import('$commonTypes').KeyValuePair[]} */
-    let args = [{ key: '', value: ''}];
+    let args = $state([{ key: '', value: ''}]);
 
     /** @type {string}*/
-    let selectedTab = tabs[0].name;
+    let selectedTab = $state(tabs[0].name);
 
     onMount(async () => {
         try {
@@ -138,7 +138,7 @@
 
     /** @param {KeyboardEvent} e */
 	function pressKey(e) {
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!util.trim(text) || isLoading) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !util.trim(text) || isLoading) {
 			return;
 		}
 
@@ -155,18 +155,14 @@
         elapsedTime = ''
     }
 
-    function resetInstruction() {
-        instruction = '';
-    }
-
-    /** @param {any} e */
-    function onAgentSelected(e) {
-        selectedAgent = e.detail.agent || null;
+    /** @param {{ agent: import('$agentTypes').AgentModel | null, template: any }} detail */
+    function onAgentSelected(detail) {
+        selectedAgent = detail.agent || null;
         let localText = selectedAgent?.instruction;
 
-        const template = e.detail.template || null;
+        const template = detail.template || null;
         selectedTemplate = template?.name || null;
-        if (!!template) {
+        if (template) {
             localText = template?.content;
         }
 
@@ -176,17 +172,17 @@
         selectedProvider = llmConfigs?.find(x => x.provider === providerName) || null;
         selectedModel = modelName;
 
-        if (!!selectedAgent?.id) {
+        if (selectedAgent?.id) {
             initAgentCodeScripts(selectedAgent.id);
         } else {
             codeScripts = [];
         }
     }
-    
-    /** @param {any} e */
-    function onLlmSelected(e) {
-        selectedProvider = e.detail.provider || null;
-        selectedModel = e.detail.model || '';
+
+    /** @param {{ provider: import('$commonTypes').LlmConfig | null, model: string | null }} detail */
+    function onLlmSelected(detail) {
+        selectedProvider = detail.provider || null;
+        selectedModel = detail.model || '';
     }
 
     /** @param {string} agentId */
@@ -207,8 +203,8 @@
     }
 </script>
 
-<HeadTitle title="{$_('Instruction')}" />
-<Breadcrumb pagetitle="{$_('Testing')}" title="{$_('Instruction')}"/>
+<HeadTitle title={$_('Instruction')} />
+<Breadcrumb pagetitle={$_('Testing')} title={$_('Instruction')}/>
 
 <LoadingToComplete
     isLoading={isLoading}
@@ -226,8 +222,8 @@
                 disabled={isThinking}
                 placeholder={'Enter input message...'}
                 bind:value={text}
-                on:keydown={(e) => pressKey(e)}
-            />
+                onkeydown={(e) => pressKey(e)}
+            ></textarea>
             <div class="text-secondary text-count d-flex justify-content-between">
                 <div>
                     {#if elapsedTime}
@@ -236,17 +232,18 @@
                 </div>
                 <div>{text?.length || 0}/{maxLength}</div>
             </div>
-        
+
             <div class="mt-2 text-end">
-                <Button
-                    color="primary"
+                <button
+                    type="button"
+                    class="btn btn-primary"
                     disabled={!text || util.trim(text).length === 0 || isThinking}
-                    on:click={() => sendRequest()}
+                    onclick={() => sendRequest()}
                 >
                     {'Send'}
-                </Button>
+                </button>
             </div>
-        
+
             {#if isThinking}
                 <div class="knowledge-loader mt-4">
                     <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
@@ -259,12 +256,13 @@
                     <div class="instruct-header text-primary fw-bold">
                         <div>{'Response'}</div>
                         <div>
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
                             <i
                                 class="mdi mdi-close-thick text-danger clickable"
-                                on:click={() => closeResponse()}
-                            />
+                                role="button"
+                                tabindex="0"
+                                onclick={() => closeResponse()}
+                                onkeydown={(/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') closeResponse(); }}
+                            ></i>
                         </div>
                     </div>
                     <div class="instruction-result-body instruction-section instruction-border mt-2">
@@ -282,35 +280,26 @@
 
 <div class="d-xl-flex mt-4 mb-5">
     <div class="w-100">
-        <Row>
-            <Col lg="7">
+        <div class="row">
+            <div class="col-lg-7">
                 <div class="instruct-text-header text-primary fw-bold mb-2">
                     <div class="line-align-center">
                         {'Instruction'}
                     </div>
                     <div class="line-align-center">
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <!-- <i
-                            class="mdi mdi-refresh text-primary clickable"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="bottom"
-                            title={'Reset'}
-                            on:click={e => resetInstruction()}
-                        /> -->
                         <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
                             <i class="bx bx-info-circle"></i>
                         </div>
-                        <Tooltip target="demo-tooltip" placement="right" class="demo-tooltip-note">
+                        <BotsharpTooltip target="demo-tooltip" placement="right" containerClasses="demo-tooltip-note">
                             <div>Please select an agent to proceed!</div>
-                        </Tooltip>
+                        </BotsharpTooltip>
                     </div>
                 </div>
-            </Col>
-            <Col lg="5"></Col>
-        </Row>
-        <Row class="instruct-setting-container">
-            <Col lg="7">
+            </div>
+            <div class="col-lg-5"></div>
+        </div>
+        <div class="row instruct-setting-container">
+            <div class="col-lg-7">
                 <div>
                     <div class="instruct-setting-section" style="gap: 2px;">
                         <textarea
@@ -320,22 +309,19 @@
                             disabled
                             placeholder={''}
                             bind:value={instruction}
-                        />
-                        <!-- <div class="text-secondary text-end text-count">
-                            <div>{instruction?.length || 0}/{maxLength}</div>
-                        </div> -->
+                        ></textarea>
                     </div>
                 </div>
-            </Col>
-            <Col lg="5" class="instruction-gap">
-                <Card>
-                    <CardBody>
+            </div>
+            <div class="col-lg-5 instruction-gap">
+                <div class="card">
+                    <div class="card-body">
                         <NavBar
                             id={'instruction-nav-container'}
                             disableDefaultStyles
                             containerClasses={'nav-tabs-secondary'}
                         >
-                            {#each tabs as tab, idx}
+                            {#each tabs as tab}
                             <NavItem
                                 containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
                                 navBtnStyles={'text-transform: none;'}
@@ -348,21 +334,21 @@
                             />
                             {/each}
                         </NavBar>
-                        
+
                         <div class:hide={selectedTab !== 'instruction-agent'}>
                             <InstructionAgent
                                 agents={agents}
                                 disabled={isThinking}
-                                on:selectAgent={e => onAgentSelected(e)}
+                                onSelectAgent={detail => onAgentSelected(detail)}
                             />
                         </div>
                         <div class:hide={selectedTab !== 'instruction-llm'}>
                             <InstructionLlm
                                 llmConfigs={llmConfigs}
                                 disabled={isThinking}
-                                selectedProvider={selectedProvider}
-                                selectedModel={selectedModel}
-                                on:selectLlm={e => onLlmSelected(e)}
+                                bind:selectedProvider={selectedProvider}
+                                bind:selectedModel={selectedModel}
+                                onSelectLlm={detail => onLlmSelected(detail)}
                             />
                         </div>
                         <div class:hide={selectedTab !== 'instruction-states'}>
@@ -379,10 +365,9 @@
                                 disabled={isThinking}
                             />
                         </div>
-                    </CardBody>
-                </Card>
-                
-            </Col>
-        </Row>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

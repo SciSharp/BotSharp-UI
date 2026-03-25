@@ -1,15 +1,19 @@
 <script>
-    import { Button, Input } from '@sveltestrap/sveltestrap';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const maxLength = 4096;
     const limit = 10;
 
-    /** @type {import('$commonTypes').KeyValuePair[]} */
-    export let states = [];
-
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   states?: import('$commonTypes').KeyValuePair[],
+     *   disabled?: boolean
+     * }}
+     */
+    let {
+        states = $bindable([]),
+        disabled = false
+    } = $props();
 
     /** @type {HTMLElement} */
     let scrollContainer;
@@ -35,14 +39,15 @@
     <div class="instruct-kv-container" bind:this={scrollContainer}>
         {#each states as state, idx}
             <div class="instruct-kv-item">
-                <div style="flex: 0.4;">
+                <div style="flex: 0.45;">
                     {#if idx === 0}
                     <div class="text-primary mb-1">
                         {'Key'}
                     </div>
                     {/if}
-                    <Input
+                    <input
                         type="text"
+                        class="form-control"
                         name={`state-key-${idx}`}
                         bind:value={state.key}
                         maxlength={maxLength}
@@ -50,14 +55,15 @@
                         placeholder="Enter a name"
                     />
                 </div>
-                <div style="flex: 0.4;">
+                <div style="flex: 0.45;">
                     {#if idx === 0}
                     <div class="text-primary mb-1">
                         {'Value'}
                     </div>
                     {/if}
-                    <Input
+                    <input
                         type="text"
+                        class="form-control"
                         name={`state-value-${idx}`}
                         bind:value={state.value}
                         maxlength={maxLength}
@@ -67,12 +73,13 @@
                 </div>
                 <div class="line-align-center" style={`flex: 0 0 13px; margin-top: ${idx === 0 ? '23px' : '3px'}`}>
                     <div>
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
                         <i
                             class="bx bxs-no-entry text-danger clickable"
-                            on:click={() => removeState(idx)}
-                        />
+                            role="button"
+                            tabindex="0"
+                            onclick={() => removeState(idx)}
+                            onkeydown={(/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') removeState(idx); }}
+                        ></i>
                     </div>
                 </div>
             </div>
@@ -80,14 +87,15 @@
     </div>
     {#if states.length < limit}
         <div class="text-center">
-            <Button 
-                color="link"
+            <button
+                type="button"
+                class="btn btn-link"
                 style="padding-left: 0px;"
                 disabled={disabled}
-                on:click={() => addState()}
+                onclick={() => addState()}
             >
                 Add +
-            </Button>
+            </button>
         </div>
     {/if}
-</div>`
+</div>

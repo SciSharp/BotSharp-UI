@@ -1,44 +1,38 @@
 <script>
-    import { createEventDispatcher, onMount } from 'svelte';
-	import { _ } from 'svelte-i18n';
     import Select from '$lib/common/dropdowns/Select.svelte';
 
-    const svelteDispatch = createEventDispatcher();
-
-    /** @type {import('$agentTypes').AgentModel[]} */
-    export let agents = [];
-
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   agents?: import('$agentTypes').AgentModel[],
+     *   disabled?: boolean,
+     *   onSelectAgent?: (detail: { agent: import('$agentTypes').AgentModel | null, template: any }) => void
+     * }}
+     */
+    let {
+        agents = [],
+        disabled = false,
+        onSelectAgent
+    } = $props();
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-    let agentOptions = [];
+    let agentOptions = $state([]);
     /** @type {any[]} */
-    let templateOptions = [];
+    let templateOptions = $state([]);
 
     /** @type {import('$agentTypes').AgentModel | null | undefined} */
-    let selectedAgent = null;
+    let selectedAgent = $state(null);
     /** @type {any} */
-    let selectedTemplate = null;
+    let selectedTemplate = $state(null);
 
-    $: {
-        initAgentOptions(agents);
-    }
-
-    /**
-	 * @param {import('$agentTypes').AgentModel[]} agents
-	 */
-    function initAgentOptions(agents) {
-        agentOptions = [];
-        templateOptions = [];
-        selectedAgent = null;
-        selectedTemplate = null;
-        
+    $effect(() => {
         agentOptions = agents?.map(x => ({
             label: x.name,
             value: x.id
         }))?.sort((a, b) => a.label.localeCompare(b.label)) || [];
-    }
+        templateOptions = [];
+        selectedAgent = null;
+        selectedTemplate = null;
+    });
 
     /** @param {any} e */
     function selectAgent(e) {
@@ -54,7 +48,7 @@
             content: x.content
         })) || [];
 
-        dispatchEvent();
+        fireSelectAgent();
     }
 
     /** @param {any} e */
@@ -62,11 +56,11 @@
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
         selectedTemplate = selectedValues.length > 0 ? templateOptions.find(x => x.value === selectedValues[0]) : null;
-        dispatchEvent();
+        fireSelectAgent();
     }
 
-    function dispatchEvent() {
-        svelteDispatch('selectAgent', {
+    function fireSelectAgent() {
+        onSelectAgent?.({
             agent: selectedAgent || null,
             template: selectedTemplate || null
         });

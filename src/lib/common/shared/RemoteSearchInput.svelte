@@ -8,7 +8,8 @@
 	 *   disabled?: boolean,
 	 *   loading?: boolean,
 	 *   maxLength?: number,
-	 *   onSearch?: (query: string) => Promise<string[]>
+	 *   onSearch?: (query: string) => Promise<string[]>,
+	 *   onValueChange?: (value: string) => void
 	 * }}
 	 */
 	let {
@@ -17,7 +18,8 @@
 		disabled = false,
 		loading = $bindable(false),
 		maxLength = 2000,
-		onSearch = (/** @type {string} */ query) => Promise.resolve([])
+		onSearch = (/** @type {string} */ query) => Promise.resolve([]),
+		onValueChange
 	} = $props();
 
 	/** @type {string[]} */
@@ -47,6 +49,7 @@
 		const query = e.target.value;
 		isOpen = true;
 		value = query;
+		onValueChange?.(value);
 		await debouncedSearch(query);
 	}
 
@@ -55,6 +58,7 @@
 	 */
 	function selectResult(result) {
 		value = result;
+		onValueChange?.(value);
 		isOpen = false;
 	}
 

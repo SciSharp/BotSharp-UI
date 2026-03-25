@@ -17,7 +17,6 @@
         onSearch = () => Promise.resolve([])
     } = $props();
 
-
     /** @param {number} idx */
     function removeState(idx) {
         states = states.filter((_, index) => index !== idx);
@@ -29,6 +28,22 @@
             { key: '', value: ''}
         ];
     }
+
+    /**
+     * @param {number} idx
+     * @param {string} key
+     */
+    function handleKeyChange(idx, key) {
+        states = states.map((s, i) => i === idx ? { ...s, key } : s);
+    }
+
+    /**
+     * @param {number} idx
+     * @param {string | null} value
+     */
+    function handleValueChange(idx, value) {
+        states = states.map((s, i) => i === idx ? { ...s, value } : s);
+    }
 </script>
 
 
@@ -37,24 +52,26 @@
     in:fly={{ y: -10, duration: 500 }}
     out:fly={{ y: -10, duration: 200 }}
 >
-    {#each states as _state, idx (idx)}
+    {#each states as state, idx (idx)}
         <div class="state-search-item">
             <div style="flex: 1;">
                 <RemoteSearchInput
-                    bind:value={states[idx].key}
+                    value={state.key}
                     maxLength={maxLength}
                     onSearch={e => onSearch(e)}
                     placeholder="Search States"
+                    onValueChange={(/** @type {string} */ val) => handleKeyChange(idx, val)}
                 />
             </div>
             <div style="flex: 1;">
                 <input
                     type="text"
                     class="form-control"
-                    bind:value={states[idx].value}
+                    value={state.value ?? ''}
                     maxlength={maxLength}
-                    disabled={!states[idx].key}
+                    disabled={!state.key}
                     placeholder="Enter a value"
+                    oninput={(e) => handleValueChange(idx, /** @type {HTMLInputElement} */ (e.target).value)}
                 />
             </div>
             <div class="line-align-center" style="flex: 0 0 13px;">
