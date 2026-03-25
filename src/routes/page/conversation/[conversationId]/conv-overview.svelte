@@ -1,16 +1,14 @@
 <script>
-    import { Button, Card, CardBody, CardTitle} from '@sveltestrap/sveltestrap';
     import { utcToLocal } from '$lib/helpers/datetime';
-    import { _ } from 'svelte-i18n'
+    import { _ } from 'svelte-i18n';
 
-    /** @type {import('$conversationTypes').ConversationModel} */
-    export let conversation;
+    /** @type {{ conversation: import('$conversationTypes').ConversationModel }} */
+    let { conversation } = $props();
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
-            <!--<img src={adobephotoshop} alt="" height="50" class="mx-auto d-block" />-->
             <h5 class="mt-3 mb-1 ellipsis">{conversation.title}</h5>
             <p class="text-muted mb-0">{utcToLocal(conversation.created_time)}</p>
         </div>
@@ -68,5 +66,5 @@
             </li>
             {/if}
         </ul>
-    </CardBody>
-</Card>
+    </div>
+</div>

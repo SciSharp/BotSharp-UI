@@ -1,13 +1,12 @@
 <script>
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
-	import { Button } from '@sveltestrap/sveltestrap';
 	import RcJsInterpreter from '../../../chat/[agentId]/[conversationId]/rich-content/rc-js-interpreter.svelte';
 	import { RichType } from '$lib/helpers/enums';
 
-  /** @type {import('$conversationTypes').ChatResponseModel} */
-  export let dialog;
+  /** @type {{ dialog: import('$conversationTypes').ChatResponseModel }} */
+  let { dialog } = $props();
 
-  let is_collapsed = true;
+  let is_collapsed = $state(true);
 
   /** @param {any} e */
   function toggleText(e) {
@@ -18,7 +17,7 @@
 
 <div
   class="fw-bold"
-  class:text-collapse={!!is_collapsed}
+  class:text-collapse={is_collapsed}
 >
   {#if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
       && dialog?.rich_content?.message?.language === 'javascript'}
@@ -32,11 +31,11 @@
   {/if}
 </div>
 
-<Button
-  class='toggle-btn btn-sm text-secondary'
-  color="link"
-  style={'padding-left: 0px;'}
-  on:click={(e) => toggleText(e)}
+<button
+  type="button"
+  class="btn btn-link toggle-btn btn-sm text-secondary"
+  style="padding-left: 0px;"
+  onclick={(e) => toggleText(e)}
 >
-  {`${is_collapsed ? 'More +' : 'Less -'}`}
-</Button>
+  {is_collapsed ? 'More +' : 'Less -'}
+</button>
