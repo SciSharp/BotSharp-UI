@@ -1,14 +1,17 @@
 <script>
 	import CollapsibleCard from "$lib/common/shared/CollapsibleCard.svelte";
 	import { directToAgentPage } from "$lib/helpers/utils/common";
-	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel
+     * }}
+     */
+    let { agent } = $props();
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">Routing</h5>
         </div>
@@ -21,7 +24,7 @@
                 {/snippet}
                 {#snippet body()}
                     <div class="table-responsive rule-body">
-                        <Table>
+                        <table class="table">
                             <tbody>
                                 {#if !!rule.field}
                                 <tr>
@@ -60,11 +63,11 @@
                                 </tr>
                                 {/if}
                             </tbody>
-                        </Table>
+                        </table>
                     </div>
                 {/snippet}
             </CollapsibleCard>
         </div>
         {/each}
-    </CardBody>
-</Card>
+    </div>
+</div>

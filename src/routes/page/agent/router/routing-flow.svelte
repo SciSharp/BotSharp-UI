@@ -1,18 +1,27 @@
 <script>
-    import { onMount, createEventDispatcher } from 'svelte';
+    import { onMount } from 'svelte';
     import Drawflow from 'drawflow';
     import 'drawflow/dist/drawflow.min.css';
     import '$lib/drawflow/drawflow.css';
     import { getAgents } from '$lib/services/agent-service.js';
 	import { AgentType } from '$lib/helpers/enums';
 
-    let includeRoutingAgent = true;
-    let includePlannerAgent = false;
-    let includeTaskAgent = false;
-    let includeStaticAgent = false;
+    /** @type {{ routers: import('$agentTypes').AgentModel[], viewOnlyMode?: boolean, onuserNodeSelected?: () => void, onrouterNodeSelected?: () => void, onagentNodeSelected?: () => void }} */
+    let {
+        routers,
+        viewOnlyMode = false,
+        onuserNodeSelected,
+        onrouterNodeSelected,
+        onagentNodeSelected
+    } = $props();
+
+    let includeRoutingAgent = $state(true);
+    let includePlannerAgent = $state(false);
+    let includeTaskAgent = $state(false);
+    let includeStaticAgent = $state(false);
 
     /** @type {any[]} */
-    let agents = [];
+    let agents = $state([]);
 
     /** @type {any[]} */
     let agentNodes = [];
@@ -24,15 +33,8 @@
         types: [AgentType.Planning, AgentType.Task]
 	};
 
-    /** @type {import('$agentTypes').AgentModel[]} */
-    export let routers;
-
-    /** @type {boolean} */
-    export let viewOnlyMode = false;
-
     /** @type {Drawflow} */
     let editor;
-    const dispatch = createEventDispatcher();
     
     onMount(async () => {
         if (viewOnlyMode) {
@@ -143,7 +145,7 @@
                 }
             });
 
-            if (!!nodeId) {
+            if (nodeId) {
                 posY += nodeSpaceY;
             }
         });
@@ -223,7 +225,7 @@
                 }
             }
 
-            if (!!nodeId) {
+            if (nodeId) {
                 posY += nodeSpaceY;
             }
 
@@ -249,7 +251,7 @@
     /** @param {import('$agentTypes').AgentModel} router */
     function getPlannerName(router) {
         const planner = router.routing_rules?.find(p => p.type == "planner");
-        return !!planner ? planner.field ?? "NaviePlanner" : null;
+        return planner ? planner.field ?? "NaviePlanner" : null;
     }
 
     async function handlePlannerAgentSelected() {
@@ -313,7 +315,7 @@
         id="btncheck2"
         autocomplete="off"
         disabled={viewOnlyMode}
-        on:click={() => handlePlannerAgentSelected()}
+        onclick={() => handlePlannerAgentSelected()}
     />
     <label
         class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`}
@@ -328,7 +330,7 @@
         id="btncheck3"
         autocomplete="off"
         disabled={viewOnlyMode}
-        on:click={() => handleTaskAgentSelected()}
+        onclick={() => handleTaskAgentSelected()}
     />
     <label 
         class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`}
@@ -343,7 +345,7 @@
         id="btncheck4"
         autocomplete="off"
         disabled={viewOnlyMode}
-        on:click={() => handleStaticAgentSelected()}
+        onclick={() => handleStaticAgentSelected()}
     />
     <label
         class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`}

@@ -1,23 +1,30 @@
 <script>
-    import { JSONEditor, Mode } from 'svelte-jsoneditor';
     import { onMount } from 'svelte';
+    import { JSONEditor, Mode } from 'svelte-jsoneditor';
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent = $bindable(),
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchContent = () => {
+    export function fetchContent() {
         return content;
     }
 
-    export const refresh = () => init();
+    export function refresh() {
+        init();
+    }
 
     /** @type {import('svelte-jsoneditor').Content} */
-    let content = {
+    let content = $state({
         json: {}
-    };
+    });
 
     onMount(() => {
         init();

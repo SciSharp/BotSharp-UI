@@ -1,36 +1,36 @@
 <script>
-	import { Col, Row } from '@sveltestrap/sveltestrap';
+	import { onMount } from 'svelte';
+	import { _ } from 'svelte-i18n';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
-  	import { getAgents } from '$lib/services/agent-service.js';
-  	import { onMount } from 'svelte';
 	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
-	import { _ } from 'svelte-i18n';
+	import { getAgents } from '$lib/services/agent-service.js';
 
-  	const firstPage = 1;
+	const firstPage = 1;
 	const pageSize = 12;
 
 	/** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>} */
-  	let agents = { items: [], count: 0 };
+	let agents = $state({ items: [], count: 0 });
 
 	/** @type {import('$agentTypes').AgentFilter} */
 	const initFilter = {
 		pager: { page: firstPage, size: pageSize, count: 0 },
-    	types: ["evaluating"]
+		types: ["evaluating"]
 	};
 
-  	/** @type {import('$agentTypes').AgentFilter} */
-  	let filter = { ... initFilter };
+	/** @type {import('$agentTypes').AgentFilter} */
+	let filter = $state({ ...initFilter });
 
 	/** @type {import('$commonTypes').Pagination} */
-	let pager = filter.pager;
+	// svelte-ignore state_referenced_locally
+	let pager = $state(filter.pager);
 
 	onMount(async () => {
 		await getPagedAgents();
 	});
 
-  	async function getPagedAgents() {
-    	agents = await getAgents(filter);
+	async function getPagedAgents() {
+		agents = await getAgents(filter);
 		refresh();
 	}
 
@@ -65,7 +65,7 @@
 		};
 
 		filter = {
-      ...filter,
+			...filter,
 			pager: pager
 		};
 
@@ -73,7 +73,7 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Evaluator')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Evaluator')}" />
+<HeadTitle title={$_('Evaluator')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('Evaluator')} />
 
 <PlainPagination pagination={pager} pageTo={pageTo} />

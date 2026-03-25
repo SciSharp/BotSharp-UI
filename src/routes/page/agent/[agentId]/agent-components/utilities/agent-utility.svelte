@@ -1,6 +1,5 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Input, Button } from '@sveltestrap/sveltestrap';
     import { getAgentUtilityOptions } from '$lib/services/agent-service';
 	import { scrollToBottom, truncateByPrefix } from '$lib/helpers/utils/common';
 	import AgentUtilityItem from './agent-utility-item.svelte';
@@ -8,14 +7,19 @@
     const limit = 100;
     const prefix = "util-";
 
-    let windowWidth = 0;
-    let windowHeight = 0;
+    let windowWidth = $state(0);
+    let windowHeight = $state(0);
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        handleAgentChange = () => {}
+    } = $props();
 
     export const fetchUtilities = () => {
         const list = innerUtilities?.filter(x => !!x.category && !!x.name && x.items?.length > 0) || [];
@@ -39,7 +43,7 @@
     let utilityMapper = {};
 
     /** @type {import('$agentTypes').AgentUtility[]} */
-    let innerUtilities = [];
+    let innerUtilities = $state([]);
 
     /** @type {HTMLElement} */
     let scrollContainer;
@@ -102,29 +106,29 @@
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-    function deleteUtility(e, idx) {
-        if (e.detail.field == 'utility') {
+    function deleteUtility(data, idx) {
+        if (data.field == 'utility') {
             innerUtilities = innerUtilities.filter((_, index) => index !== idx);
-        } else if (e.detail.field == 'utility-item') {
+        } else if (data.field == 'utility-item') {
             const foundUtility = innerUtilities.find((_, index) => index === idx);
-            const foundItem = foundUtility?.items?.find((_, index) => index === e.detail.itemIdx);
+            const foundItem = foundUtility?.items?.find((_, index) => index === data.itemIdx);
             if (!foundUtility || !foundItem) return;
 
-            if (e.detail.subfield === 'function') {
+            if (data.subfield === 'function') {
                 foundItem.function_name = null;
                 foundItem.function_display_name = null;
                 foundItem.template_name = null;
                 foundItem.template_display_name = null;
-            } else if (e.detail.subfield === 'template') {
+            } else if (data.subfield === 'template') {
                 foundItem.template_name = null;
                 foundItem.template_display_name = null;
             }
 
             if (foundItem.function_name == null && foundItem.template_name == null) {
-                foundUtility.items = foundUtility.items.filter((_, index) => index !== e.detail.itemIdx);
+                foundUtility.items = foundUtility.items.filter((_, index) => index !== data.itemIdx);
             }
 
             innerRefresh(innerUtilities);
@@ -135,29 +139,29 @@
 
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-    function changeUtility(e, idx) {
+    function changeUtility(data, idx) {
         const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
-        if (e.detail.field === 'utility-category') {
-            const category = e.detail.value;
+        if (data.field === 'utility-category') {
+            const category = data.value;
             found.category = category;
             found.name = '';
             found.items = [];
-        } else if (e.detail.field === 'utility-name') {
-            const name = e.detail.value;
+        } else if (data.field === 'utility-name') {
+            const name = data.value;
             found.name = name;
             const foundUtility = utilityMapper[found.category]?.find((/** @type {any} */ x) => x.name == name);
             found.items = foundUtility?.items?.map((/** @type {any} */ x) => ({...x})) || [];
-        } else if (e.detail.field === 'utility-visibility') {
-            found.visibility_expression = e.detail.value || null;
-        } else if (e.detail.field === 'utility-item-visibility') {
-            const foundItem = found.items.find((_, index) => index === e.detail.itemIdx);
+        } else if (data.field === 'utility-visibility') {
+            found.visibility_expression = data.value || null;
+        } else if (data.field === 'utility-item-visibility') {
+            const foundItem = found.items.find((_, index) => index === data.itemIdx);
             if (foundItem) {
-                foundItem.visibility_expression = e.detail.value || null;
+                foundItem.visibility_expression = data.value || null;
             }
         }
 
@@ -166,14 +170,14 @@
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-    function toggleUtility(e, idx) {
+    function toggleUtility(data, idx) {
         const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
-        found.disabled = !e.detail.checked;
+        found.disabled = !data.checked;
         innerRefresh(innerUtilities);
         handleAgentChange();
     }
@@ -197,7 +201,7 @@
     /** @param {any} e */
     function toggleMergeUtility(e) {
         const checked = e.target.checked;
-        if (!!agent) {
+        if (agent) {
             agent.merge_utility = checked;
         }
         handleAgentChange();
@@ -215,14 +219,14 @@
 	}
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-	function toggleCollapse(e, idx) {
+	function toggleCollapse(data, idx) {
 		const found = innerUtilities.find((_, index) => index === idx);
         if (!found) return;
 
-        found.expanded = !e.detail.collapsed;
+        found.expanded = !data.collapsed;
         innerRefresh(innerUtilities);
         handleAgentChange();
 	}
@@ -247,10 +251,10 @@
     }
 </script>
 
-<svelte:window on:resize={() => resizeWindow()}/>
+<svelte:window onresize={() => resizeWindow()}/>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">Utilities</h5>
             <h6 class="mt-1 mb-3">Tools shared across plugins</h6>
@@ -259,10 +263,11 @@
         <div class="agent-utility-container" bind:this={scrollContainer}>
             {#if !agent?.is_router}
                 <div class="merge-utility">
-                    <Input
+                    <input
                         type="checkbox"
+                        class="form-check-input"
                         checked={agent?.merge_utility || false}
-                        on:change={e => toggleMergeUtility(e)}
+                        onchange={e => toggleMergeUtility(e)}
                     />
                     <div class="fw-bold">
                         Merge utilities
@@ -279,9 +284,7 @@
             {/if}
 
             {#each innerUtilities as utility, uid (uid)}
-                {
-                    @const utilityCategoryOptions = getUtilityOptions(Object.keys(utilityMapper), 'Select a category')
-                }
+                {@const utilityCategoryOptions = getUtilityOptions(Object.keys(utilityMapper), 'Select a category')}
                 <AgentUtilityItem
                     utility={utility}
                     utilityIndex={uid}
@@ -289,24 +292,28 @@
                     utilityCategoryOptions={utilityCategoryOptions}
                     collapsed={!utility.expanded}
                     windowWidth={windowWidth}
-                    on:toggle={e => toggleUtility(e, uid)}
-                    on:delete={e => deleteUtility(e, uid)}
-                    on:reset={() => resetUtility(uid)}
-                    on:change={e => changeUtility(e, uid)}
-                    on:collapse={e => toggleCollapse(e, uid)}
+                    ontoggle={data => toggleUtility(data, uid)}
+                    ondelete={data => deleteUtility(data, uid)}
+                    onreset={() => resetUtility(uid)}
+                    onchange={data => changeUtility(data, uid)}
+                    oncollapse={data => toggleCollapse(data, uid)}
                 />
             {/each}
 
             {#if innerUtilities.length < limit}
                 <div class="add-utility">
-                    <Button color="primary" on:click={() => addUtility()}>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick={() => addUtility()}
+                    >
                         <span>
                             <i class="bx bx-plus"></i>
                             <span>Add utility</span>
                         </span>
-                    </Button>
+                    </button>
                 </div>
             {/if}
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

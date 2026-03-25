@@ -1,6 +1,4 @@
 <script>
-    import { onMount } from 'svelte';
-    import { Card, CardBody } from '@sveltestrap/sveltestrap';
 	import NavBar from "$lib/common/nav-bar/NavBar.svelte";
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import AgentLlmConfig from './agent-components/agent-llm-config.svelte';
@@ -10,16 +8,20 @@
 	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
 	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   user: import('$userTypes').UserModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        user,
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {import('$userTypes').UserModel} */
-	export let user;
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchTabData = () => {
+    export function fetchTabData() {
         const llmConfig = agentLlmConfigCmp?.fetchLlmConfig();
         const utilities = agentUtilityCmp?.fetchUtilities();
         const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
@@ -33,35 +35,31 @@
             rules: rules || [],
             mcpTools: mcpTools || []
         };
-    };
+    }
 
     /** @type {any} */
-    let agentLlmConfigCmp = null;
+    let agentLlmConfigCmp = $state(null);
     /** @type {any} */
-    let agentUtilityCmp = null;
+    let agentUtilityCmp = $state(null);
     /** @type {any} */
-    let agentKnowledgeBaseCmp = null;
+    let agentKnowledgeBaseCmp = $state(null);
     /** @type {any} */
-    let agentEventRuleCmp = null;
+    let agentEventRuleCmp = $state(null);
     /** @type {any} */
-    let agentMcpToolCmp = null;
+    let agentMcpToolCmp = $state(null);
 
-    /** @type {string}*/
-    let selectedTab;
-
-    /** @type {any[]}*/
-    const tabs = [
+    /** @type {any[]} */
+    let tabs = $state([
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
         { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
         { name: 'agent-event-rule', displayText: 'Triggers & Rules' },
         { name: 'agent-mcp-tool', displayText: 'MCP Tools' }
-    ];
+    ]);
 
-    onMount(() => {
-        selectedTab = tabs[0]?.name;
-    });
+    /** @type {string} */
+    let selectedTab = $state(tabs[0]?.name);
 
     /** @param {string} selected */
     function handleTabClick(selected) {
@@ -69,8 +67,8 @@
     }
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <NavBar
             disableDefaultStyles
             containerClasses={'nav-tabs-secondary'}
@@ -107,5 +105,5 @@
         <div class:hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

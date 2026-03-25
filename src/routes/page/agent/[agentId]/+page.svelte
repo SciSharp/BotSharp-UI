@@ -1,10 +1,9 @@
 <script>
     import { onDestroy, onMount } from 'svelte';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import { goto } from '$app/navigation';
-    import { _ } from 'svelte-i18n'; 
+    import { _ } from 'svelte-i18n';
     import Swal from 'sweetalert2';
-	import { Col, Row, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -20,31 +19,33 @@
     import AgentTemplate from './agent-components/agent-template.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
-    let agent;
+    let agent = $state(/** @type {any} */ (undefined));
     /** @type {any} */
-    let agentFunctionCmp = null;
+    let agentFunctionCmp = $state(null);
     /** @type {any} */
-    let agentInstructionCmp = null;
+    let agentInstructionCmp = $state(null);
     /** @type {any} */
-    let agentTemplateCmp = null;
+    let agentTemplateCmp = $state(null);
     /** @type {any} */
-    let agentTabsCmp = null;
+    let agentTabsCmp = $state(null);
+    /** @type {import('$userTypes').UserModel} */
+	let user = $state(/** @type {any} */ (undefined));
     /** @type {any} */
 	let unsubscriber;
-    /** @type {import('$userTypes').UserModel} */
-	let user;
 
     /** @type {boolean} */
-    let isLoading = false;
-    let isComplete = false;
+    let isLoading = $state(false);
+    let isComplete = $state(false);
 
     const duration = 3000;
 
-    $: agentId = $page.params.agentId;
+    let agentId = $derived(page.params.agentId);
 
-    $: if (agentId) {
-        loadAgent(agentId);
-    }
+    $effect(() => {
+        if (agentId) {
+            loadAgent(agentId);
+        }
+    });
 
     async function loadAgent(/** @type {string} */ id) {
         isLoading = true;
@@ -108,14 +109,14 @@
             }
         };
         isLoading = true;
-        saveAgent(agent).then(res => {
+        saveAgent(agent).then(() => {
             isLoading = false;
             isComplete = true;
             refresh();
             setTimeout(() => {
                 isComplete = false;
             }, duration);
-        }).catch(err => {
+        }).catch(() => {
             isLoading = false;
             isComplete = false;
         });
@@ -180,7 +181,7 @@
     }
 
     function handleAgentDelete() {
-        deleteAgent(agent?.id).then(res => {
+        deleteAgent(agent?.id).then(() => {
             goto(`page/agent`);
         });
     }
@@ -190,8 +191,8 @@
     }
 </script>
 
-<HeadTitle title="{$_('Agent Overview')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Agent Overview')}" />
+<HeadTitle title={$_('Agent Overview')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('Agent Overview')} />
 
 <LoadingToComplete
     isLoading={isLoading}
@@ -200,13 +201,13 @@
 
 {#if agent}
 <div>
-    <Row class="agent-detail-sections">
-        <Col class="section-min-width agent-col" style="flex: 40%;">
+    <div class="row agent-detail-sections">
+        <div class="col section-min-width agent-col" style="flex: 40%;">
             <div class="agent-detail-section">
                 <AgentOverview
-                    agent={agent}
-                    profiles={agent.profiles || []}
-                    labels={agent.labels || []}
+                    bind:agent={agent}
+                    bind:profiles={agent.profiles}
+                    bind:labels={agent.labels}
                 />
             </div>
             <div class="agent-detail-section">
@@ -216,36 +217,36 @@
                     user={user}
                 />
             </div>
-        </Col>
-        <Col class="section-min-width agent-col" style="flex: 60%;">
+        </div>
+        <div class="col section-min-width agent-col" style="flex: 60%;">
             <div class="agent-detail-section">
                 <AgentInstruction
                     bind:this={agentInstructionCmp}
-                    agent={agent}
+                    bind:agent={agent}
                 />
             </div>
             <div class="agent-detail-section">
                 <AgentTemplate
                     bind:this={agentTemplateCmp}
-                    agent={agent}
+                    bind:agent={agent}
                 />
             </div>
             <div class="agent-detail-section">
                 <AgentFunction
                     bind:this={agentFunctionCmp}
-                    agent={agent}
+                    bind:agent={agent}
                 />
             </div>
-        </Col>
-    </Row>
+        </div>
+    </div>
 
     {#if !!AgentExtensions.editable(agent)}
-        <Row>
+        <div class="row">
             <div class="hstack gap-2 my-4">
-                <Button class="btn btn-soft-primary" on:click={() => updateCurrentAgent()}>{$_('Save Agent')}</Button>
-                <Button class="btn btn-danger" on:click={() => deleteCurrentAgent()}>{$_('Delete Agent')}</Button>
+                <button type="button" class="btn btn-soft-primary" onclick={() => updateCurrentAgent()}>{$_('Save Agent')}</button>
+                <button type="button" class="btn btn-danger" onclick={() => deleteCurrentAgent()}>{$_('Delete Agent')}</button>
             </div>
-        </Row>
+        </div>
     {/if}
 </div>
 {/if}

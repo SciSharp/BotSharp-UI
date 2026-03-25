@@ -1,19 +1,22 @@
 <script>
     import { slide } from 'svelte/transition';
-    import { Input } from '@sveltestrap/sveltestrap';
-	import { INTEGER_REGEX } from '$lib/helpers/constants';
-	import { LlmModelCapability, LlmModelType, ReasoningEffortLevel } from '$lib/helpers/enums';
-    
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    import { INTEGER_REGEX } from '$lib/helpers/constants';
+    import { LlmModelCapability, LlmModelType, ReasoningEffortLevel } from '$lib/helpers/enums';
 
-    /** @type {import('$commonTypes').LlmConfig[]} */
-    export let llmConfigs = [];
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   llmConfigs?: import('$commonTypes').LlmConfig[],
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        llmConfigs = [],
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchConfig = () => {
+    export function fetchConfig() {
         const reasoningEffort = models.find(x => x.name === config.model)?.reasoning != null ? config.reasoning_effort_level : null;
         return {
             ...config,
@@ -27,7 +30,7 @@
     const recursiveDepthLowerLimit = 1;
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-	const defaultReasonLevelOptions = [
+    const defaultReasonLevelOptions = [
         { value: '', label: '' },
         ...Object.entries(ReasoningEffortLevel).map(([k, v]) => ({
             value: v,
@@ -35,31 +38,32 @@
         }))
     ];
 
-
     /** @type {boolean} */
-    let collapsed = false;
+    let collapsed = $state(false);
 
-    let config = agent.llm_config || {};
+    // svelte-ignore state_referenced_locally
+    let config = $state(agent.llm_config || {});
 
     /** @type {import('$commonTypes').LlmConfig[]} */
-    let innerLlmConfigs = [];
+    let innerLlmConfigs = $state([]);
 
     /** @type {string[]} */
-    let providers = [];
+    let providers = $state([]);
 
     /** @type {import('$commonTypes').LlmModelSetting[]} */
-    let models = [];
+    let models = $state([]);
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-    let reasoningLevelOptions = defaultReasonLevelOptions;
+    let reasoningLevelOptions = $state(defaultReasonLevelOptions);
 
-    $: isReasoningModel = models.find(x => x.name === config.model)?.reasoning != null;
-    $: {
+    let isReasoningModel = $derived(models.find(x => x.name === config.model)?.reasoning != null);
+
+    $effect(() => {
         if (llmConfigs.length > 0 && innerLlmConfigs.length === 0) {
             innerLlmConfigs = [...llmConfigs];
             const innerProviders = innerLlmConfigs.filter(x => x.models?.some(y => y.type === LlmModelType.Chat || y.capabilities?.includes(LlmModelCapability.Chat)));
             providers = ['', ...innerProviders.map(x => x.provider)];
-            if (!!config.provider) {
+            if (config.provider) {
                 models = getLlmModels(config.provider);
             }
             const foundProvider = providers.find(x => x === config.provider);
@@ -68,7 +72,7 @@
             config.model = foundModel?.name || null;
             onModelChanged(config);
         }
-    }
+    });
 
     /** @param {string} provider */
     function getLlmModels(provider) {
@@ -81,7 +85,7 @@
         const provider = e.target.value;
         config.provider = provider || null;
 
-        if (!!!provider) {
+        if (!provider) {
             models = [];
             config.model = null;
             config.reasoning_effort_level = null;
@@ -109,7 +113,7 @@
     /** @param {any} e */
     function changeMaxRecursiveDepth(e) {
         let value = Number(e.target.value) || 0;
-        
+
         if (value < recursiveDepthLowerLimit) {
             value = recursiveDepthLowerLimit;
         }
@@ -151,7 +155,7 @@
         if (foundModel?.reasoning == null) {
             return options;
         }
-        
+
         const defaultOptions = foundModel?.reasoning?.parameters?.EffortLevel?.options;
         if (defaultOptions?.length > 0) {
             options = [
@@ -170,8 +174,8 @@
         class="config-header text-center"
         role="button"
         tabindex="0"
-        on:click={() => collapsed = !collapsed}
-        on:keydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
+        onclick={() => collapsed = !collapsed}
+        onkeydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
     >
         <h6 class="mt-1 mb-3 d-flex align-items-center justify-content-center gap-2">
             <i class="mdi {collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'}"></i>
@@ -191,13 +195,13 @@
                 Provider
             </label>
             <div class="llm-config-input">
-                <Input type="select" id="chat-provider" value={config.provider} on:change={e => changeProvider(e)}>
+                <select class="form-select" id="chat-provider" value={config.provider} onchange={e => changeProvider(e)}>
                     {#each providers as option}
                         <option value={option} selected={option == config.provider}>
                             {option}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
         </div>
 
@@ -206,13 +210,13 @@
                 Model
             </label>
             <div class="llm-config-input">
-                <Input type="select" id="chat-model" value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
+                <select class="form-select" id="chat-model" value={config.model} disabled={models.length === 0} onchange={e => changeModel(e)}>
                     {#each models as option}
                         <option value={option.name} selected={option.name == config.model}>
                             {option.name}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
         </div>
 
@@ -221,14 +225,15 @@
                 Max recursive depth
             </label>
             <div class="llm-config-input">
-                <Input
+                <input
+                    class="form-control"
                     id="chat-max-recursive-depth"
                     style="text-align: center;"
                     type="number"
                     min={recursiveDepthLowerLimit}
                     value={config.max_recursion_depth}
-                    on:keydown={e => validateIntegerInput(e)}
-                    on:change={e => changeMaxRecursiveDepth(e)}
+                    onkeydown={e => validateIntegerInput(e)}
+                    onchange={e => changeMaxRecursiveDepth(e)}
                 />
             </div>
         </div>
@@ -238,13 +243,14 @@
                 Max output tokens
             </label>
             <div class="llm-config-input">
-                <Input
+                <input
+                    class="form-control"
                     id="chat-max-output-tokens"
                     style="text-align: center;"
                     type="number"
                     value={config.max_output_tokens}
-                    on:keydown={e => validateIntegerInput(e)}
-                    on:change={e => changeMaxOutputToken(e)}
+                    onkeydown={e => validateIntegerInput(e)}
+                    onchange={e => changeMaxOutputToken(e)}
                 />
             </div>
         </div>
@@ -255,13 +261,13 @@
                 Reasoning level
             </label>
             <div class="llm-config-input">
-                <Input type="select" id="chat-reasoning-effort" value={config.reasoning_effort_level} on:change={e => changeReasoningEffortLevel(e)}>
+                <select class="form-select" id="chat-reasoning-effort" value={config.reasoning_effort_level} onchange={e => changeReasoningEffortLevel(e)}>
                     {#each reasoningLevelOptions as option}
                         <option value={option.value} selected={option.value == config.reasoning_effort_level}>
                             {option.label}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
         </div>
         {/if}

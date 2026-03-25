@@ -1,18 +1,22 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody } from '@sveltestrap/sveltestrap';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
     import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
-	import ChatConfig from './llm-configs/chat-config.svelte';
-	import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
-    
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    import ChatConfig from './llm-configs/chat-config.svelte';
+    import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
 
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        handleAgentChange = () => {}
+    } = $props();
 
-    export const fetchLlmConfig = () => {
+    export function fetchLlmConfig() {
         const chatConfig = chatConfigCmp?.fetchConfig();
         const imageCompositionConfig = imageCompositionConfigCmp?.fetchConfig();
         const audioTranscriptionConfig = audioTranscriptionConfigCmp?.fetchConfig();
@@ -26,31 +30,27 @@
     }
 
     /** @type {any} */
-    let chatConfigCmp;
+    let chatConfigCmp = $state(null);
     /** @type {any} */
-    let imageCompositionConfigCmp;
+    let imageCompositionConfigCmp = $state(null);
     /** @type {any} */
-    let audioTranscriptionConfigCmp;
+    let audioTranscriptionConfigCmp = $state(null);
     /** @type {any} */
-    let realtimeConfigCmp;
-    
+    let realtimeConfigCmp = $state(null);
+
     /** @type {import('$commonTypes').LlmConfig[]} */
-    let llmConfigs = [];
+    let llmConfigs = $state([]);
 
-    onMount(async () =>{
-        await init();
-    });
-
-    async function init() {
+    onMount(async () => {
         llmConfigs = await getLlmConfigs();
-    }
+    });
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-1">LLM Configurations</h5>
-            <img src="images/brands/azure-openai-logo.avif" alt="" height="50" />
+            <img src="images/brands/azure-openai-logo.avif" alt="" style="height: 50px; width: auto; display: inline-block;" />
         </div>
 
         <div class="agent-utility-container">
@@ -66,7 +66,7 @@
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.image_composition}
                 modelType={LlmModelType.Image}
-                modelCapability={LlmModelCapability.ImageComposition} 
+                modelCapability={LlmModelCapability.ImageComposition}
                 {handleAgentChange}
             />
             <LlmBasicConfig
@@ -75,7 +75,7 @@
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.audio_transcription}
                 modelType={LlmModelType.Audio}
-                modelCapability={LlmModelCapability.AudioTranscription} 
+                modelCapability={LlmModelCapability.AudioTranscription}
                 {handleAgentChange}
             />
             <LlmBasicConfig
@@ -84,9 +84,9 @@
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.realtime}
                 modelType={LlmModelType.Realtime}
-                modelCapability={LlmModelCapability.Realtime} 
+                modelCapability={LlmModelCapability.Realtime}
                 {handleAgentChange}
             />
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

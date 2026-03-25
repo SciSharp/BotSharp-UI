@@ -1,9 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Button } from '@sveltestrap/sveltestrap';
 	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
 	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
-	import { DECIMAL_REGEX } from '$lib/helpers/constants';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentKnowledgeBaseItem from './agent-knowledge-base-item.svelte';
 
@@ -11,13 +9,18 @@
     const confidLowerBound = 0;
     const confidUpperBound = 1;
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchKnowledgeBases = () => {
+    export function fetchKnowledgeBases() {
         const candidates = innerKnowledgeBases?.filter(x => !!x.name)?.map(x => {
             return {
                 ...x,
@@ -43,15 +46,15 @@
     }
 
     /** @type {any[]} */
-    let knowledgeBaseOptions = [];
+    let knowledgeBaseOptions = $state([]);
 
     /** @type {import('$agentTypes').AgentKnowledgeBase[]} */
-    let innerKnowledgeBases = [];
+    let innerKnowledgeBases = $state([]);
 
     /** @type {HTMLElement} */
     let scrollContainer;
 
-    onMount(async () =>{
+    onMount(async () => {
         getVectorKnowledgeCollections().then(data => {
             const list = data?.map(x => {
                 return {
@@ -81,25 +84,25 @@
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
     function getDisplayOption(b) {
-        return `${b.name} ${!!KnowledgeCollectionDisplayType[b.type]
+        return `${b.name} ${KnowledgeCollectionDisplayType[b.type]
                    ? `(${KnowledgeCollectionDisplayType[b.type]})` : ''}`
     }
 
     /**
-	 * @param {any} e
+	 * @param {{ knowledgeIdx: number, field: string, value: any }} data
 	 * @param {number} idx
 	 */
-    function changeKnowledgeBase(e, idx) {
+    function changeKnowledgeBase(data, idx) {
         const found = innerKnowledgeBases.find((_, index) => index === idx);
         if (!found) return;
-        
-        const field = e.detail.field;
+
+        const field = data.field;
         if (field === 'knowledge') {
-            const val = JSON.parse(e.detail.value);
+            const val = JSON.parse(data.value);
             found.name = val?.name;
             found.type = val?.type;
         } else if (field === 'confidence') {
-            const value = e.detail.value;
+            const value = data.value;
             const confidence = validateConfidenceNumber(value);
             found.confidence = confidence;
         }
@@ -139,36 +142,36 @@
     }
 
     /**
-     * @param {any} e
+	 * @param {{ knowledgeIdx: number }} _data
 	 * @param {number} idx
 	 */
-    function deleteKnowledgeBase(e, idx) {
+    function deleteKnowledgeBase(_data, idx) {
         innerKnowledgeBases = innerKnowledgeBases.filter((_, index) => index !== idx);
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
+	 * @param {{ knowledgeIdx: number, checked: boolean }} data
 	 * @param {number} idx
 	 */
-    function toggleKnowledgeBase(e, idx) {
+    function toggleKnowledgeBase(data, idx) {
         const found = innerKnowledgeBases.find((_, index) => index === idx);
         if (!found) return;
 
-        found.disabled = !e.detail.checked;
+        found.disabled = !data.checked;
         innerRefresh(innerKnowledgeBases);
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
+	 * @param {{ knowledgeIdx: number, collapsed: boolean }} data
 	 * @param {number} idx
 	 */
-    function toggleCollapse(e, idx) {
+    function toggleCollapse(data, idx) {
         const found = innerKnowledgeBases.find((_, index) => index === idx);
         if (!found) return;
 
-        found.expanded = !e.detail.collapsed;
+        found.expanded = !data.collapsed;
         innerRefresh(innerKnowledgeBases);
         handleAgentChange();
     }
@@ -189,8 +192,8 @@
     }
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">Knowledge Base</h5>
             <h6 class="mt-1 mb-3">Make your Agent have memory</h6>
@@ -203,23 +206,27 @@
                     knwoledgeIdx={uid}
                     collapsed={!knowledge.expanded}
                     knowledgeBaseOptions={knowledgeBaseOptions}
-                    on:toggle={e => toggleKnowledgeBase(e, uid)}
-                    on:delete={e => deleteKnowledgeBase(e, uid)}
-                    on:change={e => changeKnowledgeBase(e, uid)}
-                    on:collapse={e => toggleCollapse(e, uid)}
+                    ontoggle={data => toggleKnowledgeBase(data, uid)}
+                    ondelete={data => deleteKnowledgeBase(data, uid)}
+                    onchange={data => changeKnowledgeBase(data, uid)}
+                    oncollapse={data => toggleCollapse(data, uid)}
                 />
             {/each}
 
             {#if innerKnowledgeBases.length < limit}
                 <div class="add-utility">
-                    <Button color="primary" on:click={() => addKnowledgeBase()}>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick={() => addKnowledgeBase()}
+                    >
                         <span>
                             <i class="bx bx-plus"></i>
                             <span>Add Knowledge Base</span>
                         </span>
-                    </Button>
+                    </button>
                 </div>
             {/if}
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

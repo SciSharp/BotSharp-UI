@@ -2,29 +2,28 @@
   import { onMount } from 'svelte';
   import { _ } from 'svelte-i18n';
   import { page } from '$app/stores';
-  import { Col, Row } from '@sveltestrap/sveltestrap';
   import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
   import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
   import { getAgents } from '$lib/services/agent-service.js';
-	import { AgentType } from '$lib/helpers/enums';
+  import { AgentType } from '$lib/helpers/enums';
   import RoutingFlow from './routing-flow.svelte'
 
   const params = $page.url.searchParams;
 
   /** @type {import('$agentTypes').AgentModel[]} */
-  let routers;
-  let isRouterNodeSelected = false;
-  let isAgentNodeSelected = false;
+  let routers = $state([]);
+  let isRouterNodeSelected = $state(false);
+  let isAgentNodeSelected = $state(false);
 
   /** @type {string?} */
-  let targetAgentId = '';
+  let targetAgentId = $state('');
 
   /** @type {import('$agentTypes').AgentFilter} */
-	const filter = {
-		pager: { page: 1, size: 10, count: 0 },
+  const filter = {
+    pager: { page: 1, size: 10, count: 0 },
     disabled: false,
-		types: [AgentType.Routing]
-	};
+    types: [AgentType.Routing]
+  };
 
   onMount(async () => {
     targetAgentId = params.get('agent_id');
@@ -32,7 +31,7 @@
   });
 
   async function getRouter() {
-    if (!!targetAgentId) {
+    if (targetAgentId) {
       filter.agentIds = [targetAgentId];
     }
     const response = await getAgents(filter);
@@ -46,32 +45,30 @@
     isAgentNodeSelected = false;
   }
 
-  /** @param {import('$agentTypes').AgentModel} agent */
-  function handleRouterNodeSelected(agent) {
+  function handleRouterNodeSelected() {
     isRouterNodeSelected = true;
     isAgentNodeSelected = true;
-  }  
+  }
 
-  /** @param {import('$agentTypes').AgentModel} agent */
-  function handleAgentNodeSelected(agent) {
+  function handleAgentNodeSelected() {
     isRouterNodeSelected = false;
     isAgentNodeSelected = true;
   }
 </script>
 
-<HeadTitle title="{$_('Routing')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Routing')}" />
+<HeadTitle title={$_('Routing')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('Routing')} />
 
 {#if routers}
-<Row>
-  <Col>
+<div class="row">
+  <div class="col">
     <RoutingFlow
       routers={routers}
       viewOnlyMode={!!targetAgentId}
-      on:userNodeSelected={(e) => handleUserNodeSelected()}
-      on:routerNodeSelected={(e) => handleRouterNodeSelected(e.detail.agent)}
-      on:agentNodeSelected={(e) => handleAgentNodeSelected(e.detail.agent)}/>
-  </Col>    
-</Row>
-{/if}   
+      onuserNodeSelected={() => handleUserNodeSelected()}
+      onrouterNodeSelected={() => handleRouterNodeSelected()}
+      onagentNodeSelected={() => handleAgentNodeSelected()}/>
+  </div>
+</div>
+{/if}
 
