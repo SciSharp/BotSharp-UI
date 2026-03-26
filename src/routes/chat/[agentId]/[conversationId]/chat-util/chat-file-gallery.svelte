@@ -1,27 +1,36 @@
 <script>
 	import FileGallery from "$lib/common/files/FileGallery.svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
-	import { afterUpdate, getContext, onDestroy } from "svelte";
+	import { getContext } from "svelte";
 
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   disabled?: boolean
+     * }}
+     */
+    let {
+        disabled = false
+    } = $props();
 
     /** @type {import('$fileTypes').TextFileModel[]} */
-    let files = [];
+    let files = $state([]);
 
-    const { autoScrollToBottom }  = getContext('chat-window-context');
+    const { autoScrollToBottom } = getContext('chat-window-context');
 
-    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
-        const savedAttachments = $conversationUserAttachmentStore;
-        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
+    $effect(() => {
+        const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+            files = value?.accepted_files || [];
+        });
+
+        return () => {
+            unsubscribe();
+        };
     });
 
-    afterUpdate(() => {
+    $effect(() => {
+        // Track files changes to auto-scroll
+        files;
         autoScrollToBottom();
-    });
-
-    onDestroy(() => {
-        unsubscribe();
     });
 
     /** @param {number} index */

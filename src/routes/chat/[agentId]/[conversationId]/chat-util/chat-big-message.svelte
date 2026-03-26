@@ -1,25 +1,26 @@
 <script>
-	import { createEventDispatcher } from "svelte";
-
-    const svelteDispatch = createEventDispatcher();
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
-
-    /** @type {boolean} */
-    export let disableDefaultStyles = false;
-
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   disableDefaultStyles?: boolean,
+     *   disabled?: boolean,
+     *   onclick?: () => void
+     * }}
+     */
+    let {
+        containerClasses = '',
+        containerStyles = '',
+        disableDefaultStyles = false,
+        disabled = false,
+        onclick
+    } = $props();
 
     function clickIcon() {
         if (disabled) {
             return;
         }
-        svelteDispatch("click")
+        onclick?.();
     }
 </script>
 
@@ -30,15 +31,15 @@
     <ul class="list-inline mb-0">
         <li class="list-inline-item">
             <span>
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <i
                     class="bx bx-pencil clickable"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Zoom in"
-                    on:click={() => clickIcon()}
-                />
+                    onclick={() => clickIcon()}
+                ></i>
             </span>
         </li>
     </ul>

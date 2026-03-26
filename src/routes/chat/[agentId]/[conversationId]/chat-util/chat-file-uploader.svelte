@@ -1,5 +1,4 @@
 <script>
-    import { onDestroy } from 'svelte';
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
 	import { conversationUserAttachmentStore } from '$lib/helpers/store';
 
@@ -32,20 +31,20 @@
     let disableFileDrop = $derived(disabled || files.length >= fileUpperLimit);
     let localFileUploadLimit = $derived(Math.max(fileUpperLimit - files.length, 0));
 
-    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
-        const savedAttachments = $conversationUserAttachmentStore;
-        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
-    });
+    $effect(() => {
+        const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+            files = value?.accepted_files || [];
+        });
 
-    onDestroy(() => {
-        unsubscribe();
+        return () => {
+            unsubscribe();
+        };
     });
 
     /** @param {any} e */
     async function handleFileDrop(e) {
         const { acceptedFiles } = e;
-        const savedAttachments = $conversationUserAttachmentStore;
-        const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
+        const newAttachments = [...files, ...acceptedFiles];
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });

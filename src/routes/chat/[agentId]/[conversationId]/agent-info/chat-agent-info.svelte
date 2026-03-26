@@ -1,17 +1,21 @@
 <script>
 	import { directToAgentPage } from '$lib/helpers/utils/common';
 
-    /** @type {import('$agentTypes').AgentModel} */
-	export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel
+     * }}
+     */
+	let { agent } = $props();
 </script>
 
 <div>
     <div class="chat-agent-row">
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+        <!-- svelte-ignore a11y_click_events_have_key_events -->
+        <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <h3
             class="text-primary fw-bold"
-            on:click={() => directToAgentPage(agent?.id)}
+            onclick={() => directToAgentPage(agent?.id)}
         >
             <span class="clickable">{agent?.name || ''}</span>
         </h3>
@@ -23,7 +27,7 @@
     </div>
     <div class="chat-agent-row">
         <div>
-            <span>{agent?.llm_config?.provider || ''}{!!agent?.llm_config?.provider ? ',': ''} {agent?.llm_config?.model || ''}</span>
+            <span>{agent?.llm_config?.provider || ''}{agent?.llm_config?.provider ? ',': ''} {agent?.llm_config?.model || ''}</span>
         </div>
     </div>
     <div class="chat-agent-row">

@@ -2133,10 +2133,10 @@
 									<div class="chat-util-links">
 										<ChatBigMessage
 											disabled={isSendingMsg || isThinking || disableAction}
-											on:click={() => toggleBigMessageModal()}
+											onclick={() => toggleBigMessageModal()}
 										/>
 										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
-											<ChatUtil disabled={disableAction} on:click={() => loadChatUtils = true} />
+											<ChatUtil disabled={disableAction} onclick={() => loadChatUtils = true} />
 										{/if}
 									</div>
 								</div>
