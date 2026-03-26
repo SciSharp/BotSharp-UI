@@ -1,8 +1,6 @@
 <script>
-
-    /** @type {any} */
-    export let data;
-
+    /** @type {{ data: any }} */
+    let { data } = $props();
 </script>
 
 <div class="log-element queue-change-container">

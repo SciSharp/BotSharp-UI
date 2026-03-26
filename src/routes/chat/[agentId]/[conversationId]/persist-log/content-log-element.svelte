@@ -1,17 +1,13 @@
 <script>
-	import { Button } from '@sveltestrap/sveltestrap';
-    import Link from 'svelte-link/src/Link.svelte';
     import Markdown from "$lib/common/markdown/Markdown.svelte";
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { directToAgentPage } from '$lib/helpers/utils/common';
 
-    /** @type {import('$conversationTypes').ConversationContentLogModel} */
-    export let data;
+    /** @type {{ data: import('$conversationTypes').ConversationContentLogModel }} */
+    let { data } = $props();
 
-    let logDisplayStyle = '';
-    let logTextStyle = '';
-    let is_collapsed = true;
+    let is_collapsed = $state(true);
     const unknownAgent = "Uknown";
     const collapsedSources = [
         ContentLogSource.Prompt,
@@ -25,22 +21,27 @@
         ContentLogSource.FunctionCall,
     ];
 
-    $: {
-        logDisplayStyle = '';
-        logTextStyle = '';
+    let logDisplayStyle = $derived.by(() => {
         if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
-            logDisplayStyle = 'border border-secondary';
-            logTextStyle = 'text-info';
+            return 'border border-secondary';
         } else if (data.source === ContentLogSource.FunctionCall) {
-            logDisplayStyle = 'bg-secondary';
+            return 'bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
-            logDisplayStyle = 'text-secondary';
+            return 'text-secondary';
         } else if (data.source === ContentLogSource.HardRule) {
-            logDisplayStyle = 'text-warning';
+            return 'text-warning';
         } else if (data.source === ContentLogSource.UserInput) {
-            logDisplayStyle = "bg-danger";
+            return 'bg-danger';
         }
-    }
+        return '';
+    });
+
+    let logTextStyle = $derived.by(() => {
+        if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
+            return 'text-info';
+        }
+        return '';
+    });
 
     /** @param {any} e */
     function toggleText(e) {
@@ -54,9 +55,14 @@
         <div>
             <span class="h4">
             {#if data?.agent_id?.length > 0}
-                <Link class="text-secondary text-decoration-underline" on:click={() => directToAgentPage(data.agent_id)}>
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <span
+                    class="text-secondary text-decoration-underline clickable"
+                    onclick={() => directToAgentPage(data.agent_id)}
+                >
                     {data.name || unknownAgent}
-                </Link>
+                </span>
             {:else}
                 <span class="text-secondary">
                     {data.name || unknownAgent}
@@ -75,9 +81,9 @@
         </div>
 
         {#if collapsedSources.includes(data.source)}
-            <Button class='toggle-btn btn-sm' color="link" on:click={(e) => toggleText(e)}>
+            <button class="btn btn-link toggle-btn btn-sm" onclick={(e) => toggleText(e)}>
                 {`${is_collapsed ? 'More +' : 'Less -'}`}
-            </Button>
+            </button>
         {/if}
     </div>
 
@@ -85,5 +91,5 @@
     <div style="margin-top: 10px;">
         {`MessageId: ${data.message_id}`}
     </div>
-    {/if}         
+    {/if}
 </div>

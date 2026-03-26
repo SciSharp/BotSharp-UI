@@ -1,9 +1,6 @@
 <script>
-	import { formatObject } from '$lib/helpers/utils/common';
-  // import JSONTree from 'svelte-json-tree';
-
-  /** @type {Object?} */
-  export let data;
+  /** @type {{ data: Object | null }} */
+  let { data } = $props();
 </script>
 
 <div class="log-element state-log-item">

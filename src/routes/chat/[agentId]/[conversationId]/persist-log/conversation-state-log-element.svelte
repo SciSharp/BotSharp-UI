@@ -1,9 +1,6 @@
 <script>
-    // import JSONTree from 'svelte-json-tree';
-	import { formatObject } from '$lib/helpers/utils/common';
-
-    /** @type {any} */
-    export let data;
+    /** @type {{ data: any }} */
+    let { data } = $props();
 </script>
 
 <div class="log-element state-log-item" id={`state-log-${data.message_id}`}>

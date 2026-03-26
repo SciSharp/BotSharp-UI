@@ -1,29 +1,31 @@
 <script>
+    import { onDestroy } from 'svelte';
+    import { fade } from 'svelte/transition';
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
-	import { afterUpdate, onDestroy } from 'svelte';
-    import { fade } from 'svelte/transition';
 	import MessageStateLogElement from './message-state-log-element.svelte';
 	import AgentQueueLogElement from './agent-queue-log-element.svelte';
 	import ChatAgentInfo from '../agent-info/chat-agent-info.svelte';
 	import LatestStateLog from './latest-state-log.svelte';
 
-    /** @type {import('$agentTypes').AgentModel} */
-	export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   msgStateLogs?: any[],
+     *   agentQueueLogs?: any[],
+     *   latestStateLog?: Object | null,
+     *   closeWindow: () => void
+     * }}
+     */
+    let {
+        agent,
+        msgStateLogs = $bindable([]),
+        agentQueueLogs = $bindable([]),
+        latestStateLog = null,
+        closeWindow
+    } = $props();
 
     /** @type {any[]} */
-    export let msgStateLogs = [];
-
-    /** @type {any[]} */
-    export let agentQueueLogs = [];
-
-    /** @type {Object?} */
-    export let latestStateLog = null;
-
-    /** @type {() => void} */
-    export let closeWindow;
-
-    /** @type {any} */
     let scrollbars = [];
 
     const msgStateLogTab = 1;
@@ -44,17 +46,18 @@
 		}
 	};
 
-    afterUpdate(() => {
-        refresh();
+    $effect(() => {
+        // Track reactive dependencies to re-run on changes
+        msgStateLogs;
+        agentQueueLogs;
+        latestStateLog;
+
+        scrollToBottom();
     });
 
     onDestroy(() => {
         cleanLogs();
     });
-
-    function refresh() {
-        scrollToBottom();
-    }
 
     function scrollToBottom() {
         const scrollbarElements = [
@@ -67,7 +70,6 @@
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
 
-        // @ts-ignore
         scrollbars.forEach(scrollbar => {
             setTimeout(() => {
                 const { viewport } = scrollbar.elements();
@@ -101,7 +103,8 @@
                 <button
                     type="button"
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                    on:click={() => closeWindow()}
+                    aria-label="Close log window"
+                    onclick={() => closeWindow()}
                 >
                     <i class="mdi mdi-window-close"></i>
                 </button>
@@ -126,15 +129,15 @@
                 out:fade={{ duration: outDuration }}
             >
                 <div class="close-icon">
-                    <span
+                    <button
+                        type="button"
+                        class="btn btn-link p-0"
                         style="float: right;"
-                        role="link"
-                        tabindex="-1"
-                        on:keydown={() => {}}
-                        on:click={() => closeLog(agentQueueLogTab)}
+                        aria-label="Close agent queue log"
+                        onclick={() => closeLog(agentQueueLogTab)}
                     >
                         <i class="mdi mdi-window-close"></i>
-                    </span>
+                    </button>
                 </div>
                 <div class="agent-queue-log-scrollbar padding-side">
                     <ul>
@@ -153,15 +156,15 @@
                 out:fade={{ duration: outDuration }}
             >
                 <div class="close-icon">
-                    <span
+                    <button
+                        type="button"
+                        class="btn btn-link p-0"
                         style="float: right;"
-                        role="link"
-                        tabindex="-1"
-                        on:keydown={() => {}}
-                        on:click={() => closeLog(msgStateLogTab)}
+                        aria-label="Close message state log"
+                        onclick={() => closeLog(msgStateLogTab)}
                     >
                         <i class="mdi mdi-window-close"></i>
-                    </span>
+                    </button>
                 </div>
                 <div class="msg-state-log-scrollbar padding-side" >
                     <ul>
