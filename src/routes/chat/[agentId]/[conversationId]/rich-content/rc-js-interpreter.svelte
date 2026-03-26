@@ -6,17 +6,20 @@
     import { v4 as uuidv4 } from 'uuid';
 	import LoadingDots from "$lib/common/spinners/LoadingDots.svelte";
 
-    /** @type {import('$conversationTypes').ChatResponseModel?} */
-    export let message;
-
-   /** @type {string} */
-    export let containerClasses = '';
-
-    /** @type {string} */
-    export let containerStyles = '';
-
-    /** @type {boolean} */
-	export let scrollable = false;
+    /**
+     * @type {{
+     *   message?: import('$conversationTypes').ChatResponseModel | null,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   scrollable?: boolean
+     * }}
+     */
+    let {
+        message = null,
+        containerClasses = '',
+        containerStyles = '',
+        scrollable = false
+    } = $props();
 
     const scrollbarId = `js-interpreter-scrollbar-${uuidv4()}`;
     const options = {
@@ -32,7 +35,7 @@
 	};
 
     /** @type {boolean} */
-    let isLoading = false;
+    let isLoading = $state(false);
 
     onMount(() => {
         if (scrollable) {
