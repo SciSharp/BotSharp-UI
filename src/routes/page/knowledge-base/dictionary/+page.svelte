@@ -3,12 +3,6 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import {
-        Button,
-        Card,
-        CardBody,
-        Table
-    } from '@sveltestrap/sveltestrap';
     import {
 		getEntityAnalyzers,
 		getEntityDataLoaders,
@@ -20,7 +14,7 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import TableItem from '../common/table/table-item.svelte';
-	
+
 	const maxLength = 4096;
     const columns = [
         {
@@ -32,48 +26,42 @@
             displayName: "Canonical Text"
         }
     ];
-	
+
 	/** @type {string} */
-	let text = "";
-	let successText = "Done";
-	let errorText = "Error";
-	let elapsedTime = '';
+	let text = $state("");
+	let successText = $state("Done");
+	let errorText = $state("Error");
+	let elapsedTime = $state('');
 
 	/** @type {string | null} */
-	let selectedAnalyzer = null;
+	let selectedAnalyzer = $state(null);
 
     /** @type {string[]} */
-    let selectedDataLoaders = [];
+    let selectedDataLoaders = $state([]);
 
 	/** @type {import('$knowledgeTypes').EntityAnalysisResult[]} */
-	let items = [];
+	let items = $state([]);
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
-	let analyzers = [];
+	let analyzers = $state([]);
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-    let dataLoaders = [];
+    let dataLoaders = $state([]);
 
 	/** @type {number | null | undefined} */
-	let totalDataCount;
+	let totalDataCount = $state(/** @type {number | null | undefined} */ (undefined));
 
 	/** @type {boolean} */
-	let showDemo = true;
-    let disableSearchBtn = false;
-	let isSearching = false;
-	let searchDone = false;
-	let isLoading = false;
-	let isComplete = false;
-	let isError = false;
+	let showDemo = $state(true);
+	let isSearching = $state(false);
+	let searchDone = $state(false);
+	let isLoading = $state(false);
+	let isComplete = $state(false);
+	let isError = $state(false);
 
-	$: {
-		disableSearchBtn = false;
-		if (!selectedAnalyzer || isSearching) {
-			disableSearchBtn = true;
-		} else if (!text || util.trim(text).length === 0) {
-			disableSearchBtn = true;
-		}
-	}
+	let disableSearchBtn = $derived(
+		!selectedAnalyzer || isSearching || !text || util.trim(text).length === 0
+	);
 
 	onMount(() => {
 		initData();
@@ -112,7 +100,7 @@
 
 	/** @param {KeyboardEvent} e */
 	function pressKey(e) {
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!util.trim(text) || isSearching) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !util.trim(text) || isSearching) {
 			return;
 		}
 
@@ -201,8 +189,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Dictionary')}" addOn="Knowledge Base" />
-<Breadcrumb pagetitle="{$_('Dictionary')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title={$_('Dictionary')} addOn="Knowledge Base" />
+<Breadcrumb pagetitle={$_('Dictionary')} title={$_('Knowledge Base')}/>
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -214,9 +202,9 @@
 
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
-		<Button
-			color={`${showDemo ? 'danger' : 'primary'}`}
-			on:click={() => toggleDemo()}
+		<button
+			class={`btn btn-${showDemo ? 'danger' : 'primary'}`}
+			onclick={() => toggleDemo()}
 		>
 			{#if !showDemo}
 				<div class="btn-content">
@@ -229,18 +217,19 @@
 					<div>{'Hide Search'}</div>
 				</div>
 			{/if}
-		</Button>
+		</button>
 	</div>
-	
+
 	<div class="reset-btn">
-		<Button
-			on:click={() => reset()}
+		<button
+			class="btn btn-secondary"
+			onclick={() => reset()}
 		>
 			<div class="btn-content">
 				<div class="knowledge-btn-icon"><i class="bx bx-reset"></i></div>
 				<div>{'Reset'}</div>
 			</div>
-		</Button>
+		</button>
 	</div>
 </div>
 
@@ -259,8 +248,8 @@
 						disabled={isSearching}
 						placeholder={'Start searching here...'}
 						bind:value={text}
-						on:keydown={(e) => pressKey(e)}
-					/>
+						onkeydown={(e) => pressKey(e)}
+					></textarea>
 					<div class="text-secondary text-count d-flex justify-content-between">
 						<div>
 							{#if elapsedTime}
@@ -273,13 +262,13 @@
                     <div class="mt-3 knowledge-search-footer">
                         <div class="search-input"></div>
                         <div class="line-align-center">
-							<Button
-								color="primary"
+							<button
+								class="btn btn-primary"
 								disabled={disableSearchBtn}
-								on:click={() => search()}
+								onclick={() => search()}
 							>
 								{'Search'}
-							</Button>
+							</button>
                         </div>
                     </div>
 				
@@ -297,8 +286,8 @@
 		{/if}
 		<div class="d-md-flex mt-5">
 			<div class="w-100">
-				<Card>
-					<CardBody>
+				<div class="card">
+					<div class="card-body">
 						<div class="mt-2 knowledge-table-header">
 							{#if totalDataCount != null && totalDataCount != undefined}
 								<div class="knowledge-count line-align-center text-muted font-size-12">
@@ -344,7 +333,7 @@
 							<hr class="mt-2" />
 						  
 							<div class="table-responsive knowledge-table">
-								<Table class="table align-middle table-nowrap table-hover mb-0">
+								<table class="table align-middle table-nowrap table-hover mb-0">
 									<thead>
 										<tr>
                                             {#each columns as column, idx (idx) }
@@ -363,11 +352,11 @@
 											/>
 										{/each}
 									</tbody>
-								</Table>
+								</table>
 							</div>
 						</div>
-					</CardBody>
-				</Card>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

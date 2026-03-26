@@ -1,9 +1,14 @@
 <script>
-    /** @type {string[]} */
-    export let successFiles = [];
-
-    /** @type {string[]} */
-    export let failedFiles = [];
+    /**
+     * @type {{
+     *   successFiles?: string[],
+     *   failedFiles?: string[]
+     * }}
+     */
+    let {
+        successFiles = [],
+        failedFiles = []
+    } = $props();
 </script>
 
 {#if successFiles?.length > 0 || failedFiles?.length > 0}

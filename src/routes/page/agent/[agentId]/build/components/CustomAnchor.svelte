@@ -1,13 +1,15 @@
 <script>
-    /** @type boolean */
-	export let linked;
-    /** @type boolean */
-	export let connecting;
-    /** @type boolean */
-	export let hovering;
+	/**
+	 * @type {{
+	 *   linked: boolean,
+	 *   connecting: boolean,
+	 *   hovering: boolean
+	 * }}
+	 */
+	let { linked, connecting, hovering } = $props();
 </script>
 
-<div class:linked class:hovering class:connecting class="my-anchor" />
+<div class:linked class:hovering class:connecting class="my-anchor"></div>
 
 <style>
 	.my-anchor {

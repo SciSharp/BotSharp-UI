@@ -1,12 +1,25 @@
 <script>
-    import { createEventDispatcher } from "svelte";
-    import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
     import Swal from 'sweetalert2';
 	import Loader from "$lib/common/spinners/Loader.svelte";
 	import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
 
-    const svelteDispatch = createEventDispatcher();
+    let {
+        /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel} */
+        item,
+        /** @type {string} */
+        collection,
+        /** @type {string} */
+        collectionType,
+        /** @type {boolean} */
+        open = false,
+        /** @type {boolean} */
+        disabled = false,
+        /** @type {(data: { id: string }) => void} */
+        ondelete = () => {},
+        /** @type {(data: { collection: string, item: any }) => void} */
+        onupdate = () => {}
+    } = $props();
 
     const excludedPayloads = [
 		KnowledgePayloadName.Text,
@@ -14,31 +27,17 @@
 		KnowledgePayloadName.Answer
 	];
 
-    /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel} */
-    export let item;
+    let isQuestionAnswerCollection = $derived(collectionType === KnowledgeCollectionType.QuestionAnswer);
+    let isDocumentCollection = $derived(collectionType === KnowledgeCollectionType.Document);
 
-    /** @type {string} */
-    export let collection;
+    let isLoading = $state(false);
+    let loadMore = $state(false);
 
-    /** @type {string} */
-    export let collectionType;
-
-    /** @type {boolean} */
-    export let open = false;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    $: isQuestionAnswerCollection = collectionType === KnowledgeCollectionType.QuestionAnswer;
-    $: isDocumentCollection = collectionType === KnowledgeCollectionType.Document;
-    $: {
+    $effect(() => {
         if (!open) {
             loadMore = false;
         }
-    }
-
-    let isLoading = false;
-    let loadMore = false;
+    });
 
     function toggleKnowledgeDetail() {
         open = !open;
@@ -58,15 +57,13 @@
             confirmButtonText: 'Yes'
         }).then(async (result) => {
             if (result.value) {
-                svelteDispatch("delete", {
-                    id: id,
-                });
+                ondelete?.({ id: id });
             }
         });
     }
 
     function editKnowledge() {
-        svelteDispatch("update", {
+        onupdate?.({
             collection: collection,
             item: item
         });
@@ -89,34 +86,37 @@
     <td class="knowledge-op">
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-                <Button
+                <button
                     class="btn btn-sm btn-soft-primary"
-                    on:click={() => toggleKnowledgeDetail()}
+                    aria-label="View detail"
+                    onclick={() => toggleKnowledgeDetail()}
                 >
                     {#if open}
                         <i class="bx bx-hide"></i>
                     {:else}
                         <i class="mdi mdi-eye-outline"></i>
                     {/if}
-                </Button>
+                </button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
-                <Button
+                <button
                     class="btn btn-sm btn-soft-warning"
                     disabled={disabled}
-                    on:click={() => editKnowledge()}
+                    aria-label="Edit"
+                    onclick={() => editKnowledge()}
                 >
                     <i class="bx bxs-edit"></i>
-                </Button>
+                </button>
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                <Button
+                <button
                     class="btn btn-sm btn-soft-danger"
                     disabled={disabled}
-                    on:click={() => deleteKnowledge(item?.id)}
+                    aria-label="Delete"
+                    onclick={() => deleteKnowledge(item?.id)}
                 >
                     <i class="mdi mdi-delete-outline"></i>
-                </Button>
+                </button>
             </li>
         </ul>
     </td>
@@ -160,9 +160,9 @@
                 </ul>
                 {#if item?.id}
                     <div class="more-detail">
-                        <Button class='toggle-btn btn-sm' color="link" on:click={() => loadMore = !loadMore}>
+                        <button class="toggle-btn btn btn-sm btn-link" onclick={() => loadMore = !loadMore}>
                             {`${loadMore ? 'Less -' : 'More +'}`}
-                        </Button>
+                        </button>
                     </div>
                     {#if loadMore}
                         <ul
@@ -179,19 +179,17 @@
                                 </li>
                             {/if}
                             {#if item?.payload}
-                                {#each Object.keys(item.payload) as key, idx (`${key}-${item?.id}`)}
+                                {#each Object.keys(item.payload) as key (`${key}-${item?.id}`)}
                                     {#if (!excludedPayloads.includes(key))}
                                         <li class="more-detail-item wrappable">
                                             <span>{key} {`(${item.payload[key]?.data_type?.toLowerCase()})`}: </span>
                                             {#if key === KnowledgePayloadName.FileUrl}
-                                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                                <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                                <span
-                                                    class="link clickable"
-                                                    on:click={() => window.open(item.payload[key]?.data_value)}
+                                                <button
+                                                    class="link clickable btn btn-link p-0"
+                                                    onclick={() => window.open(item.payload[key]?.data_value)}
                                                 >
                                                     link
-                                                </span>
+                                                </button>
                                             {:else}
                                                 <span>{item.payload[key]?.data_value}</span>
                                             {/if}

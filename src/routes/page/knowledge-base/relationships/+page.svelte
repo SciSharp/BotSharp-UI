@@ -1,21 +1,25 @@
 <script>
     import { onMount } from 'svelte';
     import { fly } from 'svelte/transition';
-	import { _ } from 'svelte-i18n';
-	import util from "lodash";
-	import { Button } from '@sveltestrap/sveltestrap';
-	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
-	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+    import { _ } from 'svelte-i18n';
+    import util from "lodash";
+    import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
+    import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
-	import { searchGraphKnowledge } from '$lib/services/knowledge-base-service';
-    
-	const maxLength = 4096;
+    import { searchGraphKnowledge } from '$lib/services/knowledge-base-service';
 
-    let showDemo = false;
-    let isSearching = false;
-    let searchDone = false;
-    let text = '';
-    let result = '';
+    const maxLength = 4096;
+
+    /** @type {boolean} */
+    let showDemo = $state(false);
+    /** @type {boolean} */
+    let isSearching = $state(false);
+    /** @type {boolean} */
+    let searchDone = $state(false);
+    /** @type {string} */
+    let text = $state('');
+    /** @type {string} */
+    let result = $state('');
 
     onMount(() => {
         showDemo = true;
@@ -26,7 +30,7 @@
 		isSearching = true;
 		searchGraphKnowledge(util.trim(text)).then(res => {
             result = res.result || '';
-		}).catch(err => {
+		}).catch(() => {
             result = 'Error!';
         }).finally(() => {
 			isSearching = false;
@@ -36,7 +40,7 @@
 
     /** @param {KeyboardEvent} e */
 	function pressKey(e) {
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!util.trim(text) || isSearching) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !util.trim(text) || isSearching) {
 			return;
 		}
 
@@ -49,8 +53,8 @@
 </script>
 
 
-<HeadTitle title="{$_('Relation Knowledge')}" />
-<Breadcrumb pagetitle="{$_('Relation Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title={$_('Relation Knowledge')} />
+<Breadcrumb pagetitle={$_('Relation Knowledge')} title={$_('Knowledge Base')}/>
 
 <div class="d-xl-flex">
 	<div class="w-100">
@@ -67,20 +71,20 @@
                         disabled={isSearching}
                         placeholder={'Start searching here...'}
                         bind:value={text}
-                        on:keydown={(e) => pressKey(e)}
-                    />
+                        onkeydown={(e) => pressKey(e)}
+                    ></textarea>
                     <div class="text-secondary text-end text-count">
                         {text?.length || 0}/{maxLength}
                     </div>
                 
                     <div class="mt-2 text-end">
-                        <Button
-                            color="primary"
+                        <button
+                            class="btn btn-primary"
                             disabled={!text || util.trim(text).length === 0 || isSearching}
-                            on:click={() => search()}
+                            onclick={() => search()}
                         >
                             {'Search'}
-                        </Button>
+                        </button>
                     </div>
                 
                     {#if isSearching}

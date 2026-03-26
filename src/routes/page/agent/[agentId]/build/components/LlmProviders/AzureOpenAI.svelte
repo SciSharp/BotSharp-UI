@@ -16,7 +16,7 @@
 		maxResponseTokens: 128
 	};
 	const inputs = generateInput(initialData);
-	const procesor = (inputs) => inputs.temperature;
+	const procesor = (/** @type {any} */ inputs) => inputs.temperature;
 	const output = generateOutput(inputs, procesor);
 </script>
 

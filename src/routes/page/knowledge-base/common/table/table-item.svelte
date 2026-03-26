@@ -1,33 +1,33 @@
 <script>
-    import { Button } from "@sveltestrap/sveltestrap";
     import { fly } from 'svelte/transition';
 	import Loader from "$lib/common/spinners/Loader.svelte";
-    // import JSONTree from 'svelte-json-tree';
 	import { formatObject, splitTextByCase } from "$lib/helpers/utils/common";
 
-    /** @type {any} */
-    export let item;
+    /**
+     * @type {{
+     *   item: any,
+     *   columns: import('$commonTypes').TableItemConfig[],
+     *   detailKey?: string | null,
+     *   useJsonDisplay?: boolean,
+     *   open?: boolean
+     * }}
+     */
+    let {
+        item,
+        columns,
+        detailKey = null,
+        useJsonDisplay = false,
+        open = $bindable(false)
+    } = $props();
 
-    /** @type {import('$commonTypes').TableItemConfig[]} */
-    export let columns;
+    let isLoading = $state(false);
+    let loadMore = $state(false);
 
-    /** @type {string | null} */
-    export let detailKey = null;
-
-    /** @type {boolean} */
-    export let useJsonDisplay = false;
-
-    /** @type {boolean} */
-    export let open = false;
-
-    let isLoading = false;
-    let loadMore = false;
-
-    $: {
+    $effect(() => {
         if (!open) {
             loadMore = false;
         }
-    }
+    });
 
     function toggleDetail() {
         open = !open;
@@ -50,16 +50,16 @@
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
             {#if detailKey}
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-                <Button
+                <button
                     class="btn btn-sm btn-soft-primary"
-                    on:click={() => toggleDetail()}
+                    onclick={() => toggleDetail()}
                 >
                     {#if open}
                         <i class="bx bx-hide"></i>
                     {:else}
                         <i class="mdi mdi-eye-outline"></i>
                     {/if}
-                </Button>
+                </button>
             </li>
             {/if}
         </ul>
@@ -83,9 +83,9 @@
                     {/each}
                 </ul>
                 <div class="more-detail">
-                    <Button class='toggle-btn btn-sm' color="link" on:click={() => loadMore = !loadMore}>
+                    <button class="btn toggle-btn btn-sm btn-link" onclick={() => loadMore = !loadMore}>
                         {`${loadMore ? 'Less -' : 'More +'}`}
-                    </Button>
+                    </button>
                 </div>
                 {#if loadMore}
                     <ul

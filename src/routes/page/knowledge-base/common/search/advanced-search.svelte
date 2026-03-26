@@ -253,7 +253,7 @@
                                 class="bx bxs-no-entry text-danger clickable"
                                 class:hide={items.length === 1}
                                 on:click={() => removeItem(idx)}
-                            />
+                            ></i>
                         </div>
                     </div>
                 </div>

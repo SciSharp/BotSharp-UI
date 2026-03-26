@@ -1,69 +1,53 @@
 <script>
     import { onMount } from "svelte";
-	import {
-        Button,
-        Form,
-        FormGroup,
-        Input,
-        Modal,
-        ModalBody,
-        ModalFooter,
-        ModalHeader,
-        Row
-    } from "@sveltestrap/sveltestrap";
+    import { fade } from 'svelte/transition';
     import _ from "lodash";
 	import { existVectorCollection } from "$lib/services/knowledge-base-service";
 
-    
-    /** @type {boolean} */
-    export let open = false;
+    let {
+        /** @type {boolean} */
+        open = false,
+        /** @type {string} */
+        className = "",
+        /** @type {string} */
+        title = '',
+        /** @type {string} */
+        size = 'md',
+        /** @type {number} */
+        minDimension = 1,
+        /** @type {number} */
+        step = 1,
+        /** @type {number} */
+        maxLength = 30,
+        /** @type {() => void} */
+        toggleModal = () => {},
+        /** @type {(args0: any) => void} */
+        confirm = () => {},
+        /** @type {() => void} */
+        cancel = () => {}
+    } = $props();
 
     /** @type {string} */
-    export let className = "";
-
-    /** @type {string} */
-    export let title;
-
-    /** @type {string} */
-    export let size = 'md';
-
-    /** @type {number} */
-    export let minDimension = 1;
-
-    /** @type {number} */
-    export let step = 1;
-
-    /** @type {number} */
-    export let maxLength = 30;
-
-    /** @type {() => void} */
-    export let toggleModal;
-
-    /** @type {(args0: any) => void} */
-    export let confirm;
-
-    /** @type {() => void} */
-    export let cancel;
-
-    /** @type {string} */
-    let collection;
+    let collection = $state('');
 
     /** @type {boolean} */
-    let isValidCollection = true;
+    let isValidCollection = $state(true);
 
     /** @type {number} */
-    let dimension;
+    let dimension = $state(1536);
 
     /** @type {string} */
-    let provider;
+    let provider = $state('openai');
 
     /** @type {string} */
-    let model;
+    let model = $state('text-embedding-3-small');
 
-    $: disableConfirmBtn = (!_.trim(collection) || collection.length > maxLength) ||
-                            (!_.trim(provider) || provider.length > maxLength) ||
-                            (!_.trim(model) || model.length > maxLength) ||
-                            dimension <= 0;
+    let disableConfirmBtn = $derived(
+        (!_.trim(collection) || collection.length > maxLength) ||
+        (!_.trim(provider) || provider.length > maxLength) ||
+        (!_.trim(model) || model.length > maxLength) ||
+        dimension <= 0
+    );
 
     onMount(() => {
         reset();
@@ -125,97 +109,117 @@
         cancel?.();
     }
 
+    /** @param {MouseEvent} e */
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            toggle();
+        }
+    }
 </script>
 
-<Modal
-    class={`vector-collection-create-container ${className}`}
-    fade
-    size={size}
-    isOpen={open}
-    toggle={() => toggle()}
-    unmountOnClose
+{#if open}
+<div
+    class="modal show d-block"
+    tabindex="-1"
+    role="dialog"
+    transition:fade={{ duration: 150 }}
+    onclick={handleBackdropClick}
+    onkeydown={(e) => { if (e.key === 'Escape') toggle(); }}
 >
-    <ModalHeader>
-        <div>{title}</div>
-    </ModalHeader>
-    <ModalBody>
-        <Form>
-            <Row>
-                <FormGroup class="collection-input">
-                    <label class="fw-bold" for="collection">{`Collection name: `}</label>
-                    <Input
-                        type="text"
-                        class={`text-center ${!isValidCollection ? 'invalid-input' : ''}`}
-                        maxlength={maxLength}
-                        value={collection}
-                        on:input={(e) => changeCollectionText(e)}
-                    />
-                    <div class={`text-secondary text-count collection-note ${isValidCollection ? 'valid' : 'invalid'}`}>
-                        {#if !isValidCollection}
-                            <div style="color: var(--bs-danger);">{'* The collection already exists.'}</div>
-                        {/if}
-                        <div>{collection?.length || 0}/{maxLength}</div>
+    <div class={`modal-dialog modal-${size} vector-collection-create-container ${className}`} role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{title}</h5>
+                <button type="button" class="btn-close" aria-label="Close" onclick={() => toggle()}></button>
+            </div>
+            <div class="modal-body">
+                <form onsubmit={(e) => handleConfirm(e)}>
+                    <div class="row">
+                        <div class="mb-3 collection-input">
+                            <label class="fw-bold" for="collection">Collection name: </label>
+                            <input
+                                type="text"
+                                id="collection"
+                                class={`form-control text-center ${!isValidCollection ? 'invalid-input' : ''}`}
+                                maxlength={maxLength}
+                                value={collection}
+                                oninput={(e) => changeCollectionText(e)}
+                            />
+                            <div class={`text-secondary text-count collection-note ${isValidCollection ? 'valid' : 'invalid'}`}>
+                                {#if !isValidCollection}
+                                    <div style="color: var(--bs-danger);">* The collection already exists.</div>
+                                {/if}
+                                <div>{collection?.length || 0}/{maxLength}</div>
+                            </div>
+                        </div>
                     </div>
-                </FormGroup>
-            </Row>
-            <Row>
-                <FormGroup>
-                    <label class="fw-bold" for="provider">{`Embedding provider: `}</label>
-                    <Input
-                        type="text"
-                        class="text-center"
-                        maxlength={maxLength}
-                        bind:value={provider}
-                    />
-                    <div class="text-secondary text-end text-count">
-                        {provider?.length || 0}/{maxLength}
+                    <div class="row">
+                        <div class="mb-3">
+                            <label class="fw-bold" for="provider">Embedding provider: </label>
+                            <input
+                                type="text"
+                                id="provider"
+                                class="form-control text-center"
+                                maxlength={maxLength}
+                                bind:value={provider}
+                            />
+                            <div class="text-secondary text-end text-count">
+                                {provider?.length || 0}/{maxLength}
+                            </div>
+                        </div>
                     </div>
-                </FormGroup>
-            </Row>
-            <Row>
-                <FormGroup>
-                    <label class="fw-bold" for="model">{`Embedding model: `}</label>
-                    <Input
-                        type="text"
-                        class="text-center"
-                        maxlength={maxLength}
-                        bind:value={model}
-                    />
-                    <div class="text-secondary text-end text-count">
-                        {model?.length || 0}/{maxLength}
+                    <div class="row">
+                        <div class="mb-3">
+                            <label class="fw-bold" for="model">Embedding model: </label>
+                            <input
+                                type="text"
+                                id="model"
+                                class="form-control text-center"
+                                maxlength={maxLength}
+                                bind:value={model}
+                            />
+                            <div class="text-secondary text-end text-count">
+                                {model?.length || 0}/{maxLength}
+                            </div>
+                        </div>
                     </div>
-                </FormGroup>
-            </Row>
-            <Row>
-                <FormGroup>
-                    <label class="fw-bold" for="dimension">{`Vector dimension: `}</label>
-                    <Input
-                        type="number"
-                        class="text-center"
-                        bind:value={dimension}
-                        min={minDimension}
-                        step={step}
-                    />
-                    <div class="text-secondary text-count">
-                        {'* The value must be larger than 0.'}
+                    <div class="row">
+                        <div class="mb-3">
+                            <label class="fw-bold" for="dimension">Vector dimension: </label>
+                            <input
+                                type="number"
+                                id="dimension"
+                                class="form-control text-center"
+                                bind:value={dimension}
+                                min={minDimension}
+                                step={step}
+                            />
+                            <div class="text-secondary text-count">
+                                * The value must be larger than 0.
+                            </div>
+                        </div>
                     </div>
-                </FormGroup>
-            </Row>
-        </Form>
-    </ModalBody>
-    <ModalFooter>
-        <Button
-            color="primary"
-            disabled={disableConfirmBtn}
-            on:click={(e) => handleConfirm(e)}
-        >
-            Confirm
-        </Button>
-        <Button
-            color="secondary"
-            on:click={(e) => handleCancel(e)}
-        >
-            Cancel
-        </Button>
-    </ModalFooter>
-</Modal>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button
+                    type="button"
+                    class="btn btn-primary"
+                    disabled={disableConfirmBtn}
+                    onclick={(e) => handleConfirm(e)}
+                >
+                    Confirm
+                </button>
+                <button
+                    type="button"
+                    class="btn btn-secondary"
+                    onclick={(e) => handleCancel(e)}
+                >
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
+{/if}

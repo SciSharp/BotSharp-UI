@@ -1,7 +1,6 @@
 <script>
-	import { onMount } from 'svelte';
 	import { Svelvet, ThemeToggle, Group } from 'svelvet';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { getAgent } from '$lib/services/agent-service.js';
 	import Thickness from './components/Thickness.svelte';
 	import AzureOpenAI from './components/LlmProviders/AzureOpenAI.svelte';
@@ -11,14 +10,15 @@
 	let zoom = 0.8;
 
 	/** @type {import('$agentTypes').AgentModel} */
-    let agent;
+	let agent = $state(/** @type {any} */ (undefined));
 
-	$: agentId = $page.params.agentId;
-	$: if (agentId) {
-		loadAgent(agentId);
-	}
-    	
-	onMount(async () => {});
+	let agentId = $derived(page.params.agentId);
+
+	$effect(() => {
+		if (agentId) {
+			loadAgent(agentId);
+		}
+	});
 
 	async function loadAgent(/** @type {string} */ id) {
 		agent = await getAgent(id);
@@ -31,7 +31,7 @@
 			position={{ x: -100, y: -25 }}
 			width={600}
 			height={700}
-			color="var(--bs-primary)"
+			color="#556ee6"
 			groupName="parameters"
 		>
 			<Thickness />
