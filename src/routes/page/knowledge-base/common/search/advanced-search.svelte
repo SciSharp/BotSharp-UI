@@ -1,34 +1,33 @@
 <script>
-    import { onMount, onDestroy, tick } from 'svelte';
+    import { onDestroy, tick } from 'svelte';
     import { fly } from 'svelte/transition';
-    import { Input, Tooltip, Button } from '@sveltestrap/sveltestrap';
     import { v4 as uuidv4 } from 'uuid';
 	import Select from '$lib/common/dropdowns/Select.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import { VectorPayloadDataType } from '$lib/helpers/enums';
-    
-    /** @type {boolean} */
-    export let showAdvSearch = false;
 
-    /** @type {{ uuid: string, key: string, value: string, data_type: string, checked: boolean }[]} */
-    export let items = [];
-
-    /** @type {string} */
-    export let operator = 'or';
-
-    /** @type {string} */
-    export let sortOrder = "desc";
-
-    /** @type {string} */
-    export let sortField = '';
-
-    /** @type {number} */
-    export let maxLength = 1000;
-
-    /** @type {number} */
-    export let limit = 10;
-
-    /** @type {boolean} */
-    export let disabled = false;
+    /**
+     * @type {{
+     *   showAdvSearch?: boolean,
+     *   items?: { uuid: string, key: string, value: string, data_type: string, checked: boolean }[],
+     *   operator?: string,
+     *   sortOrder?: string,
+     *   sortField?: string,
+     *   maxLength?: number,
+     *   limit?: number,
+     *   disabled?: boolean
+     * }}
+     */
+    let {
+        showAdvSearch = $bindable(false),
+        items = $bindable([]),
+        operator = $bindable('or'),
+        sortOrder = $bindable('desc'),
+        sortField = $bindable(''),
+        maxLength = 1000,
+        limit = 10,
+        disabled = false
+    } = $props();
 
     const logicalOperators = [
         {
@@ -37,7 +36,7 @@
             label: 'AND',
             tip: 'All of the conditions should match.'
         },
-        {   
+        {
             id: 'operator-or',
             value: 'or',
             label: 'OR',
@@ -52,7 +51,7 @@
             label: 'ASC',
             tip: 'Ascending sort.'
         },
-        {   
+        {
             id: 'sort-desc',
             value: 'desc',
             label: 'DESC',
@@ -60,15 +59,14 @@
         }
     ];
 
-    const dataTypeOptions = Object.entries(VectorPayloadDataType).map(([k, v]) => ({
+    const dataTypeOptions = Object.entries(VectorPayloadDataType).map(([_, v]) => ({
         label: v.name.toLowerCase(),
         value: v.name
     }));
 
     /** @type {HTMLElement} */
+    // eslint-disable-next-line svelte/valid-compile
     let scrollContainer;
-
-    onMount(() => {});
 
     onDestroy(() => {
         reset();
@@ -84,7 +82,7 @@
         items = [{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }];
     }
 
-    
+
     /**
      * @param {any} e
      * @param {number} idx
@@ -161,12 +159,14 @@
     out:fly={{ y: -10, duration: 200 }}
 >
     <div class="knowledge-adv-search-btn text-primary fw-bold">
-        <div class="line-align-center">
-            <Input
-                type="switch"
+        <div class="form-check form-switch line-align-center">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                role="switch"
                 disabled={disabled}
                 checked={showAdvSearch}
-                on:change={e => toggleAdvSearch(e)}
+                onchange={e => toggleAdvSearch(e)}
             />
         </div>
         <div class="line-align-center">
@@ -176,12 +176,12 @@
             <div class="line-align-center" id="adv-search-tooltip">
                 <i class="bx bx-info-circle"></i>
             </div>
-            <Tooltip target="adv-search-tooltip" placement="top" class="demo-tooltip-note">
+            <BotsharpTooltip target="adv-search-tooltip" placement="top" containerClasses="demo-tooltip-note">
                 <ul>
                     <li>{'Select the checkbox to enable seaching in each field.'}</li>
                     <li>{'Empty value will not be used to search.'}</li>
                 </ul>
-            </Tooltip>
+            </BotsharpTooltip>
         {/if}
     </div>
 
@@ -210,29 +210,34 @@
             {#each items as item, idx (item.uuid)}
                 <div class="knowledge-adv-search-item">
                     <div class="search-item-cb line-align-center">
-                        <Input
-                            type="checkbox"
-                            disabled={disabled}
-                            checked={item.checked}
-                            on:change={e => toggleItem(e, idx)}
-                        />
+                        <div class="form-check">
+                            <input
+                                type="checkbox"
+                                class="form-check-input"
+                                disabled={disabled}
+                                checked={item.checked}
+                                onchange={e => toggleItem(e, idx)}
+                            />
+                        </div>
                     </div>
                     <div class="search-item-content line-align-center" data-label="Name">
-                        <Input
+                        <input
                             type="text"
+                            class="form-control"
                             disabled={!item.checked || disabled}
                             maxlength={maxLength}
                             value={item.key}
-                            on:input={e => changeItem(e, idx, 'key')}
+                            oninput={e => changeItem(e, idx, 'key')}
                         />
                     </div>
                     <div class="search-item-content line-align-center" data-label="Value">
-                        <Input
+                        <input
                             type="text"
+                            class="form-control"
                             disabled={!item.checked || disabled}
                             maxlength={maxLength}
                             value={item.value}
-                            on:input={e => changeItem(e, idx, 'value')}
+                            oninput={e => changeItem(e, idx, 'value')}
                         />
                     </div>
                     <div class="search-item-content line-align-center" data-label="Data type">
@@ -247,12 +252,12 @@
                     </div>
                     <div class="search-item-cb line-align-center" style="flex: 0 0 12px;">
                         <div class="line-align-center">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <i
                                 class="bx bxs-no-entry text-danger clickable"
                                 class:hide={items.length === 1}
-                                on:click={() => removeItem(idx)}
+                                onclick={() => removeItem(idx)}
                             ></i>
                         </div>
                     </div>
@@ -271,13 +276,13 @@
                     </div>
                     <div class="search-item-content line-align-center">
                         <div class="d-flex justify-content-end">
-                            <Button
-                                color="link"
+                            <button
+                                class="btn btn-link"
                                 style="width: fit-content"
-                                on:click={e => addItem(e)}
+                                onclick={e => addItem(e)}
                             >
                                 {'Add +'}
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -290,23 +295,27 @@
                 <div class="d-flex align-items-center gap-5">
                     {#each logicalOperators as op, idx (idx)}
                         <div class="d-flex align-items-center gap-1">
-                            <Input
-                                type="radio"
-                                id={op.id}
-                                name="searchOperator"
-                                value={op.value}
-                                disabled={disabled}
-                                bind:group={operator}
-                            />
+                            <div class="form-check">
+                                <input
+                                    type="radio"
+                                    class="form-check-input"
+                                    id={op.id}
+                                    name="searchOperator"
+                                    value={op.value}
+                                    disabled={disabled}
+                                    checked={operator === op.value}
+                                    onchange={() => operator = op.value}
+                                />
+                            </div>
                             <label for={op.id} class="mb-0 d-flex gap-1">
                                 <span>{op.label}</span>
                                 {#if op.tip}
                                 <span class="line-align-center" id={`tooltip-${op.id}`}>
                                     <i class="bx bx-info-circle"></i>
                                 </span>
-                                <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
+                                <BotsharpTooltip target={`tooltip-${op.id}`} placement="top" containerClasses="operator-tooltip">
                                     <div>{op.tip}</div>
-                                </Tooltip>
+                                </BotsharpTooltip>
                                 {/if}
                             </label>
                         </div>
@@ -319,8 +328,9 @@
             <div class="operator-item align-items-center gap-5">
                 <div class="fw-bold operator-title">Sort by field:</div>
                 <div>
-                    <Input
+                    <input
                         type="text"
+                        class="form-control"
                         name="searchSortField"
                         bind:value={sortField}
                         disabled={disabled}
@@ -333,23 +343,27 @@
                 <div class="d-flex align-items-center gap-5" style="margin-top: 5px;">
                     {#each sortDirections as op, idx (idx)}
                         <div class="d-flex align-items-center gap-1">
-                            <Input
-                                type="radio"
-                                id={op.id}
-                                name="searchSort"
-                                value={op.value}
-                                disabled={disabled}
-                                bind:group={sortOrder}
-                            />
+                            <div class="form-check">
+                                <input
+                                    type="radio"
+                                    class="form-check-input"
+                                    id={op.id}
+                                    name="searchSort"
+                                    value={op.value}
+                                    disabled={disabled}
+                                    checked={sortOrder === op.value}
+                                    onchange={() => sortOrder = op.value}
+                                />
+                            </div>
                             <label for={op.id} class="mb-0 d-flex gap-1">
                                 <span>{op.label}</span>
                                 {#if op.tip}
                                 <span class="line-align-center" id={`tooltip-${op.id}`}>
                                     <i class="bx bx-info-circle"></i>
                                 </span>
-                                <Tooltip target={`tooltip-${op.id}`} placement="top" class="operator-tooltip">
+                                <BotsharpTooltip target={`tooltip-${op.id}`} placement="top" containerClasses="operator-tooltip">
                                     <div>{op.tip}</div>
-                                </Tooltip>
+                                </BotsharpTooltip>
                                 {/if}
                             </label>
                         </div>

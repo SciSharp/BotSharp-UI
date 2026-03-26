@@ -465,7 +465,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function assignMessageDisclaimer(dialogs) {
-		if (!!!dialogs) return null;
+		if (!dialogs) return null;
 
 		for (let idx = 0; idx < dialogs.length; idx++) {
 			const curMsg = dialogs[idx];
@@ -475,7 +475,7 @@
 			}
 
 			const nextMsg = dialogs[idx + 1];
-			if (!!nextMsg) {
+			if (nextMsg) {
 				// @ts-ignore
 				const disclaimerOptions = curMsg.rich_content?.message?.buttons?.filter(op => !!op.post_action_disclaimer) || [];
 				const content = nextMsg?.rich_content?.message?.text || nextMsg?.text;
@@ -488,7 +488,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
-		if (!!!dialogs) return [];
+		if (!dialogs) return [];
 		const format = 'MMM D, YYYY';
 		// @ts-ignore
 		return _.groupBy(dialogs, (x) => {
@@ -602,12 +602,11 @@
 			}
 		} else {
 			messageQueue.push(message);
-			setTimeout(() => handleMesssageQueue(message), 0);
+			setTimeout(() => handleMesssageQueue(), 0);
 		}
 	}
 
-	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	async function handleMesssageQueue(message) {
+	async function handleMesssageQueue() {
 		if (isHandlingQueue) return;
 
 		isHandlingQueue = true;

@@ -1,5 +1,4 @@
 <script>
-    import { Portal } from '@sveltestrap/sveltestrap';
     import { onMount, onDestroy } from 'svelte';
     import { createPopper } from '@popperjs/core';
     import { v4 as uuidv4 } from 'uuid';
@@ -178,26 +177,37 @@
             bsPlacement = popperPlacement;
         }
     });
+
+    // Portal behavior: move tooltip to document.body to avoid clipping
+    $effect(() => {
+        if (tooltipEl && isOpen) {
+            document.body.appendChild(tooltipEl);
+
+            return () => {
+                if (tooltipEl?.parentNode === document.body) {
+                    document.body.removeChild(tooltipEl);
+                }
+            };
+        }
+    });
 </script>
 
 {#if isOpen}
-    <Portal>
-        <div
-            bind:this={tooltipEl}
-            use:clickoutsideDirective
-            onclickoutside={handleClickOutside}
-            {style}
-            class={classes}
-            {id}
-            role="tooltip"
-            data-bs-theme={theme}
-            data-bs-delay={delay}
-            x-placement={popperPlacement}
-        >
-            <div class="tooltip-arrow" data-popper-arrow></div>
-            <div class="tooltip-inner">
-                {@render children?.()}
-            </div>
+    <div
+        bind:this={tooltipEl}
+        use:clickoutsideDirective
+        onclickoutside={handleClickOutside}
+        {style}
+        class={classes}
+        {id}
+        role="tooltip"
+        data-bs-theme={theme}
+        data-bs-delay={delay}
+        x-placement={popperPlacement}
+    >
+        <div class="tooltip-arrow" data-popper-arrow></div>
+        <div class="tooltip-inner">
+            {@render children?.()}
         </div>
-    </Portal>
+    </div>
 {/if}
