@@ -268,7 +268,7 @@
                 const promises = [];
                 isLoading = true;
                 files.forEach(file => {
-                    promises.push(new Promise((resolve, reject) => {
+                    promises.push(new Promise((resolve) => {
                         const [accepted, acceptError] = fileAccepted(file, accept);
                         const [sizeMatch, sizeError] = fileMatchSize(file, minSize, maxSize);
                         getBase64(file).then(data => {
@@ -351,13 +351,13 @@
     }
   
     /** @param {any} fn */
-    function composeHandler(fn) { return innerDisabled ? null : fn; }
+    function composeHandler(fn) { return innerDisabled ? () => {} : fn; }
 
     /** @param {any} fn */
-    function composeKeyboardHandler(fn) { return noKeyboard ? null : composeHandler(fn); }
+    function composeKeyboardHandler(fn) { return noKeyboard ? () => {} : composeHandler(fn); }
 
     /** @param {any} fn */
-    function composeDragHandler(fn) { return noDrag ? null : composeHandler(fn); }
+    function composeDragHandler(fn) { return noDrag ? () => {} : composeHandler(fn); }
   
     /** @param {any} event */
     function stopPropagation(event) {

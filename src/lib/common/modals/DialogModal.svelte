@@ -15,7 +15,7 @@
         close = () => {},
         disableConfirmBtn = false,
         children,
-        titleIcon
+        titleIcon = undefined
     } = $props();
 
     /** @type {Record<string, string>} */

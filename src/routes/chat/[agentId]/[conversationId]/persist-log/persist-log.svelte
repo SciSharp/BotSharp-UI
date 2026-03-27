@@ -39,7 +39,7 @@
     let {
         contentLogs = $bindable([]),
         convStateLogs = $bindable([]),
-        autoScroll = false,
+        autoScroll = $bindable(false),
         closeWindow,
         cleanScreen
     } = $props();
