@@ -1618,9 +1618,11 @@
 	cancelBtnText={''}
 	close={() => toggleNotificationModal()}
 >
-	<div slot='title-icon' class="color: text-warning">
-		<i class="mdi mdi-bell-ring"></i>
-	</div>
+	{#snippet titleIcon()}
+		<div class="color: text-warning">
+			<i class="mdi mdi-bell-ring"></i>
+		</div>
+	{/snippet}
 	<div class="chat-notification">
 		{notificationText}
 	</div>

@@ -59,6 +59,34 @@
 	/** @type {Array<{ startDate: string, endDate: string, label: string, timeRange?: string }>} */
 	let recentTimeRanges = $state([]);
 
+	// Preset time range options
+	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map((x) => ({
+		label: x.label,
+		value: x.value
+	}));
+
+	// Update time range display text reactively
+	let timeRangeDisplayText = $derived.by(() => {
+		if (timeRange === CUSTOM_DATE_RANGE && startDate && endDate) {
+			const start = formatDateForDisplay(startDate);
+			const end = formatDateForDisplay(endDate);
+			if (start === end) {
+				return start;
+			} else {
+				return `${start} - ${end}`;
+			}
+		} else if (timeRange === CUSTOM_DATE_RANGE) {
+			return 'Custom';
+		} else {
+			const selected = presetTimeRangeOptions.find((x) => x.value === timeRange);
+			return selected ? selected.label : '';
+		}
+	});
+
+	$effect(() => {
+		loadRecentTimeRanges();
+	});
+
 	// Initialize/destroy flatpickr when the container element is available
 	$effect(() => {
 		const el = flatpickrContainerEl;
@@ -91,6 +119,40 @@
 				instance.destroy();
 				flatpickrInstance = null;
 			};
+		}
+	});
+
+	// Dynamically position dropdown using fixed positioning to escape ancestor overflow clipping
+	$effect(() => {
+		if (dropdownEl && showDatePicker && datePickerRef) {
+			const btnRect = datePickerRef.getBoundingClientRect();
+			const spaceBelow = window.innerHeight - btnRect.bottom - 8;
+			const spaceAbove = btnRect.top - 8;
+			const minUsable = 250;
+
+			// Set horizontal position: align right edge with button right edge
+			dropdownEl.style.right = `${window.innerWidth - btnRect.right}px`;
+			dropdownEl.style.left = 'auto';
+
+			if (spaceBelow >= minUsable) {
+				// Enough space below — drop down
+				dropUp = false;
+				dropdownEl.style.top = `${btnRect.bottom + 4}px`;
+				dropdownEl.style.bottom = 'auto';
+				dropdownEl.style.maxHeight = `${spaceBelow}px`;
+			} else if (spaceAbove > spaceBelow) {
+				// More space above — drop up
+				dropUp = true;
+				dropdownEl.style.top = 'auto';
+				dropdownEl.style.bottom = `${window.innerHeight - btnRect.top + 4}px`;
+				dropdownEl.style.maxHeight = `${Math.min(spaceAbove, 500)}px`;
+			} else {
+				// Not much space either way — drop down with whatever we have
+				dropUp = false;
+				dropdownEl.style.top = `${btnRect.bottom + 4}px`;
+				dropdownEl.style.bottom = 'auto';
+				dropdownEl.style.maxHeight = `${Math.max(spaceBelow, 200)}px`;
+			}
 		}
 	});
 
@@ -155,39 +217,6 @@
 		}
 	}
 
-	// Preset time range options
-	const presetTimeRangeOptions = TIME_RANGE_OPTIONS.map((x) => ({
-		label: x.label,
-		value: x.value
-	}));
-
-	$effect(() => {
-		loadRecentTimeRanges();
-	});
-
-	// Dynamically position dropdown and constrain its height to available viewport space
-	$effect(() => {
-		if (dropdownEl && showDatePicker && datePickerRef) {
-			const btnRect = datePickerRef.getBoundingClientRect();
-			const spaceBelow = window.innerHeight - btnRect.bottom - 8;
-			const spaceAbove = btnRect.top - 8;
-			const minUsable = 250;
-
-			if (spaceBelow >= minUsable) {
-				// Enough space below — drop down
-				dropUp = false;
-				dropdownEl.style.maxHeight = `${spaceBelow}px`;
-			} else if (spaceAbove > spaceBelow) {
-				// More space above — drop up
-				dropUp = true;
-				dropdownEl.style.maxHeight = `${Math.min(spaceAbove, 500)}px`;
-			} else {
-				// Not much space either way — drop down with whatever we have
-				dropUp = false;
-				dropdownEl.style.maxHeight = `${Math.max(spaceBelow, 200)}px`;
-			}
-		}
-	});
 
 	// Get today's date in YYYY-MM-DD format
 	const getTodayStr = () => {
@@ -220,24 +249,6 @@
 		const [year, month, day] = dateStr.split('-');
 		return `${month}/${day}/${year}`;
 	};
-
-	// Update time range display text reactively
-	let timeRangeDisplayText = $derived.by(() => {
-		if (timeRange === CUSTOM_DATE_RANGE && startDate && endDate) {
-			const start = formatDateForDisplay(startDate);
-			const end = formatDateForDisplay(endDate);
-			if (start === end) {
-				return start;
-			} else {
-				return `${start} - ${end}`;
-			}
-		} else if (timeRange === CUSTOM_DATE_RANGE) {
-			return 'Custom';
-		} else {
-			const selected = presetTimeRangeOptions.find((x) => x.value === timeRange);
-			return selected ? selected.label : '';
-		}
-	});
 
 	function loadRecentTimeRanges() {
 		try {
@@ -531,9 +542,6 @@
 				</div>
 			{:else if datePickerTab === TAB_CUSTOM}
 				<div class="time-range-tab-content p-2">
-					<!-- Calendar Grid -->
-					<div class="mb-3" bind:this={flatpickrContainerEl}></div>
-
 					<!-- Date Input Fields -->
 					<div class="d-flex align-items-center gap-2 mb-3">
 						<input
@@ -550,6 +558,9 @@
 							onchange={handleEndDateChange}
 						/>
 					</div>
+
+					<!-- Calendar Grid -->
+					<div class="mb-3" bind:this={flatpickrContainerEl}></div>
 
 					<div class="d-flex justify-content-end gap-2 mt-3">
 						<button
@@ -587,12 +598,9 @@
 		display: none !important;
 	}
 
-	/* Dropdown panel positioning & responsiveness */
+	/* Dropdown panel positioning & responsiveness — use fixed to escape ancestor overflow clipping */
 	.time-range-dropdown {
-		position: absolute;
-		top: 100%;
-		right: 0;
-		margin-top: 0.25rem;
+		position: fixed;
 		z-index: 1050;
 		min-width: 305px;
 		max-width: 350px;
@@ -602,14 +610,6 @@
 		list-style: none;
 		padding-left: 0;
 		margin-bottom: 0;
-	}
-
-	/* When there's more space above, open upward */
-	.time-range-dropdown.drop-up {
-		top: auto;
-		bottom: 100%;
-		margin-top: 0;
-		margin-bottom: 0.25rem;
 	}
 
 	/* On small screens, allow the panel to shrink and avoid overflow */
@@ -631,9 +631,18 @@
 	/* Override shared .option-list absolute positioning inside our dropdown */
 	.time-range-option-list {
 		position: static !important;
-		max-height: none !important;
-		overflow-y: visible !important;
+		max-height: 300px !important;
 		border: none !important;
+	}
+
+	/* Make option buttons fill the full width of each row */
+	.time-range-option-list :global(.option-item .select-name) {
+		flex: 1;
+	}
+
+	.time-range-option-list :global(.option-item .select-name .clear-btn) {
+		width: 100%;
+		text-align: left;
 	}
 
 	/* Scale flatpickr calendar to fit within the panel */
@@ -641,6 +650,116 @@
 		width: 100% !important;
 		max-width: 100%;
 		box-shadow: none;
+	}
+
+	/* Refine month/year navigation bar */
+	:global(.time-range-dropdown .flatpickr-months) {
+		height: 36px;
+		align-items: center;
+		margin-bottom: 4px;
+	}
+
+	:global(.time-range-dropdown .flatpickr-current-month) {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 4px;
+		padding-top: 0;
+		height: 100%;
+		font-size: 14px;
+		left: 0;
+		right: 0;
+		width: 100%;
+	}
+
+	:global(.time-range-dropdown .flatpickr-monthDropdown-months) {
+		font-size: 14px;
+		font-weight: 600;
+		appearance: none;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		padding: 4px 20px 4px 8px;
+		border-radius: 4px;
+		border: 1px solid var(--bs-border-color, #dee2e6);
+		background-color: var(--bs-body-bg, #fff);
+		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23666' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+		background-repeat: no-repeat;
+		background-position: right 6px center;
+		background-size: 10px 6px;
+		color: var(--bs-body-color, #212529);
+		cursor: pointer;
+		width: 90px;
+		height: 30px;
+		text-align: center;
+		text-align-last: center;
+		box-sizing: border-box;
+	}
+
+	:global(.time-range-dropdown .flatpickr-monthDropdown-months:hover) {
+		border-color: var(--bs-primary, #556ee6);
+	}
+
+	:global(.time-range-dropdown .flatpickr-monthDropdown-months:focus) {
+		border-color: var(--bs-primary, #556ee6);
+		outline: none;
+		box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
+	}
+
+	:global(.time-range-dropdown .numInputWrapper) {
+		height: auto;
+		width: 90px;
+	}
+
+	:global(.time-range-dropdown .numInput.cur-year) {
+		font-size: 14px;
+		font-weight: 600;
+		padding: 4px 8px;
+		border-radius: 4px;
+		border: 1px solid var(--bs-border-color, #dee2e6);
+		background-color: var(--bs-body-bg, #fff);
+		color: var(--bs-body-color, #212529);
+		width: 90px;
+		height: 30px;
+		text-align: center;
+		box-sizing: border-box;
+	}
+
+	:global(.time-range-dropdown .numInput.cur-year:hover) {
+		border-color: var(--bs-primary, #556ee6);
+	}
+
+	:global(.time-range-dropdown .numInput.cur-year:focus) {
+		border-color: var(--bs-primary, #556ee6);
+		outline: none;
+		box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
+	}
+
+	:global(.time-range-dropdown .numInputWrapper .arrowUp),
+	:global(.time-range-dropdown .numInputWrapper .arrowDown) {
+		display: none;
+	}
+
+	:global(.time-range-dropdown .flatpickr-prev-month),
+	:global(.time-range-dropdown .flatpickr-next-month) {
+		padding: 6px;
+		height: 28px;
+		width: 28px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		border-radius: 4px;
+		top: 4px;
+	}
+
+	:global(.time-range-dropdown .flatpickr-prev-month:hover),
+	:global(.time-range-dropdown .flatpickr-next-month:hover) {
+		background-color: var(--bs-tertiary-bg, #f8f9fa);
+	}
+
+	:global(.time-range-dropdown .flatpickr-prev-month svg),
+	:global(.time-range-dropdown .flatpickr-next-month svg) {
+		width: 12px;
+		height: 12px;
 	}
 
 	.clear-btn {

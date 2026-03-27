@@ -503,6 +503,12 @@
 							bind:timeRange={searchOption.timeRange}
 							bind:startDate={searchOption.startDate}
 							bind:endDate={searchOption.endDate}
+							onchange={(data) => {
+								// Only update searchOption, don't trigger query immediately
+								searchOption.timeRange = data.timeRange;
+								searchOption.startDate = data.startDate;
+								searchOption.endDate = data.endDate;
+							}}
 						/>
 					</div>
 					<div class="col-lg-1">

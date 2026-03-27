@@ -18,6 +18,7 @@
         states = $bindable([])
     } = $props();
 
+    /** @type {Record<string, string>} */
     const sizeClasses = {
         sm: 'max-w-sm',
         md: 'max-w-md',
@@ -149,10 +150,10 @@
 </script>
 
 {#if isOpen}
-<!-- svelte-ignore a11y-no-static-element-interactions -->
-<!-- svelte-ignore a11y-click-events-have-key-events -->
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-    class="fixed inset-0 z-50 flex items-start justify-center pt-[10vh] bg-black/50"
+    class="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] bg-black/50"
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
 >
@@ -219,8 +220,8 @@
                     {/if}
                     <div class="state-delete mb-2 flex items-end flex-shrink-0">
                         <div class="flex items-center" style={`height: 36px; ${idx === 0 ? 'margin-top: auto;' : ''}`}>
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <i
                                 class="bx bxs-no-entry clickable"
                                 class:hide={states.length === 1}
