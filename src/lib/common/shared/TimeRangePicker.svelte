@@ -610,13 +610,132 @@
 		list-style: none;
 		padding-left: 0;
 		margin-bottom: 0;
-	}
 
-	/* On small screens, allow the panel to shrink and avoid overflow */
-	@media (max-width: 576px) {
-		.time-range-dropdown {
+		/* On small screens, allow the panel to shrink and avoid overflow */
+		@media (max-width: 576px) {
 			min-width: 280px;
 			max-width: calc(100vw - 2rem);
+		}
+
+		/* Scale flatpickr calendar to fit within the panel */
+		:global(.flatpickr-calendar) {
+			width: 100% !important;
+			max-width: 100%;
+			box-shadow: none;
+		}
+
+		/* Refine month/year navigation bar */
+		:global(.flatpickr-months) {
+			height: 36px;
+			align-items: center;
+			margin-bottom: 4px;
+		}
+
+		:global(.flatpickr-current-month) {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			gap: 4px;
+			padding-top: 0;
+			height: 100%;
+			font-size: 14px;
+			left: 0;
+			right: 0;
+			width: 100%;
+		}
+
+		:global(.flatpickr-monthDropdown-months) {
+			font-size: 14px;
+			font-weight: 600;
+			appearance: none;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			padding: 4px 20px 4px 8px;
+			border-radius: 4px;
+			border: 1px solid lavender;
+			background-color: var(--bs-body-bg, #fff);
+			background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23666' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
+			background-repeat: no-repeat;
+			background-position: right 6px center;
+			background-size: 10px 6px;
+			color: var(--bs-body-color, #212529);
+			cursor: pointer;
+			width: 90px;
+			height: 30px;
+			text-align: center;
+			text-align-last: center;
+			box-sizing: border-box;
+
+			&:hover {
+				border-color: var(--bs-primary, #556ee6);
+			}
+
+			&:focus {
+				border-color: var(--bs-primary, #556ee6);
+				outline: none;
+				box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
+			}
+
+			:global(.flatpickr-monthDropdown-month) {
+				background-color: lavender;
+				border-top: 1px solid #c5b8d9;
+				padding: 4px 8px;
+			}
+		}
+
+		:global(.numInputWrapper) {
+			height: auto;
+			width: 90px;
+
+			:global(.arrowUp),
+			:global(.arrowDown) {
+				display: none;
+			}
+		}
+
+		:global(.numInput.cur-year) {
+			font-size: 14px;
+			font-weight: 600;
+			padding: 4px 8px;
+			border-radius: 4px;
+			border: 1px solid var(--bs-border-color, #dee2e6);
+			background-color: var(--bs-body-bg, #fff);
+			color: var(--bs-body-color, #212529);
+			width: 90px;
+			height: 30px;
+			text-align: center;
+			box-sizing: border-box;
+
+			&:hover {
+				border-color: var(--bs-primary, #556ee6);
+			}
+
+			&:focus {
+				border-color: var(--bs-primary, #556ee6);
+				outline: none;
+				box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
+			}
+		}
+
+		:global(.flatpickr-prev-month),
+		:global(.flatpickr-next-month) {
+			padding: 6px;
+			height: 28px;
+			width: 28px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: 4px;
+			top: 4px;
+
+			&:hover {
+				background-color: var(--bs-tertiary-bg, #f8f9fa);
+			}
+
+			:global(svg) {
+				width: 12px;
+				height: 12px;
+			}
 		}
 	}
 
@@ -633,142 +752,25 @@
 		position: static !important;
 		max-height: 300px !important;
 		border: none !important;
-	}
 
-	/* Make option buttons fill the full width of each row */
-	.time-range-option-list :global(.option-item .select-name) {
-		flex: 1;
-	}
+		/* Make option buttons fill the full width of each row */
+		:global(.option-item .select-name) {
+			flex: 1;
+		}
 
-	.time-range-option-list :global(.option-item .select-name .clear-btn) {
-		width: 100%;
-		text-align: left;
-	}
-
-	/* Scale flatpickr calendar to fit within the panel */
-	:global(.time-range-dropdown .flatpickr-calendar) {
-		width: 100% !important;
-		max-width: 100%;
-		box-shadow: none;
-	}
-
-	/* Refine month/year navigation bar */
-	:global(.time-range-dropdown .flatpickr-months) {
-		height: 36px;
-		align-items: center;
-		margin-bottom: 4px;
-	}
-
-	:global(.time-range-dropdown .flatpickr-current-month) {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: 4px;
-		padding-top: 0;
-		height: 100%;
-		font-size: 14px;
-		left: 0;
-		right: 0;
-		width: 100%;
-	}
-
-	:global(.time-range-dropdown .flatpickr-monthDropdown-months) {
-		font-size: 14px;
-		font-weight: 600;
-		appearance: none;
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		padding: 4px 20px 4px 8px;
-		border-radius: 4px;
-		border: 1px solid var(--bs-border-color, #dee2e6);
-		background-color: var(--bs-body-bg, #fff);
-		background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23666' d='M0 0l5 6 5-6z'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 6px center;
-		background-size: 10px 6px;
-		color: var(--bs-body-color, #212529);
-		cursor: pointer;
-		width: 90px;
-		height: 30px;
-		text-align: center;
-		text-align-last: center;
-		box-sizing: border-box;
-	}
-
-	:global(.time-range-dropdown .flatpickr-monthDropdown-months:hover) {
-		border-color: var(--bs-primary, #556ee6);
-	}
-
-	:global(.time-range-dropdown .flatpickr-monthDropdown-months:focus) {
-		border-color: var(--bs-primary, #556ee6);
-		outline: none;
-		box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
-	}
-
-	:global(.time-range-dropdown .numInputWrapper) {
-		height: auto;
-		width: 90px;
-	}
-
-	:global(.time-range-dropdown .numInput.cur-year) {
-		font-size: 14px;
-		font-weight: 600;
-		padding: 4px 8px;
-		border-radius: 4px;
-		border: 1px solid var(--bs-border-color, #dee2e6);
-		background-color: var(--bs-body-bg, #fff);
-		color: var(--bs-body-color, #212529);
-		width: 90px;
-		height: 30px;
-		text-align: center;
-		box-sizing: border-box;
-	}
-
-	:global(.time-range-dropdown .numInput.cur-year:hover) {
-		border-color: var(--bs-primary, #556ee6);
-	}
-
-	:global(.time-range-dropdown .numInput.cur-year:focus) {
-		border-color: var(--bs-primary, #556ee6);
-		outline: none;
-		box-shadow: 0 0 0 2px rgba(85, 110, 230, 0.15);
-	}
-
-	:global(.time-range-dropdown .numInputWrapper .arrowUp),
-	:global(.time-range-dropdown .numInputWrapper .arrowDown) {
-		display: none;
-	}
-
-	:global(.time-range-dropdown .flatpickr-prev-month),
-	:global(.time-range-dropdown .flatpickr-next-month) {
-		padding: 6px;
-		height: 28px;
-		width: 28px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		border-radius: 4px;
-		top: 4px;
-	}
-
-	:global(.time-range-dropdown .flatpickr-prev-month:hover),
-	:global(.time-range-dropdown .flatpickr-next-month:hover) {
-		background-color: var(--bs-tertiary-bg, #f8f9fa);
-	}
-
-	:global(.time-range-dropdown .flatpickr-prev-month svg),
-	:global(.time-range-dropdown .flatpickr-next-month svg) {
-		width: 12px;
-		height: 12px;
+		:global(.option-item .select-name .clear-btn) {
+			width: 100%;
+			text-align: left;
+		}
 	}
 
 	.clear-btn {
 		background-color: transparent;
 		border: none;
 		transition: background-color 0.15s ease-in-out;
-	}
 
-	.clear-btn:hover {
-		background-color: aliceblue;
+		&:hover {
+			background-color: aliceblue;
+		}
 	}
 </style>
