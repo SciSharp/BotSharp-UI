@@ -235,7 +235,7 @@
                     <div>
                         <button
                             type="button"
-                            class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors underline-offset-2 hover:underline bg-transparent border-none p-0 cursor-pointer"
                             disabled={states.length >= limit}
                             onclick={() => addState()}
                         >
