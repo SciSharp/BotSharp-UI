@@ -434,7 +434,7 @@
 
 .embedding-container {
     padding: 0px;
-    height: calc(100vh - #{$header-height} - #{$grid-gutter-width} - #{$footer-height});
+    height: calc(100vh - #{$header-height} - #{$grid-gutter-width} - 0.2 * #{$footer-height});
     width: calc(100% + #{$grid-gutter-width} * 2);
     margin-left: calc(-1 * (#{$grid-gutter-width} * 0.75 + #{$grid-gutter-width} * 0.5));
     margin-right: calc(-1 * (#{$grid-gutter-width} * 0.75 + #{$grid-gutter-width} * 0.5));
