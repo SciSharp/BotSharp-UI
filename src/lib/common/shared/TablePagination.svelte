@@ -1,32 +1,36 @@
 <script>
-    import { onMount } from 'svelte';
-	import Link from 'svelte-link';  
-    import { _ } from 'svelte-i18n'  
+    import { _ } from 'svelte-i18n'
 
-    /** @type {import('$commonTypes').Pagination} */    
-    export let pagination;
-    /** @type {(pageNum: number) => void} */  
-    export let pageTo;
+    /**
+     * @type {{
+     *   pagination: import('$commonTypes').Pagination,
+     *   pageTo: (pageNum: number) => void
+     * }}
+     */
+    let {
+        pagination,
+        pageTo
+    } = $props();
 
     const firstPage = 1;
     const offSet = 2;
 
     /** @type {number} */
-    $: totalPages = Math.ceil(pagination.count / pagination.size);
+    let totalPages = $derived(Math.ceil(pagination.count / pagination.size));
     /** @type {number} */
-    $: start = pagination.count <= 0 ? 0 : (pagination.page - 1) * pagination.size + 1;
+    let start = $derived(pagination.count <= 0 ? 0 : (pagination.page - 1) * pagination.size + 1);
     /** @type {number} */
-    $: end = Math.min(pagination.page * pagination.size, pagination.count);
+    let end = $derived(Math.min(pagination.page * pagination.size, pagination.count));
     /** @type {number} */
-    $: minPage = Math.max(Math.min(pagination.page - offSet, totalPages - 2 * offSet), firstPage);
+    let minPage = $derived(Math.max(Math.min(pagination.page - offSet, totalPages - 2 * offSet), firstPage));
     /** @type {number} */
-    $: maxPage = Math.min(Math.max(pagination.page + offSet, firstPage + 2 * offSet), totalPages);
+    let maxPage = $derived(Math.min(Math.max(pagination.page + offSet, firstPage + 2 * offSet), totalPages));
     /** @type {number[]} */
-    $: pages = Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i);
+    let pages = $derived(Array.from({ length: maxPage - minPage + 1 }, (_, i) => minPage + i));
     /** @type {boolean} */
-    $: disableBackward = pagination.page === firstPage || pagination.count === 0;
+    let disableBackward = $derived(pagination.page === firstPage || pagination.count === 0);
     /** @type {boolean} */
-    $: disableForward = pagination.page === totalPages || pagination.count === 0;
+    let disableForward = $derived(pagination.page === totalPages || pagination.count === 0);
 
     /**
 	 * @param {any} e
@@ -37,10 +41,6 @@
         if (pagination.page === pageNum || pageNum < firstPage || pageNum > totalPages) return;
         pageTo(pageNum);
     }
-
-    onMount(async () => {
-
-    });    
 </script>
 
 <div class="row justify-content-between align-items-center">
@@ -53,34 +53,39 @@
                 <nav aria-label="Page navigation example" class="mb-0">
                     <ul class="pagination mb-0">
                         <li class="page-item">
-                            <Link class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Begin" on:click={(e) => handlePageTo(e, firstPage)}>
+                            <!-- svelte-ignore a11y_invalid_attribute -->
+                            <a href="javascript:void(0);" class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Begin" onclick={(e) => handlePageTo(e, firstPage)}>
                                 <span aria-hidden="true">&laquo;&laquo;</span>
-                            </Link>
+                            </a>
                         </li>
                         <li class="page-item">
-                            <Link class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Previous" on:click={(e) => handlePageTo(e, pagination.page - 1)}>
+                            <!-- svelte-ignore a11y_invalid_attribute -->
+                            <a href="javascript:void(0);" class={`page-link ${disableBackward ? 'disabled' : ''}`} aria-label="Previous" onclick={(e) => handlePageTo(e, pagination.page - 1)}>
                                 <span aria-hidden="true">&laquo;</span>
-                            </Link>
+                            </a>
                         </li>
-                
+
                         {#each pages as page}
                             <li class={`page-item ${page === pagination.page ? 'active' : ''}`}>
-                                <Link class="page-link" on:click={(e) => handlePageTo(e, page)}>{page}</Link>
+                                <!-- svelte-ignore a11y_invalid_attribute -->
+                                <a href="javascript:void(0);" class="page-link" aria-current={pagination.page === page ? 'page' : undefined} onclick={(e) => handlePageTo(e, page)}>{page}</a>
                             </li>
                         {/each}
-                
+
                         <li class="page-item">
-                            <Link class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Next" on:click={(e) => handlePageTo(e, pagination.page + 1)}>
+                            <!-- svelte-ignore a11y_invalid_attribute -->
+                            <a href="javascript:void(0);" class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Next" onclick={(e) => handlePageTo(e, pagination.page + 1)}>
                                 <span aria-hidden="true">&raquo;</span>
-                            </Link>
+                            </a>
                         </li>
                         <li class="page-item">
-                            <Link class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Last" on:click={(e) => handlePageTo(e, totalPages)}>
+                            <!-- svelte-ignore a11y_invalid_attribute -->
+                            <a href="javascript:void(0);" class={`page-link ${disableForward ? 'disabled' : ''}`} aria-label="Last" onclick={(e) => handlePageTo(e, totalPages)}>
                                 <span aria-hidden="true">&raquo;&raquo;</span>
-                            </Link>
+                            </a>
                         </li>
                     </ul>
-                </nav>                
+                </nav>
             </div>
         </div>
     </div>

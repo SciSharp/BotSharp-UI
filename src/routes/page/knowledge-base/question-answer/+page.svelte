@@ -5,14 +5,6 @@
 	import util from "lodash";
 	import Swal from 'sweetalert2';
 	import { v4 as uuidv4 } from 'uuid';
-	import {
-        Button,
-        Card,
-        CardBody,
-        Input,
-        Table,
-        Tooltip
-    } from '@sveltestrap/sveltestrap';
     import {
         getVectorKnowledgeCollections,
         getVectorKnowledgePageList,
@@ -32,6 +24,7 @@
 	import Loader from '$lib/common/spinners/Loader.svelte';
 	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import {
 		KnowledgeCollectionType,
@@ -45,7 +38,7 @@
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import AdvancedSearch from '../common/search/advanced-search.svelte';
 	import VectorIndexModal from '../common/indexes/vector-index-modal.svelte';
-	
+
 	const pageSize = 8;
   	const duration = 2000;
 	const maxLength = 4096;
@@ -53,72 +46,71 @@
 	const searchLimit = 10;
 	const enableVector = true;
 	const collectionType = KnowledgeCollectionType.QuestionAnswer;
-	
-	/** @type {string} */
-	let text = "";
-	let successText = "Done";
-	let errorText = "Error";
-    let confidence = '0.5';
-	let elapsedTime = '';
 
 	/** @type {string} */
-	let selectedCollection;
+	let text = $state("");
+	let successText = $state("Done");
+	let errorText = $state("Error");
+    let confidence = $state('0.5');
+	let elapsedTime = $state('');
+
+	/** @type {string} */
+	let selectedCollection = $state('');
 
 	/** @type {import('$knowledgeTypes').VectorCollectionDetails | null} */
-	let collectionDetails = null;
+	let collectionDetails = $state(null);
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
-	let items = [];
+	let items = $state([]);
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
-	let collections = [];
+	let collections = $state([]);
 
 	/** @type {string | null | undefined } */
-	let nextId;
+	let nextId = $state(null);
 
 	/** @type {number | null | undefined} */
-	let totalDataCount;
+	let totalDataCount = $state(undefined);
 
 	/** @type {string} */
-	let editCollection;
+	let editCollection = $state('');
 
 	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
-	let editItem;
+	let editItem = $state(null);
 
 	/** @type {string} */
-	let editModalTitle = "Edit knowledge";
+	let editModalTitle = $state("Edit knowledge");
 
 	/** @type {{ uuid: string, key: string, value: string, data_type: '', checked: boolean }[]} */
-	let searchItems = [{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }];
+	let searchItems = $state([{ uuid: uuidv4(), key: '', value: '', data_type: '', checked: true }]);
 	/** @type {string} */
-	let selectedOperator = 'or';
+	let selectedOperator = $state('or');
 	/** @type {import('$knowledgeTypes').VectorFilterGroup[]} */
-	let innerSearchGroups = [];
+	let innerSearchGroups = $state([]);
 
-	let sortField = '';
-	let sortOrder = 'desc';
+	let sortField = $state('');
+	let sortOrder = $state('desc');
 	/** @type {import('$knowledgeTypes').VectorSort?} */
-	let innerSort = {
+	let innerSort = $state({
 		field: '',
 		order: 'desc'
-	};
+	});
 
 	/** @type {boolean} */
-	let showDemo = true;
-	let isSearching = false;
-	let searchDone = false;
-	let isFromSearch = false;
-	let isLoading = false;
-	let isLoadingMore = false;
-	let isComplete = false;
-	let isError = false;
-	let isOpenEditKnowledge = false;
-	let isOpenCreateCollection = false;
-	let isOpenIndexModal = false;
-	let textSearch = false;
-	let isAdvSearchOn = false;
-	let disableSearchBtn = false;
-	let isExactSearch = false;
+	let showDemo = $state(true);
+	let isSearching = $state(false);
+	let searchDone = $state(false);
+	let isFromSearch = $state(false);
+	let isLoading = $state(false);
+	let isLoadingMore = $state(false);
+	let isComplete = $state(false);
+	let isError = $state(false);
+	let isOpenEditKnowledge = $state(false);
+	let isOpenCreateCollection = $state(false);
+	let isOpenIndexModal = $state(false);
+	let textSearch = $state(false);
+	let isAdvSearchOn = $state(false);
+	let isExactSearch = $state(false);
 
 	/** @type {{
 	 * startId: string | null,
@@ -138,18 +130,18 @@
 		sort: null
 	};
 
-	$: disableBase = isLoading || isLoadingMore || isSearching;
-    $: disabled = !selectedCollection || disableBase;
-	$: {
-		disableSearchBtn = false;
+	let disableBase = $derived(isLoading || isLoadingMore || isSearching);
+    let disabled = $derived(!selectedCollection || disableBase);
+	let disableSearchBtn = $derived.by(() => {
 		if (!selectedCollection || isSearching || isLoadingMore) {
-			disableSearchBtn = true;
+			return true;
 		} else if (textSearch && searchItems.length > 0) {
-			disableSearchBtn = false;
+			return false;
 		} else if (!text || util.trim(text).length === 0) {
-			disableSearchBtn = true;
+			return true;
 		}
-	}
+		return false;
+	});
 
 	onMount(() => {
 		initData();
@@ -238,7 +230,7 @@
 
 	/** @param {KeyboardEvent} e */
 	function pressKey(e) {
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !!!util.trim(text) || isSearching) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !util.trim(text) || isSearching) {
 			return;
 		}
 
@@ -375,7 +367,7 @@
 				with_vector: enableVector,
 				fields: [],
 				filter_groups: params.filterGroups,
-				order_by: !!params.sort?.field ? params.sort : null
+				order_by: params.sort?.field ? params.sort : null
 			};
 
 			getVectorKnowledgePageList(
@@ -399,11 +391,11 @@
 	}
 
 	function getCollectionDetail() {
-		return new Promise((resolve, reject) => {
+		return new Promise((resolve) => {
 			getVectorCollectionDetails(selectedCollection).then(res => {
 				collectionDetails = res || null;
 				resolve(collectionDetails);
-			}).catch(err => {
+			}).catch(() => {
 				collectionDetails = null;
 				resolve(collectionDetails);
 			});
@@ -472,7 +464,7 @@
 
 	/** @param {any} e */
 	function onKnowledgeDelete(e) {
-		const id = e.detail.id;
+		const id = e.id;
 		isLoading = true;
 		deleteVectorKnowledgeData(selectedCollection, id).then(res => {
 			if (res) {
@@ -502,8 +494,8 @@
 	/** @param {any} e */
 	function onKnowledgeUpdate(e) {
 		editModalTitle = "Edit knowledge";
-		editCollection = e.detail.collection;
-		editItem = e.detail.item;
+		editCollection = e.collection;
+		editItem = e.item;
 		isOpenEditKnowledge = true;
 	}
 
@@ -573,7 +565,7 @@
 			}
 		};
 
-		if (!!editItem) {
+		if (editItem) {
 			updateVectorKnowledgeData(
 				e.id,
 				editCollection,
@@ -824,8 +816,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('Q&A Knowledge')}" addOn="Knowledge Base" />
-<Breadcrumb pagetitle="{$_('Q&A Knowledge')}" title="{$_('Knowledge Base')}"/>
+<HeadTitle title={$_('Q&A Knowledge')} addOn="Knowledge Base" />
+<Breadcrumb pagetitle={$_('Q&A Knowledge')} title={$_('Knowledge Base')}/>
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -852,7 +844,7 @@
 			KnowledgePayloadName.Answer
 		]}
 		toggleModal={() => isOpenEditKnowledge = !isOpenEditKnowledge}
-		confirm={(e) => confirmEdit(e)}
+		confirm={(/** @type {any} */ e) => confirmEdit(e)}
 		cancel={() => toggleKnowledgeEditModal()}
 	/>
 {/if}
@@ -865,7 +857,7 @@
 		collection={selectedCollection}
 		open={isOpenIndexModal}
 		toggleModal={() => isOpenIndexModal = !isOpenIndexModal}
-		confirm={(e) => confirmIndex(e)}
+		confirm={(/** @type {any} */ e) => confirmIndex(e)}
 		cancel={() => toggleIndexModal()}
 	/>
 {/if}
@@ -874,51 +866,52 @@
 	title={'Create new collection'}
 	open={isOpenCreateCollection}
 	toggleModal={() => toggleCollectionCreate()}
-	confirm={e => confirmCollectionCreate(e)}
+	confirm={(/** @type {any} */ e) => confirmCollectionCreate(e)}
 	cancel={() => toggleCollectionCreate()}
 />
 
 <div class="knowledge-demo-btn mb-4">
 	<div class="demo-btn">
-		<Button
-			color={`${showDemo ? 'danger' : 'primary'}`}
-			on:click={() => toggleDemo()}
+		<button
+			class={`btn btn-${showDemo ? 'danger' : 'primary'}`}
+			onclick={() => toggleDemo()}
 		>
 			{#if !showDemo}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-search-alt" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-search-alt"></i></div>
 					<div>{'Start Search'}</div>
 				</div>
 			{:else}
 				<div class="btn-content">
-					<div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+					<div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
 					<div>{'Hide Search'}</div>
 				</div>
 			{/if}
-		</Button>
+		</button>
 
 		{#if showDemo}
 			<div class="knowledge-btn-icon demo-tooltip-icon line-align-center" id="demo-tooltip">
-				<i class="bx bx-info-circle" />
+				<i class="bx bx-info-circle"></i>
 			</div>
-			<Tooltip target="demo-tooltip" placement="top" class="demo-tooltip-note">
+			<BotsharpTooltip target="demo-tooltip" placement="top" containerClasses="demo-tooltip-note">
 				<ul>
 					<li>Click "Search" or press "Enter" to search knowledge</li>
 					<li>Switch collection will not search</li>
 				</ul>
-			</Tooltip>
+			</BotsharpTooltip>
 		{/if}
 	</div>
-	
+
 	<div class="reset-btn">
-		<Button
-			on:click={() => reset()}
+		<button
+			class="btn btn-secondary"
+			onclick={() => reset()}
 		>
 			<div class="btn-content">
-				<div class="knowledge-btn-icon"><i class="bx bx-reset" /></div>
+				<div class="knowledge-btn-icon"><i class="bx bx-reset"></i></div>
 				<div>{'Reset'}</div>
 			</div>
-		</Button>
+		</button>
 	</div>
 </div>
 
@@ -937,8 +930,8 @@
 						disabled={isSearching}
 						placeholder={'Start searching here...'}
 						bind:value={text}
-						on:keydown={(e) => pressKey(e)}
-					/>
+						onkeydown={(e) => pressKey(e)}
+					></textarea>
 					<div class="text-secondary text-count d-flex justify-content-between">
 						<div>
 							{#if elapsedTime}
@@ -947,7 +940,7 @@
 						</div>
 						<div>{text?.length || 0}/{maxLength}</div>
 					</div>
-				
+
                     <div class="mt-3 knowledge-search-footer">
                         <div class="search-input">
                             <div class="line-align-center input-text fw-bold">
@@ -955,30 +948,30 @@
                             </div>
 							<div style="display: flex; gap: 5px;">
 								<div class="line-align-center confidence-box">
-									<Input
+									<input
 										type="text"
-										class="text-center"
+										class="form-control text-center"
 										disabled={textSearch}
 										bind:value={confidence}
-										on:keydown={(e) => validateConfidenceInput(e)}
-										on:blur={(e) => changeConfidence(e)}
+										onkeydown={(e) => validateConfidenceInput(e)}
+										onblur={(e) => changeConfidence(e)}
 									/>
 								</div>
 								<div class="step-btn-group">
-									<Button
-										class="btn btn-sm"
-										color="link"
-										on:click={() => stepChangeConfidence('plus', step)}
+									<button
+										class="btn btn-sm btn-link"
+										aria-label="Increase confidence"
+										onclick={() => stepChangeConfidence('plus', step)}
 									>
-										<i class="mdi mdi-chevron-up" />
-									</Button>
-									<Button
-										class="btn btn-sm"
-										color="link"
-										on:click={() => stepChangeConfidence('minus', step)}
+										<i class="mdi mdi-chevron-up"></i>
+									</button>
+									<button
+										class="btn btn-sm btn-link"
+										aria-label="Decrease confidence"
+										onclick={() => stepChangeConfidence('minus', step)}
 									>
-										<i class="mdi mdi-chevron-down" />
-									</Button>
+										<i class="mdi mdi-chevron-down"></i>
+									</button>
 								</div>
 							</div>
                         </div>
@@ -987,38 +980,43 @@
 								<span>{'Similarity search'}</span>
 							</div>
 							<div class="line-align-center input-text search-toggle">
-								<Input
-									type="switch"
-									checked={textSearch}
-									disabled={disabled}
-									on:change={e => toggleTextSearch()}
-								/>
+								<div class="form-check form-switch">
+									<input
+										type="checkbox"
+										class="form-check-input"
+										role="switch"
+										checked={textSearch}
+										disabled={disabled}
+										onchange={() => toggleTextSearch()}
+									/>
+								</div>
 							</div>
 							<div class="line-align-center input-text fw-bold">
 								<span>{'Keyword search'}</span>
 							</div>
 						</div>
 						{#if !textSearch}
-						<div class="search-input justify-content-center">
-							<div class="line-align-center">
-								<Input
-									class='input-text fw-bold'
-									type="checkbox"
-									label="Exact search"
-									disabled={disabled}
-									bind:checked={isExactSearch}
-								/>
-							</div>
+						<div class="d-flex align-items-center gap-2">
+							<input
+								type="checkbox"
+								class="form-check-input m-0"
+								id="exact-search-check"
+								disabled={disabled}
+								bind:checked={isExactSearch}
+							/>
+							<label class="form-check-label input-text fw-bold mb-0" for="exact-search-check">
+								Exact search
+							</label>
 						</div>
 						{/if}
                         <div class="line-align-center">
-							<Button
-								color="primary"
+							<button
+								class="btn btn-primary"
 								disabled={disableSearchBtn}
-								on:click={() => search()}
+								onclick={() => search()}
 							>
 								{'Search'}
-							</Button>
+							</button>
                         </div>
                     </div>
 
@@ -1045,8 +1043,8 @@
 		{/if}
 		<div class="d-md-flex mt-5">
 			<div class="w-100">
-				<Card>
-					<CardBody>
+				<div class="card">
+					<div class="card-body">
 						<div class="mt-2 knowledge-table-header">
 							{#if totalDataCount != null && totalDataCount != undefined}
 								<div class="knowledge-count line-align-center text-muted font-size-12">
@@ -1064,13 +1062,14 @@
 										data-bs-placement="top"
 										title="Add knowledge"
 									>
-                                        <Button
+                                        <button
                                             class="btn btn-sm btn-soft-primary knowledge-btn-icon"
 											disabled={disabled}
-                                            on:click={() => onKnowledgeCreate()}
+											aria-label="Add knowledge"
+                                            onclick={() => onKnowledgeCreate()}
                                         >
-                                            <i class="mdi mdi-plus" />
-                                        </Button>
+                                            <i class="mdi mdi-plus"></i>
+                                        </button>
 									</div>
 									<div
 										class="line-align-center"
@@ -1078,27 +1077,28 @@
 										data-bs-placement="top"
 										title="Delete all data"
 									>
-                                        <Button
+                                        <button
                                             class="btn btn-sm btn-soft-danger knowledge-btn-icon"
 											disabled={disabled}
-                                            on:click={() => onKnowledgeDeleteAll()}
+											aria-label="Delete all data"
+                                            onclick={() => onKnowledgeDeleteAll()}
                                         >
-                                            <i class="mdi mdi-minus" />
-                                        </Button>
+                                            <i class="mdi mdi-minus"></i>
+                                        </button>
 									</div>
 								</div>
 								<div class="collection-action-container action-container-padding">
 									{#if selectedCollection}
 									<div class="line-align-center">
-										<Button
+										<button
 											class="btn btn-sm btn-soft-primary"
 											data-bs-toggle="tooltip"
 											data-bs-placement="top"
 											title="Create/delete payload indexes"
-											on:click={() => toggleIndexModal()}
+											onclick={() => toggleIndexModal()}
 										>
 											Index
-										</Button>
+										</button>
 									</div>
 									{/if}
 
@@ -1110,7 +1110,7 @@
 												searchMode
 												selectedValues={selectedCollection ? [selectedCollection] : []}
 												options={collections}
-												on:select={e => changeCollection(e)}
+												onselect={e => changeCollection(e)}
 											/>
 										</div>
 									</div>
@@ -1121,13 +1121,14 @@
 											data-bs-placement="top"
 											title="Add collection"
 										>
-											<Button
+											<button
 												class="btn btn-sm btn-soft-primary collection-action-btn"
 												disabled={disableBase}
-												on:click={() => toggleCollectionCreate()}
+												aria-label="Add collection"
+												onclick={() => toggleCollectionCreate()}
 											>
-												<i class="mdi mdi-plus" />
-											</Button>
+												<i class="mdi mdi-plus"></i>
+											</button>
 										</div>
 										<div
 											class="line-align-center"
@@ -1135,22 +1136,23 @@
 											data-bs-placement="top"
 											title="Delete collection"
 										>
-											<Button
+											<button
 												class="btn btn-sm btn-soft-danger collection-action-btn"
 												disabled={disabled}
-												on:click={() => deleteCollection()}
+												aria-label="Delete collection"
+												onclick={() => deleteCollection()}
 											>
-												<i class="mdi mdi-minus" />
-											</Button>
+												<i class="mdi mdi-minus"></i>
+											</button>
 										</div>
 									</div>
 								</div>
 							</div>
-						  
+
 							<hr class="mt-2" />
-						  
+
 							<div class="table-responsive knowledge-table">
-								<Table class="table align-middle table-nowrap table-hover mb-0">
+								<table class="table align-middle table-nowrap table-hover mb-0">
 									<thead>
 										<tr>
 											<th scope="col">{$_('Question')}</th>
@@ -1165,32 +1167,32 @@
 												collectionType={collectionType}
 												item={item}
 												open={isFromSearch && idx === 0}
-												on:delete={(e) => onKnowledgeDelete(e)}
-												on:update={(e) => onKnowledgeUpdate(e)}
+												ondelete={(/** @type {any} */ data) => onKnowledgeDelete(data)}
+												onupdate={(/** @type {any} */ data) => onKnowledgeUpdate(data)}
 											/>
 										{/each}
 									</tbody>
-								</Table>
-						  
+								</table>
+
 								{#if isLoadingMore}
 									<div class="knowledge-loader mt-4">
 										<Loader size={25} disableDefaultStyles />
 									</div>
 								{:else if !!nextId}
 									<div class="mt-4 text-center">
-										<Button
+										<button
 											class="btn btn-soft-primary"
 											disabled={disabled}
-											on:click={() => loadMore()}
+											onclick={() => loadMore()}
 										>
 											{'Load more'}
-										</Button>
+										</button>
 									</div>
 								{/if}
 							</div>
 						</div>
-					</CardBody>
-				</Card>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

@@ -1,16 +1,16 @@
-// 
-// authentication.scss
-//
+﻿/*  */
+/* authentication.scss */
+/*  */
 
 
-// authentication home icon
+/* authentication home icon */
 .home-btn {
     position: absolute;
     top: 15px;
     right: 25px;
 }
 
-// auth 2
+/* auth 2 */
 
 .auth-logo{
     .auth-logo-dark{
@@ -26,7 +26,7 @@
 }
 
 
-// auth-pass-inputgroup
+/* auth-pass-inputgroup */
 
 .auth-pass-inputgroup{
     input[type="input"] + .btn .mdi-eye-outline{
@@ -36,7 +36,7 @@
     }
 }
 
-// authentication full page
+/* authentication full page */
 
 .auth-full-bg{
     background-color: rgba($primary, 0.25);

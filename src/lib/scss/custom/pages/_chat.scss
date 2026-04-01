@@ -1,6 +1,6 @@
-//
-// Chat.scss
-//
+﻿/*  */
+/* Chat.scss */
+/*  */
 
 .chat-leftsidebar {
     @media (min-width: 992px) {
@@ -86,7 +86,7 @@
 
         .chat-head-info {
             display: flex;
-            // flex: 0 0 fit-content;
+            /* flex: 0 0 fit-content; */
             flex-direction: column;
             height: 100%;
             gap: 5px;
@@ -146,8 +146,8 @@
         background-color: var(--#{$prefix}light);
         border-radius: 50%;
         border: none;
-        // width: 40px;
-        // height: 40px;
+        /* width: 40px; */
+        /* height: 40px; */
         width: 2em;
         height: 2em;
 

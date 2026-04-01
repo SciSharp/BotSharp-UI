@@ -1,9 +1,10 @@
 import { sveltekit } from '@sveltejs/kit/vite';
+import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
 
 export default defineConfig({
 	// @ts-ignore
-	plugins: [sveltekit(), AutoRefreshHmr()],
+	plugins: [tailwindcss(), sveltekit(), AutoRefreshHmr()],
 	ssr: {
 		noExternal: ['@popperjs/core']
 	},
@@ -25,7 +26,15 @@ export default defineConfig({
 			"@codemirror/commands",
 			"@codemirror/theme-one-dark"
 		]
-	},	
+	},
+	css: {
+		preprocessorOptions: {
+			scss: {
+				silenceDeprecations: ['import', 'legacy-js-api'],
+				loadPaths: ['node_modules']
+			}
+		}
+	},
 	server: {
 		port: 5015,
 		host: "0.0.0.0",

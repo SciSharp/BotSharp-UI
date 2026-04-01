@@ -1,6 +1,6 @@
-//
-// Forms.scss
-//
+﻿/*  */
+/* Forms.scss */
+/*  */
 
 [type="tel"],
 [type="url"],
@@ -21,7 +21,7 @@
 }
 
 
-// checkbox input right
+/* checkbox input right */
 
 .form-check-right {
   padding-left: 0;
@@ -41,7 +41,7 @@
 
 
 
-// checkbox
+/* checkbox */
 
 .form-checkbox-outline {
 
@@ -75,7 +75,7 @@
   }
 }
 
-// radio
+/* radio */
 
 .form-radio-outline {
   .form-check-input {
@@ -109,7 +109,7 @@
 
 
 
-// checkbox color
+/* checkbox color */
 
 @each $color,
 $value in $theme-colors {
@@ -143,7 +143,7 @@ $value in $theme-colors {
   margin-bottom: 0;
 }
 
-// Switch sizes
+/* Switch sizes */
 
 .form-switch-md {
   padding-left: 2.5rem;

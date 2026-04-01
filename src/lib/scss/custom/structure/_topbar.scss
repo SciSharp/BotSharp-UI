@@ -1,6 +1,6 @@
-// 
-// _header.scss
-// 
+﻿/*  */
+/* _header.scss */
+/*  */
 
 #page-topbar {
     position: fixed;
@@ -32,6 +32,10 @@
     padding: 0 1.5rem;
     text-align: center;
     width: $navbar-brand-box-width;
+    height: $header-height;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .logo {
@@ -71,7 +75,7 @@
     }
 }
 
-// Mega menu
+/* Mega menu */
 
 .megamenu-list {
     li{
@@ -147,7 +151,7 @@
     }
 }
 
-// Dropdown with Icons
+/* Dropdown with Icons */
 .dropdown-icon-item {
     display: block;
     border-radius: 3px;
@@ -174,7 +178,7 @@
     }
 }
 
-// Full Screen
+/* Full Screen */
 .fullscreen-enable {
     [data-bs-toggle="fullscreen"] {
         .bx-fullscreen::before {

@@ -1,6 +1,6 @@
-//
-// right-sidebar.scss
-//
+﻿/*  */
+/* right-sidebar.scss */
+/*  */
 
 .right-bar {
     background-color: var(--#{$prefix}secondary-bg);
@@ -31,7 +31,7 @@
     }
 }
 
-// Rightbar overlay
+/* Rightbar overlay */
 .rightbar-overlay {
     background-color: rgba($dark, 0.55);
     position: absolute;

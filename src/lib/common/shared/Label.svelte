@@ -1,23 +1,23 @@
 <script>
-
-    /** @type {string} */
-    export let text = "";
-    export let className = "";
-    export let style = "";
-    export let color = "primary";
-    export let ellipsis = false;
-    /** @type {string | number} */
-    export let index;
-    /** @type {(args0: number | string) => void} */
-    export let onClose = () => {};
+    let {
+        text = "",
+        className = "",
+        style = "",
+        color = "primary",
+        ellipsis = false,
+        /** @type {string | number} */
+        index,
+        /** @type {(args0: number | string) => void} */
+        onClose = () => {}
+    } = $props();
 
     /**
 	 * @param {any} e
-	 * @param {string | number} index
+	 * @param {string | number} idx
 	 */
-    function handleClose(e, index) {
+    function handleClose(e, idx) {
         e.preventDefault();
-        onClose && onClose(index);
+        onClose?.(idx);
     }
 </script>
 
@@ -31,9 +31,10 @@
                 class="mdi mdi-window-close label-close"
                 role="button"
                 tabindex="0"
-                on:keydown={() => {}}
-                on:click={(e) => handleClose(e, index)}
-            />
+                onkeydown={() => {}}
+                onclick={(e) => handleClose(e, index)}
+            >
+            </i>
         </div>
     </button>
 </div>

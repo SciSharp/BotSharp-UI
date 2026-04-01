@@ -7,27 +7,29 @@
 	import { isExternalUrl } from '$lib/helpers/utils/common';
     import AudioGallery from './AudioGallery.svelte';
 	import { IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
-	
-    /** @type {string} */
-    export let galleryClasses = '';
 
-    /** @type {string} */
-    export let galleryStyles = '';
-
-    /** @type {any} */
-    export let message;
-
-    /** @type {boolean} */
-    export let appendImage = false;
-
-    /** @type {() => Promise<any>} */
-    export let fetchFiles = () => Promise.resolve([]);
+    /**
+     * @type {{
+     *   galleryClasses?: string,
+     *   galleryStyles?: string,
+     *   message?: any,
+     *   appendImage?: boolean,
+     *   fetchFiles?: () => Promise<any>
+     * }}
+     */
+    let {
+        galleryClasses = '',
+        galleryStyles = '',
+        message = undefined,
+        appendImage = false,
+        fetchFiles = () => Promise.resolve([])
+    } = $props();
 
     /** @type {import('$fileTypes').TextFileModel[]} */
-    let textFiles = [];
+    let textFiles = $state([]);
 
     /** @type {import('$fileTypes').AudioFileModel[]} */
-    let audioFiles = [];
+    let audioFiles = $state([]);
 
     onMount(async () => {
         if (fetchFiles != null && fetchFiles != undefined) {

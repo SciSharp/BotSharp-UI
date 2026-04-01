@@ -1,16 +1,16 @@
-<script lang="ts">
-	import Link from 'svelte-link/src/Link.svelte';
-	import { Dropdown, DropdownToggle, DropdownMenu } from '@sveltestrap/sveltestrap';
+<script>
+	import { onMount } from 'svelte';
 	import "overlayscrollbars/overlayscrollbars.css";
 	import { OverlayScrollbars } from "overlayscrollbars";
-	import { _ } from 'svelte-i18n'
+	import { _ } from 'svelte-i18n';
+	import { clickoutsideDirective } from '$lib/helpers/directives';
 
-	import { onMount } from 'svelte';
+	let isOpen = $state(false);
 
 	const options = {
 		scrollbars: {
-			visibility: "auto", // You can adjust the visibility ('auto', 'hidden', 'visible')
-			autoHide: "move", // You can adjust the auto-hide behavior ('move', 'scroll', false)
+			visibility: "auto",
+			autoHide: "move",
 			autoHideDelay: 100,
 			dragScroll: true,
 			clickScroll: false,
@@ -19,47 +19,66 @@
 		},
 	};
 
+	/** @param {any} e */
+	function handleClickOutside(e) {
+		const curNode = e.detail.currentNode;
+		const targetNode = e.detail.targetNode;
+		if (!curNode?.contains(targetNode)) {
+			isOpen = false;
+		}
+	}
+
 	onMount(() => {
 		const menuElement = document.querySelector("#notification");
-		 OverlayScrollbars(menuElement, options);
-	})
+		// @ts-ignore
+		OverlayScrollbars(menuElement, options);
+	});
 </script>
 
-<Dropdown class="d-none d-lg-inline-block">
-	<DropdownToggle type="button" color="" tag="a" class="btn header-item noti-icon waves-effect">
-		<i class="bx bx-bell bx-tada" />
+<div
+	class="dropdown d-none d-lg-inline-block"
+	use:clickoutsideDirective
+	onclickoutside={handleClickOutside}
+>
+	<button
+		type="button"
+		class="btn header-item noti-icon waves-effect"
+		aria-label="Notifications"
+		onclick={() => (isOpen = !isOpen)}
+	>
+		<i class="bx bx-bell bx-tada"></i>
 		<span class="badge bg-danger rounded-pill">1</span>
-	</DropdownToggle>
-	<DropdownMenu class="dropdown-menu-lg" end>
+	</button>
+	<div class="dropdown-menu dropdown-menu-lg dropdown-menu-end" class:show={isOpen}>
 		<div class="p-3">
 			<div class="row align-items-center">
 				<div class="col">
 					<h6 class="m-0">{$_('Notifications')}</h6>
 				</div>
 				<div class="col-auto">
-					<Link class="small" disabled>{$_('View All')}</Link>
+					<span class="small text-muted">{$_('View All')}</span>
 				</div>
 			</div>
 		</div>
-			<div style="max-height: 230px;" id="notification">
-				<Link href="javascript: void(0);" class="text-reset notification-item" disabled>
-					<div class="d-flex">
-						<div class="avatar-xs me-3">
-							<span class="avatar-title bg-primary rounded-circle font-size-16">
-								<i class="bx bx-cart" />
-							</span>
-						</div>
-						<div class="flex-grow-1">
-							<h6 class="mb-1" >{$_('Your order is placed')}</h6>
-							<div class="font-size-12 text-muted">
-								<p class="mb-1" >{$_('If several languages coalesce the grammar')}</p>
-								<p class="mb-0">
-									<i class="mdi mdi-clock-outline" /> <span >3 {$_('min ago')}</span>
-								</p>
-							</div>
+		<div style="max-height: 230px;" id="notification">
+			<div class="text-reset notification-item d-block p-2">
+				<div class="d-flex">
+					<div class="avatar-xs me-3">
+						<span class="avatar-title bg-primary rounded-circle font-size-16">
+							<i class="bx bx-cart"></i>
+						</span>
+					</div>
+					<div class="flex-grow-1">
+						<h6 class="mb-1">{$_('Your order is placed')}</h6>
+						<div class="font-size-12 text-muted">
+							<p class="mb-1">{$_('If several languages coalesce the grammar')}</p>
+							<p class="mb-0">
+								<i class="mdi mdi-clock-outline"></i> <span>3 {$_('min ago')}</span>
+							</p>
 						</div>
 					</div>
-				</Link>
+				</div>
 			</div>
-	</DropdownMenu>
-</Dropdown>
+		</div>
+	</div>
+</div>

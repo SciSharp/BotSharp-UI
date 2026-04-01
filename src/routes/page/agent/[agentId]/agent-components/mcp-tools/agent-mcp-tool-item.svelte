@@ -1,37 +1,44 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
     import { slide } from 'svelte/transition';
-    import { Input } from '@sveltestrap/sveltestrap';
-
-    const svelteDispatch = createEventDispatcher();
 
     const duration = 200;
     const limit = 10;
 
-    /** @type {import('$agentTypes').AgentMcpTool} */
-    export let mcp;
-
-    /** @type {number} */
-    export let mcpIndex;
-
-    /** @type {any[]} */
-    export let mcpOptions;
-
-    /** @type {boolean} */
-    export let collapsed = true;
-
     /**
-     * @param {any} e
-	 */
+     * @type {{
+     *   mcp: import('$agentTypes').AgentMcpTool,
+     *   mcpIndex: number,
+     *   mcpOptions?: any[],
+     *   collapsed?: boolean,
+     *   ontoggle?: (data: { mcpIdx: number, checked: boolean }) => void,
+     *   ondelete?: (data: { mcpIdx: number, field: string, itemIdx?: number }) => void,
+     *   onchange?: (data: { mcpIdx: number, field: string, value?: any, itemIdx?: number }) => void,
+     *   onadd?: (data: { mcpIdx: number, field: string }) => void,
+     *   oncollapse?: (data: { mcpIdx: number, collapsed: boolean }) => void
+     * }}
+     */
+    let {
+        mcp,
+        mcpIndex,
+        mcpOptions = [],
+        collapsed = true,
+        ontoggle,
+        ondelete,
+        onchange,
+        onadd,
+        oncollapse
+    } = $props();
+
+    /** @param {any} e */
     function toggleMcp(e) {
-        svelteDispatch('toggle', {
+        ontoggle?.({
             mcpIdx: mcpIndex,
             checked: e.target.checked
         });
     }
 
     function deleteMcp() {
-        svelteDispatch('delete', {
+        ondelete?.({
             mcpIdx: mcpIndex,
             field: 'mcp'
         });
@@ -42,18 +49,16 @@
      * @param {string} type
      */
     function deleteMcpItem(fid, type) {
-        svelteDispatch('delete', {
+        ondelete?.({
             mcpIdx: mcpIndex,
             field: type,
             itemIdx: fid
         });
     }
 
-    /**
-     * @param {any} e
-	 */
+    /** @param {any} e */
     function changeMcp(e) {
-        svelteDispatch('change', {
+        onchange?.({
             mcpIdx: mcpIndex,
             field: 'mcp',
             value: e.target.value
@@ -62,11 +67,11 @@
 
     /**
      * @param {any} e
-	 * @param {number} fid
-	 * @param {string} type
-	 */
+     * @param {number} fid
+     * @param {string} type
+     */
     function changeMcpItem(e, fid, type) {
-        svelteDispatch('change', {
+        onchange?.({
             mcpIdx: mcpIndex,
             field: type,
             itemIdx: fid,
@@ -74,18 +79,16 @@
         });
     }
 
-    /**
-	 * @param {string} type
-	 */
+    /** @param {string} type */
     function addMcpItem(type) {
-        svelteDispatch('add', {
+        onadd?.({
             mcpIdx: mcpIndex,
             field: type
         });
     }
 
     function toggleCollapse() {
-        svelteDispatch('collapse', {
+        oncollapse?.({
             mcpIdx: mcpIndex,
             collapsed: !collapsed
         });
@@ -101,53 +104,46 @@
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
-                    on:keydown={() => {}}
-                    on:click={() => toggleCollapse()}
-                />
+                    onkeydown={() => {}}
+                    onclick={() => toggleCollapse()}
+                ></i>
             </div>
             <div class="line-align-center">
                 {`MCP #${mcpIndex + 1}`}
             </div>
             <div class="utility-tooltip">
                 <div class="line-align-center">
-                    <Input
+                    <input
                         type="checkbox"
+                        class="form-check-input"
                         checked={!mcp.disabled}
-                        on:change={e => toggleMcp(e)}
+                        onchange={e => toggleMcp(e)}
                     />
                 </div>
-                <!-- <div
-                    class="line-align-center fs-6"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Uncheck to disable MCP"
-                >
-                    <i class="bx bx-info-circle" />
-                </div> -->
             </div>
         </div>
         <div class="utility-value">
             <div class="utility-input line-align-center">
-                <Input
-                    type="select"
+                <select
+                    class="form-select"
                     disabled={mcp.disabled}
-                    on:change={e => changeMcp(e)}
+                    onchange={e => changeMcp(e)}
                 >
                     {#each [...mcpOptions] as option}
                         <option value={option.id} selected={option.id == mcp.server_id}>
                             {option.displayName || option.name}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
             <div class="utility-delete line-align-center">
                 <i
                     class="bx bxs-no-entry text-danger clickable fs-6"
                     role="link"
                     tabindex="0"
-                    on:keydown={() => {}}
-                    on:click={() => deleteMcp()}
-                />
+                    onkeydown={() => {}}
+                    onclick={() => deleteMcp()}
+                ></i>
             </div>
         </div>
     </div>
@@ -161,8 +157,9 @@
                 </div>
                 <div class="utility-value">
                     <div class="utility-input line-align-center">
-                        <Input
+                        <input
                             type="text"
+                            class="form-control"
                             disabled
                             value={mcp.server_id}
                         />
@@ -179,26 +176,26 @@
                     </div>
                     <div class="utility-value">
                         <div class="utility-input line-align-center">
-                            <Input
-                                type="select"
+                            <select
+                                class="form-select"
                                 disabled={mcp.disabled}
-                                on:change={e => changeMcpItem(e, fid, 'function')}
+                                onchange={e => changeMcpItem(e, fid, 'function')}
                             >
                                 {#each [...mcpOptions.find(x => x.id === mcp.server_id)?.tools || []] as option}
                                     <option value={option} selected={option == fn.name}>
                                         {option}
-                                    </option> 
+                                    </option>
                                 {/each}
-                            </Input>
+                            </select>
                         </div>
                         <div class="utility-delete line-align-center">
                             <i
                                 class="bx bxs-no-entry text-danger clickable fs-6"
                                 role="link"
                                 tabindex="0"
-                                on:keydown={() => {}}
-                                on:click={() => deleteMcpItem(fid, 'function')}
-                            />
+                                onkeydown={() => {}}
+                                onclick={() => deleteMcpItem(fid, 'function')}
+                            ></i>
                         </div>
                     </div>
                 </div>
@@ -217,9 +214,9 @@
                             title="Add function"
                             role="link"
                             tabindex="0"
-                            on:keydown={() => {}}
-                            on:click={() => addMcpItem('function')}
-                        />
+                            onkeydown={() => {}}
+                            onclick={() => addMcpItem('function')}
+                        ></i>
                     </div>
                 </div>
             {/if}

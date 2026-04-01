@@ -1,13 +1,13 @@
-//
-// _buttons.scss
-//
+﻿/*  */
+/* _buttons.scss */
+/*  */
 
 button,
 a {
     outline: none !important;
 }
 
-// Rounded Buttons
+/* Rounded Buttons */
 .btn-rounded {
     border-radius: 30px;
 }
@@ -18,7 +18,7 @@ a {
     }
 }
 
-// example 1
+/* example 1 */
 
 .btn-group-example {
     .btn {
@@ -49,7 +49,7 @@ a {
     }
 }
 
-// Example 2
+/* Example 2 */
 
 .btn-label {
     position: relative;
@@ -83,9 +83,9 @@ a {
 }
 
 
-//
-// Soft Buttons
-// 
+/*  */
+/* Soft Buttons */
+/*  */
 
 @mixin button-variant-soft($bg) {
     color: $bg;

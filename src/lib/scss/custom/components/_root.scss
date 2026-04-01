@@ -1,60 +1,60 @@
-// 
-// root.scss
-//
+﻿/*  */
+/* root.scss */
+/*  */
 
-//theme-light
+/* theme-light */
 :root {
-    // Topbar - Default Light
+    /* Topbar - Default Light */
     --#{$prefix}header-bg:                              #{$header-bg}; 
     --#{$prefix}header-item-color:                      #{$header-item-color}; 
 
-    // Topbar - Dark
+    /* Topbar - Dark */
     --#{$prefix}header-dark-bg:                         #{$header-dark-bg}; 
     --#{$prefix}header-dark-item-color:                 #{$header-dark-item-color}; 
     
     --#{$prefix}topbar-search-bg:                       #{$topbar-search-bg}; 
 
-    // Footer
+    /* Footer */
     --#{$prefix}footer-bg:                              #{$footer-bg}; 
     --#{$prefix}footer-color:                           #{$footer-color}; 
 
-    // Horizontal nav
+    /* Horizontal nav */
     --#{$prefix}topnav-bg:                              #{$topnav-bg}; 
     --#{$prefix}menu-item-color:                        #{$menu-item-color}; 
     --#{$prefix}menu-item-active-color:                 #{$menu-item-active-color}; 
 
-    // Boxed layout width
+    /* Boxed layout width */
     --#{$prefix}boxed-body-bg:                          #{$boxed-body-bg}; 
 
     --#{$prefix}display-none:                           #{$display-none};
     --#{$prefix}display-block:                          #{$display-block};
 }
 
-//theme dark
+/* theme dark */
 @if $enable-dark-mode {
     @include color-mode(dark, true) { 
-        // Topbar - Default Light
+        /* Topbar - Default Light */
         --#{$prefix}header-bg:                              #{$header-bg-dark}; 
         --#{$prefix}header-item-color:                      #{$header-item-color-dark}; 
 
-        // Topbar - Dark
+        /* Topbar - Dark */
         --#{$prefix}header-dark-bg:                         #{$header-dark-bg-dark}; 
         --#{$prefix}header-dark-item-color:                 #{$header-dark-item-color-dark}; 
         --#{$prefix}topbar-search-bg:                       #{$topbar-search-bg-dark}; 
 
-        // Footer
+        /* Footer */
         --#{$prefix}footer-bg:                              #{$footer-bg-dark}; 
         --#{$prefix}footer-color:                           #{$footer-color-dark}; 
 
-        // Horizontal nav
+        /* Horizontal nav */
         --#{$prefix}topnav-bg:                              #{$topnav-bg-dark}; 
         --#{$prefix}menu-item-color:                        #{$menu-item-color-dark}; 
         --#{$prefix}menu-item-active-color:                 #{$menu-item-active-color-dark}; 
 
-        // Boxed layout width
+        /* Boxed layout width */
         --#{$prefix}boxed-body-bg:                          #{$boxed-body-bg-dark};
 
-        // component variable
+        /* component variable */
         --#{$prefix}light:                                      #{$body-tertiary-bg-dark};
         --#{$prefix}light-rgb:                                  #{to-rgb($body-tertiary-bg-dark)};
         --#{$prefix}dark:                                       #{$body-tertiary-color-dark};

@@ -2,8 +2,10 @@
 	import { onMount } from 'svelte';
 	import { getChartColorsArray } from '$lib/common/shared/ChartColorsArray.svelte';
 	import ApexCharts from 'apexcharts';
-	export let chartColor;
 
+	let { chartColor = [] } = $props();
+
+	// svelte-ignore state_referenced_locally
 	const radialbarchartColors = getChartColorsArray(chartColor);
 
 	const options = {
@@ -58,4 +60,4 @@
 	});
 </script>
 
-<div id="radialbarchart" class="apex-charts" dir="ltr" />
+<div id="radialbarchart" class="apex-charts" dir="ltr"></div>

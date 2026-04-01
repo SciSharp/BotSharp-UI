@@ -7,12 +7,12 @@
 	import { ChatAction } from '$lib/helpers/enums';
 	import BubbleChat from './BubbleChat.svelte';
 
-    let chatUrl = PUBLIC_LIVECHAT_HOST;
-    let showChatBox = false;
-    let showBubbleMsg = false;
-    let receivedMsg = '';
+    let chatUrl = $state(PUBLIC_LIVECHAT_HOST);
+    let showChatBox = $state(false);
+    let showBubbleMsg = $state(false);
+    let receivedMsg = $state('');
     /** @type {number | undefined} */
-    let timeout;
+    let timeout = $state(undefined);
 
     onMount(async () => {
         const agentSettings = await getSettingDetail("Agent");
@@ -78,7 +78,8 @@
         class={`border border-2 rounded-3 m-3 float-end ${showChatBox ? 'chat-iframe' : 'hide'}`}
         title="live chat"
         id={CHAT_FRAME_ID}
-    />
+    >
+    </iframe>
 
     {#if !showChatBox}
         <div
@@ -86,7 +87,7 @@
             class="chatbot-icon mb-3 float-end wave-effect"
             transition:fade={{ delay: 50, duration: 200 }}
         >
-            <button class="btn btn-transparent chat-icon-btn" on:click={() => openChatBox()}>
+            <button class="btn btn-transparent chat-icon-btn" onclick={() => openChatBox()}>
                 <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
             </button>
         </div>

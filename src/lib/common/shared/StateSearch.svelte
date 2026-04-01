@@ -1,19 +1,21 @@
 <script>
     import { fly } from 'svelte/transition';
 	import RemoteSearchInput from "$lib/common/shared/RemoteSearchInput.svelte";
-	import { Button, Input } from "@sveltestrap/sveltestrap";
 
     const limit = 5;
 
-    /** @type {{key: string, value: string | null}[]} */
-    export let states = [];
-
-    /** @type {number} */
-    export let maxLength = 3000;
-
-    /** @type {(e: string) => Promise<string[]>} */
-	export let onSearch = e => Promise.resolve([]);
-
+    /**
+     * @type {{
+     *   states?: {key: string, value: string | null}[],
+     *   maxLength?: number,
+     *   onSearch?: (e: string) => Promise<string[]>
+     * }}
+     */
+    let {
+        states = $bindable([]),
+        maxLength = 3000,
+        onSearch = () => Promise.resolve([])
+    } = $props();
 
     /** @param {number} idx */
     function removeState(idx) {
@@ -26,6 +28,22 @@
             { key: '', value: ''}
         ];
     }
+
+    /**
+     * @param {number} idx
+     * @param {string} key
+     */
+    function handleKeyChange(idx, key) {
+        states = states.map((s, i) => i === idx ? { ...s, key } : s);
+    }
+
+    /**
+     * @param {number} idx
+     * @param {string | null} value
+     */
+    function handleValueChange(idx, value) {
+        states = states.map((s, i) => i === idx ? { ...s, value } : s);
+    }
 </script>
 
 
@@ -34,47 +52,51 @@
     in:fly={{ y: -10, duration: 500 }}
     out:fly={{ y: -10, duration: 200 }}
 >
-    {#each states as state, idx}
+    {#each states as state, idx (idx)}
         <div class="state-search-item">
             <div style="flex: 1;">
                 <RemoteSearchInput
-                    bind:value={state.key}
+                    value={state.key}
                     maxLength={maxLength}
                     onSearch={e => onSearch(e)}
                     placeholder="Search States"
+                    onValueChange={(/** @type {string} */ val) => handleKeyChange(idx, val)}
                 />
             </div>
             <div style="flex: 1;">
-                <Input
+                <input
                     type="text"
-                    bind:value={state.value}
+                    class="form-control"
+                    value={state.value ?? ''}
                     maxlength={maxLength}
                     disabled={!state.key}
                     placeholder="Enter a value"
+                    oninput={(e) => handleValueChange(idx, /** @type {HTMLInputElement} */ (e.target).value)}
                 />
             </div>
             <div class="line-align-center" style="flex: 0 0 13px;">
                 <div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <i
                         class="bx bxs-no-entry text-danger clickable"
                         class:hide={states.length === 1}
-                        on:click={() => removeState(idx)}
-                    />
+                        onclick={() => removeState(idx)}
+                    ></i>
                 </div>
             </div>
         </div>
     {/each}
     {#if states.length < limit}
         <div class="d-flex justify-content-end">
-            <Button 
-                color="link"
+            <button
+                type="button"
+                class="btn btn-link"
                 style="padding-left: 0px;"
-                on:click={() => addState()}
+                onclick={() => addState()}
             >
                 Add +
-            </Button>
+            </button>
             <div style="flex: 0 0 13px;"></div>
         </div>
     {/if}

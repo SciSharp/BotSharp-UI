@@ -6,20 +6,18 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { v4 as uuidv4 } from 'uuid';
 
-    /** @type {string} */
-	export let text;
-
-	/** @type {string} */
-	export let containerClasses = "";
-
-	/** @type {string} */
-	export let containerStyles = "";
-
-	/** @type {boolean} */
-	export let rawText = false;
-
-	/** @type {boolean} */
-	export let scrollable = false;
+	let {
+		/** @type {string} */
+		text = '',
+		/** @type {string} */
+		containerClasses = '',
+		/** @type {string} */
+		containerStyles = '',
+		/** @type {boolean} */
+		rawText = false,
+		/** @type {boolean} */
+		scrollable = false
+	} = $props();
 
 	const scrollbarId = `markdown-scrollbar-${uuidv4()}`;
 	const options = {
@@ -48,19 +46,18 @@
 		}
     }
 
-    let innerText = '';
-	$: {
-		if (typeof text !== 'string') {
-			text = `${JSON.stringify(text)}`;
-		}
-		const markedText = !rawText ? replaceNewLine(marked(replaceMarkdown(text || ''))?.toString()) : marked(text || '')?.toString();
+	let innerText = $derived.by(() => {
+		const normalizedText = typeof text !== 'string' ? `${JSON.stringify(text)}` : text;
+		const markedText = !rawText
+			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''))?.toString())
+			: marked(normalizedText || '')?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
-			innerText = markedText.substring(0, idx);
+			return markedText.substring(0, idx);
 		} else {
-            innerText = markedText;
+            return markedText;
         }
-	}
+	});
 </script>
 
 <div

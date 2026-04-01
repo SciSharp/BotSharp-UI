@@ -1,8 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-    import { Container, Row, Col } from '@sveltestrap/sveltestrap';
     import { getSettingDetail } from '$lib/services/setting-service';
-    import { getAgents } from '$lib/services/agent-service.js'
+    import { getAgents } from '$lib/services/agent-service.js';
 
     /** @type {import('$agentTypes').AgentFilter} */
     const filter = {
@@ -10,20 +9,20 @@
     };
 
     /** @type {import('$agentTypes').AgentModel[]} */
-    let agents = [];
-    let agentId = 'undefined';
+    let agents = $state([]);
+    let agentId = $state('undefined');
 
-	onMount(async () => {
+    onMount(async () => {
         const response = await getAgents(filter, true);
         agents = response?.items?.map(t => { return { ...t }; }) || [];
         const agentSettings = await getSettingDetail("Agent");
         // @ts-ignore
         agentId = agentSettings.hostAgentId;
-	});
+    });
 </script>
 
-<Container fluid>
-    <Row>
+<div class="container-fluid">
+    <div class="row">
         <div class="col-12">
             <div style="margin-top: 10vh; margin-left:10vw;">
                 {#each agents as agent}
@@ -34,27 +33,27 @@
                         name="agents"
                         id={agent.id}
                         value={agent.id}
-                        checked = {agentId == agent.id}
-                        on:click={() => agentId = agent.id}
+                        checked={agentId == agent.id}
+                        onclick={() => agentId = agent.id}
                     />
                     <label class="form-check-label" for={agent.id}>
                         {agent.name}
-                    </label>  
+                    </label>
                     <div class="mx-4">{agent.description}</div>
                 </div>
                 {/each}
-            </div>    
+            </div>
         </div>
-    </Row>
-    <Row class="text-center">
-        <Col>
+    </div>
+    <div class="row text-center">
+        <div class="col">
             <p class="section-subtitle text-muted text-center pt-4 font-secondary">Select a bot you want to start chatting with and click the Start button.</p>
             <div class="d-flex justify-content-center">
                 <a href="chat/{agentId}" class="btn btn-primary">
-                    <i class="mdi mdi-chat" />
+                    <i class="mdi mdi-chat"></i>
                     <span>Start Conversation</span>
                 </a>
             </div>
-        </Col>
-    </Row>
-</Container>
+        </div>
+    </div>
+</div>

@@ -1,271 +1,249 @@
 <script>
-  import Link from 'svelte-link';
-  import { _ } from 'svelte-i18n'
-  import {
-    Row,
-    Col,
-    CardBody,
-    Card,
-    Container,
-    Form,
-    Label,
-    Input,
-    Button,
-    Alert
-  } from '@sveltestrap/sveltestrap';
-  import Headtitle from '$lib/common/shared/HeadTitle.svelte';
-  import { getToken } from '$lib/services/auth-service.js';
-  import { goto } from '$app/navigation';
-  import { page } from '$app/stores';
-  import {
-    PUBLIC_SERVICE_URL,
-    PUBLIC_LIVECHAT_HOST,
-    PUBLIC_LOGO_URL,
-    PUBLIC_LOGIN_IMAGE,
-    PUBLIC_BRAND_NAME,
-    PUBLIC_ADMIN_USERNAME,
-    PUBLIC_ADMIN_PASSWORD,
-    PUBLIC_COMPANY_NAME,
-    PUBLIC_ALLOW_SIGNUP,
-    PUBLIC_AUTH_ENABLE_SSO,
-    PUBLIC_AUTH_ENABLE_FIND_PWD,
-  } from '$env/static/public';
-  import { onMount } from 'svelte';
-  import { resetStorage } from '$lib/helpers/store';
+  import { _ } from 'svelte-i18n';
+  import Headtitle from '$lib/common/shared/HeadTitle.svelte';
+  import { getToken } from '$lib/services/auth-service.js';
+  import { goto } from '$app/navigation';
+  import { page } from '$app/state';
+  import {
+    PUBLIC_SERVICE_URL,
+    PUBLIC_LIVECHAT_HOST,
+    PUBLIC_LOGO_URL,
+    PUBLIC_LOGIN_IMAGE,
+    PUBLIC_BRAND_NAME,
+    PUBLIC_ADMIN_USERNAME,
+    PUBLIC_ADMIN_PASSWORD,
+    PUBLIC_COMPANY_NAME,
+    PUBLIC_ALLOW_SIGNUP,
+    PUBLIC_AUTH_ENABLE_SSO,
+    PUBLIC_AUTH_ENABLE_FIND_PWD,
+  } from '$env/static/public';
+  import { onMount } from 'svelte';
+  import { resetStorage } from '$lib/helpers/store';
 
-  let username = PUBLIC_ADMIN_USERNAME;
-  let password = PUBLIC_ADMIN_PASSWORD;
-  let isOpen = false;
-  let msg = '';
-  let status = '';
-  let isSubmitting = false;
-  let isRememberMe = false;
+  let username = $state(PUBLIC_ADMIN_USERNAME);
+  let password = $state(PUBLIC_ADMIN_PASSWORD);
+  let isOpen = $state(false);
+  let msg = $state('');
+  let status = $state('');
+  let isSubmitting = $state(false);
+  let isRememberMe = $state(false);
+  let showPassword = $state(false);
 
-  onMount(() => {
-    const userName = localStorage.getItem('user_name');
-    isRememberMe = userName !== null;
-    if(isRememberMe){
-      username = userName || '';
-    }
-  });
-  function handleRememberMe(){
-    if(isRememberMe){
-      localStorage.setItem("user_name", username);
-    }
-    else {
-      localStorage.removeItem("user_name");
-    }
-  }
+  onMount(() => {
+    const userName = localStorage.getItem('user_name');
+    isRememberMe = userName !== null;
+    if (isRememberMe) {
+      username = userName || '';
+    }
+  });
 
-  /** @param {any} e */
-  async function onSubmit(e) {
-    isSubmitting = true;
-    handleRememberMe();
-    e.preventDefault();
-    await getToken(username, password, '', () => {
-      isOpen = true;
-      msg = 'Authentication success';
-      status = 'success';
-      const redirectUrl = $page.url.searchParams.get('redirect');
-      isSubmitting = false;
-      resetStorage();
-      if (redirectUrl) {
-        window.location.href = decodeURIComponent(redirectUrl);
-      } else {
-        goto('page/dashboard');
-      }
-    }, () => {
-      isSubmitting = false;
-      isOpen = true;
-      status = 'danger';
-      msg = 'Incorrect user name or password.'
-      setTimeout(() => {
-        isOpen = false;
-        status = '';
-        msg = '';
-      }, 3000);
-    });
-    isSubmitting = false;
-  }
+  function handleRememberMe() {
+    if (isRememberMe) {
+      localStorage.setItem('user_name', username);
+    } else {
+      localStorage.removeItem('user_name');
+    }
+  }
 
-  function onPasswordToggle() {
-    const x = document.getElementById('user-password');
-    if (!x) return;
+  /** @param {SubmitEvent} e */
+  async function onSubmit(e) {
+    isSubmitting = true;
+    handleRememberMe();
+    e.preventDefault();
+    await getToken(username, password, '', () => {
+      isOpen = true;
+      msg = 'Authentication success';
+      status = 'success';
+      const redirectUrl = page.url.searchParams.get('redirect');
+      isSubmitting = false;
+      resetStorage();
+      if (redirectUrl) {
+        window.location.href = decodeURIComponent(redirectUrl);
+      } else {
+        goto('page/dashboard');
+      }
+    }, () => {
+      isSubmitting = false;
+      isOpen = true;
+      status = 'danger';
+      msg = 'Incorrect user name or password.';
+      setTimeout(() => {
+        isOpen = false;
+        status = '';
+        msg = '';
+      }, 3000);
+    });
+    isSubmitting = false;
+  }
 
-    if (x.type === 'password') {
-      x.type = 'text';
-      const icon = document.getElementById('password-eye-icon');
-      icon.className = 'mdi mdi-eye-off-outline';
-    } else {
-      x.type = 'password';
-      const icon = document.getElementById('password-eye-icon');
-      icon.className = 'mdi mdi-eye-outline';
-    }
-  }
+  function onPasswordToggle() {
+    showPassword = !showPassword;
+  }
 </script>
 
 <Headtitle title="Login" />
 <div class="modern-auth-wrapper">
 
+  <div class="container auth-container">
+    <div class="row justify-content-center align-items-center min-vh-100">
+      <div class="col-md-10 col-lg-8 col-xl-6">
+        <div class="auth-card-wrapper">
+          <div class="card auth-card border-0 shadow-lg">
+            <!-- Header Section with Gradient -->
+            <div class="auth-header">
+              <div class="auth-header-content">
+                <div class="auth-logo-section">
+                  <a href="/" class="auth-logo-link">
+                    <div class="logo-container">
+                      <img src={PUBLIC_LOGO_URL} alt="Logo" class="auth-logo-img" />
+                    </div>
+                  </a>
+                </div>
+                <div class="welcome-section">
+                  <h2 class="welcome-title">{$_('Welcome Back!')}</h2>
+                  <p class="welcome-subtitle">Sign in to continue to {PUBLIC_BRAND_NAME}</p>
+                </div>
+              </div>
+              <div class="auth-illustration">
+                <img src={PUBLIC_LOGIN_IMAGE} alt="Login Illustration" class="illustration-img" />
+              </div>
+            </div>
 
-	<Container class="auth-container">
-		<Row class="justify-content-center align-items-center min-vh-100">
-			<Col md={10} lg={8} xl={6}>
-				<div class="auth-card-wrapper">
-					<Card class="auth-card border-0 shadow-lg">
-						<!-- Header Section with Gradient -->
-						<div class="auth-header">
-							<div class="auth-header-content">
-								<div class="auth-logo-section">
-									<a href="/" class="auth-logo-link">
-										<div class="logo-container">
-											<img src={PUBLIC_LOGO_URL} alt="Logo" class="auth-logo-img" />
-										</div>
-									</a>
-								</div>
-								<div class="welcome-section">
-									<h2 class="welcome-title">{$_('Welcome Back!')}</h2>
-									<p class="welcome-subtitle">Sign in to continue to {PUBLIC_BRAND_NAME}</p>
-								</div>
-							</div>
-							<div class="auth-illustration">
-								<img src={PUBLIC_LOGIN_IMAGE} alt="Login Illustration" class="illustration-img" />
-							</div>
-						</div>
+            <!-- Form Section -->
+            <div class="card-body auth-form-section">
+              {#if isOpen}
+                <div class="alert alert-{status} modern-alert" role="alert">{msg}</div>
+              {/if}
 
-						<!-- Form Section -->
-						<CardBody class="auth-form-section">
-							<Alert {isOpen} color={status} class="modern-alert">{msg}</Alert>
+              <form class="auth-form" onsubmit={onSubmit}>
+                <div class="form-group">
+                  <label for="username" class="form-label">Username</label>
+                  <div class="input-wrapper">
+                    <i class="mdi mdi-account input-icon" aria-hidden="true"></i>
+                    <input
+                      type="text"
+                      class="form-control modern-input"
+                      id="username"
+                      placeholder="Enter your username"
+                      disabled={isSubmitting}
+                      bind:value={username}
+                    />
+                  </div>
+                </div>
 
-							<Form class="auth-form" on:submit={onSubmit}>
-								<div class="form-group">
-									<Label for="username" class="form-label">Username</Label>
-									<div class="input-wrapper">
-							<i class="mdi mdi-account input-icon" aria-hidden="true"></i>
-										<Input
-											type="text"
-											class="form-control modern-input"
-											id="username"
-											placeholder="Enter your username"
-											disabled={isSubmitting}
-											bind:value={username}
-										/>
-									</div>
-								</div>
+                <div class="form-group">
+                  <label class="form-label" for="user-password">Password</label>
+                  <div class="input-wrapper password-wrapper">
+                    <i class="mdi mdi-lock-outline input-icon" aria-hidden="true"></i>
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      class="form-control modern-input password-input"
+                      id="user-password"
+                      placeholder="Enter your password"
+                      disabled={isSubmitting}
+                      aria-label="Password"
+                      bind:value={password}
+                    />
+                    <button
+                      type="button"
+                      class="password-toggle"
+                      aria-label="Toggle password visibility"
+                      disabled={isSubmitting}
+                      onclick={onPasswordToggle}
+                    >
+                      <i class="mdi {showPassword ? 'mdi-eye-off-outline' : 'mdi-eye-outline'}"></i>
+                    </button>
+                  </div>
+                </div>
 
-								<div class="form-group">
-									<Label class="form-label" for="user-password">Password</Label>
-									<div class="input-wrapper password-wrapper">
-							<i class="mdi mdi-lock-outline input-icon" aria-hidden="true"></i>
-										<Input
-											type="password"
-											class="form-control modern-input password-input"
-											id="user-password"
-											placeholder="Enter your password"
-											disabled={isSubmitting}
-											aria-label="Password"
-											bind:value={password}
-										/>
-										<button
-											type="button"
-											class="password-toggle"
-											disabled={isSubmitting}
-											on:click={() => onPasswordToggle()}
-										>
-											<i id="password-eye-icon" class="mdi mdi-eye-outline" />
-										</button>
-									</div>
-								</div>
+                <div class="form-options">
+                  <div class="remember-me">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      id="remember-check"
+                      disabled={isSubmitting}
+                      bind:checked={isRememberMe}
+                    />
+                    <label class="form-check-label" for="remember-check">Remember me</label>
+                  </div>
+                  {#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true'}
+                  <a href="recoverpw" class="forgot-password">
+                    Forgot password?
+                  </a>
+                  {/if}
+                </div>
 
-								<div class="form-options">
-									<div class="remember-me">
-										<input
-											class="form-check-input"
-											type="checkbox"
-											id="remember-check"
-											disabled={isSubmitting}
-											bind:checked={isRememberMe}
-										/>
-										<Label class="form-check-label" for="remember-check">Remember me</Label>
-									</div>
-									{#if PUBLIC_AUTH_ENABLE_FIND_PWD == 'true'}
-									<a href="recoverpw" class="forgot-password">
-										Forgot password?
-									</a>
-									{/if}
-								</div>
+                <div class="login-button-wrapper">
+                  <button
+                    type="submit"
+                    class="btn btn-primary login-btn"
+                    disabled={isSubmitting}
+                  >
+                    {#if isSubmitting}
+                      <i class="mdi mdi-loading mdi-spin me-2"></i>
+                      Signing in...
+                    {:else}
+                      <i class="mdi mdi-login me-2"></i>
+                      Sign In
+                    {/if}
+                  </button>
+                </div>
 
-								<div class="login-button-wrapper">
-									<Button
-										color="primary"
-										disabled={isSubmitting}
-										class="login-btn"
-										type="submit"
-									>
-										{#if isSubmitting}
-											<i class="mdi mdi-loading mdi-spin me-2"></i>
-											Signing in...
-										{:else}
-											<i class="mdi mdi-login me-2"></i>
-											Sign In
-										{/if}
-									</Button>
-								</div>
+                {#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
+                <div class="divider">
+                  <span class="divider-text">or continue with</span>
+                </div>
 
-								{#if PUBLIC_AUTH_ENABLE_SSO == 'true'}
-								<div class="divider">
-									<span class="divider-text">or continue with</span>
-								</div>
+                <div class="social-login">
+                  <a
+                    class="social-btn github-btn"
+                    href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+                    title="Sign in with GitHub"
+                  >
+                    <i class="mdi mdi-github"></i>
+                  </a>
 
-								<div class="social-login">
-									<a
-										class="social-btn github-btn"
-										href="{PUBLIC_SERVICE_URL}/sso/GitHub?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-										title="Sign in with GitHub"
-									>
-										<i class="mdi mdi-github"></i>
-									</a>
+                  <a
+                    class="social-btn keycloak-btn"
+                    href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+                    title="Sign in with Keycloak"
+                  >
+                    <i class="mdi mdi-cloud"></i>
+                  </a>
 
-									<a
-										class="social-btn keycloak-btn"
-										href="{PUBLIC_SERVICE_URL}/sso/Keycloak?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-										title="Sign in with Keycloak"
-									>
-										<i class="mdi mdi-cloud"></i>
-									</a>
+                  <a
+                    class="social-btn google-btn"
+                    href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
+                    title="Sign in with Google"
+                  >
+                    <i class="mdi mdi-google"></i>
+                  </a>
+                </div>
+                {/if}
+              </form>
+            </div>
+          </div>
 
-									<a
-										class="social-btn google-btn"
-										href="{PUBLIC_SERVICE_URL}/sso/Google?redirectUrl={PUBLIC_LIVECHAT_HOST}page/user/me"
-										title="Sign in with Google"
-									>
-										<i class="mdi mdi-google"></i>
-									</a>
-								</div>
-								{/if}
-							</Form>
-						</CardBody>
-					</Card>
+          <!-- Footer Section -->
+          <div class="auth-footer">
+            {#if PUBLIC_ALLOW_SIGNUP === 'true'}
+            <p class="signup-text">
+              Don't have an account?
+              <a href="register" class="signup-link">
+                Create one here
+              </a>
+            </p>
+            {/if}
 
-					<!-- Footer Section -->
-					<div class="auth-footer">
-						{#if PUBLIC_ALLOW_SIGNUP === 'true'}
-						<p class="signup-text">
-							Don't have an account?
-							<a href="register" class="signup-link">
-								Create one here
-							</a>
-						</p>
-						{/if}
-
-						<p class="copyright-text">
-							Supported by © {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}
-						</p>
-					</div>
-				</div>
-			</Col>
-		</Row>
-	</Container>
+            <p class="copyright-text">
+              Supported by © {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -287,6 +265,7 @@
 	}
 
 	.auth-card-wrapper {
+		padding: 2rem 0;
 		animation: slideInUp 0.8s ease-out;
 	}
 
@@ -464,7 +443,7 @@
 		line-height: 1;
 	}
 
-	:global(.modern-input) {
+	.modern-input {
 		width: 100%;
 		padding-left: 3.25rem !important; /* extra left space for input icon to avoid overlap */
 		padding-right: 1rem !important;
@@ -478,18 +457,18 @@
 		z-index: 1;
 	}
 
-	:global(.password-wrapper .modern-input) {
+	.password-wrapper .modern-input {
 		padding-right: 3rem !important;
 	}
 
-	:global(.modern-input:focus) {
+	.modern-input:focus {
 		border-color: #0065a1 !important;
 		box-shadow: 0 0 0 0.2rem rgba(0, 101, 161, 0.15) !important;
 		background: var(--bs-white) !important;
 		outline: none;
 	}
 
-	:global(.modern-input::placeholder) {
+	.modern-input::placeholder {
 		color: var(--bs-gray-400);
 	}
 
@@ -759,11 +738,6 @@
 		margin-bottom: 0;
 	}
 
-	.copyright-text i {
-		color: #e74c3c;
-		animation: heartbeat 1.5s ease-in-out infinite;
-	}
-
 	@keyframes heartbeat {
 		0%, 100% {
 			transform: scale(1);
@@ -779,18 +753,18 @@
 			color: var(--bs-gray-300);
 		}
 
-		:global(.modern-input) {
+		.modern-input {
 			background: var(--bs-gray-800);
 			border-color: var(--bs-gray-600) !important;
 			color: var(--bs-white);
 		}
 
-		:global(.modern-input:focus) {
+		.modern-input:focus {
 			background: var(--bs-gray-800);
 			border-color: #0065a1 !important;
 		}
 
-		:global(.modern-input::placeholder) {
+		.modern-input::placeholder {
 			color: var(--bs-gray-400);
 		}
 

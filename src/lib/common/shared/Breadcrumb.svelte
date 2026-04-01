@@ -1,25 +1,21 @@
 <script>
-	import { Row, Col, Breadcrumb, BreadcrumbItem } from '@sveltestrap/sveltestrap';
-	import Link from 'svelte-link';
-
-	export let title = '';
-	export let pagetitle = '';
+	let { title = '', pagetitle = '' } = $props();
 </script>
 
-<Row>
-	<Col xs="12">
+<div class="row">
+	<div class="col-12">
 		<div class="page-title-box d-sm-flex align-items-center justify-content-between">
 			<h4 class="mb-sm-0 font-size-18">{pagetitle}</h4>
 			<div class="page-title-right">
 				<ol class="breadcrumb m-0">
-					<BreadcrumbItem>
-						<Link disabled>{title}</Link>
-					</BreadcrumbItem>
-					<BreadcrumbItem active>
+					<li class="breadcrumb-item">
+						<span class="breadcrumb-link disabled">{title}</span>
+					</li>
+					<li class="breadcrumb-item active" aria-current="page">
 						{pagetitle}
-					</BreadcrumbItem>
+					</li>
 				</ol>
 			</div>
 		</div>
-	</Col>
-</Row>
+	</div>
+</div>

@@ -1,17 +1,21 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Button } from '@sveltestrap/sveltestrap';
 	import { getServerConfigs } from '$lib/services/mcp-service';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentMcpToolItem from './agent-mcp-tool-item.svelte';
-    
+
     const limit = 100;
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        handleAgentChange = () => {}
+    } = $props();
 
     export const fetchMcpTools = () => {
         const candidates = innerMcps?.filter(x => !!x.name)?.map(x => {
@@ -51,10 +55,10 @@
     }
 
     /** @type {any[]} */
-    let mcpOptions = [];
+    let mcpOptions = $state([]);
 
     /** @type {import('$agentTypes').AgentMcpTool[]} */
-    let innerMcps = [];
+    let innerMcps = $state([]);
 
     /** @type {HTMLElement} */
     let scrollContainer;
@@ -125,54 +129,54 @@
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
      * @param {number} idx
      */
-    function deleteMcp(e, idx) {
-        if (e.detail.field === 'mcp') {
+    function deleteMcp(data, idx) {
+        if (data.field === 'mcp') {
             innerMcps = innerMcps.filter((_, index) => index !== idx);
-        } else if (e.detail.field === 'function') {
+        } else if (data.field === 'function') {
             const found = innerMcps.find((_, index) => index === idx);
             if (!found) return;
 
-            const fns = found.functions?.filter((_, index) => index !== e.detail.itemIdx) || [];
+            const fns = found.functions?.filter((_, index) => index !== data.itemIdx) || [];
             found.functions = fns;
             innerRefresh(innerMcps);
         }
-        
+
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
-	 * @param {number} idx
-	 */
-    function toggleMcp(e, idx) {
+     * @param {any} data
+     * @param {number} idx
+     */
+    function toggleMcp(data, idx) {
         const found = innerMcps.find((_, index) => index === idx);
         if (!found) return;
 
-        found.disabled = !e.detail.checked;
+        found.disabled = !data.checked;
         innerRefresh(innerMcps);
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
-	 * @param {number} idx
-	 */
-    function changeMcpContent(e, idx) {
+     * @param {any} data
+     * @param {number} idx
+     */
+    function changeMcpContent(data, idx) {
         const found = innerMcps.find((_, index) => index === idx);
         if (!found) return;
 
-        if (e.detail.field === 'mcp') {
-            const name = mcpOptions.find(x => x.id == e.detail.value)?.name || '';
+        if (data.field === 'mcp') {
+            const name = mcpOptions.find(x => x.id == data.value)?.name || '';
             found.name = name;
-            found.server_id = e.detail.value;
+            found.server_id = data.value;
             found.functions = [];
-        } else if (e.detail.field === 'function') {
-            const fn = found.functions.find((_, index) => index === e.detail.itemIdx);
+        } else if (data.field === 'function') {
+            const fn = found.functions.find((_, index) => index === data.itemIdx);
             if (fn) {
-                fn.name = e.detail.value;
+                fn.name = data.value;
             }
         }
 
@@ -181,14 +185,14 @@
     }
 
     /**
-     * @param {any} e
-	 * @param {number} idx
-	 */
-     function addMcpContent(e, idx) {
+     * @param {any} data
+     * @param {number} idx
+     */
+    function addMcpContent(data, idx) {
         const found = innerMcps.find((_, index) => index === idx);
         if (!found || found.disabled) return;
 
-        if (e.detail.field === 'function') {
+        if (data.field === 'function') {
             found.functions.push({ name: '' });
         }
 
@@ -196,23 +200,22 @@
         handleAgentChange();
     }
 
-
     /**
-     * @param {any} e
-	 * @param {number} idx
-	 */
-	function toggleCollapse(e, idx) {
-		const found = innerMcps.find((_, index) => index === idx);
+     * @param {any} data
+     * @param {number} idx
+     */
+    function toggleCollapse(data, idx) {
+        const found = innerMcps.find((_, index) => index === idx);
         if (!found) return;
 
-        found.expanded = !e.detail.collapsed;
+        found.expanded = !data.collapsed;
         innerRefresh(innerMcps);
         handleAgentChange();
-	}
+    }
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">MCP Tools</h5>
             <h6 class="mt-1 mb-3">Tools powered by MCP Servers</h6>
@@ -225,24 +228,28 @@
                     mcpIndex={uid}
                     collapsed={!mcp.expanded}
                     mcpOptions={mcpOptions}
-                    on:toggle={e => toggleMcp(e, uid)}
-                    on:delete={e => deleteMcp(e, uid)}
-                    on:change={e => changeMcpContent(e, uid)}
-                    on:add={e => addMcpContent(e, uid)}
-                    on:collapse={e => toggleCollapse(e, uid)}
+                    ontoggle={data => toggleMcp(data, uid)}
+                    ondelete={data => deleteMcp(data, uid)}
+                    onchange={data => changeMcpContent(data, uid)}
+                    onadd={data => addMcpContent(data, uid)}
+                    oncollapse={data => toggleCollapse(data, uid)}
                 />
             {/each}
 
             {#if innerMcps.length < limit}
                 <div class="add-utility">
-                    <Button color="primary" on:click={() => addMcp()}>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick={() => addMcp()}
+                    >
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add MCP</span>
                         </span>
-                    </Button>
+                    </button>
                 </div>
             {/if}
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

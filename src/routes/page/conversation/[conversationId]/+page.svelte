@@ -4,7 +4,6 @@
     import { goto } from '$app/navigation';
     import Swal from 'sweetalert2';
     import { _ } from 'svelte-i18n';
-    import { Col, Row, Button } from '@sveltestrap/sveltestrap';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -16,21 +15,20 @@
     const params = $page.params;
     const dialogCount = 100;
 
-    let isLoading = false;
+    let isLoading = $state(false);
 
-    /** @type {import('$conversationTypes').ConversationModel} */
-    let conversation;
+    /** @type {import('$conversationTypes').ConversationModel | undefined | null} */
+    let conversation = $state(undefined);
 
     /** @type {import('$conversationTypes').ChatResponseModel[]} */
-    let dialogs = [];
-
+    let dialogs = $state([]);
 
     onMount(async () => {
         isLoading = true;
         conversation = await getConversation(params.conversationId, true);
         isLoading = false;
         dialogs = await getDialogs(conversation.id, dialogCount);
-    });  
+    });
 
     function handleConversationDeletion() {
         // @ts-ignore
@@ -43,37 +41,39 @@
             confirmButtonText: 'Yes, delete it!'
         }).then(async (result) => {
             if (result.value) {
-                await deleteConversation(conversation.id);
-                goto("page/conversation");
+                if (conversation?.id) {
+                    await deleteConversation(conversation.id);
+                    goto("page/conversation");
+                }
             }
         });
     }
-
 </script>
 
 <HeadTitle title={conversation?.title || 'Not found'} />
-<Breadcrumb title="{$_('Conversation')}" pagetitle="{$_('Conversation Detail')}" />
+<Breadcrumb title={$_('Conversation')} pagetitle={$_('Conversation Detail')} />
 
 <LoadingToComplete {isLoading} />
 
 {#if conversation}
-    <Row>
-        <Col style="flex: 40%;">
+    <div class="row">
+        <div class="col" style="flex: 40%;">
             <Overview {conversation} />
             <States {conversation} />
-        </Col>
-        <Col style="flex: 60%;">
+        </div>
+        <div class="col" style="flex: 60%;">
             <Dialog {conversation} {dialogs} />
-        </Col>
-    </Row>
-    <Row>
+        </div>
+    </div>
+    <div class="row">
         <div class="mb-4">
-            <Button
+            <button
+                type="button"
                 class="btn btn-danger btn-hover rounded"
-                on:click={() => handleConversationDeletion()}
+                onclick={() => handleConversationDeletion()}
             >
                 <i class="mdi mdi-delete"></i>{$_('Delete Conversation')}
-            </Button>
+            </button>
         </div>
-    </Row>
+    </div>
 {/if}

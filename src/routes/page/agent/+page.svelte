@@ -3,8 +3,7 @@
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
 	import Swal from 'sweetalert2';
-	import { page } from '$app/stores';
-	import { Button, Col, Input, Row } from '@sveltestrap/sveltestrap';
+	import { page } from '$app/state';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -21,20 +20,20 @@
 		goToUrl
 	} from '$lib/helpers/utils/common';
 	import CardAgent from './card-agent.svelte';
-	
-	
+
+
   	const firstPage = 1;
 	const pageSize = 12;
 
 	/** @type {boolean} */
-    let isLoading = false;
-	let isPageMounted = false;
+    let isLoading = $state(false);
+	let isPageMounted = $state(false);
 
 	/** @type {AbortController | null | undefined} */
 	let abortController;
 
 	/** @type {import('$commonTypes').PagedItems<import('$agentTypes').AgentModel>} */
-  	let agents = { items: [], count: 0 };
+  	let agents = $state({ items: [], count: 0 });
 
 	/** @type {import('$agentTypes').AgentFilter} */
 	const initFilter = {
@@ -42,40 +41,41 @@
 	};
 
 	/** @type {import('$agentTypes').AgentFilter} */
-	let filter = { ...initFilter };
+	let filter = $state({ ...initFilter });
 
+	// svelte-ignore state_referenced_locally
 	/** @type {import('$commonTypes').Pagination} */
-	let pager = filter.pager;
+	let pager = $state(filter.pager);
 
-	/** @type {import('$userTypes').UserModel} */
-	let user;
+	/** @type {import('$userTypes').UserModel | undefined} */
+	let user = $state();
 
 	/** @type {any} */
 	let unsubscriber;
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
-	const agentTypeOptions = Object.entries(AgentType).map(([k, v]) => (
+	const agentTypeOptions = Object.entries(AgentType).map(([_, v]) => (
 		{ label: v, value: v }
 	)).sort((a, b) => a.label.localeCompare(b.label));
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
-	let agentLabelOptions = [];
+	let agentLabelOptions = $state([]);
 
 	/** @type {{ name: string, types: string[], labels: string[] }} */
-	let searchItem = {
+	let searchItem = $state({
 		name: '',
 		types: [],
 		labels: []
-	};
+	});
 
 	onMount(async () => {
 		isPageMounted = true;
 		const { pageNum, pageSizeNum } = getPagingQueryParams({
-			page: $page.url.searchParams.get("page"),
-			pageSize: $page.url.searchParams.get("pageSize")
+			page: page.url.searchParams.get("page"),
+			pageSize: page.url.searchParams.get("pageSize")
 		}, { defaultPageSize: pageSize });
 
-		const similarName = $page.url.searchParams.get("similarName")?.trim();
+		const similarName = page.url.searchParams.get("similarName")?.trim();
 
 		filter = {
 			...filter,
@@ -201,7 +201,7 @@
 			queryParams.push({ key: 'similarName', value: encodeURIComponent(filter.similarName) });
 		}
 
-		setUrlQueryParams($page.url, queryParams, (url) => {
+		setUrlQueryParams(page.url, queryParams, (url) => {
 			if (!isPageMounted) return;
 			goToUrl(`${url.pathname}${url.search}`)
 		});
@@ -287,8 +287,8 @@
 	}
 </script>
 
-<HeadTitle title="{$_('List')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('List')}" />
+<HeadTitle title={$_('List')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('List')} />
 
 <LoadingToComplete
 	isLoading={isLoading}
@@ -297,20 +297,21 @@
 <div class="agents-header-container mb-4">
 	<div>
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
-		<Button color="primary" on:click={() => createNewAgent()}>
-			<i class="mdi mdi-content-copy" /> {$_('New Agent')}
-		</Button>
+		<button type="button" class="btn btn-primary" onclick={() => createNewAgent()}>
+			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
+		</button>
 		{/if}
 	</div>
 	<div class="agent-filter">
-		<Input
+		<input
 			type="text"
+			class="form-control"
 			placeholder="Search by name"
 			style="width: fit-content;"
 			maxlength={500}
 			value={searchItem.name}
-			on:input={e => changeSearchName(e)}
-			on:keydown={e => searchKeyDown(e)}
+			oninput={e => changeSearchName(e)}
+			onkeydown={e => searchKeyDown(e)}
 		/>
 		<Select
 			tag={'agent-label-select'}
@@ -320,7 +321,7 @@
 			searchMode
 			selectedValues={searchItem.labels}
 			options={agentLabelOptions}
-			on:select={e => selectAgentLabelOption(e)}
+			onselect={e => selectAgentLabelOption(e)}
 		/>
 		<Select
 			tag={'agent-type-select'}
@@ -330,32 +331,34 @@
 			searchMode
 			selectedValues={searchItem.types}
 			options={agentTypeOptions}
-			on:select={e => selectAgentTypeOption(e)}
+			onselect={e => selectAgentTypeOption(e)}
 		/>
-		<Button
+		<button
+			type="button"
 			class="btn btn-info"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Search"
-			on:click={(e) => search()}
+			onclick={() => search()}
 		>
-			<i class="mdi mdi-magnify" />
-		</Button>
-		<Button
+			<i class="mdi mdi-magnify"></i>
+		</button>
+		<button
+			type="button"
 			class="btn btn-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Reset"
-			on:click={(e) => reset()}
+			onclick={() => reset()}
 		>
-			<i class="mdi mdi-restore" />
-		</Button>
+			<i class="mdi mdi-restore"></i>
+		</button>
 	</div>
 </div>
 
 
-<Row>
+<div class="row">
 	<CardAgent agents={agents.items} />
-</Row>
+</div>
 
 <PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />

@@ -1,7 +1,4 @@
 <script>
-    import { onMount } from 'svelte';
-    import { Button, Card, CardBody, CardHeader, Input, Table } from '@sveltestrap/sveltestrap';
-    import { _ } from 'svelte-i18n';
     import InPlaceEdit from '$lib/common/shared/InPlaceEdit.svelte';
     import Select from '$lib/common/dropdowns/Select.svelte';
     import { utcToLocal } from '$lib/helpers/datetime';
@@ -10,38 +7,33 @@
 
     const limit = 10;
 
-
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
-
-    /** @type {string[]} */
-    export let profiles = [];
-
-    /** @type {string[]} */
-    export let labels = [];
-    
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   profiles?: string[],
+     *   labels?: string[],
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent = $bindable(),
+        profiles = $bindable([]),
+        labels = $bindable([]),
+        handleAgentChange = () => {}
+    } = $props();
 
     /** @type {import('$commonTypes').IdName[]} */
-	let routingModeOptions = Object.entries(RoutingMode).map(([k, v]) => (
-		{ id: v, name: v }
-	));
+	let routingModeOptions = [
+        { id: null, name: '' },
+        ...Object.entries(RoutingMode).map(([_, v]) => ({ id: v, name: v }))
+    ];
 
-    const functionVisibilityModeOptions = Object.entries(FunctionVisMode).map(([k, v]) => (
+    const functionVisibilityModeOptions = Object.entries(FunctionVisMode).map(([_, v]) => (
 		{ label: v, value: v }
 	));
-   
-    onMount(() => {
-        init();
-    });
 
-    function init() {
-        routingModeOptions = [{ id: null, name: '' }, ...routingModeOptions];
-    }
-    
     function addProfile() {
-        if (!!!agent) return;
+        if (!agent) return;
 
         profiles = [...profiles, ''];
         agent.profiles = profiles;
@@ -58,7 +50,7 @@
     }
 
     function addLabel() {
-        if (!!!agent) return;
+        if (!agent) return;
 
         labels = [...labels, ''];
         agent.labels = labels;
@@ -94,41 +86,44 @@
     }
 
     function chatWithAgent() {
-        if (!!!agent?.id) return;
-        
+        if (!agent?.id) return;
+
         window.open(`/chat/${agent?.id}`, '_blank');
     }
 </script>
 
-<Card>
-    <CardHeader>
+<div class="card">
+    <div class="card-header">
         <div class="text-center">
             <div class="agent-overview-header">
                 <img
                     src="images/users/bot.png"
                     alt=""
+                    width="50"
                     height="50"
+                    style="width: 50px; height: 50px;"
                     class="mx-auto d-block"
                 />
                 {#if !!AgentExtensions.chatable(agent)}
-                    <Button
+                    <button
+                        type="button"
                         class="btn btn-sm btn-soft-info agent-chat"
-                        on:click={() => chatWithAgent()}
+                        onclick={() => chatWithAgent()}
                     >
                         <span>{'Chat with me'}</span>
-                        <span><i class="mdi mdi-chat" /></span>
-                    </Button>
+                        <span><i class="mdi mdi-chat"></i></span>
+                    </button>
                 {/if}
             </div>
             <h5 class="mt-1 mb-1 div-center">
-                <InPlaceEdit bind:value={agent.name} on:input={handleAgentChange} />
+                <InPlaceEdit bind:value={agent.name} onInput={handleAgentChange} />
             </h5>
             <p class="text-muted mb-0">{`Updated at ${utcToLocal(agent.updated_datetime)}`}</p>
         </div>
-    </CardHeader>
-    <CardBody>
+    </div>
+    <div class="card-body">
         <div class="table-responsive">
-            <Table >
+            <table class="table">
                 <tbody>
                     <tr>
                         <th class="agent-prop-key">Type</th>
@@ -157,16 +152,16 @@
                         </th>
                         <td>
                             <div class="mt-2 mb-2" style="width: fit-content;">
-                                <Input
-                                    type="select"
-                                    on:change={e => changeRoutingMode(e)}
+                                <select
+                                    class="form-select"
+                                    onchange={e => changeRoutingMode(e)}
                                 >
                                     {#each [...routingModeOptions] as option}
                                         <option value={option.id} selected={option.id === agent.mode}>
                                             {option.name}
                                         </option>
                                     {/each}
-                                </Input>
+                                </select>
                             </div>
                         </td>
                     </tr>
@@ -179,12 +174,12 @@
                         </th>
                         <td>
                             <div class="form-check mt-2 mb-2" style="width: fit-content;">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    bind:checked={agent.is_public} 
-                                    on:change={handleAgentChange}
-                                    id="is_public" 
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    bind:checked={agent.is_public}
+                                    onchange={handleAgentChange}
+                                    id="is_public"
                                 />
                                 <label class="form-check-label" for="is_public">
                                     Public
@@ -200,12 +195,12 @@
                         </th>
                         <td>
                             <div class="form-check mt-2 mb-2" style="width: fit-content;">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    bind:checked={agent.allow_routing} 
-                                    on:change={handleAgentChange}
-                                    id="allow_routing" 
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    bind:checked={agent.allow_routing}
+                                    onchange={handleAgentChange}
+                                    id="allow_routing"
                                 />
                                 <label class="form-check-label" for="allow_routing">Allow</label>
                             </div>
@@ -219,24 +214,24 @@
                         </th>
                         <td>
                             <div class="agent-prop-list-container vertical-flexible">
-                                {#each profiles as profile, index}
+                                {#each profiles as _, index}
                                 <div class="edit-wrapper">
                                     <input
                                         class="form-control edit-text-box"
                                         type="text"
                                         placeholder="Typing here..."
                                         maxlength={30}
-                                        bind:value={profile}
-                                        on:input={handleAgentChange}
+                                        bind:value={profiles[index]}
+                                        oninput={handleAgentChange}
                                     />
                                     <div class="delete-icon">
                                         <i
                                             class="bx bxs-no-entry"
                                             role="link"
                                             tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => removeProfile(index)}
-                                        />
+                                            onkeydown={() => {}}
+                                            onclick={() => removeProfile(index)}
+                                        ></i>
                                     </div>
                                 </div>
                                 {/each}
@@ -246,9 +241,9 @@
                                         class="bx bx bx-list-plus"
                                         role="link"
                                         tabindex="0"
-                                        on:keydown={() => {}}
-                                        on:click={() => addProfile()}
-                                    />
+                                        onkeydown={() => {}}
+                                        onclick={() => addProfile()}
+                                    ></i>
                                 </div>
                                 {/if}
                             </div>
@@ -262,24 +257,24 @@
                         </th>
                         <td>
                             <div class="agent-prop-list-container vertical-flexible">
-                                {#each labels as label, index}
+                                {#each labels as _, index}
                                 <div class="edit-wrapper">
                                     <input
                                         class="form-control edit-text-box"
                                         type="text"
                                         placeholder="Typing here..."
                                         maxlength={30}
-                                        bind:value={label}
-                                        on:input={handleAgentChange}
+                                        bind:value={labels[index]}
+                                        oninput={handleAgentChange}
                                     />
                                     <div class="delete-icon">
                                         <i
                                             class="bx bxs-no-entry"
                                             role="link"
                                             tabindex="0"
-                                            on:keydown={() => {}}
-                                            on:click={() => removeLabel(index)}
-                                        />
+                                            onkeydown={() => {}}
+                                            onclick={() => removeLabel(index)}
+                                        ></i>
                                     </div>
                                 </div>
                                 {/each}
@@ -289,9 +284,9 @@
                                         class="bx bx bx-list-plus"
                                         role="link"
                                         tabindex="0"
-                                        on:keydown={() => {}}
-                                        on:click={() => addLabel()}
-                                    />
+                                        onkeydown={() => {}}
+                                        onclick={() => addLabel()}
+                                    ></i>
                                 </div>
                                 {/if}
                             </div>
@@ -305,12 +300,12 @@
                         </th>
                         <td>							
                             <div class="form-check mt-2 mb-2" style="width: fit-content;">
-                                <input 
-                                    class="form-check-input" 
-                                    type="checkbox" 
-                                    bind:checked={agent.disabled} 
-                                    on:change={handleAgentChange}
-                                    id="disabled" 
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    bind:checked={agent.disabled}
+                                    onchange={handleAgentChange}
+                                    id="disabled"
                                 />
                                 <label class="form-check-label" for="disabled">Disabled</label>
                             </div>
@@ -330,7 +325,7 @@
                                     placeholder={'Select'}
                                     selectedValues={agent.function_visibility_mode ? [agent.function_visibility_mode] : []}
                                     options={functionVisibilityModeOptions}
-                                    on:select={e => changeFunctionVisibilityMode(e)}
+                                    onselect={e => changeFunctionVisibilityMode(e)}
                                 />
                             </div>
                         </td>
@@ -343,15 +338,15 @@
                         </th>
                         <td>							
                             <div class="mt-2 mb-2">
-                                <Input
+                                <input
                                     type="number"
                                     style="width: 50%; min-width: 100px;"
-                                    class="text-center"
-									min={1}
+                                    class="form-control text-center"
+                                    min={1}
                                     max={1000}
-									step={1}
+                                    step={1}
                                     bind:value={agent.max_message_count}
-                                    on:input={handleAgentChange}
+                                    oninput={handleAgentChange}
                                 />
                             </div>
                         </td>
@@ -369,7 +364,7 @@
                         </td>
                     </tr>
                 </tbody>
-            </Table>
+            </table>
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

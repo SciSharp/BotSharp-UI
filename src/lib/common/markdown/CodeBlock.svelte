@@ -1,14 +1,12 @@
 <script>
+    let {
+        /** @type {string} */
+        lang = '',
+        /** @type {string} */
+        text = ''
+    } = $props();
 
-    /** @type {string} */
-    export let lang;
-
-    /** @type {string} */
-    export let text;
-
-
-    /** @type {boolean} */
-    let copied = false;
+    let copied = $state(false);
 
     function copyToClipboard() {
         navigator.clipboard.writeText(text).then(() => {
@@ -25,27 +23,27 @@
         <div class="line-align-center fw-bold">
             {lang || ''}
         </div>
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             class="line-align-center copy-btn"
+            role="button"
+            tabindex="0"
             data-bs-toggle="tooltip"
             data-bs-placement="top"
             title="Copy"
-            on:mouseup={() => copyToClipboard()}
-            on:mousedown={() => copied = true}
+            onmouseup={() => copyToClipboard()}
+            onmousedown={() => copied = true}
         >
             {#if copied}
                 <div class="div-center">
                     <div class="line-align-center">
-                        <i class="bx bx-check" style="font-size: 18px;" /> 
+                        <i class="bx bx-check" style="font-size: 18px;"></i>
                     </div>
                     <div class="line-align-center">
                         <span style="font-size: 10px;">{'Copied!'}</span>
                     </div>
                 </div>
             {:else}
-                <i class="bx bx-copy clickable" />
+                <i class="bx bx-copy clickable"></i>
             {/if}
         </div>
     </div>

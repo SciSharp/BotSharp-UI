@@ -2,7 +2,6 @@
 	import { browser } from '$app/environment';
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import { Input } from '@sveltestrap/sveltestrap';
 	import LanguageDropdown from '$lib/common/dropdowns/LanguageDropdown.svelte';
 	import FullScreenDropdown from '$lib/common/dropdowns/FullScreenDropdown.svelte';
 	import NotificationDropdown from '$lib/common/dropdowns/NotificationDropdown.svelte';
@@ -12,28 +11,28 @@
 	import { globalEventStore, getTenantName } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
 
+	/**
+	 * @type {{
+	 *   user?: any,
+	 *   toggleRightBar?: () => void
+	 * }}
+	 */
+	let {
+		user = undefined,
+		toggleRightBar = () => {}
+	} = $props();
 
-	/** @type {any} */
-	export let user;
+	let searchText = $state('');
+	let tenantName = $state('');
 
-	/** @type {() => void} */
-	export let toggleRightBar = () => {};
-
-	/** @type {string} */
-	let searchText = '';
-
-	/** @type {string} */
-    let tenantName = '';
-
-    onMount(() => {
-        tenantName = getTenantName();
-        const handler = (/** @type {any} */ e) => {
-            tenantName = e?.detail?.tenantName || getTenantName() || '';
-        };
-        window.addEventListener('tenantChanged', handler);
-        return () => window.removeEventListener('tenantChanged', handler);
-    });
-
+	onMount(() => {
+		tenantName = getTenantName();
+		const handler = (/** @type {any} */ e) => {
+			tenantName = e?.detail?.tenantName || getTenantName() || '';
+		};
+		window.addEventListener('tenantChanged', handler);
+		return () => window.removeEventListener('tenantChanged', handler);
+	});
 
 	const toggleSideBar = () => {
 		if (browser) {
@@ -43,6 +42,7 @@
 			if (document.body.classList.contains('vertical-collpsed')) {
 				const menuElement = document.querySelector('#vertical-menu');
 				if (menuElement) {
+					// @ts-ignore
 					const instance = OverlayScrollbars(menuElement);
 					if (instance) {
 						instance.destroy();
@@ -51,8 +51,8 @@
 			} else {
 				const options = {
 					scrollbars: {
-						visibility: 'auto', // You can adjust the visibility ('auto', 'hidden', 'visible')
-						autoHide: 'move', // You can adjust the auto-hide behavior ('move', 'scroll', false)
+						visibility: 'auto',
+						autoHide: 'move',
 						autoHideDelay: 100,
 						dragScroll: true,
 						clickScroll: false,
@@ -62,40 +62,41 @@
 				};
 				const menuElement = document.querySelector('#vertical-menu');
 				if (menuElement) {
+					// @ts-ignore
 					OverlayScrollbars(menuElement, options);
 				}
 			}
 		}
 	};
 
-	/** @param {any} e */
+	/** @param {KeyboardEvent} e */
 	const search = (e) => {
 		if (e.key !== 'Enter') return;
 
 		globalEventStore.set({ name: GlobalEvent.Search, payload: searchText });
-	}
+	};
 </script>
 
 <header id="page-topbar">
 	<div class="navbar-header">
-		<div class="d-flex">
+		<div class="d-flex align-items-center">
 			<!-- LOGO -->
 			<div class="navbar-brand-box">
 				<a href="page/dashboard" class="logo logo-dark">
 					<span class="logo-sm">
-						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="22" style="max-height: 22px; width: auto;" />
 					</span>
 					<span class="logo-lg">
-						<img src={PUBLIC_LOGO_URL} alt="" height="40" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="38" style="max-height: 38px; width: auto;" />
 					</span>
 				</a>
 
 				<a href="page/dashboard" class="logo logo-light">
 					<span class="logo-sm">
-						<img src={PUBLIC_LOGO_URL} alt="" height="25" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="22" style="max-height: 22px; width: auto;" />
 					</span>
 					<span class="logo-lg">
-						<img src={PUBLIC_LOGO_URL} alt="" height="40" />
+						<img src={PUBLIC_LOGO_URL} alt="" height="38" style="max-height: 38px; width: auto;" />
 					</span>
 				</a>
 			</div>
@@ -104,34 +105,35 @@
 				type="button"
 				class="btn btn-sm px-3 font-size-16 header-item waves-effect"
 				id="vertical-menu-btn"
-				on:click={() => toggleSideBar()}
+				aria-label="Toggle sidebar"
+				onclick={() => toggleSideBar()}
 			>
-				<i class="fa fa-fw fa-bars" />
+				<i class="fa fa-fw fa-bars"></i>
 			</button>
 
 			<!-- App Search-->
 			<form class="app-search d-none d-lg-block">
 				<div class="position-relative">
-					<Input
+					<input
 						type="text"
 						class="form-control"
 						placeholder="{$_('Search')}..."
 						maxlength={500}
 						bind:value={searchText}
-						on:keydown={e => search(e)}
+						onkeydown={e => search(e)}
 					/>
-					<span class="bx bx-search-alt" />
+					<span class="bx bx-search-alt"></span>
 				</div>
 			</form>
 		</div>
-		<div class="d-flex">
+		<div class="d-flex align-items-center">
 			{#if tenantName}
-                <span class="ms-2 me-2 align-self-center text-muted">Tenant: {tenantName}</span>
-            {/if}
+				<span class="ms-2 me-2 align-self-center text-muted">Tenant: {tenantName}</span>
+			{/if}
 			<LanguageDropdown />
 			<FullScreenDropdown />
 			<NotificationDropdown />
-			<ProfileDropdown user={user}/>
+			<ProfileDropdown {user} />
 		</div>
 	</div>
 </header>

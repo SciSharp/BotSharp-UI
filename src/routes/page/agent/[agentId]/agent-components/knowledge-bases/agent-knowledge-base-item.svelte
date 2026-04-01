@@ -1,24 +1,31 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
     import { slide } from 'svelte/transition';
-    import { Input } from '@sveltestrap/sveltestrap';
 	import { DECIMAL_REGEX } from "$lib/helpers/constants";
-	
-    const svelteDispatch = createEventDispatcher();
+
     const duration = 200;
 
-    /** @type {import('$agentTypes').AgentKnowledgeBase} */
-    export let knowledge;
-
-    /** @type {number} */
-    export let knwoledgeIdx;
-
-    /** @type {any[]} */
-    export let knowledgeBaseOptions = [];
-
-    /** @type {boolean} */
-    export let collapsed = true;
-
+    /**
+     * @type {{
+     *   knowledge: import('$agentTypes').AgentKnowledgeBase,
+     *   knwoledgeIdx: number,
+     *   knowledgeBaseOptions?: any[],
+     *   collapsed?: boolean,
+     *   ontoggle?: (data: { knowledgeIdx: number, checked: boolean }) => void,
+     *   ondelete?: (data: { knowledgeIdx: number }) => void,
+     *   onchange?: (data: { knowledgeIdx: number, field: string, value: any }) => void,
+     *   oncollapse?: (data: { knowledgeIdx: number, collapsed: boolean }) => void
+     * }}
+     */
+    let {
+        knowledge,
+        knwoledgeIdx,
+        knowledgeBaseOptions = [],
+        collapsed = true,
+        ontoggle,
+        ondelete,
+        onchange,
+        oncollapse
+    } = $props();
 
     /** @param {any} e */
     function validateConfidenceInput(e) {
@@ -28,38 +35,32 @@
         }
     }
 
-    /**
-     * @param {any} e
-	 */
+    /** @param {any} e */
     function toggleKnowledgeBase(e) {
-        svelteDispatch('toggle', {
+        ontoggle?.({
             knowledgeIdx: knwoledgeIdx,
             checked: e.target.checked
         });
     }
 
     function deleteKnowledgeBase() {
-        svelteDispatch('delete', {
+        ondelete?.({
             knowledgeIdx: knwoledgeIdx
         });
     }
 
-    /**
-     * @param {any} e
-	 */
+    /** @param {any} e */
     function changeKnowledgeBase(e) {
-        svelteDispatch('change', {
+        onchange?.({
             knowledgeIdx: knwoledgeIdx,
             field: 'knowledge',
             value: e.target.value
         });
     }
 
-    /**
-     * @param {any} e
-	 */
+    /** @param {any} e */
     function changeConfidence(e) {
-        svelteDispatch('change', {
+        onchange?.({
             knowledgeIdx: knwoledgeIdx,
             field: 'confidence',
             value: e.target.value
@@ -67,7 +68,7 @@
     }
 
     function toggleCollapse() {
-        svelteDispatch('collapse', {
+        oncollapse?.({
             knowledgeIdx: knwoledgeIdx,
             collapsed: !collapsed
         });
@@ -83,53 +84,46 @@
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
-                    on:keydown={() => {}}
-                    on:click={() => toggleCollapse()}
-                />
+                    onkeydown={() => {}}
+                    onclick={() => toggleCollapse()}
+                ></i>
             </div>
             <div class="line-align-center">
                 {`Collection #${knwoledgeIdx + 1}`}
             </div>
             <div class="utility-tooltip">
                 <div class="line-align-center">
-                    <Input
+                    <input
                         type="checkbox"
+                        class="form-check-input"
                         checked={!knowledge.disabled}
-                        on:change={e => toggleKnowledgeBase(e)}
+                        onchange={e => toggleKnowledgeBase(e)}
                     />
                 </div>
-                <!-- <div
-                    class="line-align-center"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
-                    title="Uncheck to disable knowledgebase"
-                >
-                    <i class="bx bx-info-circle fs-6" />
-                </div> -->
             </div>
         </div>
         <div class="utility-value">
             <div class="utility-input line-align-center">
-                <Input
-                    type="select"
+                <select
+                    class="form-select"
                     disabled={knowledge.disabled}
-                    on:change={e => changeKnowledgeBase(e)}
+                    onchange={e => changeKnowledgeBase(e)}
                 >
                     {#each [...knowledgeBaseOptions] as option}
                         <option value={`${JSON.stringify(option)}`} selected={option.name == knowledge.name}>
                             {option.displayName || option.name}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
             <div class="utility-delete line-align-center">
                 <i
                     class="bx bxs-no-entry text-danger clickable fs-6"
                     role="link"
                     tabindex="0"
-                    on:keydown={() => {}}
-                    on:click={() => deleteKnowledgeBase()}
-                />
+                    onkeydown={() => {}}
+                    onclick={() => deleteKnowledgeBase()}
+                ></i>
             </div>
         </div>
     </div>
@@ -143,13 +137,13 @@
                 </div>
                 <div class="utility-value">
                     <div class="utility-input line-align-center">
-                        <Input
+                        <input
                             type="text"
-                            class="text-center"
+                            class="form-control text-center"
                             bind:value={knowledge.confidence}
                             disabled={knowledge.disabled}
-                            on:keydown={e => validateConfidenceInput(e)}
-                            on:blur={e => changeConfidence(e)}
+                            onkeydown={e => validateConfidenceInput(e)}
+                            onblur={e => changeConfidence(e)}
                         />
                     </div>
                     <div class="utility-delete line-align-center"></div>

@@ -1,22 +1,25 @@
 <script>
     import { getContext, onMount } from "svelte";
     import { fade } from 'svelte/transition';
-	import { Card, CardBody } from "@sveltestrap/sveltestrap";
 	import { ElementType } from "$lib/helpers/enums";
-    
-    /** @type {boolean} */
-    export let disabled = false;
+
+    /**
+     * @type {{
+     *   disabled?: boolean,
+     *   options?: any[],
+     *   onConfirm?: (args0: string, args1: string) => any
+     * }}
+     */
+    let {
+        disabled = false,
+        options = [],
+        onConfirm
+    } = $props();
 
     /** @type {any[]} */
-    export let options = [];
-
-    /** @type {(args0: string, args1: string) => any} */
-    export let onConfirm;
-
+    let cards = $state([]);
     /** @type {any[]} */
-    let cards = [];
-    /** @type {any[]} */
-    let buttons = [];
+    let buttons = $state([]);
 
     const duration = 1000;
 
@@ -52,7 +55,7 @@
             };
         }) || [];
 
-        buttons = options?.filter(op => !!!op.title && !!!op.subtitle)?.flatMap(op => {
+        buttons = options?.filter(op => !op.title && !op.subtitle)?.flatMap(op => {
             // @ts-ignore
             return op.buttons?.filter(x => !!x.title)?.map(x => {
                 return {
@@ -100,8 +103,8 @@
     <div class="complex-option-container">
         {#each cards as card, idx (idx)}
             <div class="card-element" in:fade={{ duration: duration }}>
-                <Card>
-                    <CardBody class="card-element-body">
+                <div class="card">
+                    <div class="card-body card-element-body">
                         {#if !!card.title}
                             <div class="card-element-title hide-text">{card.title}</div>
                         {/if}
@@ -124,15 +127,15 @@
                                     <button
                                         class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
                                         disabled={disabled}
-                                        on:click={(e) => handleClickOption(e, option)}
+                                        onclick={(e) => handleClickOption(e, option)}
                                     >
                                         <span class={`${option.type === ElementType.Web && option.url ? 'link-option' : ''}`}>{option.title}</span>
                                     </button>
                                 {/each}
                             </div>
                         {/if}
-                    </CardBody>
-                </Card>
+                    </div>
+                </div>
             </div>
         {/each}
     </div>
@@ -140,12 +143,12 @@
 
 {#if buttons}
     <div class="plain-option-container center-option" style="margin-top: 5px;">
-        {#each buttons as option, index}
+        {#each buttons as option, index (index)}
             <button
                 class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
                 in:fade={{ duration: duration }}
                 disabled={disabled}
-                on:click={(e) => handleClickOption(e, option)}
+                onclick={(e) => handleClickOption(e, option)}
             >
                 {option.title}
             </button>

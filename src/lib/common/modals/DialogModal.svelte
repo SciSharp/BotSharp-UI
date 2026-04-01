@@ -1,102 +1,114 @@
 <script>
-    import { Button, Modal, ModalBody, ModalFooter, ModalHeader } from "@sveltestrap/sveltestrap";
+    import { fade } from 'svelte/transition';
 
-    /** @type {boolean} */
-    export let isOpen;
+    let {
+        isOpen = false,
+        closeable = false,
+        size = 'xl',
+        title = '',
+        className = '',
+        confirmBtnText = 'Confirm',
+        cancelBtnText = 'Cancel',
+        toggleModal = () => {},
+        confirm = () => {},
+        cancel = () => {},
+        close = () => {},
+        disableConfirmBtn = false,
+        children,
+        titleIcon = undefined
+    } = $props();
 
-    /** @type {boolean} */
-    export let closeable = false;
-
-    /** @type {string} */
-    export let size = 'xl';
-
-    /** @type {string | any} */
-    export let title;
-
-    /** @type {string} */
-    export let className = '';
-
-    /** @type {string} */
-    export let confirmBtnText = 'Confirm';
-
-    /** @type {string} */
-    export let cancelBtnText = 'Cancel';
-
-    /** @type {() => void} */
-    export let toggleModal;
-
-    /** @type {() => void} */
-    export let confirm = () => {};
-
-    /** @type {() => void} */
-    export let cancel = () => {};
-
-    /** @type {() => void} */
-    export let close = () => {};
-
-    /** @type {boolean} */
-    export let disableConfirmBtn = false;
+    /** @type {Record<string, string>} */
+    const sizeClasses = {
+        sm: 'max-w-sm',
+        md: 'max-w-md',
+        lg: 'max-w-lg',
+        xl: 'max-w-xl'
+    };
 
     /** @param {any} e */
     function handleConfirm(e) {
         e.preventDefault();
-        confirm && confirm();
+        confirm?.();
     }
 
     /** @param {any} e */
     function handleCancel(e) {
         e.preventDefault();
-        cancel && cancel();
+        cancel?.();
     }
 
     /** @param {any} e */
     function handleClose(e) {
         e.preventDefault();
-        close && close();
+        close?.();
+    }
+
+    /** @param {MouseEvent} e */
+    function handleBackdropClick(e) {
+        if (e.target === e.currentTarget) {
+            toggleModal();
+        }
     }
 </script>
 
-
-<Modal
-    class={`dialog-modal-container ${className}`}
-    fade
-    size={size}
-    isOpen={isOpen}
-    toggle={() => toggleModal()}
-    unmountOnClose
+{#if isOpen}
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<div
+    class="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] bg-black/50"
+    transition:fade={{ duration: 150 }}
+    onclick={handleBackdropClick}
 >
-    <ModalHeader>
-        <div class="dialog-modal-header">
+    <div class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-xl'} mx-4 dialog-modal-container ${className}`}>
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
             {#if !!title}
-                <div class="header-title">
-                    <slot name='title-icon'/>
+                <div class="flex items-center gap-2 font-semibold text-lg">
+                    {@render titleIcon?.()}
                     <div>{title}</div>
                 </div>
             {/if}
             {#if closeable}
-                <div class="header-close">
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <div
-                        class="clickable"
-                        on:click={e => handleClose(e)}
-                    >
-                        <i class="mdi mdi-close" />
-                    </div>
-                </div>
+                <button
+                    type="button"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors cursor-pointer"
+                    aria-label="Close"
+                    onclick={e => handleClose(e)}
+                >
+                    <i class="mdi mdi-close text-xl"></i>
+                </button>
             {/if}
         </div>
-    </ModalHeader>
-    <ModalBody>
-        <slot />
-    </ModalBody>
-    <ModalFooter>
-        {#if !!confirmBtnText}
-        <Button color="primary" on:click={(e) => handleConfirm(e)} disabled={disableConfirmBtn}>{confirmBtnText}</Button>
-        {/if}
 
-        {#if !!cancelBtnText}
-        <Button color="secondary" on:click={(e) => handleCancel(e)}>{cancelBtnText}</Button>
-        {/if}
-    </ModalFooter>
-</Modal>
+        <!-- Body -->
+        <div class="p-3">
+            {@render children?.()}
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end gap-2 p-3 border-t border-gray-200 dark:border-gray-700">
+            {#if !!confirmBtnText}
+            <button
+                type="button"
+                class="px-3 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                onclick={(e) => handleConfirm(e)}
+                disabled={disableConfirmBtn}
+            >
+                {confirmBtnText}
+            </button>
+            {/if}
+
+            {#if !!cancelBtnText}
+            <button
+                type="button"
+                class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:text-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
+                onclick={(e) => handleCancel(e)}
+            >
+                {cancelBtnText}
+            </button>
+            {/if}
+        </div>
+    </div>
+</div>
+{/if}

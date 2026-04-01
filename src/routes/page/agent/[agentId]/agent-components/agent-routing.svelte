@@ -1,14 +1,17 @@
 <script>
 	import CollapsibleCard from "$lib/common/shared/CollapsibleCard.svelte";
 	import { directToAgentPage } from "$lib/helpers/utils/common";
-	import { Card, CardBody, Table } from "@sveltestrap/sveltestrap";
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel
+     * }}
+     */
+    let { agent } = $props();
 </script>
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">Routing</h5>
         </div>
@@ -16,12 +19,12 @@
         {#each agent.routing_rules as rule, idx (idx)}
         <div class="routing-rule-container">
             <CollapsibleCard open={idx === 0}>
-                <div slot='header'>
+                {#snippet header()}
                     <h5 class="rule-header">{`Rule #${idx + 1}`}</h5>
-                </div>
-                <div slot='body'>
+                {/snippet}
+                {#snippet body()}
                     <div class="table-responsive rule-body">
-                        <Table>
+                        <table class="table">
                             <tbody>
                                 {#if !!rule.field}
                                 <tr>
@@ -43,12 +46,12 @@
                                 {/if}
                                 <tr>
                                     <th class="agent-prop-key">Required</th>
-                                    <td>{!!rule.required ? `Yes` : `No`}</td>
+                                    <td>{rule.required ? `Yes` : `No`}</td>
                                 </tr>
                                 {#if !!rule.redirectTo}
                                 <tr>
                                     <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td style="cursor: pointer;" on:click={() => directToAgentPage(rule.redirectTo)}>
+                                    <td style="cursor: pointer;" onclick={() => directToAgentPage(rule.redirectTo)}>
                                         {rule.redirect_to_agent || ''}
                                     </td>
                                 </tr>
@@ -60,11 +63,11 @@
                                 </tr>
                                 {/if}
                             </tbody>
-                        </Table>
+                        </table>
                     </div>
-                </div>
+                {/snippet}
             </CollapsibleCard>
         </div>
         {/each}
-    </CardBody>
-</Card>
+    </div>
+</div>

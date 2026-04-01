@@ -1,11 +1,11 @@
 <script>
-    import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+    import { onMount, onDestroy } from 'svelte';
     import { fly } from 'svelte/transition';
-	import { Tooltip, Button, Input } from '@sveltestrap/sveltestrap';
     import { PUBLIC_SERVICE_URL } from '$env/static/public';
     import Swal from 'sweetalert2';
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
+    import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
     import FileGallery from '$lib/common/files/FileGallery.svelte';
     import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
@@ -21,8 +21,6 @@
         deleteAllKnowledgeDocuments
     } from '$lib/services/knowledge-base-service';
     import KnowledgeUploadResult from './knowledge-upload-result.svelte';
-
-    const svelteDispatch = createEventDispatcher();
 
     const startPage = 1;
     const docPageSize = 8;
@@ -40,72 +38,76 @@
 		}
 	};
 
-    /** @type {string} */
-    export let collection;
+    /**
+     * @type {{
+     *   collection: string,
+     *   fileLimit?: number,
+     *   showDocList?: boolean,
+     *   disabled?: boolean,
+     *   disableFileUpload?: boolean,
+     *   disableFileDelete?: boolean,
+     *   accept?: string,
+     *   fileMaxSize?: number,
+     *   onCollectionChanged?: () => void,
+     *   ondocuploaded?: () => void,
+     *   ondocdeleted?: (detail: { success: boolean }) => void,
+     *   onresetdocs?: (detail: { success: boolean }) => void
+     * }}
+     */
+    let {
+        collection,
+        fileLimit = 3,
+        showDocList = $bindable(false),
+        disabled = $bindable(false),
+        disableFileUpload = false,
+        disableFileDelete = false,
+        accept = ".txt,.pdf",
+        fileMaxSize = 10,
+        ondocuploaded = () => {},
+        ondocdeleted = (/** @type {{ success: boolean }} */ _detail) => {},
+        onresetdocs = (/** @type {{ success: boolean }} */ _detail) => {}
+    } = $props();
 
-    /** @type {number} */
-    export let fileLimit = 3;
-
-    /** @type {boolean} */
-    export let showDocList = false;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {boolean} */
-    export let disableFileUpload = false;
-
-    /** @type {boolean} */
-    export let disableFileDelete = false;
-
-    /** @type {string} */
-    export let accept = ".txt,.pdf";
-
-    /** @type {number} mb */
-    export let fileMaxSize = 10;
-
-    /** @type {() => void} */
-    export const onCollectionChanged = () => {
+    /**
+     * Called when collection changes from parent.
+     * Exposed via bind:this on the component.
+     */
+    export function handleCollectionChanged() {
         showDocList = false;
         savedFiles = [];
         reset();
-    };
-
-    /** @type {boolean} */
-    let showUploader = false;
-    let disableFileDrop = false;
-    let isLoading = false;
-    let isLoadingFiles = false;
-    let noMoreDocs = false;
-
-    /** @type {number} */
-    let localFileUploadLimit = 0;
-    let docPage = startPage;
-
-    /** @type {any[]} */
-    let uploadFiles = [];
-    /** @type {any[]} */
-    let savedFiles = [];
-    /** @type {string[]} */
-    let successFiles = [];
-    /** @type {string[]} */
-    let failedFiles = [];
-
-    $: {
-        disableFileDrop = uploadFiles.length >= fileLimit;
-        localFileUploadLimit = Math.max(fileLimit - uploadFiles.length, 0);
     }
 
-    $: {
+    /** @type {boolean} */
+    let showUploader = $state(false);
+    let isLoading = $state(false);
+    let isLoadingFiles = $state(false);
+    let noMoreDocs = $state(false);
+
+    let docPage = $state(startPage);
+
+    /** @type {any[]} */
+    let uploadFiles = $state([]);
+    /** @type {any[]} */
+    let savedFiles = $state([]);
+    /** @type {string[]} */
+    let successFiles = $state([]);
+    /** @type {string[]} */
+    let failedFiles = $state([]);
+
+    let disableFileDrop = $derived(uploadFiles.length >= fileLimit);
+    let localFileUploadLimit = $derived(Math.max(fileLimit - uploadFiles.length, 0));
+
+    $effect(() => {
         if (!showDocList) {
             docPage = startPage;
             savedFiles = [];
             noMoreDocs = false;
         }
-    }
+    });
 
     const unsubscribe = knowledgeBaseDocumentStore.subscribe(value => {
-        const savedAttachments = $knowledgeBaseDocumentStore;
+        const savedAttachments = /** @type {any} */ (knowledgeBaseDocumentStore).get?.() || {};
         uploadFiles = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
     });
 
@@ -134,7 +136,7 @@
     /** @param {any} e */
     function handleFileDrop(e) {
         reset();
-        const { acceptedFiles } = e.detail;
+        const { acceptedFiles } = e;
         const savedAttachments = $knowledgeBaseDocumentStore;
         const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
         knowledgeBaseDocumentStore.put({
@@ -181,7 +183,7 @@
                     failedFiles = res.failed || [];
                     uploadFiles = [];
                     knowledgeBaseDocumentStore.reset();
-                    svelteDispatch("docuploaded");
+                    ondocuploaded();
 
                     if (showDocList) {
                         docPage = startPage;
@@ -269,9 +271,9 @@
                         docPage = startPage;
                         getKnowledgeDocumentList();
                     }
-                    svelteDispatch("docdeleted", { success: res });
-                }).catch(err => {
-                    svelteDispatch("docdeleted", { success: false });
+                    ondocdeleted({ success: res });
+                }).catch(() => {
+                    ondocdeleted({ success: false });
                 }).finally(() => {
                     disabled = false;
                     reset();
@@ -300,9 +302,9 @@
                         docPage = startPage;
                         getKnowledgeDocumentList();
                     }
-                    svelteDispatch("resetdocs", { success: res });
-                }).catch(err => {
-                    svelteDispatch("resetdocs", { success: false });
+                    onresetdocs({ success: res });
+                }).catch(() => {
+                    onresetdocs({ success: false });
                 }).finally(() => {
                     disabled = false;
                 });
@@ -363,27 +365,30 @@
     out:fly={{ y: -10, duration: 200 }}
 >
     <div class="doc-upload-header text-primary fw-bold">
-        <Input
-            type="switch"
-            class="upload-toggle-btn"
-            disabled={disabled}
-            checked={showUploader}
-            on:change={e => toggleUploader(e)}
-        />
+        <div class="form-check form-switch upload-toggle-btn">
+            <input
+                type="checkbox"
+                class="form-check-input"
+                role="switch"
+                disabled={disabled}
+                checked={showUploader}
+                onchange={e => toggleUploader(e)}
+            />
+        </div>
         <div class="line-align-center">
             <div>{`${showUploader && !disableFileUpload ? 'Upload' : 'View'} Documents`}</div>
         </div>
         {#if showUploader}
             <div class="line-align-center" id="upload-tooltip">
-                <i class="bx bx-info-circle" />
+                <i class="bx bx-info-circle"></i>
             </div>
-            <Tooltip target="upload-tooltip" placement="top" class="demo-tooltip-note">
+            <BotsharpTooltip target="upload-tooltip" placement="top" containerClasses="demo-tooltip-note">
                 <ul>
                     <li>{`At most ${fileLimit} ${fileLimit > 1 ? 'documents are' : 'document is'} allowed for each upload.`}</li>
                     <li>{`Each document cannot exceed ${fileMaxSize} MB.`}</li>
                     <li>{`Document types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
                 </ul>
-            </Tooltip>
+            </BotsharpTooltip>
         {/if}
     </div>
     {#if showUploader}
@@ -403,31 +408,33 @@
                     showPrefix={true}
                     showSuffix={uploadFiles?.length > 0}
                 >
-                    <FileDropZone
-                        slot="prefix"
-                        accept={accept}
-                        containerClasses={'doc-drop-zone'}
-                        disabled={disabled || disableFileDrop}
-                        fileLimit={localFileUploadLimit}
-                        maxSize={fileMaxSize * 1024 * 1024}
-                        on:drop={e => handleFileDrop(e)}
-                    >
-                        <i class="bx bx-cloud-upload" />
-                    </FileDropZone>
-                    <div
-                        slot="suffix"
-                        class="doc-card-btn"
-                    >
-                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                        <i
-                            class="mdi mdi-arrow-up-bold-circle clickable"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Submit"
-                            on:click={() => handleFileSubmit()}
-                        />
-                    </div>
+                    {#snippet prefix()}
+                        <FileDropZone
+                            accept={accept}
+                            containerClasses={'doc-drop-zone'}
+                            disabled={disabled || disableFileDrop}
+                            fileLimit={localFileUploadLimit}
+                            maxSize={fileMaxSize * 1024 * 1024}
+                            ondrop={handleFileDrop}
+                        >
+                            <i class="bx bx-cloud-upload"></i>
+                        </FileDropZone>
+                    {/snippet}
+                    {#snippet suffix()}
+                        <div
+                            class="doc-card-btn"
+                        >
+                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
+                            <i
+                                class="mdi mdi-arrow-up-bold-circle clickable"
+                                data-bs-toggle="tooltip"
+                                data-bs-placement="top"
+                                title="Submit"
+                                onclick={() => handleFileSubmit()}
+                            ></i>
+                        </div>
+                    {/snippet}
                 </FileGallery>
             {/if}
 
@@ -437,35 +444,35 @@
             />
 
             <div class="doc-upload-footer" style={`margin-top: ${!disableFileUpload ? '30px;' : '0px;'}`}>
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <div class="load-doc-btn">
-                    <Button
+                    <button
                         class={`btn btn-md knowledge-demo-btn ${showDocList ? 'btn-soft-warning' : 'btn-soft-primary'}`}
                         disabled={disabled}
-                        on:click={() => toggleShowDocList()}
+                        onclick={() => toggleShowDocList()}
                     >
                         {#if !showDocList}
                             <div class="btn-content">
-                                <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt" /></div>
+                                <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt"></i></div>
                                 <div>{'View Collection Documents'}</div>
                             </div>
                         {:else}
                             <div class="btn-content">
-                                <div class="knowledge-btn-icon"><i class="bx bx-hide" /></div>
+                                <div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
                                 <div>{'Hide Collection Documents'}</div>
                             </div>
                         {/if}
-                    </Button>
+                    </button>
                     {#if showDocList && !disableFileDelete}
                         <div class="reset-docs-btn line-align-center">
-                            <!-- svelte-ignore a11y-click-events-have-key-events -->
-                            <!-- svelte-ignore a11y-no-static-element-interactions -->
+                            <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <i
                                 class={`bx bx-trash ${disabled || savedFiles.length === 0 ? '' : 'clickable'}`}
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Delete all docs"
-                                on:click={() => handleDeleteAllSavedFiles()}
-                            />
+                                onclick={() => handleDeleteAllSavedFiles()}
+                            ></i>
                         </div>
                     {/if}
                 </div>
@@ -483,17 +490,19 @@
                                     onDownload={idx => handleDownloadSavedFile(idx)}
                                     showSuffix={!noMoreDocs}
                                 >
-                                    <div class="doc-card-btn doc-load-more" slot="suffix">
-                                        <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                        <!-- svelte-ignore a11y-no-static-element-interactions -->
-                                        <i
-                                            class="mdi mdi-eye-plus-outline clickable"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
-                                            title="Load more"
-                                            on:click={() => loadMoreDocs()}
-                                        />
-                                    </div>
+                                    {#snippet suffix()}
+                                        <div class="doc-card-btn doc-load-more">
+                                            <!-- svelte-ignore a11y_no_static_element_interactions -->
+                                            <!-- svelte-ignore a11y_click_events_have_key_events -->
+                                            <i
+                                                class="mdi mdi-eye-plus-outline clickable"
+                                                data-bs-toggle="tooltip"
+                                                data-bs-placement="top"
+                                                title="Load more"
+                                                onclick={() => loadMoreDocs()}
+                                            ></i>
+                                        </div>
+                                    {/snippet}
                                 </FileGallery>
                             {:else if !isLoadingFiles && savedFiles.length === 0}
                                 <div class="mt-3 text-center">

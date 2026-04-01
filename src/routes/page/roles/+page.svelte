@@ -1,14 +1,7 @@
 <script>
-    import { onDestroy, onMount } from 'svelte';
-    import {
-		Card,
-		CardBody,
-		Col,
-		Row,
-		Table
-	} from '@sveltestrap/sveltestrap';
-    import { _ } from 'svelte-i18n';
-    import moment from 'moment';
+	import { onDestroy, onMount } from 'svelte';
+	import { _ } from 'svelte-i18n';
+	import moment from 'moment';
 	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -17,31 +10,31 @@
 	import { GlobalEvent } from '$lib/helpers/enums';
 	import { getRoleOptions, getRoles, updateRole } from '$lib/services/role-service';
 	import RoleItem from './role-item.svelte';
-	
-    const duration = 3000;
 
-    let isLoading = false;
-	let isComplete = false;
-	let isError = false;
-    let successText = 'Role has been updated!';
-    let errorText = 'Failed to update role!';
+	const duration = 3000;
 
-    /** @type {import('$roleTypes').RoleFilter} */
-    let filter = {};
+	let isLoading = $state(false);
+	let isComplete = $state(false);
+	let isError = $state(false);
+	let successText = 'Role has been updated!';
+	let errorText = 'Failed to update role!';
 
-    /** @type {import('$roleTypes').RoleModel[]} */
-    let roleItems = [];
+	/** @type {import('$roleTypes').RoleFilter} */
+	let filter = $state({});
 
-    /** @type {import('$commonTypes').IdName[]} */
-	let agents = [];
+	/** @type {import('$roleTypes').RoleModel[]} */
+	let roleItems = $state([]);
+
+	/** @type {import('$commonTypes').IdName[]} */
+	let agents = $state([]);
 
 	/** @type {string[]} */
-	let roleOptions = [];
+	let roleOptions = $state([]);
 
 	/** @type {any} */
 	let unsubscriber;
 
-    onMount(async () => {
+	onMount(async () => {
 		init();
 
 		unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
@@ -53,7 +46,7 @@
 			};
 			getAllRoles();
 		});
-    });
+	});
 
 	onDestroy(() => {
 		unsubscriber?.();
@@ -71,48 +64,47 @@
 		});
 	}
 
-    function getAllRoles() {
-        roleItems = [];
-        isLoading = true;
-        return new Promise((resolve, reject) => {
-            getRoles(filter).then(res => {
-                refresh(res);
-                resolve(res);
-            }).finally(() => {
-                isLoading = false;
-            });
-        });
+	function getAllRoles() {
+		roleItems = [];
+		isLoading = true;
+		return new Promise((resolve) => {
+			getRoles(filter).then(res => {
+				refresh(res);
+				resolve(res);
+			}).finally(() => {
+				isLoading = false;
+			});
+		});
 	}
 
-    function getPagedAgents() {
-        return new Promise((resolve, reject) => {
-            getAgentOptions().then(res => {
-                agents = res?.map(x => {
-                    return {
-                        id: x.id,
-                        name: x.name
-                    };
-                }) || [];
-                resolve(agents);
-            });
-        });
-    }
+	function getPagedAgents() {
+		return new Promise((resolve) => {
+			getAgentOptions().then(res => {
+				agents = res?.map(x => {
+					return {
+						id: x.id,
+						name: x.name
+					};
+				}) || [];
+				resolve(agents);
+			});
+		});
+	}
 
-    /** @param {import('$roleTypes').RoleModel[]} roles */
-    function refresh(roles) {
+	/** @param {import('$roleTypes').RoleModel[]} roles */
+	function refresh(roles) {
 		refreshRoles(roles);
 	}
 
-    /** @param {import('$roleTypes').RoleModel[]} roles */
+	/** @param {import('$roleTypes').RoleModel[]} roles */
 	function refreshRoles(roles) {
-        roleItems = [ ...roles ];
+		roleItems = [ ...roles ];
 	}
 
-    /** @param {any} e */
-    function saveRole(e) {
-        const data = e.detail.updatedData;
-        isLoading = true;
-        updateRole(data).then(res => {
+	/** @param {import('$roleTypes').RoleModel} data */
+	function saveRole(data) {
+		isLoading = true;
+		updateRole(data).then(res => {
 			if (res) {
 				isLoading = false;
 				isComplete = true;
@@ -131,22 +123,22 @@
 				isError = false;
 			}, duration);
 		});
-    }
+	}
 
-    /** @param {import('$roleTypes').RoleModel} data */
-    function postUpdate(data) {
-        roleItems = roleItems?.map(x => {
-            if (x.id === data.id) {
-                return { ...data, update_date: moment.utc().toString(), open_detail: true };
-            }
-            return x;
-        }) || [];
-    }
+	/** @param {import('$roleTypes').RoleModel} data */
+	function postUpdate(data) {
+		roleItems = roleItems?.map(x => {
+			if (x.id === data.id) {
+				return { ...data, update_date: moment.utc().toString(), open_detail: true };
+			}
+			return x;
+		}) || [];
+	}
 </script>
 
 
-<HeadTitle title="{$_('Role List')}" />
-<Breadcrumb title="{$_('Management')}" pagetitle="{$_('Roles')}" />
+<HeadTitle title={$_('Role List')} />
+<Breadcrumb title={$_('Management')} pagetitle={$_('Roles')} />
 <LoadingToComplete
 	isLoading={isLoading}
 	isComplete={isComplete}
@@ -155,38 +147,38 @@
 	errorText={errorText}
 />
 
-<Row>
-	<Col lg="12">
-		<Card>
-			<CardBody class="border-bottom">
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body border-bottom">
 				<div class="d-flex align-items-center">
 					<h5 class="mb-0 card-title flex-grow-1">{$_('Role List')}</h5>
 				</div>
-			</CardBody>
-			<CardBody>
+			</div>
+			<div class="card-body">
 				<div class="table-responsive thin-scrollbar">
-					<Table class="align-middle nowrap roles-table" bordered>
+					<table class="table table-bordered align-middle nowrap roles-table">
 						<thead>
 							<tr>
 								<th scope="col">{$_('Name')}</th>
 								<th scope="col" class="role-permission-col">{$_('Permissions')}</th>
-                                <th scope="col">{$_('Update Date')}</th>
+								<th scope="col">{$_('Update Date')}</th>
 								<th scope="col">{$_('')}</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each roleItems as item, idx (idx)}
-                                <RoleItem
-                                    item={item}
-                                    agents={agents}
-                                    open={item.open_detail}
-                                    on:save={e => saveRole(e)}
-                                />
-                            {/each}
+								<RoleItem
+									item={item}
+									agents={agents}
+									open={item.open_detail}
+									onsave={data => saveRole(data)}
+								/>
+							{/each}
 						</tbody>
-					</Table>
+					</table>
 				</div>
-			</CardBody>
-		</Card>
-	</Col>
-</Row>
+			</div>
+		</div>
+	</div>
+</div>

@@ -1,6 +1,6 @@
 <script>
-    import { afterUpdate, beforeUpdate, onDestroy, onMount, tick } from 'svelte';
-    import { page } from '$app/stores';
+    import { onMount } from 'svelte';
+    import { page } from '$app/state';
     import moment from 'moment';
     import { v4 as uuidv4 } from 'uuid';
     import 'overlayscrollbars/overlayscrollbars.css';
@@ -10,10 +10,10 @@
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
     import ContentLogElement from './content-log-element.svelte';
 	import ConversationStateLogElement from './conversation-state-log-element.svelte';
-	
+
     const contentLogTab = 1;
     const conversationStateLogTab = 2;
-    const conversationId = $page.params.conversationId;
+    const conversationId = page.params.conversationId;
     const utcNow = moment.utc().toDate();
 
     const scrollbarElements = [
@@ -27,25 +27,27 @@
         }
     ];
 
-    /** @type {import('$conversationTypes').ConversationContentLogModel[]} */
-    export let contentLogs = [];
-
-    /** @type {import('$conversationTypes').ConversationStateLogModel[]} */
-    export let convStateLogs = [];
-
-    /** @type {boolean} */
-    export let autoScroll = false;
-
-    /** @type {() => void} */
-    export let closeWindow;
-
-    /** @type {() => void} */
-    export let cleanScreen;
+    /**
+     * @type {{
+     *   contentLogs?: import('$conversationTypes').ConversationContentLogModel[],
+     *   convStateLogs?: import('$conversationTypes').ConversationStateLogModel[],
+     *   autoScroll?: boolean,
+     *   closeWindow: () => void,
+     *   cleanScreen: () => void
+     * }}
+     */
+    let {
+        contentLogs = $bindable([]),
+        convStateLogs = $bindable([]),
+        autoScroll = $bindable(false),
+        closeWindow,
+        cleanScreen
+    } = $props();
 
     /** @type {any[]} */
     let scrollbars = [];
     /** @type {number} */
-    let selectedTab = contentLogTab;
+    let selectedTab = $state(contentLogTab);
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
     let contentLogFilter = { size: 100, startTime: utcNow };
@@ -64,29 +66,25 @@
 		}
 	};
 
-    onMount(async () => {
-        await getChatContentLogs();
-        await getChatStateLogs();
+    onMount(() => {
+        Promise.all([getChatContentLogs(), getChatStateLogs()]).then(() => {
+            initScrollbars();
+            scroll();
+        });
 
-        initScrollbars();
-		scroll();
+        return () => {
+            cleanLogs();
+        };
 	});
 
-    beforeUpdate(() => {});
-
-    afterUpdate(() => {
-        refresh();
-    });
-
-    onDestroy(() => {
-        cleanLogs();
-    });
-
-    function refresh() {
+    $effect(() => {
+        // Re-run whenever autoScroll or logs change
+        contentLogs;
+        convStateLogs;
         if (autoScroll) {
             scroll();
         }
-    }
+    });
 
     /** @param {boolean} goToTop */
     function scroll(goToTop = false) {
@@ -113,6 +111,7 @@
     async function getChatContentLogs() {
         if (!contentLogFilter.startTime) return;
 
+        // @ts-ignore
         const pagedContentLogs = await getContentLogs(conversationId, contentLogFilter);
         contentLogFilter = {
             ...contentLogFilter,
@@ -130,6 +129,7 @@
     async function getChatStateLogs() {
         if (!stateLogFilter.startTime) return;
 
+        // @ts-ignore
         const pagedStateLogs = await getStateLogs(conversationId, stateLogFilter);
         stateLogFilter = {
             ...stateLogFilter,
@@ -182,9 +182,9 @@
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Clean log"
-                    on:click={() => handleCleanScreen()}
+                    onclick={() => handleCleanScreen()}
                 >
-                    <i class="bx bx-trash" />
+                    <i class="bx bx-trash"></i>
                 </button>
             </div>
             <div>
@@ -194,9 +194,9 @@
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to top"
-                    on:click={() => goToTopLog()}
+                    onclick={() => goToTopLog()}
                 >
-                    <i class="mdi mdi-chevron-double-up" />
+                    <i class="mdi mdi-chevron-double-up"></i>
                 </button>
                 <button
                     type="button"
@@ -204,18 +204,19 @@
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to bottom"
-                    on:click={() => scroll()}
+                    onclick={() => scroll()}
                 >
-                    <i class="mdi mdi-chevron-double-down" />
+                    <i class="mdi mdi-chevron-double-down"></i>
                 </button>
             </div>
             <div>
                 <button
                     type="button"
                     class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
-                    on:click={() => closeWindow()}
+                    aria-label="Close log window"
+                    onclick={() => closeWindow()}
                 >
-                    <i class="mdi mdi-window-close" />
+                    <i class="mdi mdi-window-close"></i>
                 </button>
             </div>
         </div>

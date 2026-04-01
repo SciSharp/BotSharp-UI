@@ -1,21 +1,14 @@
 <script>
-    /** @type {string} */
-    export let text;
+    /** @type {{ text: string, containerClasses?: string, containerStyles?: string, disableDefaultStyles?: boolean, close?: () => void }} */
+    let {
+        text,
+        containerClasses = "",
+        containerStyles = "",
+        disableDefaultStyles = false,
+        close = () => {}
+    } = $props();
 
-    /** @type {() => void} */
-    export let close = () => {};
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
-
-    /** @type {boolean} */
-    export let disableDefaultStyles = false;
-
-    
-    /** @param {any} e */
+    /** @param {Event} e */
     function handleClose(e) {
         e.preventDefault();
         close?.();
@@ -27,13 +20,14 @@
     style={`${containerStyles}`}
 >
     <div class="chat-bubble">
-        <!-- svelte-ignore a11y-click-events-have-key-events -->
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
         <div
             class="bubble-delete clickable"
-            on:click={e => handleClose(e)}
+            role="button"
+            tabindex="0"
+            onclick={handleClose}
+            onkeydown={e => e.key === 'Enter' && handleClose(e)}
         >
-            <i class="mdi mdi-close" />
+            <i class="mdi mdi-close"></i>
         </div>
         <div class="bubble-text">
             {text}

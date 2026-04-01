@@ -1,20 +1,8 @@
 <script>
-    /** @type {any} */
-    export let data;
+    /** @type {{ data: any }} */
+    let { data } = $props();
 
-    /** @type {string} */
-    let beforeActiveRoundText = '';
-    let afterActiveRoundText = '';
-    let beforeDataValue = '';
-    let afterDataValue = '';
     const defaultValue = '-';
-
-    $: {
-        beforeDataValue = buildDataValue(data?.before_value);
-        afterDataValue = buildDataValue(data?.after_value);
-        beforeActiveRoundText = buildActiveRoundText(data?.before_value, data?.before_active_rounds);
-        afterActiveRoundText = buildActiveRoundText(data?.after_value, data?.after_active_rounds);
-    }
 
     /** @param {any} value */
     function buildDataValue(value) {
@@ -28,7 +16,7 @@
     function buildActiveRoundText(value, activeRounds) {
         let text = '';
 
-        if (!!!value) {
+        if (!value) {
             return text;
         }
 
@@ -40,6 +28,11 @@
 
         return text;
     }
+
+    let beforeDataValue = $derived(buildDataValue(data?.before_value));
+    let afterDataValue = $derived(buildDataValue(data?.after_value));
+    let beforeActiveRoundText = $derived(buildActiveRoundText(data?.before_value, data?.before_active_rounds));
+    let afterActiveRoundText = $derived(buildActiveRoundText(data?.after_value, data?.after_active_rounds));
 </script>
 
 {#if beforeDataValue != defaultValue || afterDataValue != defaultValue}

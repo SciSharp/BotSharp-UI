@@ -1,6 +1,5 @@
 <script>
     import { onMount } from 'svelte';
-    import { Card, CardBody, Button } from '@sveltestrap/sveltestrap';
     import { getAgentRuleOptions, getAgentRuleConfigOptions } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
@@ -8,37 +7,41 @@
 	import PlainModal from '$lib/common/modals/PlainModal.svelte';
 
     const limit = 100;
-    
+
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   user: import('$userTypes').UserModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent,
+        user,
+        handleAgentChange = () => {}
+    } = $props();
+
     /** @type {boolean} */
-    let isLoading = false;
+    let isLoading = $state(false);
     /** @type {boolean} */
-    let isComplete = false;
+    let isComplete = $state(false);
     /** @type {boolean} */
-    let isError = false;
+    let isError = $state(false);
     /** @type {boolean} */
-    let isOpenConfigModal = false;
+    let isOpenConfigModal = $state(false);
 
     /** @type {number} */
-    let windowWidth = 0;
-    let windowHeight = 0;
+    let windowWidth = $state(0);
+    let windowHeight = $state(0);
 
     /** @type {string} */
-    let successText = '';
-    let errorText = '';
+    let successText = $state('');
+    let errorText = $state('');
 
     /** @type {any} */
-    let selectedRuleConfig = {};
+    let selectedRuleConfig = $state({});
     /** @type {any} */
-    let ruleConfigs = {};
-
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
-
-    /** @type {import('$userTypes').UserModel} */
-    export let user;
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
+    let ruleConfigs = $state({});
 
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
@@ -65,13 +68,13 @@
     }
 
     /** @type {any[]} */
-    let ruleOptions = [];
+    let ruleOptions = $state([]);
 
     /** @type {any} */
-    let configOptions = [];
+    let configOptions = $state([]);
 
     /** @type {import('$agentTypes').AgentRule[]} */
-    let innerRules = [];
+    let innerRules = $state([]);
 
     /** @type {HTMLElement} */
     let scrollContainer;
@@ -132,15 +135,15 @@
     }
     
     /**
-	 * @param {any} e
+	 * @param {any} data
 	 * @param {number} idx
 	 */
-    function changeRule(e, idx) {
+    function changeRule(data, idx) {
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
 
-        const field = e.detail.field;
-        const value = e.detail.value;
+        const field = data.field;
+        const value = data.value;
         if (field === 'rule') {
             found.trigger_name = value;
             innerRefresh(innerRules);
@@ -151,7 +154,7 @@
             };
             innerRefresh(innerRules);
         }
-        
+
         handleAgentChange();
     }
 
@@ -170,58 +173,47 @@
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-    function deleteRule(e, idx) {
-        if (e.detail.field === 'rule') {
+    function deleteRule(data, idx) {
+        if (data.field === 'rule') {
             innerRules = innerRules.filter((_, index) => index !== idx);
         }
-        
+
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} idx
 	 */
-    function toggleRule(e, idx) {
+    function toggleRule(data, idx) {
         const found = innerRules.find((_, index) => index === idx);
         if (!found) return;
 
-        const field = e.detail.field;
+        const field = data.field;
         if (field === 'rule') {
-            found.disabled = !e.detail.checked;
+            found.disabled = !data.checked;
         }
-        
+
         innerRefresh(innerRules);
         handleAgentChange();
     }
 
     /**
-     * @param {any} e
+     * @param {any} data
 	 * @param {number} uid
 	 */
-	function toggleCollapse(e, uid) {
+	function toggleCollapse(data, uid) {
 		const found = innerRules.find((_, index) => index === uid);
         if (!found) return;
 
-        found.expanded = !e.detail.collapsed;
+        found.expanded = !data.collapsed;
         innerRefresh(innerRules);
         handleAgentChange();
 	}
 
-    /**
-     * @param {any} e
-	 * @param {number} uid
-	 */
-    function addRuleItem(e, uid) {
-        const found = innerRules.find((_, index) => index === uid);
-        if (!found) return;
-        
-        innerRefresh(innerRules);
-        handleAgentChange();
-    }
 
 
     /** @param {import('$agentTypes').AgentRule[]} list */
@@ -238,10 +230,10 @@
     }
 
     /**
-     * @param {any} e
+     * @param {any} _data
 	 * @param {number} uid
 	 */
-    function openRuleConfigModal(e, uid) {
+    function openRuleConfigModal(_data, uid) {
         const found = innerRules.find((_, index) => index === uid);
         if (!found || !found.config?.topology_name) {
             return;
@@ -275,7 +267,7 @@
     }
 </script>
 
-<svelte:window on:resize={() => resizeWindow()}/>
+<svelte:window onresize={() => resizeWindow()}/>
 
 <LoadingToComplete
     {isLoading}
@@ -293,12 +285,12 @@
         isOpen={isOpenConfigModal}
         toggleModal={() => isOpenConfigModal = !isOpenConfigModal}
     >
-        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%" />
+        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%"></iframe>
     </PlainModal>
 {/if}
 
-<Card>
-    <CardBody>
+<div class="card">
+    <div class="card-body">
         <div class="text-center">
             <h5 class="mt-1 mb-3">Triggers & Rules</h5>
             <h6 class="mt-1 mb-3">Wake-up your agent by rules</h6>
@@ -314,25 +306,28 @@
                     ruleOptions={ruleOptions}
                     configOptions={configOptions}
                     windowWidth={windowWidth}
-                    on:toggle={e => toggleRule(e, uid)}
-                    on:delete={e => deleteRule(e, uid)}
-                    on:change={e => changeRule(e, uid)}
-                    on:add={e => addRuleItem(e, uid)}
-                    on:config={e => openRuleConfigModal(e, uid)}
-                    on:collapse={e => toggleCollapse(e, uid)}
+                    ontoggle={data => toggleRule(data, uid)}
+                    ondelete={data => deleteRule(data, uid)}
+                    onchange={data => changeRule(data, uid)}
+                    onconfig={data => openRuleConfigModal(data, uid)}
+                    oncollapse={data => toggleCollapse(data, uid)}
                 />
             {/each}
 
             {#if innerRules.length < limit}
                 <div class="add-utility">
-                    <Button color="primary" on:click={() => addRule()}>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick={() => addRule()}
+                    >
                         <span>
-                            <i class="bx bx-plus" />
+                            <i class="bx bx-plus"></i>
                             <span>Add Rule</span>
                         </span>
-                    </Button>
+                    </button>
                 </div>
             {/if}
         </div>
-    </CardBody>
-</Card>
+    </div>
+</div>

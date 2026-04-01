@@ -6,8 +6,7 @@
     useAudioStore
   } from "./store";
   import { volumeEventHandlers, progressEventHandlers } from "./handlers";
-  import { onDestroy, onMount, createEventDispatcher } from "svelte";
-  import { propsBool } from "./utils";
+  import { onDestroy, onMount } from "svelte";
   import { v4 as uuidv4 } from 'uuid';
 
   import {
@@ -21,15 +20,50 @@
     loopNone,
   } from "./svg";
 
-  const svelteDispatch = createEventDispatcher();
+  /**
+   * @type {{
+   *   audio: import('$fileTypes').AudioFileModel[],
+   *   id?: string,
+   *   order?: "list" | "random",
+   *   loop?: "none" | "all" | "one",
+   *   volume?: number,
+   *   mini?: boolean,
+   *   mutex?: boolean,
+   *   theme?: string,
+   *   listMaxHeight?: number,
+   *   playDelay?: number,
+   *   autoPlayNextOnClick?: boolean,
+   *   baseFontSize?: string,
+   *   list_folded?: boolean | string | null,
+   *   ondispatch?: (name: string, detail?: any) => void,
+   *   ondestroy?: () => void
+   * }}
+   */
+  let {
+    audio,
+    id = uuidv4(),
+    order = 'list',
+    loop = 'all',
+    volume = 0.7,
+    mini = false,
+    mutex = true,
+    theme = "#fadfa3",
+    listMaxHeight = Infinity,
+    playDelay = 300,
+    autoPlayNextOnClick = true,
+    baseFontSize = "12px",
+    list_folded = undefined,
+    ondispatch = () => {},
+    ondestroy = () => {}
+  } = $props();
 
   /**
    * @param {string} name
    * @param {any?} detail
    */
   function dispatch(name, detail = null) {
-    svelteDispatch(name, detail);
-  };
+    ondispatch(name, detail);
+  }
 
   const {
     playList,
@@ -40,43 +74,8 @@
     rdTime,
     rdBufTime,
     wtBufTime,
-  } = useAudioStore(dispatch);
-
-  /** @type {import('$fileTypes').AudioFileModel[]} */
-  export let audio;
-
-  /** @type {string} */
-  export let id = uuidv4();
-
-  /** @type {"list" | "random"} */
-  export let order = 'list';
-
-  /** @type {"none" | "all" | "one"} */
-  export let loop = 'all';
-  
-  /** @type {number} */
-  export let volume = 0.7;
-
-  /** @type {boolean} */
-  export let mini = false;
-
-  /** @type {boolean} */
-  export let mutex = true;
-
-  /** @type {string} */
-  export let theme = "#fadfa3";
-
-  /** @type {number} */
-  export let listMaxHeight = Infinity;
-
-  /** @type {number} */
-  export let playDelay = 300;
-
-  /** @type {boolean} */
-  export let autoPlayNextOnClick = true;
-
-  /** @type {string} */
-  export let baseFontSize = "12px";
+  // eslint-disable-next-line -- audio is intentionally captured as initial value; $effect keeps it in sync
+  } = useAudioStore(dispatch, audio);
 
   /** @type {HTMLElement} */
   let volumeBar;
@@ -85,25 +84,25 @@
   let playedBar;
 
   /** @type {() => void} */
-  let volumeDragStart;
+  let volumeDragStart = $state(() => {});
 
   /** @type {(ev: any) => void} */
-  let volumeDragMove;
-  
-  /** @type {(ev: any) => void} */
-  let volumeDragEnd;
+  let volumeDragMove = $state(() => {});
 
-  /** @type {() => void} */
-  let progressDragStart;
-  
   /** @type {(ev: any) => void} */
-  let progressDragMove;
-  
-  /** @type {(ev: any) => void} */
-  let progressDragEnd;
+  let volumeDragEnd = $state(() => {});
 
   /** @type {() => void} */
-  let toggleVolumeMute;
+  let progressDragStart = $state(() => {});
+
+  /** @type {(ev: any) => void} */
+  let progressDragMove = $state(() => {});
+
+  /** @type {(ev: any) => void} */
+  let progressDragEnd = $state(() => {});
+
+  /** @type {() => void} */
+  let toggleVolumeMute = $state(() => {});
 
   /** @type {HTMLElement} */
   let playListElement;
@@ -115,13 +114,19 @@
   let player;
 
   /** @type {boolean} */
-  let isShowList = false;
+  let isShowList = $state(false);
 
   /** @type {boolean} */
-  let muted = false;
+  let paused = $state(true);
 
-  /** @type {string} */
-  let volumePercentage;
+  /** @type {boolean} */
+  let muted = $state(false);
+
+  /** @type {number} */
+  let playerListHeight = $state(0);
+
+  let volumePercentage = $derived(muted ? '0%' : `${volume * 100}%`);
+  let themeColor = $derived($currentSong?.theme ?? theme);
 
   onMount(() => {
     player = init();
@@ -137,6 +142,13 @@
 
     playListElement?.addEventListener("transitionend", () => {
       playerListHeight = Math.min(playListElement?.scrollHeight ?? 0, listMaxHeight);
+    });
+
+    player.addEventListener("play", () => {
+      paused = false;
+    });
+    player.addEventListener("pause", () => {
+      paused = true;
     });
 
     player.addEventListener("timeupdate", () => {
@@ -184,7 +196,7 @@
 
   onDestroy(() => {
     clearAudioInstantce(id);
-    dispatch("destroy");
+    ondestroy();
   });
 
   const init = () => {
@@ -195,32 +207,28 @@
       player: audioPlayer,
       stop: () => player?.pause()
     }, dispatch);
-    isShowList = !propsBool($$props, "list_folded") && $audioList.length > 1;
+    const isFolded = !(list_folded === null || list_folded === undefined || list_folded === "false");
+    isShowList = !isFolded && $audioList.length > 1;
     audioPlayer.volume = Math.min(Math.max(volume, 0), 1);
     return audioPlayer;
   }
 
-  $: $playList.audio = audio;
-  $: {
-    if (muted) {
-      volumePercentage = '0%';
-    } else {
-      volumePercentage = `${volume * 100}%`;
-    }
-  }
-  $: playerListHeight = Math.min(playListElement?.scrollHeight ?? 0, listMaxHeight);
-  $: themeColor = $currentSong.theme ?? theme;
-  $: {
-    if (player) {
+  $effect(() => {
+    $playList.audio = audio;
+  });
+
+  $effect(() => {
+    if (player && $currentSong?.url) {
       player.src = $currentSong.url;
     }
-  }
-  $: {
+  });
+
+  $effect(() => {
     if (rootEl) {
       rootEl.style.setProperty("--theme-color", themeColor);
       rootEl.style.setProperty("--base-font-size", baseFontSize);
     }
-  }
+  });
 
   const play = () => {
     if (mutex) {
@@ -323,16 +331,16 @@
   class:aplayer-narrow={mini}
 >
   <div class="aplayer-body ">
-    <!-- svelte-ignore a11y-click-events-have-key-events -->
-    <!-- svelte-ignore a11y-no-static-element-interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="aplayer-pic"
-      style="background-image: url( {$currentSong.cover} )"
-      on:click={() => {
+      style="background-image: url( {$currentSong?.cover} )"
+      onclick={() => {
         player?.paused ? play() : player.pause();
       }}
     >
-      {#if !player?.paused}
+      {#if !paused}
       <div class="aplayer-button aplayer-pause">
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -361,28 +369,28 @@
 
     <div class="aplayer-info">
       <div class="aplayer-music">
-        <span class="aplayer-title">{$currentSong.name || ''}</span>
-        <span class="aplayer-artist">{$currentSong.artist || ''}</span>
+        <span class="aplayer-title">{$currentSong?.name || ''}</span>
+        <span class="aplayer-artist">{$currentSong?.artist || ''}</span>
       </div>
 
       <div class="aplayer-controller">
-        <!-- svelte-ignore a11y-no-static-element-interactions -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="aplayer-bar-wrap"
           bind:this={playedBar}
-          on:mousedown={progressDragStart}
-          on:mousemove={progressDragMove}
-          on:mouseup={progressDragEnd}
-          on:mouseleave={progressDragEnd}
-          on:touchstart={progressDragStart}
-          on:touchmove={progressDragMove}
-          on:touchend={progressDragEnd}
+          onmousedown={progressDragStart}
+          onmousemove={progressDragMove}
+          onmouseup={progressDragEnd}
+          onmouseleave={progressDragEnd}
+          ontouchstart={progressDragStart}
+          ontouchmove={progressDragMove}
+          ontouchend={progressDragEnd}
         >
           <div class="aplayer-bar">
             <div
               class="aplayer-loaded"
               style="width: {$rdBufTime.bufferPercentage}"
-            />
+            ></div>
             <div class="aplayer-played" style="width: {$rdTime.playPercentage}">
               <div class="aplayer-thumb">
                 <span
@@ -405,7 +413,8 @@
             <button
               type="button"
               class="aplayer-icon aplayer-icon-volume-down"
-              on:click|capture={() => {
+              aria-label="Toggle mute"
+              onclickcapture={() => {
                 muted = !muted;
                 toggleVolumeMute();
               }}
@@ -416,29 +425,30 @@
                 {@html soundUnmuted}
               {/if}
             </button>
-              <!-- svelte-ignore a11y-no-static-element-interactions -->
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
             <div
               class="aplayer-volume-bar-wrap"
-              on:mousedown={volumeDragStart}
-              on:mousemove={volumeDragMove}
-              on:mouseup={volumeDragEnd}
-              on:mouseleave={volumeDragEnd}
-              on:touchstart={volumeDragStart}
-              on:touchmove={volumeDragMove}
-              on:touchend={volumeDragEnd}
+              onmousedown={volumeDragStart}
+              onmousemove={volumeDragMove}
+              onmouseup={volumeDragEnd}
+              onmouseleave={volumeDragEnd}
+              ontouchstart={volumeDragStart}
+              ontouchmove={volumeDragMove}
+              ontouchend={volumeDragEnd}
             >
               <div class="aplayer-volume-bar" bind:this={volumeBar}>
                 <div
                   class="aplayer-volume"
                   style="height: {player?.muted ? '0px' : volumePercentage}"
-                />
+                ></div>
               </div>
             </div>
           </div>
           <button
             type="button"
             class="aplayer-icon aplayer-icon-order"
-            on:click={() => clickOrder()}
+            aria-label="Toggle order"
+            onclick={() => clickOrder()}
           >
             {#if order === "random"}
               {@html randomOrder}
@@ -449,7 +459,8 @@
           <button
             type="button"
             class="aplayer-icon aplayer-icon-loop"
-            on:click={() => clickLoop()}
+            aria-label="Toggle loop"
+            onclick={() => clickLoop()}
           >
             {#if loop === "none"}
               {@html loopNone}
@@ -464,7 +475,8 @@
           <button
             type="button"
             class="aplayer-icon aplayer-icon-menu"
-            on:click={() => toggleList()}
+            aria-label="Toggle playlist"
+            onclick={() => toggleList()}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -488,11 +500,11 @@
     >
       <ol>
         {#each $audioList as song, idx}
-          <!-- svelte-ignore a11y-click-events-have-key-events -->
-          <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-          <li on:click={() => switchAudio(idx) }>
+          <!-- svelte-ignore a11y_click_events_have_key_events -->
+          <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+          <li onclick={() => switchAudio(idx) }>
           {#if idx === $playList.playingIndex}
-            <span class="aplayer-list-cur" />
+            <span class="aplayer-list-cur" ></span>
           {/if}
             <span class="aplayer-list-index">{idx + 1}</span>
             <span class="aplayer-list-title">{song.name}</span>

@@ -1,21 +1,23 @@
 <script>
     import { onMount } from 'svelte';
-    import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
     import util from "lodash";
-    import { Card, CardBody, FormGroup, Input, CardHeader } from '@sveltestrap/sveltestrap';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
-	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+    import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 
+    /**
+     * @type {{
+     *   agent: import('$agentTypes').AgentModel,
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        agent = $bindable(),
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {import('$agentTypes').AgentModel} */
-    export let agent;
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchTemplates = () => {
-        const candidates = inner_templates?.filter((x, idx) => !!x.name?.trim())?.map(x => {
+    export function fetchTemplates() {
+        const candidates = inner_templates?.filter((x) => !!x.name?.trim())?.map(x => {
             return { name: x.name.trim().toLowerCase(), content: x.content };
         });
 
@@ -39,10 +41,10 @@
     };
 
     /** @type {import('$agentTypes').AgentTemplate[]} */
-    let inner_templates = [];
+    let inner_templates = $state([]);
 
     /** @type {import('$agentTypes').AgentTemplate} */
-    let selected_template = { ...defaultTemplate };
+    let selected_template = $state({ ...defaultTemplate });
 
     onMount(() => {
         init();
@@ -123,34 +125,35 @@
 </script>
 
 
-<Card class="agent-prompt-container">
-    <CardHeader class="agent-prompt-header border-bottom">
+<div class="card agent-prompt-container">
+    <div class="card-header agent-prompt-header border-bottom">
         <div class="d-flex">
             <div class="flex-grow-1">
                 <h5 class="fw-semibold">{'Templates'}</h5>
             </div>
         </div>
-    </CardHeader>
-    <CardBody>
-        <FormGroup class="agent-prompt-body">
+    </div>
+    <div class="card-body">
+        <div class="agent-prompt-body">
             <div class="mb-2" style="display: flex; gap: 10px;">
                 <div class="line-align-center fw-bold">
                     {'Contents:'}
                 </div>
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                <!-- svelte-ignore a11y-no-static-element-interactions -->
                 <div
                     class="text-primary clickable"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Add templates"
                     style="font-size: 16px;"
-                    on:click={() => addTemplate()}
+                    role="button"
+                    tabindex="0"
+                    onclick={() => addTemplate()}
+                    onkeydown={(e) => e.key === 'Enter' && addTemplate()}
                 >
-                    <i class="mdi mdi-plus-circle-outline" />
+                    <i class="mdi mdi-plus-circle-outline"></i>
                 </div>
             </div>
-            
+
             {#if inner_templates.length > 0}
             <NavBar
                 id={'agent-template-container'}
@@ -176,17 +179,16 @@
                 />
                 {/each}
             </NavBar>
-            <Input
-                type="textarea"
+            <textarea
                 class="form-control"
                 style="scrollbar-width: thin; resize: none;"
                 placeholder="Enter your content"
                 value={selected_template.content}
                 rows={15}
-                on:input={(e) => changePrompt(e)}
-                on:keydown={(e) => onKeyDown(e)}
-            />
+                oninput={(e) => changePrompt(e)}
+                onkeydown={(e) => onKeyDown(e)}
+            ></textarea>
             {/if}
-        </FormGroup>
-    </CardBody>
-</Card>
+        </div>
+    </div>
+</div>

@@ -1,27 +1,26 @@
 <script>
     import { slide } from 'svelte/transition';
-    import { Input } from '@sveltestrap/sveltestrap';
 
-    /** @type {string} */
-    export let title;
+    /**
+     * @type {{
+     *   title: string,
+     *   modelType?: string,
+     *   modelCapability: string,
+     *   llmConfig?: any,
+     *   llmConfigOptions?: import('$commonTypes').LlmConfig[],
+     *   handleAgentChange?: () => void
+     * }}
+     */
+    let {
+        title,
+        modelType = '',
+        modelCapability,
+        llmConfig,
+        llmConfigOptions = [],
+        handleAgentChange = () => {}
+    } = $props();
 
-    /** @type {string} */
-    export let modelType = '';
-
-    /** @type {string} */
-    export let modelCapability;
-
-    /** @type {any} */
-    export let llmConfig;
-
-    /** @type {import('$commonTypes').LlmConfig[]} */
-    export let llmConfigOptions = [];
-
-
-    /** @type {() => void} */
-    export let handleAgentChange = () => {};
-
-    export const fetchConfig = () => {
+    export function fetchConfig() {
         if (!config.provider && !config.model) {
             return null;
         }
@@ -33,26 +32,27 @@
         };
     }
 
-
     /** @type {boolean} */
-    let collapsed = true;
+    let collapsed = $state(true);
 
     /** @type {import('$commonTypes').LlmConfig[]} */
-    let innerLlmConfigOptions = [];
+    let innerLlmConfigOptions = $state([]);
 
     /** @type {string[]} */
-    let providers = [];
+    let providers = $state([]);
 
     /** @type {import('$commonTypes').LlmModelSetting[]} */
-    let models = [];
+    let models = $state([]);
 
-    let config = llmConfig || {};
-    $: {
+    // svelte-ignore state_referenced_locally
+    let config = $state(llmConfig || {});
+
+    $effect(() => {
         if (llmConfigOptions.length > 0 && innerLlmConfigOptions.length === 0) {
             innerLlmConfigOptions = llmConfigOptions;
             const innerProviders = innerLlmConfigOptions.filter(x => x.models?.some(y => (!!modelType && y.type === modelType) || y.capabilities?.includes(modelCapability)));
             providers = ['', ...innerProviders.map(x => x.provider)];
-            if (!!config.provider) {
+            if (config.provider) {
                 models = getLlmModels(config.provider);
             }
             const foundProvider = providers.find(x => x === config.provider);
@@ -60,7 +60,7 @@
             config.provider = foundProvider || null;
             config.model = foundModel?.name || null;
         }
-    }
+    });
 
     /** @param {string} provider */
     function getLlmModels(provider) {
@@ -73,7 +73,7 @@
         const provider = e.target.value;
         config.provider = provider || null;
 
-        if (!!!provider) {
+        if (!provider) {
             models = [];
             config.model = null;
             handleAgentChange();
@@ -97,8 +97,8 @@
         class="config-header text-center"
         role="button"
         tabindex="0"
-        on:click={() => collapsed = !collapsed}
-        on:keydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
+        onclick={() => collapsed = !collapsed}
+        onkeydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
     >
         <h6 class="mt-1 mb-3 d-flex align-items-center justify-content-center gap-2">
             <i class="mdi {collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'}"></i>
@@ -113,13 +113,13 @@
                 Provider
             </label>
             <div class="llm-config-input">
-                <Input type="select" id={`provider-${title}`} value={config.provider} on:change={e => changeProvider(e)}>
+                <select class="form-select" id={`provider-${title}`} value={config.provider} onchange={e => changeProvider(e)}>
                     {#each providers as option}
                         <option value={option} selected={option == config.provider}>
                             {option}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
         </div>
 
@@ -128,13 +128,13 @@
                 Model
             </label>
             <div class="llm-config-input">
-                <Input type="select" id={`model-${title}`} value={config.model} disabled={models.length === 0} on:change={e => changeModel(e)}>
+                <select class="form-select" id={`model-${title}`} value={config.model} disabled={models.length === 0} onchange={e => changeModel(e)}>
                     {#each models as option}
                         <option value={option.name} selected={option.name == config.model}>
                             {option.name}
                         </option>
                     {/each}
-                </Input>
+                </select>
             </div>
         </div>
     </div>

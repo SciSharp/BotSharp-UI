@@ -1,6 +1,6 @@
-// 
-// _horizontal.scss
-// 
+﻿/*  */
+/* _horizontal.scss */
+/*  */
 
 .topnav {
     background: var(--#{$prefix}topnav-bg);
@@ -86,7 +86,7 @@
 
         .dropdown {
             &.mega-dropdown{
-                // position: static;
+                /* position: static; */
                 .mega-dropdown-menu{
                     left: 0px;
                     right: auto;
@@ -267,7 +267,7 @@
     }
 }
 
-// Colored Topbar 
+/* Colored Topbar  */
 
 body[data-layout="horizontal"][data-topbar="colored"] {
     #page-topbar{

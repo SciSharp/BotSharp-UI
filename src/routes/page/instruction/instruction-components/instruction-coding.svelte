@@ -1,31 +1,32 @@
 <script>
-    import { Button, Input } from '@sveltestrap/sveltestrap';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 
     const maxLength = 4096;
     const limit = 10;
 
-    /** @type {import('$agentTypes').AgentCodeScriptViewModel | null | undefined} */
-    export let selectedCodeScript = null;
-
-    /** @type {import('$commonTypes').KeyValuePair[]} */
-    export let args = [];
-
-    /** @type {import('$agentTypes').AgentCodeScriptViewModel[]} */
-    export let codeScripts = [];
-
-    /** @type {boolean} */
-    export let disabled = false;
-
+    /**
+     * @type {{
+     *   selectedCodeScript?: import('$agentTypes').AgentCodeScriptViewModel | null | undefined,
+     *   args?: import('$commonTypes').KeyValuePair[],
+     *   codeScripts?: import('$agentTypes').AgentCodeScriptViewModel[],
+     *   disabled?: boolean
+     * }}
+     */
+    let {
+        selectedCodeScript = $bindable(null),
+        args = $bindable([]),
+        codeScripts = [],
+        disabled = false
+    } = $props();
 
     /** @type {HTMLElement} */
     let scrollContainer;
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-    let codeScriptOptions = [];
+    let codeScriptOptions = $state([]);
 
-    $: {
+    $effect(() => {
         codeScriptOptions = codeScripts?.map(x => ({
             label: x.name,
             value: x.name
@@ -33,13 +34,13 @@
 
         const found = codeScripts.find(x => x.name === selectedCodeScript?.name);
         selectedCodeScript = found || null;
-    }
+    });
 
     /** @param {any} e */
     function selectCodeScript(e) {
         // @ts-ignore
 		const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
-        selectedCodeScript = selectedValues.length > 0 ? codeScripts?.find(x => x.name === selectedValues[0]) : null;
+        selectedCodeScript = selectedValues.length > 0 ? codeScripts?.find(x => x.name === selectedValues[0]) || null : null;
     }
 
     function addArg() {
@@ -66,7 +67,7 @@
                 disabled={disabled}
                 selectedValues={selectedCodeScript?.name ? [selectedCodeScript.name] : []}
                 options={codeScriptOptions}
-                on:select={e => selectCodeScript(e)}
+                onselect={e => selectCodeScript(e)}
             />
         </div>
     </div>
@@ -78,8 +79,9 @@
                 {#each args as arg, idx}
                     <div class="instruct-kv-item" style="gap: 10px;">
                         <div style="flex: 0.5;">
-                            <Input
+                            <input
                                 type="text"
+                                class="form-control"
                                 name={`arg-key-${idx}`}
                                 bind:value={arg.key}
                                 maxlength={maxLength}
@@ -88,8 +90,9 @@
                             />
                         </div>
                         <div style="flex: 0.5;">
-                            <Input
+                            <input
                                 type="text"
+                                class="form-control"
                                 name={`arg-value-${idx}`}
                                 bind:value={arg.value}
                                 maxlength={maxLength}
@@ -99,12 +102,13 @@
                         </div>
                         <div class="line-align-center" style={`flex: 0 0 13px; margin-top: 3px;`}>
                             <div>
-                                <!-- svelte-ignore a11y-click-events-have-key-events -->
-                                <!-- svelte-ignore a11y-no-static-element-interactions -->
                                 <i
                                     class="bx bxs-no-entry text-danger clickable"
-                                    on:click={() => removeArg(idx)}
-                                />
+                                    role="button"
+                                    tabindex="0"
+                                    onclick={() => removeArg(idx)}
+                                    onkeydown={(/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') removeArg(idx); }}
+                                ></i>
                             </div>
                         </div>
                     </div>
@@ -112,14 +116,15 @@
             </div>
             {#if args.length < limit}
                 <div class="text-center">
-                    <Button 
-                        color="link"
+                    <button
+                        type="button"
+                        class="btn btn-link"
                         style="padding-left: 0px;"
                         disabled={disabled}
-                        on:click={() => addArg()}
+                        onclick={() => addArg()}
                     >
                         Add +
-                    </Button>
+                    </button>
                 </div>
             {/if}
         </div>

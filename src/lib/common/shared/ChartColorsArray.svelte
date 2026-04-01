@@ -1,15 +1,21 @@
-<script context="module">
+<script module>
 	import { browser } from '$app/environment';
 
+	/**
+	 * @param {any[]} colors
+	 */
 	export function getChartColorsArray(colors) {
 		if (browser) {
 			if (colors) {
-				return colors.map(function (value) {
+				return colors.map((value) => {
 					var newValue = value.replace(' ', '');
 					if (newValue.indexOf(',') === -1) {
 						var color = getComputedStyle(document.documentElement).getPropertyValue(newValue);
-						if (color) return color;
-						else return newValue;
+						if (color) {
+							return color;
+						} else {
+							return newValue;
+						}
 					} else {
 						var val = value.split(',');
 						if (val.length == 2) {

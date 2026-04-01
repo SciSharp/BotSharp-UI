@@ -1,11 +1,5 @@
 <script>
-    import { createEventDispatcher } from 'svelte';
-    import {
-        Form,
-        Modal,
-        ModalBody,
-        ModalHeader
-    } from "@sveltestrap/sveltestrap";
+    import PlainModal from '$lib/common/modals/PlainModal.svelte';
     import Select from "$lib/common/dropdowns/Select.svelte";
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
     import FileGallery from '$lib/common/files/FileGallery.svelte';
@@ -13,47 +7,44 @@
 	import { KnowledgeDocSource } from "$lib/helpers/enums";
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 
-    const svelteDispatch = createEventDispatcher();
-
     const duration = 3000;
 
-    /** @type {string} */
-    export let collection;
+    /**
+     * @type {{
+     *   collection: string,
+     *   open?: boolean,
+     *   disabled?: boolean,
+     *   className?: string,
+     *   size?: string,
+     *   accept?: string,
+     *   processors: import('$commonTypes').LabelValuePair[],
+     *   fileMaxSize?: number,
+     *   toggleModal?: () => void,
+     *   ondocuploaded?: () => void
+     * }}
+     */
+    let {
+        collection,
+        open = false,
+        disabled = $bindable(false),
+        className = "",
+        size = 'md',
+        accept = ".txt",
+        processors,
+        fileMaxSize = 10,
+        toggleModal = () => {},
+        ondocuploaded = () => {}
+    } = $props();
 
     /** @type {boolean} */
-    export let open = false;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {string} */
-    export let className = "";
-
-    /** @type {string} */
-    export let size = 'md';
-
-    /** @type {string} */
-    export let accept = ".txt";
-
-    /** @type {import('$commonTypes').LabelValuePair[]} */
-    export let processors;
-
-    /** @type {number} MB */
-    export let fileMaxSize = 10;
-
-    /** @type {() => void} */
-    export let toggleModal;
-
-
-    /** @type {boolean} */
-    let isLoading = false;
-    let isComplete = false;
-    let isError = false;
+    let isLoading = $state(false);
+    let isComplete = $state(false);
+    let isError = $state(false);
 
     /** @type {string | null} */
-    let selectedProcessor = null;
-    let successText = 'Knowledge has been uploaded!';
-    let errorText = 'Error when uploading knowledge!';
+    let selectedProcessor = $state(null);
+    let successText = $state('Knowledge has been uploaded!');
+    let errorText = $state('Error when uploading knowledge!');
 
     /** @param {any} e */
     function changeProcessor(e) {
@@ -62,7 +53,7 @@
 
     /** @param {any} e */
     function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
+        const { acceptedFiles } = e;
 
         if (!acceptedFiles
             || acceptedFiles.length === 0
@@ -102,7 +93,7 @@
                     isComplete = false;
                 }, duration);
             }
-            svelteDispatch("docuploaded");
+            ondocuploaded();
         }).catch((err) => {
             console.log('Upload document error:', err);
             isError = true;
@@ -125,22 +116,18 @@
     {errorText}
 />
 
-<Modal
-    class={className}
-    fade
-    size={size}
+<PlainModal
     isOpen={open}
-    toggle={() => toggleModal?.()}
-    unmountOnClose
+    {size}
+    containerClasses={className}
+    toggleModal={() => toggleModal?.()}
 >
-    <ModalHeader toggle={() => toggleModal?.()}>
-        <div>
+    <div>
+        <div class="mb-3">
             <span class="fw-bold">{'Collection: '}</span>
             <span class="text-primary collection-value">{collection}</span>
         </div>
-    </ModalHeader>
-    <ModalBody>
-        <Form>
+        <form>
             <div class="mt-2 d-flex flex-column gap-2">
                 <div class="d-flex gap-1">
                     <div class="fw-bold">{'Document Processor'}</div>
@@ -151,7 +138,7 @@
                     searchMode
                     selectedValues={selectedProcessor ? [selectedProcessor] : []}
                     options={processors}
-                    on:select={e => changeProcessor(e)}
+                    onselect={e => changeProcessor(e)}
                 />
             </div>
             <div class="mt-2 d-flex flex-column gap-2">
@@ -160,30 +147,31 @@
                     showPrefix={true}
                     disabled={disabled || !selectedProcessor}
                 >
-                    <FileDropZone
-                        slot="prefix"
-                        accept={accept}
-                        containerClasses={'doc-drop-zone'}
-                        disabled={!selectedProcessor}
-                        fileLimit={1}
-                        maxSize={fileMaxSize * 1024 * 1024}
-                        on:drop={e => handleFileDrop(e)}
-                    >
-                        <div>
-                            <div class="doc-drop-icon">
-                                <i class="bx bx-cloud-upload" />
-                            </div>
+                    {#snippet prefix()}
+                        <FileDropZone
+                            accept={accept}
+                            containerClasses={'doc-drop-zone'}
+                            disabled={!selectedProcessor}
+                            fileLimit={1}
+                            maxSize={fileMaxSize * 1024 * 1024}
+                            ondrop={handleFileDrop}
+                        >
                             <div>
-                                <ul>
-                                    <li>{'Please select a processor before uploading.'}</li>
-                                    <li>{'File cannot exceed 10 MB.'}</li>
-                                    <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
-                                </ul>
+                                <div class="doc-drop-icon">
+                                    <i class="bx bx-cloud-upload"></i>
+                                </div>
+                                <div>
+                                    <ul>
+                                        <li>{'Please select a processor before uploading.'}</li>
+                                        <li>{'File cannot exceed 10 MB.'}</li>
+                                        <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
+                                    </ul>
+                                </div>
                             </div>
-                        </div>
-                    </FileDropZone>
+                        </FileDropZone>
+                    {/snippet}
                 </FileGallery>
             </div>
-        </Form>
-    </ModalBody>
-</Modal>
+        </form>
+    </div>
+</PlainModal>

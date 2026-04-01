@@ -1,6 +1,6 @@
-// 
-// _layouts.scss
-// 
+﻿/*  */
+/* _layouts.scss */
+/*  */
 
 body[data-layout-size="boxed"] {
     background-color: var(--#{$prefix}boxed-body-bg);
@@ -29,7 +29,7 @@ body[data-layout-size="boxed"] {
 }
 
 
-// Horizontal Boxed Layout
+/* Horizontal Boxed Layout */
 
 body[data-layout="horizontal"][data-layout-size="boxed"]{
     #page-topbar, #layout-wrapper, .footer {
@@ -40,7 +40,7 @@ body[data-layout="horizontal"][data-layout-size="boxed"]{
     }
 }
 
-// Scrollable layout
+/* Scrollable layout */
 
 body[data-layout-scrollable="true"] {
     @media (min-width: 992px) {

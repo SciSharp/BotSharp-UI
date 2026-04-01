@@ -105,7 +105,11 @@ function bindAudioEvent(player, dispatch) {
 /**
  * @param {(name: string, detail?: any) => void} dispatch
  */
-export function useAudioStore(dispatch) {
+/**
+ * @param {(name: string, detail?: any) => void} dispatch
+ * @param {any[]} [initialAudio]
+ */
+export function useAudioStore(dispatch, initialAudio = []) {
   let currentTime = writable(0);
   let duration = writable(NaN);
 
@@ -136,7 +140,7 @@ export function useAudioStore(dispatch) {
   /** @type {import("svelte/store").Writable<{ playingIndex: number, audio: any[] }>} */
   const playList = writable({
     playingIndex: 0,
-    audio: [],
+    audio: initialAudio,
   });
 
   const audioList = derived(playList, ($pl) => $pl.audio);

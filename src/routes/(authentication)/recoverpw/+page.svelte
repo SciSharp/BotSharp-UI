@@ -1,6 +1,4 @@
 <script>
-	import Link from 'svelte-link';
-	import { Row, Col, CardBody, Card, Container, Form, Label, Input, Button, Alert } from '@sveltestrap/sveltestrap';
 	import Headtitle from '$lib/common/shared/HeadTitle.svelte';
 	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME } from '$env/static/public';
 </script>
@@ -8,43 +6,43 @@
 <Headtitle title="Recover Password" />
 
 <div class="account-pages my-5 pt-sm-5">
-	<Container>
-		<Row class="justify-content-center">
-			<Col md={8} lg={6} xl={5}>
-				<Card class="overflow-hidden">
+	<div class="container">
+		<div class="row justify-content-center">
+			<div class="col-md-8 col-lg-6 col-xl-5">
+				<div class="card overflow-hidden">
 					<div class="bg-primary-subtle">
-						<Row>
-							<Col xs={7}>
+						<div class="row">
+							<div class="col-7">
 								<div class="text-primary p-4">
 									<h5 class="text-primary">Reset Password</h5>
 									<p>Reset Password with SciSharp.</p>
 								</div>
-							</Col>
-							<Col xs={5} class="align-self-end">
-								<img src='images/profile-img.png' alt="" class="img-fluid" />
-							</Col>
-						</Row>
+							</div>
+							<div class="col-5 align-self-end">
+								<img src="images/profile-img.png" alt="" class="img-fluid" />
+							</div>
+						</div>
 					</div>
-					<CardBody class="pt-0">
+					<div class="card-body pt-0">
 						<div>
-							<Link href="page/dashboard">
+							<a href="page/dashboard">
 								<div class="avatar-md profile-user-wid mb-4">
 									<span class="avatar-title rounded-circle bg-light">
 										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
 									</span>
 								</div>
-							</Link>
+							</a>
 						</div>
 
 						<div class="p-2">
-							<Alert color="success" class="text-center mb-4" role="alert">
+							<div class="alert alert-success text-center mb-4" role="alert">
 								Enter your Email and instructions will be sent to you!
-							</Alert>
+							</div>
 
-							<Form class="form-horizontal" action="page/dashboard">
+							<form class="form-horizontal" action="page/dashboard">
 								<div class="mb-3">
-									<Label for="useremail" class="form-label">Email</Label>
-									<Input
+									<label for="useremail" class="form-label">Email</label>
+									<input
 										type="email"
 										class="form-control"
 										id="useremail"
@@ -53,25 +51,25 @@
 								</div>
 
 								<div class="text-end">
-									<Button color="primary" class="w-md waves-effect waves-light" type="submit"
-										>Reset</Button
-									>
+									<button type="submit" class="btn btn-primary w-md waves-effect waves-light">
+										Reset
+									</button>
 								</div>
-							</Form>
+							</form>
 						</div>
-					</CardBody>
-				</Card>
+					</div>
+				</div>
 				<div class="mt-5 text-center">
 					<p>
 						Remember It ?
-						<Link href="login" class="fw-medium text-primary">Sign In here</Link>
+						<a href="login" class="fw-medium text-primary">Sign In here</a>
 					</p>
 					<p>
 						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
-						<i class="mdi mdi-heart text-danger" /> by Open Source community
+						<i class="mdi mdi-heart text-danger"></i> by Open Source community
 					</p>
 				</div>
-			</Col>
-		</Row>
-	</Container>
+			</div>
+		</div>
+	</div>
 </div>

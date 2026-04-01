@@ -1,16 +1,19 @@
 <script>
     import { fly } from 'svelte/transition';
-    import { Button } from '@sveltestrap/sveltestrap';
-    import JSONTree from 'svelte-json-tree';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import { utcToLocal } from '$lib/helpers/datetime';
+    import JSONTree from 'svelte-json-tree';
     import { formatObject } from '$lib/helpers/utils/common';
 
-    /** @type {import('$instructTypes').InstructionLogModel} */
-    export let item;
+    /**
+     * @type {{
+     *   item: import('$instructTypes').InstructionLogModel
+     * }}
+     */
+    let { item } = $props();
 
     /** @type {boolean} */
-    let open = false;
+    let open = $state(false);
 
     function toggleLogDetail() {
         open = !open;
@@ -27,12 +30,14 @@
     <td>
         <ul class="list-unstyled hstack gap-1 mb-0" style="justify-content: center;">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Detail">
-                <Button
+                <button
+                    type="button"
                     class="btn btn-sm btn-soft-warning"
-                    on:click={() => toggleLogDetail()}
+                    aria-label="Toggle log detail"
+                    onclick={() => toggleLogDetail()}
                 >
-                    <i class="mdi mdi-eye-outline" />
-                </Button>
+                    <i class="mdi mdi-eye-outline"></i>
+                </button>
             </li>
         </ul>
     </td>

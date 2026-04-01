@@ -1,10 +1,20 @@
 <script>
     import { Circle } from 'svelte-loading-spinners';
 
-    export let disableDefaultStyles = false;
-    export let containerClasses = '';
-    export let containerStyles = '';
-    export let size = 100;
+    /**
+     * @type {{
+     *   disableDefaultStyles?: boolean,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   size?: number
+     * }}
+     */
+    let {
+        disableDefaultStyles = false,
+        containerClasses = '',
+        containerStyles = '',
+        size = 100
+    } = $props();
 </script>
 
 <div

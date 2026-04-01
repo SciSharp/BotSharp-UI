@@ -1,40 +1,38 @@
 <script>
-	import { Card, CardBody, CardTitle, Col, Row } from '@sveltestrap/sveltestrap';
 	import { _ } from 'svelte-i18n';
 	import { onMount } from 'svelte';
 	import ChatTextArea from '../../chat/[agentId]/[conversationId]/chat-util/chat-text-area.svelte';
 	import { getConversation, updateDashboardConversation, unpinConversationFromDashboard } from '$lib/services/conversation-service';
 
-	/** @type {string}*/
-	export let conversationId;
-	/** @type {string}*/
-	export let instruction;
-	/** @type {string}*/
-	export let userId;
+	let {
+		conversationId = '',
+		instruction = '',
+		userId = ''
+	} = $props();
 
-	/** @type {import('$conversationTypes').ConversationModel}*/
-	let conversationModel;
+	/** @type {import('$conversationTypes').ConversationModel | undefined}*/
+	let conversationModel = $state(undefined);
 
-	let agent = {
+	let agent = $state({
 		name: "Loading",
 		icon_url: "https://botsharp.azurewebsites.net/images/users/bot.png"
-	};
-	
-	let isLoading = true;
+	});
+
+	let isLoading = $state(true);
 
 	/** @type {string} */
-	let hide = '';
-	
+	let hide = $state('');
+
 	/** @type {string} */
-	let text;
+	let text = $state('');
 	/** @type {boolean} */
-	let loadUtils;
-	
+	let loadUtils = $state(false);
+
 	/** @type {number} */
 	let messageInputTimeout = 0;
 
 	/** @type {string[]} */
-	let chatUtilOptions = [];
+	let chatUtilOptions = $state([]);
 
 	onMount(() => {
 			if (conversationId) {
@@ -60,7 +58,7 @@
 		)
 		.catch();
 	}
-	
+
 	/** @param {any} e */
     function handleMessageInput(e) {
         const value = e.target.value;
@@ -70,21 +68,21 @@
     }
 </script>
 
-<Col xl={4}>
-	<Card bind:class={hide}>
-		<CardBody>
+<div class="col-xl-4">
+	<div class={`card ${hide}`}>
+		<div class="card-body">
 			{#if isLoading}
-				<CardTitle class="mb-0">{"Loading..."} </CardTitle>
+				<h4 class="card-title mb-0">{"Loading..."} </h4>
 				<p> Loading ... </p>
-			{:else}
+			{:else if conversationModel}
 				<div class="row">
 					<div class="col-10">
-						<CardTitle class="mb-0">{conversationModel.title} </CardTitle>
+						<h4 class="card-title mb-0">{conversationModel.title} </h4>
 					</div>
-					<div class="col-2 ">
+					<div class="col-2">
 						<button
-							class={`btn btn-rounded btn-sm btn-light`}
-							on:click={() => {
+							class="btn btn-rounded btn-sm btn-light"
+							onclick={() => {
 								hide = 'hide';
 								unpinConversationFromDashboard(conversationModel.agent_id, conversationId);
 							}}
@@ -94,8 +92,7 @@
 								style="font-size: 12px;"
 								data-bs-toggle="tooltip"
 								data-bs-placement="top"
-								title="Unpin"
-							/>
+								title="Unpin"></i>
 						</button>
 					</div>
 				</div>
@@ -109,25 +106,25 @@
 										<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
 									</div>
 									{/if}
-									<div class="chat-head-agent-name line-align-center ellipsis">{conversationModel.agent_id}</div>								
+									<div class="chat-head-agent-name line-align-center ellipsis">{conversationModel.agent_id}</div>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					<div class={`chat-input-section css-animation fade-in-from-none mb-2`}>
+					<div class="chat-input-section css-animation fade-in-from-none mb-2">
 						<div class="row">
 							<div class="col-10">
 								<div class="position-relative">
 									<ChatTextArea
 										id={'dashboard-chat-textarea'}
-										className={`chat-input`}
+										className={'chat-input'}
 										maxLength={1024}
 										disabled={false}
 										bind:text={text}
 										bind:loadUtils={loadUtils}
 										bind:options={chatUtilOptions}
-										onFocus={e => chatUtilOptions = []}
+										onFocus={() => chatUtilOptions = []}
 									>
 									</ChatTextArea>
 								</div>
@@ -135,22 +132,22 @@
 							<div class="col-auto">
 								<button
 									type="submit"
-									class={`btn btn-rounded chat-send waves-effect waves-light btn-primary`}
-									disabled={!!!(text)}
-									on:click={() => updateDashboardConversation({
+									class="btn btn-rounded chat-send waves-effect waves-light btn-primary"
+									disabled={!text}
+									onclick={() => updateDashboardConversation({
 										conversation_id: conversationId,
 										name: '',
 										instruction: text
 									})}
 								>
-									<i class="mdi mdi-send" />
+									<i class="mdi mdi-send"></i>
 								</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			{/if}
-		
-		</CardBody>
-	</Card>
-</Col>
+
+		</div>
+	</div>
+</div>

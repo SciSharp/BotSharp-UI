@@ -1,11 +1,9 @@
 <script>
-    import { onMount } from 'svelte';
-	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
-    import { Card, CardBody, Col, Row, Tooltip } from '@sveltestrap/sveltestrap';
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 
     const defaultScript = `# Python Demo
 def greet(name):
@@ -14,21 +12,20 @@ def greet(name):
 if __name__ == "__main__":
     greet('AI')
 `;
-    
-    /** @type {string} */
-    export let title;
 
-    /** @type {{
-     * scripts: import('$agentTypes').AgentCodeScriptViewModel[],
-     * selectedScript: import('$agentTypes').AgentCodeScriptViewModel | null
-     * }}
-    */
-    export let scriptObj;
+    let {
+        /** @type {string} */
+        title,
+        /** @type {{
+         * scripts: import('$agentTypes').AgentCodeScriptViewModel[],
+         * selectedScript: import('$agentTypes').AgentCodeScriptViewModel | null
+         * }} */
+        scriptObj = $bindable(),
+        /** @type {string} */
+        scriptType
+    } = $props();
 
-    /** @type {string} */
-    export let scriptType;
 
-    
     function addScript() {
         const scripts = [
             ...scriptObj.scripts,
@@ -50,6 +47,7 @@ if __name__ == "__main__":
 	 * @param {string | null | undefined} uid
 	 */
     function selectScript(uid) {
+        // @ts-ignore
         scriptObj.selectedScript = scriptObj.scripts.find(x => x.uid === uid) || null;
     }
 
@@ -57,6 +55,7 @@ if __name__ == "__main__":
 	 * @param {string | null | undefined} uid
 	 */
     function deleteScript(uid) {
+        // @ts-ignore
         const scripts = scriptObj.scripts.filter(x => x.uid !== uid);
         scriptObj = {
             ...scriptObj,
@@ -66,52 +65,53 @@ if __name__ == "__main__":
     }
 
     /**
-	 * @param {any} e
+	 * @param {string} text
 	 * @param {string | null | undefined} uid
 	 */
-    function changeScriptContent(e, uid) {
+    function changeScriptContent(text, uid) {
+        // @ts-ignore
         const found = scriptObj?.scripts?.find(x => x.uid === uid);
         if (found) {
-            found.content = e.detail.text;
+            found.content = text;
         }
     }
 </script>
 
 
 
-<Card>
-    <CardBody class="border-bottom">
-        <Row class="g-3">
-            <Col lg="3">
+<div class="card">
+    <div class="card-body border-bottom">
+        <div class="row g-3">
+            <div class="col-lg-3">
                 <div class="mb-2" style="display: flex; gap: 10px;">
                     <div class="line-align-center fw-bold">
                         {title}
                     </div>
                     <div class="line-align-center">
-                        <div class="line-align-center" id="src-tooltip">
-                            <i class="bx bx-info-circle" />
+                        <div class="line-align-center" id="{scriptType}-src-tooltip">
+                            <i class="bx bx-info-circle"></i>
                         </div>
-                        <Tooltip target="src-tooltip" placement="top">
+                        <BotsharpTooltip target="{scriptType}-src-tooltip" placement="top">
                             <div>Support python only</div>
-                        </Tooltip>
+                        </BotsharpTooltip>
                     </div>
-                    <!-- svelte-ignore a11y-click-events-have-key-events -->
-                    <!-- svelte-ignore a11y-no-static-element-interactions -->
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <!-- svelte-ignore a11y_no_static_element_interactions -->
                     <div
                         class="text-primary clickable"
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
                         title="Add src script"
                         style="font-size: 16px;"
-                        on:click={() => addScript()}
+                        onclick={() => addScript()}
                     >
-                        <i class="mdi mdi-plus-circle-outline" />
+                        <i class="mdi mdi-plus-circle-outline"></i>
                     </div>
                 </div>
-            </Col>
-        </Row>
-        <Row class="g-3">
-            <Col lg="12">
+            </div>
+        </div>
+        <div class="row g-3">
+            <div class="col-lg-12">
                 {#if scriptObj.scripts.length > 0}
                     <NavBar
                         id={`agent-${scriptType}-script-container`}
@@ -142,12 +142,12 @@ if __name__ == "__main__":
                         <CodeScript
                             language={'python'}
                             scriptText={scriptObj.selectedScript?.content || ''}
-                            on:change={e => changeScriptContent(e, scriptObj.selectedScript?.uid)}
+                            onchange={(/** @type {string} */ text) => changeScriptContent(text, scriptObj.selectedScript?.uid)}
                         />
                         {/key}
                     </div>
                 {/if}
-            </Col>
-        </Row>
-    </CardBody>
-</Card>
+            </div>
+        </div>
+    </div>
+</div>

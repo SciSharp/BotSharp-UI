@@ -1,47 +1,47 @@
 <script>
 	import { durationUnitRegex, range } from "$lib/helpers/utils/common";
 
-    /** @type {string} */
-	export let color = '#FF3E00';
+	/**
+	 * @type {{
+	 *   color?: string,
+	 *   unit?: string,
+	 *   duration?: string,
+	 *   size?: string | number,
+	 *   pause?: boolean,
+	 *   shape?: 'dot' | 'cube',
+	 *   count?: number,
+	 *   gap?: string | number,
+	 *   containerClasses?: string,
+	 *   containerStyles?: string
+	 * }}
+	 */
+	let {
+		color = '#FF3E00',
+		unit = 'px',
+		duration = '1.5s',
+		size = '30',
+		pause = false,
+		shape = 'dot',
+		count = 3,
+		gap = '10',
+		containerClasses = '',
+		containerStyles = ''
+	} = $props();
 
-    /** @type {string} */
-	export let unit = 'px';
-
-    /** @type {string} */
-	export let duration = '1.5s';
-
-	/** @type {string | number} */
-	export let size = '60';
-
-    /** @type {boolean} */
-	export let pause = false;
-
-    /** @type {'dot' | 'cube'} */
-    export let shape = 'dot';
-
-    /** @type {number} */
-    export let count = 3;
-
-    /** @type {string | number} */
-	export let gap = '10';
-
-	/** @type {string} */
-	export let containerClasses = '';
-	
-	/** @type {string} */
-	export let containerStyles = '';
-
-    const durationUnit = duration.match(durationUnitRegex)?.[0] ?? 's';
-	const durationNum = duration.replace(durationUnitRegex, '');
+	const durationUnit = $derived(duration.match(durationUnitRegex)?.[0] ?? 's');
+	const durationNum = $derived(duration.replace(durationUnitRegex, ''));
 </script>
 
-<div class={`loading-wrapper ${containerClasses}`} style="--size: {size}{unit}; --color: {color}; --duration: {duration}; --count: {count}; --gap: {gap}{unit};  {containerStyles}">
+<div
+	class={`loading-wrapper ${containerClasses}`}
+	style="--size: {size}{unit}; --color: {color}; --duration: {duration}; --count: {count}; --gap: {gap}{unit}; {containerStyles}"
+>
 	{#each range(count, 0) as version}
 		<div
 			class={`animation ${shape === 'cube' ? 'cube' : 'dot'}`}
 			class:pause-animation={pause}
 			style="animation-delay: {version * (+durationNum / 10)}{durationUnit};"
-		/>
+		></div>
 	{/each}
 </div>
 

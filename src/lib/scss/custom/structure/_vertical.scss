@@ -1,6 +1,6 @@
-//
-// _menu.scss
-// 
+﻿/*  */
+/* _menu.scss */
+/*  */
 
 .metismenu {
     margin: 0;
@@ -202,7 +202,7 @@
     }
 }
 
-// Enlarge menu
+/* Enlarge menu */
 .vertical-collpsed {
 
     .main-content {
@@ -223,7 +223,7 @@
         }
     }
 
-    // Side menu
+    /* Side menu */
     .vertical-menu {
         position: absolute;
         width: $sidebar-collapsed-width !important;
@@ -248,7 +248,7 @@
             height: auto !important;
         }
 
-        // Sidebar Menu
+        /* Sidebar Menu */
         #sidebar-menu {
 
             .menu-title,
@@ -423,14 +423,14 @@ body[data-sidebar="dark"] {
         }
     }
 
-    // Enlarge menu
+    /* Enlarge menu */
     &.vertical-collpsed {
-        // min-height: 1760px;
+        /* min-height: 1760px; */
 
-        // Side menu
+        /* Side menu */
         .vertical-menu {
 
-            // Sidebar Menu
+            /* Sidebar Menu */
             #sidebar-menu {
 
                 >ul {
@@ -515,7 +515,7 @@ body[data-layout="horizontal"] {
     }
 }
 
-// Compact Sidebar
+/* Compact Sidebar */
 
 body[data-sidebar-size="small"] {
     .navbar-brand-box {
@@ -597,7 +597,7 @@ body[data-sidebar-size="small"] {
     }
 }
 
-// colored sidebar
+/* colored sidebar */
 
 body[data-sidebar="colored"] {
     .vertical-menu {

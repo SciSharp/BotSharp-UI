@@ -1,55 +1,45 @@
 <script>
 	import { clickoutsideDirective } from "$lib/helpers/directives";
-    import _ from "lodash";
 
-    /** @type {string} */
-    export let id;
-
-    /** @type {string} */
-    export let className = '';
-
-    /** @type {string} */
-    export let text;
-
-    /** @type {boolean} */
-    export let loadUtils = false;
-
-    /** @type {string[]} */
-    export let options = [];
-
-    /** @type {number} */
-    export let rows = 1;
-
-    /** @type {number} */
-    export let maxLength = 500;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {string} */
-    export let placeholder = "Enter Message...";
-
-    /** @type {(args0: any) => void} */
-    export let onTextInput = () => {};
-
-    /** @type {(args0: any) => void} */
-    export let onKeyDown = () => {};
-
-    /** @type {(args0: any) => void} */
-    export let onFocus = () => {};
-
-    /** @type {(option: string) => void} */
-    export let onOptionClick = () => {};
-
+    /**
+     * @type {{
+     *   id: string,
+     *   className?: string,
+     *   text?: string,
+     *   loadUtils?: boolean,
+     *   options?: string[],
+     *   rows?: number,
+     *   maxLength?: number,
+     *   disabled?: boolean,
+     *   placeholder?: string,
+     *   onTextInput?: (e: any) => void,
+     *   onKeyDown?: (e: any) => void,
+     *   onFocus?: (e: any) => void,
+     *   onOptionClick?: (option: string) => void,
+     *   children?: import('svelte').Snippet
+     * }}
+     */
+    let {
+        id,
+        className = '',
+        text = $bindable(''),
+        loadUtils = $bindable(false),
+        options = $bindable([]),
+        rows = 1,
+        maxLength = 500,
+        disabled = false,
+        placeholder = 'Enter Message...',
+        onTextInput = () => {},
+        onKeyDown = () => {},
+        onFocus = () => {},
+        onOptionClick = () => {},
+        children
+    } = $props();
 
     /** @type {HTMLTextAreaElement} */
     let textArea;
 
-    /** @type {boolean} */
-    let showOptions = false;
-
-    $: showOptions = options?.length > 0;
-
+    let showOptions = $derived(options?.length > 0);
 
     /** @param {any} e */
     function handleClickOutside(e) {
@@ -75,7 +65,7 @@
     function handleFocus(e) {
         onFocus?.(e);
     }
-    
+
     /** @param {string} option */
     function handleOptionClick(option) {
         if (textArea) {
@@ -92,15 +82,15 @@
 </script>
 
 
-<div use:clickoutsideDirective on:clickoutside={handleClickOutside}>
+<div use:clickoutsideDirective onclickoutside={handleClickOutside}>
     {#if showOptions}
         <ul class="dropdown-menu chat-option-list chat-util-common">
             {#each options as option, idx (idx)}
-                <!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-                <!-- svelte-ignore a11y-click-events-have-key-events -->
+                <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <li
                     class="chat-option-item"
-                    on:click={() => handleOptionClick(option)}
+                    onclick={() => handleOptionClick(option)}
                 >
                     {option}
                 </li>
@@ -109,7 +99,9 @@
     {/if}
     {#if loadUtils}
         <div class="chat-util-container chat-util-common">
-            <slot />
+            {#if children}
+                {@render children()}
+            {/if}
         </div>
     {/if}
     <textarea
@@ -121,8 +113,8 @@
         placeholder={placeholder}
         bind:this={textArea}
         bind:value={text}
-        on:input={e => handleTextInput(e)}
-        on:keydown={e => handleKeyDown(e)}
-        on:focus={e => handleFocus(e)}
-    />
+        oninput={e => handleTextInput(e)}
+        onkeydown={e => handleKeyDown(e)}
+        onfocus={e => handleFocus(e)}
+    ></textarea>
 </div>

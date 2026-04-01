@@ -1,43 +1,46 @@
 <script>
-    import { onDestroy, onMount } from "svelte";
+    import { onMount } from "svelte";
 	import { conversationUserAttachmentStore } from "$lib/helpers/store";
 
-    /** @type {any[] | undefined} */
-    export let options;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {(args0: string, args1: string) => any} */
-    export let onConfirm = () => {};
+    /**
+     * @type {{
+     *   options?: any[],
+     *   disabled?: boolean,
+     *   onConfirm?: (title: string, payload: string) => any
+     * }}
+     */
+    let {
+        options,
+        disabled = false,
+        onConfirm = () => {}
+    } = $props();
 
     /** @type {any[]} */
-    let files = [];
+    let files = $state([]);
     /** @type {any} */
-    let confirmOption;
+    let confirmOption = $state(undefined);
     /** @type {any} */
-    let cancelOption;
+    let cancelOption = $state(undefined);
 
-    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
-        const savedAttachments = $conversationUserAttachmentStore;
-        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
+    $effect(() => {
+        const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+            files = value?.accepted_files || [];
+        });
+
+        return () => {
+            unsubscribe();
+        };
     });
 
     onMount(() => {
         collectOptions(options);
-        
     });
 
-    onDestroy(() => {
-        unsubscribe();
-    });
+    /** @param {any[] | undefined} opts */
+    function collectOptions(opts) {
+        confirmOption = opts?.find(op => op.title?.toLowerCase()?.startsWith("yes"));
+        cancelOption = opts?.find(op => op.title?.toLowerCase()?.startsWith("no"));
 
-
-    /** @param {any[] | undefined} options */
-    function collectOptions(options) {
-        confirmOption = options?.find(op => op.title?.toLowerCase()?.startsWith("yes"));
-        cancelOption = options?.find(op => op.title?.toLowerCase()?.startsWith("no"));
-        
         if (!confirmOption) {
             confirmOption = {
                 title: 'Yes, I have uploaded attachments.',
@@ -66,8 +69,8 @@
 	 * @param {string} title
      * @param {string} payload
 	 */
-     function innerConfirm(title, payload) {
-        onConfirm && onConfirm(title, payload);
+    function innerConfirm(title, payload) {
+        onConfirm?.(title, payload);
     }
 </script>
 
@@ -76,7 +79,7 @@
         <button
             class={`btn btn-sm m-1 ${confirmOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             disabled={disabled}
-            on:click={(e) => handleClickOption(e, confirmOption)}
+            onclick={(e) => handleClickOption(e, confirmOption)}
         >
             {confirmOption?.title}
         </button>
@@ -85,7 +88,7 @@
         <button
             class={`btn btn-sm m-1 ${cancelOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
             disabled={disabled}
-            on:click={(e) => handleClickOption(e, cancelOption)}
+            onclick={(e) => handleClickOption(e, cancelOption)}
         >
             {cancelOption?.title}
         </button>

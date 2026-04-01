@@ -1,47 +1,62 @@
 <script>
-	import {
-		Dropdown,
-		DropdownToggle,
-		DropdownMenu,
-		DropdownItem,
-	} from '@sveltestrap/sveltestrap';
+	import { onMount } from "svelte";
 	import { setupI18n } from "$lib/helpers/i18n";
 	import languages from "$lib/common/data/languages";
-	import { onMount } from "svelte";
+	import { clickoutsideDirective } from "$lib/helpers/directives";
 
 	/** @type {string} */
-	let selectedLang;
+	let selectedLang = $state('');
 
-	let isOpen = false;
+	let isOpen = $state(false);
 
 	/** @param {string} lang */
 	function handleLocaleChange(lang) {
 		setupI18n({ withLocale: lang });
-		selectedLang = lang
+		selectedLang = lang;
 		localStorage.setItem("I18N_LANGUAGE", lang);
+		isOpen = false;
+	}
+
+	/** @param {any} e */
+	function handleClickOutside(e) {
+		const curNode = e.detail.currentNode;
+		const targetNode = e.detail.targetNode;
+		if (!curNode?.contains(targetNode)) {
+			isOpen = false;
+		}
 	}
 
 	onMount(() => {
 		localStorage.getItem("I18N_LANGUAGE") || "en";
-	})
+	});
 </script>
 
-<Dropdown {isOpen} toggle={() => (isOpen = !isOpen)} class="d-inline-block">
-	<DropdownToggle class="btn header-item" tag="button" color="">
+<div
+	class="dropdown d-inline-block"
+	use:clickoutsideDirective
+	onclickoutside={handleClickOutside}
+>
+	<button
+		type="button"
+		class="btn header-item"
+		aria-label="Select language"
+		onclick={() => (isOpen = !isOpen)}
+	>
 		<img
-		src={languages.find(lang => lang.value === selectedLang)?.flag || 'images/flags/us.jpg'}
-        alt="Language"
-        height="16"
+			src={languages.find(lang => lang.value === selectedLang)?.flag || 'images/flags/us.jpg'}
+			alt="Language"
+			height="16"
+			style="max-height: 16px; width: auto;"
 		/>
-	</DropdownToggle>
-	<DropdownMenu class="language-switch dropdown-menu-end">
+	</button>
+	<div class="dropdown-menu language-switch dropdown-menu-end" class:show={isOpen}>
 		{#each languages as language}
-			<DropdownItem
-				key={language.value}
-				on:click={() => handleLocaleChange(language.value)}
-				class={`notify-item language ${
+			<button
+				type="button"
+				class={`dropdown-item notify-item language ${
 					selectedLang === language.value ? "active" : "none"
 				}`}
+				onclick={() => handleLocaleChange(language.value)}
 			>
 				<img
 					src={language.flag}
@@ -52,7 +67,7 @@
 				<span class="align-middle">
 					{language.label}
 				</span>
-			</DropdownItem>
+			</button>
 		{/each}
-	</DropdownMenu>
-</Dropdown>
+	</div>
+</div>

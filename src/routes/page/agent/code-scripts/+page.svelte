@@ -2,7 +2,6 @@
     import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
-    import { Button, Card, CardBody, Col, Row } from '@sveltestrap/sveltestrap';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -12,44 +11,44 @@
     import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import ScriptEditor from './script-editor.svelte';
-	
+
     /** @type {boolean} */
-    let isLoading = false;
+    let isLoading = $state(false);
     /** @type {boolean} */
-    let isComplete = false;
+    let isComplete = $state(false);
     /** @type {boolean} */
-    let isError = false;
+    let isError = $state(false);
     /** @type {number} */
     let duration = 2000;
 
     /** @type {import('$userTypes').UserModel} */
-	let user;
+	let user = $state(/** @type {any} */ (undefined));
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
-	let agentOptions = [];
+	let agentOptions = $state([]);
 
     /** @type {string | null | undefined} */
-    let selectedAgentId;
+    let selectedAgentId = $state(undefined);
 
     /** @type {{
      * scripts: import('$agentTypes').AgentCodeScriptViewModel[],
      * selectedScript: import('$agentTypes').AgentCodeScriptViewModel | null
      * }}
     */
-    let srcScriptObj = {
+    let srcScriptObj = $state({
         scripts: [],
         selectedScript: null
-    };
+    });
 
     /** @type {{
      * scripts: import('$agentTypes').AgentCodeScriptViewModel[],
      * selectedScript: import('$agentTypes').AgentCodeScriptViewModel | null
      * }}
     */
-    let testScriptObj = {
+    let testScriptObj = $state({
         scripts: [],
         selectedScript: null
-    };
+    });
 
     onMount(async () => {
         user = await myInfo();
@@ -79,7 +78,7 @@
 		const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
         selectedAgentId = selectedValues.length > 0 ? selectedValues[0] : null;
 
-        if (!!selectedAgentId) {
+        if (selectedAgentId) {
             initAgentCodeScripts(selectedAgentId);
         } else {
             refreshScriptObj([]);
@@ -172,8 +171,8 @@
     }
 </script>
 
-<HeadTitle title="{$_('Code Scripts')}" />
-<Breadcrumb title="{$_('Agent')}" pagetitle="{$_('Code Scripts')}" />
+<HeadTitle title={$_('Code Scripts')} />
+<Breadcrumb title={$_('Agent')} pagetitle={$_('Code Scripts')} />
 
 <LoadingToComplete
     {isLoading}
@@ -181,10 +180,10 @@
     {isError}
 />
 
-<Card>
-    <CardBody class="border-bottom">
-        <Row class="g-3">
-            <Col lg="3" class="d-flex flex-column gap-1">
+<div class="card">
+    <div class="card-body border-bottom">
+        <div class="row g-3">
+            <div class="col-lg-3 d-flex flex-column gap-1">
                 <div class="fw-bold">Agent</div>
                 <Select
                     tag={'agent-select'}
@@ -193,12 +192,12 @@
                     searchMode
                     selectedValues={selectedAgentId ? [selectedAgentId] : []}
                     options={agentOptions}
-                    on:select={e => changeAgent(e)}
+                    onselect={e => changeAgent(e)}
                 />
-            </Col>
-        </Row>
-    </CardBody>
-</Card>
+            </div>
+        </div>
+    </div>
+</div>
 
 {#if !!selectedAgentId}
     <ScriptEditor
@@ -213,23 +212,25 @@
     />
 
     {#if ADMIN_ROLES.includes(user?.role || '')}
-    <Row>
+    <div class="row">
         <div class="hstack gap-2 my-4">
-            <Button
+            <button
+                type="button"
                 class="btn btn-soft-primary"
                 disabled={!selectedAgentId}
-                on:click={() => saveCodeScripts()}
+                onclick={() => saveCodeScripts()}
             >
                 {$_('Save')}
-            </Button>
-            <Button
+            </button>
+            <button
+                type="button"
                 class="btn btn-warning"
                 disabled={!selectedAgentId}
-                on:click={() => resetCodeScripts()}
+                onclick={() => resetCodeScripts()}
             >
                 {$_('Reset')}
-            </Button>
+            </button>
         </div>
-    </Row>
+    </div>
     {/if}
 {/if}

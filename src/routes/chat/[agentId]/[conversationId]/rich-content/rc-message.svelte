@@ -3,19 +3,22 @@
 	import { RichType } from "$lib/helpers/enums";
 	import RcJsInterpreter from "./rc-js-interpreter.svelte";
 
-    /** @type {import('$conversationTypes').ChatResponseModel?} */
-    export let message;
+    /**
+     * @type {{
+     *   message?: import('$conversationTypes').ChatResponseModel | null,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   markdownClasses?: string
+     * }}
+     */
+    let {
+        message = null,
+        containerClasses = '',
+        containerStyles = '',
+        markdownClasses = ''
+    } = $props();
 
-    /** @type {string} */
-    export let containerClasses = '';
-
-    /** @type {string} */
-    export let containerStyles = '';
-
-    /** @type {string} */
-    export let markdownClasses = '';
-
-    $: text = message?.rich_content?.message?.text || message?.text || '';
+    let text = $derived(message?.rich_content?.message?.text || message?.text || '');
 </script>
 
 {#if text}

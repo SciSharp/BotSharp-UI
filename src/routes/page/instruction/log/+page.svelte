@@ -3,7 +3,6 @@
 	import { page } from '$app/stores';
 	import { _ } from 'svelte-i18n';
     import util from "lodash";
-	import { Button, Card, CardBody, Col, Input, Row, Table } from '@sveltestrap/sveltestrap';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
@@ -146,7 +145,7 @@
     function getPagedInstructionLogs() {
         logItems = [];
         isLoading = true;
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
             getInstructionLogs(filter).then(res => {
                 refresh(res);
                 resolve(res);
@@ -293,45 +292,46 @@
 
 <LoadingToComplete isLoading={isLoading} />
 
-<Row>
-	<Col lg="12">
-		<Card>
-			<CardBody class="border-bottom">
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body border-bottom">
 				<div class="d-flex flex-wrap align-items-center justify-content-between">
 					<div class="mb-0 card-title flex-grow-0">
 						<h5 class="mb-0 card-title flex-grow-1">{$_('Log List')}</h5>
 					</div>
 					<div class="state-search-btn-wrapper">
-						<Button
-							color={showStateSearch ? 'secondary' : 'primary'}
-							on:click={() => showStateSearch = !showStateSearch}
+						<button
+							type="button"
+							class="btn btn-{showStateSearch ? 'secondary' : 'primary'}"
+							onclick={() => showStateSearch = !showStateSearch}
 						>
 							<div class="state-search-btn">
 								<div>
 									{#if showStateSearch}
-										<i class="bx bx-hide" />
+										<i class="bx bx-hide"></i>
 									{:else}
-										<i class="bx bx-search-alt" />
+										<i class="bx bx-search-alt"></i>
 									{/if}
 								</div>
 								<div class="search-btn-text">{'State Search'}</div>
 							</div>
-						</Button>
+						</button>
 					</div>
 				</div>
-			</CardBody>
+			</div>
 			{#if showStateSearch}
-				<CardBody class="border-bottom">
-					<Row class="g-3 justify-content-end">
-						<Col lg="6">
+				<div class="card-body border-bottom">
+					<div class="row g-3 justify-content-end">
+						<div class="col-lg-6">
 							<StateSearch bind:states={states} onSearch={(query) => handleStateSearch(query)} />
-						</Col>
-					</Row>
-				</CardBody>
+						</div>
+					</div>
+				</div>
 			{/if}
-			<CardBody class="border-bottom">
-				<Row class="g-3">
-					<Col lg="3">
+			<div class="card-body border-bottom">
+				<div class="row g-3">
+					<div class="col-lg-3">
 						<Select
 							tag={'agent-select'}
 							placeholder={'Select agents'}
@@ -340,20 +340,20 @@
 							searchMode
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
-							on:select={e => changeOption(e, 'agent')}
+							onselect={e => changeOption(e, 'agent')}
 						/>
-					</Col>
-					<Col lg="2">
+					</div>
+					<div class="col-lg-2">
 						<Select
 							tag={'llm-provider-select'}
 							placeholder={'Select LLM provider'}
 							searchMode
 							selectedValues={searchOption.providers}
 							options={providerOptions}
-							on:select={e => changeOption(e, 'provider')}
+							onselect={e => changeOption(e, 'provider')}
 						/>
-					</Col>
-					<Col lg="2">
+					</div>
+					<div class="col-lg-2">
 						<Select
 							tag={'llm-model-select'}
 							placeholder={'Select LLM model'}
@@ -362,42 +362,47 @@
 							searchMode
 							selectedValues={searchOption.models}
 							options={modelOptions}
-							on:select={e => changeOption(e, 'model')}
+							onselect={e => changeOption(e, 'model')}
 						/>
-					</Col>
-					<Col lg="2">
-						<Input bind:value={searchOption.template} maxlength={100} placeholder={'Search template...'} />
-					</Col>
-					<Col lg="2">
+					</div>
+					<div class="col-lg-2">
+						<input
+							type="text"
+							class="form-control"
+							bind:value={searchOption.template}
+							maxlength={100}
+							placeholder={'Search template...'}
+						/>
+					</div>
+					<div class="col-lg-2">
 						<TimeRangePicker
 							storageKey="botsharp_instruction_recent_time_ranges"
 							bind:timeRange={searchOption.timeRange}
 							bind:startDate={searchOption.startDate}
 							bind:endDate={searchOption.endDate}
-							on:change={(e) => {
+							onchange={(data) => {
 								// Only update searchOption, don't trigger query immediately
-								searchOption.timeRange = e.detail.timeRange;
-								searchOption.startDate = e.detail.startDate;
-								searchOption.endDate = e.detail.endDate;
+								searchOption.timeRange = data.timeRange;
+								searchOption.startDate = data.startDate;
+								searchOption.endDate = data.endDate;
 							}}
 						/>
-					</Col>
-					<Col lg="1">
-						<Button
+					</div>
+					<div class="col-lg-1">
+						<button
 							type="button"
-							color="secondary"
-							class="btn-soft-secondary w-100"
-							on:click={(e) => search()}
+							class="btn btn-secondary btn-soft-secondary w-100"
+							onclick={() => search()}
 						>
-							<i class="mdi mdi-filter-outline align-middle" />
+							<i class="mdi mdi-filter-outline align-middle"></i>
 							<span class="d-none">{$_('Filter')}</span>
-						</Button>
-					</Col>
-				</Row>
-			</CardBody>
-			<CardBody>
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="card-body">
 				<div class="table-responsive thin-scrollbar">
-					<Table class="align-middle nowrap users-table" bordered>
+					<table class="table table-bordered align-middle nowrap users-table">
 						<thead>
 							<tr>
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Agent')}</th>
@@ -405,19 +410,19 @@
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Llm Model')}</th>
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Template')}</th>
 								<th scope="col" class="instruction-log-col ellipsis">{$_('Caller')}</th>
-                                <th scope="col" class="instruction-log-col ellipsis">{$_('Created Time')}</th>
+								<th scope="col" class="instruction-log-col ellipsis">{$_('Created Time')}</th>
 								<th scope="col">{$_('')}</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each logItems as item, idx (idx)}
-                                <LogItem item={item} />
-                            {/each}
+								<LogItem {item} />
+							{/each}
 						</tbody>
-					</Table>
+					</table>
 				</div>
 				<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
-			</CardBody>
-		</Card>
-	</Col>
-</Row>
+			</div>
+		</div>
+	</div>
+</div>

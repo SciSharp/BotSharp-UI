@@ -1,59 +1,54 @@
 <script>
-    import { onDestroy, createEventDispatcher } from 'svelte';
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
 	import { conversationUserAttachmentStore } from '$lib/helpers/store';
 
-    const svelteDispatch = createEventDispatcher();
-	
-    /** @type {string} */
-    export let accept;
-
-    export let fileMaxSize = 10 * 1024 * 1024;
-
-    /** @type {boolean} */
-    export let disabled = false;
-
-    /** @type {string} */
-    export let containerClasses = "";
-
-    /** @type {string} */
-    export let containerStyles = "";
+    /**
+     * @type {{
+     *   accept?: string,
+     *   fileMaxSize?: number,
+     *   disabled?: boolean,
+     *   containerClasses?: string,
+     *   containerStyles?: string,
+     *   onfiledroped?: () => void,
+     *   children?: import('svelte').Snippet
+     * }}
+     */
+    let {
+        accept = '',
+        fileMaxSize = 10 * 1024 * 1024,
+        disabled = false,
+        containerClasses = '',
+        containerStyles = '',
+        onfiledroped,
+        children
+    } = $props();
 
     /** @type {any[]} */
-    let files = [];
-
-    /** @type {boolean} */
-    let disableFileDrop = false;
-
-    /** @type {number} */
-    let localFileUploadLimit = 0;
+    let files = $state([]);
 
     const fileUpperLimit = 5;
-    
 
-    const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
-        const savedAttachments = $conversationUserAttachmentStore;
-        files = value.accepted_files?.length > 0 ? value.accepted_files : savedAttachments?.accepted_files || [];
+    let disableFileDrop = $derived(disabled || files.length >= fileUpperLimit);
+    let localFileUploadLimit = $derived(Math.max(fileUpperLimit - files.length, 0));
+
+    $effect(() => {
+        const unsubscribe = conversationUserAttachmentStore.subscribe(value => {
+            files = value?.accepted_files || [];
+        });
+
+        return () => {
+            unsubscribe();
+        };
     });
-
-    onDestroy(() => {
-        unsubscribe();
-    });
-
-    $: {
-        disableFileDrop = disabled || files.length >= fileUpperLimit;
-        localFileUploadLimit = Math.max(fileUpperLimit - files.length, 0);
-    }
 
     /** @param {any} e */
     async function handleFileDrop(e) {
-        const { acceptedFiles } = e.detail;
-        const savedAttachments = $conversationUserAttachmentStore;
-        const newAttachments = [...savedAttachments?.accepted_files || [], ...acceptedFiles];
+        const { acceptedFiles } = e;
+        const newAttachments = [...files, ...acceptedFiles];
         conversationUserAttachmentStore.put({
             accepted_files: newAttachments
         });
-        svelteDispatch('filedroped');
+        onfiledroped?.();
     }
 </script>
 
@@ -68,17 +63,19 @@
         disabled={disableFileDrop}
         fileLimit={localFileUploadLimit}
         maxSize={fileMaxSize}
-        on:drop={e => handleFileDrop(e)}
+        ondrop={handleFileDrop}
     >
-        <slot>
+        {#if children}
+            {@render children()}
+        {:else}
             <span>
                 <i
                     class="bx bx-image-add"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Upload files"
-                />
+                ></i>
             </span>
-        </slot>
+        {/if}
     </FileDropZone>
 </div>
