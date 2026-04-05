@@ -300,7 +300,7 @@
 	}
 
 	.auth-header {
-		background: linear-gradient(135deg, #0065a1 0%, #004d7a 100%);
+		background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 75%, #000) 100%);
 		padding: 2.5rem 2rem;
 		color: white;
 		position: relative;
@@ -462,8 +462,8 @@
 	}
 
 	.modern-input:focus {
-		border-color: #0065a1 !important;
-		box-shadow: 0 0 0 0.2rem rgba(0, 101, 161, 0.15) !important;
+		border-color: var(--bs-primary) !important;
+		box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.15) !important;
 		background: var(--bs-white) !important;
 		outline: none;
 	}
@@ -538,12 +538,12 @@
 	}
 
 	.form-check-input:checked {
-		background-color: #0065a1;
-		border-color: #0065a1;
+		background-color: var(--bs-primary);
+		border-color: var(--bs-primary);
 	}
 
 	.form-check-input:focus {
-		box-shadow: 0 0 0 0.2rem rgba(0, 101, 161, 0.15);
+		box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.15);
 	}
 
 	.form-check-label {
@@ -553,7 +553,7 @@
 	}
 
 	.forgot-password {
-		color: #0065a1;
+		color: var(--bs-primary);
 		text-decoration: none;
 		font-size: 0.9rem;
 		font-weight: 500;
@@ -561,7 +561,7 @@
 	}
 
 	.forgot-password:hover {
-		color: #004d7a;
+		color: color-mix(in srgb, var(--bs-primary) 75%, #000);
 		text-decoration: underline;
 	}
 
@@ -576,7 +576,7 @@
 		min-width: 200px;
 		height: 3.5rem;
 		border-radius: 12px !important;
-		background: linear-gradient(135deg, #0065a1 0%, #004d7a 100%) !important;
+		background: linear-gradient(135deg, var(--bs-primary) 0%, color-mix(in srgb, var(--bs-primary) 75%, #000) 100%) !important;
 		border: none !important;
 		font-weight: 600;
 		font-size: 1.1rem;
@@ -603,7 +603,7 @@
 
 	.login-btn:hover {
 		transform: translateY(-2px);
-		box-shadow: 0 10px 25px rgba(0, 101, 161, 0.3);
+		box-shadow: 0 10px 25px rgba(var(--bs-primary-rgb), 0.3);
 	}
 
 	.login-btn:active {
@@ -721,14 +721,14 @@
 	}
 
 	.signup-link {
-		color: #0065a1;
+		color: var(--bs-primary);
 		text-decoration: none;
 		font-weight: 600;
 		margin-left: 0.25rem;
 	}
 
 	.signup-link:hover {
-		color: #004d7a;
+		color: color-mix(in srgb, var(--bs-primary) 75%, #000);
 		text-decoration: underline;
 	}
 
@@ -761,7 +761,7 @@
 
 		.modern-input:focus {
 			background: var(--bs-gray-800);
-			border-color: #0065a1 !important;
+			border-color: var(--bs-primary) !important;
 		}
 
 		.modern-input::placeholder {
