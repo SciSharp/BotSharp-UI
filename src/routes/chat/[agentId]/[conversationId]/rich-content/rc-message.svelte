@@ -10,19 +10,23 @@
      *   message?: import('$conversationTypes').ChatResponseModel | null,
      *   containerClasses?: string,
      *   containerStyles?: string,
-     *   markdownClasses?: string
+     *   markdownClasses?: string,
+     *   isStreaming?: boolean
      * }}
      */
     let {
         message = null,
         containerClasses = '',
         containerStyles = '',
-        markdownClasses = ''
+        markdownClasses = '',
+        isStreaming = false
     } = $props();
 
     let text = $derived(message?.rich_content?.message?.text || message?.text || '');
     let thinkingText = $derived(message?.meta_data?.thinking_text || '');
-    let isStillThinking = $derived(!!thinkingText && !text);
+    let isThinking = $derived(thinkingText && !text && isStreaming);
+    let isStoppedThinking = $derived(thinkingText && !text && !isStreaming);
+
     let isThinkingExpanded = $state(false);
     let isThinkingAutoControlled = $state(true);
 
@@ -52,9 +56,11 @@
                     onclick={() => isThinkingExpanded = !isThinkingExpanded}
                 >
                     <span class="thinking-sparkle"><Icon src={Sparkles} solid size="16" /></span>
-                    <span>{'Thinking'}</span>
-                    {#if isStillThinking}
+                    <span class="font-bold">{'Thinking'}</span>
+                    {#if isThinking}
                         <Loader disableDefaultStyles size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
+                    {:else if isStoppedThinking}
+                        <span class="stopped-thinking-label">Stopped thinking</span>
                     {:else}
                         <span class="thinking-chevron" class:expanded={isThinkingExpanded}>›</span>
                     {/if}
@@ -79,7 +85,7 @@
 
 <style>
     .thinking-section {
-        margin-bottom: 8px;
+        margin-bottom: 15px;
     }
 
     .thinking-toggle {
@@ -112,6 +118,12 @@
 
     .thinking-chevron.expanded {
         transform: rotate(90deg);
+    }
+
+    .stopped-thinking-label {
+        font-size: 0.85em;
+        color: #999;
+        font-style: italic;
     }
 
     .thinking-content {
