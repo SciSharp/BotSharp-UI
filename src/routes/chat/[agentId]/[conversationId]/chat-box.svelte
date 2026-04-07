@@ -578,7 +578,11 @@
 			dialogs.push({
 				...message,
 				is_chat_message: false,
-				is_dummy: true
+				is_dummy: true,
+				meta_data: {
+					...(message.meta_data || {}),
+					thinking_text: message.meta_data?.thinking_text || ''
+				}
 			});
 		}
 		refresh();
@@ -595,7 +599,15 @@
 				&& lastMsg?.is_dummy
 			) {
 				setTimeout(() => {
-					dialogs[dialogs.length - 1].text += message.text;
+					const lastDialog = dialogs[dialogs.length - 1];
+					const thinkingText = message.meta_data?.thinking_text || '';
+					if (thinkingText) {
+						if (!lastDialog.meta_data) {
+							lastDialog.meta_data = { thinking_text: '' };
+						}
+						lastDialog.meta_data.thinking_text += thinkingText;
+					}
+					lastDialog.text += message.text;
 					refreshDialogs();
 				}, 0);
 			}
@@ -624,8 +636,21 @@
 			}
 
 			try {
+				const lastDialog = dialogs[dialogs.length - 1];
+				const thinkingText = item.meta_data?.thinking_text || '';
+				if (thinkingText) {
+					if (!lastDialog.meta_data) {
+						lastDialog.meta_data = { thinking_text: '' };
+					}
+					for (const tt of thinkingText) {
+						lastDialog.meta_data.thinking_text += tt;
+						refreshDialogs();
+						await delay(10);
+					}
+				}
+
 				for (const char of item.text) {
-					dialogs[dialogs.length - 1].text += char;
+					lastDialog.text += char;
 					refreshDialogs();
 					await delay(10);
 				}
