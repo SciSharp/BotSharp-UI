@@ -180,6 +180,7 @@ IRichContent.prototype.language;
  * @property {boolean} is_dummy
  * @property {boolean} is_appended
  * @property {string} [indication]
+ * @property {any} [meta_data]
  */
 
 /**

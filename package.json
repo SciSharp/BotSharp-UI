@@ -73,6 +73,7 @@
 		"svelte-codemirror-editor": "^2.1.0",
 		"svelte-collapse": "^0.1.2",
 		"svelte-file-dropzone": "^2.0.2",
+		"svelte-hero-icons": "^5.2.0",
 		"svelte-i18n": "^4.0.0",
 		"svelte-json-tree": "^2.2.0",
 		"svelte-jsoneditor": "^3.11.0",
