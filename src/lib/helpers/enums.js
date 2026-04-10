@@ -249,6 +249,14 @@ const reasoningEffortLevel = {
 };
 export const ReasoningEffortLevel = Object.freeze(reasoningEffortLevel);
 
+const responseFormat = {
+    Json: "json",
+    Xml: "xml",
+    Md: "markdown",
+    Yaml: "yaml"
+};
+export const ResponseFormat = Object.freeze(responseFormat);
+
 const timeRange = {
     Last15Minutes: "Last 15 minutes",
     Last30Minutes: "Last 30 minutes",
