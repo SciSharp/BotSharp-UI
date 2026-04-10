@@ -1,9 +1,9 @@
 <script>
     import { onMount } from 'svelte';
     import { v4 as uuidv4 } from 'uuid';
-    import util from "lodash";
     import NavBar from '$lib/common/nav-bar/NavBar.svelte';
     import NavItem from '$lib/common/nav-bar/NavItem.svelte';
+    import AgentTemplateConfig from './agent-template-config.svelte';
 
     /**
      * @type {{
@@ -17,19 +17,31 @@
     } = $props();
 
     export function fetchTemplates() {
-        const candidates = inner_templates?.filter((x) => !!x.name?.trim())?.map(x => {
-            return { name: x.name.trim().toLowerCase(), content: x.content };
+        // Remove templates with empty names
+        const withNames = inner_templates.filter(x => !!x.name?.trim());
+
+        // Remove duplicates by name (keep first occurrence)
+        /** @type {Set<string>} */
+        const seen = new Set();
+        const unique = withNames.filter(x => {
+            const key = x.name.trim().toLowerCase();
+            if (seen.has(key)) return false;
+            seen.add(key);
+            return true;
         });
 
-        const prompts = [];
-        const groups = util.groupBy(candidates, (/** @type {any} */ x) => x.name);
-        for (const key in groups) {
-            if (groups[key]?.length > 0) {
-                prompts.push(groups[key][0]);
-            }
+        // Update inner state to reflect cleanup
+        inner_templates = unique;
+        if (!unique.find(x => x.uid === selected_template.uid)) {
+            selected_template = unique.length > 0 ? unique[0] : { ...defaultTemplate };
         }
 
-        return prompts;
+        return unique.map(x => ({
+            name: x.name.trim().toLowerCase(),
+            content: x.content,
+            response_format: x.response_format || null,
+            llm_config: x.llm_config || null
+        }));
     }
 
 
@@ -46,6 +58,9 @@
     /** @type {import('$agentTypes').AgentTemplate} */
     let selected_template = $state({ ...defaultTemplate });
 
+    /** @type {boolean} */
+    let showConfig = $state(false);
+
     onMount(() => {
         init();
     });
@@ -55,7 +70,9 @@
             ...agent.templates?.map(x => ({
                 uid: uuidv4(),
                 name: x.name,
-                content: x.content
+                content: x.content,
+                response_format: x.response_format || null,
+                llm_config: x.llm_config || null
             })) || []
         ];
 
@@ -122,6 +139,10 @@
         }
         handleAgentChange();
     }
+
+    function toggleConfig() {
+        showConfig = !showConfig;
+    }
 </script>
 
 
@@ -179,15 +200,40 @@
                 />
                 {/each}
             </NavBar>
-            <textarea
-                class="form-control"
-                style="scrollbar-width: thin; resize: none;"
-                placeholder="Enter your content"
-                value={selected_template.content}
-                rows={15}
-                oninput={(e) => changePrompt(e)}
-                onkeydown={(e) => onKeyDown(e)}
-            ></textarea>
+
+            <div class="template-content-wrapper">
+                <div class="template-editor-area">
+                    <textarea
+                        class="form-control template-textarea"
+                        placeholder="Enter your content"
+                        value={selected_template.content}
+                        oninput={(e) => changePrompt(e)}
+                        onkeydown={(e) => onKeyDown(e)}
+                    ></textarea>
+                </div>
+
+                <!-- Config toggle button -->
+                <div
+                    class="config-toggle-btn"
+                    role="button"
+                    tabindex="0"
+                    title={showConfig ? 'Hide config' : 'Show config'}
+                    onclick={() => toggleConfig()}
+                    onkeydown={(e) => e.key === 'Enter' && toggleConfig()}
+                >
+                    <i class="mdi {showConfig ? 'mdi-chevron-right' : 'mdi-chevron-left'}"></i>
+                </div>
+
+                <!-- Config panel -->
+                <div class="template-config-panel" class:expanded={showConfig}>
+                    {#if showConfig}
+                        <AgentTemplateConfig
+                            bind:template={selected_template}
+                            {handleAgentChange}
+                        />
+                    {/if}
+                </div>
+            </div>
             {/if}
         </div>
     </div>
