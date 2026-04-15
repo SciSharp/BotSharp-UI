@@ -28,6 +28,7 @@
 		uploadConversationFiles,
 		getAddressOptions,
 		pinConversationToDashboard,
+		stopStreaming as stopStreamingApi,
 	} from '$lib/services/conversation-service.js';
 	import { 
 		PUBLIC_LIVECHAT_ENTRY_ICON, 
@@ -200,7 +201,6 @@
 	let isListening = $state(false);
 	let isLite = $state(false);
 	let isFrame = $state(false);
-	let loadTextEditor = $state(false);
 	let autoScrollLog = $state(false);
 	let loadChatUtils = $state(false);
 	let disableSpeech = $state(false);
@@ -212,12 +212,15 @@
 	let copyClicked = $state(false);
 	let isStreaming = $state(false);
 	let isHandlingQueue = $state(false);
+	let isStopStreamClicked = $state(false);
 
-	let loadEditor = $derived(!isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0);
-	let disableAction = $derived(!ADMIN_ROLES.includes(currentUser?.role || '') && currentUser?.id !== conversationUser?.id || !AgentExtensions.chatable(agent));
+	// let loadEditor = $derived(!isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0);
+	let loadEditor = true;
+	let disableAction = $derived(!ADMIN_ROLES.includes(currentUser?.role || '')
+								&& currentUser?.id !== conversationUser?.id
+								|| !AgentExtensions.chatable(agent));
 
 	$effect(() => {
-		loadTextEditor = true;
 		if (loadEditor) {
 			focusChatTextArea();
 		}
@@ -578,7 +581,11 @@
 			dialogs.push({
 				...message,
 				is_chat_message: false,
-				is_dummy: true
+				is_dummy: true,
+				meta_data: {
+					...(message.meta_data || {}),
+					thinking_text: message.meta_data?.thinking_text || ''
+				}
 			});
 		}
 		refresh();
@@ -595,6 +602,13 @@
 				&& lastMsg?.is_dummy
 			) {
 				setTimeout(() => {
+					const thinkingText = message.meta_data?.thinking_text || '';
+					if (thinkingText) {
+						if (!dialogs[dialogs.length - 1].meta_data) {
+							dialogs[dialogs.length - 1].meta_data = { thinking_text: '' };
+						}
+						dialogs[dialogs.length - 1].meta_data.thinking_text += thinkingText;
+					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
 				}, 0);
@@ -624,6 +638,18 @@
 			}
 
 			try {
+				const thinkingText = item.meta_data?.thinking_text || '';
+				if (thinkingText) {
+					if (!dialogs[dialogs.length - 1].meta_data) {
+						dialogs[dialogs.length - 1].meta_data = { thinking_text: '' };
+					}
+					for (const tt of thinkingText) {
+						dialogs[dialogs.length - 1].meta_data.thinking_text += tt;
+						refreshDialogs();
+						await delay(10);
+					}
+				}
+
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refreshDialogs();
@@ -640,6 +666,22 @@
 	function afterReceiveLlmStreamMessage(message) {
 		isStreaming = false;
 		refresh();
+	}
+
+	function stopStreaming() {
+		isStopStreamClicked = true;
+		// @ts-ignore
+		stopStreamingApi(page.params.conversationId).then((res) => {
+			if (res?.success) {
+				isStreaming = false;
+				isThinking = false;
+				isSendingMsg = false;
+				messageQueue = [];
+				isHandlingQueue = false;
+				refresh();
+			}
+			isStopStreamClicked = false;
+		});
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -757,8 +799,7 @@
 			...data,
 			postback: postback,
 			states: [
-				...data?.states || [],
-				{ key: "use_stream_message", value: PUBLIC_LIVECHAT_STREAM_ENABLED }
+				...data?.states || []
 			]
 		};
 
@@ -801,7 +842,7 @@
 		}
 
 		// @ts-ignore
-		await sendMessageToHub(agentId, convId, msgText, messageData);
+		await sendMessageToHub(agentId, convId, msgText, messageData, PUBLIC_LIVECHAT_STREAM_ENABLED === "true");
 		deleteMessageDraft();
 		isSendingMsg = false;
     }
@@ -1973,7 +2014,7 @@
 													{#if message.sender.role == UserRole.Client}
 														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
-														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text) || message?.uuid !== lastBotMsg?.uuid}
+														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.meta_data?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
 														<img
 															class="rounded-circle avatar-sm"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
@@ -1983,7 +2024,7 @@
 													{/if}
 												</div>
 												<div class="msg-container">
-													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} />
+													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} isStreaming={isStreaming || isThinking} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}	
 														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
@@ -2150,7 +2191,7 @@
 										<ChatFileUploader
 											accept={'.png,.jpg,.jpeg'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={disableAction}
+											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2164,7 +2205,7 @@
 										<ChatFileUploader
 											accept={'.pdf,.xlsx,.xls,.csv'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={disableAction}
+											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2178,7 +2219,7 @@
 										<ChatFileUploader
 											accept={'.wav,.mp3'}
 											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={disableAction}
+											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2196,21 +2237,35 @@
 											onclick={() => toggleBigMessageModal()}
 										/>
 										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
-											<ChatUtil disabled={disableAction} onclick={() => loadChatUtils = true} />
+											<ChatUtil
+												disabled={isSendingMsg || isThinking || disableAction}
+												onclick={() => loadChatUtils = true}
+											/>
 										{/if}
 									</div>
 								</div>
 							</div>
 							<div class="col-auto">
-								<button
-									type="submit"
-									class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-									disabled={!_.trim(text) || isSendingMsg || isThinking || disableAction}
-									onclick={() => sentTextMessage()}
-								>
-									<span class="d-none d-md-inline-block me-2">Send</span>
-									<i class="mdi mdi-send"></i>
-								</button>
+								{#if !isStopStreamClicked && isStreaming && PUBLIC_LIVECHAT_STREAM_ENABLED === 'true'}
+									<button
+										type="button"
+										class="btn btn-rounded chat-send waves-effect waves-light btn-danger"
+										aria-label="Stop streaming"
+										onclick={() => stopStreaming()}
+									>
+										<i class="mdi mdi-stop"></i>
+									</button>
+								{:else}
+									<button
+										type="submit"
+										class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+										disabled={!_.trim(text) || isSendingMsg || isThinking || disableAction}
+										onclick={() => sentTextMessage()}
+									>
+										<span class="d-none d-md-inline-block me-2">Send</span>
+										<i class="mdi mdi-send"></i>
+									</button>
+								{/if}
 							</div>
 						</div>
 					</div>
