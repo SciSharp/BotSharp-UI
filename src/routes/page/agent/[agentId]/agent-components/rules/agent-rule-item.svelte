@@ -106,6 +106,7 @@
                     <input
                         type="checkbox"
                         class="form-check-input"
+                        style="margin-top: 0;"
                         checked={!rule.disabled}
                         onchange={e => toggleRule(e, 'rule')}
                     />
