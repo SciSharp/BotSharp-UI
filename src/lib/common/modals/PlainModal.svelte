@@ -32,17 +32,17 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-    class="fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] bg-black/50"
+    class={`fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] bg-black/50 ${containerClasses}`}
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
 >
     <div
-        class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-lg'} mx-4 ${containerClasses}`}
+        class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-lg'} mx-4 modal-content`}
         style={containerStyles}
     >
         <!-- Header -->
         {#if title}
-        <div class="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between p-3 border-b border-gray-200 dark:border-gray-700 modal-title">
             <div class="font-semibold text-lg">{title}</div>
             <button
                 type="button"
@@ -56,7 +56,7 @@
         {/if}
 
         <!-- Body -->
-        <div class="p-3" style={bodyStyles}>
+        <div class="p-3 modal-body" style={bodyStyles}>
             {@render children?.()}
         </div>
     </div>
