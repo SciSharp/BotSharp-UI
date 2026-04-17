@@ -4,6 +4,8 @@
 	import RcJsInterpreter from "./rc-js-interpreter.svelte";
 	import { Icon, Sparkles } from "svelte-hero-icons";
 	import Loader from "$lib/common/spinners/Loader.svelte";
+	import { slide, fade } from "svelte/transition";
+	import { cubicOut } from "svelte/easing";
 
     /**
      * @type {{
@@ -55,7 +57,7 @@
                     class="thinking-toggle"
                     onclick={() => isThinkingExpanded = !isThinkingExpanded}
                 >
-                    <span class="thinking-sparkle"><Icon src={Sparkles} solid size="16" /></span>
+                    <span class="thinking-sparkle" class:pulsing={isThinking}><Icon src={Sparkles} solid size="16" /></span>
                     <span class="font-bold">{'Thinking'}</span>
                     {#if isThinking}
                         <Loader disableDefaultStyles size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
@@ -66,8 +68,13 @@
                     {/if}
                 </button>
                 {#if isThinkingExpanded}
-                    <div class="thinking-content">
-                        <Markdown containerStyles="color: #444 !important;" text={thinkingText} rawText />
+                    <div
+                        class="thinking-content"
+                        transition:slide={{ duration: 200, easing: cubicOut }}
+                    >
+                        <div in:fade={{ duration: 200, delay: 80 }}>
+                            <Markdown containerStyles="color: #444 !important;" text={thinkingText} rawText />
+                        </div>
                     </div>
                 {/if}
             </div>
@@ -110,9 +117,24 @@
         align-items: center;
     }
 
+    .thinking-sparkle.pulsing {
+        animation: thinking-sparkle-pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes thinking-sparkle-pulse {
+        0%, 100% {
+            opacity: 1;
+            transform: scale(1);
+        }
+        50% {
+            opacity: 0.55;
+            transform: scale(1.15);
+        }
+    }
+
     .thinking-chevron {
         font-size: 1em;
-        transition: transform 0.2s ease;
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         display: inline-block;
     }
 
