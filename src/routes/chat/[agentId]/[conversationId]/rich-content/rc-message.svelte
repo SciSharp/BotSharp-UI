@@ -25,7 +25,7 @@
     } = $props();
 
     let text = $derived(message?.rich_content?.message?.text || message?.text || '');
-    let thinkingText = $derived(message?.meta_data?.thinking_text || '');
+    let thinkingText = $derived(message?.thought?.thinking_text || '');
     let isThinking = $derived(thinkingText && !text && isStreaming);
     let isStoppedThinking = $derived(thinkingText && !text && !isStreaming);
 

@@ -582,9 +582,9 @@
 				...message,
 				is_chat_message: false,
 				is_dummy: true,
-				meta_data: {
-					...(message.meta_data || {}),
-					thinking_text: message.meta_data?.thinking_text || ''
+				thought: {
+					...(message.thought || {}),
+					thinking_text: message.thought?.thinking_text || ''
 				}
 			});
 		}
@@ -602,12 +602,12 @@
 				&& lastMsg?.is_dummy
 			) {
 				setTimeout(() => {
-					const thinkingText = message.meta_data?.thinking_text || '';
+					const thinkingText = message.thought?.thinking_text || '';
 					if (thinkingText) {
-						if (!dialogs[dialogs.length - 1].meta_data) {
-							dialogs[dialogs.length - 1].meta_data = { thinking_text: '' };
+						if (!dialogs[dialogs.length - 1].thought) {
+							dialogs[dialogs.length - 1].thought = { thinking_text: '' };
 						}
-						dialogs[dialogs.length - 1].meta_data.thinking_text += thinkingText;
+						dialogs[dialogs.length - 1].thought.thinking_text += thinkingText;
 					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
@@ -638,13 +638,13 @@
 			}
 
 			try {
-				const thinkingText = item.meta_data?.thinking_text || '';
+				const thinkingText = item.thought?.thinking_text || '';
 				if (thinkingText) {
-					if (!dialogs[dialogs.length - 1].meta_data) {
-						dialogs[dialogs.length - 1].meta_data = { thinking_text: '' };
+					if (!dialogs[dialogs.length - 1].thought) {
+						dialogs[dialogs.length - 1].thought = { thinking_text: '' };
 					}
 					for (const tt of thinkingText) {
-						dialogs[dialogs.length - 1].meta_data.thinking_text += tt;
+						dialogs[dialogs.length - 1].thought.thinking_text += tt;
 						refreshDialogs();
 						await delay(10);
 					}
@@ -2014,7 +2014,7 @@
 													{#if message.sender.role == UserRole.Client}
 														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
-														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.meta_data?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
+														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
 														<img
 															class="rounded-circle avatar-sm"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
