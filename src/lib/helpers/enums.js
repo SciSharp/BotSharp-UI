@@ -29,6 +29,7 @@ const richType = {
     Generic: 'generic_template',
     Upload: 'upload_template',
     ProgramCode: 'program_code',
+    Embedding: 'embedding_template'
 }
 export const RichType = Object.freeze(richType);
 
