@@ -1,0 +1,89 @@
+.rc-embedding-wrapper {
+    width: 100%;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    .rc-embedding-toggle-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .rc-embedding-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--bs-info, #50a5f1);
+        font-size: 16px;
+        transition: color 0.2s ease;
+        text-decoration: none;
+
+        &:hover {
+            color: darken(#50a5f1, 15%);
+        }
+    }
+
+    .rc-embedding-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin: 0 auto;
+        width: auto;
+        background: linear-gradient(135deg, rgba(244, 106, 106, 0.08), rgba(244, 106, 106, 0.15));
+        border: 1px solid rgba(244, 106, 106, 0.2);
+        border-radius: 20px;
+        cursor: pointer;
+        padding: 6px 16px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--bs-danger, #f46a6a);
+        user-select: none;
+        transition: all 0.25s ease;
+        backdrop-filter: blur(4px);
+
+        &:hover {
+            background: linear-gradient(135deg, rgba(244, 106, 106, 0.15), rgba(244, 106, 106, 0.25));
+            border-color: rgba(244, 106, 106, 0.4);
+            box-shadow: 0 2px 8px rgba(244, 106, 106, 0.2);
+            transform: translateY(-1px);
+        }
+
+        &:active {
+            transform: translateY(0);
+            box-shadow: none;
+        }
+
+        &.closed {
+            background: linear-gradient(135deg, rgba(52, 195, 143, 0.08), rgba(52, 195, 143, 0.15));
+            border-color: rgba(52, 195, 143, 0.2);
+            color: var(--bs-success, #34c38f);
+
+            &:hover {
+                background: linear-gradient(135deg, rgba(52, 195, 143, 0.15), rgba(52, 195, 143, 0.25));
+                border-color: rgba(52, 195, 143, 0.4);
+                box-shadow: 0 2px 8px rgba(52, 195, 143, 0.2);
+            }
+        }
+    }
+
+    .rc-embedding-container {
+        width: 100%;
+        border-radius: 8px;
+        display: flex;
+        justify-content: center;
+        overflow: auto;
+        scrollbar-width: thin;
+
+        .rc-embedding-iframe {
+            width: fit-content;
+            min-width: 100%;
+            max-height: 800px;
+            min-height: 500px;
+            border: 1px solid var(--bs-border-color, #dee2e6);
+            border-radius: 8px;
+        }
+    }
+}

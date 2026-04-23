@@ -127,6 +127,33 @@ IRichContent.prototype.code_script;
  */
 IRichContent.prototype.language;
 
+/**
+ * The URL of the embedding rich content.
+ *
+ * @name url
+ * @type {string}
+ * @instance
+ */
+IRichContent.prototype.url;
+
+/**
+ * The title of the embedding rich content.
+ *
+ * @name title
+ * @type {string}
+ * @instance
+ */
+IRichContent.prototype.title;
+
+/**
+ * The html tag of the embedding rich content.
+ *
+ * @name html_tag
+ * @type {string}
+ * @instance
+ */
+IRichContent.prototype.html_tag;
+
 
 /**
  * @typedef {Object} TextMessage
