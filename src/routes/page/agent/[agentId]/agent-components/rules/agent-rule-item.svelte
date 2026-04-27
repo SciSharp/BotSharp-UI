@@ -143,7 +143,6 @@
                 <div class="line-align-center">
                     <i
                         class="bx bx-cog text-primary fs-6 clickable"
-                        style="padding-top: 2px;"
                         id={`rule-config-${ruleIndex}`}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
