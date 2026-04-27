@@ -207,6 +207,7 @@ IRichContent.prototype.html_tag;
  * @property {boolean} is_dummy
  * @property {boolean} is_appended
  * @property {string} [indication]
+ * @property {any} [thought]
  * @property {any} [meta_data]
  */
 
