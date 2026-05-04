@@ -13,6 +13,39 @@
     /** @type {string} */
     let curSlug = $state('');
 
+    /** @type {boolean} */
+    let fullScreen = $state(false);
+
+    $effect(() => {
+        const footer = document.querySelector('.footer');
+        const pageContent = document.querySelector('.page-content');
+
+        if (fullScreen) {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = 'none';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '0';
+            }
+        } else {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = '';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '';
+            }
+        }
+
+        return () => {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = '';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '';
+            }
+        };
+    });
+
     // @ts-ignore
     let slug = $derived($page.params[slugName]);
 
@@ -34,6 +67,7 @@
                 found = subFound?.subMenu?.find(x => getCleanPath(x.link) === url);
                 label = found?.label || '';
             }
+            fullScreen = found?.embeddingInfo?.fullScreen || false;
             embed(found?.embeddingInfo || null);
         });
 

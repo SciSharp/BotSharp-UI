@@ -9,12 +9,6 @@
     let label = $state('');
 </script>
 
-<svelte:head>
-    <style>
-        .footer { display: none !important; }
-    </style>
-</svelte:head>
-
 <HeadTitle title={$_(label || 'Agent')} addOn={`${capitalize(page.params.embed || '')}`} />
 
 <EmbeddingPage
