@@ -1,6 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
-    import { getAgentRuleOptions, getAgentRuleConfigOptions } from '$lib/services/agent-service';
+    import { getAgentRuleOptionsById, getAgentRuleConfigOptions } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentRuleItem from './agent-rule-item.svelte';
@@ -79,17 +78,52 @@
     /** @type {HTMLElement} */
     let scrollContainer;
 
-    onMount(async () =>{
-        resizeWindow();
-        Promise.all([
-            loadAgentRuleOptions(),
-            loadAgentRuleConfigOptions()
-        ]);
+    // React to agent.id changes to reload agent-specific trigger options
+    $effect(() => {
+        if (agent?.id) {
+            // Capture current agent.id to prevent race conditions
+            const requestedAgentId = agent.id;
+
+            // Reset state when agent changes
+            ruleOptions = [];
+            innerRules = [];
+
+            // Load agent-specific data with error handling
+            void (async () => {
+                try {
+                    await Promise.all([
+                        loadAgentRuleOptions(requestedAgentId),
+                        loadAgentRuleConfigOptions(requestedAgentId)
+                    ]);
+                } catch (error) {
+                    // Error already logged in individual loaders
+                    // Ensure init() is called even if options fail to load
+                    // so existing agent rules still render
+                    if (agent.id === requestedAgentId && innerRules.length === 0) {
+                        init();
+                    }
+                }
+            })();
+        }
     });
 
-    function loadAgentRuleOptions() {
-        return new Promise((resolve) => {
-            getAgentRuleOptions().then(data => {
+    // Initialize window size on mount
+    $effect(() => {
+        resizeWindow();
+    });
+
+    /**
+     * @param {string} requestedAgentId - The agent ID for which we're loading options
+     */
+    function loadAgentRuleOptions(requestedAgentId) {
+        return new Promise((resolve, reject) => {
+            getAgentRuleOptionsById(requestedAgentId).then(data => {
+                // Guard: only apply results if agent hasn't changed
+                if (agent.id !== requestedAgentId) {
+                    resolve('stale');
+                    return;
+                }
+
                 const list = data?.map(x => {
                     return {
                         name: x.trigger_name,
@@ -105,6 +139,13 @@
                 }, ...list];
                 init();
                 resolve('done');
+            }).catch(error => {
+                console.error('Failed to load agent rule options:', error);
+                // Guard: only apply error state if agent hasn't changed
+                if (agent.id === requestedAgentId) {
+                    ruleOptions = [{ name: "", displayName: "" }];
+                }
+                reject(error);
             });
         });
     }
@@ -119,9 +160,18 @@
         innerRefresh(list);
     }
 
-    function loadAgentRuleConfigOptions() {
-        return new Promise((resolve) => {
+    /**
+     * @param {string} requestedAgentId - The agent ID for which we're loading config options
+     */
+    function loadAgentRuleConfigOptions(requestedAgentId) {
+        return new Promise((resolve, reject) => {
             getAgentRuleConfigOptions().then(data => {
+                // Guard: only apply results if agent hasn't changed
+                if (agent.id !== requestedAgentId) {
+                    resolve('stale');
+                    return;
+                }
+
                 ruleConfigs = data || {};
                 const keys = Object.keys(data || {});
                 const list = keys?.map(x => ({ name: x })) || [];
@@ -130,6 +180,14 @@
                     ...list
                 ];
                 resolve('done');
+            }).catch(error => {
+                console.error('Failed to load agent rule config options:', error);
+                // Guard: only apply error state if agent hasn't changed
+                if (agent.id === requestedAgentId) {
+                    ruleConfigs = {};
+                    configOptions = [{ name: '' }];
+                }
+                reject(error);
             });
         });
     }
