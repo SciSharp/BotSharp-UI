@@ -2,6 +2,7 @@
 	import { EditorType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
+	import RcEmbedding from "./rc-embedding.svelte";
 	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
 
     /**
@@ -47,13 +48,12 @@
 </script>
 
 
-
 {#if message?.rich_content?.editor === EditorType.File}
     <ChatAttachmentOptions options={resolvedOptions.options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
+{:else if message?.rich_content?.message?.rich_type === RichType.Embedding}
+    <RcEmbedding url={message?.rich_content?.message?.url} title={message?.rich_content?.message?.title} htmlTag={message?.rich_content?.message?.html_tag} />
+{:else if !resolvedOptions.isComplexElement}
+    <RcPlainOptions options={resolvedOptions.options} isMultiSelect={resolvedOptions.isMultiSelect} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
 {:else}
-    {#if !resolvedOptions.isComplexElement}
-        <RcPlainOptions options={resolvedOptions.options} isMultiSelect={resolvedOptions.isMultiSelect} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
-    {:else}
-        <RcComplexOptions options={resolvedOptions.options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
-    {/if}
+    <RcComplexOptions options={resolvedOptions.options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
 {/if}
