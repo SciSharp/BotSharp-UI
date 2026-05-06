@@ -36,12 +36,19 @@
             selected_template = unique.length > 0 ? unique[0] : { ...defaultTemplate };
         }
 
-        return unique.map(x => ({
-            name: x.name.trim().toLowerCase(),
-            content: x.content,
-            response_format: x.response_format || null,
-            llm_config: x.llm_config || null
-        }));
+        return unique.map(x => {
+            const llmConfig = x.llm_config ? {
+                ...x.llm_config,
+                max_output_tokens: Number(x.llm_config.max_output_tokens) > 0 ? Number(x.llm_config.max_output_tokens) : null
+            } : null;
+
+            return {
+                name: x.name.trim().toLowerCase(),
+                content: x.content,
+                response_format: x.response_format || null,
+                llm_config: llmConfig
+            };
+        });
     }
 
 

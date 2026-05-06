@@ -1,5 +1,6 @@
 <script>
     import { onMount } from 'svelte';
+    import { untrack } from 'svelte';
     import { INTEGER_REGEX } from '$lib/helpers/constants';
     import { LlmModelCapability, LlmModelType, ReasoningEffortLevel, ResponseFormat } from '$lib/helpers/enums';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
@@ -63,6 +64,21 @@
             providers = [''];
         }
     });
+
+    $effect(() => {
+        const provider = template.llm_config?.provider;
+        const model = template.llm_config?.model;
+        untrack(() => {
+            if (provider && llmConfigs.length > 0) {
+                models = getLlmModels(provider);
+                reasoningLevelOptions = getReasoningLevelOptions(model);
+            } else {
+                models = [];
+                reasoningLevelOptions = defaultReasonLevelOptions;
+            }
+        });
+    });
+
 
     /** @param {string} provider */
     function getLlmModels(provider) {
@@ -197,7 +213,7 @@
             <label for="tpl-model" class="form-label config-label">Model</label>
             <select class="form-select form-select-sm" id="tpl-model"
                 value={template.llm_config?.model || ''}
-                disabled={models.length === 0}
+                disabled={models.length === 0 || !template.llm_config?.provider}
                 onchange={e => changeModel(e)}
             >
                 {#each models as option}
