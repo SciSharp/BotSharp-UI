@@ -116,6 +116,17 @@ export async function getAgentRuleOptions() {
 }
 
 /**
+ * Get agent rule options by agent id
+ * @param {string} agentId
+ * @returns {Promise<import('$agentTypes').AgentRule[]>}
+ */
+export async function getAgentRuleOptionsById(agentId) {
+    const url = endpoints.agentRuleOptionsByIdUrl.replace("{agentId}", agentId);;
+    const response = await axios.get(url);
+    return response.data;
+}
+
+/**
  * Get agent rule config options
  * @returns {Promise<any>}
  */

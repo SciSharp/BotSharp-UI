@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { getAgentRuleOptions, getAgentRuleConfigOptions } from '$lib/services/agent-service';
+    import { getAgentRuleOptionsById, getAgentRuleConfigOptions } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentRuleItem from './agent-rule-item.svelte';
@@ -89,7 +89,7 @@
 
     function loadAgentRuleOptions() {
         return new Promise((resolve) => {
-            getAgentRuleOptions().then(data => {
+            getAgentRuleOptionsById(agent.id).then(data => {
                 const list = data?.map(x => {
                     return {
                         name: x.trigger_name,
