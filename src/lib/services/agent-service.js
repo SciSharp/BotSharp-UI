@@ -121,7 +121,7 @@ export async function getAgentRuleOptions() {
  * @returns {Promise<import('$agentTypes').AgentRule[]>}
  */
 export async function getAgentRuleOptionsById(agentId) {
-    const url = endpoints.agentRuleOptionsByIdUrl.replace("{agentId}", agentId);;
+    const url = endpoints.agentRuleOptionsByIdUrl.replace("{agentId}", agentId);
     const response = await axios.get(url);
     return response.data;
 }
