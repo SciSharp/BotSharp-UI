@@ -14,9 +14,9 @@
 	import { myInfo } from '$lib/services/auth-service';
     import AgentInstruction from './agent-components/agent-instruction.svelte';
 	import AgentOverview from './agent-components/agent-overview.svelte';
+    import AgentTemplate from './agent-components/templates/agent-template.svelte';
     import AgentFunction from './agent-components/agent-function.svelte';
     import AgentTabs from './agent-tabs.svelte';
-    import AgentTemplate from './agent-components/agent-template.svelte';
 
     /** @type {import('$agentTypes').AgentModel} */
     let agent = $state(/** @type {any} */ (undefined));
