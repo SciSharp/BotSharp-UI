@@ -8,6 +8,8 @@
  * @property {string?} [uid]
  * @property {string} name
  * @property {string} content
+ * @property {string?} [response_format]
+ * @property {AgentTemplateConfig?} [llm_config]
  */
 
 /**
@@ -21,6 +23,14 @@
  * @property {any} [image_composition]
  * @property {any} [audio_transcription]
  * @property {any} [realtime]
+ */
+
+/**
+ * @typedef {Object} AgentTemplateConfig
+ * @property {string?} provider 
+ * @property {string?} model
+ * @property {number?} [max_output_tokens]
+ * @property {string?} [reasoning_effort_level]
  */
 
 

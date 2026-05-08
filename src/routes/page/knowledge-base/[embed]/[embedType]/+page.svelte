@@ -1,6 +1,6 @@
 <script>
     import { _ } from 'svelte-i18n';
-    import { page } from '$app/stores';
+    import { page } from '$app/state';
     import lodash from 'lodash';
 	import HeadTitle from "$lib/common/shared/HeadTitle.svelte";
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
@@ -10,7 +10,7 @@
     let label = '';
 </script>
 
-<HeadTitle title="{$_(label || 'Knowledge Base')}" addOn={`${lodash.capitalize($page.params.embed || '')}`} />
+<HeadTitle title="{$_(label || 'Knowledge Base')}" addOn={`${lodash.capitalize(page.params.embed || '')}`} />
 <Breadcrumb title="{$_('Knwoledge Base')}" pagetitle="{$_(label || 'Knwoledge Base')}" />
 
 <EmbeddingPage

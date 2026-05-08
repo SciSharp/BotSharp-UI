@@ -30,6 +30,7 @@
  * @property {string?} [htmlTag]
  * @property {string?} [htmlStyle]
  * @property {string?} [appendTokenName]
+ * @property {boolean} fullScreen
  */
 
 /**
