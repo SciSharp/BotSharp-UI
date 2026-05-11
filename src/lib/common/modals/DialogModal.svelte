@@ -4,7 +4,7 @@
     let {
         isOpen = false,
         closeable = false,
-        size = '2xl',
+        size = 'xl',
         title = '',
         className = '',
         confirmBtnText = 'Confirm',

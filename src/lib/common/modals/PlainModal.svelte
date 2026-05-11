@@ -3,7 +3,7 @@
 
     let {
         isOpen = false,
-        size = 'lg',
+        size = 'xl',
         title = '',
         containerClasses = '',
         containerStyles = '',
