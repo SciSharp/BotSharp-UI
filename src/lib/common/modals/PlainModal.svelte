@@ -3,7 +3,7 @@
 
     let {
         isOpen = false,
-        size = 'lg',
+        size = 'xl',
         title = '',
         containerClasses = '',
         containerStyles = '',
@@ -17,7 +17,11 @@
         sm: 'max-w-sm',
         md: 'max-w-md',
         lg: 'max-w-lg',
-        xl: 'max-w-xl'
+        xl: 'max-w-xl',
+        '2xl': 'max-w-2xl',
+        '3xl': 'max-w-3xl',
+        '4xl': 'max-w-4xl',
+        '5xl': 'max-w-5xl'
     };
 
     /** @param {MouseEvent} e */
@@ -32,7 +36,7 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-    class={`fixed inset-0 z-[9999] flex items-start justify-center pt-[10vh] bg-black/50 ${containerClasses}`}
+    class={`fixed inset-0 z-[9999] flex items-start justify-center pt-[2%] bg-black/50 ${containerClasses}`}
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
 >
