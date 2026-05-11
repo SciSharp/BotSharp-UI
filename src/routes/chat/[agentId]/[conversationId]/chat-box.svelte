@@ -214,14 +214,14 @@
 	let isHandlingQueue = $state(false);
 	let isStopStreamClicked = $state(false);
 
-	// let loadEditor = $derived(!isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0);
+	let isWaiting = $derived(isSendingMsg || isThinking || messageQueue.length > 0);
 	let loadEditor = true;
 	let disableAction = $derived(!ADMIN_ROLES.includes(currentUser?.role || '')
 								&& currentUser?.id !== conversationUser?.id
 								|| !AgentExtensions.chatable(agent));
 
 	$effect(() => {
-		if (loadEditor) {
+		if (!isWaiting && !disableAction) {
 			focusChatTextArea();
 		}
 	});
@@ -280,8 +280,6 @@
 				handleChatAction(e);
 			}
 		});
-
-		await focusChatTextArea();
 	});
 
 	function handleLogoutAction() {
