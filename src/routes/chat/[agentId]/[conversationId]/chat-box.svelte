@@ -1685,7 +1685,7 @@
 
 <DialogModal
 	title={'Edit user message'}
-	size={'md'}
+	size={'xl'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={() => toggleEditMsgModal()}
 	confirm={() => confirmEditMsg()}
@@ -1706,7 +1706,7 @@
 
 <DialogModal
 	title={'Send message'}
-	size={'xl'}
+	size={'5xl'}
 	isOpen={isOpenBigMsgModal}
 	toggleModal={() => toggleBigMessageModal()}
 	confirm={() => sendBigMessage()}
@@ -1761,6 +1761,7 @@
 
 <StateModal
 	isOpen={isOpenUserAddStateModal}
+	size={'2xl'}
 	bind:states={userAddStates}
 	requireActiveRounds
 	toggleModal={() => toggleUserAddStateModal()}
