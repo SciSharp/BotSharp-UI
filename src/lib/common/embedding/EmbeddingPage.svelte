@@ -2,6 +2,7 @@
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { getUserStore, globalMenuStore } from '$lib/helpers/store';
+    import { getCleanUrl } from '$lib/helpers/utils/common';
 
     let {
         htmlTagId = 'embedding-page',
@@ -11,6 +12,39 @@
 
     /** @type {string} */
     let curSlug = $state('');
+
+    /** @type {boolean} */
+    let fullScreen = $state(false);
+
+    $effect(() => {
+        const footer = document.querySelector('.footer');
+        const pageContent = document.querySelector('.page-content');
+
+        if (fullScreen) {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = 'none';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '0';
+            }
+        } else {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = '';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '';
+            }
+        }
+
+        return () => {
+            if (footer instanceof HTMLElement) {
+                footer.style.display = '';
+            }
+            if (pageContent instanceof HTMLElement) {
+                pageContent.style.paddingBottom = '';
+            }
+        };
+    });
 
     // @ts-ignore
     let slug = $derived($page.params[slugName]);
@@ -25,14 +59,15 @@
 
     onMount(() => {
         const menuUnsubscribe = globalMenuStore.subscribe((/** @type {import('$pluginTypes').PluginMenuDefModel[]} */ menu) => {
-            const url = getPathUrl();
-            let found = menu.find(x => x.link === url);
+            const url = getCleanPath(getPathUrl());
+            let found = menu.find(x => getCleanPath(x.link) === url);
             label = found?.label || '';
             if (!found?.embeddingInfo) {
-                const subFound = menu.find(x => !!x.subMenu?.find(y => y.link === url));
-                found = subFound?.subMenu?.find(x => x.link === url);
+                const subFound = menu.find(x => !!x.subMenu?.find(y => getCleanPath(y.link) === url));
+                found = subFound?.subMenu?.find(x => getCleanPath(x.link) === url);
                 label = found?.label || '';
             }
+            fullScreen = found?.embeddingInfo?.fullScreen || false;
             embed(found?.embeddingInfo || null);
         });
 
@@ -77,9 +112,13 @@
         }
     }
 
+    /** @param {string} url */
+    const getCleanPath = (url) => {
+        return getCleanUrl((url || '').split('?')[0]);
+    };
+
     const getPathUrl = () => {
-        const path = $page.url.pathname;
-        return path?.startsWith('/') ? path.substring(1) : path;
+        return $page.url.pathname || '';
     };
 </script>
 

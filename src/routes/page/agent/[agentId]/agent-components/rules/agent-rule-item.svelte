@@ -106,6 +106,7 @@
                     <input
                         type="checkbox"
                         class="form-check-input"
+                        style="margin-top: 0;"
                         checked={!rule.disabled}
                         onchange={e => toggleRule(e, 'rule')}
                     />
@@ -142,7 +143,6 @@
                 <div class="line-align-center">
                     <i
                         class="bx bx-cog text-primary fs-6 clickable"
-                        style="padding-top: 2px;"
                         id={`rule-config-${ruleIndex}`}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"

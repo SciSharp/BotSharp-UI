@@ -40,6 +40,7 @@ export const endpoints = {
     agentCreateUrl: `${host}/agent`,
     agentUtilityOptionsUrl: `${host}/agent/utility/options`,
     agentRuleOptionsUrl: `${host}/rule/triggers`,
+    agentRuleOptionsByIdUrl: `${host}/rule/triggers/{agentId}`,
     agentRuleConfigOptionsUrl: `${host}/rule/config/options`,
     agentLabelsUrl: `${host}/agent/labels`,
 
@@ -81,6 +82,7 @@ export const endpoints = {
     conversationMessageDeletionUrl: `${host}/conversation/{conversationId}/message/{messageId}`,
     conversationMessageUpdateUrl: `${host}/conversation/{conversationId}/update-message`,
     conversationTagsUpdateUrl: `${host}/conversation/{conversationId}/update-tags`,
+    stopStreamingUrl: `${host}/conversation/{conversationId}/stop-streaming`,
     fileUploadUrl: `${host}/agent/{agentId}/conversation/{conversationId}/upload`,
     pinConversationUrl: `${host}/agent/{agentId}/conversation/{conversationId}/dashboard`,
     conversationStateSearchKeysUrl: `${host}/conversation/state/keys`,

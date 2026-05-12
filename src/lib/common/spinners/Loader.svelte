@@ -6,14 +6,16 @@
      *   disableDefaultStyles?: boolean,
      *   containerClasses?: string,
      *   containerStyles?: string,
-     *   size?: number
+     *   size?: number,
+     *   color?: string
      * }}
      */
     let {
         disableDefaultStyles = false,
         containerClasses = '',
         containerStyles = '',
-        size = 100
+        size = 100,
+        color = 'var(--bs-primary)'
     } = $props();
 </script>
 
@@ -21,5 +23,5 @@
     class="{disableDefaultStyles ? '' : 'loader'} {containerClasses}"
     style={`${containerStyles}`}
 >
-    <Circle {size} color="var(--bs-primary)" unit="px" duration="1s" />
+    <Circle {size} {color} unit="px" duration="1s" />
 </div>

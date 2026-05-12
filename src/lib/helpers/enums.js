@@ -29,6 +29,7 @@ const richType = {
     Generic: 'generic_template',
     Upload: 'upload_template',
     ProgramCode: 'program_code',
+    Embedding: 'embedding_template'
 }
 export const RichType = Object.freeze(richType);
 
@@ -248,6 +249,14 @@ const reasoningEffortLevel = {
     XHigh: "xhigh"
 };
 export const ReasoningEffortLevel = Object.freeze(reasoningEffortLevel);
+
+const responseFormat = {
+    Json: "json",
+    Xml: "xml",
+    Md: "markdown",
+    Yaml: "yaml"
+};
+export const ResponseFormat = Object.freeze(responseFormat);
 
 const timeRange = {
     Last15Minutes: "Last 15 minutes",

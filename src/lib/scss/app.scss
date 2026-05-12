@@ -47,6 +47,7 @@ File: Main Css File
 @import "custom/components/markdown";
 @import "custom/components/state";
 @import "custom/components/codeScript";
+@import "custom/components/rich_content";
 
 /* Plugins */
 @import "custom/plugins/custom-scrollbar";
@@ -94,6 +95,7 @@ File: Main Css File
 @import "custom/pages/jobs";
 @import "custom/pages/conversation";
 @import "custom/pages/agent";
+@import "custom/pages/agent_template";
 @import "custom/pages/knowledgebase";
 @import "custom/pages/users";
 @import "custom/pages/roles";
