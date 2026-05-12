@@ -26,7 +26,9 @@ export default defineConfig(({ mode }) => {
 			  '@popperjs/core', // Add @popperjs/core to the list of dependencies to include
 			  "overlayscrollbars-svelte",
 			  "svelte-select",
-			  'lodash.get', 'lodash.isequal', 'lodash.clonedeep'
+			  'lodash.get',
+			  'lodash.isequal',
+			  'lodash.clonedeep'
 			],
 			exclude: [
 				"svelte-codemirror-editor",

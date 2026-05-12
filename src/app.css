@@ -1,2 +1,26 @@
 @import "tailwindcss";
 
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@theme {
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+    /* Brand colors (overridable at runtime via PUBLIC_PRIMARY_COLOR / PUBLIC_SECONDARY_COLOR) */
+    --color-primary: #6f42c1;
+    --color-primary-hover: color-mix(in srgb, var(--color-primary), black 20%);
+    --color-secondary: #74788d;
+    --color-secondary-hover: color-mix(in srgb, var(--color-secondary), black 20%);
+
+    /* Semantic state colors (matched to original Skote palette) */
+    --color-success: #34c38f;
+    --color-info: #50a5f1;
+    --color-warning: #f1b44c;
+    --color-danger: #f46a6a;
+
+    /* Neutrals */
+    --color-light: #eff2f7;
+    --color-dark: #343a40;
+    --color-muted: #74788d;
+}
+
