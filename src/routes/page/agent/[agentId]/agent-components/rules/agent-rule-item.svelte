@@ -1,40 +1,30 @@
 <script>
-    import { slide } from 'svelte/transition';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
-	import { ADMIN_ROLES } from '$lib/helpers/constants';
-
-    const duration = 200;
 
     /**
      * @type {{
      *   rule: import('$agentTypes').AgentRule,
      *   ruleIndex: number,
      *   collapsed?: boolean,
-     *   user: import('$userTypes').UserModel,
      *   ruleOptions?: any[],
-     *   configOptions?: any[],
      *   windowWidth: number,
      *   ontoggle?: (data: { ruleIdx: number, field: string, checked: boolean }) => void,
      *   onchange?: (data: { ruleIdx: number, field: string, value: string }) => void,
      *   ondelete?: (data: { ruleIdx: number, field: string }) => void,
-     *   oncollapse?: (data: { ruleIdx: number, collapsed: boolean }) => void,
-     *   onconfig?: (data: { ruleIdx: number }) => void
+     *   oncollapse?: (data: { ruleIdx: number, collapsed: boolean }) => void
      * }}
      */
     let {
         rule,
         ruleIndex,
         collapsed = true,
-        user,
         ruleOptions = [],
-        configOptions = [],
         windowWidth,
         ontoggle,
         onchange,
         ondelete,
-        oncollapse,
-        onconfig
+        oncollapse
     } = $props();
 
     /**
@@ -75,12 +65,6 @@
         oncollapse?.({
             ruleIdx: ruleIndex,
             collapsed: !collapsed
-        });
-    }
-
-    function toggleConfig() {
-        onconfig?.({
-            ruleIdx: ruleIndex
         });
     }
 </script>
@@ -138,22 +122,6 @@
                     </BotsharpTooltip>
                 </div>
                 {/if}
-
-                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && rule.config?.topology_name}
-                <div class="line-align-center">
-                    <i
-                        class="bx bx-cog text-primary fs-6 clickable"
-                        id={`rule-config-${ruleIndex}`}
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Rule config"
-                        role="button"
-                        tabindex="0"
-                        onkeydown={() => {}}
-                        onclick={() => toggleConfig()}
-                    ></i>
-                </div>
-                {/if}
             </div>
         </div>
         <div class="utility-value">
@@ -181,36 +149,4 @@
             </div>
         </div>
     </div>
-
-    {#if !collapsed}
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        <div class="utility-content">
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Topology'}
-                        </div>
-                        <div class="line-align-center"></div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <select
-                            class="form-select"
-                            onchange={e => changeRule(e, 'topology')}
-                        >
-                            {#each [...configOptions] as option}
-                                <option value={`${option.name}`} selected={option.name == rule.config?.topology_name}>
-                                    {option.name}
-                                </option>
-                            {/each}
-                        </select>
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {/if}
 </div>

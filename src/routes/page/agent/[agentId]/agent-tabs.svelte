@@ -11,13 +11,11 @@
     /**
      * @type {{
      *   agent: import('$agentTypes').AgentModel,
-     *   user: import('$userTypes').UserModel,
      *   handleAgentChange?: () => void
      * }}
      */
     let {
         agent,
-        user,
         handleAgentChange = () => {}
     } = $props();
 
@@ -100,7 +98,7 @@
             <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-event-rule'}>
-            <AgentEventRule agent={agent} user={user} bind:this={agentEventRuleCmp} {handleAgentChange} />
+            <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
         <div class:hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />

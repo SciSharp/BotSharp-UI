@@ -1,22 +1,19 @@
 <script>
-    import { getAgentRuleOptionsById, getAgentRuleConfigOptions } from '$lib/services/agent-service';
+    import { getAgentRuleOptionsById } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentRuleItem from './agent-rule-item.svelte';
-	import PlainModal from '$lib/common/modals/PlainModal.svelte';
 
     const limit = 100;
 
     /**
      * @type {{
      *   agent: import('$agentTypes').AgentModel,
-     *   user: import('$userTypes').UserModel,
      *   handleAgentChange?: () => void
      * }}
      */
     let {
         agent,
-        user,
         handleAgentChange = () => {}
     } = $props();
 
@@ -26,21 +23,12 @@
     let isComplete = $state(false);
     /** @type {boolean} */
     let isError = $state(false);
-    /** @type {boolean} */
-    let isOpenConfigModal = $state(false);
-
     /** @type {number} */
     let windowWidth = $state(0);
-    let windowHeight = $state(0);
-
     /** @type {string} */
     let successText = $state('');
+    /** @type {string} */
     let errorText = $state('');
-
-    /** @type {any} */
-    let selectedRuleConfig = $state({});
-    /** @type {any} */
-    let ruleConfigs = $state({});
 
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
@@ -69,9 +57,6 @@
     /** @type {any[]} */
     let ruleOptions = $state([]);
 
-    /** @type {any} */
-    let configOptions = $state([]);
-
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = $state([]);
 
@@ -92,8 +77,7 @@
             void (async () => {
                 try {
                     await Promise.all([
-                        loadAgentRuleOptions(requestedAgentId),
-                        loadAgentRuleConfigOptions(requestedAgentId)
+                        loadAgentRuleOptions(requestedAgentId)
                     ]);
                 } catch (error) {
                     // Error already logged in individual loaders
@@ -159,38 +143,6 @@
         }) || [];
         innerRefresh(list);
     }
-
-    /**
-     * @param {string} requestedAgentId - The agent ID for which we're loading config options
-     */
-    function loadAgentRuleConfigOptions(requestedAgentId) {
-        return new Promise((resolve, reject) => {
-            getAgentRuleConfigOptions().then(data => {
-                // Guard: only apply results if agent hasn't changed
-                if (agent.id !== requestedAgentId) {
-                    resolve('stale');
-                    return;
-                }
-
-                ruleConfigs = data || {};
-                const keys = Object.keys(data || {});
-                const list = keys?.map(x => ({ name: x })) || [];
-                configOptions = [
-                    { name: '' },
-                    ...list
-                ];
-                resolve('done');
-            }).catch(error => {
-                console.error('Failed to load agent rule config options:', error);
-                // Guard: only apply error state if agent hasn't changed
-                if (agent.id === requestedAgentId) {
-                    ruleConfigs = {};
-                    configOptions = [{ name: '' }];
-                }
-                reject(error);
-            });
-        });
-    }
     
     /**
 	 * @param {any} data
@@ -204,12 +156,6 @@
         const value = data.value;
         if (field === 'rule') {
             found.trigger_name = value;
-            innerRefresh(innerRules);
-        } else if (field === 'topology') {
-            found.config = {
-                ...found.config || {},
-                topology_name: value
-            };
             innerRefresh(innerRules);
         }
 
@@ -287,41 +233,8 @@
         }) || [];
     }
 
-    /**
-     * @param {any} _data
-	 * @param {number} uid
-	 */
-    function openRuleConfigModal(_data, uid) {
-        const found = innerRules.find((_, index) => index === uid);
-        if (!found || !found.config?.topology_name) {
-            return;
-        }
-
-        const config = ruleConfigs[found.config.topology_name];
-        const customParam = config?.customParameters || {};
-
-        if (customParam.htmlTag === 'iframe') {
-            const params = JSON.stringify({
-                agent: agent.name,
-                agentId: agent.id,
-                trigger: found.trigger_name || ""
-            });
-            const url = new URL(customParam.url, window.location.origin);
-            url.searchParams.set(customParam.appendParameterName || 'parameters', encodeURIComponent(params));
-
-            selectedRuleConfig = {
-                agent: agent.name,
-                url: url.toString(),
-                rule: found,
-                title: `${found.trigger_name} config`
-            };
-            isOpenConfigModal = true;
-        }
-    }
-
     function resizeWindow() {
         windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
     }
 </script>
 
@@ -334,18 +247,6 @@
     {successText}
     {errorText}
 />
-
-{#if isOpenConfigModal}
-    <PlainModal
-        containerClasses={'rule-config-modal'}
-        title={selectedRuleConfig?.rule?.trigger_name || ''}
-        size={'xl'}
-        isOpen={isOpenConfigModal}
-        toggleModal={() => isOpenConfigModal = !isOpenConfigModal}
-    >
-        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%"></iframe>
-    </PlainModal>
-{/if}
 
 <div class="card">
     <div class="card-body">
@@ -360,14 +261,11 @@
                     rule={rule}
                     ruleIndex={uid}
                     collapsed={!rule.expanded}
-                    user={user}
                     ruleOptions={ruleOptions}
-                    configOptions={configOptions}
                     windowWidth={windowWidth}
                     ontoggle={data => toggleRule(data, uid)}
                     ondelete={data => deleteRule(data, uid)}
                     onchange={data => changeRule(data, uid)}
-                    onconfig={data => openRuleConfigModal(data, uid)}
                     oncollapse={data => toggleCollapse(data, uid)}
                 />
             {/each}

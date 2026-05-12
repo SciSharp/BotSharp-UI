@@ -1,5 +1,9 @@
 <script>
+    import { getContext } from 'svelte';
     import collapse from 'svelte-collapse';
+
+    const collapseDuration = 0.3;
+    const { autoScrollToBottom } = getContext('chat-window-context');
 
     /**
      * @type {{
@@ -18,6 +22,9 @@
 
     function toggleCollapse() {
         open = !open;
+        if (open) {
+            setTimeout(() => autoScrollToBottom?.(), collapseDuration * 1000);
+        }
     }
 </script>
 
@@ -31,19 +38,22 @@
                 <i class="bx bx-link-external"></i>
             </a>
         </div>
-        <div use:collapse={{ open, duration: 0.3, easing: 'ease' }} style="width: 100%; margin-top: 8px;">
+        <div use:collapse={{ open, duration: collapseDuration, easing: 'ease' }} style="width: 100%; margin-top: 8px;">
+            {#if open}
             <div class="rc-embedding-container">
                 {#if htmlTag === 'iframe'}
                     <iframe
+                        class="rc-embedding-iframe"
                         src={url}
                         title={title || ''}
                         frameborder="0"
                         allowfullscreen
+                        referrerpolicy="no-referrer"
                         sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-                        class="rc-embedding-iframe"
                     ></iframe>
                 {/if}
             </div>
+            {/if}
         </div>
     </div>
 {/if}
