@@ -3,7 +3,6 @@
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import AgentLlmConfig from './agent-components/agent-llm-config.svelte';
 	import AgentUtility from './agent-components/utilities/agent-utility.svelte';
-	import AgentKnowledgeBase from './agent-components/knowledge-bases/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
 	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
 	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
@@ -22,14 +21,14 @@
     export function fetchTabData() {
         const llmConfig = agentLlmConfigCmp?.fetchLlmConfig();
         const utilities = agentUtilityCmp?.fetchUtilities();
-        const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
+        // const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
         const mcpTools = agentMcpToolCmp?.fetchMcpTools();
 
         return {
             llmConfig,
             utilities: utilities || [],
-            knwoledgebases: knwoledgebases || [],
+            // knwoledgebases: knwoledgebases || [],
             rules: rules || [],
             mcpTools: mcpTools || []
         };
@@ -40,7 +39,7 @@
     /** @type {any} */
     let agentUtilityCmp = $state(null);
     /** @type {any} */
-    let agentKnowledgeBaseCmp = $state(null);
+    // let agentKnowledgeBaseCmp = $state(null);
     /** @type {any} */
     let agentEventRuleCmp = $state(null);
     /** @type {any} */
@@ -51,7 +50,7 @@
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
-        { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
+        // { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
         { name: 'agent-event-rule', displayText: 'Triggers & Rules' },
         { name: 'agent-mcp-tool', displayText: 'MCP Tools' }
     ]);
@@ -94,9 +93,9 @@
         <div class:hide={selectedTab !== 'agent-utility'}>
             <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-knowledgebase'}>
+        <!-- <div class:hide={selectedTab !== 'agent-knowledgebase'}>
             <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
-        </div>
+        </div> -->
         <div class:hide={selectedTab !== 'agent-event-rule'}>
             <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
