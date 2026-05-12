@@ -11,7 +11,6 @@
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { globalEventStore } from '$lib/helpers/store';
 	import { GlobalEvent } from '$lib/helpers/enums';
-	import { myInfo } from '$lib/services/auth-service';
     import AgentInstruction from './agent-components/agent-instruction.svelte';
 	import AgentOverview from './agent-components/agent-overview.svelte';
     import AgentTemplate from './agent-components/templates/agent-template.svelte';
@@ -28,8 +27,6 @@
     let agentTemplateCmp = $state(null);
     /** @type {any} */
     let agentTabsCmp = $state(null);
-    /** @type {import('$userTypes').UserModel} */
-	let user = $state(/** @type {any} */ (undefined));
     /** @type {any} */
 	let unsubscriber;
 
@@ -54,8 +51,6 @@
     }
 
     onMount(async () => {
-        user = await myInfo();
-
         unsubscriber = globalEventStore.subscribe((/** @type {import('$commonTypes').GlobalEvent} */ event) => {
 			if (event.name !== GlobalEvent.Search) return;
 
@@ -214,7 +209,6 @@
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
-                    user={user}
                 />
             </div>
         </div>
