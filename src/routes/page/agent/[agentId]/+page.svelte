@@ -186,6 +186,30 @@
         });
     }
 
+    function exportAgent() {
+        fetchJsonContent();
+        fetchInstructions();
+        fetchTemplates();
+        fetchTabData();
+
+        const exportData = {
+            ...agent,
+            created_datetime: undefined,
+            updated_datetime: undefined,
+            plugin: undefined,
+            actions: undefined
+        };
+
+        const json = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `agent-${agent.name || 'export'}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     function refresh() {
         agentInstructionCmp?.refresh();
     }
@@ -244,6 +268,9 @@
         <div class="row">
             <div class="hstack gap-2 my-4">
                 <button type="button" class="btn btn-soft-primary" onclick={() => updateCurrentAgent()}>{$_('Save Agent')}</button>
+                <button type="button" class="btn btn-outline-info" onclick={() => exportAgent()}>
+                    <i class="mdi mdi-download"></i> {$_('Export Agent')}
+                </button>
                 <button type="button" class="btn btn-danger" onclick={() => deleteCurrentAgent()}>{$_('Delete Agent')}</button>
             </div>
         </div>
