@@ -101,7 +101,7 @@ $footer-color-dark:                     #a6b0cf;
 /* Horizontal nav */
 $topnav-bg-dark:                        #282e3f;
 $menu-item-color-dark:                  #a6b0cf;
-$menu-item-active-color-dark:           #556ee6;
+$menu-item-active-color-dark:           var(--#{$prefix}primary);
 
 $boxed-body-bg-dark:                    #32394f;
 
