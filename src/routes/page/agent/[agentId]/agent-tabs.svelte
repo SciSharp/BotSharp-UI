@@ -21,14 +21,12 @@
     export function fetchTabData() {
         const llmConfig = agentLlmConfigCmp?.fetchLlmConfig();
         const utilities = agentUtilityCmp?.fetchUtilities();
-        // const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
         const mcpTools = agentMcpToolCmp?.fetchMcpTools();
 
         return {
             llmConfig,
             utilities: utilities || [],
-            // knwoledgebases: knwoledgebases || [],
             rules: rules || [],
             mcpTools: mcpTools || []
         };
@@ -50,7 +48,6 @@
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
-        // { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
         { name: 'agent-event-rule', displayText: 'Triggers & Rules' },
         { name: 'agent-mcp-tool', displayText: 'MCP Tools' }
     ]);
@@ -93,9 +90,6 @@
         <div class:hide={selectedTab !== 'agent-utility'}>
             <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
-        <!-- <div class:hide={selectedTab !== 'agent-knowledgebase'}>
-            <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
-        </div> -->
         <div class:hide={selectedTab !== 'agent-event-rule'}>
             <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
