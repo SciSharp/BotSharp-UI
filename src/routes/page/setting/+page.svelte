@@ -89,39 +89,43 @@
     {errorText}
 />
 
-<div class="card">
-    <div class="card-body">
-        <h4 class="card-title">{$_('System & Plugin Settings')}</h4>
-        <p class="card-title-desc"></p>
+<div class="mb-4 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+    <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <i class="mdi mdi-tune-vertical text-xl"></i>
+            </span>
+            <div class="grow">
+                <h4 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('System & Plugin Settings')}</h4>
+                <p class="mb-0 text-xs text-muted">{settings.length} {settings.length === 1 ? 'configuration section' : 'configuration sections'}</p>
+            </div>
+        </div>
+    </div>
 
-        <ul class="nav nav-tabs nav-tabs-default nav-justified">
-            {#each settings as tab}
-                <li class="nav-item" id={tab}>
+    <div class="p-4 sm:p-6">
+        <!-- Tab strip -->
+        <div class="thin-scrollbar -mx-1 mb-4 overflow-x-auto">
+            <div class="flex min-w-max gap-1 rounded-lg bg-gray-50 p-1 ring-1 ring-gray-100 dark:bg-gray-700/50 dark:ring-gray-700">
+                {#each settings as tab}
                     <button
-                        class="nav-link {selectedTab === tab ? 'active' : ''}"
-                        style="cursor: pointer"
+                        type="button"
+                        id={tab}
+                        class="setting-tab {selectedTab === tab ? 'is-active' : ''}"
                         onclick={() => handleGetSettingDetail(tab)}
                     >
-                        <span class="d-block d-sm-none">
-                            <i class="fas fa-home"></i>
-                        </span>
-                        <span class="d-none d-sm-block">{tab}</span>
+                        <i class="mdi mdi-cog-outline text-base leading-none sm:hidden"></i>
+                        <span class="hidden sm:inline">{tab}</span>
                     </button>
-                </li>
-            {/each}
-        </ul>
+                {/each}
+            </div>
+        </div>
 
-        <div class="tab-content p-3 text-muted">
+        <!-- Editor -->
+        <div class="overflow-hidden rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
             {#each settings as tab}
                 {#if selectedTab === tab}
-                    <div class="tab-pane active">
-                        <div class="row">
-                            <div class="col-sm-12">
-                                <div class="my-json-editor">
-                                    <JSONEditor bind:content />
-                                </div>
-                            </div>
-                        </div>
+                    <div class="my-json-editor">
+                        <JSONEditor bind:content />
                     </div>
                 {/if}
             {/each}
@@ -129,21 +133,75 @@
     </div>
 </div>
 
-<div class="card">
-    <div class="card-body">
-        <h4 class="card-title">{$_('Migrate agents from file repository to MongoDB')}</h4>
-        <p class="card-title-desc"></p>
+<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+    <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-warning/15 text-warning">
+                <i class="mdi mdi-database-export-outline text-xl"></i>
+            </span>
+            <div class="grow">
+                <h4 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Migrate agents from file repository to MongoDB')}</h4>
+                <p class="mb-0 text-xs text-muted">One-time migration. All agents will be copied to the MongoDB datastore.</p>
+            </div>
+        </div>
+    </div>
 
-        <button class="btn btn-primary" onclick={() => readyToRefresh()} disabled={isLoading}>
-            <i class="bx bx-copy"></i> {$_('Start Migration')}
-        </button>
+    <div class="p-4 sm:p-6">
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div class="inline-flex items-center gap-2 text-sm text-muted">
+                <i class="mdi mdi-alert-circle-outline shrink-0 text-base leading-none text-warning"></i>
+                <span>This action cannot be undone. Make sure you have a backup before proceeding.</span>
+            </div>
+            <button
+                type="button"
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                onclick={() => readyToRefresh()}
+                disabled={isLoading}
+            >
+                <i class="bx bx-copy"></i>
+                {$_('Start Migration')}
+            </button>
+        </div>
     </div>
 </div>
 
 <style>
     .my-json-editor {
-      /* define a custom theme color */
-      --jse-theme-color: var(--bs-primary);
-      --jse-theme-color-highlight: #687177;
+        --jse-theme-color: var(--color-primary);
+        --jse-theme-color-highlight: #687177;
+    }
+
+    .setting-tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.375rem;
+        min-width: 6rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--color-muted);
+        cursor: pointer;
+        background-color: transparent;
+        border: 0;
+        transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .setting-tab:hover:not(.is-active) {
+        background-color: rgb(255 255 255);
+        color: var(--color-primary);
+        box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+    }
+
+    :global(.dark) .setting-tab:hover:not(.is-active) {
+        background-color: rgb(31 41 55);
+        color: rgb(255 255 255);
+    }
+
+    .setting-tab.is-active {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+        box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
     }
 </style>

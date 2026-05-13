@@ -62,60 +62,103 @@
 	}
 </script>
 
-<div class="row">
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 	{#each plugins as item}
-		<div class="col-xl-3 col-md-6" style="margin-bottom: 10px;">
-			<div class="card" style="height: 100%">
-				<div class="card-body d-flex flex-column justify-content-between">
-					<div class="favorite-icon">
-						<div><i class="uil uil-heart-alt fs-18"></i></div>
+		<div class="plugin-card group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl dark:bg-gray-800 dark:ring-white/10">
+			<!-- Gradient accent strip -->
+			<div class="h-1 bg-linear-to-r from-primary to-primary-hover"></div>
+
+			<div class="flex grow flex-col p-5">
+				<!-- Header: icon + favorite -->
+				<div class="mb-4 flex items-start justify-between">
+					<div class="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
+						<img src={item.icon_url} alt="{item.name}" class="h-7 w-7 object-contain" />
 					</div>
-					<img src={item.icon_url} alt="{item.name}" height="35" width="35" class="mb-3" />
-					<h5 class="fs-17 mb-2">
-						<div class="text-dark">{item.name}</div>
-						<small class="text-muted fw-normal">plugin</small>
-					</h5>
-					<ul class="list-inline mb-0">
-						<li>
-							<p
-								class="text-muted fs-14 mb-1 truncate-text"
-								style="height: 60px;"
-								data-bs-toggle="tooltip"
-								data-bs-placement="top"
-								title={item.description}
-							>
-								{item.description}
-							</p>
-						</li>
-						{' '}
-						<li>
-							<p class="text-muted fs-14 mb-0"><i class="mdi mdi-map-marker"></i> {item.assembly}</p>
-						</li>
-						<li>
-							<p class="text-muted fs-14 mb-0"><i class="uil uil-wallet"></i> $0.0 / month</p>
-						</li>
-					</ul>
-					<div class="mt-3 hstack gap-2">
-						<span class="badge rounded-1 badge-soft-{item.enabled ? 'success' : 'danger'}">{item.enabled ? $_("Enabled") : $_("Disabled")}</span>
-						{#if item.agent_ids.length > 0}
-							<span class="badge rounded-1 badge-soft-info">{item.agent_ids.length} Agent(s)</span>
-						{/if}
-						<span class="badge rounded-1 badge-soft-info">{$_('Public')}</span>
+					<button
+						type="button"
+						class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-primary/10 hover:text-primary dark:text-gray-500"
+						aria-label="Favorite"
+					>
+						<i class="uil uil-heart-alt text-lg"></i>
+					</button>
+				</div>
+
+				<!-- Title -->
+				<div class="mb-3">
+					<div class="text-base font-semibold text-dark dark:text-gray-100">{item.name}</div>
+					<div class="text-xs uppercase tracking-wider text-muted">plugin</div>
+				</div>
+
+				<!-- Description -->
+				<p
+					class="mb-4 line-clamp-3 min-h-[60px] text-sm text-muted"
+					title={item.description}
+				>
+					{item.description}
+				</p>
+
+				<!-- Meta -->
+				<div class="mb-4 space-y-1.5 text-xs text-muted">
+					<div class="flex items-center gap-1.5">
+						<i class="mdi mdi-map-marker text-sm"></i>
+						<span class="truncate" title={item.assembly}>{item.assembly}</span>
 					</div>
-					<div class="mt-2 hstack pt-2 gap-2 border-top">
-						<button
-							class="btn btn-soft-success btn-sm"
-							onclick={() => clickView(item)}
+					<div class="flex items-center gap-1.5">
+						<i class="uil uil-wallet text-sm"></i>
+						<span>$0.0 / month</span>
+					</div>
+				</div>
+
+				<!-- Status badges -->
+				<div class="mb-3 flex flex-wrap gap-1.5">
+					{#if item.enabled}
+						<span class="inline-flex items-center gap-1 rounded-md bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+							<span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+							{$_("Enabled")}
+						</span>
+					{:else}
+						<span class="inline-flex items-center gap-1 rounded-md bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
+							<span class="h-1.5 w-1.5 rounded-full bg-danger"></span>
+							{$_("Disabled")}
+						</span>
+					{/if}
+					{#if item.agent_ids.length > 0}
+						<span class="inline-flex items-center rounded-md bg-info/10 px-2 py-0.5 text-xs font-medium text-info">
+							{item.agent_ids.length} {item.agent_ids.length === 1 ? 'Agent' : 'Agents'}
+						</span>
+					{/if}
+					<span class="inline-flex items-center rounded-md bg-info/10 px-2 py-0.5 text-xs font-medium text-info">{$_('Public')}</span>
+				</div>
+
+				<!-- Action buttons -->
+				<div class="mt-auto flex flex-wrap gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
+					<button
+						type="button"
+						class="inline-flex items-center gap-1 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
+						onclick={() => clickView(item)}
+					>
+						<i class="bx bx-show"></i>
+						{$_('View')}
+					</button>
+					{#if item.settings_name}
+						<a
+							href="page/setting#{item.settings_name}"
+							class="inline-flex items-center gap-1 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
 						>
-							{$_('View')}
+							<i class="bx bx-cog"></i>
+							{$_('Settings')}
+						</a>
+					{/if}
+					{#if !item.is_core}
+						<button
+							type="button"
+							class="inline-flex items-center gap-1 rounded-md bg-warning/15 px-3 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25"
+							onclick={() => handlePluginStatus(item.id, item.name, !item.enabled)}
+						>
+							<i class="bx {item.enabled ? 'bx-x-circle' : 'bx-download'}"></i>
+							{item.enabled ? $_("Remove") : $_("Install")}
 						</button>
-						{#if item.settings_name}
-							<a href="page/setting#{item.settings_name}" class="btn btn-soft-success btn-sm">{$_('Settings')}</a>
-						{/if}
-						{#if !item.is_core}
-							<button class="btn btn-soft-warning btn-sm" onclick={() => handlePluginStatus(item.id, item.name, !item.enabled)}>{item.enabled ? $_("Remove") : $_("Install")}</button>
-						{/if}
-					</div>
+					{/if}
 				</div>
 			</div>
 		</div>

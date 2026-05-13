@@ -39,37 +39,100 @@
     }
 </script>
 
-<div class="row mb-3">
-	<div class="col-lg-12">
-		<div class="d-flex justify-content-center">
-			<nav aria-label="Page navigation example" id="pagination-element" class="mb-0">
-				<div class="pagination-block pagination pagination-rounded">
-					<!-- svelte-ignore a11y_invalid_attribute -->
-					<a href="javascript:void(0);" class={`page-link outline-none ${disableBackward ? 'disabled' : ''}`} id="page-first" aria-label="First page" onclick={(e) => { handlePageTo(e, firstPage); }}>
-						<i class="bx bx-chevrons-left align-middle"></i>
-					</a>
-					<!-- svelte-ignore a11y_invalid_attribute -->
-					<a href="javascript:void(0);" class={`page-link outline-none ${disableBackward ? 'disabled' : ''}`} id="page-prev" aria-label="Previous page" onclick={(e) => { handlePageTo(e, pagination.page - 1); }}>
-						<i class="bx bx-chevron-left align-middle"></i>
-					</a>
+<div class="mt-4 flex justify-center">
+	<nav aria-label="Page navigation" class="inline-flex items-center gap-1 rounded-lg bg-gray-50 p-1 ring-1 ring-gray-100 dark:bg-gray-700/50 dark:ring-gray-700">
+		<!-- svelte-ignore a11y_invalid_attribute -->
+		<a
+			href="javascript:void(0);"
+			class="page-btn {disableBackward ? 'is-disabled' : ''}"
+			aria-label="First page"
+			aria-disabled={disableBackward}
+			onclick={(e) => handlePageTo(e, firstPage)}
+		>
+			<i class="bx bx-chevrons-left text-base leading-none"></i>
+		</a>
+		<!-- svelte-ignore a11y_invalid_attribute -->
+		<a
+			href="javascript:void(0);"
+			class="page-btn {disableBackward ? 'is-disabled' : ''}"
+			aria-label="Previous page"
+			aria-disabled={disableBackward}
+			onclick={(e) => handlePageTo(e, pagination.page - 1)}
+		>
+			<i class="bx bx-chevron-left text-base leading-none"></i>
+		</a>
 
-					{#each pages as page}
-						<span id="page-num" class="outline-none pagination">
-							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class={`page-link clickPageNumber ${pagination.page === page ? 'active' : ''}`} aria-current={pagination.page === page ? 'page' : undefined} onclick={(e) => handlePageTo(e, page)}>{page}</a>
-						</span>
-					{/each}
+		{#each pages as page}
+			<!-- svelte-ignore a11y_invalid_attribute -->
+			<a
+				href="javascript:void(0);"
+				class="page-btn page-num {page === pagination.page ? 'is-active' : ''}"
+				aria-current={pagination.page === page ? 'page' : undefined}
+				onclick={(e) => handlePageTo(e, page)}
+			>
+				{page}
+			</a>
+		{/each}
 
-					<!-- svelte-ignore a11y_invalid_attribute -->
-					<a href="javascript:void(0);" class={`page-link outline-none ${disableForward ? 'disabled' : ''}`} id="page-next" aria-label="Next page" onclick={(e) => { handlePageTo(e, pagination.page + 1); }}>
-						<i class="bx bx-chevron-right align-middle"></i>
-					</a>
-					<!-- svelte-ignore a11y_invalid_attribute -->
-					<a href="javascript:void(0);" class={`page-link outline-none ${disableForward ? 'disabled' : ''}`} id="page-last" aria-label="Last page" onclick={(e) => { handlePageTo(e, totalPages); }}>
-						<i class="bx bx-chevrons-right align-middle"></i>
-					</a>
-				</div>
-			</nav>
-		</div>
-	</div>
+		<!-- svelte-ignore a11y_invalid_attribute -->
+		<a
+			href="javascript:void(0);"
+			class="page-btn {disableForward ? 'is-disabled' : ''}"
+			aria-label="Next page"
+			aria-disabled={disableForward}
+			onclick={(e) => handlePageTo(e, pagination.page + 1)}
+		>
+			<i class="bx bx-chevron-right text-base leading-none"></i>
+		</a>
+		<!-- svelte-ignore a11y_invalid_attribute -->
+		<a
+			href="javascript:void(0);"
+			class="page-btn {disableForward ? 'is-disabled' : ''}"
+			aria-label="Last page"
+			aria-disabled={disableForward}
+			onclick={(e) => handlePageTo(e, totalPages)}
+		>
+			<i class="bx bx-chevrons-right text-base leading-none"></i>
+		</a>
+	</nav>
 </div>
+
+<style>
+	.page-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		min-width: 2rem;
+		height: 2rem;
+		padding: 0 0.5rem;
+		border-radius: 0.375rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		color: var(--color-muted);
+		text-decoration: none;
+		transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+	}
+
+	.page-btn:hover:not(.is-disabled):not(.is-active) {
+		background-color: rgb(255 255 255);
+		color: var(--color-primary);
+		box-shadow: 0 1px 2px rgb(0 0 0 / 0.05);
+	}
+
+	:global(.dark) .page-btn:hover:not(.is-disabled):not(.is-active) {
+		background-color: rgb(31 41 55);
+		color: rgb(255 255 255);
+	}
+
+	.page-btn.is-active {
+		background-color: var(--color-primary);
+		color: rgb(255 255 255);
+		box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+	}
+
+	.page-btn.is-disabled {
+		opacity: 0.4;
+		cursor: not-allowed;
+		pointer-events: none;
+	}
+</style>

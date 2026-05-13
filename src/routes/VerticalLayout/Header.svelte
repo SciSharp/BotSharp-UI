@@ -83,7 +83,7 @@
 	<div class="mx-auto flex h-full items-center justify-between pr-2">
 		<div class="flex items-center">
 			<!-- LOGO -->
-			<div class="flex h-[var(--header-height)] w-[var(--sidebar-width)] shrink-0 items-center justify-center px-6 transition-[width] duration-200 vertical-collpsed:w-[var(--sidebar-collapsed-width)] vertical-collpsed:px-2">
+			<div class="flex h-[var(--header-height)] w-auto shrink-0 items-center justify-center px-3 transition-[width] duration-200 lg:w-[var(--sidebar-width)] lg:px-6 vertical-collpsed:lg:w-[var(--sidebar-collapsed-width)] vertical-collpsed:lg:px-2">
 				<a href="page/dashboard" aria-label="Home" class="block">
 					<img
 						src={PUBLIC_LOGO_URL}
@@ -132,12 +132,17 @@
 
 <style>
 	/* Collapsed-sidebar variants used inside this component. We resolve them via
-	   custom selectors because `body.vertical-collpsed` is a global state. */
-	:global(body.vertical-collpsed) .vertical-collpsed\:w-\[var\(--sidebar-collapsed-width\)\] {
-		width: var(--sidebar-collapsed-width);
-	}
-	:global(body.vertical-collpsed) .vertical-collpsed\:px-2 {
-		padding-inline: 0.5rem;
+	   custom selectors because `body.vertical-collpsed` is a global state.
+	   The width/padding rules are gated to >=lg because the sidebar collapse
+	   only takes effect on desktop — on mobile the logo container stays at
+	   intrinsic width so the toggle button hugs it. */
+	@media (min-width: 1024px) {
+		:global(body.vertical-collpsed) .vertical-collpsed\:lg\:w-\[var\(--sidebar-collapsed-width\)\] {
+			width: var(--sidebar-collapsed-width);
+		}
+		:global(body.vertical-collpsed) .vertical-collpsed\:lg\:px-2 {
+			padding-inline: 0.5rem;
+		}
 	}
 	:global(body.vertical-collpsed) .vertical-collpsed\:h-\[22px\] {
 		height: 22px;
