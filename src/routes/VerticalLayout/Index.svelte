@@ -48,14 +48,14 @@
 
 <GlobalHeader bind:isLoading={isLoading} bind:hasError={hasError} />
 
-<div id="layout-wrapper">
+<div id="layout-wrapper" class="min-h-screen">
 	<Header {user} toggleRightBar={() => toggleRightBar()} />
 	{#if menu}
-	<Sidebar {menu} />
+		<Sidebar {menu} />
 	{/if}
-	<div class="main-content">
-		<div class="page-content">
-			<div class="container-fluid" style="position: relative;">
+	<div class="main-content relative min-h-screen lg:ml-[var(--sidebar-width)] transition-[margin] duration-200">
+		<div class="page-content pt-[calc(var(--header-height)+1.5rem)] pb-[var(--footer-height)] px-3 sm:px-4 lg:px-6 min-h-screen">
+			<div class="relative mx-auto w-full max-w-full">
 				<LoadingToComplete
 					spinnerSize={50}
 					{isLoading}
@@ -69,3 +69,35 @@
 
 	<RightSidebar closebar={() => closebar()} />
 </div>
+
+<style>
+	/* Body-class-driven layout states. These selectors mirror the JS toggles in
+	   Header.svelte (hamburger) and RightSidebar.svelte (settings) so we don't
+	   need to rewire any of the existing toggle logic. */
+
+	/* Collapsed sidebar (icon-only) on desktop */
+	:global(body.vertical-collpsed) .main-content {
+		margin-left: var(--sidebar-collapsed-width);
+	}
+
+	/* Mobile-first: sidebar is hidden by default below lg */
+	@media (max-width: 1023.98px) {
+		:global(.vertical-menu) {
+			transform: translateX(-100%);
+		}
+		:global(body.sidebar-enable .vertical-menu) {
+			transform: translateX(0);
+		}
+		.main-content {
+			margin-left: 0 !important;
+		}
+	}
+
+	/* Right-bar slide-in */
+	:global(body.right-bar-enabled .right-bar) {
+		right: 0;
+	}
+	:global(body.right-bar-enabled .rightbar-overlay) {
+		display: block;
+	}
+</style>

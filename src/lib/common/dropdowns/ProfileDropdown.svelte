@@ -45,45 +45,54 @@
 </script>
 
 <div
-	class="dropdown d-inline-block"
+	class="relative inline-block"
 	use:clickoutsideDirective
 	onclickoutside={handleClickOutside}
 >
 	<button
 		type="button"
-		class="btn header-item waves-effect d-inline-flex align-items-center"
+		class="inline-flex h-[var(--header-height)] items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 		id="page-header-user-dropdown"
 		aria-label="User menu"
 		onclick={() => (isOpen = !isOpen)}
 	>
 		<img
-			class="rounded-circle header-profile-user"
+			class="h-9 w-9 rounded-full bg-gray-100 p-[3px] dark:bg-gray-700"
 			src={`${user?.avatar && $userStore?.token ?
 				`${buildUrl(PUBLIC_SERVICE_URL, user?.avatar)}?access_token=${$userStore?.token}` : ''}`}
 			alt=""
 			onerror={handleAvatarLoad}
 		/>
-		<span class="d-none d-xl-inline-block ms-1">{user?.full_name}</span>
-		<i class="mdi mdi-chevron-down d-none d-xl-inline-block"></i>
+		<span class="ms-1 hidden xl:inline-block">{user?.full_name}</span>
+		<i class="mdi mdi-chevron-down ms-1 hidden xl:inline-block"></i>
 	</button>
-	<div class="dropdown-menu dropdown-menu-end" class:show={isOpen}>
-		<!-- item-->
-		<a class="dropdown-item" href="page/user/me">
-			<i class="bx bx-user font-size-16 align-middle me-1"></i>
-			<span>{$_('Profile')}</span>
-		</a>
-		<button type="button" class="dropdown-item" disabled>
-			<span class="badge bg-success float-end">11</span>
-			<i class="bx bx-wrench font-size-16 align-middle me-1"></i>
-			<span>{$_('Settings')}</span>
-		</button>
-		<div class="dropdown-divider"></div>
-		<button
-			type="button"
-			class="dropdown-item"
-			onclick={() => logout()}
-		>
-			<i class="bx bx-power-off font-size-16 align-middle me-1 text-danger"></i> <span>{$_('Logout')}</span>
-		</button>
-	</div>
+	{#if isOpen}
+		<div class="absolute right-0 top-full z-[1000] mt-1 w-44 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+			<a
+				class="flex items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+				href="page/user/me"
+			>
+				<i class="bx bx-user me-2 align-middle text-base"></i>
+				<span>{$_('Profile')}</span>
+			</a>
+			<button
+				type="button"
+				class="flex w-full items-center px-4 py-2 text-sm text-gray-400 disabled:cursor-not-allowed dark:text-gray-500"
+				disabled
+			>
+				<i class="bx bx-wrench me-2 align-middle text-base"></i>
+				<span>{$_('Settings')}</span>
+				<span class="ms-auto rounded-full bg-success px-2 py-0.5 text-xs text-white">11</span>
+			</button>
+			<div class="my-1 h-px bg-gray-200 dark:bg-gray-700"></div>
+			<button
+				type="button"
+				class="flex w-full items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+				onclick={() => logout()}
+			>
+				<i class="bx bx-power-off me-2 align-middle text-base text-danger"></i>
+				<span>{$_('Logout')}</span>
+			</button>
+		</div>
+	{/if}
 </div>

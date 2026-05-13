@@ -276,19 +276,23 @@
 	}
 </script>
 
-<div class="vertical-menu">
-	<div class="h-100" id="vertical-menu">
+<div
+	class="vertical-menu fixed bottom-0 left-0 top-[var(--header-height)] z-[1001] w-[var(--sidebar-width)] bg-[var(--sidebar-bg)] shadow-sm transition-[width,transform] duration-200 dark:bg-gray-800"
+>
+	<div class="h-full" id="vertical-menu">
 		<!--- Sidemenu -->
-		<div id="sidebar-menu">
+		<div id="sidebar-menu" class="pt-2.5 pb-8">
 			<!-- Left Menu Start -->
-			<ul class="metismenu list-unstyled" id="side-menu">
+			<ul class="metismenu m-0 list-none p-0" id="side-menu">
 				{#each menu as item}
 					{#if item.isHeader}
-						<li class="menu-title" key="t-menu">{$_(item.label)}</li>
+						<li class="menu-title px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--sidebar-menu-title-color)]" key="t-menu">
+							{$_(item.label)}
+						</li>
 					{:else if item.subMenu}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
+							<a href="javascript:void(0);" class="has-arrow clickable">
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
@@ -297,7 +301,7 @@
 									{#if subMenu.isChildItem}
 										<li>
 											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
+											<a href="javascript:void(0);" class="has-arrow clickable">
 												<span>{$_(subMenu.label)}</span>
 											</a>
 											<ul class="sub-menu mm-collapse">
@@ -325,7 +329,7 @@
 					{:else}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="waves-effect clickable" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
+							<a href="javascript:void(0);" class="clickable" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
@@ -336,3 +340,207 @@
 		</div>
 	</div>
 </div>
+
+<style>
+	/* Sidebar menu styling. These rules use :global() because the menu structure
+	   is generated dynamically and the JS adds/removes mm-active, mm-show, etc. */
+
+	:global(#sidebar-menu ul li a) {
+		display: block;
+		padding: 0.625rem 1.5rem;
+		color: var(--sidebar-menu-item-color);
+		position: relative;
+		font-size: 13px;
+		line-height: 1.5;
+		transition: color 0.2s, background-color 0.2s;
+		cursor: pointer;
+	}
+
+	:global(#sidebar-menu ul li a i) {
+		display: inline-block;
+		min-width: 1.75rem;
+		padding-bottom: 0.125em;
+		font-size: 1.25rem;
+		line-height: 1.40625rem;
+		vertical-align: middle;
+		color: var(--sidebar-menu-item-icon-color);
+		transition: color 0.2s;
+	}
+
+	:global(#sidebar-menu ul li a:hover),
+	:global(#sidebar-menu ul li a:hover i) {
+		color: var(--sidebar-menu-item-hover-color);
+	}
+
+	/* Has-arrow chevron */
+	:global(#sidebar-menu .has-arrow:after) {
+		content: "\F0140";
+		font-family: 'Material Design Icons';
+		display: block;
+		float: right;
+		transition: transform 0.2s;
+		font-size: 1rem;
+	}
+
+	:global(#sidebar-menu .revert-arrow:after),
+	:global(#sidebar-menu .mm-active > .has-arrow:after) {
+		transform: rotate(-180deg);
+	}
+
+	/* Submenu collapse/expand */
+	:global(#sidebar-menu .sub-menu) {
+		padding: 0;
+		list-style: none;
+	}
+
+	:global(#sidebar-menu .sub-menu.mm-collapse) {
+		display: none;
+	}
+
+	:global(#sidebar-menu .sub-menu.mm-show) {
+		display: block;
+		background-color: rgba(0, 0, 0, 0.02);
+	}
+
+	:global(#sidebar-menu .sub-menu li a) {
+		padding: 0.4rem 1.5rem 0.4rem 3.5rem;
+		font-size: 13px;
+	}
+
+	:global(#sidebar-menu .sub-menu li a:hover) {
+		background-color: rgba(0, 0, 0, 0.03);
+	}
+
+	:global(#sidebar-menu .sub-menu .sub-menu li a) {
+		padding: 0.4rem 1.5rem 0.4rem 4.5rem;
+	}
+
+	/* Active state */
+	:global(#sidebar-menu .mm-active),
+	:global(#sidebar-menu .mm-active > a),
+	:global(#sidebar-menu .mm-active > a i),
+	:global(#sidebar-menu .mm-active .active),
+	:global(#sidebar-menu .mm-active .active i) {
+		color: var(--color-primary) !important;
+	}
+
+	/* Collapsed (icon-only) sidebar */
+	:global(body.vertical-collpsed) .vertical-menu {
+		width: var(--sidebar-collapsed-width);
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu .menu-title),
+	:global(body.vertical-collpsed #sidebar-menu .has-arrow:after),
+	:global(body.vertical-collpsed #sidebar-menu > ul > li > a > span) {
+		display: none;
+	}
+
+	/* Auto-hide any in-flow sub-menus when collapsed (mm-show carried over from
+	   the expanded state would otherwise leak items into the 70px column).
+	   The hover-to-show floating panel below overrides this with !important. */
+	:global(body.vertical-collpsed #sidebar-menu .sub-menu) {
+		display: none;
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li > a) {
+		text-align: center;
+		padding: 15px 0;
+		transition: none;
+	}
+
+	/* --- Collapsed hover-to-show floating sub-menu --- */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li) {
+		position: relative;
+		white-space: nowrap;
+	}
+
+	/* Leaf items (no sub-menu): expand on hover to reveal the label inline */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:not(:has(> ul.sub-menu)):hover > a) {
+		width: calc(var(--sidebar-collapsed-width) + 200px);
+		position: relative;
+		z-index: 2;
+		background-color: rgba(0, 0, 0, 0.025);
+		color: var(--color-primary);
+		text-align: left;
+		padding: 15px 20px;
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:not(:has(> ul.sub-menu)):hover > a > i) {
+		color: var(--color-primary);
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:not(:has(> ul.sub-menu)):hover > a > span) {
+		display: inline;
+		padding-left: 0.75rem;
+	}
+
+	/* Parent items (with sub-menu): just tint the icon — the floating panel does the work */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:has(> ul.sub-menu):hover > a) {
+		background-color: rgba(0, 0, 0, 0.025);
+		color: var(--color-primary);
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:has(> ul.sub-menu):hover > a > i) {
+		color: var(--color-primary);
+	}
+
+	/* Floating sub-menu panel (first level under collapsed parent) */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu) {
+		display: block !important;
+		position: fixed;
+		left: var(--sidebar-collapsed-width);
+		width: 200px;
+		height: auto;
+		z-index: 9999;
+		padding: 0.375rem 0;
+		background-color: var(--sidebar-bg);
+		border: 1px solid rgb(229 231 235);
+		border-left: 0;
+		border-radius: 0 0.375rem 0.375rem 0;
+		box-shadow: 6px 6px 18px -4px rgba(54, 61, 71, 0.12);
+	}
+
+	/* Reset over-indented padding from the cascade so items fit the floating panel */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu li a) {
+		padding: 0.5rem 1rem;
+		width: 100%;
+		text-align: left;
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu li a:hover) {
+		background-color: rgba(0, 0, 0, 0.04);
+		color: var(--color-primary);
+	}
+
+	/* Nested floating sub-menu (second level) */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu li:hover > ul.sub-menu) {
+		display: block !important;
+		position: fixed;
+		left: calc(var(--sidebar-collapsed-width) + 200px);
+		width: 200px;
+		height: auto;
+		z-index: 9999;
+		padding: 0.375rem 0;
+		background-color: var(--sidebar-bg);
+		border: 1px solid rgb(229 231 235);
+		border-radius: 0.375rem;
+		box-shadow: 6px 6px 18px -4px rgba(54, 61, 71, 0.12);
+	}
+
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu li:hover > ul.sub-menu li a) {
+		padding: 0.5rem 1rem;
+		width: 100%;
+	}
+
+	/* Active state inside floating panel */
+	:global(body.vertical-collpsed #sidebar-menu > ul > li:hover > ul.sub-menu .mm-active > a) {
+		background-color: rgba(0, 0, 0, 0.04);
+	}
+
+	/* Mobile slide-in animation */
+	@media (max-width: 1023.98px) {
+		.vertical-menu {
+			transition: transform 0.25s ease;
+		}
+	}
+</style>
