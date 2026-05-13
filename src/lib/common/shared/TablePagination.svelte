@@ -1,5 +1,6 @@
 <script>
     import { _ } from 'svelte-i18n'
+    import { formatNumber } from '$lib/helpers/utils/common';
 
     /**
      * @type {{
@@ -46,11 +47,11 @@
 <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
     <p class="mb-0 text-sm text-muted">
         {$_('Showing')}
-        <span class="font-semibold text-dark dark:text-gray-100">{start}</span>
+        <span class="font-semibold text-dark dark:text-gray-100">{formatNumber(start)}</span>
         {$_('to')}
-        <span class="font-semibold text-dark dark:text-gray-100">{end}</span>
+        <span class="font-semibold text-dark dark:text-gray-100">{formatNumber(end)}</span>
         {$_('of')}
-        <span class="font-semibold text-dark dark:text-gray-100">{pagination.count}</span>
+        <span class="font-semibold text-dark dark:text-gray-100">{formatNumber(pagination.count)}</span>
         {$_('entries')}
     </p>
 

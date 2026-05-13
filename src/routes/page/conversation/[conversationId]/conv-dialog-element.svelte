@@ -16,12 +16,12 @@
 </script>
 
 <div
-  class="fw-bold"
+  class="text-sm font-medium leading-relaxed"
   class:text-collapse={is_collapsed}
 >
   {#if dialog?.rich_content?.message?.rich_type === RichType.ProgramCode
       && dialog?.rich_content?.message?.language === 'javascript'}
-    <RcJsInterpreter message={dialog} scrollable containerStyles={'color: var(--bs-primary);'} />
+    <RcJsInterpreter message={dialog} scrollable containerStyles={'color: var(--color-primary);'} />
   {:else}
     <Markdown
       containerClasses={'dialog-item-text'}
@@ -33,9 +33,9 @@
 
 <button
   type="button"
-  class="btn btn-link toggle-btn btn-sm text-secondary"
-  style="padding-left: 0px;"
+  class="mt-1 inline-flex items-center gap-1 text-xs font-medium text-primary transition-colors hover:text-primary-hover hover:underline"
   onclick={(e) => toggleText(e)}
 >
-  {is_collapsed ? 'More +' : 'Less -'}
+  <i class="mdi {is_collapsed ? 'mdi-chevron-down' : 'mdi-chevron-up'} text-sm leading-none"></i>
+  <span>{is_collapsed ? 'More' : 'Less'}</span>
 </button>

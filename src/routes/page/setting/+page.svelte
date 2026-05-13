@@ -7,6 +7,7 @@
     import { getSettings, getSettingDetail } from '$lib/services/setting-service';
     import { JSONEditor } from 'svelte-jsoneditor';
     import { refreshAgents } from '$lib/services/agent-service';
+    import { formatNumber } from '$lib/helpers/utils/common';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 
     const duration = 3000;
@@ -97,7 +98,7 @@
             </span>
             <div class="grow">
                 <h4 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('System & Plugin Settings')}</h4>
-                <p class="mb-0 text-xs text-muted">{settings.length} {settings.length === 1 ? 'configuration section' : 'configuration sections'}</p>
+                <p class="mb-0 text-xs text-muted">{formatNumber(settings.length)} {settings.length === 1 ? 'configuration section' : 'configuration sections'}</p>
             </div>
         </div>
     </div>

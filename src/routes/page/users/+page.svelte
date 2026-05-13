@@ -15,7 +15,8 @@
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
-		goToUrl
+		goToUrl,
+		formatNumber
 	} from '$lib/helpers/utils/common';
 
 	const duration = 3000;
@@ -246,7 +247,7 @@
 					</span>
 					<div class="grow">
 						<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('User List')}</h5>
-						<p class="mb-0 text-xs text-muted">{pager.count} {pager.count === 1 ? 'user' : 'users'} total</p>
+						<p class="mb-0 text-xs text-muted">{formatNumber(pager.count)} {pager.count === 1 ? 'user' : 'users'} total</p>
 					</div>
 				</div>
 			</div>

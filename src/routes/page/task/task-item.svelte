@@ -29,41 +29,83 @@
     }
 </script>
 
-<tr>
-    <td class="text-primary">{task.name}</td>
-    <td>{task.description}</td>
-    <td>{task.agent_name}</td>
-    <td><div style="max-height: 100px;" class="scrollbar">{@html replaceNewLine(task.content)}</div></td>
-    <td>{utcToLocal(task.updated_time)}</td>
+<tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
     <td>
-        <!-- svelte-ignore a11y_click_events_have_key_events -->
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
-        <span class="clickable" onclick={() => toggleTask()}>
-            {#if task.enabled}
-                <span class="badge bg-success">{$_("Enabled")}</span>
-            {:else}
-                <span class="badge bg-danger">{$_("Disabled")}</span>
-            {/if}
-        </span>
+        <span class="font-medium text-primary">{task.name}</span>
     </td>
-    <td><span class="badge bg-info">{task.status}</span></td>
     <td>
-        <ul class="list-unstyled hstack gap-1 mb-0">
-            <li data-bs-toggle="tooltip" data-bs-placement="top" title="View">
-                <a href="page/task/{task.id}?agentId={task.agent_id}" target="_blank" class="btn btn-sm btn-soft-primary" aria-label="View">
-                    <i class="mdi mdi-eye-outline"></i>
-                </a>
-            </li>
-            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Save">
-                <button type="button" onclick={() => handleSaveTask()} class="btn btn-sm btn-soft-info" aria-label="Save">
-                    <i class="mdi mdi-content-save-all"></i>
-                </button>
-            </li>
-            <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-                <button type="button" onclick={() => handleDeleteTask()} class="btn btn-sm btn-soft-danger" aria-label="Delete">
-                    <i class="mdi mdi-delete-outline"></i>
-                </button>
-            </li>
-        </ul>
+        <span class="text-dark dark:text-gray-100">{task.description || '—'}</span>
+    </td>
+    <td>
+        {#if task.agent_name}
+            <span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                <i class="mdi mdi-robot-outline text-sm leading-none"></i>
+                {task.agent_name}
+            </span>
+        {:else}
+            <span class="text-muted italic">—</span>
+        {/if}
+    </td>
+    <td class="!whitespace-normal">
+        <div class="scrollbar max-h-[100px] max-w-md overflow-auto rounded-md bg-gray-50 p-2 text-xs leading-relaxed text-dark dark:bg-gray-700/50 dark:text-gray-100">
+            {@html replaceNewLine(task.content)}
+        </div>
+    </td>
+    <td>
+        <span class="text-xs text-muted">{utcToLocal(task.updated_time)}</span>
+    </td>
+    <td>
+        <button
+            type="button"
+            class="cursor-pointer"
+            onclick={() => toggleTask()}
+            aria-label={task.enabled ? 'Disable task' : 'Enable task'}
+        >
+            {#if task.enabled}
+                <span class="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+                    <span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+                    {$_("Enabled")}
+                </span>
+            {:else}
+                <span class="inline-flex items-center gap-1 rounded-full bg-danger/10 px-2 py-0.5 text-xs font-medium text-danger">
+                    <span class="h-1.5 w-1.5 rounded-full bg-danger"></span>
+                    {$_("Disabled")}
+                </span>
+            {/if}
+        </button>
+    </td>
+    <td>
+        <span class="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">{task.status}</span>
+    </td>
+    <td>
+        <div class="flex items-center justify-center gap-1.5">
+            <a
+                href="page/task/{task.id}?agentId={task.agent_id}"
+                target="_blank"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
+                aria-label="View"
+                title="View"
+            >
+                <i class="mdi mdi-eye-outline"></i>
+            </a>
+            <button
+                type="button"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+                onclick={() => handleSaveTask()}
+                aria-label="Save"
+                title="Save"
+            >
+                <i class="mdi mdi-content-save-all"></i>
+            </button>
+            <button
+                type="button"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
+                onclick={() => handleDeleteTask()}
+                aria-label="Delete"
+                title="Delete"
+            >
+                <i class="mdi mdi-delete-outline"></i>
+            </button>
+        </div>
     </td>
 </tr>

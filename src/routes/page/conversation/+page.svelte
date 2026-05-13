@@ -23,7 +23,8 @@
 		getPagingQueryParams,
 		setUrlQueryParams,
 		goToUrl,
-		convertTimeRange
+		convertTimeRange,
+		formatNumber
 	} from '$lib/helpers/utils/common';
 
 	const duration = 3000;
@@ -417,46 +418,46 @@
 	successText={'Delete completed!'}
 />
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body border-bottom">
-				<div class="d-flex flex-wrap align-items-center justify-content-between">
-					<div class="mb-0 card-title flex-grow-0">
-						<h5 class="mb-0">{$_('Conversation List')}</h5>
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+							<i class="mdi mdi-forum-outline text-xl"></i>
+						</span>
+						<div>
+							<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Conversation List')}</h5>
+							<p class="mb-0 text-xs text-muted">{formatNumber(pager.count)} {pager.count === 1 ? 'conversation' : 'conversations'} total</p>
+						</div>
 					</div>
-					<div class="state-search-btn-wrapper">
-						<button
-							type="button"
-							class="btn btn-{showStateSearch ? 'secondary' : 'primary'}"
-							onclick={() => showStateSearch = !showStateSearch}
-						>
-							<div class="state-search-btn">
-								<div>
-									{#if showStateSearch}
-										<i class="bx bx-hide"></i>
-									{:else}
-										<i class="bx bx-search-alt"></i>
-									{/if}
-								</div>
-								<div class="search-btn-text">{'State Search'}</div>
-							</div>
-						</button>
-					</div>
+					<button
+						type="button"
+						class="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium shadow-sm transition-colors {showStateSearch ? 'bg-gray-200 text-dark hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-primary text-white hover:bg-primary-hover'}"
+						onclick={() => showStateSearch = !showStateSearch}
+					>
+						{#if showStateSearch}
+							<i class="bx bx-hide text-base leading-none"></i>
+						{:else}
+							<i class="bx bx-search-alt text-base leading-none"></i>
+						{/if}
+						<span class="search-btn-text">{'State Search'}</span>
+					</button>
 				</div>
 			</div>
 			{#if showStateSearch}
-				<div class="card-body border-bottom">
-					<div class="row g-3 justify-content-end">
-						<div class="col-lg-6">
+				<div class="conv-state-search border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+					<div class="flex justify-end">
+						<div class="w-full lg:w-1/2">
 							<StateSearch bind:states={states} onSearch={q => handleStateSearch(q)}/>
 						</div>
 					</div>
 				</div>
 			{/if}
-			<div class="card-body border-bottom">
-				<div class="row g-3">
-					<div class="col-lg-3">
+			<div class="conv-filter border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+					<div class="lg:col-span-3">
 						<Select
 							tag={'agent-select'}
 							placeholder={'Select Agents'}
@@ -468,7 +469,7 @@
 							onselect={e => changeOption(e, 'agent')}
 						/>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<Select
 							tag={'task-select'}
 							placeholder={'Select Status'}
@@ -478,7 +479,7 @@
 							onselect={e => changeOption(e, 'status')}
 						/>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<Select
 							tag={'channel-select'}
 							placeholder={'Select Channel'}
@@ -488,16 +489,21 @@
 							onselect={e => changeOption(e, 'channel')}
 						/>
 					</div>
-					<div class="col-lg-2">
-						<input
-							type="text"
-							class="form-control"
-							placeholder="Tag"
-							maxlength={100}
-							oninput={e => changeOption(e, 'tags')}
-						/>
+					<div class="lg:col-span-2">
+						<div class="relative">
+							<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+								<i class="mdi mdi-tag-outline text-base leading-none"></i>
+							</span>
+							<input
+								type="text"
+								class="h-10 w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm text-dark transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+								placeholder="Tag"
+								maxlength={100}
+								oninput={e => changeOption(e, 'tags')}
+							/>
+						</div>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<TimeRangePicker
 							storageKey="botsharp_conversation_recent_time_ranges"
 							bind:timeRange={searchOption.timeRange}
@@ -511,22 +517,22 @@
 							}}
 						/>
 					</div>
-					<div class="col-lg-1">
+					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="btn btn-secondary btn-soft-secondary w-100"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
 							onclick={(e) => searchConversations(e)}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
-							<span class="d-none">{$_('Filter')}</span>
+							<span class="sr-only">{$_('Filter')}</span>
 						</button>
 					</div>
 				</div>
 			</div>
-			<div class="card-body">
-				<div class="table-responsive thin-scrollbar">
-					<table class="table table-bordered align-middle nowrap conv-table">
-						<thead>
+			<div class="p-4 sm:p-6">
+				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+					<table class="conv-table w-full border-collapse text-sm">
+						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
 								<th scope="col" class="list-title">{$_('Title')}</th>
 								<th scope="col">{$_('User Name')}</th>
@@ -535,54 +541,82 @@
 								<th scope="col">{$_('Posted Date')}</th>
 								<th scope="col">{$_('Last Date')}</th>
 								<th scope="col">{$_('Status')}</th>
-								<th scope="col">{$_('Action')}</th>
+								<th scope="col" class="text-center">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
 							{#each conversations.items as conv}
-							<tr>
+							<tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
 								<td class="list-title">
-									<a href="page/conversation/{conv.id}">{conv.title}</a>
+									<a href="page/conversation/{conv.id}" class="font-medium text-primary hover:underline">{conv.title}</a>
 								</td>
-								<td>{conv.user.full_name}</td>
-								<td>{conv.agent_name}</td>
-								<td><span class="badge badge-soft-success">{conv.channel}</span></td>
-								<td>{utcToLocal(conv.created_time)}</td>
-								<td>{utcToLocal(conv.updated_time)}</td>
-								<td><span class="badge bg-success">{conv.status}</span></td>
 								<td>
-									<ul class="list-unstyled hstack gap-1 mb-0">
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
-											<button
-												type="button"
-												class="btn btn-sm btn-soft-primary"
-												aria-label="View Detail"
-												onclick={() => window.open(`page/conversation/${conv.id}`)}
-											>
-												<i class="mdi mdi-eye-outline"></i>
-											</button>
-										</li>
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Chat">
-											<button
-												type="button"
-												class="btn btn-sm btn-soft-info"
-												aria-label="Chat"
-												onclick={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
-											>
-												<i class="mdi mdi-chat"></i>
-											</button>
-										</li>
-										<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
-											<button
-												type="button"
-												class="btn btn-sm btn-soft-danger"
-												aria-label="Delete"
-												onclick={() => openDeleteModal(conv.id)}
-											>
-												<i class="mdi mdi-delete-outline"></i>
-											</button>
-										</li>
-									</ul>
+									{#if conv.user?.full_name}
+										<div class="flex items-center gap-2">
+											<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold uppercase text-primary">
+												{conv.user.full_name.charAt(0)}
+											</span>
+											<span class="text-dark dark:text-gray-100">{conv.user.full_name}</span>
+										</div>
+									{:else}
+										<span class="text-muted italic">—</span>
+									{/if}
+								</td>
+								<td>
+									{#if conv.agent_name}
+										<span class="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+											<i class="mdi mdi-robot-outline text-sm leading-none"></i>
+											{conv.agent_name}
+										</span>
+									{:else}
+										<span class="text-muted italic">—</span>
+									{/if}
+								</td>
+								<td>
+									<span class="inline-flex items-center rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">{conv.channel}</span>
+								</td>
+								<td>
+									<span class="text-xs text-muted">{utcToLocal(conv.created_time)}</span>
+								</td>
+								<td>
+									<span class="text-xs text-muted">{utcToLocal(conv.updated_time)}</span>
+								</td>
+								<td>
+									<span class="inline-flex items-center gap-1 rounded-full bg-success/10 px-2 py-0.5 text-xs font-medium text-success">
+										<span class="h-1.5 w-1.5 rounded-full bg-success"></span>
+										{conv.status}
+									</span>
+								</td>
+								<td>
+									<div class="flex items-center justify-center gap-1.5">
+										<button
+											type="button"
+											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
+											aria-label="View Detail"
+											title="View Detail"
+											onclick={() => window.open(`page/conversation/${conv.id}`)}
+										>
+											<i class="mdi mdi-eye-outline"></i>
+										</button>
+										<button
+											type="button"
+											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+											aria-label="Chat"
+											title="Chat"
+											onclick={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
+										>
+											<i class="mdi mdi-chat"></i>
+										</button>
+										<button
+											type="button"
+											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
+											aria-label="Delete"
+											title="Delete"
+											onclick={() => openDeleteModal(conv.id)}
+										>
+											<i class="mdi mdi-delete-outline"></i>
+										</button>
+									</div>
 								</td>
 							</tr>
 							{/each}
@@ -596,16 +630,217 @@
 </div>
 
 <style>
-	.conv-table th,
-	.conv-table td {
+	/* Conversation table cell styling. Uses :global() so it applies across
+	   header (here) and body rows. Preserves the original column ellipsis. */
+
+	:global(.conv-table th),
+	:global(.conv-table td) {
+		border-bottom: 1px solid rgb(243 244 246);
+		padding: 0.75rem 1rem;
+		vertical-align: middle;
 		max-width: 180px;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
 
-	.conv-table th.list-title,
-	.conv-table td.list-title {
+	:global(.conv-table thead th) {
+		text-align: left;
+		font-weight: 600;
+		font-size: 11px;
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		color: var(--color-muted);
+		border-bottom-width: 2px;
+		border-bottom-color: rgb(229 231 235);
+	}
+
+	:global(.dark .conv-table th),
+	:global(.dark .conv-table td) {
+		border-bottom-color: rgb(55 65 81);
+	}
+
+	:global(.conv-table th.list-title),
+	:global(.conv-table td.list-title) {
 		max-width: 240px;
+	}
+
+	:global(.conv-table tbody tr:last-child > td) {
+		border-bottom: 0;
+	}
+
+	/* Hide the "State Search" label on narrow viewports — matches the
+	   original behavior from _state.scss for the state-search-btn group. */
+	@media (max-width: 800px) {
+		.search-btn-text {
+			display: none;
+		}
+	}
+
+	/* ---------- Filter row + state-search refresh ----------
+	   Scoped overrides for the Select component, RemoteSearchInput, and the
+	   tag input so they share the Tailwind-aligned look of the page chrome.
+	   These rely on the `.conv-filter` and `.conv-state-search` wrappers
+	   added above so they don't leak into other pages still on Bootstrap. */
+
+	/* --- Select component: display input --- */
+	:global(.conv-filter .multiselect-container .display-container input[type='text']),
+	:global(.conv-state-search .multiselect-container .display-container input[type='text']) {
+		height: 2.5rem;
+		border-radius: 0.375rem;
+		border: 1px solid rgb(229 231 235);
+		background-color: rgb(255 255 255);
+		padding-left: 0.75rem;
+		padding-right: 2rem;
+		font-size: 0.875rem;
+		color: rgb(31 41 55);
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	:global(.conv-filter .multiselect-container .display-container input[type='text']:focus),
+	:global(.conv-state-search .multiselect-container .display-container input[type='text']:focus) {
+		border-color: var(--color-primary);
+		outline: 0;
+		box-shadow: 0 0 0 1px var(--color-primary);
+	}
+
+	/* --- Select component: chevron suffix (center vertically) --- */
+	:global(.conv-filter .multiselect-container .display-suffix),
+	:global(.conv-state-search .multiselect-container .display-suffix) {
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 1.125rem;
+		color: rgb(156 163 175);
+		line-height: 1;
+	}
+
+	/* --- TimeRangePicker trigger button (uses button.form-control, no
+	   .display-container wrapper, so it needs its own rule to match
+	   the height/border/focus look of the other filter controls). --- */
+	:global(.conv-filter .multiselect-container > button.form-control) {
+		height: 2.5rem;
+		border-radius: 0.375rem;
+		border: 1px solid rgb(229 231 235);
+		background-color: rgb(255 255 255);
+		padding: 0 2rem 0 0.75rem;
+		font-size: 0.875rem;
+		color: rgb(31 41 55);
+		text-align: left;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		position: relative;
+		width: 100%;
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	:global(.conv-filter .multiselect-container > button.form-control:hover) {
+		border-color: rgb(209 213 219);
+	}
+	:global(.conv-filter .multiselect-container > button.form-control:focus) {
+		border-color: var(--color-primary);
+		outline: 0;
+		box-shadow: 0 0 0 1px var(--color-primary);
+	}
+	:global(.conv-filter .multiselect-container > button.form-control > i.bx-chevron-down) {
+		position: absolute;
+		right: 0.625rem;
+		top: 50%;
+		transform: translateY(-50%);
+		font-size: 1.125rem;
+		color: rgb(156 163 175);
+		line-height: 1;
+	}
+
+	/* --- Select component: option list popup --- */
+	:global(.conv-filter .multiselect-container .option-list),
+	:global(.conv-state-search .multiselect-container .option-list) {
+		margin-top: 0.25rem;
+		border: 1px solid rgb(229 231 235);
+		border-radius: 0.5rem;
+		box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+	}
+	:global(.conv-filter .multiselect-container .option-item:hover),
+	:global(.conv-state-search .multiselect-container .option-item:hover) {
+		background-color: rgb(243 244 246);
+	}
+	:global(.conv-filter .multiselect-container .option-item .select-name),
+	:global(.conv-state-search .multiselect-container .option-item .select-name) {
+		font-size: 0.875rem;
+	}
+
+	/* --- Plain inputs (tag input + state-search value input) --- */
+	:global(.conv-filter input.form-control),
+	:global(.conv-state-search input.form-control) {
+		height: 2.5rem;
+		border-radius: 0.375rem;
+		border: 1px solid rgb(229 231 235);
+		background-color: rgb(255 255 255);
+		font-size: 0.875rem;
+		color: rgb(31 41 55);
+		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	:global(.conv-filter input.form-control:focus),
+	:global(.conv-state-search input.form-control:focus) {
+		border-color: var(--color-primary);
+		outline: 0;
+		box-shadow: 0 0 0 1px var(--color-primary);
+	}
+
+	/* --- State search: container spacing --- */
+	:global(.conv-state-search .state-search-container) {
+		gap: 0.5rem;
+	}
+	:global(.conv-state-search .state-search-item) {
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	/* --- State search: remove icon --- */
+	:global(.conv-state-search .state-search-item .bxs-no-entry) {
+		font-size: 1.125rem;
+		cursor: pointer;
+		transition: transform 0.15s ease;
+	}
+	:global(.conv-state-search .state-search-item .bxs-no-entry:hover) {
+		transform: scale(1.15);
+	}
+	:global(.conv-state-search .state-search-item .bxs-no-entry.hide) {
+		visibility: hidden;
+	}
+
+	/* --- State search: "Add +" link button --- */
+	:global(.conv-state-search .btn-link) {
+		color: var(--color-primary);
+		font-weight: 500;
+		font-size: 0.8125rem;
+		text-decoration: none;
+		padding: 0.25rem 0.5rem;
+		border-radius: 0.375rem;
+		transition: background-color 0.15s ease;
+	}
+	:global(.conv-state-search .btn-link:hover) {
+		background-color: var(--color-primary);
+		color: rgb(255 255 255);
+	}
+
+	/* --- RemoteSearchInput autocomplete dropdown --- */
+	:global(.conv-state-search .scrollable-dropdown .dropdown-menu) {
+		margin-top: 0.25rem;
+		border: 1px solid rgb(229 231 235);
+		border-radius: 0.5rem;
+		box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+		padding: 0.25rem;
+		max-height: 240px;
+		overflow-y: auto;
+	}
+	:global(.conv-state-search .scrollable-dropdown .dropdown-item) {
+		border-radius: 0.25rem;
+		padding: 0.375rem 0.625rem;
+		font-size: 0.8125rem;
+		color: rgb(31 41 55);
+	}
+	:global(.conv-state-search .scrollable-dropdown .dropdown-item:hover),
+	:global(.conv-state-search .scrollable-dropdown .dropdown-item.active) {
+		background-color: rgb(243 244 246);
+		color: var(--color-primary);
 	}
 </style>
