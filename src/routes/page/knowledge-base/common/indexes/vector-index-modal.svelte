@@ -2,7 +2,7 @@
     import { onMount, tick } from "svelte";
     import { fade } from 'svelte/transition'; // used in template transition directives
     import util from "lodash";
-	import { getVectorCollectionDetails } from "$lib/services/knowledge-base-service";
+	import { getKnowledgeCollectionDetails } from "$lib/services/knowledge-base-service";
 	import { VectorIndexSchemaType } from "$lib/helpers/enums";
     import Select from "$lib/common/dropdowns/Select.svelte";
 
@@ -24,7 +24,9 @@
         /** @type {(e: any) => void} */
         confirm = () => {},
         /** @type {() => void} */
-        cancel = () => {}
+        cancel = () => {},
+        /** @type {string} */
+        knowledgeType
     } = $props();
 
     const maxLength = 500;
@@ -59,7 +61,7 @@
 
     function getCollectionDetail() {
 		return new Promise((resolve) => {
-			getVectorCollectionDetails(collection).then(res => {
+			getKnowledgeCollectionDetails(collection, knowledgeType).then(res => {
 				indexesToAdd = res?.payload_schema?.map(x => ({
                     field_name: x.field_name,
                     field_schema_type: x.field_data_type

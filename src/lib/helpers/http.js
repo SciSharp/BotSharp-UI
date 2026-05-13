@@ -190,12 +190,12 @@ function skipLoader(config) {
     const postRegexes = [
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/agent', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/page', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/upload', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/entity/analyze', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data/page', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/query', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/file/page', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/file/upload', 'g'),
+        // new RegExp('http(s*)://(.*?)/knowledge/entity/analyze', 'g'),
         new RegExp('http(s*)://(.*?)/users', 'g'),
         new RegExp('http(s*)://(.*?)/instruct/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/agent/(.*?)/code-scripts', 'g'),
@@ -205,7 +205,7 @@ function skipLoader(config) {
 
     /** @type {RegExp[]} */
     const putRegexes = [
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-tags', 'g'),
         new RegExp('http(s*)://(.*?)/users', 'g'),
@@ -213,9 +213,9 @@ function skipLoader(config) {
 
     /** @type {RegExp[]} */
     const deleteRegexes = [
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/delete-collection', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
     ];
 
     /** @type {RegExp[]} */
@@ -238,8 +238,9 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/files/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/llm-configs', 'g'),
         new RegExp('http(s*)://(.*?)/llm-provider/(.*?)/models', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/collections', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/exist', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collections', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/exist', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/details', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/processors', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/entity/analyzers', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/entity/data-providers', 'g'),
@@ -273,17 +274,18 @@ function skipLoader(config) {
 function skipGlobalError(config) {
     /** @type {RegExp[]} */
     const postRegexes = [
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/page', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/(.*?)/search', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/create', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/document/(.*?)/page', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/create-collection', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data/page', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/query', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/file/page', 'g'),
         new RegExp('http(s*)://(.*?)/refresh-agents', 'g')
     ];
 
     /** @type {RegExp[]} */
     const putRegexes = [
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/update', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
         new RegExp('http(s*)://(.*?)/role', 'g'),
         new RegExp('http(s*)://(.*?)/user', 'g'),
         new RegExp('http(s*)://(.*?)/conversation/(.*?)/update-message', 'g'),
@@ -292,9 +294,9 @@ function skipGlobalError(config) {
 
     /** @type {RegExp[]} */
     const deleteRegexes = [
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/delete-collection', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data/(.*?)', 'g'),
-        new RegExp('http(s*)://(.*?)/knowledge/vector/(.*?)/data', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data/(.*?)', 'g'),
+        new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
     ];
 
     /** @type {RegExp[]} */

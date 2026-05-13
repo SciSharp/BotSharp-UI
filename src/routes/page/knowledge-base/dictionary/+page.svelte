@@ -6,7 +6,7 @@
     import {
 		getEntityAnalyzers,
 		getEntityDataLoaders,
-		analyzeEntity
+		executeKnowledgeQuery
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
@@ -14,7 +14,9 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import TableItem from '../common/table/table-item.svelte';
+	import { KnowledgeBaseType } from '$lib/helpers/enums';
 
+	const knowledgeType = KnowledgeBaseType.Taxonomy;
 	const maxLength = 4096;
     const columns = [
         {
@@ -39,7 +41,7 @@
     /** @type {string[]} */
     let selectedDataLoaders = $state([]);
 
-	/** @type {import('$knowledgeTypes').EntityAnalysisResult[]} */
+	/** @type {import('$knowledgeTypes').KnowledgeQueryViewModel[]} */
 	let items = $state([]);
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
@@ -155,16 +157,14 @@
 
     function getAnalysisResult() {
         return new Promise((resolve, reject) => {
+			/** @type {import('$knowledgeTypes').KnowledgeQueryRequest} */
             const request = {
                 text: util.trim(text),
-                provider: selectedAnalyzer,
-                options: {
-                    data_providers: selectedDataLoaders?.length > 0 ? selectedDataLoaders : null
-                }
+                dataProviders: selectedDataLoaders?.length > 0 ? selectedDataLoaders : null
             };
 
-            analyzeEntity(request).then(res => {
-                items = res?.results || [];
+            executeKnowledgeQuery(knowledgeType, request, knowledgeType, selectedAnalyzer).then(res => {
+                items = res || [];
                 totalDataCount = items.length;
                 resolve(res);
             }).catch(err => {
@@ -345,9 +345,8 @@
 									<tbody>
 										{#each items as item, idx (idx)}
                                             <TableItem
-												item={item}
+												item={item.data}
                                                 columns={columns}
-                                                detailKey={'data'}
 												open={idx === 0}
 											/>
 										{/each}

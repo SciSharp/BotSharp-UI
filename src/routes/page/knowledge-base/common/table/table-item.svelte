@@ -8,7 +8,6 @@
      * @type {{
      *   item: any,
      *   columns: import('$commonTypes').TableItemConfig[],
-     *   detailKey?: string | null,
      *   useJsonDisplay?: boolean,
      *   open?: boolean
      * }}
@@ -16,7 +15,6 @@
     let {
         item,
         columns,
-        detailKey = null,
         useJsonDisplay = false,
         open = $bindable(false)
     } = $props();
@@ -49,7 +47,6 @@
     {/if}
     <td class="knowledge-op">
         <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
-            {#if detailKey}
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
                 <button
                     class="btn btn-sm btn-soft-primary"
@@ -62,7 +59,6 @@
                     {/if}
                 </button>
             </li>
-            {/if}
         </ul>
     </td>
 </tr>
@@ -94,23 +90,21 @@
                         in:fly={{ y: -5, duration: 300 }}
                         out:fly={{ y: -5, duration: 200 }}
                     >
-                        {#if detailKey && item[detailKey]}
-                            {#if useJsonDisplay}
-                                <JSONTree
-                                    value={formatObject(item[detailKey])}
-                                    defaultExpandedLevel={1}
-                                    --json-tree-number-color="var(--bs-info)"
-                                    --json-tree-boolean-color="var(--bs-info)"
-                                    --json-tree-string-color="var(--bs-info)"
-                                />
-                            {:else}
-                                {#each Object.keys(item[detailKey]) as key, idx (idx)}
-                                    <li class="more-detail-item wrappable">
-                                        <span>{splitTextByCase(key)}: </span>
-                                        <span>{item[detailKey][key]}</span>
-                                    </li>
-                                {/each}
-                            {/if}
+                        {#if useJsonDisplay}
+                            <JSONTree
+                                value={formatObject(item)}
+                                defaultExpandedLevel={1}
+                                --json-tree-number-color="var(--bs-info)"
+                                --json-tree-boolean-color="var(--bs-info)"
+                                --json-tree-string-color="var(--bs-info)"
+                            />
+                        {:else}
+                            {#each Object.keys(item).filter(key => !columns.some(col => col.dataName === key)) as key, idx (idx)}
+                                <li class="more-detail-item wrappable">
+                                    <span>{splitTextByCase(key)}: </span>
+                                    <span>{item[key]}</span>
+                                </li>
+                            {/each}
                         {/if}
                     </ul>
                 {/if}

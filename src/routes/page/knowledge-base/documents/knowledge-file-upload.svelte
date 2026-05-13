@@ -15,10 +15,10 @@
     import { KnowledgeDocSource } from '$lib/helpers/enums';
     import { isHtml } from '$lib/helpers/utils/file';
 	import {
-        getKnowledgeDocumentPageList,
-        uploadKnowledgeDocuments,
-        deleteKnowledgeDocument,
-        deleteAllKnowledgeDocuments
+        getKnowledgeFilePageList,
+        uploadKnowledgeFiles,
+        deleteKnowledgeFile,
+        deleteAllKnowledgeFiles
     } from '$lib/services/knowledge-base-service';
     import KnowledgeUploadResult from './knowledge-upload-result.svelte';
 
@@ -172,7 +172,7 @@
 
                 disabled = true;
                 isLoading = true;
-				uploadKnowledgeDocuments(collection,
+				uploadKnowledgeFiles(collection,
                 {
                     files: files,
                     options: {
@@ -222,7 +222,7 @@
 
         const page = docPage;
         return new Promise((resolve, reject) => {
-            getKnowledgeDocumentPageList(
+            getKnowledgeFilePageList(
                 collection,
                 { page: page, size: docPageSize }
             ).then(res => {
@@ -265,7 +265,7 @@
         }).then(async (result) => {
             if (result.value) {
                 disabled = true;
-                deleteKnowledgeDocument(collection, found.file_id).then(res => {
+                deleteKnowledgeFile(collection, found.file_id).then(res => {
                     if (res) {
                         savedFiles = savedFiles.filter((_, idx) => idx !== index);
                         docPage = startPage;
@@ -296,7 +296,7 @@
         }).then(async (result) => {
             if (result.value) {
                 disabled = true;
-                deleteAllKnowledgeDocuments(collection, { page: 1, size: 10 }).then(res => {
+                deleteAllKnowledgeFiles(collection, { page: 1, size: 10 }).then(res => {
                     if (res) {
                         savedFiles = [];
                         docPage = startPage;

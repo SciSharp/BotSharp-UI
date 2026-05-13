@@ -6,18 +6,17 @@
 	import Swal from 'sweetalert2';
 	import { v4 as uuidv4 } from 'uuid';
     import {
-        getVectorKnowledgeCollections,
-        getVectorKnowledgePageList,
-        searchVectorKnowledge,
-		createVectorKnowledgeData,
-		updateVectorKnowledgeData,
-		deleteVectorCollection,
-		deleteVectorKnowledgeData,
-		deleteAllVectorKnowledgeData,
-		createVectorCollection,
-		createVectorIndexes,
-		deleteVectorIndexes,
-		getVectorCollectionDetails,
+        getKnowledgeCollections,
+        getKnowledgePageList,
+        executeKnowledgeQuery,
+		createKnowledgeData,
+		updateKnowledgeData,
+		deleteKnowledgeCollection,
+		deleteKnowledgeData,
+		deleteAllKnowledgeData,
+		createKnowledgeCollection,
+		createKnowledgeIndexes,
+		deleteKnowledgeIndexes,
 		getKnowledgeProcessors
     } from '$lib/services/knowledge-base-service';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
@@ -28,7 +27,7 @@
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import {
-		KnowledgeCollectionType,
+		KnowledgeBaseType,
 		KnowledgePayloadName,
 		VectorDataSource,
 		VectorPayloadDataType
@@ -38,17 +37,17 @@
 	import VectorItemEditModal from '../common/vector-table/vector-item-edit-modal.svelte';
 	import CollectionCreateModal from '../common/collection/collection-create-modal.svelte';
 	import VectorIndexModal from '../common/indexes/vector-index-modal.svelte';
-	import AdvancedSearch from '../common/search/advanced-search.svelte';
-	import KnowledgeDocumentUpload from './knowledge-document-upload.svelte';
+	// import AdvancedSearch from '../common/search/advanced-search.svelte';
+	import KnowledgeFileUpload from './knowledge-file-upload.svelte';
 	import KnowledgeUploadModal from './knowledge-upload-modal.svelte';
 
+	const knowledgeType = KnowledgeBaseType.Document;
 	const pageSize = 8;
   	const duration = 2000;
 	const maxLength = 4096;
 	const step = 0.1;
 	const searchLimit = 10;
 	const enableVector = true;
-	const collectionType = KnowledgeCollectionType.Document;
 
 	/** @type {string} */
 	let text = $state("");
@@ -60,10 +59,7 @@
     /** @type {string} */
     let selectedCollection = $state('');
 
-	/** @type {import('$knowledgeTypes').VectorCollectionDetails | null} */
-	let collectionDetails = $state(null);
-
-	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel[]} */
+	/** @type {import('$knowledgeTypes').KnowledgeQueryViewModel[]} */
 	let items = $state([]);
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
@@ -78,7 +74,7 @@
 	/** @type {string} */
 	let editCollection = $state('');
 
-	/** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
+	/** @type {import('$knowledgeTypes').KnowledgeQueryViewModel | null} */
 	let editItem = $state(null);
 
 	/** @type {string} */
@@ -164,7 +160,6 @@
     	getCollections().then(() => {
 			if (selectedCollection) {
 				Promise.all([
-					getCollectionDetail(),
 					getDocProcessors(),
 					getData({
 						...defaultParams,
@@ -217,17 +212,17 @@
             	elapsedTime = `${(gap / 1000).toFixed(3)}s`;
 			});
 		} else {
-			/** @type {import('$knowledgeTypes').SearchKnowledgeRequest} */
+			/** @type {import('$knowledgeTypes').KnowledgeQueryRequest} */
 			const params = {
 				text: util.trim(text),
 				limit: searchLimit,
 				confidence: Number(validateConfidenceNumber(confidence)),
-				with_vector: enableVector,
-				filter_groups: innerSearchGroups,
-				search_param: { exact_search: isExactSearch }
+				withVector: enableVector,
+				filterGroups: innerSearchGroups,
+				searchParam: { exact_search: isExactSearch }
 			};
 
-			searchVectorKnowledge(selectedCollection, params).then(res => {
+			executeKnowledgeQuery(selectedCollection, params, knowledgeType).then(res => {
 				items = res || [];
 				totalDataCount = items.length;
 				isFromSearch = true;
@@ -346,7 +341,7 @@
 	// Knowledge list data
 	function getCollections() {
 		return new Promise((resolve, reject) => {
-			getVectorKnowledgeCollections(collectionType).then(res => {
+			getKnowledgeCollections(knowledgeType).then(res => {
 				const retCollections = res?.map(x => ({ label: x.name, value: x.name })) || [];
 				collections = [ ...retCollections ];
 				selectedCollection = collections[0]?.value;
@@ -382,9 +377,10 @@
 				order_by: params.sort?.field ? params.sort : null
 			};
 
-			getVectorKnowledgePageList(
+			getKnowledgePageList(
 				selectedCollection,
-				filter
+				filter,
+				knowledgeType
 			).then(res => {
 				const newItems = res.items || [];
 				if (params.isReset) {
@@ -398,18 +394,6 @@
 			}).catch(err => {
 				console.log(err);
 				reject(err);
-			});
-		});
-	}
-
-	function getCollectionDetail() {
-		return new Promise((resolve) => {
-			getVectorCollectionDetails(selectedCollection).then(res => {
-				collectionDetails = res || null;
-				resolve(collectionDetails);
-			}).catch(() => {
-				collectionDetails = null;
-				resolve(collectionDetails);
 			});
 		});
 	}
@@ -491,7 +475,7 @@
 	function onKnowledgeDelete(e) {
 		const id = e.id;
 		isLoading = true;
-		deleteVectorKnowledgeData(selectedCollection, id).then(res => {
+		deleteKnowledgeData(id, selectedCollection, knowledgeType).then(res => {
 			if (res) {
 				isComplete = true;
 				successText = "Knowledge has been deleted!";
@@ -543,7 +527,7 @@
         }).then(async (result) => {
             if (result.value) {
 				isLoading = true;
-                deleteAllVectorKnowledgeData(selectedCollection).then(res => {
+                deleteAllKnowledgeData(selectedCollection, knowledgeType).then(res => {
 					if (res) {
 						successText = "All data has been deleted!";
 						isComplete = true;
@@ -587,11 +571,12 @@
 		};
 
 		if (editItem) {
-			updateVectorKnowledgeData(
+			updateKnowledgeData(
 				e.id,
 				editCollection,
 				e.data?.text,
-				e.payload
+				e.payload,
+				knowledgeType
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -615,10 +600,11 @@
 				isLoading = false;
 			});
 		} else {
-			createVectorKnowledgeData(
+			createKnowledgeData(
 				editCollection,
 				e.data?.text,
-				e.payload
+				e.payload,
+				knowledgeType
 			).then(res => {
 				if (res) {
 					isComplete = true;
@@ -687,13 +673,12 @@
 	function confirmCollectionCreate(data) {
 		isLoading = true;
 		toggleCollectionCreate();
-		createVectorCollection({
-			collection_name: data.collection_name,
-			collection_type: collectionType,
+		createKnowledgeCollection({
+			collectionName: data.collectionName,
 			dimension: data.dimension,
 			provider: data.provider,
 			model: data.model
-		}).then(res => {
+		}, knowledgeType).then(res => {
 			if (res) {
 				successText = "Collection has been created!";
 				isComplete = true;
@@ -727,7 +712,7 @@
         }).then(async (result) => {
             if (result.value) {
 				isLoading = true;
-                deleteVectorCollection(selectedCollection).then(res => {
+                deleteKnowledgeCollection(selectedCollection, knowledgeType).then(res => {
 					if (res) {
 						successText = "Collection has been deleted!";
 						isComplete = true;
@@ -846,10 +831,10 @@
 		const { addIndexes, deleteIndexes } = e;
 		try {
 			if (addIndexes?.length > 0) {
-				await createVectorIndexes(selectedCollection, addIndexes);
+				await createKnowledgeIndexes(selectedCollection, addIndexes, knowledgeType);
 			}
 			if (deleteIndexes?.length > 0) {
-				await deleteVectorIndexes(selectedCollection, deleteIndexes);
+				await deleteKnowledgeIndexes(selectedCollection, deleteIndexes, knowledgeType);
 			}
 			successText = "Indexes have been updated!";
             isComplete = true;
@@ -893,7 +878,7 @@
 		title={editModalTitle}
 		size={'lg'}
 		collection={editCollection}
-        collectionType={collectionType}
+        knowledgeType={knowledgeType}
 		item={editItem}
 		open={isOpenEditKnowledge}
 		allowPayload
@@ -913,6 +898,7 @@
 		title={''}
 		size={'xl'}
 		collection={selectedCollection}
+		knowledgeType={knowledgeType}
 		open={isOpenIndexModal}
 		toggleModal={() => isOpenIndexModal = !isOpenIndexModal}
 		confirm={(/** @type {any} */ e) => confirmIndex(e)}
@@ -937,6 +923,7 @@
 
 <CollectionCreateModal
 	title={'Create new collection'}
+	knowledgeType={knowledgeType}
 	open={isOpenCreateCollection}
 	toggleModal={() => toggleCollectionCreate()}
 	confirm={(/** @type {any} */ e) => confirmCollectionCreate(e)}
@@ -1093,14 +1080,14 @@
                         </div>
                     </div>
 
-					<AdvancedSearch
+					<!-- <AdvancedSearch
 						bind:showAdvSearch={isAdvSearchOn}
 						bind:items={searchItems}
 						bind:operator={selectedOperator}
 						bind:sortField={sortField}
 						bind:sortOrder={sortOrder}
 						disabled={disabled}
-					/>
+					/> -->
 				
 					{#if isSearching}
 						<div class="knowledge-loader mt-5">
@@ -1116,7 +1103,7 @@
 		{/if}
         
         {#if selectedCollection}
-            <KnowledgeDocumentUpload
+            <KnowledgeFileUpload
                 collection={selectedCollection}
 				accept={'.txt'}
 				disableFileUpload={true}
@@ -1269,7 +1256,7 @@
 										{#each items as item, idx (idx)}
                                             <VectorItem
 												collection={selectedCollection}
-                                                collectionType={collectionType}
+                                                knowledgeType={knowledgeType}
 												item={item}
 												open={isFromSearch && idx === 0}
 												ondelete={(/** @type {any} */ data) => onKnowledgeDelete(data)}

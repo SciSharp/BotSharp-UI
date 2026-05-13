@@ -3,7 +3,7 @@
     import Select from "$lib/common/dropdowns/Select.svelte";
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
     import FileGallery from '$lib/common/files/FileGallery.svelte';
-	import { uploadKnowledgeDocuments } from "$lib/services/knowledge-base-service";
+	import { uploadKnowledgeFiles } from "$lib/services/knowledge-base-service";
 	import { KnowledgeDocSource } from "$lib/helpers/enums";
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 
@@ -75,7 +75,7 @@
         disabled = true;
         toggleModal?.();
 
-        uploadKnowledgeDocuments(collection,
+        uploadKnowledgeFiles(collection,
         {
             files: files,
             options: {

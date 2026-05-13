@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { fade } from 'svelte/transition';
     import _ from "lodash";
-	import { existVectorCollection } from "$lib/services/knowledge-base-service";
+	import { existKnowledgeCollection } from "$lib/services/knowledge-base-service";
 
     let {
         /** @type {boolean} */
@@ -24,7 +24,9 @@
         /** @type {(args0: any) => void} */
         confirm = () => {},
         /** @type {() => void} */
-        cancel = () => {}
+        cancel = () => {},
+        /** @type {string} */
+        knowledgeType
     } = $props();
 
     /** @type {string} */
@@ -68,7 +70,7 @@
     /** @param {string} text */
     function validateCollection(text) {
         return new Promise((resolve, reject) => {
-            existVectorCollection(text).then(res => {
+            existKnowledgeCollection(text, knowledgeType).then(res => {
                 resolve(res);
             }).catch(err => {
                 reject(err);
@@ -91,7 +93,7 @@
                 isValidCollection = false;
             } else {
                 confirm?.({
-                    collection_name: _.trim(collection),
+                    collectionName: _.trim(collection),
                     dimension: dimension,
                     provider: _.trim(provider),
                     model: _.trim(model)
