@@ -163,7 +163,7 @@
         if (timer) {
             clearTimeout(timer);
         }
-        
+
         timer = setTimeout(() => {
             applySearchFilter();
             verifySelectAll();
@@ -469,3 +469,273 @@
         </ul>
     {/if}
 </div>
+
+<style>
+    /* ============================================================
+       Select component — fully self-contained styling.
+       Component-scoped CSS replaces the legacy `_select.scss` rules
+       and overrides Bootstrap form-control defaults on the inputs.
+       Page-level :global() overrides (e.g. in instruction/testing,
+       conversation, instruction/log) continue to win via their
+       higher-specificity ancestor selectors.
+       ============================================================ */
+
+    .multiselect-container {
+        position: relative;
+    }
+
+    /* ---------- Display container (closed trigger) ---------- */
+    .display-container {
+        position: relative;
+    }
+
+    /* Override Bootstrap .form-control to give a modern, themed input */
+    .display-container :global(input[type='text']) {
+        width: 100%;
+        height: 2.5rem;
+        margin: 0;
+        padding: 0 2rem 0 0.75rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.375rem;
+        background-color: rgb(255 255 255);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(31 41 55);
+        cursor: pointer;
+        text-overflow: ellipsis;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .display-container :global(input[type='text']::placeholder) {
+        color: var(--color-muted);
+        opacity: 1;
+    }
+    .display-container :global(input[type='text']:hover:not(.disabled):not(:disabled)) {
+        border-color: rgb(209 213 219);
+    }
+    .display-container :global(input[type='text']:focus) {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+    .display-container :global(input[type='text'].disabled),
+    .display-container :global(input[type='text']:disabled) {
+        background-color: rgb(249 250 251);
+        color: var(--color-muted);
+        cursor: not-allowed;
+        opacity: 0.7;
+        border-color: rgb(229 231 235);
+    }
+
+    .display-suffix {
+        position: absolute;
+        right: 0.625rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        font-size: 1.125rem;
+        line-height: 1;
+        color: rgb(156 163 175);
+        pointer-events: none;
+    }
+    .display-suffix :global(i) {
+        transition: transform 0.2s ease-in-out, color 0.15s ease;
+    }
+    .display-suffix.show-list :global(i) {
+        transform: rotate(180deg);
+        color: var(--color-primary);
+    }
+
+    /* ---------- Option list dropdown ---------- */
+    .option-list {
+        list-style: none;
+        margin: 0.25rem 0 0;
+        padding: 0.25rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.5rem;
+        background-color: rgb(255 255 255);
+        box-shadow:
+            0 10px 25px -5px rgb(0 0 0 / 0.1),
+            0 8px 10px -6px rgb(0 0 0 / 0.05);
+        max-height: 260px;
+        overflow-x: hidden;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        position: absolute;
+        left: 0;
+        right: 0;
+        z-index: 99;
+    }
+
+    /* ---------- Search box inside dropdown ---------- */
+    .search-box {
+        position: relative;
+        padding: 0.125rem 0.125rem 0.5rem;
+    }
+    .search-box :global(input[type='text']) {
+        width: 100%;
+        height: 2rem;
+        margin: 0;
+        padding: 0 0.625rem 0 2rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.375rem;
+        background-color: rgb(249 250 251);
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: rgb(31 41 55);
+        transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .search-box :global(input[type='text']::placeholder) {
+        color: var(--color-muted);
+        opacity: 1;
+    }
+    .search-box :global(input[type='text']:focus) {
+        outline: 0;
+        border-color: var(--color-primary);
+        background-color: rgb(255 255 255);
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+
+    .search-prefix {
+        position: absolute;
+        left: 0.625rem;
+        top: calc(50% - 0.25rem);
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        font-size: 1rem;
+        line-height: 1;
+        color: rgb(156 163 175);
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    /* ---------- Option items ---------- */
+    .option-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.4rem 0.625rem;
+        margin: 0;
+        border-radius: 0.375rem;
+        font-size: 0.875rem;
+        color: rgb(31 41 55);
+        cursor: pointer;
+        transition: background-color 0.12s ease, color 0.12s ease;
+    }
+    .option-item:hover {
+        background-color: rgb(243 244 246);
+        color: var(--color-primary);
+    }
+
+    /* "Clear selection" row (single-select dropdowns) */
+    .option-item.justify-content-center {
+        justify-content: center;
+        font-size: 0.8125rem;
+        color: var(--color-muted);
+        font-style: italic;
+    }
+    .option-item.justify-content-center:hover {
+        background-color: rgb(243 244 246);
+        color: var(--color-danger);
+    }
+
+    .select-box {
+        flex: 0 0 1.25rem;
+        max-width: 1.25rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+
+    /* ---------- Custom checkbox (multi-select mode) ----------
+       Replaces the native browser checkbox with a themed primary-colored
+       control. Uses `appearance: none` + an SVG checkmark background to
+       render identically across browsers and pick up `--color-primary`
+       at runtime. Targets the inputs rendered by the template
+       (`<input type="checkbox" ... readonly>`); click handling lives on
+       the parent `.option-item`, so the input remains visually accurate
+       via its `checked` attribute. */
+
+    .select-box :global(input[type='checkbox']) {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 1rem;
+        height: 1rem;
+        margin: 0;
+        padding: 0;
+        border: 1.5px solid rgb(209 213 219);
+        border-radius: 0.25rem;
+        background-color: rgb(255 255 255);
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: 0.75rem 0.75rem;
+        cursor: pointer;
+        outline: 0;
+        box-shadow: none;
+        transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+        flex-shrink: 0;
+    }
+
+    /* Hover: lift the border toward primary (skipped when disabled) */
+    .option-item:hover :global(input[type='checkbox']:not(:disabled)) {
+        border-color: var(--color-primary);
+    }
+
+    /* Checked: primary fill + inline white SVG check glyph */
+    .select-box :global(input[type='checkbox']:checked) {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='3.5 8.5 6.5 11.5 12.5 5'/%3E%3C/svg%3E");
+    }
+
+    /* Disabled: faded with no hover affordance */
+    .select-box :global(input[type='checkbox']:disabled) {
+        background-color: rgb(243 244 246);
+        border-color: rgb(229 231 235);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* Subtle highlight on rows whose checkbox is checked (multi-select).
+       :has() is supported in all evergreen browsers. */
+    .option-item:has(:global(input[type='checkbox']:checked)) {
+        background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+    }
+    .option-item:has(:global(input[type='checkbox']:checked)):hover {
+        background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+        color: var(--color-primary);
+    }
+
+    /* The check glyph rendered for the currently-selected option in single-select mode */
+    .select-box :global(i.bx-check) {
+        font-size: 1.125rem;
+        line-height: 1;
+        color: var(--color-primary);
+    }
+
+    .select-name {
+        flex: 1 1 auto;
+        min-width: 0;
+        font-size: 0.875rem;
+        line-height: 1.4;
+        word-break: break-word;
+        overflow-wrap: anywhere;
+    }
+    /* "Select all" label is bold per the template's `fw-bold` class */
+    .select-name :global(.fw-bold),
+    .option-item :global(.select-name.fw-bold) {
+        font-weight: 600;
+    }
+
+    /* Empty state ("Nothing...") */
+    .option-item :global(.nothing) {
+        width: 100%;
+        padding: 0.25rem 0.25rem;
+        color: var(--color-muted);
+        font-size: 0.8125rem;
+        font-style: italic;
+        text-align: center;
+    }
+</style>

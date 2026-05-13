@@ -19,6 +19,7 @@
 	import InstructionLlm from '../instruction-components/instruction-llm.svelte';
     import InstructionState from '../instruction-components/instruction-state.svelte';
     import InstructionCoding from '../instruction-components/instruction-coding.svelte';
+	import { formatNumber } from '$lib/helpers/utils/common';
 
     const maxLength = 64000;
 
@@ -212,162 +213,297 @@
     errorText={errorText}
 />
 
-<div class="d-xl-flex">
-    <div class="w-100">
-        <div class="instruction-container mb-4">
-            <textarea
-                class='form-control knowledge-textarea'
-                rows={8}
-                maxlength={maxLength}
-                disabled={isThinking}
-                placeholder={'Enter input message...'}
-                bind:value={text}
-                onkeydown={(e) => pressKey(e)}
-            ></textarea>
-            <div class="text-secondary text-count d-flex justify-content-between">
-                <div>
-                    {#if elapsedTime}
-                        {`Elapsed time: ${elapsedTime}`}
-                    {/if}
-                </div>
-                <div>{text?.length || 0}/{maxLength}</div>
+<div class="instruct-test mb-6 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+    <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <div class="flex items-center gap-3">
+            <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                <i class="mdi mdi-flask-outline text-xl"></i>
+            </span>
+            <div class="min-w-0 flex-1">
+                <h5 class="mb-0 truncate text-base font-semibold text-dark dark:text-gray-100">{$_('Try It Out')}</h5>
+                <p class="mb-0 truncate text-xs text-muted">
+                    {selectedAgent ? `Testing agent: ${selectedAgent.name}` : 'Configure an agent in the pane below to begin'}
+                </p>
             </div>
-
-            <div class="mt-2 text-end">
-                <button
-                    type="button"
-                    class="btn btn-primary"
-                    disabled={!text || util.trim(text).length === 0 || isThinking}
-                    onclick={() => sendRequest()}
-                >
-                    {'Send'}
-                </button>
+        </div>
+    </div>
+    <div class="p-6">
+        <textarea
+            class="instruct-input thin-scrollbar w-full resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-dark transition-colors placeholder:text-muted focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary disabled:cursor-not-allowed disabled:opacity-60 dark:border-gray-700 dark:bg-gray-700/40 dark:text-gray-100 dark:focus:bg-gray-800"
+            rows={8}
+            maxlength={maxLength}
+            disabled={isThinking}
+            placeholder={'Enter input message...'}
+            bind:value={text}
+            onkeydown={(e) => pressKey(e)}
+        ></textarea>
+        <div class="mt-1 flex items-center justify-between text-xs text-muted">
+            <div>
+                {#if elapsedTime}
+                    <span class="inline-flex items-center gap-1">
+                        <i class="mdi mdi-timer-outline text-sm leading-none"></i>
+                        {`Elapsed: ${elapsedTime}`}
+                    </span>
+                {/if}
             </div>
+            <div>{text?.length || 0}/{formatNumber(maxLength)}</div>
+        </div>
 
-            {#if isThinking}
-                <div class="knowledge-loader mt-4">
-                    <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+        <div class="mt-3 flex justify-end">
+            <button
+                type="button"
+                class="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-50"
+                disabled={!text || util.trim(text).length === 0 || isThinking}
+                onclick={() => sendRequest()}
+            >
+                <i class="mdi mdi-send align-middle leading-none"></i>
+                {'Send'}
+            </button>
+        </div>
+
+        {#if isThinking}
+            <div class="mt-4 flex justify-center">
+                <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--color-primary)'} />
+            </div>
+        {:else if requestDone && !!result}
+            <div
+                class="mt-4 rounded-lg border-l-4 border-primary bg-primary/5 p-5 dark:bg-primary/10"
+                in:fly={{ y: -10, duration: 500 }}
+            >
+                <div class="mb-3 flex items-center justify-between">
+                    <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
+                        <i class="mdi mdi-robot-happy-outline text-base leading-none"></i>
+                        {'Response'}
+                    </div>
+                    <button
+                        type="button"
+                        class="inline-flex h-7 w-7 items-center justify-center rounded-md bg-danger/15 text-danger transition-all hover:scale-105 hover:bg-danger/25"
+                        aria-label="Close response"
+                        title="Close"
+                        onclick={() => closeResponse()}
+                    >
+                        <i class="mdi mdi-close text-base leading-none"></i>
+                    </button>
                 </div>
-            {:else if requestDone && !!result}
-                <div
-                    class="instruction-result-container mt-3"
-                    in:fly={{ y: -10, duration: 500 }}
+                <div class="thin-scrollbar max-h-[500px] overflow-y-auto rounded-md border border-gray-100 bg-white p-3 text-sm leading-relaxed text-dark dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100">
+                    <Markdown containerClasses={'markdown-dark text-dark'} text={result} rawText />
+                </div>
+            </div>
+        {:else if requestDone && !result}
+            <div class="mt-4 rounded-lg border border-dashed border-gray-200 bg-gray-50 p-6 text-center dark:border-gray-700 dark:bg-gray-700/30">
+                <i class="mdi mdi-emoticon-confused-outline text-3xl text-muted leading-none"></i>
+                <p class="mt-2 mb-0 text-sm text-muted">{"Ehhh, no idea..."}</p>
+            </div>
+        {/if}
+    </div>
+</div>
+
+<div class="instruct-config mb-6 grid grid-cols-1 gap-6 lg:grid-cols-12">
+    <div class="lg:col-span-7 lg:min-h-0">
+        <div class="flex h-full flex-col rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <i class="mdi mdi-script-text-outline text-xl"></i>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <h5 class="mb-0 truncate text-base font-semibold text-dark dark:text-gray-100">{'Instruction'}</h5>
+                        <p class="mb-0 truncate text-xs text-muted">
+                            {selectedTemplate ? `Template: ${selectedTemplate}` : 'Live preview of the agent instruction'}
+                        </p>
+                    </div>
+                    <div class="flex items-center leading-none text-muted" id="demo-tooltip">
+                        <i class="bx bx-info-circle text-lg leading-none"></i>
+                    </div>
+                    <BotsharpTooltip target="demo-tooltip" placement="left" containerClasses="demo-tooltip-note">
+                        <div>Please select an agent to proceed!</div>
+                    </BotsharpTooltip>
+                </div>
+            </div>
+            <div class="flex flex-1 flex-col p-6">
+                <textarea
+                    class="instruct-preview thin-scrollbar w-full flex-1 resize-none rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 font-mono text-xs leading-relaxed text-dark dark:border-gray-700 dark:bg-gray-700/30 dark:text-gray-100"
+                    rows={19}
+                    maxlength={maxLength}
+                    disabled
+                    placeholder={''}
+                    bind:value={instruction}
+                ></textarea>
+            </div>
+        </div>
+    </div>
+    <div class="lg:col-span-5 lg:min-h-0">
+        <div class="instruct-config-card flex h-full flex-col rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+            <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                        <i class="mdi mdi-cog-outline text-xl"></i>
+                    </span>
+                    <div class="min-w-0 flex-1">
+                        <h5 class="mb-0 truncate text-base font-semibold text-dark dark:text-gray-100">{'Configuration'}</h5>
+                        <p class="mb-0 truncate text-xs text-muted">Agent, LLM, States and Code script</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex flex-1 flex-col px-6 pt-4 pb-6">
+                <NavBar
+                    id={'instruction-nav-container'}
+                    disableDefaultStyles
+                    containerClasses={'nav-tabs-secondary'}
                 >
-                    <div class="instruct-header text-primary fw-bold">
-                        <div>{'Response'}</div>
-                        <div>
-                            <i
-                                class="mdi mdi-close-thick text-danger clickable"
-                                role="button"
-                                tabindex="0"
-                                onclick={() => closeResponse()}
-                                onkeydown={(/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') closeResponse(); }}
-                            ></i>
-                        </div>
-                    </div>
-                    <div class="instruction-result-body instruction-section instruction-border mt-2">
-                        <Markdown containerClasses={'markdown-dark text-dark'} text={result} rawText />
-                    </div>
+                    {#each tabs as tab}
+                    <NavItem
+                        containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
+                        navBtnStyles={'text-transform: none;'}
+                        navBtnId={`${tab.name}-tab`}
+                        dataBsTarget={`#${tab.name}-tab-pane`}
+                        ariaControls={`${tab.name}-tab-pane`}
+                        navBtnText={tab.displayText}
+                        active={tab.name === selectedTab}
+                        onClick={() => handleTabClick(tab.name)}
+                    />
+                    {/each}
+                </NavBar>
+
+                <div class="flex-1" class:hide={selectedTab !== 'instruction-agent'}>
+                    <InstructionAgent
+                        agents={agents}
+                        disabled={isThinking}
+                        onSelectAgent={detail => onAgentSelected(detail)}
+                    />
                 </div>
-            {:else if requestDone && !result}
-                <div class="mt-3">
-                    <h4 class="text-secondary text-center">{"Ehhh, no idea..."}</h4>
+                <div class="flex-1" class:hide={selectedTab !== 'instruction-llm'}>
+                    <InstructionLlm
+                        llmConfigs={llmConfigs}
+                        disabled={isThinking}
+                        bind:selectedProvider={selectedProvider}
+                        bind:selectedModel={selectedModel}
+                        onSelectLlm={detail => onLlmSelected(detail)}
+                    />
                 </div>
-            {/if}
+                <div class="flex-1" class:hide={selectedTab !== 'instruction-states'}>
+                    <InstructionState
+                        bind:states={states}
+                        disabled={isThinking}
+                    />
+                </div>
+                <div class="flex-1" class:hide={selectedTab !== 'instruction-coding'}>
+                    <InstructionCoding
+                        bind:selectedCodeScript={selectedCodeScript}
+                        bind:args={args}
+                        codeScripts={codeScripts}
+                        disabled={isThinking}
+                    />
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
-<div class="d-xl-flex mt-4 mb-5">
-    <div class="w-100">
-        <div class="row">
-            <div class="col-lg-7">
-                <div class="instruct-text-header text-primary fw-bold mb-2">
-                    <div class="line-align-center">
-                        {'Instruction'}
-                    </div>
-                    <div class="line-align-center">
-                        <div class="demo-tooltip-icon line-align-center" id="demo-tooltip">
-                            <i class="bx bx-info-circle"></i>
-                        </div>
-                        <BotsharpTooltip target="demo-tooltip" placement="right" containerClasses="demo-tooltip-note">
-                            <div>Please select an agent to proceed!</div>
-                        </BotsharpTooltip>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5"></div>
-        </div>
-        <div class="row instruct-setting-container">
-            <div class="col-lg-7">
-                <div>
-                    <div class="instruct-setting-section" style="gap: 2px;">
-                        <textarea
-                            class='form-control knowledge-textarea'
-                            rows={19}
-                            maxlength={maxLength}
-                            disabled
-                            placeholder={''}
-                            bind:value={instruction}
-                        ></textarea>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-5 instruction-gap">
-                <div class="card">
-                    <div class="card-body">
-                        <NavBar
-                            id={'instruction-nav-container'}
-                            disableDefaultStyles
-                            containerClasses={'nav-tabs-secondary'}
-                        >
-                            {#each tabs as tab}
-                            <NavItem
-                                containerStyles={`flex: 0 1 calc(100% / ${tabs.length <= 3 ? tabs.length : 4})`}
-                                navBtnStyles={'text-transform: none;'}
-                                navBtnId={`${tab.name}-tab`}
-                                dataBsTarget={`#${tab.name}-tab-pane`}
-                                ariaControls={`${tab.name}-tab-pane`}
-                                navBtnText={tab.displayText}
-                                active={tab.name === selectedTab}
-                                onClick={() => handleTabClick(tab.name)}
-                            />
-                            {/each}
-                        </NavBar>
+<style>
+    /* Hide inactive tab panels (legacy class kept for compatibility) */
+    :global(.instruct-config-card .hide) {
+        display: none !important;
+    }
 
-                        <div class:hide={selectedTab !== 'instruction-agent'}>
-                            <InstructionAgent
-                                agents={agents}
-                                disabled={isThinking}
-                                onSelectAgent={detail => onAgentSelected(detail)}
-                            />
-                        </div>
-                        <div class:hide={selectedTab !== 'instruction-llm'}>
-                            <InstructionLlm
-                                llmConfigs={llmConfigs}
-                                disabled={isThinking}
-                                bind:selectedProvider={selectedProvider}
-                                bind:selectedModel={selectedModel}
-                                onSelectLlm={detail => onLlmSelected(detail)}
-                            />
-                        </div>
-                        <div class:hide={selectedTab !== 'instruction-states'}>
-                            <InstructionState
-                                bind:states={states}
-                                disabled={isThinking}
-                            />
-                        </div>
-                        <div class:hide={selectedTab !== 'instruction-coding'}>
-                            <InstructionCoding
-                                bind:selectedCodeScript={selectedCodeScript}
-                                bind:args={args}
-                                codeScripts={codeScripts}
-                                disabled={isThinking}
-                            />
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    /* ---------- NavBar refresh for the configuration card ----------
+       Scoped to .instruct-config-card so legacy NavBar usage elsewhere is unaffected.
+       Targets the migrated .tab-btn class (formerly .nav-link). */
+    :global(.instruct-config-card .nav-tabs-secondary) {
+        border-bottom: 1px solid rgb(229 231 235);
+        margin-bottom: 1rem;
+    }
+    :global(.dark .instruct-config-card .nav-tabs-secondary) {
+        border-bottom-color: rgb(55 65 81);
+    }
+    :global(.instruct-config-card .nav-tabs-secondary .tab-btn) {
+        font-size: 0.8125rem;
+        border-radius: 0.375rem 0.375rem 0 0;
+        margin-bottom: -1px;
+    }
+    :global(.instruct-config-card .nav-tabs-secondary .tab-btn:hover:not(:disabled):not(.active)) {
+        color: var(--color-primary);
+        background-color: rgb(243 244 246);
+    }
+    :global(.dark .instruct-config-card .nav-tabs-secondary .tab-btn:hover:not(:disabled):not(.active)) {
+        background-color: rgb(55 65 81);
+    }
+
+    /* ---------- Select component override (inputs inside the tabs) ---------- */
+    :global(.instruct-config-card .multiselect-container .display-container input[type='text']) {
+        height: 2.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid rgb(229 231 235);
+        background-color: rgb(255 255 255);
+        padding-left: 0.75rem;
+        padding-right: 2rem;
+        font-size: 0.875rem;
+        color: rgb(31 41 55);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    :global(.instruct-config-card .multiselect-container .display-container input[type='text']:focus) {
+        border-color: var(--color-primary);
+        outline: 0;
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+    :global(.instruct-config-card .multiselect-container .display-suffix) {
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.125rem;
+        color: rgb(156 163 175);
+        line-height: 1;
+    }
+    :global(.instruct-config-card .multiselect-container .option-list) {
+        margin-top: 0.25rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.5rem;
+        box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+    }
+    :global(.instruct-config-card .multiselect-container .option-item:hover) {
+        background-color: rgb(243 244 246);
+    }
+    :global(.instruct-config-card .multiselect-container .option-item .select-name) {
+        font-size: 0.875rem;
+    }
+
+    /* ---------- Native form-control inputs (state / coding KV rows) ---------- */
+    :global(.instruct-config-card input.form-control) {
+        height: 2.25rem;
+        border-radius: 0.375rem;
+        border: 1px solid rgb(229 231 235);
+        background-color: rgb(255 255 255);
+        font-size: 0.8125rem;
+        color: rgb(31 41 55);
+        padding: 0 0.625rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    :global(.instruct-config-card input.form-control:focus) {
+        border-color: var(--color-primary);
+        outline: 0;
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+    :global(.instruct-config-card input.form-control:disabled) {
+        background-color: rgb(249 250 251);
+        cursor: not-allowed;
+        opacity: 0.7;
+    }
+
+    /* ---------- Add-link button (used in states / coding subcomponents) ---------- */
+    :global(.instruct-config-card .btn-link) {
+        color: var(--color-primary);
+        font-weight: 500;
+        font-size: 0.8125rem;
+        text-decoration: none;
+        padding: 0.375rem 0.625rem;
+        border-radius: 0.375rem;
+        transition: background-color 0.15s ease;
+    }
+    :global(.instruct-config-card .btn-link:hover) {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+    :global(.instruct-config-card .btn-link:disabled) {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>

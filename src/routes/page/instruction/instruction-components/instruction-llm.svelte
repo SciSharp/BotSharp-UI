@@ -60,34 +60,36 @@
 </script>
 
 
-<div class="instruct-setting-section instruct-setting-padding">
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Provider</div>
-            <Select
-                tag={'provider-select'}
-                placeholder={'Select Provider'}
-                searchMode
-                disabled={disabled}
-                selectedValues={selectedProvider?.provider ? [selectedProvider.provider] : []}
-                options={providerOptions}
-                onselect={e => selectProvider(e)}
-            />
-        </div>
+<div class="flex flex-col gap-5 py-3">
+    <div>
+        <label for="provider-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-cloud-outline text-sm leading-none"></i>
+            Provider
+        </label>
+        <Select
+            tag={'provider-select'}
+            placeholder={'Select Provider'}
+            searchMode
+            disabled={disabled}
+            selectedValues={selectedProvider?.provider ? [selectedProvider.provider] : []}
+            options={providerOptions}
+            onselect={e => selectProvider(e)}
+        />
     </div>
 
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Model</div>
-            <Select
-                tag={'model-select'}
-                placeholder={'Select Model'}
-                searchMode
-                disabled={disabled}
-                selectedValues={selectedModel ? [selectedModel] : []}
-                options={modelOptions}
-                onselect={e => selectModel(e)}
-            />
-        </div>
+    <div>
+        <label for="model-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-chip text-sm leading-none"></i>
+            Model
+        </label>
+        <Select
+            tag={'model-select'}
+            placeholder={'Select Model'}
+            searchMode
+            disabled={disabled}
+            selectedValues={selectedModel ? [selectedModel] : []}
+            options={modelOptions}
+            onselect={e => selectModel(e)}
+        />
     </div>
 </div>

@@ -68,34 +68,36 @@
 </script>
 
 
-<div class="instruct-setting-section instruct-setting-padding">
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Agent</div>
-            <Select
-                tag={'agent-select'}
-                placeholder={'Select Agent'}
-                searchMode
-                disabled={disabled}
-                selectedValues={selectedAgent?.id ? [selectedAgent.id] : []}
-                options={agentOptions}
-                onselect={e => selectAgent(e)}
-            />
-        </div>
+<div class="flex flex-col gap-5 py-3">
+    <div>
+        <label for="agent-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-robot-outline text-sm leading-none"></i>
+            Agent
+        </label>
+        <Select
+            tag={'agent-select'}
+            placeholder={'Select Agent'}
+            searchMode
+            disabled={disabled}
+            selectedValues={selectedAgent?.id ? [selectedAgent.id] : []}
+            options={agentOptions}
+            onselect={e => selectAgent(e)}
+        />
     </div>
 
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Template</div>
-            <Select
-                tag={'template-select'}
-                placeholder={'Select Template'}
-                searchMode
-                disabled={disabled}
-                selectedValues={selectedTemplate?.id ? [selectedTemplate.id] : []}
-                options={templateOptions}
-                onselect={e => selectTemplate(e)}
-            />
-        </div>
+    <div>
+        <label for="template-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-file-document-outline text-sm leading-none"></i>
+            Template
+        </label>
+        <Select
+            tag={'template-select'}
+            placeholder={'Select Template'}
+            searchMode
+            disabled={disabled}
+            selectedValues={selectedTemplate?.id ? [selectedTemplate.id] : []}
+            options={templateOptions}
+            onselect={e => selectTemplate(e)}
+        />
     </div>
 </div>

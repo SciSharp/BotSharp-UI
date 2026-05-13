@@ -56,77 +56,74 @@
     }
 </script>
 
-<div class="instruct-setting-section instruct-setting-padding">
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Code Script</div>
-            <Select
-                tag={'code-script-select'}
-                placeholder={'Select Script'}
-                searchMode
-                disabled={disabled}
-                selectedValues={selectedCodeScript?.name ? [selectedCodeScript.name] : []}
-                options={codeScriptOptions}
-                onselect={e => selectCodeScript(e)}
-            />
-        </div>
+<div class="flex flex-col gap-5 py-3">
+    <div>
+        <label for="code-script-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-code-tags text-sm leading-none"></i>
+            Code Script
+        </label>
+        <Select
+            tag={'code-script-select'}
+            placeholder={'Select Script'}
+            searchMode
+            disabled={disabled}
+            selectedValues={selectedCodeScript?.name ? [selectedCodeScript.name] : []}
+            options={codeScriptOptions}
+            onselect={e => selectCodeScript(e)}
+        />
     </div>
 
-    <div class="instruct-setting-item">
-        <div class="instruct-setting-dropdown">
-            <div class="text-primary fw-bold mb-1">Arguments</div>
-            <div class="instruct-kv-container" style="max-height: 170px;" bind:this={scrollContainer}>
-                {#each args as arg, idx}
-                    <div class="instruct-kv-item" style="gap: 10px;">
-                        <div style="flex: 0.5;">
-                            <input
-                                type="text"
-                                class="form-control"
-                                name={`arg-key-${idx}`}
-                                bind:value={arg.key}
-                                maxlength={maxLength}
-                                disabled={disabled}
-                                placeholder="Enter a name"
-                            />
-                        </div>
-                        <div style="flex: 0.5;">
-                            <input
-                                type="text"
-                                class="form-control"
-                                name={`arg-value-${idx}`}
-                                bind:value={arg.value}
-                                maxlength={maxLength}
-                                disabled={disabled}
-                                placeholder="Enter a value"
-                            />
-                        </div>
-                        <div class="line-align-center" style={`flex: 0 0 13px; margin-top: 3px;`}>
-                            <div>
-                                <i
-                                    class="bx bxs-no-entry text-danger clickable"
-                                    role="button"
-                                    tabindex="0"
-                                    onclick={() => removeArg(idx)}
-                                    onkeydown={(/** @type {KeyboardEvent} */ e) => { if (e.key === 'Enter') removeArg(idx); }}
-                                ></i>
-                            </div>
-                        </div>
-                    </div>
-                {/each}
-            </div>
-            {#if args.length < limit}
-                <div class="text-center">
+    <div>
+        <div class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-tune-variant text-sm leading-none"></i>
+            Arguments
+        </div>
+        <div class="thin-scrollbar flex max-h-[170px] flex-col gap-2 overflow-y-auto px-1 pb-2" bind:this={scrollContainer}>
+            {#each args as arg, idx}
+                <div class="grid grid-cols-[1fr_1fr_auto] items-center gap-2">
+                    <input
+                        type="text"
+                        class="form-control"
+                        name={`arg-key-${idx}`}
+                        bind:value={arg.key}
+                        maxlength={maxLength}
+                        disabled={disabled}
+                        placeholder="Enter a name"
+                    />
+                    <input
+                        type="text"
+                        class="form-control"
+                        name={`arg-value-${idx}`}
+                        bind:value={arg.value}
+                        maxlength={maxLength}
+                        disabled={disabled}
+                        placeholder="Enter a value"
+                    />
                     <button
                         type="button"
-                        class="btn btn-link"
-                        style="padding-left: 0px;"
+                        class="inline-flex h-7 w-7 items-center justify-center rounded-md bg-danger/15 text-danger transition-all hover:scale-105 hover:bg-danger/25 disabled:cursor-not-allowed disabled:opacity-50"
                         disabled={disabled}
-                        onclick={() => addArg()}
+                        aria-label="Remove argument"
+                        title="Remove"
+                        onclick={() => removeArg(idx)}
                     >
-                        Add +
+                        <i class="bx bxs-no-entry text-base leading-none"></i>
                     </button>
                 </div>
-            {/if}
+            {/each}
         </div>
+        {#if args.length < limit}
+            <div class="mt-2 text-center">
+                <button
+                    type="button"
+                    class="btn btn-link inline-flex items-center gap-1"
+                    disabled={disabled}
+                    onclick={() => addArg()}
+                >
+                    <i class="mdi mdi-plus text-base leading-none"></i>
+                    Add
+                </button>
+            </div>
+        {/if}
     </div>
 </div>
