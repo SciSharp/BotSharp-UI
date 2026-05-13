@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
-	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
+	import { getKnowledgeCollections } from '$lib/services/knowledge-base-service';
+	import { KnowledgeBaseDisplayType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentKnowledgeBaseItem from './agent-knowledge-base-item.svelte';
 
@@ -55,7 +55,7 @@
     let scrollContainer;
 
     onMount(async () => {
-        getVectorKnowledgeCollections().then(data => {
+        getKnowledgeCollections().then(data => {
             const list = data?.map(x => {
                 return {
                     name: x.name,
@@ -84,8 +84,8 @@
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
     function getDisplayOption(b) {
-        return `${b.name} ${KnowledgeCollectionDisplayType[b.type]
-                   ? `(${KnowledgeCollectionDisplayType[b.type]})` : ''}`
+        return `${b.name} ${KnowledgeBaseDisplayType[b.type]
+                   ? `(${KnowledgeBaseDisplayType[b.type]})` : ''}`
     }
 
     /**

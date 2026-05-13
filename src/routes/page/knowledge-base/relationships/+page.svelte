@@ -6,8 +6,10 @@
     import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
     import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
-    import { searchGraphKnowledge } from '$lib/services/knowledge-base-service';
+    import { executeKnowledgeQuery } from '$lib/services/knowledge-base-service';
+	import { KnowledgeBaseType } from '$lib/helpers/enums';
 
+    const knowledgeType = KnowledgeBaseType.SemanticGraph;
     const maxLength = 4096;
 
     /** @type {boolean} */
@@ -28,8 +30,15 @@
     function search() {
         searchDone = false;
 		isSearching = true;
-		searchGraphKnowledge(util.trim(text)).then(res => {
-            result = res.result || '';
+
+        /** @type {import('$knowledgeTypes').KnowledgeQueryRequest} */
+        const request = {
+            text: util.trim(text)
+        };
+
+		executeKnowledgeQuery(knowledgeType, request, knowledgeType).then(res => {
+            const results = res || [];
+            result = JSON.stringify(results);
 		}).catch(() => {
             result = 'Error!';
         }).finally(() => {

@@ -2,15 +2,15 @@
     import { fly } from 'svelte/transition';
     import Swal from 'sweetalert2';
 	import Loader from "$lib/common/spinners/Loader.svelte";
-	import { KnowledgeCollectionType, KnowledgePayloadName } from "$lib/helpers/enums";
+	import { KnowledgeBaseType, KnowledgePayloadName } from "$lib/helpers/enums";
 
     let {
-        /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel} */
+        /** @type {import('$knowledgeTypes').KnowledgeQueryViewModel} */
         item,
         /** @type {string} */
         collection,
         /** @type {string} */
-        collectionType,
+        knowledgeType,
         /** @type {boolean} */
         open = false,
         /** @type {boolean} */
@@ -27,8 +27,8 @@
 		KnowledgePayloadName.Answer
 	];
 
-    let isQuestionAnswerCollection = $derived(collectionType === KnowledgeCollectionType.QuestionAnswer);
-    let isDocumentCollection = $derived(collectionType === KnowledgeCollectionType.Document);
+    let isQuestionAnswerCollection = $derived(knowledgeType === KnowledgeBaseType.QuestionAnswer);
+    let isDocumentCollection = $derived(knowledgeType === KnowledgeBaseType.Document);
 
     let isLoading = $state(false);
     let loadMore = $state(false);
