@@ -72,7 +72,7 @@
 
 <DialogModal
     title={'Notification'}
-    size={'md'}
+    size={'xl'}
     isOpen={isOpenNotificationModal}
     toggleModal={() => toggleNotificationModal()}
     confirm={() => confirmMsg()}
@@ -80,15 +80,20 @@
     confirmBtnText={'Send'}
     disableConfirmBtn={!util.trim(text)}
 >
-    <textarea
-        class="form-control chat-input"
-        rows="5"
-        maxlength={maxTextLength}
-        bind:value={text}
-        placeholder="Enter Message..."
-    ></textarea>
-    <div class="text-secondary text-end text-count">
-        <div>{`${(text?.length || 0)}/${maxTextLength}`}</div>
+    <div class="notif-form">
+        <label class="notif-label" for="notif-textarea">Message</label>
+        <textarea
+            id="notif-textarea"
+            class="notif-textarea"
+            rows="5"
+            maxlength={maxTextLength}
+            bind:value={text}
+            placeholder="Enter the notification message you want to send to this conversation..."
+        ></textarea>
+        <div class="notif-counter" class:notif-counter-warning={(text?.length || 0) > maxTextLength * 0.8}>
+            <i class="mdi mdi-counter"></i>
+            <span>{formatNumber(text?.length || 0)} / {formatNumber(maxTextLength)}</span>
+        </div>
     </div>
 </DialogModal>
 
@@ -185,5 +190,90 @@
     }
     :global(.dark) .dialog-timeline::before {
         background-color: rgb(55 65 81);
+    }
+
+    /* ---------- Notification modal form ----------
+       Themed textarea + character counter that match the DialogModal's
+       primary-accented panel. Replaces Bootstrap `form-control`,
+       `chat-input`, `text-secondary`, `text-end`, and the legacy global
+       `.text-count` rule with scoped styles owned by this component. */
+    .notif-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .notif-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--color-muted);
+        margin: 0;
+    }
+
+    .notif-textarea {
+        width: 100%;
+        padding: 0.75rem 0.875rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.5rem;
+        background-color: rgb(249 250 251);
+        font-size: 0.875rem;
+        line-height: 1.55;
+        color: rgb(17 24 39);
+        resize: vertical;
+        min-height: 7.5rem;
+        max-height: 16rem;
+        scrollbar-width: thin;
+        font-family: inherit;
+        transition:
+            border-color 0.15s ease,
+            background-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+    .notif-textarea::placeholder {
+        color: var(--color-muted);
+        opacity: 1;
+    }
+    .notif-textarea:hover:not(:focus) {
+        border-color: rgb(209 213 219);
+    }
+    .notif-textarea:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        background-color: rgb(255 255 255);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    /* Character counter — sits below the textarea, right-aligned, with
+       a subtle counter icon. Switches to warning tint when the user is
+       past 80% of the limit. */
+    .notif-counter {
+        align-self: flex-end;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        font-size: 0.6875rem;
+        font-weight: 500;
+        font-variant-numeric: tabular-nums;
+        color: var(--color-muted);
+        transition: color 0.15s ease;
+    }
+    .notif-counter :global(i) {
+        font-size: 0.875rem;
+        line-height: 1;
+    }
+    .notif-counter-warning {
+        color: var(--color-warning);
+    }
+
+    /* Dark-mode adjustments to keep contrast inside the DialogModal panel. */
+    :global(.dark) .notif-textarea {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(243 244 246);
+    }
+    :global(.dark) .notif-textarea:focus {
+        background-color: rgb(31 41 55);
     }
 </style>

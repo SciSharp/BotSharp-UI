@@ -123,14 +123,14 @@
     toggleModal={() => toggleModal?.()}
 >
     <div>
-        <div class="mb-3">
-            <span class="fw-bold">{'Collection: '}</span>
-            <span class="text-primary collection-value">{collection}</span>
+        <div class="kum-collection-row">
+            <span class="kum-collection-label">{'Collection: '}</span>
+            <span class="kum-collection-value">{collection}</span>
         </div>
         <form>
-            <div class="mt-2 d-flex flex-column gap-2">
-                <div class="d-flex gap-1">
-                    <div class="fw-bold">{'Document Processor'}</div>
+            <div class="kum-field">
+                <div class="kum-field-label-row">
+                    <div class="kum-field-label">{'Document Processor'}</div>
                 </div>
                 <Select
                     tag={'kn-doc-processor-select'}
@@ -141,27 +141,27 @@
                     onselect={e => changeProcessor(e)}
                 />
             </div>
-            <div class="mt-2 d-flex flex-column gap-2">
+            <div class="kum-field">
                 <FileGallery
-                    containerClasses={'doc-upload-body'}
+                    containerClasses={'kum-gallery'}
                     showPrefix={true}
                     disabled={disabled || !selectedProcessor}
                 >
                     {#snippet prefix()}
                         <FileDropZone
                             accept={accept}
-                            containerClasses={'doc-drop-zone'}
+                            containerClasses={'kum-drop-zone'}
                             disabled={!selectedProcessor}
                             fileLimit={1}
                             maxSize={fileMaxSize * 1024 * 1024}
                             ondrop={handleFileDrop}
                         >
-                            <div>
-                                <div class="doc-drop-icon">
+                            <div class="kum-drop-content">
+                                <div class="kum-drop-icon">
                                     <i class="bx bx-cloud-upload"></i>
                                 </div>
                                 <div>
-                                    <ul>
+                                    <ul class="kum-drop-list">
                                         <li>{'Please select a processor before uploading.'}</li>
                                         <li>{'File cannot exceed 10 MB.'}</li>
                                         <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
@@ -175,3 +175,75 @@
         </form>
     </div>
 </PlainModal>
+
+<style>
+    /* ===== Collection label row ===== */
+    .kum-collection-row {
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+    }
+    .kum-collection-label {
+        font-weight: 700;
+        color: rgb(55 65 81);
+    }
+    .kum-collection-value {
+        font-size: 0.9375rem;
+        color: var(--color-primary);
+    }
+
+    /* ===== Form fields ===== */
+    .kum-field {
+        margin-top: 0.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    .kum-field-label-row {
+        display: flex;
+        gap: 0.25rem;
+    }
+    .kum-field-label {
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: rgb(55 65 81);
+    }
+
+    /* ===== Drop zone content (inside FileDropZone) ===== */
+    :global(.kum-gallery) {
+        width: 100%;
+        min-height: 200px;
+    }
+    :global(.kum-gallery .kum-drop-zone) {
+        width: 100%;
+        min-height: 200px;
+    }
+    .kum-drop-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1rem;
+    }
+    .kum-drop-icon {
+        text-align: center;
+        font-size: 5em;
+        line-height: 1;
+        color: var(--color-primary);
+    }
+    .kum-drop-list {
+        margin: 0;
+        padding-left: 1.25rem;
+        font-size: 0.8125rem;
+        color: var(--color-muted);
+        list-style: disc;
+    }
+    .kum-drop-list li {
+        margin: 0.25rem 0;
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .kum-collection-label,
+    :global(.dark) .kum-field-label {
+        color: rgb(229 231 235);
+    }
+</style>
