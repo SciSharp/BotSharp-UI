@@ -2945,28 +2945,52 @@
         bottom: 100%;
     }
 
-    /* Bot bubble action toolbar (Like / Edit / Copy / Code script row) */
+    /* Bot bubble action toolbar (Speaker / Like / Edit / Copy / Code script row).
+       align-items: center + uniform line-height + font-size on the row guarantees
+       every glyph sits on the same baseline regardless of which icon font
+       (mdi/bx) it comes from. Icon-specific height: 95/80/85% rules from the
+       legacy were a baseline-compensation hack that's no longer needed. */
     .cb-msg-actions {
+        align-items: center;
         gap: 10px;
         flex-wrap: wrap;
         margin-top: 5px;
+        font-size: 17px;
+        line-height: 1;
+        color: var(--color-primary);
     }
     .cb-msg-action {
-        font-size: 17px;
+        display: flex;
+        align-items: center;
     }
-    .cb-msg-action-icon {
-        height: 95%;
-    }
-    .cb-msg-action-icon-edit {
-        height: 80%;
-    }
+    /* Icon wrappers — height behavior now comes from flex centering, not
+       the legacy height: 95%/80%/85% hacks. */
+    .cb-msg-action-icon,
+    .cb-msg-action-icon-edit,
     .cb-msg-action-icon-copy,
     .cb-msg-action-icon-code {
-        height: 85%;
+        display: flex;
+        align-items: center;
+        line-height: 1;
     }
 
     /* Primary-colored action icons (replaces .text-primary on inline icon wrappers) */
     .cb-text-primary {
+        color: var(--color-primary);
+    }
+
+    /* AudioSpeaker is rendered inside .cb-msg-actions but lives in its own
+       component with the legacy .chat-speaker-container class. Force it to
+       inherit the toolbar's primary color and sit centered. Uses :global()
+       because the container is rendered in a separate component scope. */
+    .cb-msg-actions :global(.chat-speaker-container) {
+        display: flex;
+        align-items: center;
+        height: auto;
+        font-size: inherit;
+        color: var(--color-primary);
+    }
+    .cb-msg-actions :global(.chat-speaker-container i) {
         color: var(--color-primary);
     }
 
@@ -3100,9 +3124,11 @@
         }
     }
 
-    /* Microphone icon size (replaces .md-36) */
+    /* Microphone icon size — sized to fit the round button next to the
+       textarea (~38px height). Previously 36px which produced a 56px-tall
+       button towering over the 39px textarea. */
     .cb-md-36 {
-        font-size: 36px;
+        font-size: 20px;
         line-height: 1;
     }
 
@@ -3128,19 +3154,32 @@
     }
 
     /* Util links cluster pinned over the right side of the textarea
-       (replaces .chat-util-links) */
+       (replaces .chat-util-links). Sized to fit comfortably inside the
+       ~38px textarea without the icons overflowing it vertically. */
     .cb-util-links {
         display: flex;
         align-items: center;
         gap: 0.25rem;
         width: fit-content;
         position: absolute;
-        right: 3px;
-        top: 55%;
+        right: 6px;
+        top: 50%;
         transform: translateY(-50%);
-        font-size: 160%;
-        line-height: 36px;
+        line-height: 1;
         color: var(--color-primary);
+    }
+    /* Flatten the cu-/cbm- glyph sizing — their own scoped 200% rule
+       compounds with our wrapper's old 160% to ~51px which dwarfed the
+       textarea. Anchor to a flat 1.25rem (20px) here so the icons fit. */
+    .cb-util-links :global(.cu-glyph),
+    .cb-util-links :global(.cbm-glyph) {
+        font-size: 1.25rem;
+        line-height: 1;
+        padding: 0 0.2rem;
+    }
+    .cb-util-links :global(.cu-icon),
+    .cb-util-links :global(.cbm-icon) {
+        font-size: inherit;
     }
 
     /* ===== Dark mode (Step 4d) ===== */

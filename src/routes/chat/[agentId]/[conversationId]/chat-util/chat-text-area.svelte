@@ -177,7 +177,9 @@
         margin-bottom: 0.25rem;
     }
 
-    /* ===== Themed textarea (replaces Bootstrap .form-control) ===== */
+    /* ===== Themed textarea (replaces Bootstrap .form-control).
+       Fixed height (no manual resize) and no scrollbar — long input
+       still scrolls programmatically but the bar stays hidden. */
     .cta-textarea {
         display: block;
         width: 100%;
@@ -189,8 +191,13 @@
         border: 1px solid rgb(229 231 235);
         border-radius: 0.5rem;
         font-family: inherit;
-        resize: vertical;
+        resize: none;
+        overflow: auto;
+        scrollbar-width: none;
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cta-textarea::-webkit-scrollbar {
+        display: none;
     }
     .cta-textarea:focus {
         outline: 0;

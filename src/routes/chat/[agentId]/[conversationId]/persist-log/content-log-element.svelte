@@ -137,12 +137,33 @@
         margin-left: 0.5rem;
     }
 
-    /* Content body (replaces .rounded.log-content + inline padding) */
+    /* Content body (replaces .rounded.log-content + inline padding).
+       Wide content (e.g. JSON dumps) overflows horizontally — allow the
+       scroll but hide the visible scrollbar in all engines. */
     .cle-content {
         font-size: 17px;
         color: rgb(255 255 255);
         padding: 5px 8px;
         border-radius: 0.25rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .cle-content::-webkit-scrollbar {
+        display: none;
+    }
+    /* Markdown renders code/JSON inside <pre> with its own scrollbar
+       (defined in the global _markdown.scss). Hide those bars here too. */
+    .cle-content :global(pre) {
+        scrollbar-width: none;
+    }
+    .cle-content :global(pre::-webkit-scrollbar) {
+        display: none;
+    }
+    .cle-content :global(.markdown-container) {
+        scrollbar-width: none;
+    }
+    .cle-content :global(.markdown-container::-webkit-scrollbar) {
+        display: none;
     }
     .cle-content :global(li) {
         margin: 5px 0;
@@ -174,9 +195,14 @@
         color: var(--color-info, #0ea5e9);
     }
 
-    /* Collapsed text clamp (replaces .log-collapse nested under .log-content) */
+    /* Collapsed text clamp (replaces .log-collapse nested under .log-content).
+       Note: -webkit-line-clamp with display:-webkit-box forces the browser to
+       resolve overflow-x to 'auto' even if we only set overflow-y:hidden,
+       which surfaces a native horizontal scrollbar whenever the clamped
+       content has long lines. Setting overflow:hidden (both axes) clips
+       cleanly without ever showing a scrollbar in collapsed state. */
     .cle-collapse {
-        overflow-y: hidden;
+        overflow: hidden;
         height: fit-content;
         max-height: 200px;
         display: -webkit-box;
