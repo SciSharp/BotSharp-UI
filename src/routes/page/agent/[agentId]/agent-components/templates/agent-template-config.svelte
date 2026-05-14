@@ -4,6 +4,7 @@
     import { INTEGER_REGEX } from '$lib/helpers/constants';
     import { LlmModelCapability, LlmModelType, ReasoningEffortLevel, ResponseFormat } from '$lib/helpers/enums';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     /**
      * @type {{
@@ -88,7 +89,8 @@
 
     /** @param {any} e */
     function changeResponseFormat(e) {
-        template.response_format = e.target.value || null;
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
+        template.response_format = value;
         handleAgentChange();
     }
 
@@ -114,7 +116,7 @@
 
     /** @param {any} e */
     function changeProvider(e) {
-        const provider = e.target.value;
+        const provider = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || '';
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
@@ -136,10 +138,11 @@
 
     /** @param {any} e */
     function changeModel(e) {
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
-        template.llm_config.model = e.target.value || null;
+        template.llm_config.model = value;
         template.llm_config.reasoning_effort_level = null;
         reasoningLevelOptions = getReasoningLevelOptions(template.llm_config.model);
         handleAgentChange();
@@ -157,10 +160,11 @@
 
     /** @param {any} e */
     function changeReasoningEffortLevel(e) {
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
-        template.llm_config.reasoning_effort_level = e.target.value || null;
+        template.llm_config.reasoning_effort_level = value;
         handleAgentChange();
     }
 
@@ -178,16 +182,14 @@
         <h6 class="tplc-section-title">Template Configuration</h6>
         <div class="tplc-field">
             <label for="tpl-response-format" class="tplc-label">Response format</label>
-            <select class="tplc-select" id="tpl-response-format"
-                value={template.response_format || ''}
-                onchange={e => changeResponseFormat(e)}
-            >
-                {#each responseFormatOptions as option}
-                    <option value={option.value} selected={option.value === (template.response_format || '')}>
-                        {option.label}
-                    </option>
-                {/each}
-            </select>
+            <Select
+                tag={'tpl-response-format'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a format'}
+                selectedValues={template.response_format ? [template.response_format] : []}
+                options={responseFormatOptions.filter(o => !!o.value)}
+                onselect={e => changeResponseFormat(e)}
+            />
         </div>
     </div>
 
@@ -197,31 +199,27 @@
         <h6 class="tplc-section-title">LLM Configuration</h6>
         <div class="tplc-field">
             <label for="tpl-provider" class="tplc-label">Provider</label>
-            <select class="tplc-select" id="tpl-provider"
-                value={template.llm_config?.provider || ''}
-                onchange={e => changeProvider(e)}
-            >
-                {#each providers as option}
-                    <option value={option} selected={option === (template.llm_config?.provider || '')}>
-                        {option}
-                    </option>
-                {/each}
-            </select>
+            <Select
+                tag={'tpl-provider'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a provider'}
+                selectedValues={template.llm_config?.provider ? [template.llm_config.provider] : []}
+                options={providers.filter(p => !!p).map(p => ({ label: p, value: p }))}
+                onselect={e => changeProvider(e)}
+            />
         </div>
 
         <div class="tplc-field">
             <label for="tpl-model" class="tplc-label">Model</label>
-            <select class="tplc-select" id="tpl-model"
-                value={template.llm_config?.model || ''}
+            <Select
+                tag={'tpl-model'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a model'}
                 disabled={models.length === 0 || !template.llm_config?.provider}
-                onchange={e => changeModel(e)}
-            >
-                {#each models as option}
-                    <option value={option.name} selected={option.name === (template.llm_config?.model || '')}>
-                        {option.name}
-                    </option>
-                {/each}
-            </select>
+                selectedValues={template.llm_config?.model ? [template.llm_config.model] : []}
+                options={models.map(m => ({ label: m.name, value: m.name }))}
+                onselect={e => changeModel(e)}
+            />
         </div>
 
         <div class="tplc-field">
@@ -239,16 +237,14 @@
         {#if isReasoningModel}
         <div class="tplc-field">
             <label for="tpl-reasoning" class="tplc-label">Reasoning level</label>
-            <select class="tplc-select" id="tpl-reasoning"
-                value={template.llm_config?.reasoning_effort_level || ''}
-                onchange={e => changeReasoningEffortLevel(e)}
-            >
-                {#each reasoningLevelOptions as option}
-                    <option value={option.value} selected={option.value === (template.llm_config?.reasoning_effort_level || '')}>
-                        {option.label}
-                    </option>
-                {/each}
-            </select>
+            <Select
+                tag={'tpl-reasoning'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a level'}
+                selectedValues={template.llm_config?.reasoning_effort_level ? [template.llm_config.reasoning_effort_level] : []}
+                options={reasoningLevelOptions.filter(o => !!o.value)}
+                onselect={e => changeReasoningEffortLevel(e)}
+            />
         </div>
         {/if}
     </div>
@@ -290,9 +286,9 @@
         color: rgb(75 85 99);
     }
 
-    /* ===== Inputs & selects ===== */
-    .tplc-input,
-    .tplc-select {
+    /* ===== Inputs ===== */
+    /* Selects are rendered via the Select component, which owns its styles. */
+    .tplc-input {
         width: 100%;
         padding: 0.3125rem 0.5rem;
         font-size: 0.75rem;
@@ -304,25 +300,10 @@
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
         font-family: inherit;
     }
-    .tplc-input:focus,
-    .tplc-select:focus {
+    .tplc-input:focus {
         outline: 0;
         border-color: var(--color-primary);
         box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-    }
-    .tplc-select {
-        appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 0.4rem center;
-        background-size: 0.75rem;
-        padding-right: 1.5rem;
-    }
-    .tplc-select:disabled {
-        background-color: rgb(243 244 246);
-        cursor: not-allowed;
-        color: var(--color-muted);
     }
     .tplc-input::-webkit-outer-spin-button,
     .tplc-input::-webkit-inner-spin-button {
@@ -340,17 +321,10 @@
     :global(.dark) .tplc-divider {
         border-top-color: rgb(55 65 81);
     }
-    :global(.dark) .tplc-input,
-    :global(.dark) .tplc-select {
+    :global(.dark) .tplc-input {
         background-color: rgb(17 24 39);
         border-color: rgb(55 65 81);
         color: rgb(229 231 235);
-    }
-    :global(.dark) .tplc-select {
-        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
-    }
-    :global(.dark) .tplc-select:disabled {
-        background-color: rgb(31 41 55);
     }
 </style>
 

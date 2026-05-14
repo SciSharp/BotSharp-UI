@@ -269,12 +269,12 @@
     .ad-grid {
         display: grid;
         grid-template-columns: 2fr 3fr;
-        gap: 1rem;
+        gap: 1.125rem;
     }
     .ad-col {
         display: flex;
         flex-direction: column;
-        gap: 0.625rem;
+        gap: 0.875rem;
         min-width: 0;
     }
     @media (max-width: 991.98px) {
@@ -283,9 +283,16 @@
         }
     }
 
-    /* ===== Section wrapper ===== */
+    /* ===== Section wrapper =====
+       Each ad-section hosts a panel card. The card itself owns its background
+       and shadow; we just give a smooth transform-on-hover affordance to lift
+       the card subtly when the user is interacting with this region. */
     .ad-section {
         display: block;
+        transition: transform 0.2s ease, filter 0.2s ease;
+    }
+    .ad-section:hover {
+        transform: translateY(-1px);
     }
     @media (max-width: 423px) {
         .ad-section {
@@ -298,24 +305,38 @@
         display: flex;
         flex-wrap: wrap;
         align-items: center;
-        gap: 0.5rem;
-        margin: 1.5rem 0;
+        gap: 0.625rem;
+        margin: 1.75rem 0 1rem;
+        padding: 0.875rem 1rem;
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-primary) 4%, transparent),
+            transparent 65%
+        );
+        border-radius: 0.875rem;
     }
 
     /* ===== Buttons ===== */
     .ad-btn {
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
-        height: 2.25rem;
-        padding: 0 0.95rem;
+        gap: 0.45rem;
+        height: 2.375rem;
+        padding: 0 1.125rem;
         font-size: 0.8125rem;
-        font-weight: 500;
+        font-weight: 600;
+        letter-spacing: 0.01em;
         line-height: 1;
         border: 1px solid transparent;
-        border-radius: 0.5rem;
+        border-radius: 0.625rem;
         cursor: pointer;
-        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+        transition:
+            background 0.18s ease,
+            border-color 0.18s ease,
+            color 0.18s ease,
+            transform 0.12s ease,
+            box-shadow 0.18s ease,
+            filter 0.18s ease;
     }
     .ad-btn:active:not(:disabled) {
         transform: translateY(1px);
@@ -329,18 +350,51 @@
         line-height: 1;
     }
     .ad-btn-primary {
-        background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
-        color: var(--color-primary);
+        background: linear-gradient(
+            135deg,
+            var(--color-primary),
+            color-mix(in srgb, var(--color-primary) 78%, black)
+        );
+        color: rgb(255 255 255);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.18) inset,
+            0 4px 12px -4px color-mix(in srgb, var(--color-primary) 60%, transparent),
+            0 2px 4px -2px rgb(15 23 42 / 0.1);
     }
     .ad-btn-primary:hover:not(:disabled) {
-        background-color: var(--color-primary);
-        color: rgb(255 255 255);
+        transform: translateY(-1px);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.22) inset,
+            0 8px 18px -6px color-mix(in srgb, var(--color-primary) 70%, transparent),
+            0 3px 6px -2px rgb(15 23 42 / 0.12);
+        filter: brightness(1.05);
     }
     .ad-btn-danger {
-        background-color: var(--color-danger);
+        background: linear-gradient(
+            135deg,
+            var(--color-danger),
+            color-mix(in srgb, var(--color-danger) 78%, black)
+        );
         color: rgb(255 255 255);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.18) inset,
+            0 4px 12px -4px color-mix(in srgb, var(--color-danger) 55%, transparent),
+            0 2px 4px -2px rgb(15 23 42 / 0.1);
     }
     .ad-btn-danger:hover:not(:disabled) {
-        filter: brightness(0.95);
+        transform: translateY(-1px);
+        box-shadow:
+            0 1px 0 rgb(255 255 255 / 0.22) inset,
+            0 8px 18px -6px color-mix(in srgb, var(--color-danger) 65%, transparent),
+            0 3px 6px -2px rgb(15 23 42 / 0.12);
+        filter: brightness(1.05);
+    }
+
+    :global(.dark) .ad-action-bar {
+        background: linear-gradient(
+            135deg,
+            color-mix(in srgb, var(--color-primary) 10%, transparent),
+            transparent 65%
+        );
     }
 </style>
