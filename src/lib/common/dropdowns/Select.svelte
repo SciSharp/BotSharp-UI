@@ -18,6 +18,7 @@
      *   disableDefaultStyles?: boolean,
      *   searchMode?: boolean,
      *   loadMore?: boolean,
+     *   prefixIcon?: import('svelte').Snippet,
      *   onScrollMoreOptions?: null | undefined | (() => Promise<any>),
      *   onselect?: (e: any) => void
      * }}
@@ -37,6 +38,7 @@
         disableDefaultStyles = false,
         searchMode = false,
         loadMore = false,
+        prefixIcon = undefined,
         onScrollMoreOptions = null,
         onselect = () => {}
     } = $props();
@@ -354,14 +356,19 @@
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-        class="display-container"
+        class={`display-container ${prefixIcon ? 'has-prefix' : ''}`}
         id={`multiselect-btn-${tag}`}
         onclick={() => toggleOptionList()}
     >
+        {#if prefixIcon}
+            <div class="display-prefix">
+                {@render prefixIcon()}
+            </div>
+        {/if}
         <input
             type="text"
             name={'select-display-text'}
-            class={`form-control clickable ${disabled ? 'disabled' : ''}`}
+            class={`select-display ${disabled ? 'disabled' : ''}`}
             value={displayText}
             placeholder={placeholder}
             disabled={disabled}
@@ -381,7 +388,7 @@
                     <input
                         type="text"
                         name={'select-search-text'}
-                        class="form-control"
+                        class="select-search"
                         value={searchValue}
                         placeholder={searchPlaceholder}
                         oninput={e => changeSearchValue(e)}
@@ -393,14 +400,14 @@
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
-                        class="option-item clickable"
+                        class="option-item"
                         onclick={(/** @type {MouseEvent} */ e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             checkSelectAll(null);
                         }}
                     >
-                        <div class="line-align-center select-box">
+                        <div class="select-box">
                             <input
                                 type="checkbox"
                                 name={'select-select-all'}
@@ -409,7 +416,7 @@
                                 readonly
                             />
                         </div>
-                        <div class="line-align-center select-name fw-bold">
+                        <div class="select-name select-name-bold">
                             {'Select all'}
                         </div>
                     </li>
@@ -418,30 +425,28 @@
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
-                        class="option-item clickable justify-content-center"
+                        class="option-item option-clear"
                         onclick={(/** @type {MouseEvent} */ e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             clearSelection();
                         }}
                     >
-                        <div class="line-align-center text-secondary">
-                            {`Clear selection`}
-                        </div>
+                        {`Clear selection`}
                     </li>
                 {/if}
                 {#each innerOptions as option, idx (idx)}
                     <!-- svelte-ignore a11y_click_events_have_key_events -->
                     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                     <li
-                        class="option-item clickable"
+                        class="option-item"
                         onclick={(/** @type {MouseEvent} */ e) => {
                             e.preventDefault();
                             e.stopPropagation();
                             checkOption(null, option);
                         }}
                     >
-                        <div class="line-align-center select-box">
+                        <div class="select-box">
                             {#if multiSelect}
                                 <input
                                     type="checkbox"
@@ -451,12 +456,12 @@
                                     readonly
                                 />
                             {:else if option.checked}
-                                <i class="bx bx-check text-primary"></i>
+                                <i class="bx bx-check"></i>
                             {:else}
                                 {' '}
                             {/if}
                         </div>
-                        <div class="line-align-center select-name">
+                        <div class="select-name">
                             {option.label}
                         </div>
                     </li>
@@ -474,7 +479,8 @@
     /* ============================================================
        Select component — fully self-contained styling.
        Component-scoped CSS replaces the legacy `_select.scss` rules
-       and overrides Bootstrap form-control defaults on the inputs.
+       and now owns the full input look (no Bootstrap `.form-control`,
+       `.fw-bold`, `.text-*`, `.justify-content-*` classes used).
        Page-level :global() overrides (e.g. in instruction/testing,
        conversation, instruction/log) continue to win via their
        higher-specificity ancestor selectors.
@@ -489,7 +495,9 @@
         position: relative;
     }
 
-    /* Override Bootstrap .form-control to give a modern, themed input */
+    /* Themed display input. Targets the unstyled `<input type="text">`
+       rendered inside the trigger (carries an internal `.select-display`
+       class as a JS-only marker; no Bootstrap `.form-control` used). */
     .display-container :global(input[type='text']) {
         width: 100%;
         height: 2.5rem;
@@ -504,6 +512,32 @@
         cursor: pointer;
         text-overflow: ellipsis;
         transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    /* When a prefix icon is rendered, reserve left padding so the
+       placeholder/value text doesn't collide with the icon. */
+    .display-container.has-prefix :global(input[type='text']) {
+        padding-left: 2.25rem;
+    }
+
+    /* ---------- Optional prefix icon ---------- */
+    .display-prefix {
+        position: absolute;
+        left: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        font-size: 1rem;
+        line-height: 1;
+        color: rgb(156 163 175);
+        pointer-events: none;
+        z-index: 1;
+        transition: color 0.15s ease;
+    }
+    /* Lift the prefix icon to primary when the field is focused (and
+       not disabled), matching the focus-ring affordance. */
+    .display-container:focus-within .display-prefix {
+        color: var(--color-primary);
     }
     .display-container :global(input[type='text']::placeholder) {
         color: var(--color-muted);
@@ -629,13 +663,13 @@
     }
 
     /* "Clear selection" row (single-select dropdowns) */
-    .option-item.justify-content-center {
+    .option-item.option-clear {
         justify-content: center;
         font-size: 0.8125rem;
         color: var(--color-muted);
         font-style: italic;
     }
-    .option-item.justify-content-center:hover {
+    .option-item.option-clear:hover {
         background-color: rgb(243 244 246);
         color: var(--color-danger);
     }
@@ -723,9 +757,9 @@
         word-break: break-word;
         overflow-wrap: anywhere;
     }
-    /* "Select all" label is bold per the template's `fw-bold` class */
-    .select-name :global(.fw-bold),
-    .option-item :global(.select-name.fw-bold) {
+    /* "Select all" label is bold (template applies `select-name-bold`
+       instead of the legacy Bootstrap `fw-bold` utility class). */
+    .select-name.select-name-bold {
         font-weight: 600;
     }
 

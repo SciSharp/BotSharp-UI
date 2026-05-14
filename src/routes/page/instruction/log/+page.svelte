@@ -341,7 +341,11 @@
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
 							onselect={e => changeOption(e, 'agent')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-robot-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<Select
@@ -351,7 +355,11 @@
 							selectedValues={searchOption.providers}
 							options={providerOptions}
 							onselect={e => changeOption(e, 'provider')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-chip"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<Select
@@ -363,7 +371,11 @@
 							selectedValues={searchOption.models}
 							options={modelOptions}
 							onselect={e => changeOption(e, 'model')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-cube-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<div class="relative">
@@ -391,7 +403,11 @@
 								searchOption.startDate = data.startDate;
 								searchOption.endDate = data.endDate;
 							}}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-clock-outline"></i>
+							{/snippet}
+						</TimeRangePicker>
 					</div>
 					<div class="lg:col-span-1">
 						<button
@@ -498,6 +514,13 @@
 		font-size: 0.875rem;
 		color: rgb(31 41 55);
 		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	/* Honour the Select component's `.has-prefix` padding shift when a
+	   prefixIcon snippet is rendered, otherwise the icon overlaps the
+	   placeholder. */
+	:global(.instruct-filter .multiselect-container .display-container.has-prefix input[type='text']),
+	:global(.instruct-state-search .multiselect-container .display-container.has-prefix input[type='text']) {
+		padding-left: 2.25rem;
 	}
 	:global(.instruct-filter .multiselect-container .display-container input[type='text']:focus),
 	:global(.instruct-state-search .multiselect-container .display-container input[type='text']:focus) {

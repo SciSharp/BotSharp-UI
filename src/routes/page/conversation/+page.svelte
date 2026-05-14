@@ -467,7 +467,11 @@
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
 							onselect={e => changeOption(e, 'agent')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-robot-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<Select
@@ -477,7 +481,11 @@
 							selectedValues={searchOption.status ? [searchOption.status] : []}
 							options={statusOptions}
 							onselect={e => changeOption(e, 'status')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-flag-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<Select
@@ -487,7 +495,11 @@
 							selectedValues={searchOption.channel ? [searchOption.channel] : []}
 							options={channelOptions}
 							onselect={e => changeOption(e, 'channel')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-access-point-network"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<div class="relative">
@@ -515,7 +527,11 @@
 								searchOption.startDate = data.startDate;
 								searchOption.endDate = data.endDate;
 							}}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-clock-outline"></i>
+							{/snippet}
+						</TimeRangePicker>
 					</div>
 					<div class="lg:col-span-1">
 						<button
@@ -695,6 +711,14 @@
 		font-size: 0.875rem;
 		color: rgb(31 41 55);
 		transition: border-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	/* When a prefixIcon snippet is rendered on the Select, the component
+	   sets `.has-prefix` on the display container and shifts the input
+	   padding to reserve room for the icon — these page-level overrides
+	   must honour that, otherwise the placeholder collides with the icon. */
+	:global(.conv-filter .multiselect-container .display-container.has-prefix input[type='text']),
+	:global(.conv-state-search .multiselect-container .display-container.has-prefix input[type='text']) {
+		padding-left: 2.25rem;
 	}
 	:global(.conv-filter .multiselect-container .display-container input[type='text']:focus),
 	:global(.conv-state-search .multiselect-container .display-container input[type='text']:focus) {
