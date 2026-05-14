@@ -433,11 +433,9 @@
     }
 }
 
-.embedding-container {
-    padding: 0px;
-    height: calc(100vh - #{$header-height} - #{$grid-gutter-width} - 0.2 * #{$footer-height});
-    width: calc(100% + #{$grid-gutter-width} * 2);
-    margin-left: calc(-1 * (#{$grid-gutter-width} * 0.75 + #{$grid-gutter-width} * 0.5));
-    margin-right: calc(-1 * (#{$grid-gutter-width} * 0.75 + #{$grid-gutter-width} * 0.5));
-    margin-bottom: calc(-1 * #{$footer-height});
-}
+/* `.embedding-container` styles moved into
+   `src/lib/common/embedding/EmbeddingPage.svelte`. The legacy rule
+   referenced Bootstrap SCSS variables that no longer resolve after
+   the Tailwind migration, which collapsed the iframe to its 150px
+   default. The component now owns its own height calculation built
+   on the Tailwind theme tokens (--header-height / --footer-height). */
