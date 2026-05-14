@@ -294,20 +294,19 @@
 	isLoading={isLoading}
 />
 
-<div class="agents-header-container mb-4">
-	<div>
+<div class="ag-header">
+	<div class="ag-header-actions">
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
-		<button type="button" class="btn btn-primary" onclick={() => createNewAgent()}>
+		<button type="button" class="ag-btn ag-btn-primary" onclick={() => createNewAgent()}>
 			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
 		</button>
 		{/if}
 	</div>
-	<div class="agent-filter">
+	<div class="ag-filter">
 		<input
 			type="text"
-			class="form-control"
+			class="ag-input"
 			placeholder="Search by name"
-			style="width: fit-content;"
 			maxlength={500}
 			value={searchItem.name}
 			oninput={e => changeSearchName(e)}
@@ -335,7 +334,7 @@
 		/>
 		<button
 			type="button"
-			class="btn btn-info"
+			class="ag-btn-icon ag-btn-icon-info"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Search"
@@ -345,7 +344,7 @@
 		</button>
 		<button
 			type="button"
-			class="btn btn-warning"
+			class="ag-btn-icon ag-btn-icon-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Reset"
@@ -357,8 +356,187 @@
 </div>
 
 
-<div class="row">
+<div class="ag-grid">
 	<CardAgent agents={agents.items} />
 </div>
 
-<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+<div class="ag-pagination">
+	<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+</div>
+
+<style>
+	/* ===== Header (actions + filter row) ===== */
+	.ag-header {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: center;
+		gap: 0.9375rem;
+		margin-bottom: 1.5rem;
+	}
+	.ag-header-actions {
+		display: flex;
+		align-items: center;
+	}
+	.ag-filter {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.625rem;
+		align-items: center;
+	}
+	@media (max-width: 1024px) {
+		.ag-header {
+			flex-direction: column;
+			justify-content: center;
+			gap: 0.75rem;
+		}
+		.ag-header-actions {
+			width: 100%;
+			justify-content: center;
+		}
+		.ag-filter {
+			width: 100%;
+			flex-direction: column;
+			gap: 0.5rem;
+		}
+		.ag-filter > :global(*) {
+			width: 100% !important;
+		}
+	}
+
+	/* ===== Search input ===== */
+	.ag-input {
+		height: 2.25rem;
+		width: fit-content;
+		min-width: 12rem;
+		padding: 0 0.75rem;
+		border: 1px solid rgb(229 231 235);
+		border-radius: 0.5rem;
+		background-color: rgb(249 250 251);
+		font-size: 0.875rem;
+		line-height: 1.4;
+		color: rgb(17 24 39);
+		font-family: inherit;
+		transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+	}
+	.ag-input::placeholder {
+		color: var(--color-muted);
+		opacity: 1;
+	}
+	.ag-input:hover:not(:focus) {
+		border-color: rgb(209 213 219);
+	}
+	.ag-input:focus {
+		outline: 0;
+		border-color: var(--color-primary);
+		background-color: rgb(255 255 255);
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+	}
+
+	/* ===== Primary action button ("New Agent") ===== */
+	.ag-btn {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.4rem;
+		height: 2.25rem;
+		padding: 0 0.95rem;
+		font-size: 0.8125rem;
+		font-weight: 500;
+		line-height: 1;
+		border: 1px solid transparent;
+		border-radius: 0.5rem;
+		cursor: pointer;
+		transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.2s ease;
+	}
+	.ag-btn:active:not(:disabled) {
+		transform: translateY(1px);
+	}
+	.ag-btn:focus-visible {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+	}
+	.ag-btn:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
+	}
+	.ag-btn-primary {
+		background-color: var(--color-primary);
+		border-color: var(--color-primary);
+		color: rgb(255 255 255);
+		box-shadow: 0 1px 2px rgb(15 23 42 / 0.08),
+			0 4px 12px -4px color-mix(in srgb, var(--color-primary) 45%, transparent);
+	}
+	.ag-btn-primary:hover:not(:disabled) {
+		background-color: var(--color-primary-hover);
+		border-color: var(--color-primary-hover);
+	}
+
+	/* ===== Icon-only buttons (Search / Reset) ===== */
+	.ag-btn-icon {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		height: 2.25rem;
+		min-width: 2.25rem;
+		padding: 0 0.5rem;
+		border: 1px solid transparent;
+		border-radius: 0.5rem;
+		color: rgb(255 255 255);
+		cursor: pointer;
+		transition: background-color 0.15s ease, filter 0.15s ease, transform 0.2s ease;
+	}
+	.ag-btn-icon i {
+		font-size: 1.125rem;
+		line-height: 1;
+	}
+	.ag-btn-icon:active {
+		transform: translateY(1px);
+	}
+	.ag-btn-icon-info {
+		background-color: var(--color-info);
+		border-color: var(--color-info);
+	}
+	.ag-btn-icon-info:hover {
+		filter: brightness(0.95);
+	}
+	.ag-btn-icon-warning {
+		background-color: var(--color-warning);
+		border-color: var(--color-warning);
+	}
+	.ag-btn-icon-warning:hover {
+		filter: brightness(0.95);
+	}
+
+	/* ===== Card grid ===== */
+	.ag-grid {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 1.5rem;
+		margin-bottom: 1rem;
+	}
+
+	/* ===== Pagination spacing ===== */
+	.ag-pagination {
+		margin-bottom: 1.5rem;
+	}
+	@media (max-width: 1199.98px) {
+		.ag-grid {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+	@media (max-width: 575.98px) {
+		.ag-grid {
+			grid-template-columns: minmax(0, 1fr);
+		}
+	}
+
+	/* ===== Dark mode ===== */
+	:global(.dark) .ag-input {
+		background-color: rgb(31 41 55);
+		border-color: rgb(55 65 81);
+		color: rgb(229 231 235);
+	}
+	:global(.dark) .ag-input:focus {
+		background-color: rgb(17 24 39);
+	}
+</style>

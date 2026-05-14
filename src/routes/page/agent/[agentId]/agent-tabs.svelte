@@ -37,8 +37,6 @@
     /** @type {any} */
     let agentUtilityCmp = $state(null);
     /** @type {any} */
-    // let agentKnowledgeBaseCmp = $state(null);
-    /** @type {any} */
     let agentEventRuleCmp = $state(null);
     /** @type {any} */
     let agentMcpToolCmp = $state(null);
@@ -61,8 +59,8 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
+<div class="at-card">
+    <div class="at-card-body">
         <NavBar
             disableDefaultStyles
             containerClasses={'nav-tabs-secondary'}
@@ -81,20 +79,45 @@
             {/each}
         </NavBar>
 
-        <div class:hide={selectedTab !== 'agent-llm-config'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-llm-config'}>
             <AgentLlmConfig agent={agent} bind:this={agentLlmConfigCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-routing-rule'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-routing-rule'}>
             <AgentRouting agent={agent} />
         </div>
-        <div class:hide={selectedTab !== 'agent-utility'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-utility'}>
             <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-event-rule'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-event-rule'}>
             <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-mcp-tool'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />
         </div>
     </div>
 </div>
+
+<style>
+    .at-card {
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.625rem;
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.04),
+            0 6px 16px -10px rgb(15 23 42 / 0.08);
+    }
+    .at-card-body {
+        padding: 1.25rem;
+    }
+    .at-pane {
+        margin-top: 0.75rem;
+    }
+    .at-hide {
+        display: none;
+    }
+
+    :global(.dark) .at-card {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+</style>

@@ -6,7 +6,13 @@
     import { getAgents } from '$lib/services/agent-service.js';
 	import { AgentType } from '$lib/helpers/enums';
 
-    /** @type {{ routers: import('$agentTypes').AgentModel[], viewOnlyMode?: boolean, onuserNodeSelected?: () => void, onrouterNodeSelected?: () => void, onagentNodeSelected?: () => void }} */
+    /** @type {{
+     * routers: import('$agentTypes').AgentModel[],
+     * viewOnlyMode?: boolean,
+     * onuserNodeSelected?: () => void,
+     * onrouterNodeSelected?: () => void,
+     * onagentNodeSelected?: () => void
+     * }} */
     let {
         routers,
         viewOnlyMode = false,
@@ -35,7 +41,7 @@
 
     /** @type {Drawflow} */
     let editor;
-    
+
     onMount(async () => {
         if (viewOnlyMode) {
             const response = await getAgents(filter);
@@ -60,7 +66,7 @@
             });
             renderRoutingFlow();
         }
-    });    
+    });
 
     function renderRoutingFlow() {
         agentNodes = [];
@@ -73,12 +79,12 @@
             nodeSpaceY * (agents.length + 1) / 2;
 
         // add end-user node
-        const userNodeId = editor.addNode('user', 0, 1, posX, posY, 'user', 
+        const userNodeId = editor.addNode('user', 0, 1, posX, posY, 'user',
         {
             id: "",
             profiles: [],
             agent: 'user'
-        }, `<i class="mdi mdi-account font-size-16 text-info me-2"></i><span class="h6">User Request</span>`, false);
+        }, `<i class="mdi mdi-account rf-icon rf-text-info rf-mr-2"></i><span class="rf-h6">User Request</span>`, false);
 
         // add router node
         posX += nodeSpaceX;
@@ -88,15 +94,15 @@
             /** @type {string[]} */
             let profiles = [];
             const planner = getPlannerName(router);
-            const chatTestLinkHtml = router.is_public ? 
-                `<a href= "chat/${router.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>` :
+            const chatTestLinkHtml = router.is_public ?
+                `<a href= "chat/${router.id}" class="rf-node-btn rf-node-btn-end" target="_blank"><i class="bx bx-chat"></i></a>` :
                 '';
-            let html = `<span class="h5">${router.name} ${chatTestLinkHtml}</span><span class="text-info">Routing with ${planner}</span>`;
+            let html = `<span class="rf-h5">${router.name} ${chatTestLinkHtml}</span><span class="rf-text-info">Routing with ${planner}</span>`;
             if (router.profiles.length > 0) {
                 profiles = router.profiles;
-                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i><span>${profiles.join(', ')}</span>`;
+                html += `<br/><i class="mdi mdi-folder rf-icon rf-text-info rf-mr-2"></i><span>${profiles.join(', ')}</span>`;
             }
-            
+
             const data = {
                 id: router.id,
                 agent: router.name,
@@ -111,7 +117,7 @@
 
             const nodeId = editor.addNode('router', 1, 1, posX, routerPosY, 'router', data, `${html}`, false);;
             // connect user and router
-            editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);    
+            editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);
             routerPosY += nodeSpaceY + 50;
         });
 
@@ -123,10 +129,10 @@
         plannerAgents.forEach(agent => {
             /**@type {any} */
             let nodeId = null;
-            let html = `<span class="h6">${agent.name}</span>`;
+            let html = `<span class="rf-h6">${agent.name}</span>`;
 
             if (agent.profiles.length > 0) {
-                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + agent.profiles.join(', ');
+                html += `<br/><i class="mdi mdi-folder rf-icon rf-text-info rf-mr-2"></i>` + agent.profiles.join(', ');
             }
 
             const data = {
@@ -152,35 +158,35 @@
 
         posY = viewOnlyMode ? posY + 30 : 120;
         posX += viewOnlyMode ? 0 : nodeSpaceX;
-        otherAgnets.forEach(agent => {   
+        otherAgnets.forEach(agent => {
             /**@type {any} */
             let nodeId = null;
-            /**@type {any[]} */   
+            /**@type {any[]} */
             let profiles = [];
 
-            const chatTestLinkHtml = agent.is_public ? 
-                `<a href= "chat/${agent.id}" class="btn btn-primary float-end" target="_blank"><i class="bx bx-chat"></i></a>` : '';
-            let html = `<span class="h6">${agent.name}</span>${chatTestLinkHtml}`;
+            const chatTestLinkHtml = agent.is_public ?
+                `<a href= "chat/${agent.id}" class="rf-node-btn rf-node-btn-end" target="_blank"><i class="bx bx-chat"></i></a>` : '';
+            let html = `<span class="rf-h6">${agent.name}</span>${chatTestLinkHtml}`;
             if (agent.type == AgentType.Static) {
-                const taskLinkHtml = `<a href= "page/agent/${agent.id}/task" class="btn btn-primary float-end" target="_blank"><i class="bx bx-task"></i></a>`;
+                const taskLinkHtml = `<a href= "page/agent/${agent.id}/task" class="rf-node-btn rf-node-btn-end" target="_blank"><i class="bx bx-task"></i></a>`;
                 html += taskLinkHtml;
             }
 
             if (agent.profiles.length > 0) {
                 profiles = agent.profiles;
-                html += `<br/><i class="mdi mdi-folder font-size-16 text-info me-2"></i>` + profiles.join(', ');
+                html += `<br/><i class="mdi mdi-folder rf-icon rf-text-info rf-mr-2"></i>` + profiles.join(', ');
             }
 
             if (agent.is_host) {
                 html =`<img src="images/users/bot.png" height="30">${html}`;
             }
-            
+
             const data = {
                 id: agent.id,
                 agent: agent.name,
                 profiles: profiles
             };
-            
+
 
             if (viewOnlyMode && profiles.length > 0) {
                 const filteredProfiles = profiles.filter((/** @type {string} */ profile) => profile !== 'planning');
@@ -218,10 +224,10 @@
                     // profile is empty
                     /*agentNodes.filter(ag => ag.type == "routing" && ag.profiles.length == 0)
                         .forEach(r => {
-                            editor.addConnection(r.nid, nid, `output_1`, `input_1`);    
+                            editor.addConnection(r.nid, nid, `output_1`, `input_1`);
                         });*/
-                    
-                    editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);    
+
+                    editor.addConnection(userNodeId, nodeId, `output_1`, `input_1`);
                 }
             }
 
@@ -247,7 +253,7 @@
             // }
         });
     }
-    
+
     /** @param {import('$agentTypes').AgentModel} router */
     function getPlannerName(router) {
         const planner = router.routing_rules?.find(p => p.type == "planner");
@@ -294,16 +300,16 @@
 
 </script>
 
-<div class="btn-group" role="group">
+<div class="rf-toggle-group" role="group">
     <input
         type="checkbox"
-        class="btn-check active"
+        class="rf-toggle-input"
         id="btncheck1"
         autocomplete="off"
         disabled={viewOnlyMode}
     />
     <label
-        class={`btn btn-${includeRoutingAgent && !viewOnlyMode ? "" : "outline-"}primary`}
+        class={`rf-toggle-btn ${includeRoutingAgent && !viewOnlyMode ? "rf-toggle-btn-active" : "rf-toggle-btn-outline"}`}
         for="btncheck1"
     >
         Routing Agent
@@ -311,14 +317,14 @@
 
     <input
         type="checkbox"
-        class="btn-check active"
+        class="rf-toggle-input"
         id="btncheck2"
         autocomplete="off"
         disabled={viewOnlyMode}
         onclick={() => handlePlannerAgentSelected()}
     />
     <label
-        class={`btn btn-${includePlannerAgent ? "" : "outline-"}primary`}
+        class={`rf-toggle-btn ${includePlannerAgent ? "rf-toggle-btn-active" : "rf-toggle-btn-outline"}`}
         for="btncheck2"
     >
         Planning Agent
@@ -326,14 +332,14 @@
 
     <input
         type="checkbox"
-        class="btn-check"
+        class="rf-toggle-input"
         id="btncheck3"
         autocomplete="off"
         disabled={viewOnlyMode}
         onclick={() => handleTaskAgentSelected()}
     />
-    <label 
-        class={`btn btn-${includeTaskAgent ? "" : "outline-"}primary`}
+    <label
+        class={`rf-toggle-btn ${includeTaskAgent ? "rf-toggle-btn-active" : "rf-toggle-btn-outline"}`}
         for="btncheck3"
     >
         Task Agent
@@ -341,18 +347,131 @@
 
     <input
         type="checkbox"
-        class="btn-check"
+        class="rf-toggle-input"
         id="btncheck4"
         autocomplete="off"
         disabled={viewOnlyMode}
         onclick={() => handleStaticAgentSelected()}
     />
     <label
-        class={`btn btn-${includeStaticAgent ? "" : "outline-"}primary`}
+        class={`rf-toggle-btn ${includeStaticAgent ? "rf-toggle-btn-active" : "rf-toggle-btn-outline"}`}
         for="btncheck4"
     >
         Static Agent
     </label>
 </div>
 
-<div id="drawflow" style="height: 72vh; width: 100%"></div>
+<div id="drawflow" class="rf-canvas" style="height: 72vh; width: 100%"></div>
+
+<style>
+    /* ===== Toggle button group ===== */
+    .rf-toggle-group {
+        display: inline-flex;
+        flex-wrap: wrap;
+        margin-bottom: 1rem;
+    }
+    .rf-toggle-input {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+        pointer-events: none;
+    }
+    .rf-toggle-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 2.25rem;
+        padding: 0 0.95rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        border: 1px solid var(--color-primary);
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        margin: 0;
+    }
+    /* Pill-shape the group: first/last get rounded ends, middle is squared, and adjacent
+       borders collapse so the group reads as one contiguous control. */
+    .rf-toggle-btn:not(:first-of-type) {
+        border-left: 0;
+    }
+    .rf-toggle-btn:first-of-type {
+        border-top-left-radius: 0.5rem;
+        border-bottom-left-radius: 0.5rem;
+    }
+    .rf-toggle-btn:last-of-type {
+        border-top-right-radius: 0.5rem;
+        border-bottom-right-radius: 0.5rem;
+    }
+    .rf-toggle-btn-active {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+    .rf-toggle-btn-outline {
+        background-color: transparent;
+        color: var(--color-primary);
+    }
+    .rf-toggle-btn-outline:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    }
+    .rf-toggle-input:disabled + .rf-toggle-btn {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    /* ===== Drawflow canvas =====
+       Height/width live inline on the element itself (see template) because Drawflow
+       mutates the container and adds its own .parent-drawflow / .drawflow classes
+       whose rules can otherwise override a Svelte-scoped class rule. */
+
+    /* ===== Drawflow node content (injected as raw HTML — selectors must be global) ===== */
+    .rf-canvas :global(.rf-h5) {
+        display: inline-block;
+        font-size: 1.125rem;
+        font-weight: 500;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .rf-canvas :global(.rf-h6) {
+        display: inline-block;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.2;
+        margin: 0;
+    }
+    .rf-canvas :global(.rf-icon) {
+        font-size: 1rem;
+        line-height: 1;
+    }
+    .rf-canvas :global(.rf-text-info) {
+        color: var(--color-info);
+    }
+    .rf-canvas :global(.rf-mr-2) {
+        margin-right: 0.5rem;
+    }
+    .rf-canvas :global(.rf-node-btn) {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.75rem;
+        min-width: 1.75rem;
+        padding: 0 0.5rem;
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+        border: 1px solid var(--color-primary);
+        border-radius: 0.375rem;
+        text-decoration: none;
+        line-height: 1;
+        transition: background-color 0.15s ease, filter 0.15s ease;
+    }
+    .rf-canvas :global(.rf-node-btn:hover) {
+        filter: brightness(0.95);
+    }
+    .rf-canvas :global(.rf-node-btn i) {
+        font-size: 1rem;
+        line-height: 1;
+    }
+    .rf-canvas :global(.rf-node-btn-end) {
+        float: right;
+        margin-left: 0.25rem;
+    }
+</style>

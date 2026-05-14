@@ -1,5 +1,6 @@
 <script>
     import { slide } from 'svelte/transition';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     /**
      * @type {{
@@ -70,7 +71,8 @@
 
     /** @param {any} e */
     async function changeProvider(e) {
-        const provider = e.target.value;
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        const provider = values[0] || '';
         config.provider = provider || null;
 
         if (!provider) {
@@ -87,56 +89,141 @@
 
     /** @param {any} e */
     function changeModel(e) {
-        config.model = e.target.value || null;
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        config.model = values[0] || null;
         handleAgentChange();
     }
 </script>
 
-<div class="agent-config-container">
+<div class="bc-card">
     <div
-        class="config-header text-center"
+        class="bc-header"
         role="button"
         tabindex="0"
         onclick={() => collapsed = !collapsed}
         onkeydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
     >
-        <h6 class="mt-1 mb-3 d-flex align-items-center justify-content-center gap-2">
+        <h6 class="bc-header-title">
             <i class="mdi {collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'}"></i>
             {title}
         </h6>
     </div>
 
     {#if !collapsed}
-    <div transition:slide={{ duration: 200 }}>
-        <div class="mb-3 row llm-config-item">
-            <label for={`provider-${title}`} class="col-form-label llm-config-label">
+    <div transition:slide={{ duration: 200 }} class="bc-body">
+        <div class="bc-field">
+            <label for={`provider-${title}`} class="bc-label">
                 Provider
             </label>
-            <div class="llm-config-input">
-                <select class="form-select" id={`provider-${title}`} value={config.provider} onchange={e => changeProvider(e)}>
-                    {#each providers as option}
-                        <option value={option} selected={option == config.provider}>
-                            {option}
-                        </option>
-                    {/each}
-                </select>
+            <div class="bc-input-wrap">
+                <Select
+                    tag={`provider-${title}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a provider'}
+                    selectedValues={config.provider ? [config.provider] : []}
+                    options={providers.filter(p => !!p).map(p => ({ label: p, value: p }))}
+                    onselect={e => changeProvider(e)}
+                />
             </div>
         </div>
 
-        <div class="mb-3 row llm-config-item">
-            <label for={`model-${title}`} class="col-form-label llm-config-label">
+        <div class="bc-field">
+            <label for={`model-${title}`} class="bc-label">
                 Model
             </label>
-            <div class="llm-config-input">
-                <select class="form-select" id={`model-${title}`} value={config.model} disabled={models.length === 0} onchange={e => changeModel(e)}>
-                    {#each models as option}
-                        <option value={option.name} selected={option.name == config.model}>
-                            {option.name}
-                        </option>
-                    {/each}
-                </select>
+            <div class="bc-input-wrap">
+                <Select
+                    tag={`model-${title}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a model'}
+                    disabled={models.length === 0}
+                    selectedValues={config.model ? [config.model] : []}
+                    options={models.map(m => ({ label: m.name, value: m.name }))}
+                    onselect={e => changeModel(e)}
+                />
             </div>
         </div>
     </div>
     {/if}
 </div>
+
+<style>
+    .bc-card {
+        padding: 0.625rem;
+        border: 1px dashed var(--color-primary);
+        border-radius: 0.5rem;
+        background-color: color-mix(in srgb, var(--color-primary) 3%, transparent);
+    }
+    .bc-header {
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+    }
+    .bc-header:hover .bc-header-title {
+        opacity: 0.8;
+    }
+    .bc-header-title {
+        margin: 0.25rem 0 0;
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: opacity 0.15s ease;
+    }
+    .bc-body {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        margin-top: 0.75rem;
+    }
+    .bc-field {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+    .bc-label {
+        flex: 0 0 25%;
+        max-width: 25%;
+        padding: 0 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: rgb(75 85 99);
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        margin-bottom: 0;
+    }
+    .bc-input-wrap {
+        flex: 0 0 75%;
+        max-width: 75%;
+        padding: 0 0.75rem;
+    }
+    /* Selects are rendered via the Select component, which owns its styles */
+
+    @media (max-width: 1250px) {
+        .bc-field {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .bc-label,
+        .bc-input-wrap {
+            flex: 0 0 100%;
+            max-width: 100%;
+        }
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .bc-card {
+        background-color: color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55));
+    }
+    :global(.dark) .bc-header-title {
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .bc-label {
+        color: rgb(156 163 175);
+    }
+</style>

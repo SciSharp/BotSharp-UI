@@ -192,14 +192,14 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Knowledge Base</h5>
-            <h6 class="mt-1 mb-3">Make your Agent have memory</h6>
+<div class="akb-card">
+    <div class="akb-card-body">
+        <div class="akb-header">
+            <h5 class="akb-title">Knowledge Base</h5>
+            <h6 class="akb-subtitle">Make your Agent have memory</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="akb-list" bind:this={scrollContainer}>
             {#each innerKnowledgeBases as knowledge, uid (uid)}
                 <AgentKnowledgeBaseItem
                     knowledge={knowledge}
@@ -214,19 +214,82 @@
             {/each}
 
             {#if innerKnowledgeBases.length < limit}
-                <div class="add-utility">
+                <div class="akb-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="akb-add-btn"
                         onclick={() => addKnowledgeBase()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add Knowledge Base</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add Knowledge Base</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+
+<style>
+    .akb-card {
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.625rem;
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.04),
+            0 6px 16px -10px rgb(15 23 42 / 0.08);
+        overflow: hidden;
+    }
+    .akb-card-body { padding: 1.25rem; }
+    .akb-header { text-align: center; margin-bottom: 0.75rem; }
+    .akb-title {
+        margin: 0.25rem 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+    }
+    .akb-subtitle {
+        margin: 0.25rem 0 0.75rem 0;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        color: var(--color-muted);
+    }
+    .akb-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        max-height: 500px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding: 0 0.625rem;
+    }
+    .akb-add { display: flex; justify-content: center; padding-top: 0.25rem; }
+    .akb-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.4375rem 0.875rem;
+        border: 1px solid var(--color-primary);
+        border-radius: 0.375rem;
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.05s ease;
+    }
+    .akb-add-btn:hover {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+    .akb-add-btn:active { transform: translateY(1px); }
+    .akb-add-btn i { font-size: 1rem; line-height: 1; }
+
+    @media (max-width: 1250px) {
+        .akb-list { padding: 0 0.3125rem; }
+    }
+    :global(.dark) .akb-card {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+    :global(.dark) .akb-title { color: rgb(229 231 235); }
+</style>

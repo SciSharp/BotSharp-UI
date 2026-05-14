@@ -46,14 +46,14 @@
     });
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-1">LLM Configurations</h5>
-            <img src="images/brands/azure-openai-logo.avif" alt="" style="height: 50px; width: auto; display: inline-block;" />
+<div class="llmc-card">
+    <div class="llmc-card-body">
+        <div class="llmc-header">
+            <h5 class="llmc-title">LLM Configurations</h5>
+            <img src="images/brands/azure-openai-logo.avif" alt="" class="llmc-brand-logo" />
         </div>
 
-        <div class="agent-utility-container">
+        <div class="llmc-list">
             <ChatConfig
                 bind:this={chatConfigCmp}
                 {agent}
@@ -90,3 +90,50 @@
         </div>
     </div>
 </div>
+
+<style>
+    .llmc-card {
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.625rem;
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.04),
+            0 6px 16px -10px rgb(15 23 42 / 0.08);
+    }
+    .llmc-card-body {
+        padding: 1.25rem;
+    }
+    .llmc-header {
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .llmc-title {
+        margin: 0.25rem 0 0.5rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+    }
+    .llmc-brand-logo {
+        height: 50px;
+        width: auto;
+        display: inline-block;
+    }
+    .llmc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        max-height: 500px;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        padding: 0 0.625rem;
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .llmc-card {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+    :global(.dark) .llmc-title {
+        color: rgb(229 231 235);
+    }
+</style>

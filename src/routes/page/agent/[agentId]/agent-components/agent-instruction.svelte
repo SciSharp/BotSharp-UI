@@ -131,24 +131,17 @@
     }
 </script>
 
-<div class="card agent-prompt-container">
-    <div class="card-header agent-prompt-header border-bottom">
-        <div class="d-flex">
-            <div class="flex-grow-1">
-                <h5 class="fw-semibold">{agent.name}</h5>
-            </div>
-        </div>
+<div class="ai-card">
+    <div class="ai-card-header">
+        <h5 class="ai-agent-name">{agent.name}</h5>
     </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <div class="mb-2">
-                <div class="line-align-center fw-bold">
-                    {'Description:'}
-                </div>
+    <div class="ai-card-body">
+        <div class="ai-section">
+            <div class="ai-section-label">
+                {'Description:'}
             </div>
             <textarea
-                class="form-control"
-                style="scrollbar-width: thin; resize: none;"
+                class="ai-textarea ai-textarea-sm"
                 rows={4}
                 bind:value={agent.description}
                 placeholder="Enter your Message"
@@ -156,9 +149,9 @@
             ></textarea>
         </div>
 
-        <div class="mb-3 agent-prompt-body">
-            <div class="mb-2" style="display: flex; gap: 10px;">
-                <div class="line-align-center fw-bold">
+        <div class="ai-section">
+            <div class="ai-section-header">
+                <div class="ai-section-label">
                     {#if inner_instructions.length > 1}
                         {'Instructions:'}
                     {:else}
@@ -168,11 +161,10 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                    class="text-primary clickable"
+                    class="ai-add-btn"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Add channel instruction"
-                    style="font-size: 16px;"
                     onclick={() => addChannel()}
                 >
                     <i class="mdi mdi-plus-circle-outline"></i>
@@ -206,8 +198,7 @@
             </NavBar>
             {/if}
             <textarea
-                class="form-control"
-                style="scrollbar-width: thin; resize: none;"
+                class="ai-textarea"
                 value={selected_instruction.instruction}
                 rows={20}
                 oninput={(e) => changePrompt(e)}
@@ -217,3 +208,118 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* ===== Card shell ===== */
+    .ai-card {
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.625rem;
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.04),
+            0 6px 16px -10px rgb(15 23 42 / 0.08);
+        overflow: hidden;
+    }
+    .ai-card-header {
+        padding: 0.9375rem 1.25rem;
+        background-color: rgb(255 255 255);
+        border-bottom: 1px solid rgb(229 231 235);
+    }
+    .ai-agent-name {
+        margin: 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+    }
+    .ai-card-body {
+        padding: 1.25rem;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    /* ===== Section ===== */
+    .ai-section {
+        margin-bottom: 1rem;
+    }
+    .ai-section:last-child {
+        margin-bottom: 0;
+    }
+    .ai-section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        margin-bottom: 0.5rem;
+    }
+    .ai-section-label {
+        display: inline-flex;
+        align-items: center;
+        font-weight: 700;
+        font-size: 0.875rem;
+        color: rgb(55 65 81);
+        margin-bottom: 0.5rem;
+    }
+    .ai-section-header .ai-section-label {
+        margin-bottom: 0;
+    }
+
+    /* ===== Add channel button ===== */
+    .ai-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primary);
+        cursor: pointer;
+        font-size: 1rem;
+        line-height: 1;
+        transition: color 0.15s ease, transform 0.15s ease;
+    }
+    .ai-add-btn:hover {
+        color: var(--color-primary-hover);
+        transform: scale(1.1);
+    }
+    .ai-add-btn i {
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+
+    /* ===== Textareas ===== */
+    .ai-textarea {
+        width: 100%;
+        padding: 0.625rem 0.75rem;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.5rem;
+        background-color: rgb(249 250 251);
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        resize: none;
+        scrollbar-width: thin;
+        font-family: inherit;
+        transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .ai-textarea::placeholder {
+        color: var(--color-muted);
+    }
+    .ai-textarea:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        background-color: rgb(255 255 255);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .ai-card,
+    :global(.dark) .ai-card-header {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+    :global(.dark) .ai-agent-name,
+    :global(.dark) .ai-section-label {
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .ai-textarea {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+</style>

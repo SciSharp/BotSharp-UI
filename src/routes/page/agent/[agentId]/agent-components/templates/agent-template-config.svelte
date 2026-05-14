@@ -173,12 +173,12 @@
     }
 </script>
 
-<div class="template-config-content">
-    <div class="config-section">
-        <h6 class="fw-semibold">Template Configuration</h6>
-        <div class="config-field">
-            <label for="tpl-response-format" class="form-label config-label">Response format</label>
-            <select class="form-select form-select-sm" id="tpl-response-format"
+<div class="tplc-content">
+    <div class="tplc-section">
+        <h6 class="tplc-section-title">Template Configuration</h6>
+        <div class="tplc-field">
+            <label for="tpl-response-format" class="tplc-label">Response format</label>
+            <select class="tplc-select" id="tpl-response-format"
                 value={template.response_format || ''}
                 onchange={e => changeResponseFormat(e)}
             >
@@ -191,13 +191,13 @@
         </div>
     </div>
 
-    <hr class="my-2" />
+    <hr class="tplc-divider" />
 
-    <div class="config-section">
-        <h6 class="fw-semibold">LLM Configuration</h6>
-        <div class="config-field">
-            <label for="tpl-provider" class="form-label config-label">Provider</label>
-            <select class="form-select form-select-sm" id="tpl-provider"
+    <div class="tplc-section">
+        <h6 class="tplc-section-title">LLM Configuration</h6>
+        <div class="tplc-field">
+            <label for="tpl-provider" class="tplc-label">Provider</label>
+            <select class="tplc-select" id="tpl-provider"
                 value={template.llm_config?.provider || ''}
                 onchange={e => changeProvider(e)}
             >
@@ -209,9 +209,9 @@
             </select>
         </div>
 
-        <div class="config-field">
-            <label for="tpl-model" class="form-label config-label">Model</label>
-            <select class="form-select form-select-sm" id="tpl-model"
+        <div class="tplc-field">
+            <label for="tpl-model" class="tplc-label">Model</label>
+            <select class="tplc-select" id="tpl-model"
                 value={template.llm_config?.model || ''}
                 disabled={models.length === 0 || !template.llm_config?.provider}
                 onchange={e => changeModel(e)}
@@ -224,10 +224,10 @@
             </select>
         </div>
 
-        <div class="config-field">
-            <label for="tpl-max-tokens" class="form-label config-label">Max output tokens</label>
+        <div class="tplc-field">
+            <label for="tpl-max-tokens" class="tplc-label">Max output tokens</label>
             <input
-                class="form-control form-control-sm"
+                class="tplc-input"
                 id="tpl-max-tokens"
                 type="number"
                 value={template.llm_config?.max_output_tokens || ''}
@@ -237,9 +237,9 @@
         </div>
 
         {#if isReasoningModel}
-        <div class="config-field">
-            <label for="tpl-reasoning" class="form-label config-label">Reasoning level</label>
-            <select class="form-select form-select-sm" id="tpl-reasoning"
+        <div class="tplc-field">
+            <label for="tpl-reasoning" class="tplc-label">Reasoning level</label>
+            <select class="tplc-select" id="tpl-reasoning"
                 value={template.llm_config?.reasoning_effort_level || ''}
                 onchange={e => changeReasoningEffortLevel(e)}
             >
@@ -253,4 +253,104 @@
         {/if}
     </div>
 </div>
+
+<style>
+    .tplc-content {
+        padding: 0.625rem;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    .tplc-section {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+    }
+    .tplc-section-title {
+        margin: 0 0 0.25rem 0;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+    }
+    .tplc-divider {
+        border: 0;
+        border-top: 1px solid rgb(229 231 235);
+        margin: 0.5rem 0;
+    }
+    .tplc-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+    .tplc-label {
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0;
+        white-space: nowrap;
+        color: rgb(75 85 99);
+    }
+
+    /* ===== Inputs & selects ===== */
+    .tplc-input,
+    .tplc-select {
+        width: 100%;
+        padding: 0.3125rem 0.5rem;
+        font-size: 0.75rem;
+        line-height: 1.4;
+        color: rgb(17 24 39);
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.375rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        font-family: inherit;
+    }
+    .tplc-input:focus,
+    .tplc-select:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+    .tplc-select {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 0.4rem center;
+        background-size: 0.75rem;
+        padding-right: 1.5rem;
+    }
+    .tplc-select:disabled {
+        background-color: rgb(243 244 246);
+        cursor: not-allowed;
+        color: var(--color-muted);
+    }
+    .tplc-input::-webkit-outer-spin-button,
+    .tplc-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .tplc-section-title {
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .tplc-label {
+        color: rgb(156 163 175);
+    }
+    :global(.dark) .tplc-divider {
+        border-top-color: rgb(55 65 81);
+    }
+    :global(.dark) .tplc-input,
+    :global(.dark) .tplc-select {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .tplc-select {
+        background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3E%3C/svg%3E");
+    }
+    :global(.dark) .tplc-select:disabled {
+        background-color: rgb(31 41 55);
+    }
+</style>
 

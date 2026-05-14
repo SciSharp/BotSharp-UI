@@ -195,37 +195,37 @@
 />
 
 {#if agent}
-<div>
-    <div class="row agent-detail-sections">
-        <div class="col section-min-width agent-col" style="flex: 40%;">
-            <div class="agent-detail-section">
+<div class="ad-page">
+    <div class="ad-grid">
+        <div class="ad-col ad-col-left">
+            <div class="ad-section">
                 <AgentOverview
                     bind:agent={agent}
                     bind:profiles={agent.profiles}
                     bind:labels={agent.labels}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
                 />
             </div>
         </div>
-        <div class="col section-min-width agent-col" style="flex: 60%;">
-            <div class="agent-detail-section">
+        <div class="ad-col ad-col-right">
+            <div class="ad-section">
                 <AgentInstruction
                     bind:this={agentInstructionCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentTemplate
                     bind:this={agentTemplateCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentFunction
                     bind:this={agentFunctionCmp}
                     bind:agent={agent}
@@ -235,12 +235,112 @@
     </div>
 
     {#if !!AgentExtensions.editable(agent)}
-        <div class="row">
-            <div class="hstack gap-2 my-4">
-                <button type="button" class="btn btn-soft-primary" onclick={() => updateCurrentAgent()}>{$_('Save Agent')}</button>
-                <button type="button" class="btn btn-danger" onclick={() => deleteCurrentAgent()}>{$_('Delete Agent')}</button>
-            </div>
+        <div class="ad-action-bar">
+            <button
+                type="button"
+                class="ad-btn ad-btn-primary"
+                onclick={() => updateCurrentAgent()}
+            >
+                <i class="bx bx-check"></i>
+                {$_('Save Agent')}
+            </button>
+            <button
+                type="button"
+                class="ad-btn ad-btn-danger"
+                onclick={() => deleteCurrentAgent()}
+            >
+                <i class="bx bx-trash"></i>
+                {$_('Delete Agent')}
+            </button>
         </div>
     {/if}
 </div>
 {/if}
+
+<style>
+    .ad-page {
+        display: flex;
+        flex-direction: column;
+    }
+
+    /* ===== Two-column grid (40 / 60) =====
+       Uses CSS Grid so columns are explicitly sized; flex would wrap because
+       the cards' min-content is wider than 40% of the page. */
+    .ad-grid {
+        display: grid;
+        grid-template-columns: 2fr 3fr;
+        gap: 1rem;
+    }
+    .ad-col {
+        display: flex;
+        flex-direction: column;
+        gap: 0.625rem;
+        min-width: 0;
+    }
+    @media (max-width: 991.98px) {
+        .ad-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+
+    /* ===== Section wrapper ===== */
+    .ad-section {
+        display: block;
+    }
+    @media (max-width: 423px) {
+        .ad-section {
+            height: fit-content;
+        }
+    }
+
+    /* ===== Action bar (Save / Delete) ===== */
+    .ad-action-bar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+    }
+
+    /* ===== Buttons ===== */
+    .ad-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        height: 2.25rem;
+        padding: 0 0.95rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        border: 1px solid transparent;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease, filter 0.15s ease;
+    }
+    .ad-btn:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+    .ad-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .ad-btn i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+    .ad-btn-primary {
+        background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+        color: var(--color-primary);
+    }
+    .ad-btn-primary:hover:not(:disabled) {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+    .ad-btn-danger {
+        background-color: var(--color-danger);
+        color: rgb(255 255 255);
+    }
+    .ad-btn-danger:hover:not(:disabled) {
+        filter: brightness(0.95);
+    }
+</style>

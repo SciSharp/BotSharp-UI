@@ -69,6 +69,9 @@
      */
     let timer;
 
+    /** @type {number} */
+    let repositionRaf = 0;
+
     onMount(() => {
         initOptions();
     });
@@ -156,6 +159,61 @@
             adjustDropdownPosition();
         }
     }
+
+    
+
+    function adjustDropdownPosition() {
+        const btn = document.getElementById(`multiselect-btn-${tag}`);
+        const optionList = document.getElementById(`multiselect-list-${tag}`);
+
+        if (!btn || !optionList) return;
+
+        const btnRec = btn.getBoundingClientRect();
+        const windowHeight = window.innerHeight;
+        const listHeight = optionList.offsetHeight;
+        const spaceBelow = windowHeight - btnRec.bottom;
+        const spaceAbove = btnRec.top;
+
+        // Use viewport-anchored fixed positioning so the dropdown can escape
+        // ancestor `overflow: auto/hidden` containers (e.g. scrollable list wrappers).
+        optionList.style.position = 'fixed';
+        optionList.style.left = `${btnRec.left}px`;
+        optionList.style.width = `${btnRec.width}px`;
+        optionList.style.right = 'auto';
+
+        if (spaceBelow < listHeight && spaceAbove > listHeight) {
+            optionList.style.top = `${btnRec.top - listHeight}px`;
+            optionList.style.bottom = 'auto';
+        } else {
+            optionList.style.top = `${btnRec.bottom}px`;
+            optionList.style.bottom = 'auto';
+        }
+    }
+
+    function repositionDropdown() {
+        if (repositionRaf) {
+            cancelAnimationFrame(repositionRaf);
+        }
+        repositionRaf = requestAnimationFrame(() => {
+            adjustDropdownPosition();
+            repositionRaf = 0;
+        });
+    }
+
+    $effect(() => {
+        if (!showOptionList) return;
+        // Capture-phase scroll listener catches nested scroll containers too.
+        window.addEventListener('scroll', repositionDropdown, true);
+        window.addEventListener('resize', repositionDropdown);
+        return () => {
+            window.removeEventListener('scroll', repositionDropdown, true);
+            window.removeEventListener('resize', repositionDropdown);
+            if (repositionRaf) {
+                cancelAnimationFrame(repositionRaf);
+                repositionRaf = 0;
+            }
+        };
+    });
 
 
     /** @param {any} e */
@@ -287,24 +345,6 @@
                 selecteds: refOptions.filter(x => !!x.checked).map(x => ({ label: x.label, value: x.value }))
             }
         });
-    }
-
-    function adjustDropdownPosition() {
-        const btn = document.getElementById(`multiselect-btn-${tag}`);
-        const optionList = document.getElementById(`multiselect-list-${tag}`);
-
-        if (!btn || !optionList) return;
-
-        const btnRec = btn.getBoundingClientRect();
-        const windowHeight = window.innerHeight;
-        const spaceBelow = windowHeight - btnRec.bottom;
-        const spaceAbove = btnRec.top;
-        const listHeight = optionList.offsetHeight;
-
-        if (spaceBelow < listHeight && spaceAbove > listHeight) {
-            optionList.style.top = `-${listHeight}px`;
-            optionList.style.bottom = 'auto';
-        }
     }
 
     function innerScroll() {
@@ -595,10 +635,10 @@
         overflow-x: hidden;
         overflow-y: auto;
         scrollbar-width: thin;
-        position: absolute;
-        left: 0;
-        right: 0;
-        z-index: 99;
+        /* position / top / left / width are set inline by adjustDropdownPosition()
+           so the menu can escape ancestor `overflow: auto/hidden` containers. */
+        position: fixed;
+        z-index: 1050;
     }
 
     /* ---------- Search box inside dropdown ---------- */

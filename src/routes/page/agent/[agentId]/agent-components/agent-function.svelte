@@ -51,14 +51,21 @@
     }
 </script>
 
-<div class="my-json-editor">
+<div class="af-json-editor">
     <JSONEditor mode={Mode.table} content={content} onChange={handleChange} />
 </div>
 
 <style>
-    .my-json-editor {
+    .af-json-editor {
         /* define a custom theme color */
-        --jse-theme-color: var(--bs-primary);
+        --jse-theme-color: var(--color-primary);
         --jse-theme-color-highlight: #687177;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.625rem;
+        overflow: hidden;
+        background-color: rgb(255 255 255);
+    }
+    :global(.dark) .af-json-editor {
+        border-color: rgb(55 65 81);
     }
 </style>
