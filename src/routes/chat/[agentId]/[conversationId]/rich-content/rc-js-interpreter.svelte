@@ -129,14 +129,27 @@
 
 <div class={`${containerClasses}`} style={`${containerStyles}`}>
     {#if message?.text}
-        <div class="mb-3">{message.text}</div>
+        <div class="rcj-section">{message.text}</div>
     {/if}
     {#if isLoading}
-        <div class="mb-3">
-            <LoadingDots duration={'1s'} size={5} gap={3} color={'var(--bs-primary)'} />
+        <div class="rcj-section">
+            <LoadingDots duration={'1s'} size={5} gap={3} color={'var(--color-primary)'} />
         </div>
     {/if}
     <div id={`${scrollbarId}`}>
-        <div id={`chart-${message?.message_id}`} style="min-width: 800px; max-height: 500px;"></div>
+        <div id={`chart-${message?.message_id}`} class="rcj-chart"></div>
     </div>
 </div>
+
+<style>
+    /* Vertical rhythm between text + loading + chart (replaces Bootstrap .mb-3) */
+    .rcj-section {
+        margin-bottom: 1rem;
+    }
+
+    /* Chart canvas slot (replaces inline style="min-width:800px; max-height:500px;") */
+    .rcj-chart {
+        min-width: 800px;
+        max-height: 500px;
+    }
+</style>

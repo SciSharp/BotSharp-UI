@@ -172,13 +172,19 @@
     }
 </script>
 
-<div class="chat-log">
-    <div class="card mb-0 log-background log-flex">
-        <div class="log-close-btn padding-side log-header">
+<!--
+  NOTE: .content-log-scrollbar and .conv-state-log-scrollbar are DOM hooks
+  queried by initScrollbars() (this file) and autoScrollToTargetLog()
+  (chat-box.svelte). Keep those class names exactly. Scoped styling is
+  applied through .pl-* siblings.
+-->
+<div class="pl-root">
+    <div class="pl-card">
+        <div class="pl-header-bar">
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-secondary"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Clean log"
@@ -187,10 +193,10 @@
                     <i class="bx bx-trash"></i>
                 </button>
             </div>
-            <div>
+            <div class="pl-action-group">
                 <button
                     type="button"
-                    class="btn btn-sm btn-primary chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-primary"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to top"
@@ -200,7 +206,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-sm btn-light chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to bottom"
@@ -212,7 +218,7 @@
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-secondary"
                     aria-label="Close log window"
                     onclick={() => closeWindow()}
                 >
@@ -221,27 +227,27 @@
             </div>
         </div>
 
-        <div class="content-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== contentLogTab}>
-            <ul>
+        <div class="pl-scroll-area content-log-scrollbar" class:pl-hide={selectedTab !== contentLogTab}>
+            <ul class="pl-list">
                 {#each contentLogs as log (log.uid)}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== conversationStateLogTab}>
-            <ul>
+        <div class="pl-scroll-area conv-state-log-scrollbar" class:pl-hide={selectedTab !== conversationStateLogTab}>
+            <ul class="pl-list">
                 {#each convStateLogs as log (log.uid)}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="log-footer nav-group">
+        <div class="pl-footer">
             <NavBar id={'persist-log-container'}>
                 <NavItem
                     navBtnId={'content-log-tab'}
-                    navBtnClasses={'log-footer-nav-btn'}
+                    navBtnStyles={'font-size: 0.75em;'}
                     dataBsTarget={'#content-log-tab-pane'}
                     ariaControls={'content-log-tab-pane'}
                     navBtnText={'Content Log'}
@@ -251,7 +257,7 @@
                 />
                 <NavItem
                     navBtnId={'conv-state-log-tab'}
-                    navBtnClasses={'log-footer-nav-btn'}
+                    navBtnStyles={'font-size: 0.75em;'}
                     dataBsTarget={'#conv-state-log-tab-pane'}
                     ariaControls={'conv-state-log-tab-pane'}
                     navBtnText={'Conversation States'}
@@ -263,3 +269,117 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* ===== Root wrapper (replaces .chat-log) ===== */
+    .pl-root {
+        height: 100vh;
+    }
+
+    /* ===== Card shell (replaces .card.mb-0.log-background.log-flex) ===== */
+    .pl-card {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        background-color: rgb(0 0 0);
+        margin-bottom: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    /* ===== Sticky header bar with action buttons
+            (replaces .log-close-btn.padding-side.log-header) ===== */
+    .pl-header-bar {
+        flex: 0 0 auto;
+        margin-top: 1rem;
+        margin-bottom: 0.5rem;
+        padding: 0 20px;
+        position: sticky;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .pl-action-group {
+        display: inline-flex;
+        gap: 0.25rem;
+    }
+
+    /* Themed action buttons (replace .btn .btn-sm .btn-rounded .chat-send variants) */
+    .pl-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.25rem 0.6rem;
+        font-size: 0.8125rem;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        border-radius: 999px;
+        background-color: transparent;
+        color: inherit;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    }
+    .pl-action-btn-secondary {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+        color: rgb(255 255 255);
+    }
+    .pl-action-btn-secondary:hover,
+    .pl-action-btn-secondary:focus {
+        background-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
+        border-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
+    }
+    .pl-action-btn-primary {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: rgb(255 255 255);
+        border-radius: 0.25rem;
+    }
+    .pl-action-btn-primary:hover,
+    .pl-action-btn-primary:focus {
+        background-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+        border-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+    }
+    .pl-action-btn-light {
+        background-color: var(--color-light, #eff2f7);
+        border-color: var(--color-light, #eff2f7);
+        color: var(--color-dark, #2a3042);
+        border-radius: 0.25rem;
+    }
+    .pl-action-btn-light:hover,
+    .pl-action-btn-light:focus {
+        background-color: color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 12%);
+        border-color: color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 12%);
+    }
+
+    /* ===== Scrollable log list (replaces .log-list.padding-side.log-body) ===== */
+    .pl-scroll-area {
+        flex: 1 1 auto;
+        background-color: rgb(0 0 0);
+        padding: 0 20px;
+        overflow-y: scroll;
+        scrollbar-width: none;
+    }
+    .pl-scroll-area::-webkit-scrollbar {
+        display: none;
+    }
+    .pl-list {
+        list-style: none;
+        margin: 0;
+        padding-left: 2px;
+        padding-right: 0;
+    }
+    /* Hide inactive tab pane (replaces global .hide utility) */
+    .pl-hide {
+        display: none;
+    }
+
+    /* ===== Footer with nav tabs (replaces .log-footer.nav-group) =====
+       Note: the nav button font-size override (was .log-footer-nav-btn)
+       is passed via NavItem's navBtnStyles prop as inline style — that
+       wins the cascade reliably against NavItem's own scoped .tab-btn rule. */
+    .pl-footer {
+        flex: 0 0 auto;
+        margin: 0 3px;
+    }
+</style>

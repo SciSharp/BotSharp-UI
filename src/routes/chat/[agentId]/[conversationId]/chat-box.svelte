@@ -30,8 +30,8 @@
 		pinConversationToDashboard,
 		stopStreaming as stopStreamingApi,
 	} from '$lib/services/conversation-service.js';
-	import { 
-		PUBLIC_LIVECHAT_ENTRY_ICON, 
+	import {
+		PUBLIC_LIVECHAT_ENTRY_ICON,
 		PUBLIC_LIVECHAT_VOICE_ENABLED,
 		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
@@ -73,7 +73,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	
+
 
 	const options = {
 		scrollbars: {
@@ -229,7 +229,7 @@
 	setContext('chat-window-context', {
 		autoScrollToBottom: autoScrollToBottom
 	});
-	
+
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		// @ts-ignore
@@ -245,7 +245,7 @@
 		handlePaneResize();
 		const messageDraft = getMessageDraft();
 		text = messageDraft || '';
-		
+
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
@@ -255,7 +255,7 @@
 		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
 		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
 		signalr.onIndicationReceived = onIndicationReceived;
-		
+
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
@@ -536,7 +536,7 @@
 				});
 			}
 		}
-		
+
 		isStreaming = false;
 		latestStateLog = message.states;
 		refresh();
@@ -562,7 +562,7 @@
 				is_appended: true
 			});
 		}
-		
+
 		refresh();
 
 		if (isFrame) {
@@ -589,7 +589,7 @@
 		refresh();
 	}
 
-	
+
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
@@ -877,7 +877,7 @@
 			} else {
 				webSpeech.abort();
 			}
-			
+
 		}
 	}
 
@@ -952,7 +952,7 @@
 		text = option;
 	}
 
-	/** 
+	/**
 	 * @param {string} title
 	 * @param {string} payload
 	 */
@@ -1306,7 +1306,7 @@
 				wrapperName: contentLogWrapper
 			});
 		}
-		
+
 		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
 		if (isLoadPersistLog && !!stateLogElm) {
 			elements.push({
@@ -1388,7 +1388,7 @@
 		if (message?.rich_content?.message?.rich_type === RichType.ProgramCode) {
 			text = message?.rich_content?.message?.code_script || text;
 		}
-		
+
 		navigator.clipboard.writeText(text).then(() => {
 			setTimeout(() => {
 				copyClicked = false;
@@ -1521,7 +1521,7 @@
 
 		const candidates = dialogs.filter(x => x.message_id === editBotMsg?.message.message_id && x.sender?.role === editBotMsg?.message.sender?.role);
 		const innerIdx = candidates.findIndex(x => x.uuid === editBotMsg?.message.uuid);
-		
+
 		/** @type {import('$conversationTypes').UpdateBotMessageRequest} */
 		const request = {
 			message: editBotMsg.message,
@@ -1631,7 +1631,7 @@
 	confirm={() => updateChatTags()}
 	close={() => toggleTagModal()}
 >
-	<div class="conv-tags-container">
+	<div class="cb-tags-container">
 		{#each convTags as tag, idx}
 			<Label
 				text={tag}
@@ -1642,9 +1642,9 @@
 			/>
 		{/each}
 	</div>
-	<div class="conv-tag-add">
+	<div class="cb-tag-add">
 		<input
-			class="form-control form-control-sm"
+			class="cb-tag-input"
 			type="text"
 			placeholder="Enter new tag..."
 			maxlength={50}
@@ -1652,7 +1652,7 @@
 			onkeydown={e => { if (e.key === 'Enter') addTag(); }}
 		/>
 		<button
-			class="btn btn-primary btn-sm"
+			class="cb-tag-add-btn"
 			aria-label="Add tag"
 			disabled={!_.trim(newTagText)}
 			onclick={() => addTag()}
@@ -1673,11 +1673,11 @@
 	close={() => toggleNotificationModal()}
 >
 	{#snippet titleIcon()}
-		<div class="color: text-warning">
+		<div class="cb-title-icon cb-text-warning">
 			<i class="mdi mdi-bell-ring"></i>
 		</div>
 	{/snippet}
-	<div class="chat-notification">
+	<div class="cb-notification">
 		{notificationText}
 	</div>
 </DialogModal>
@@ -1693,13 +1693,13 @@
 	disableConfirmBtn={!_.trim(editText)}
 >
 	<textarea
-		class="form-control chat-input"
+		class="cb-modal-textarea"
 		rows="5"
 		maxlength={maxTextLength}
 		bind:value={editText}
 		placeholder="Enter Message..."
 	></textarea>
-	<div class="text-secondary text-end text-count">
+	<div class="cb-modal-counter">
 		<div>{`${(editText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
@@ -1714,14 +1714,14 @@
 	disableConfirmBtn={!_.trim(bigText)}
 >
 	<textarea
-		class="form-control chat-input"
+		class="cb-modal-textarea"
 		rows="25"
 		maxlength={maxTextLength}
 		bind:value={bigText}
 		placeholder="Enter Message..."
 		oninput={handleInputBigText}
 	></textarea>
-	<div class="text-secondary text-end text-count">
+	<div class="cb-modal-counter">
 		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
@@ -1736,13 +1736,13 @@
 	disableConfirmBtn={!_.trim(botText)}
 >
 	<textarea
-		class="form-control chat-input"
+		class="cb-modal-textarea"
 		rows="10"
 		maxlength={maxTextLength}
 		bind:value={botText}
 		placeholder="Enter Message...">
 	</textarea>
-	<div class="text-secondary text-end text-count">
+	<div class="cb-modal-counter">
 		<div>{`${(botText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
@@ -1770,7 +1770,7 @@
 />
 
 <HeadTitle title="Chat" addOn='' />
-<div class="d-lg-flex">
+<div class="cb-page-flex">
 	<Splitpanes on:resize={() => handlePaneResize()}>
 		{#if isLoadInstantLog}
 		<Pane size={30} minSize={25} maxSize={40} >
@@ -1785,23 +1785,23 @@
 		{/if}
 		<Pane minSize={30}>
 			<div style="height: 100vh;">
-				<div class="card mb-0" style="height: 100vh;">
-					<div class="border-bottom chat-head">
-						<div class="row chat-row">
-							<div class="col-md-4 col-4 chat-head-info">
-								<div class="chat-head-agent">
+				<div class="cb-panel-card" style="height: 100vh;">
+					<div class="cb-head">
+						<div class="cb-head-row">
+							<div class="cb-head-left">
+								<div class="cb-head-agent">
 									{#if agent?.icon_url}
-									<div class="line-align-center">
-										<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
+									<div class="cb-vcenter">
+										<img class="cb-head-agent-icon" src={agent.icon_url} alt="">
 									</div>
 									{/if}
-									<div class="chat-head-agent-name line-align-center ellipsis">{agent?.name || 'Unkown'}</div>
+									<div class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</div>
 								</div>
-								<div class="text-muted mb-0 chat-head-user">
+								<div class="cb-head-user">
 									<div>
-										<i class="mdi mdi-circle text-success align-middle"></i>
+										<i class="mdi mdi-circle cb-text-success cb-align-middle"></i>
 									</div>
-									<div class="ellipsis">
+									<div class="cb-ellipsis">
 										<span>
 											{conversationUser?.full_name || conversationUser?.user_name
 											|| currentUser?.full_name || currentUser?.user_name || ''}</span>
@@ -1809,12 +1809,12 @@
 								</div>
 							</div>
 
-							<div class="col-md-8 col-8">
-								<div class="user-chat-nav user-chat-nav-flex mb-0" style={`padding-top: ${!isFrame ? '5px' : '0px'};`}>
+							<div class="cb-head-right">
+								<div class="cb-head-actions" style={`padding-top: ${!isFrame ? '5px' : '0px'};`}>
 									{#if PUBLIC_DEBUG_MODE === 'true' && isFrame}
-										<div class="">
+										<div>
 											<button
-												class="btn btn-secondary btn-rounded btn-sm"
+												class="cb-icon-btn cb-icon-btn-secondary"
 												aria-label="Open full screen"
 												onclick={() => openFullScreen()}
 											>
@@ -1822,10 +1822,10 @@
 											</button>
 										</div>
 									{/if}
-									<div class="">
+									<div>
 										{#if !isLite}
 										<div
-											class="dropdown"
+											class="cb-dropdown"
 											use:clickoutsideDirective
 											onclickoutside={(/** @type {any} */ e) => {
 												if (!e.detail.currentNode?.contains(e.detail.targetNode)) {
@@ -1834,23 +1834,23 @@
 												}
 											}}
 										>
-											<button class="nav-btn dropdown-toggle" type="button" aria-expanded={isHeaderMenuOpen} aria-label="Open dots" onclick={() => toggleHeaderMenu()}>
+											<button class="cb-nav-btn" type="button" aria-expanded={isHeaderMenuOpen} aria-label="Open dots" onclick={() => toggleHeaderMenu()}>
 												<i class="bx bx-dots-horizontal-rounded"></i>
 											</button>
-											<ul class="dropdown-menu dropdown-menu-end" class:show={isHeaderMenuOpen} style="right: 0; left: auto;">
+											<ul class="cb-menu cb-menu-end" class:show={isHeaderMenuOpen} style="right: 0; left: auto;">
 												{#if !isLoadPersistLog || !isLoadInstantLog}
-													<li><button class="dropdown-item" type="button" onclick={() => openLogs()}>View Log</button></li>
+													<li><button class="cb-menu-item" type="button" onclick={() => openLogs()}>View Log</button></li>
 												{/if}
 												{#if !isLoadInstantLog || !isOpenUserAddStateModal}
-												<li class="dropstart state-menu">
-													<button class="dropdown-item dropdown-toggle" type="button" aria-expanded={isHeaderStatesOpen} onclick={() => isHeaderStatesOpen = !isHeaderStatesOpen}>
+												<li class="cb-state-menu">
+													<button class="cb-menu-item cb-menu-item-toggle" type="button" aria-expanded={isHeaderStatesOpen} onclick={() => isHeaderStatesOpen = !isHeaderStatesOpen}>
 														States
 													</button>
-													<ul class="dropdown-menu" class:show={isHeaderStatesOpen} style="left: -160px !important;">
+													<ul class="cb-menu" class:show={isHeaderStatesOpen} style="left: -160px !important;">
 														{#if !isOpenUserAddStateModal}
 														<li>
 															<button
-																class="dropdown-item"
+																class="cb-menu-item"
 																type="button"
 																disabled={disableAction}
 																onclick={() => toggleUserAddStateModal()}
@@ -1861,7 +1861,7 @@
 														{/if}
 														<li>
 															<button
-																class="dropdown-item"
+																class="cb-menu-item"
 																type="button"
 																disabled={disableAction}
 																onclick={() => clearUserAddStates()}
@@ -1876,7 +1876,7 @@
 												{#if ADMIN_ROLES.includes(currentUser?.role || '')}
 													<li>
 														<button
-															class="dropdown-item"
+															class="cb-menu-item"
 															type="button"
 															disabled={disableAction}
 															onclick={() => toggleTagModal()}
@@ -1886,32 +1886,31 @@
 													</li>
 												{/if}
 												{#if agent?.id === LEARNER_AGENT_ID && mode === TRAINING_MODE}
-													<li><button class="dropdown-item" type="button" onclick={() => handleSaveKnowledge()}>Save Knowledge</button></li>
+													<li><button class="cb-menu-item" type="button" onclick={() => handleSaveKnowledge()}>Save Knowledge</button></li>
 												{/if}
-												<li><button class="dropdown-item" type="button" onclick={() => pinDashboard()}>Pin to Dashboard</button></li>
+												<li><button class="cb-menu-item" type="button" onclick={() => pinDashboard()}>Pin to Dashboard</button></li>
 											</ul>
 										</div>
 										{:else}
 										<button
-											class={`btn btn-rounded btn-sm btn-primary large-btn`}
+											class={`cb-icon-btn cb-icon-btn-primary cb-icon-btn-lg`}
 											aria-label="Open new conversation"
 											disabled={disableAction}
 											onclick={() => handleNewConversation()}
 										>
-											<i 
-												class="mdi mdi-plus"
-												style="font-size: 15px;"
+											<i
+												class="mdi mdi-plus cb-icon-lg"
 												data-bs-toggle="tooltip"
 												data-bs-placement="top"
 												title="New Conversation"></i>
 										</button>
 										{/if}
 									</div>
-									
-									<div class="btn-pair">
+
+									<div class="cb-btn-pair">
 										{#if !isLite}
 										<button
-											class={`btn btn-rounded btn-sm btn-primary btn-left`}
+											class={`cb-pill-btn cb-pill-btn-primary cb-pill-btn-left`}
 											disabled={disableAction}
 											onclick={() => handleNewConversation()}
 										>
@@ -1921,17 +1920,17 @@
 												title="New Conversation"
 											>
 												<i class="mdi mdi-plus"></i>
-												<span class="me-2">New</span>
+												<span class="cb-pill-btn-label">New</span>
 											</span>
 										</button>
 										{/if}
 										<button
-											class={`btn btn-rounded btn-sm btn-danger ${!isLite ? 'btn-right' : ''}`}
+											class={`cb-pill-btn cb-pill-btn-danger ${!isLite ? 'cb-pill-btn-right' : ''}`}
 											disabled={disableAction}
 											onclick={() => endChat()}
 										>
 											{#if !isLite}
-											<span class="me-2">End</span>
+											<span class="cb-pill-btn-label">End</span>
 											{/if}
 											<i class="mdi mdi-window-close"></i>
 										</button>
@@ -1941,20 +1940,20 @@
 						</div>
 					</div>
 
-					<div class={`chat-scrollbar chat-content scroll-bottom-to-top ${!loadEditor ? 'chat-content-expand' : ''}`}>
-						<div class="chat-conversation p-3">
-							<ul class="list-unstyled mb-0">
+					<div class={`cb-msgs-scroll cb-msgs-content cb-msgs-scroll-rev ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+						<div class="cb-conv">
+							<ul class="cb-conv-list">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
 									<li>
-										<div class="chat-day-title">
-											<span class="title">{createDate}</span>
+										<div class="cb-day-title">
+											<span class="cb-day-title-text">{createDate}</span>
 										</div>
 									</li>
 									{#each dialogGroup as message}
-										<li id={'test_k' + message.message_id} class:right={!BOT_SENDERS.includes(message.sender?.role)}>
-											<div class="conv-msg-container">
+										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
+											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
-												<div class="msg-container">
+												<div class="cb-msg-stack">
 													<div
 														tabindex="0"
 														aria-label="user-msg-to-log"
@@ -1963,14 +1962,14 @@
 														onclick={() => directToLog(message.message_id)}
 													>
 														<div
-															class="ctext-wrap user-msg bg-primary" 
-															class:clickable={!isLite && isLoadPersistLog}
+															class="cb-bubble cb-bubble-user"
+															class:cb-clickable={!isLite && isLoadPersistLog}
 															id={`user-msg-${message.message_id}`}
 														>
-															<div class="text-start fw-bold text-white">{@html replaceNewLine(message.text)}</div>
+															<div class="cb-bubble-text-user">{@html replaceNewLine(message.text)}</div>
 														</div>
-														<p class="chat-time mb-0 float-end">
-															<i class="bx bx-time-five align-middle me-1"></i>
+														<p class="cb-chat-time">
+															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
 															{utcToLocal(message.created_at, 'h:mm:ss A')}
 														</p>
 													</div>
@@ -1988,7 +1987,7 @@
 												</div>
 													{#if !isLite}
 														<div
-															class="dropdown"
+															class="cb-dropdown"
 															use:clickoutsideDirective
 															onclickoutside={(/** @type {any} */ e) => {
 																if (!e.detail.currentNode?.contains(e.detail.targetNode)) {
@@ -1998,78 +1997,75 @@
 																}
 															}}
 														>
-															<button class="dropdown-toggle btn btn-link p-0 border-0" type="button" aria-expanded={openMsgActionId === message.message_id} aria-label="Message actions" disabled={isSendingMsg || isThinking || disableAction} onclick={() => { openMsgActionId = openMsgActionId === message.message_id ? '' : message.message_id; }}>
+															<button class="cb-msg-action-btn" type="button" aria-expanded={openMsgActionId === message.message_id} aria-label="Message actions" disabled={isSendingMsg || isThinking || disableAction} onclick={() => { openMsgActionId = openMsgActionId === message.message_id ? '' : message.message_id; }}>
 																<i class="bx bx-dots-vertical-rounded"></i>
 															</button>
-															<ul class="dropdown-menu dropdown-menu-end" class:show={openMsgActionId === message.message_id} style="right: 0; left: auto;">
-																<li><button class="dropdown-item" type="button" onclick={() => { openMsgActionId = ''; editMessage(message); }}>Edit</button></li>
-																<li><button class="dropdown-item" type="button" onclick={(e) => { openMsgActionId = ''; resendMessage(e, message); }}>Resend</button></li>
-																<li><button class="dropdown-item" type="button" onclick={(e) => { openMsgActionId = ''; deleteMessage(e, message.message_id); }}>Delete</button></li>
+															<ul class="cb-menu cb-menu-end cb-msg-menu" class:show={openMsgActionId === message.message_id} style="right: 0; left: auto;">
+																<li><button class="cb-menu-item" type="button" onclick={() => { openMsgActionId = ''; editMessage(message); }}>Edit</button></li>
+																<li><button class="cb-menu-item" type="button" onclick={(e) => { openMsgActionId = ''; resendMessage(e, message); }}>Resend</button></li>
+																<li><button class="cb-menu-item" type="button" onclick={(e) => { openMsgActionId = ''; deleteMessage(e, message.message_id); }}>Delete</button></li>
 															</ul>
 														</div>
 													{/if}
 												{:else}
-												<div class="cicon-wrap align-content-end">
+												<div class="cb-cicon cb-cicon-end">
 													{#if message.sender.role == UserRole.Client}
-														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
 														<img
-															class="rounded-circle avatar-sm"
+															class="cb-avatar"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
 														>
 													{/if}
 												</div>
-												<div class="msg-container">
-													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} isStreaming={isStreaming || isThinking} />
+												<div class="cb-msg-stack">
+													<RcMessage markdownClasses={'markdown-dark cb-md-dark'} message={message} isStreaming={isStreaming || isThinking} />
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}	
-														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
+														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
+														<div class="cb-msg-actions" style={`display: ${isStreamEnd ? 'flex' : 'none'};`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
-																	id={message?.message_id} 
+																	id={message?.message_id}
 																	text={message?.rich_content?.message?.text || message?.text}
 																/>
 															{/if}
 															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true' && AgentExtensions.trainable(agent)}
 																{#if message?.function}
-																	<div class="line-align-center" style="font-size: 17px;">
+																	<div class="cb-vcenter cb-msg-action">
 																		<!-- svelte-ignore a11y_click_events_have_key_events -->
 																		<!-- svelte-ignore a11y_no_static_element_interactions -->
 																		<div
-																			class="clickable"
-																			style="height: 95%;"
+																			class="cb-clickable cb-msg-action-icon"
 																			data-bs-toggle="tooltip"
 																			data-bs-placement="top"
 																			title="Like"
 																			onclick={e => likeMessage(e, message)}
 																		>
-																			<i class="mdi mdi-thumb-up-outline text-primary"></i>
+																			<i class="mdi mdi-thumb-up-outline cb-text-primary"></i>
 																		</div>
 																	</div>
 																{/if}
-																<div class="line-align-center" style="font-size: 17px;">
+																<div class="cb-vcenter cb-msg-action">
 																	<!-- svelte-ignore a11y_click_events_have_key_events -->
 																	<!-- svelte-ignore a11y_no_static_element_interactions -->
 																	<div
-																		class="clickable"
-																		style="height: 80%;"
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-edit"
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
 																		onclick={() => openEditBotMsgModal(message)}
 																	>
-																		<i class="bx bxs-edit text-primary"></i>
+																		<i class="bx bxs-edit cb-text-primary"></i>
 																	</div>
 																</div>
 															{/if}
-															<div style="font-size: 17px;">
+															<div class="cb-msg-action">
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="line-align-center text-primary"
-																	style="height: 85%;"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-copy"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Copy"
@@ -2077,32 +2073,31 @@
 																	onmousedown={() => copyClicked = true}
 																>
 																	{#if copyClicked}
-																		<div class="div-center">
-																			<div class="line-align-center">
-																				<i class="bx bx-check"></i> 
+																		<div class="cb-div-center">
+																			<div class="cb-vcenter">
+																				<i class="bx bx-check"></i>
 																			</div>
-																			<div class="line-align-center">
-																				<span style="font-size: 10px;">{'Copied!'}</span>
+																			<div class="cb-vcenter">
+																				<span class="cb-copied-label">{'Copied!'}</span>
 																			</div>
 																		</div>
 																	{:else}
-																		<i class="bx bx-copy clickable"></i>
+																		<i class="bx bx-copy cb-clickable"></i>
 																	{/if}
 																</div>
 															</div>
 															{#if message?.rich_content?.message?.rich_type === RichType.ProgramCode}
-															<div style="font-size: 17px;">
+															<div class="cb-msg-action">
 																<!-- svelte-ignore a11y_click_events_have_key_events -->
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="line-align-center text-primary"
-																	style="height: 85%;"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-code"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Code script"
 																	onclick={e => openCodeScriptModal(e, message)}
 																>
-																	<i class="bx bx-terminal clickable"></i>
+																	<i class="bx bx-terminal cb-clickable"></i>
 																</div>
 															</div>
 															{/if}
@@ -2125,19 +2120,19 @@
 
 								{#if isThinking}
 								<li>
-									<div class="conv-msg-container">
-										<div class="cicon-wrap float-start">
-											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+									<div class="cb-msg-row">
+										<div class="cb-cicon cb-cicon-start">
+											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="cb-avatar cb-avatar-xs" alt="avatar">
 										</div>
-										<div class="msg-container">
-											<div class="ctext-wrap float-start">
+										<div class="cb-msg-stack">
+											<div class="cb-bubble cb-bubble-thinking">
 												{#if !!indication}
-													<span class="chat-indication">
+													<span class="cb-chat-indication">
 														{indication}
 													</span>
 												{/if}
-												<div class="flex-shrink-0 align-self-center" style="display: inline-block;">
-													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--bs-primary)'} />
+												<div class="cb-thinking-dots">
+													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--color-primary)'} />
 												</div>
 											</div>
 										</div>
@@ -2157,26 +2152,26 @@
 						</div>
 					</div>
 
-					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
-						<div class="row">
-							<div class="col-auto">
+					<div class={`cb-input-section cb-css-animation ${!loadEditor ? 'cb-input-hide' : 'cb-fade-in'}`}>
+						<div class="cb-input-row">
+							<div class="cb-col-auto">
 								{#if PUBLIC_LIVECHAT_VOICE_ENABLED === 'true' && !disableSpeech}
 									<button
 										type="submit"
-										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+										class={`cb-btn cb-btn-round ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'}`}
 										aria-label="Start/stop listening"
 										disabled={isSendingMsg || isThinking || disableAction}
 										onclick={() => startListen()}
 									>
-										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36"></i>
+										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} cb-md-36"></i>
 									</button>
 								{/if}
 							</div>
-							<div class="col">
-								<div class="position-relative">
+							<div class="cb-col-grow">
+								<div class="cb-position-relative">
 									<ChatTextArea
 										id={'chat-textarea'}
-										className={`chat-input ${!isLite ? 'chat-more-util' : ''}`}
+										className={`${!isLite ? 'cb-textarea-more-util' : ''}`}
 										maxLength={maxTextLength}
 										disabled={isSendingMsg || isThinking || disableAction}
 										bind:text={text}
@@ -2189,12 +2184,12 @@
 									>
 										<ChatFileUploader
 											accept={'.png,.jpg,.jpeg'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
+											containerClasses={'cb-util-uploader'}
 											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
+												<i
 													class="bx bx-image-add"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
@@ -2203,12 +2198,12 @@
 										</ChatFileUploader>
 										<ChatFileUploader
 											accept={'.pdf,.xlsx,.xls,.csv'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
+											containerClasses={'cb-util-uploader'}
 											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
+												<i
 													class="bx bxs-folder-open"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
@@ -2217,12 +2212,12 @@
 										</ChatFileUploader>
 										<ChatFileUploader
 											accept={'.wav,.mp3'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
+											containerClasses={'cb-util-uploader'}
 											disabled={isSendingMsg || isThinking || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
+												<i
 													class="bx bxs-music"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
@@ -2230,7 +2225,7 @@
 											</span>
 										</ChatFileUploader>
 									</ChatTextArea>
-									<div class="chat-util-links">
+									<div class="cb-util-links">
 										<ChatBigMessage
 											disabled={isSendingMsg || isThinking || disableAction}
 											onclick={() => toggleBigMessageModal()}
@@ -2244,11 +2239,11 @@
 									</div>
 								</div>
 							</div>
-							<div class="col-auto">
+							<div class="cb-col-auto">
 								{#if !isStopStreamClicked && isStreaming && PUBLIC_LIVECHAT_STREAM_ENABLED === 'true'}
 									<button
 										type="button"
-										class="btn btn-rounded chat-send waves-effect waves-light btn-danger"
+										class="cb-btn cb-btn-round cb-btn-send cb-btn-danger"
 										aria-label="Stop streaming"
 										onclick={() => stopStreaming()}
 									>
@@ -2257,11 +2252,11 @@
 								{:else}
 									<button
 										type="submit"
-										class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+										class={`cb-btn cb-btn-round cb-btn-send ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'}`}
 										disabled={!_.trim(text) || isSendingMsg || isThinking || disableAction}
 										onclick={() => sentTextMessage()}
 									>
-										<span class="d-none d-md-inline-block me-2">Send</span>
+										<span class="cb-send-label">Send</span>
 										<i class="mdi mdi-send"></i>
 									</button>
 								{/if}
@@ -2284,3 +2279,883 @@
 		{/if}
 	</Splitpanes>
 </div>
+
+<style>
+    /* ============================================================
+       chat-box scoped styles — replaces legacy `_chat.scss` rules.
+       Built up incrementally across Step 4 sub-steps. Each cb-* class
+       is scoped to this component to avoid leaking into other pages.
+       ============================================================ */
+
+    /* ===== 4a: Modals (Tag / Notification / Edit / Big-message) ===== */
+
+    /* Tag modal — tags wrapper (replaces .conv-tags-container) */
+    .cb-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+        overflow-y: auto;
+        scrollbar-width: thin;
+        min-height: 5rem;
+        max-height: 11.25rem;
+    }
+
+    /* Tag modal — input + add row (replaces .conv-tag-add) */
+    .cb-tag-add {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.625rem;
+    }
+
+    /* Tag modal — input (replaces .form-control.form-control-sm) */
+    .cb-tag-input {
+        flex: 1;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8125rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.375rem;
+        font-family: inherit;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cb-tag-input:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    /* Tag modal — add button (replaces .btn.btn-primary.btn-sm) */
+    .cb-tag-add-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 1.875rem;
+        padding: 0 0.625rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        color: rgb(255 255 255);
+        background-color: var(--color-primary);
+        border: 1px solid var(--color-primary);
+        border-radius: 0.375rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    }
+    .cb-tag-add-btn:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+    .cb-tag-add-btn:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+    .cb-tag-add-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    /* Notification modal — warning title icon (replaces .text-warning) */
+    .cb-title-icon {
+        display: inline-flex;
+        align-items: center;
+    }
+    .cb-text-warning {
+        color: var(--color-warning);
+    }
+
+    /* Notification modal — body (replaces legacy .chat-notification) */
+    .cb-notification {
+        min-height: 1.25rem;
+        max-height: 9.375rem;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    /* Edit / Big-message modals — textarea (replaces .form-control.chat-input) */
+    .cb-modal-textarea {
+        display: block;
+        width: 100%;
+        padding: 0.5rem 1rem 0.5rem 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: var(--color-light);
+        border: 1px solid var(--color-light);
+        border-radius: 0.3125rem;
+        font-family: inherit;
+        resize: none;
+        scrollbar-width: none;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .cb-modal-textarea:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    /* Edit / Big-message modals — counter row (replaces .text-secondary.text-end.text-count) */
+    .cb-modal-counter {
+        text-align: right;
+        color: var(--color-secondary);
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+    }
+
+    /* ===== Dark mode (Step 4a) ===== */
+    :global(.dark) .cb-tag-input {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-modal-textarea {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-modal-counter {
+        color: rgb(156 163 175);
+    }
+
+    /* ===== 4b: Outer split layout + chat header ===== */
+
+    /* Shared utilities used across the chat layout */
+    .cb-vcenter {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .cb-ellipsis {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .cb-align-middle {
+        vertical-align: middle;
+    }
+    .cb-text-success {
+        color: var(--color-success);
+    }
+
+    /* Page-level flex wrapper (replaces .d-lg-flex) */
+    .cb-page-flex {
+        display: block;
+    }
+    @media (min-width: 992px) {
+        .cb-page-flex {
+            display: flex;
+        }
+    }
+
+    /* Main chat panel card (replaces .card.mb-0) */
+    .cb-panel-card {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+        word-wrap: break-word;
+        background-color: rgb(255 255 255);
+        background-clip: border-box;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.5rem;
+        margin-bottom: 0;
+    }
+
+    /* Header bar (replaces .border-bottom.chat-head) */
+    .cb-head {
+        font-size: 1rem;
+        padding: 2vmin 2%;
+        height: 10%;
+        border-bottom: 1px solid rgb(229 231 235);
+    }
+
+    /* Header row (replaces .row.chat-row) */
+    .cb-head-row {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        height: 100%;
+    }
+
+    /* Left column with agent/user info (replaces .col-md-4.col-4.chat-head-info) */
+    .cb-head-left {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+        padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+        padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        gap: 0.3125rem;
+    }
+
+    /* Agent row (replaces .chat-head-agent) */
+    .cb-head-agent {
+        flex: 0.5;
+        display: flex;
+        gap: 0.625rem;
+        width: fit-content;
+        height: 50%;
+    }
+    .cb-head-agent-icon {
+        height: 80%;
+        max-height: 25px;
+    }
+    .cb-head-agent-name {
+        font-size: 0.8em;
+    }
+
+    /* User row (replaces .text-muted.mb-0.chat-head-user) */
+    .cb-head-user {
+        flex: 0.5;
+        display: flex;
+        gap: 0.3125rem;
+        width: fit-content;
+        font-size: 0.7em;
+        color: var(--color-muted);
+        margin-bottom: 0;
+    }
+
+    /* Right column (replaces .col-md-8.col-8) */
+    .cb-head-right {
+        flex: 0 0 66.666667%;
+        max-width: 66.666667%;
+        padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+        padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    }
+
+    /* Header action bar (replaces .user-chat-nav.user-chat-nav-flex.mb-0) */
+    .cb-head-actions {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 0.3125rem;
+        align-self: stretch;
+        min-width: 30px;
+        min-height: 30px;
+        margin-bottom: 0;
+    }
+
+    /* Round icon buttons in the header
+       (replaces .btn.btn-rounded.btn-sm + variants for color) */
+    .cb-icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.125rem;
+        height: 2.125rem;
+        padding: 0;
+        font-size: 0.8125rem;
+        line-height: 1;
+        border: 1px solid transparent;
+        border-radius: 50%;
+        cursor: pointer;
+        background-color: transparent;
+        color: rgb(255 255 255);
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    }
+    .cb-icon-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .cb-icon-btn:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+    .cb-icon-btn-primary {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+    .cb-icon-btn-primary:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+    .cb-icon-btn-secondary {
+        background-color: var(--color-secondary);
+        border-color: var(--color-secondary);
+    }
+    .cb-icon-btn-secondary:hover:not(:disabled) {
+        background-color: var(--color-secondary-hover);
+        border-color: var(--color-secondary-hover);
+    }
+    .cb-icon-btn-lg {
+        width: 40px;
+        height: 40px;
+    }
+    .cb-icon-lg {
+        font-size: 0.9375rem;
+    }
+
+    /* Dots-menu trigger (replaces .nav-btn) */
+    .cb-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2em;
+        height: 2em;
+        padding: 0;
+        background-color: var(--color-light);
+        color: rgb(55 65 81);
+        border: none;
+        border-radius: 50%;
+        box-shadow: none;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+    }
+    .cb-nav-btn:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-light));
+    }
+    .cb-nav-btn i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    /* Dropdown wrapper (replaces .dropdown) */
+    .cb-dropdown {
+        position: relative;
+        display: inline-block;
+    }
+
+    /* Menu popup (replaces .dropdown-menu) */
+    .cb-menu {
+        position: absolute;
+        z-index: 1000;
+        display: none;
+        min-width: 10rem;
+        padding: 0.5rem 0;
+        margin: 0;
+        list-style: none;
+        font-size: 0.875rem;
+        color: rgb(33 37 41);
+        text-align: left;
+        background-color: rgb(255 255 255);
+        background-clip: padding-box;
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.375rem;
+        box-shadow: 0 0.5rem 1rem rgb(15 23 42 / 0.15);
+    }
+    .cb-menu.show {
+        display: block;
+    }
+    .cb-menu-end {
+        right: 0;
+        left: auto;
+    }
+    .cb-menu-item {
+        display: block;
+        width: 100%;
+        padding: 0.25rem 1rem;
+        clear: both;
+        font-weight: 400;
+        color: rgb(33 37 41);
+        text-align: inherit;
+        white-space: nowrap;
+        background-color: transparent;
+        border: 0;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: inherit;
+    }
+    .cb-menu-item:hover:not(:disabled),
+    .cb-menu-item:focus:not(:disabled) {
+        color: rgb(22 24 30);
+        background-color: rgb(243 244 246);
+    }
+    .cb-menu-item:disabled {
+        color: var(--color-muted);
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+
+    /* Submenu host (replaces .dropstart.state-menu) */
+    .cb-state-menu {
+        position: relative;
+    }
+    .cb-state-menu > .cb-menu {
+        top: 0;
+        left: 0;
+    }
+
+    /* Button-pair (replaces .btn-pair / .btn-left / .btn-right) */
+    .cb-btn-pair {
+        display: flex;
+    }
+    .cb-pill-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.25rem;
+        height: 2.125rem;
+        padding: 0 0.75rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        color: rgb(255 255 255);
+        background-color: transparent;
+        border: 1px solid transparent;
+        border-radius: 50rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    }
+    .cb-pill-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .cb-pill-btn:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+    .cb-pill-btn i,
+    .cb-pill-btn span {
+        font-size: 0.9em;
+    }
+    .cb-pill-btn-primary {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+    }
+    .cb-pill-btn-primary:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+    .cb-pill-btn-danger {
+        background-color: var(--color-danger);
+        border-color: var(--color-danger);
+    }
+    .cb-pill-btn-danger:hover:not(:disabled) {
+        filter: brightness(0.95);
+    }
+    .cb-pill-btn-left {
+        border-top-right-radius: 0;
+        border-bottom-right-radius: 0;
+    }
+    .cb-pill-btn-right {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .cb-pill-btn-label {
+        margin-right: 0.5rem;
+    }
+
+    /* ===== Dark mode (Step 4b) ===== */
+    :global(.dark) .cb-panel-card {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+    :global(.dark) .cb-head {
+        border-bottom-color: rgb(55 65 81);
+    }
+    :global(.dark) .cb-nav-btn {
+        background-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-nav-btn:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
+    }
+    :global(.dark) .cb-menu {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-menu-item {
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-menu-item:hover:not(:disabled),
+    :global(.dark) .cb-menu-item:focus:not(:disabled) {
+        background-color: rgb(55 65 81);
+        color: rgb(255 255 255);
+    }
+
+    /* ===== 4c: Message thread (scroll area + bubbles + actions) ===== */
+
+    /* Scrollable thread area (replaces .chat-scrollbar.chat-content.scroll-bottom-to-top) */
+    .cb-msgs-scroll {
+        display: flex;
+        flex-direction: column-reverse;
+        overflow-y: auto;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+    .cb-msgs-content {
+        height: 82%;
+    }
+    .cb-msgs-content-expand {
+        height: 98%;
+    }
+    /* Alias of .cb-msgs-scroll for clarity at the markup site */
+    .cb-msgs-scroll-rev {
+        display: flex;
+        flex-direction: column-reverse;
+    }
+
+    /* Conversation container (replaces .chat-conversation.p-3) */
+    .cb-conv {
+        padding: 1rem;
+    }
+    .cb-conv-list {
+        list-style: none;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    .cb-conv-list > li {
+        clear: both;
+    }
+
+    /* Day separator (replaces .chat-day-title with centered pill on a divider) */
+    .cb-day-title {
+        position: relative;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+    .cb-day-title::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        left: 0;
+        right: 0;
+        top: 10px;
+        background-color: rgb(229 231 235);
+    }
+    .cb-day-title-text {
+        position: relative;
+        z-index: 1;
+        padding: 0.375rem 1.5rem;
+        background-color: rgb(243 244 246);
+        border-radius: 0.375rem;
+        font-size: 0.8125rem;
+        color: rgb(55 65 81);
+    }
+
+    /* Message row (replaces .conv-msg-container) */
+    .cb-msg-row {
+        display: flex;
+        position: relative;
+        width: 100%;
+        margin-bottom: 1.25rem;
+    }
+    .cb-conv-right .cb-msg-row {
+        justify-content: flex-end;
+    }
+
+    /* Avatar wrapper (replaces .cicon-wrap with float / align modifiers) */
+    .cb-cicon {
+        margin-right: 0.25rem;
+        flex: 0 0 fit-content;
+    }
+    .cb-cicon-end {
+        align-content: end;
+    }
+    .cb-cicon-start {
+        float: left;
+    }
+
+    /* Avatar images (replaces .rounded-circle.avatar-sm / .avatar-xs) */
+    .cb-avatar {
+        width: 2rem;
+        height: 2rem;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    .cb-avatar-xs {
+        width: 1.5rem;
+        height: 1.5rem;
+    }
+
+    /* Message stack (replaces .msg-container) */
+    .cb-msg-stack {
+        display: flex;
+        flex-direction: column;
+        width: 80%;
+    }
+    .cb-conv-right .cb-msg-stack {
+        align-items: flex-end;
+    }
+
+    /* Bubble base (replaces .ctext-wrap) */
+    .cb-bubble {
+        padding: 0.5rem 0.75rem;
+        overflow: hidden;
+        width: fit-content;
+        max-width: 100%;
+        word-break: break-all;
+    }
+
+    /* User bubble (replaces .user-msg.bg-primary on the right side) */
+    .cb-bubble-user {
+        background-color: var(--color-primary);
+        border-radius: 8px 8px 0 8px;
+    }
+    .cb-bubble-text-user {
+        text-align: start;
+        font-weight: 700;
+        color: rgb(255 255 255);
+    }
+    .cb-clickable {
+        cursor: pointer;
+    }
+
+    /* "Thinking" bubble (replaces .ctext-wrap.float-start when isThinking) */
+    .cb-bubble-thinking {
+        float: left;
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        border-radius: 8px 8px 8px 0;
+    }
+    .cb-chat-indication {
+        font-size: 1em;
+    }
+    .cb-thinking-dots {
+        flex-shrink: 0;
+        align-self: center;
+        display: inline-block;
+    }
+
+    /* Chat time below user bubble (replaces .chat-time.mb-0.float-end) */
+    .cb-chat-time {
+        font-size: 12px;
+        margin-bottom: 0;
+        float: right;
+        color: var(--color-muted);
+    }
+    .cb-chat-time-icon {
+        margin-right: 0.25rem;
+    }
+
+    /* Message action 3-dots button (replaces .dropdown-toggle.btn.btn-link.p-0.border-0) */
+    .cb-msg-action-btn {
+        padding: 0.25rem;
+        font-size: 18px;
+        line-height: 1;
+        background: transparent;
+        border: 0;
+        color: var(--color-secondary);
+        cursor: pointer;
+    }
+    .cb-msg-action-btn:hover:not(:disabled) {
+        color: var(--color-primary);
+    }
+    .cb-msg-action-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    /* Message action menu — open ABOVE the trigger (replaces legacy
+       .conv-msg-container .dropdown .dropdown-menu rule with top:auto; bottom:100%) */
+    .cb-msg-menu {
+        top: auto;
+        bottom: 100%;
+    }
+
+    /* Bot bubble action toolbar (Like / Edit / Copy / Code script row) */
+    .cb-msg-actions {
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 5px;
+    }
+    .cb-msg-action {
+        font-size: 17px;
+    }
+    .cb-msg-action-icon {
+        height: 95%;
+    }
+    .cb-msg-action-icon-edit {
+        height: 80%;
+    }
+    .cb-msg-action-icon-copy,
+    .cb-msg-action-icon-code {
+        height: 85%;
+    }
+
+    /* Primary-colored action icons (replaces .text-primary on inline icon wrappers) */
+    .cb-text-primary {
+        color: var(--color-primary);
+    }
+
+    /* "Copied!" feedback cluster (replaces .div-center) */
+    .cb-div-center {
+        text-align: center;
+    }
+    .cb-copied-label {
+        font-size: 10px;
+    }
+
+    /* ===== Dark mode (Step 4c) ===== */
+    :global(.dark) .cb-day-title::before {
+        background-color: rgb(55 65 81);
+    }
+    :global(.dark) .cb-day-title-text {
+        background-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .cb-bubble-thinking {
+        background-color: color-mix(in srgb, var(--color-primary) 18%, rgb(31 41 55));
+    }
+    :global(.dark) .cb-msg-action-btn {
+        color: rgb(156 163 175);
+    }
+
+    /* ===== 4d: Compose footer (mic, textarea wrapper, util links, send) ===== */
+
+    /* Footer shell (replaces .chat-input-section) */
+    .cb-input-section {
+        padding: 0 2%;
+        height: 8%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-evenly;
+    }
+    .cb-input-hide {
+        display: none;
+        height: 2%;
+    }
+
+    /* Local copies of the legacy css-animation / fade-in-from-none helpers
+       so the footer no longer depends on the global _animation.scss rules. */
+    .cb-css-animation {
+        animation-duration: 0.8s;
+        animation-fill-mode: both;
+    }
+    .cb-fade-in {
+        animation-name: cbFadeInFromNone;
+    }
+    @keyframes cbFadeInFromNone {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    /* Row layout (replaces Bootstrap .row + .col-auto + .col) */
+    .cb-input-row {
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        gap: 0.75rem;
+        width: 100%;
+    }
+    .cb-col-auto {
+        flex: 0 0 auto;
+    }
+    .cb-col-grow {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+    .cb-position-relative {
+        position: relative;
+    }
+
+    /* Round action buttons (replaces .btn.btn-rounded with primary/danger variants).
+       Also replaces .chat-send (Bootstrap had no shared rule beyond btn). */
+    .cb-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 0.9rem;
+        font-size: 0.9375rem;
+        line-height: 1.2;
+        border: 1px solid transparent;
+        background: transparent;
+        color: inherit;
+        cursor: pointer;
+        transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    }
+    .cb-btn:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+    .cb-btn-round {
+        border-radius: 999px;
+    }
+    .cb-btn-primary {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+    .cb-btn-primary:hover:not(:disabled),
+    .cb-btn-primary:focus:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+        border-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+    }
+    .cb-btn-danger {
+        background-color: var(--color-danger, #ef4444);
+        border-color: var(--color-danger, #ef4444);
+        color: rgb(255 255 255);
+    }
+    .cb-btn-danger:hover:not(:disabled),
+    .cb-btn-danger:focus:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-danger, #ef4444) 88%, black 12%);
+        border-color: color-mix(in srgb, var(--color-danger, #ef4444) 88%, black 12%);
+    }
+
+    /* Send button — keep some horizontal padding for the label */
+    .cb-btn-send {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    /* Hidden label on small screens, inline on >=md (replaces .d-none.d-md-inline-block.me-2) */
+    .cb-send-label {
+        display: none;
+        margin-right: 0.5rem;
+    }
+    @media (min-width: 768px) {
+        .cb-send-label {
+            display: inline-block;
+        }
+    }
+
+    /* Microphone icon size (replaces .md-36) */
+    .cb-md-36 {
+        font-size: 36px;
+        line-height: 1;
+    }
+
+    /* ===== Textarea: extra right padding to make room for util links
+       (replaces .chat-more-util { padding-right: 5em }).
+       Applied via className prop passed into ChatTextArea, which is rendered
+       on the inner <textarea>; we need :global() because ChatTextArea is a
+       scoped child component. */
+    :global(.cb-textarea-more-util) {
+        padding-right: 5em !important;
+    }
+
+    /* ===== Util uploader trigger (replaces .line-align-center.text-primary.chat-util-item).
+       Applied via containerClasses prop on ChatFileUploader, which puts the class
+       on a <div>; uses :global() for the same reason as cb-textarea-more-util. */
+    :global(.cb-util-uploader) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        font-size: 30px;
+        color: var(--color-primary);
+    }
+
+    /* Util links cluster pinned over the right side of the textarea
+       (replaces .chat-util-links) */
+    .cb-util-links {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        width: fit-content;
+        position: absolute;
+        right: 3px;
+        top: 55%;
+        transform: translateY(-50%);
+        font-size: 160%;
+        line-height: 36px;
+        color: var(--color-primary);
+    }
+
+    /* ===== Dark mode (Step 4d) ===== */
+    :global(.dark) .cb-btn-primary {
+        color: rgb(255 255 255);
+    }
+    :global(.dark) .cb-btn-danger {
+        color: rgb(255 255 255);
+    }
+
+    /* Markdown text color override applied via the markdownClasses prop on
+       <RcMessage>; Markdown puts the class on its inner container, so
+       :global() is required. Replaces Bootstrap .text-dark utility. */
+    :global(.cb-md-dark) {
+        color: var(--color-dark);
+    }
+</style>
+

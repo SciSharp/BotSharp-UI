@@ -50,14 +50,86 @@
     });
 </script>
 
-<div class="container-fluid">
-    <div class="row text-center">
-        <div class="col" style="padding: 50px;">
-            <div class="spinner-grow text-primary m-1" role="status" style="padding: 50px;">
-                <span class="sr-only">Loading...</span>
-            </div>
-            <h3>Initializing a conversation, wait a moment please...</h3>
-            <a href={`chat/${agentId}/${conversationId}`}>Click here if the browser doesn't redirect correctly.</a>
+<div class="ci-page">
+    <div class="ci-content">
+        <div class="ci-spinner" role="status">
+            <span class="ci-sr-only">Loading...</span>
         </div>
+        <h3 class="ci-title">Initializing a conversation, wait a moment please...</h3>
+        <a class="ci-link" href={`chat/${agentId}/${conversationId}`}>
+            Click here if the browser doesn't redirect correctly.
+        </a>
     </div>
 </div>
+
+<style>
+    /* ===== Page shell ===== */
+    .ci-page {
+        width: 100%;
+        padding: 0 1rem;
+    }
+    .ci-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 3.125rem 1rem;
+        gap: 1.25rem;
+    }
+
+    /* ===== Spinner (replaces .spinner-grow) =====
+       Pulsing primary-tinted dot, accessible (role=status on parent). */
+    .ci-spinner {
+        width: 4rem;
+        height: 4rem;
+        border-radius: 50%;
+        background-color: var(--color-primary);
+        animation: ci-pulse 1s ease-in-out infinite;
+    }
+    @keyframes ci-pulse {
+        0% {
+            transform: scale(0);
+            opacity: 1;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 0;
+        }
+    }
+
+    /* ===== Visually hidden (replaces .sr-only) ===== */
+    .ci-sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+    }
+
+    .ci-title {
+        margin: 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: rgb(55 65 81);
+    }
+    .ci-link {
+        font-size: 0.875rem;
+        color: var(--color-primary);
+        text-decoration: none;
+        transition: color 0.15s ease;
+    }
+    .ci-link:hover {
+        color: var(--color-primary-hover);
+        text-decoration: underline;
+    }
+
+    /* ===== Dark mode ===== */
+    :global(.dark) .ci-title {
+        color: rgb(229 231 235);
+    }
+</style>

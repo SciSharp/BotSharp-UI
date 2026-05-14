@@ -48,7 +48,7 @@
 
 {#if text || thinkingText}
     <div
-        class={`ctext-wrap bg-primary ${containerClasses}`}
+        class={`rcm-bubble ${containerClasses}`}
         style={`${containerStyles}`}
     >
         {#if thinkingText}
@@ -58,7 +58,7 @@
                     onclick={() => isThinkingExpanded = !isThinkingExpanded}
                 >
                     <span class="thinking-sparkle" class:pulsing={isThinking}><Icon src={Sparkles} solid size="16" /></span>
-                    <span class="font-bold">{'Thinking'}</span>
+                    <span class="rcm-thinking-label">{'Thinking'}</span>
                     {#if isThinking}
                         <Loader disableDefaultStyles size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
                     {:else if isStoppedThinking}
@@ -79,7 +79,7 @@
                 {/if}
             </div>
         {/if}
-        <div class="flex-shrink-0 align-self-center">
+        <div class="rcm-body">
             {#if message?.rich_content?.message?.rich_type === RichType.ProgramCode
                 && message?.rich_content?.message?.language === 'javascript'}
                 <RcJsInterpreter message={message} scrollable />
@@ -91,6 +91,34 @@
 {/if}
 
 <style>
+    /* Bot bubble (replaces legacy .ctext-wrap + .bot-msg override which set
+       padding, primary-tinted bg overridden to --bs-light, and rounded with
+       bottom-left squared corner). Caller-supplied containerClasses are still
+       appended in markup so chat-box and other callers can stack scoped
+       modifiers on top. */
+    .rcm-bubble {
+        padding: 8px 12px;
+        background-color: var(--color-light, #eff2f7);
+        border-radius: 8px 8px 8px 0;
+        overflow: hidden;
+        width: fit-content;
+        max-width: 100%;
+        word-break: break-word;
+        color: var(--color-dark);
+    }
+
+    /* Inner body wrapper around the rich-type renderer / markdown output
+       (replaces Bootstrap .flex-shrink-0.align-self-center) */
+    .rcm-body {
+        flex-shrink: 0;
+        align-self: center;
+    }
+
+    /* Bold "Thinking" label inside the toggle row (replaces Bootstrap .font-bold) */
+    .rcm-thinking-label {
+        font-weight: 700;
+    }
+
     .thinking-section {
         margin-bottom: 15px;
     }
