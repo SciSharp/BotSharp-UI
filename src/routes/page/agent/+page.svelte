@@ -9,7 +9,7 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
-  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
+  	import { createAgent, getAgentLabels, getAgents, saveAgent } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
   	import { myInfo } from '$lib/services/auth-service';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
@@ -172,6 +172,46 @@
 		goto(`page/agent/${createdAgent.id}`);
 	}
 
+	function importAgent() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async (e) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+
+			try {
+				const text = await file.text();
+				const data = JSON.parse(text);
+
+				const newAgent = {
+					name: data.name || 'Imported Agent',
+					description: data.description || '',
+					instruction: data.instruction || '',
+					isPublic: data.is_public ?? true
+				};
+
+				// @ts-ignore
+				const createdAgent = await createAgent(newAgent);
+
+				// Merge remaining fields and save
+				const fullAgent = {
+					...data,
+					id: createdAgent.id,
+					created_datetime: createdAgent.created_datetime,
+					updated_datetime: createdAgent.updated_datetime,
+					plugin: createdAgent.plugin
+				};
+				await saveAgent(fullAgent);
+
+				goto(`page/agent/${createdAgent.id}`);
+			} catch (err) {
+				Swal.fire('Error', 'Failed to import agent. Please check the JSON file.', 'error');
+			}
+		};
+		input.click();
+	}
+
 	function refresh() {
 		refreshAgents();
 		refreshPager(agents.count, filter.pager.page);
@@ -299,6 +339,9 @@
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
 		<button type="button" class="btn btn-primary" onclick={() => createNewAgent()}>
 			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
+		</button>
+		<button type="button" class="btn btn-outline-info" onclick={() => importAgent()}>
+			<i class="mdi mdi-upload"></i> {$_('Import Agent')}
 		</button>
 		{/if}
 	</div>
