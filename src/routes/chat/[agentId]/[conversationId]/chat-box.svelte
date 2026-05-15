@@ -1947,6 +1947,7 @@
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
 												<div class="cb-msg-stack">
 													<div
+														class="cb-user-msg-link"
 														tabindex="0"
 														aria-label="user-msg-to-log"
 														role="link"
