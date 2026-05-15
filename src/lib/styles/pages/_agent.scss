@@ -947,12 +947,7 @@
 }
 
 
-.ao-fit-control {
-    width: fit-content;
-}
-
-
-/* ===== Inputs / Select ===== */
+/* ===== Inputs ===== */
 
 
 .ao-input {
@@ -986,30 +981,6 @@
     width: 50%;
     min-width: 100px;
     text-align: center;
-}
-
-
-.ao-select {
-		height: 2rem;
-		padding: 0 1.75rem 0 0.5rem;
-		border: 1px solid rgb(229 231 235);
-		border-radius: 0.375rem;
-		background-color: rgb(249 250 251);
-		font-size: 0.8125rem;
-		color: rgb(17 24 39);
-		appearance: none;
-		background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%2374788d'%3E%3Cpath d='M5.5 7.5l4.5 4.5 4.5-4.5z'/%3E%3C/svg%3E");
-		background-repeat: no-repeat;
-		background-position: right 0.25rem center;
-		background-size: 1.25rem;
-		cursor: pointer;
-
-
-		&:focus {
-				outline: 0;
-				border-color: var(--color-primary);
-				box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-		}
 }
 
 
@@ -1172,8 +1143,7 @@
 }
 
 
-.dark .ao-input,
-.dark .ao-select {
+.dark .ao-input {
     background-color: rgb(17 24 39);
     border-color: rgb(55 65 81);
     color: rgb(229 231 235);

@@ -22,11 +22,10 @@
         handleAgentChange = () => {}
     } = $props();
 
-    /** @type {import('$commonTypes').IdName[]} */
-	let routingModeOptions = [
-        { id: null, name: '' },
-        ...Object.entries(RoutingMode).map(([_, v]) => ({ id: v, name: v }))
-    ];
+    /** @type {import('$commonTypes').LabelValuePair[]} */
+    const routingModeOptions = Object.entries(RoutingMode).map(([_, v]) => (
+        { label: v, value: v }
+    ));
 
     const functionVisibilityModeOptions = Object.entries(FunctionVisMode).map(([_, v]) => (
 		{ label: v, value: v }
@@ -70,8 +69,9 @@
 	 * @param {any} e
 	 */
     function changeRoutingMode(e) {
-        const value = e.target.value || null;
-        agent.mode = value;
+        // Select fires `{ detail: { selecteds: [{ label, value }] } }`.
+        const selectedValues = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        agent.mode = selectedValues.length > 0 ? selectedValues[0] : null;
         handleAgentChange();
     }
 
@@ -148,18 +148,14 @@
                             Routing Mode
                         </th>
                         <td class="ao-val">
-                            <div class="ao-fit-control">
-                                <select
-                                    class="ao-select"
-                                    onchange={e => changeRoutingMode(e)}
-                                >
-                                    {#each [...routingModeOptions] as option}
-                                        <option value={option.id} selected={option.id === agent.mode}>
-                                            {option.name}
-                                        </option>
-                                    {/each}
-                                </select>
-                            </div>
+                            <Select
+                                tag={'agent-routing-mode-select'}
+                                containerStyles={'width: 50%; min-width: 100px;'}
+                                placeholder={'Select'}
+                                selectedValues={agent.mode ? [agent.mode] : []}
+                                options={routingModeOptions}
+                                onselect={e => changeRoutingMode(e)}
+                            />
                         </td>
                     </tr>
                     {/if}

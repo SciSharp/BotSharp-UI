@@ -107,3 +107,75 @@
         box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
     }
 }
+
+
+/* ========================================================================
+ * Custom checkbox — used in the agent-permissions matrix of
+
+ * Replaces the native browser checkbox (which renders inconsistently
+ * across platforms even with `accent-color` set) with a primary-themed
+ * box. The checkmark is drawn via a CSS clip-path so it stays crisp
+ * at any DPI and inherits the primary color through `background-color`.
+ * ======================================================================== */
+.action-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 1.125rem;
+    height: 1.125rem;
+    margin: 0;
+    border: 1.5px solid rgb(209 213 219);
+    border-radius: 0.3125rem;
+    background-color: rgb(255 255 255);
+    cursor: pointer;
+    flex-shrink: 0;
+    display: inline-grid;
+    place-content: center;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+    /* Checkmark drawn via clip-path, scaled to 0 by default and
+       popped to 1 on :checked with a subtle overshoot. */
+    &::before {
+        content: '';
+        width: 0.75rem;
+        height: 0.75rem;
+        background-color: rgb(255 255 255);
+        clip-path: polygon(14% 44%, 0% 60%, 40% 100%, 100% 18%, 88% 4%, 38% 70%);
+        transform: scale(0);
+        transform-origin: center;
+        transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    &:hover:not(:disabled) {
+        border-color: var(--color-primary);
+    }
+
+    &:focus-visible {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+    }
+
+    &:checked {
+        background-color: var(--color-primary);
+        border-color: var(--color-primary);
+
+        &::before {
+            transform: scale(1);
+        }
+    }
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+    /* Dark mode: lift the unchecked state out of the gray-800 panel
+       background so the box is visible. */
+    .dark & {
+        border-color: rgb(75 85 99);
+        background-color: rgb(17 24 39);
+    }
+}

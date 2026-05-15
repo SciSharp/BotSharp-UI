@@ -5,6 +5,7 @@
 	import Swal from 'sweetalert2';
 	import lodash from "lodash";
 	import Loader from '$lib/common/spinners/Loader.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { UserAction } from '$lib/helpers/enums';
 	import { getUserDetails } from '$lib/services/user-service';
 
@@ -60,6 +61,9 @@
 	]);
 
 	let colStyle = $derived(`flex: 0 0 ${allActions.length > 2 ? Math.floor(1 / (allActions.length + 1) * 100) - 1 : 32}%;`);
+
+	/** @type {import('$commonTypes').LabelValuePair[]} */
+	let roleSelectOptions = $derived(roleOptions.map(o => ({ label: o, value: o })));
 
 	$effect(() => {
 		// Track only innerActions as a dependency
@@ -137,7 +141,10 @@
 
 	/** @param {any} e */
 	function changeRole(e) {
-		const value = e.target.value;
+		// Select fires `{ detail: { selecteds: [{ label, value }] } }`.
+		// Single-select mode → selecteds has 0 or 1 entry.
+		const selectedValues = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+		const value = selectedValues.length > 0 ? selectedValues[0] : '';
 		innerItem = {
 			...innerItem,
 			role: value
@@ -387,15 +394,15 @@
 									Role:
 								</div>
 								<div class="role-wrapper">
-									<select
-										class="role-select h-8 rounded-md border border-gray-200 bg-white px-2 text-sm text-dark transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-										value={innerItem.role}
-										onchange={e => changeRole(e)}
-									>
-										{#each roleOptions as option}
-											<option value={option} selected={option == innerItem.role}>{option}</option>
-										{/each}
-									</select>
+									<Select
+										tag={`user-role-select-${item.id}`}
+										placeholder={'Select role'}
+										containerClasses={'user-role-select'}
+										searchMode
+										selectedValues={innerItem.role ? [innerItem.role] : []}
+										options={roleSelectOptions}
+										onselect={e => changeRole(e)}
+									/>
 								</div>
 							</div>
 						</li>
@@ -461,7 +468,7 @@
 											<div>{title.name}</div>
 											<input
 												type="checkbox"
-												class="action-center h-4 w-4 cursor-pointer accent-primary"
+												class="action-checkbox"
 												checked={title.checked}
 												onchange={e => checkAll(e, title)}
 											/>
@@ -479,7 +486,7 @@
 												<div class="action-col action-center flex items-center justify-center px-2 py-2" style={colStyle}>
 													<input
 														type="checkbox"
-														class="action-center h-4 w-4 cursor-pointer accent-primary"
+														class="action-checkbox"
 														checked={actionItem.checked}
 														onchange={e => checkAction(e, agentActionItem, actionItem)}
 													/>

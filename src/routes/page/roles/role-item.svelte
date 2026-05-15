@@ -363,7 +363,7 @@
 											<div>{title.name}</div>
 											<input
 												type="checkbox"
-												class="action-center h-4 w-4 cursor-pointer accent-primary"
+												class="action-checkbox"
 												checked={title.checked}
 												onchange={e => checkAll(e, title)}
 											/>
@@ -381,7 +381,7 @@
 												<div class="action-col action-center flex items-center justify-center px-2 py-2" style={colStyle}>
 													<input
 														type="checkbox"
-														class="action-center h-4 w-4 cursor-pointer accent-primary"
+														class="action-checkbox"
 														checked={actionItem.checked}
 														onchange={e => checkAction(e, agentActionItem, actionItem)}
 													/>

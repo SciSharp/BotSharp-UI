@@ -6,6 +6,7 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { getAgentTasks, updateAgentTask } from '$lib/services/task-service';
@@ -57,6 +58,11 @@
 	const statusOptions = Object.entries(AgentTaskStatus).map(([k, v]) => (
 		{ key: k, value: v }
 	));
+
+	/** @type {import('$commonTypes').LabelValuePair[]} */
+	let statusSelectOptions = $derived(statusOptions.map(op => (
+		{ label: $_(op.key), value: `${op.value}` }
+	)));
 
     onMount(async () => {
 		isLoading = true;
@@ -146,9 +152,11 @@
 	 */
 	 function changeOption(e, type) {
 		if (type === 'status') {
+			// Select fires `{ detail: { selecteds: [{ label, value }] } }`.
+			const selectedValues = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
 			searchOption = {
 				...searchOption,
-				status: e.target.value || null
+				status: selectedValues.length > 0 ? selectedValues[0] : null
 			};
 		}
 	}
@@ -280,25 +288,17 @@
 						</div>
 					</div>
 					<div class="lg:col-span-5">
-						<div class="relative">
-							<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
-								<i class="mdi mdi-filter-variant text-base leading-none"></i>
-							</span>
-							<select
-								id="idStatus"
-								class="h-10 w-full appearance-none rounded-md border border-gray-200 bg-white pl-9 pr-8 text-sm text-dark transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
-								value={searchOption.status}
-								onchange={e => changeOption(e, 'status')}
-							>
-								<option value={null}>{$_('Select Status')}</option>
-								{#each statusOptions as op}
-									<option value={`${op.value}`} selected={op.value === searchOption.status}>{$_(`${op.key}`)}</option>
-								{/each}
-							</select>
-							<span class="pointer-events-none absolute inset-y-0 right-3 flex items-center text-gray-400">
-								<i class="mdi mdi-chevron-down text-base leading-none"></i>
-							</span>
-						</div>
+						<Select
+							tag={'task-status-select'}
+							placeholder={$_('Select Status')}
+							selectedValues={searchOption.status ? [`${searchOption.status}`] : []}
+							options={statusSelectOptions}
+							onselect={e => changeOption(e, 'status')}
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-filter-variant"></i>
+							{/snippet}
+						</Select>
 					</div>
 					<div class="lg:col-span-2">
 						<button
