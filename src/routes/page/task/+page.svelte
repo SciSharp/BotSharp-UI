@@ -344,35 +344,3 @@
 	</div>
 </div>
 
-<style>
-	/* Table cell styling for the tasks table. Uses :global() so it applies to
-	   the headers here as well as the rows rendered by TaskItem.svelte. */
-
-	:global(.tasks-table th),
-	:global(.tasks-table td) {
-		border-bottom: 1px solid rgb(243 244 246);
-		padding: 0.75rem 1rem;
-		vertical-align: middle;
-	}
-
-	:global(.tasks-table thead th) {
-		text-align: left;
-		font-weight: 600;
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-muted);
-		border-bottom-width: 2px;
-		border-bottom-color: rgb(229 231 235);
-		white-space: nowrap;
-	}
-
-	:global(.dark .tasks-table th),
-	:global(.dark .tasks-table td) {
-		border-bottom-color: rgb(55 65 81);
-	}
-
-	:global(.tasks-table tbody tr:last-child > td) {
-		border-bottom: 0;
-	}
-</style>

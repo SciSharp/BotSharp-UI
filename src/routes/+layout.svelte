@@ -1,6 +1,7 @@
 <script>
 	import '../app.css';
 	import '$lib/scss/icons.scss';
+	import '$lib/styles/app.scss';
 	import { addMessages, init, getLocaleFromNavigator } from 'svelte-i18n';
 	import { PUBLIC_PRIMARY_COLOR, PUBLIC_SECONDARY_COLOR } from '$env/static/public';
 	import en from '$lib/langs/en.json';

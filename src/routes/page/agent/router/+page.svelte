@@ -70,10 +70,4 @@
 </div>
 {/if}
 
-<style>
-  .rt-container {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-  }
-</style>
+

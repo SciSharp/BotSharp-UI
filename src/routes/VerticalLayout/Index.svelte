@@ -70,34 +70,4 @@
 	<RightSidebar closebar={() => closebar()} />
 </div>
 
-<style>
-	/* Body-class-driven layout states. These selectors mirror the JS toggles in
-	   Header.svelte (hamburger) and RightSidebar.svelte (settings) so we don't
-	   need to rewire any of the existing toggle logic. */
 
-	/* Collapsed sidebar (icon-only) on desktop */
-	:global(body.vertical-collpsed) .main-content {
-		margin-left: var(--sidebar-collapsed-width);
-	}
-
-	/* Mobile-first: sidebar is hidden by default below lg */
-	@media (max-width: 1023.98px) {
-		:global(.vertical-menu) {
-			transform: translateX(-100%);
-		}
-		:global(body.sidebar-enable .vertical-menu) {
-			transform: translateX(0);
-		}
-		.main-content {
-			margin-left: 0 !important;
-		}
-	}
-
-	/* Right-bar slide-in */
-	:global(body.right-bar-enabled .right-bar) {
-		right: 0;
-	}
-	:global(body.right-bar-enabled .rightbar-overlay) {
-		display: block;
-	}
-</style>

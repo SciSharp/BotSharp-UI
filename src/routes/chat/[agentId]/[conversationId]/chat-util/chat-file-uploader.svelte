@@ -78,23 +78,3 @@
     </FileDropZone>
 </div>
 
-<style>
-    /* ===== Chat file uploader =====
-       Tiny wrapper around <FileDropZone> that ChatBox embeds inside the
-       textarea util menu. The actual trigger glyph is supplied by the
-       parent via the `children` snippet; the fallback below renders only
-       when no snippet is passed (e.g. for ad-hoc consumers). */
-    .cfu-root {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        line-height: 1;
-    }
-    .cfu-fallback {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--color-primary);
-        font-size: 1.25rem;
-    }
-</style>

@@ -27,18 +27,3 @@
   </div>
 </div>
 
-<style>
-    /* Outer row (replaces .log-element + .state-log-item nested rule) */
-    .lsl-element {
-        margin: 5px 0 10px 0;
-    }
-
-    /* Content (replaces .log-content rules under .state-log-item) */
-    .lsl-content {
-        font-size: 17px;
-        color: rgb(255 255 255);
-    }
-    .lsl-content :global(span) {
-        font-size: 16px;
-    }
-</style>

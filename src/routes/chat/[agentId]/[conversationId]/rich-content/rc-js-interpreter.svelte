@@ -141,15 +141,3 @@
     </div>
 </div>
 
-<style>
-    /* Vertical rhythm between text + loading + chart (replaces Bootstrap .mb-3) */
-    .rcj-section {
-        margin-bottom: 1rem;
-    }
-
-    /* Chart canvas slot (replaces inline style="min-width:800px; max-height:500px;") */
-    .rcj-chart {
-        min-width: 800px;
-        max-height: 500px;
-    }
-</style>

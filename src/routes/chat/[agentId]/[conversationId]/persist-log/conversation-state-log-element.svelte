@@ -30,24 +30,3 @@
     {/if}
 </div>
 
-<style>
-    /* Outer row (replaces .log-element + .state-log-item nested rule) */
-    .csle-element {
-        margin: 5px 0 10px 0;
-    }
-
-    /* Content (replaces .log-content under .state-log-item) */
-    .csle-content {
-        font-size: 17px;
-        color: rgb(255 255 255);
-    }
-    .csle-content :global(span) {
-        font-size: 16px;
-    }
-
-    /* MessageId footer (replaces inline style="margin-top: 10px;") */
-    .csle-msg-id {
-        margin-top: 10px;
-        color: rgb(255 255 255);
-    }
-</style>

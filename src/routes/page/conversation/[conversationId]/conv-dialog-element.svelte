@@ -40,28 +40,3 @@
   <span>{is_collapsed ? 'More' : 'Less'}</span>
 </button>
 
-<style>
-    /* Replaces the legacy `.text-collapse` rule from
-       src/lib/scss/custom/pages/_conversation.scss. The dialog text is
-       collapsed to the first 5 lines by default; clicking the More button
-       removes this class so the content can flow to its natural height.
-
-       Two clamping mechanisms are layered here for reliability:
-       1. `-webkit-line-clamp: 5` with `display: -webkit-box` gives the
-          nicer "line truncation with ellipsis" effect on simple text.
-       2. `max-height: 5lh` (5 × the computed line-height) is the hard
-          fallback. The inner `<Markdown>` wraps its rendered HTML in a
-          `.markdown-container` with `overflow-x: auto`, which establishes
-          its own block formatting context — that BFC defeats line-clamp
-          on the parent because text flow is sealed inside the child. The
-          max-height cap clips reliably regardless of inner BFCs and is
-          what actually keeps long code blocks / tables collapsed. */
-    .text-collapse {
-        overflow: hidden;
-        max-height: 10lh;
-        display: -webkit-box;
-        -webkit-box-orient: vertical;
-        -webkit-line-clamp: 5;
-        line-clamp: 5;
-    }
-</style>

@@ -350,35 +350,3 @@
 	</div>
 </div>
 
-<style>
-	/* Table cell styling for the users table. Uses :global() so it applies to
-	   the headers here as well as the rows rendered by UserItem.svelte. */
-
-	:global(.users-table th),
-	:global(.users-table td) {
-		border-bottom: 1px solid rgb(243 244 246);
-		padding: 0.75rem 1rem;
-		vertical-align: middle;
-		white-space: nowrap;
-	}
-
-	:global(.users-table thead th) {
-		text-align: left;
-		font-weight: 600;
-		font-size: 11px;
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-		color: var(--color-muted);
-		border-bottom-width: 2px;
-		border-bottom-color: rgb(229 231 235);
-	}
-
-	:global(.dark .users-table th),
-	:global(.dark .users-table td) {
-		border-bottom-color: rgb(55 65 81);
-	}
-
-	:global(.users-table tbody tr:last-child > td) {
-		border-bottom: 0;
-	}
-</style>

@@ -89,32 +89,4 @@
 	</div>
 </div>
 
-<style>
-	/* Slide-in animation for the auth card */
-	@keyframes slideInUp {
-		from { opacity: 0; transform: translateY(30px); }
-		to   { opacity: 1; transform: translateY(0); }
-	}
-	.animate-slide-in-up {
-		animation: slideInUp 0.8s ease-out;
-	}
 
-	/* Shimmer overlay swept across the reset button on hover */
-	.reset-btn {
-		position: relative;
-		overflow: hidden;
-	}
-	.reset-btn::before {
-		content: '';
-		position: absolute;
-		top: 0;
-		left: -100%;
-		width: 100%;
-		height: 100%;
-		background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-		transition: left 0.5s;
-	}
-	.reset-btn:hover::before {
-		left: 100%;
-	}
-</style>

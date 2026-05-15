@@ -46,27 +46,3 @@
     </ul>
 </div>
 
-<style>
-    /* Replaces legacy .chat-util-trigger / .list-inline / .list-inline-item / .clickable */
-    .cu-trigger {
-        text-align: center;
-    }
-    .cu-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .cu-item {
-        display: inline-block;
-    }
-    .cu-glyph {
-        display: inline-block;
-        padding: 0 0.25rem;
-        line-height: 2.25rem;
-        font-size: 200%;
-        color: var(--color-primary);
-    }
-    .cu-icon {
-        cursor: pointer;
-    }
-</style>

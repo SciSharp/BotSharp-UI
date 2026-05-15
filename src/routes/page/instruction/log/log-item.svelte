@@ -142,8 +142,3 @@
     </tr>
 {/if}
 
-<style>
-    .instruction-log-state :global(ul) {
-        font-size: 0.8125rem;
-    }
-</style>

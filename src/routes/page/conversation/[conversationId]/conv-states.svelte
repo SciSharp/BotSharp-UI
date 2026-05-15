@@ -31,8 +31,3 @@
     </div>
 </div>
 
-<style>
-    .conv-states-tree :global(ul) {
-        font-size: 0.8125rem;
-    }
-</style>

@@ -45,27 +45,3 @@
     </ul>
 </div>
 
-<style>
-    /* Replaces legacy .chat-util-trigger / .list-inline / .list-inline-item / .clickable */
-    .cbm-trigger {
-        text-align: center;
-    }
-    .cbm-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-    .cbm-item {
-        display: inline-block;
-    }
-    .cbm-glyph {
-        display: inline-block;
-        padding: 0 0.25rem;
-        line-height: 2.25rem;
-        font-size: 200%;
-        color: var(--color-primary);
-    }
-    .cbm-icon {
-        cursor: pointer;
-    }
-</style>
