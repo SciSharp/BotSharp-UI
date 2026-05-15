@@ -181,6 +181,30 @@
         });
     }
 
+    function exportAgent() {
+        fetchJsonContent();
+        fetchInstructions();
+        fetchTemplates();
+        fetchTabData();
+
+        const exportData = {
+            ...agent,
+            created_datetime: undefined,
+            updated_datetime: undefined,
+            plugin: undefined,
+            actions: undefined
+        };
+
+        const json = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `agent-${agent.name || 'export'}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+    }
+
     function refresh() {
         agentInstructionCmp?.refresh();
     }
@@ -243,6 +267,14 @@
             >
                 <i class="bx bx-check"></i>
                 {$_('Save Agent')}
+            </button>
+            <button
+                type="button"
+                class="ad-btn ad-btn-ghost"
+                onclick={() => exportAgent()}
+            >
+                <i class="mdi mdi-download"></i>
+                {$_('Export Agent')}
             </button>
             <button
                 type="button"
@@ -388,6 +420,35 @@
             0 8px 18px -6px color-mix(in srgb, var(--color-danger) 65%, transparent),
             0 3px 6px -2px rgb(15 23 42 / 0.12);
         filter: brightness(1.05);
+    }
+
+    /* Ghost / secondary variant for non-destructive auxiliary actions
+       (e.g. Export Agent). Sits visually quieter than the filled
+       primary/danger gradients while still picking up the design tokens
+       on hover so the action bar reads as a unified cluster. */
+    .ad-btn-ghost {
+        background-color: rgb(255 255 255);
+        border-color: color-mix(in srgb, var(--color-primary) 35%, rgb(229 231 235));
+        color: var(--color-primary);
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.04),
+            0 1px 0 rgb(255 255 255 / 0.6) inset;
+    }
+    .ad-btn-ghost:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 8%, rgb(255 255 255));
+        border-color: var(--color-primary);
+        transform: translateY(-1px);
+        box-shadow:
+            0 4px 10px -4px color-mix(in srgb, var(--color-primary) 35%, transparent),
+            0 1px 0 rgb(255 255 255 / 0.6) inset;
+    }
+    :global(.dark) .ad-btn-ghost {
+        background-color: rgb(31 41 55);
+        border-color: color-mix(in srgb, var(--color-primary) 45%, rgb(55 65 81));
+        color: color-mix(in srgb, var(--color-primary) 85%, white);
+    }
+    :global(.dark) .ad-btn-ghost:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 18%, rgb(31 41 55));
     }
 
     :global(.dark) .ad-action-bar {

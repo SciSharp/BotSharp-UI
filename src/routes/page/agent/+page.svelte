@@ -9,7 +9,7 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
-  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
+  	import { createAgent, getAgentLabels, getAgents, saveAgent } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
   	import { myInfo } from '$lib/services/auth-service';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
@@ -172,6 +172,46 @@
 		goto(`page/agent/${createdAgent.id}`);
 	}
 
+	function importAgent() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async (e) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+
+			try {
+				const text = await file.text();
+				const data = JSON.parse(text);
+
+				const newAgent = {
+					name: data.name || 'Imported Agent',
+					description: data.description || '',
+					instruction: data.instruction || '',
+					isPublic: data.is_public ?? true
+				};
+
+				// @ts-ignore
+				const createdAgent = await createAgent(newAgent);
+
+				// Merge remaining fields and save
+				const fullAgent = {
+					...data,
+					id: createdAgent.id,
+					created_datetime: createdAgent.created_datetime,
+					updated_datetime: createdAgent.updated_datetime,
+					plugin: createdAgent.plugin
+				};
+				await saveAgent(fullAgent);
+
+				goto(`page/agent/${createdAgent.id}`);
+			} catch (err) {
+				Swal.fire('Error', 'Failed to import agent. Please check the JSON file.', 'error');
+			}
+		};
+		input.click();
+	}
+
 	function refresh() {
 		refreshAgents();
 		refreshPager(agents.count, filter.pager.page);
@@ -300,6 +340,9 @@
 		<button type="button" class="ag-btn ag-btn-primary" onclick={() => createNewAgent()}>
 			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
 		</button>
+		<button type="button" class="ag-btn ag-btn-ghost" onclick={() => importAgent()}>
+			<i class="mdi mdi-upload"></i> {$_('Import Agent')}
+		</button>
 		{/if}
 	</div>
 	<div class="ag-filter">
@@ -377,6 +420,7 @@
 	.ag-header-actions {
 		display: flex;
 		align-items: center;
+		gap: 0.5rem;
 	}
 	.ag-filter {
 		display: flex;
@@ -469,6 +513,29 @@
 	.ag-btn-primary:hover:not(:disabled) {
 		background-color: var(--color-primary-hover);
 		border-color: var(--color-primary-hover);
+	}
+
+	/* Ghost / secondary variant for auxiliary actions (e.g. Import Agent).
+	   Outlined treatment that sits visually quieter next to the filled
+	   primary button while still picking up the design token on hover. */
+	.ag-btn-ghost {
+		background-color: rgb(255 255 255);
+		border-color: color-mix(in srgb, var(--color-primary) 35%, rgb(229 231 235));
+		color: var(--color-primary);
+		box-shadow: 0 1px 2px rgb(15 23 42 / 0.04);
+	}
+	.ag-btn-ghost:hover:not(:disabled) {
+		background-color: color-mix(in srgb, var(--color-primary) 8%, rgb(255 255 255));
+		border-color: var(--color-primary);
+		box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--color-primary) 35%, transparent);
+	}
+	:global(.dark) .ag-btn-ghost {
+		background-color: rgb(31 41 55);
+		border-color: color-mix(in srgb, var(--color-primary) 45%, rgb(55 65 81));
+		color: color-mix(in srgb, var(--color-primary) 85%, white);
+	}
+	:global(.dark) .ag-btn-ghost:hover:not(:disabled) {
+		background-color: color-mix(in srgb, var(--color-primary) 18%, rgb(31 41 55));
 	}
 
 	/* ===== Icon-only buttons (Search / Reset) ===== */
