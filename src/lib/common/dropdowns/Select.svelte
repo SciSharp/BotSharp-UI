@@ -1,5 +1,5 @@
 <script>
-    import { onMount, tick, untrack } from "svelte";
+    import { onDestroy, onMount, tick, untrack } from "svelte";
     import { clickoutsideDirective } from "$lib/helpers/directives";
 
     /**
@@ -74,6 +74,17 @@
 
     onMount(() => {
         initOptions();
+    });
+
+    // Belt-and-braces cleanup: if the option list was portaled to <body>
+    // and the parent Select is destroyed mid-flight (e.g. route change
+    // while the dropdown is open), Svelte's removal walks the original
+    // template tree and may miss the moved node. Drop it explicitly.
+    onDestroy(() => {
+        const optionList = document.getElementById(`multiselect-list-${tag}`);
+        if (optionList && optionList.parentElement === document.body) {
+            optionList.remove();
+        }
     });
 
     $effect(() => {
@@ -168,14 +179,25 @@
 
         if (!btn || !optionList) return;
 
+        // Portal the option list to <body> so it escapes ancestor
+        // containing-block surprises. `position: fixed` is anchored to the
+        // viewport *only* when no ancestor sets `transform`, `filter`,
+        // `perspective`, `contain: layout/paint/strict`, or `will-change` to
+        // a transform-creating value — any of which create a new containing
+        // block for fixed-positioned descendants and make
+        // getBoundingClientRect-based viewport anchoring drift off the
+        // trigger. Re-parenting to <body> guarantees the viewport is the
+        // containing block. Also escapes any ancestor `overflow: hidden`.
+        if (optionList.parentElement !== document.body) {
+            document.body.appendChild(optionList);
+        }
+
         const btnRec = btn.getBoundingClientRect();
         const windowHeight = window.innerHeight;
         const listHeight = optionList.offsetHeight;
         const spaceBelow = windowHeight - btnRec.bottom;
         const spaceAbove = btnRec.top;
 
-        // Use viewport-anchored fixed positioning so the dropdown can escape
-        // ancestor `overflow: auto/hidden` containers (e.g. scrollable list wrappers).
         optionList.style.position = 'fixed';
         optionList.style.left = `${btnRec.left}px`;
         optionList.style.width = `${btnRec.width}px`;
@@ -334,7 +356,14 @@
         const curNode = e.detail.currentNode;
         const targetNode = e.detail.targetNode;
 
-        if (!curNode?.contains(targetNode)) {
+        // The option list is portaled to <body> (see adjustDropdownPosition),
+        // so `curNode` (the .multiselect-container) no longer contains it.
+        // Check the portaled list explicitly so clicks inside it (search
+        // box, scrollbar, option rows) are treated as "inside".
+        const optionList = document.getElementById(`multiselect-list-${tag}`);
+        const insideList = !!optionList && optionList.contains(targetNode);
+
+        if (!curNode?.contains(targetNode) && !insideList) {
             showOptionList = false;
         }
     }

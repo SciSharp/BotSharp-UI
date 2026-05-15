@@ -42,7 +42,7 @@
         suffix
     } = $props();
 
-    
+
 
     /**
 	 * @param {any} e
@@ -89,11 +89,9 @@
                                 <div class="gallery-item-inner" style={`${showFileName ? 'width: 80%;' : ''}`}>
                                     {#if needDelete}
                                         <div
-                                            class="gallery-item-icon delete-icon clickable"
+                                            class="gallery-item-icon delete-icon cursor-pointer"
                                             tabindex="0"
                                             role="button"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
                                             title="Delete"
                                             onkeydown={() => {}}
                                             onclick={e => handleDeleteFile(e, idx)}
@@ -103,11 +101,9 @@
                                     {/if}
                                     {#if needDownload && !!file.file_download_url}
                                         <div
-                                            class="gallery-item-icon download-icon clickable"
+                                            class="gallery-item-icon download-icon cursor-pointer"
                                             tabindex="0"
                                             role="button"
-                                            data-bs-toggle="tooltip"
-                                            data-bs-placement="top"
                                             title={`${isHtml(file.file_extension || file.file_name) ? 'Download' : 'Go to web page'}`}
                                             onkeydown={() => {}}
                                             onclick={e => handleDownloadFile(e, idx)}
@@ -137,10 +133,8 @@
                                 </div>
                             </div>
                             {#if showFileName && file.file_name}
-                                <div 
+                                <div
                                     class="gallery-item-name ellipsis"
-                                    data-bs-toggle="tooltip"
-                                    data-bs-placement="top"
                                     title={file.file_name}
                                 >
                                     {file.file_name}
@@ -182,3 +176,96 @@
         </div>
     {/if}
 </div>
+
+
+<style>
+    /* ===== File gallery layout =====
+       Replaces the legacy `_file.scss` rules (`.file-gallery-list`,
+       `.gallery-item`, `.gallery-item-*`) that were dropped in the
+       Tailwind v4 migration. Without these, gallery items lost their
+       8em fixed box and image previews ballooned to natural size —
+       this re-instates the constrained thumbnail grid using design
+       tokens. Selectors are wrapped in :global() because some of the
+       targeted classes (e.g. `.item-thumbnail-wrapper`) are passed as
+       `class` props to third-party svelte-lightbox components and would
+       otherwise be stripped by Svelte's CSS scoper. */
+    :global(.file-gallery-list) {
+        margin: 5px 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-start;
+    }
+    :global(.file-gallery-list .gallery-item) {
+        width: 8em;
+        height: 8em;
+    }
+    :global(.file-gallery-list .item-thumbnail-wrapper) {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+    :global(.file-gallery-list .gallery-item-wrapper) {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+    }
+    :global(.file-gallery-list .gallery-item-inner) {
+        position: relative;
+        width: 100%;
+        height: 100%;
+    }
+    :global(.file-gallery-list .gallery-item-image) {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+    }
+    :global(.file-gallery-list .gallery-item-icon) {
+        position: absolute;
+        z-index: 500;
+        font-size: 1.2em;
+        border-radius: 5px;
+        padding: 2px;
+        line-height: 1;
+    }
+    :global(.file-gallery-list .gallery-item-icon i) {
+        display: block;
+    }
+    :global(.file-gallery-list .delete-icon) {
+        top: 3px;
+        right: 3px;
+        color: var(--color-danger);
+        background-color: rgb(255 255 255 / 0.85);
+    }
+    :global(.file-gallery-list .delete-icon:hover) {
+        color: white;
+        background-color: var(--color-danger);
+    }
+    :global(.file-gallery-list .download-icon) {
+        right: 3px;
+        bottom: 3px;
+        color: var(--color-info);
+        background-color: rgb(255 255 255 / 0.85);
+    }
+    :global(.file-gallery-list .download-icon:hover) {
+        color: white;
+        background-color: var(--color-info);
+    }
+    :global(.file-gallery-list .gallery-item-name) {
+        text-align: center;
+        word-break: break-all;
+        font-size: 0.7rem;
+        line-height: 1.2;
+    }
+    /* Narrow viewports: shrink the thumbnail box (mirrors the
+       legacy 500px media query). */
+    @media (max-width: 500px) {
+        :global(.file-gallery-list .gallery-item) {
+            width: 5em;
+            height: 5em;
+        }
+    }
+</style>

@@ -53,7 +53,7 @@
 </script>
 
 <div
-    class={`${containerClasses}`}
+    class={`cfu-root ${containerClasses}`}
     style={`${containerStyles}`}
 >
     <FileDropZone
@@ -68,14 +68,33 @@
         {#if children}
             {@render children()}
         {:else}
-            <span>
+            <span class="cfu-fallback">
                 <i
-                    class="bx bx-image-add"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
+                    class="bx bx-image-add cursor-pointer"
                     title="Upload files"
                 ></i>
             </span>
         {/if}
     </FileDropZone>
 </div>
+
+<style>
+    /* ===== Chat file uploader =====
+       Tiny wrapper around <FileDropZone> that ChatBox embeds inside the
+       textarea util menu. The actual trigger glyph is supplied by the
+       parent via the `children` snippet; the fallback below renders only
+       when no snippet is passed (e.g. for ad-hoc consumers). */
+    .cfu-root {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 1;
+    }
+    .cfu-fallback {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-primary);
+        font-size: 1.25rem;
+    }
+</style>

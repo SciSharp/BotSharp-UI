@@ -96,8 +96,8 @@
         states = states.filter((x, idx) => idx !== index);
     }
 
-    /** 
-     * @param {any} e 
+    /**
+     * @param {any} e
      * @param {number} index
     */
     function changeKey(e, index) {
@@ -110,8 +110,8 @@
         });
     }
 
-    /** 
-     * @param {any} e 
+    /**
+     * @param {any} e
      * @param {number} index
     */
     function changeValue(e, index) {
@@ -124,8 +124,8 @@
         });
     }
 
-    /** 
-     * @param {any} e 
+    /**
+     * @param {any} e
      * @param {number} index
     */
     function changeActiveRounds(e, index) {
@@ -157,111 +157,126 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <div
-    class="fixed inset-0 z-[9999] flex items-start justify-center pt-[2%] bg-black/50"
+    class="stm-overlay"
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
 >
-    <div class={`bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full ${sizeClasses[size] || 'max-w-xl'} mx-4 ${className}`}>
+    <div
+        class={`stm-panel relative mx-4 w-full ${sizeClasses[size] || 'max-w-xl'} ${className}`}
+        role="dialog"
+        aria-modal="true"
+    >
+        <!-- Branded accent strip across the top edge of the panel. -->
+        <div class="stm-accent"></div>
+
         <!-- Header -->
-        <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="font-semibold text-lg">{title}</div>
+        <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center gap-2 min-w-0">
+                <span class="stm-title-glyph">
+                    <i class="bx bx-cube-alt"></i>
+                </span>
+                <span class="truncate text-[1.0625rem] font-semibold text-gray-900 dark:text-gray-100">{title}</span>
+            </div>
+            <span class="stm-count" aria-label={`${states.length} of ${limit}`}>
+                <span class="font-semibold">{states.length}</span><span class="opacity-50">/{limit}</span>
+            </span>
         </div>
 
         <!-- Body -->
-        <div class="p-3">
-            <form class="state-form">
+        <div class="stm-body px-5 py-4">
+            <form>
+                <div class="stm-rows flex flex-col gap-2.5">
                 {#each states as state, idx (idx)}
-                <div class="flex w-full gap-2">
+                <div class="flex w-full items-end gap-2">
                     <div class="min-w-0" style="flex: 0.4;">
-                        <div class="mb-2">
-                            {#if idx === 0}
-                            <label for="key">
-                                {`Key ${validateKey ? '(*)' : ''}`}
-                            </label>
-                            {/if}
-                            <input
-                                class={`form-control ${!state.key.isValid ? 'invalid' : ''}`}
-                                placeholder="Enter a key"
-                                value={state.key.data}
-                                maxlength={50}
-                                oninput={(e) => changeKey(e, idx)}
-                            />
-                        </div>
+                        {#if idx === 0}
+                        <label for={`stm-key-${idx}`} class="stm-label">
+                            {`Key ${validateKey ? '*' : ''}`}
+                        </label>
+                        {/if}
+                        <input
+                            id={`stm-key-${idx}`}
+                            class={`stm-input ${!state.key.isValid ? 'stm-input-invalid' : ''}`}
+                            placeholder="Enter a key"
+                            value={state.key.data}
+                            maxlength={50}
+                            oninput={(e) => changeKey(e, idx)}
+                        />
                     </div>
                     <div class="min-w-0" style="flex: 0.4;">
-                        <div class="mb-2">
-                            {#if idx === 0}
-                            <label for="value">
-                                {`Value ${validateValue ? '(*)' : ''}`}
-                            </label>
-                            {/if}
-                            <input
-                                class={`form-control ${!state.value.isValid ? 'invalid' : ''}`}
-                                placeholder="Enter a value"
-                                value={state.value.data}
-                                maxlength={1000}
-                                oninput={(e) => changeValue(e, idx)}
-                            />
-                        </div>
+                        {#if idx === 0}
+                        <label for={`stm-value-${idx}`} class="stm-label">
+                            {`Value ${validateValue ? '*' : ''}`}
+                        </label>
+                        {/if}
+                        <input
+                            id={`stm-value-${idx}`}
+                            class={`stm-input ${!state.value.isValid ? 'stm-input-invalid' : ''}`}
+                            placeholder="Enter a value"
+                            value={state.value.data}
+                            maxlength={1000}
+                            oninput={(e) => changeValue(e, idx)}
+                        />
                     </div>
                     {#if requireActiveRounds}
-                    <div class="flex-1 min-w-0 state-num-input">
-                        <div class="mb-2">
-                            {#if idx === 0}
-                            <label for="value">
-                                {`Active rounds`}
-                            </label>
-                            {/if}
-                            <input
-                                type="number"
-                                class="form-control"
-                                placeholder="Enter a value"
-                                value={state.active_rounds.data}
-                                oninput={(e) => changeActiveRounds(e, idx)}
-                            />
-                        </div>
+                    <div class="min-w-0" style="flex: 0.2;">
+                        {#if idx === 0}
+                        <label for={`stm-rounds-${idx}`} class="stm-label">
+                            {`Active rounds`}
+                        </label>
+                        {/if}
+                        <input
+                            id={`stm-rounds-${idx}`}
+                            type="number"
+                            class="stm-input stm-input-number"
+                            placeholder="Enter a value"
+                            value={state.active_rounds.data}
+                            oninput={(e) => changeActiveRounds(e, idx)}
+                        />
                     </div>
                     {/if}
-                    <div class="state-delete mb-2 flex items-end flex-shrink-0">
-                        <div class="flex items-center" style={`height: 36px; ${idx === 0 ? 'margin-top: auto;' : ''}`}>
-                            <!-- svelte-ignore a11y_click_events_have_key_events -->
-                            <!-- svelte-ignore a11y_no_static_element_interactions -->
-                            <i
-                                class="bx bxs-no-entry clickable"
-                                class:hide={states.length === 1}
-                                onclick={() => remove(idx)}
-                            ></i>
-                        </div>
+                    <div class="flex-shrink-0">
+                        <button
+                            type="button"
+                            class="stm-remove-btn"
+                            class:invisible={states.length === 1}
+                            aria-label="Remove state"
+                            title="Remove"
+                            onclick={() => remove(idx)}
+                        >
+                            <i class="bx bxs-no-entry"></i>
+                        </button>
                     </div>
                 </div>
                 {/each}
-                <div class="flex flex-wrap">
-                    <div>
-                        <button
-                            type="button"
-                            class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors underline-offset-2 hover:underline bg-transparent border-none p-0 cursor-pointer"
-                            disabled={states.length >= limit}
-                            onclick={() => addState()}
-                        >
-                            Add +
-                        </button>
-                    </div>
+                </div>
+
+                <div class="pt-3">
+                    <button
+                        type="button"
+                        class="stm-add-btn"
+                        disabled={states.length >= limit}
+                        onclick={() => addState()}
+                    >
+                        <i class="mdi mdi-plus text-base leading-none"></i>
+                        <span>Add</span>
+                    </button>
                 </div>
             </form>
         </div>
 
         <!-- Footer -->
-        <div class="flex justify-end gap-2 p-3 border-t border-gray-200 dark:border-gray-700">
+        <div class="stm-footer flex justify-end gap-2 px-5 py-3 border-t border-gray-200 dark:border-gray-700">
             <button
                 type="button"
-                class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                class="stm-btn stm-btn-confirm"
                 onclick={(e) => handleConfirm(e)}
             >
                 Confirm
             </button>
             <button
                 type="button"
-                class="px-3 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded hover:bg-gray-300 dark:text-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 transition-colors"
+                class="stm-btn stm-btn-cancel"
                 onclick={(e) => handleCancel(e)}
             >
                 Cancel
@@ -270,3 +285,302 @@
     </div>
 </div>
 {/if}
+
+<style>
+    /* ============================================================
+       StateModal — themed via Tailwind v4 design tokens; no Bootstrap.
+       Layout / spacing live in inline utility classes; this block owns
+       the polish (backdrop blur, accent strip, focus rings, dual-shadow,
+       error shake, dark mode).
+       ============================================================ */
+
+    /* ---------- Overlay ---------- */
+    .stm-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        padding: 3rem 1rem 1rem;
+        background-color: rgb(15 23 42 / 0.55);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        overflow-y: auto;
+    }
+
+    /* ---------- Panel ---------- */
+    .stm-panel {
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(229 231 235);
+        border-radius: 0.875rem;
+        box-shadow:
+            0 25px 50px -12px rgb(15 23 42 / 0.25),
+            0 12px 24px -8px color-mix(in srgb, var(--color-primary) 18%, transparent),
+            0 0 0 1px rgb(255 255 255 / 0.06) inset;
+        overflow: hidden;
+        animation: stm-rise 220ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    @keyframes stm-rise {
+        from { opacity: 0; transform: translateY(-12px) scale(0.98); }
+        to   { opacity: 1; transform: translateY(0)     scale(1);    }
+    }
+
+    .stm-accent {
+        height: 3px;
+        background: linear-gradient(
+            90deg,
+            var(--color-primary) 0%,
+            color-mix(in srgb, var(--color-primary) 60%, white) 50%,
+            var(--color-primary) 100%
+        );
+    }
+
+    /* ---------- Header glyph + count badge ---------- */
+    .stm-title-glyph {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.75rem;
+        height: 1.75rem;
+        border-radius: 0.5rem;
+        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        color: var(--color-primary);
+        font-size: 1rem;
+        flex-shrink: 0;
+    }
+    .stm-count {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.125rem 0.5rem;
+        border-radius: 999px;
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+        font-size: 0.75rem;
+        line-height: 1.4;
+        flex-shrink: 0;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* ---------- Body ---------- */
+    .stm-body {
+        /* Body itself doesn't scroll — the inner .stm-rows list owns
+           the scroll so the Add button stays pinned beneath it. */
+        max-height: calc(85vh - 9rem);
+    }
+
+    /* Scrollable container that holds the key/value rows. Keeps the Add
+       button and footer in fixed positions while the row list scrolls. */
+    .stm-rows {
+        max-height: clamp(180px, 45vh, 420px);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        /* Reserve room for the scrollbar so input borders don't bump
+           against it; negative margin re-aligns the rows with the body. */
+        padding-right: 0.375rem;
+        margin-right: -0.375rem;
+    }
+    .stm-rows::-webkit-scrollbar {
+        width: 8px;
+    }
+    .stm-rows::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+        border-radius: 999px;
+    }
+    .stm-rows::-webkit-scrollbar-thumb:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+
+    .stm-label {
+        display: block;
+        margin-bottom: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--color-primary);
+    }
+
+    /* ---------- Inputs (replaces Bootstrap .form-control + .invalid) ---------- */
+    .stm-input {
+        width: 100%;
+        height: 2.25rem;
+        padding: 0 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        color: rgb(17 24 39);
+        background-color: rgb(255 255 255);
+        border: 1px solid rgb(209 213 219);
+        border-radius: 0.5rem;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+    }
+    .stm-input::placeholder { color: rgb(156 163 175); }
+    .stm-input:hover:not(:disabled):not(:focus) { border-color: rgb(156 163 175); }
+    .stm-input:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 22%, transparent);
+    }
+    .stm-input-invalid {
+        border-color: var(--color-danger);
+        background-color: color-mix(in srgb, var(--color-danger) 5%, white);
+        animation: stm-shake 250ms cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    .stm-input-invalid:focus {
+        border-color: var(--color-danger);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 22%, transparent);
+    }
+    @keyframes stm-shake {
+        10%, 90% { transform: translateX(-1px); }
+        20%, 80% { transform: translateX(2px); }
+        30%, 50%, 70% { transform: translateX(-3px); }
+        40%, 60% { transform: translateX(3px); }
+    }
+
+    /* Slimmer chrome on number input spinner arrows (Chromium + Firefox) */
+    .stm-input-number {
+        appearance: textfield;
+        -moz-appearance: textfield;
+    }
+    .stm-input-number::-webkit-inner-spin-button,
+    .stm-input-number::-webkit-outer-spin-button {
+        opacity: 0.6;
+        height: 1.5rem;
+    }
+
+    /* ---------- Row remove button (replaces .state-delete + .bx.clickable) ---------- */
+    .stm-remove-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        margin: 0;
+        padding: 0;
+        border: 1px solid color-mix(in srgb, var(--color-danger) 25%, transparent);
+        border-radius: 0.5rem;
+        background-color: color-mix(in srgb, var(--color-danger) 10%, transparent);
+        color: var(--color-danger);
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+    }
+    .stm-remove-btn:hover {
+        background-color: color-mix(in srgb, var(--color-danger) 18%, transparent);
+        border-color: color-mix(in srgb, var(--color-danger) 50%, transparent);
+        transform: scale(1.05);
+    }
+    .stm-remove-btn:focus-visible {
+        outline: 2px solid var(--color-danger);
+        outline-offset: 2px;
+    }
+
+    /* ---------- Add row button (replaces inline Tailwind .text-blue-600 link) ---------- */
+    .stm-add-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.875rem;
+        border: 1px dashed color-mix(in srgb, var(--color-primary) 45%, transparent);
+        border-radius: 999px;
+        background-color: transparent;
+        color: var(--color-primary);
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+    }
+    .stm-add-btn:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        border-color: var(--color-primary);
+    }
+    .stm-add-btn:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+    .stm-add-btn:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+    }
+
+    /* ---------- Footer + buttons ---------- */
+    .stm-footer {
+        background-color: rgb(249 250 251);
+    }
+
+    .stm-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 5.5rem;
+        height: 2.25rem;
+        padding: 0 1rem;
+        border-radius: 0.5rem;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        line-height: 1;
+        cursor: pointer;
+        transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+            box-shadow 0.15s ease, transform 0.1s ease;
+    }
+    .stm-btn:active:not(:disabled) { transform: translateY(1px); }
+    .stm-btn:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+    .stm-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+
+    .stm-btn-cancel {
+        border: 1px solid rgb(229 231 235);
+        background-color: rgb(255 255 255);
+        color: rgb(55 65 81);
+    }
+    .stm-btn-cancel:hover:not(:disabled) {
+        background-color: rgb(243 244 246);
+        border-color: rgb(209 213 219);
+        color: rgb(17 24 39);
+    }
+
+    .stm-btn-confirm {
+        border: 1px solid var(--color-primary);
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.08),
+            0 4px 12px -4px color-mix(in srgb, var(--color-primary) 50%, transparent);
+    }
+    .stm-btn-confirm:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.12),
+            0 8px 20px -4px color-mix(in srgb, var(--color-primary) 55%, transparent);
+    }
+
+    /* ---------- Dark mode ---------- */
+    :global(.dark) .stm-overlay { background-color: rgb(0 0 0 / 0.65); }
+    :global(.dark) .stm-panel {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+    :global(.dark) .stm-input {
+        background-color: rgb(17 24 39);
+        border-color: rgb(75 85 99);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .stm-input::placeholder { color: rgb(107 114 128); }
+    :global(.dark) .stm-input:hover:not(:disabled):not(:focus) { border-color: rgb(107 114 128); }
+    :global(.dark) .stm-footer {
+        background-color: rgb(17 24 39);
+    }
+    :global(.dark) .stm-btn-cancel {
+        background-color: rgb(55 65 81);
+        border-color: rgb(75 85 99);
+        color: rgb(229 231 235);
+    }
+    :global(.dark) .stm-btn-cancel:hover:not(:disabled) {
+        background-color: rgb(75 85 99);
+        border-color: rgb(107 114 128);
+    }
+</style>

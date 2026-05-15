@@ -27,7 +27,6 @@
 		getConversationFiles,
 		uploadConversationFiles,
 		getAddressOptions,
-		pinConversationToDashboard,
 		stopStreaming as stopStreamingApi,
 	} from '$lib/services/conversation-service.js';
 	import {
@@ -56,7 +55,7 @@
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay } from '$lib/helpers/utils/common';
+	import { delay, formatNumber } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -267,7 +266,7 @@
 		await signalr.start(page.params.conversationId);
 
 		scrollbars = [
-			document.querySelector('.chat-scrollbar')
+			document.querySelector('.cb-msgs-scroll')
 		].filter(Boolean);
 		refresh();
 
@@ -762,13 +761,6 @@
 		const search = searchParams?.toString();
 		const url = search ? `${path}?${search}` : path;
 		window.location.href = url;
-	}
-
-	function pinDashboard() {
-		const agentId = page.params.agentId;
-		const convId = page.params.conversationId;
-		// @ts-ignore
-		pinConversationToDashboard(agentId, convId).then().finally();
 	}
 
 	function handleSaveKnowledge() {
@@ -1622,7 +1614,7 @@
 
 <DialogModal
 	title={'Tags'}
-	size={'md'}
+	size={'xl'}
 	isOpen={isOpenTagModal}
 	closeable
 	toggleModal={() => toggleTagModal()}
@@ -1722,7 +1714,7 @@
 		oninput={handleInputBigText}
 	></textarea>
 	<div class="cb-modal-counter">
-		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
+		<div>{`${formatNumber(bigText?.length || 0)}/${formatNumber(maxTextLength)}`}</div>
 	</div>
 </DialogModal>
 
@@ -1749,6 +1741,7 @@
 
 <PlainModal
 	title={'Code script'}
+	size={'3xl'}
 	isOpen={isOpenCodeScriptModal}
 	toggleModal={() => toggleCodeScriptModal()}
 >
@@ -1761,7 +1754,7 @@
 
 <StateModal
 	isOpen={isOpenUserAddStateModal}
-	size={'2xl'}
+	size={'3xl'}
 	bind:states={userAddStates}
 	requireActiveRounds
 	toggleModal={() => toggleUserAddStateModal()}
@@ -1888,7 +1881,6 @@
 												{#if agent?.id === LEARNER_AGENT_ID && mode === TRAINING_MODE}
 													<li><button class="cb-menu-item" type="button" onclick={() => handleSaveKnowledge()}>Save Knowledge</button></li>
 												{/if}
-												<li><button class="cb-menu-item" type="button" onclick={() => pinDashboard()}>Pin to Dashboard</button></li>
 											</ul>
 										</div>
 										{:else}
@@ -2065,7 +2057,7 @@
 															<div class="cb-msg-action">
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="cb-vcenter cb-text-primary cb-msg-action-icon-copy"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-copy cursor-pointer"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Copy"
@@ -2082,7 +2074,7 @@
 																			</div>
 																		</div>
 																	{:else}
-																		<i class="bx bx-copy cb-clickable"></i>
+																		<i class="bx bx-copy"></i>
 																	{/if}
 																</div>
 															</div>
@@ -2091,13 +2083,13 @@
 																<!-- svelte-ignore a11y_click_events_have_key_events -->
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="cb-vcenter cb-text-primary cb-msg-action-icon-code"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-code cursor-pointer"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Code script"
 																	onclick={e => openCodeScriptModal(e, message)}
 																>
-																	<i class="bx bx-terminal cb-clickable"></i>
+																	<i class="bx bx-terminal"></i>
 																</div>
 															</div>
 															{/if}
@@ -2190,7 +2182,7 @@
 										>
 											<span>
 												<i
-													class="bx bx-image-add"
+													class="bx bx-image-add cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload images"></i>
@@ -2204,7 +2196,7 @@
 										>
 											<span>
 												<i
-													class="bx bxs-folder-open"
+													class="bx bxs-folder-open cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload pdf, excel files"></i>
@@ -2218,7 +2210,7 @@
 										>
 											<span>
 												<i
-													class="bx bxs-music"
+													class="bx bxs-music cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload audios"></i>
