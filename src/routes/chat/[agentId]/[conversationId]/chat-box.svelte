@@ -1766,7 +1766,7 @@
 <div class="cb-page-flex">
 	<Splitpanes on:resize={() => handlePaneResize()}>
 		{#if isLoadInstantLog}
-		<Pane size={30} minSize={25} maxSize={40} >
+		<Pane size={25} minSize={15} maxSize={40} >
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
@@ -2259,7 +2259,7 @@
 			</div>
 		</Pane>
 		{#if isLoadPersistLog}
-		<Pane size={30} minSize={25} maxSize={40}>
+		<Pane size={25} minSize={15} maxSize={40}>
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}

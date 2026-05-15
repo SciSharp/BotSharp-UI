@@ -382,4 +382,22 @@
         flex: 0 0 auto;
         margin: 0 3px;
     }
+
+    /* The persist-log card uses a pure-black background, but the shared
+       NavBar component paints inactive tab labels with `var(--color-dark)`
+       (#343a40) — effectively invisible here. Lift the inactive label and
+       dim the tablist underline so both read clearly against black. The
+       active tab is intentionally untouched so its primary accent (and
+       the underline) keep working. Scoping through `.pl-footer .tab-bar`
+       gives this rule enough specificity to outscore NavBar's
+       :global(.tab-bar.nav-tabs-default .tab-btn:not(.active)...). */
+    .pl-footer :global(.tab-bar) {
+        border-bottom-color: rgb(255 255 255 / 0.12);
+    }
+    .pl-footer :global(.tab-bar .tab-btn:not(.active)) {
+        color: rgb(255 255 255 / 0.7);
+    }
+    .pl-footer :global(.tab-bar .tab-btn:not(.active):hover) {
+        color: rgb(255 255 255 / 0.92);
+    }
 </style>
