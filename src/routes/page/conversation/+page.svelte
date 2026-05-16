@@ -434,7 +434,7 @@
 					</div>
 					<button
 						type="button"
-						class="inline-flex items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium shadow-sm transition-colors {showStateSearch ? 'bg-gray-200 text-dark hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-primary text-white hover:bg-primary-hover'}"
+						class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium shadow-sm transition-colors {showStateSearch ? 'bg-gray-200 text-dark hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-primary text-white hover:bg-primary-hover'}"
 						onclick={() => showStateSearch = !showStateSearch}
 					>
 						{#if showStateSearch}
@@ -607,7 +607,7 @@
 									<div class="flex items-center justify-center gap-1.5">
 										<button
 											type="button"
-											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
+											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
 											aria-label="View Detail"
 											title="View Detail"
 											onclick={() => window.open(`page/conversation/${conv.id}`)}
@@ -616,7 +616,7 @@
 										</button>
 										<button
 											type="button"
-											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
 											aria-label="Chat"
 											title="Chat"
 											onclick={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
@@ -625,7 +625,7 @@
 										</button>
 										<button
 											type="button"
-											class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
+											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
 											aria-label="Delete"
 											title="Delete"
 											onclick={() => openDeleteModal(conv.id)}

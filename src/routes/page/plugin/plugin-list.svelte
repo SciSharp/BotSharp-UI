@@ -152,7 +152,7 @@
 					{#if !item.is_core}
 						<button
 							type="button"
-							class="inline-flex items-center gap-1 rounded-md bg-warning/15 px-3 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25"
+							class="inline-flex items-center gap-1 rounded-md bg-warning/15 px-3 py-1.5 text-xs font-medium text-warning transition-colors hover:bg-warning/25 cursor-pointer"
 							onclick={() => handlePluginStatus(item.id, item.name, !item.enabled)}
 						>
 							<i class="bx {item.enabled ? 'bx-x-circle' : 'bx-download'}"></i>

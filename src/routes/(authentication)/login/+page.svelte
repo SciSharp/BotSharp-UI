@@ -187,7 +187,7 @@
                 <div class="mb-6 flex justify-center">
                   <button
                     type="submit"
-                    class="login-btn h-14 min-w-[200px] rounded-xl bg-linear-to-br from-primary to-primary-hover px-8 text-lg font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:translate-y-0 disabled:opacity-70 disabled:shadow-md"
+                    class="login-btn cursor-pointer h-14 min-w-[200px] rounded-xl bg-linear-to-br from-primary to-primary-hover px-8 text-lg font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0 disabled:translate-y-0 disabled:opacity-70 disabled:shadow-md"
                     disabled={isSubmitting}
                   >
                     {#if isSubmitting}

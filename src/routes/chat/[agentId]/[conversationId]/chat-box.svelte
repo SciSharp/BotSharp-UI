@@ -1129,6 +1129,7 @@
 			if (result.value) {
 				userAddStates = [];
 				conversationUserStateStore.resetOne(page.params.conversationId);
+				isOpenUserAddStateModal = false;
 			}
 		});
 	}
@@ -1735,7 +1736,7 @@
 		placeholder="Enter Message...">
 	</textarea>
 	<div class="cb-modal-counter">
-		<div>{`${(botText?.length || 0)}/${maxTextLength}`}</div>
+		<div>{`${formatNumber(botText?.length || 0)}/${formatNumber(maxTextLength)}`}</div>
 	</div>
 </DialogModal>
 
@@ -1752,15 +1753,6 @@
 	/>
 </PlainModal>
 
-<StateModal
-	isOpen={isOpenUserAddStateModal}
-	size={'3xl'}
-	bind:states={userAddStates}
-	requireActiveRounds
-	toggleModal={() => toggleUserAddStateModal()}
-	confirm={() => handleConfirmUserAddStates()}
-	cancel={() => toggleUserAddStateModal()}
-/>
 
 <HeadTitle title="Chat" addOn='' />
 <div class="cb-page-flex">
@@ -1834,7 +1826,6 @@
 												{#if !isLoadPersistLog || !isLoadInstantLog}
 													<li><button class="cb-menu-item" type="button" onclick={() => openLogs()}>View Log</button></li>
 												{/if}
-												{#if !isLoadInstantLog || !isOpenUserAddStateModal}
 												<li class="cb-state-menu">
 													<button class="cb-menu-item cb-menu-item-toggle" type="button" aria-expanded={isHeaderStatesOpen} onclick={() => isHeaderStatesOpen = !isHeaderStatesOpen}>
 														States
@@ -1864,7 +1855,6 @@
 														</li>
 													</ul>
 												</li>
-												{/if}
 
 												{#if ADMIN_ROLES.includes(currentUser?.role || '')}
 													<li>
@@ -1932,7 +1922,17 @@
 						</div>
 					</div>
 
-					<div class={`cb-msgs-scroll cb-msgs-content cb-msgs-scroll-rev ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+				<StateModal
+					isOpen={isOpenUserAddStateModal}
+					inline
+					bind:states={userAddStates}
+					requireActiveRounds
+					toggleModal={() => toggleUserAddStateModal()}
+					confirm={() => handleConfirmUserAddStates()}
+					cancel={() => toggleUserAddStateModal()}
+				/>
+
+				<div class={`cb-msgs-scroll cb-msgs-content cb-msgs-scroll-rev ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
 						<div class="cb-conv">
 							<ul class="cb-conv-list">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}

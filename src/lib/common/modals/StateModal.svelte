@@ -1,5 +1,6 @@
 <script>
-    import { fade } from 'svelte/transition';
+    import { fade, slide } from 'svelte/transition';
+    import { cubicOut } from 'svelte/easing';
     import { untrack } from 'svelte';
     import _ from "lodash";
 
@@ -7,6 +8,7 @@
         isOpen = false,
         size = 'xl',
         className = '',
+        inline = false,
         toggleModal = () => {},
         confirm = () => {},
         cancel = () => {},
@@ -153,137 +155,161 @@
     }
 </script>
 
-{#if isOpen}
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<!-- svelte-ignore a11y_click_events_have_key_events -->
-<div
-    class="stm-overlay"
-    transition:fade={{ duration: 150 }}
-    onclick={handleBackdropClick}
->
-    <div
-        class={`stm-panel relative mx-4 w-full ${sizeClasses[size] || 'max-w-xl'} ${className}`}
-        role="dialog"
-        aria-modal="true"
+{#snippet addButton()}
+    <button
+        type="button"
+        class="stm-add-btn"
+        disabled={states.length >= limit}
+        onclick={() => addState()}
     >
-        <!-- Branded accent strip across the top edge of the panel. -->
-        <div class="stm-accent"></div>
+        <i class="mdi mdi-plus text-base leading-none"></i>
+        <span>Add</span>
+    </button>
+{/snippet}
 
-        <!-- Header -->
-        <div class="flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-200 dark:border-gray-700">
-            <div class="flex items-center gap-2 min-w-0">
-                <span class="stm-title-glyph">
-                    <i class="bx bx-cube-alt"></i>
-                </span>
-                <span class="truncate text-[1.0625rem] font-semibold text-gray-900 dark:text-gray-100">{title}</span>
-            </div>
-            <span class="stm-count" aria-label={`${states.length} of ${limit}`}>
-                <span class="font-semibold">{states.length}</span><span class="opacity-50">/{limit}</span>
+{#snippet actionButtons()}
+    <button
+        type="button"
+        class="stm-btn stm-btn-confirm"
+        onclick={(e) => handleConfirm(e)}
+    >
+        Confirm
+    </button>
+    <button
+        type="button"
+        class="stm-btn stm-btn-cancel"
+        onclick={(e) => handleCancel(e)}
+    >
+        Cancel
+    </button>
+{/snippet}
+
+{#snippet panelInner()}
+    <!-- Branded accent strip across the top edge of the panel / inline section. -->
+    <div class="stm-accent"></div>
+
+    <!-- Header (the `stm-header` class is a layout hook used by .stm-inline
+         to pin this row at the top of the flex-column section so it doesn't
+         shrink when many rows are added). -->
+    <div class="stm-header flex items-center justify-between gap-3 px-5 py-3.5 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center gap-2 min-w-0">
+            <span class="stm-title-glyph">
+                <i class="bx bx-cube-alt"></i>
             </span>
+            <span class="truncate text-[1.0625rem] font-semibold text-gray-900 dark:text-gray-100">{title}</span>
         </div>
+        <span class="stm-count" aria-label={`${states.length} of ${limit}`}>
+            <span class="font-semibold">{states.length}</span><span class="opacity-50">/{limit}</span>
+        </span>
+    </div>
 
-        <!-- Body -->
-        <div class="stm-body px-5 py-4">
-            <form>
-                <div class="stm-rows flex flex-col gap-2.5">
-                {#each states as state, idx (idx)}
-                <div class="flex w-full items-end gap-2">
-                    <div class="min-w-0" style="flex: 0.4;">
-                        {#if idx === 0}
-                        <label for={`stm-key-${idx}`} class="stm-label">
-                            {`Key ${validateKey ? '*' : ''}`}
-                        </label>
-                        {/if}
-                        <input
-                            id={`stm-key-${idx}`}
-                            class={`stm-input ${!state.key.isValid ? 'stm-input-invalid' : ''}`}
-                            placeholder="Enter a key"
-                            value={state.key.data}
-                            maxlength={50}
-                            oninput={(e) => changeKey(e, idx)}
-                        />
-                    </div>
-                    <div class="min-w-0" style="flex: 0.4;">
-                        {#if idx === 0}
-                        <label for={`stm-value-${idx}`} class="stm-label">
-                            {`Value ${validateValue ? '*' : ''}`}
-                        </label>
-                        {/if}
-                        <input
-                            id={`stm-value-${idx}`}
-                            class={`stm-input ${!state.value.isValid ? 'stm-input-invalid' : ''}`}
-                            placeholder="Enter a value"
-                            value={state.value.data}
-                            maxlength={1000}
-                            oninput={(e) => changeValue(e, idx)}
-                        />
-                    </div>
-                    {#if requireActiveRounds}
-                    <div class="min-w-0" style="flex: 0.2;">
-                        {#if idx === 0}
-                        <label for={`stm-rounds-${idx}`} class="stm-label">
-                            {`Active rounds`}
-                        </label>
-                        {/if}
-                        <input
-                            id={`stm-rounds-${idx}`}
-                            type="number"
-                            class="stm-input stm-input-number"
-                            placeholder="Enter a value"
-                            value={state.active_rounds.data}
-                            oninput={(e) => changeActiveRounds(e, idx)}
-                        />
-                    </div>
+    <!-- Body -->
+    <div class="stm-body px-5 py-4">
+        <form>
+            <div class="stm-rows flex flex-col gap-2.5">
+            {#each states as state, idx (idx)}
+            <div class="flex w-full items-end gap-2">
+                <div class="min-w-0" style="flex: 0.4;">
+                    {#if idx === 0}
+                    <label for={`stm-key-${idx}`} class="stm-label">
+                        {`Key ${validateKey ? '*' : ''}`}
+                    </label>
                     {/if}
-                    <div class="flex-shrink-0">
-                        <button
-                            type="button"
-                            class="stm-remove-btn"
-                            class:invisible={states.length === 1}
-                            aria-label="Remove state"
-                            title="Remove"
-                            onclick={() => remove(idx)}
-                        >
-                            <i class="bx bxs-no-entry"></i>
-                        </button>
-                    </div>
+                    <input
+                        id={`stm-key-${idx}`}
+                        class={`stm-input ${!state.key.isValid ? 'stm-input-invalid' : ''}`}
+                        placeholder="Enter a key"
+                        value={state.key.data}
+                        maxlength={50}
+                        oninput={(e) => changeKey(e, idx)}
+                    />
                 </div>
-                {/each}
+                <div class="min-w-0" style="flex: 0.4;">
+                    {#if idx === 0}
+                    <label for={`stm-value-${idx}`} class="stm-label">
+                        {`Value ${validateValue ? '*' : ''}`}
+                    </label>
+                    {/if}
+                    <input
+                        id={`stm-value-${idx}`}
+                        class={`stm-input ${!state.value.isValid ? 'stm-input-invalid' : ''}`}
+                        placeholder="Enter a value"
+                        value={state.value.data}
+                        maxlength={1000}
+                        oninput={(e) => changeValue(e, idx)}
+                    />
                 </div>
-
-                <div class="pt-3">
+                {#if requireActiveRounds}
+                <div class="min-w-0" style="flex: 0.2;">
+                    {#if idx === 0}
+                    <label for={`stm-rounds-${idx}`} class="stm-label">
+                        {`Active rounds`}
+                    </label>
+                    {/if}
+                    <input
+                        id={`stm-rounds-${idx}`}
+                        type="number"
+                        class="stm-input stm-input-number"
+                        placeholder="Enter a value"
+                        value={state.active_rounds.data}
+                        oninput={(e) => changeActiveRounds(e, idx)}
+                    />
+                </div>
+                {/if}
+                <div class="flex-shrink-0">
                     <button
                         type="button"
-                        class="stm-add-btn"
-                        disabled={states.length >= limit}
-                        onclick={() => addState()}
+                        class="stm-remove-btn"
+                        class:invisible={states.length === 1}
+                        aria-label="Remove state"
+                        title="Remove"
+                        onclick={() => remove(idx)}
                     >
-                        <i class="mdi mdi-plus text-base leading-none"></i>
-                        <span>Add</span>
+                        <i class="bx bxs-no-entry"></i>
                     </button>
                 </div>
-            </form>
-        </div>
+            </div>
+            {/each}
+            </div>
 
-        <!-- Footer -->
-        <div class="stm-footer flex justify-end gap-2 px-5 py-3 border-t border-gray-200 dark:border-gray-700">
-            <button
-                type="button"
-                class="stm-btn stm-btn-confirm"
-                onclick={(e) => handleConfirm(e)}
-            >
-                Confirm
-            </button>
-            <button
-                type="button"
-                class="stm-btn stm-btn-cancel"
-                onclick={(e) => handleCancel(e)}
-            >
-                Cancel
-            </button>
+        </form>
+    </div>
+
+    <!-- Footer: Add on the left, Confirm + Cancel grouped on the right,
+         identical in both modal and inline modes. -->
+    <div class="stm-footer flex items-center justify-between gap-2 px-5 py-3 border-t border-gray-200 dark:border-gray-700">
+        {@render addButton()}
+        <div class="flex items-center gap-2">
+            {@render actionButtons()}
         </div>
     </div>
-</div>
+{/snippet}
+
+
+{#if isOpen && inline}
+    <section
+        class={`stm-inline ${className}`}
+        aria-label={title}
+        transition:slide={{ duration: 220, easing: cubicOut }}
+    >
+        {@render panelInner()}
+    </section>
+{:else if isOpen}
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div
+        class="stm-overlay"
+        transition:fade={{ duration: 150 }}
+        onclick={handleBackdropClick}
+    >
+        <div
+            class={`stm-panel relative mx-4 w-full ${sizeClasses[size] || 'max-w-xl'} ${className}`}
+            role="dialog"
+            aria-modal="true"
+        >
+            {@render panelInner()}
+        </div>
+    </div>
 {/if}
 
 <style>
@@ -326,6 +352,27 @@
         to   { opacity: 1; transform: translateY(0)     scale(1);    }
     }
 
+    /* ---------- Inline variant ---------- */
+    .stm-inline {
+        display: flex;
+        flex-direction: column;
+        background-color: rgb(255 255 255);
+        border-bottom: 1px solid rgb(229 231 235);
+    }
+
+    /* Pinned children — accent strip, header bar, footer (Confirm/Cancel)
+       — never shrink so the flex body absorbs the spare/overflow space. */
+    .stm-inline :global(.stm-accent),
+    .stm-inline :global(.stm-header),
+    .stm-inline :global(.stm-footer) {
+        flex-shrink: 0;
+    }
+
+    .stm-inline :global(.stm-body) {
+        flex: 1 1 auto;
+    }
+
+
     .stm-accent {
         height: 3px;
         background: linear-gradient(
@@ -362,32 +409,21 @@
         font-variant-numeric: tabular-nums;
     }
 
-    /* ---------- Body ---------- */
     .stm-body {
-        /* Body itself doesn't scroll — the inner .stm-rows list owns
-           the scroll so the Add button stays pinned beneath it. */
-        max-height: calc(85vh - 9rem);
-    }
-
-    /* Scrollable container that holds the key/value rows. Keeps the Add
-       button and footer in fixed positions while the row list scrolls. */
-    .stm-rows {
-        max-height: clamp(180px, 45vh, 420px);
+        min-height: 200px;
+        max-height: 300px;
         overflow-y: auto;
         scrollbar-width: thin;
-        /* Reserve room for the scrollbar so input borders don't bump
-           against it; negative margin re-aligns the rows with the body. */
-        padding-right: 0.375rem;
         margin-right: -0.375rem;
     }
-    .stm-rows::-webkit-scrollbar {
+    .stm-body::-webkit-scrollbar {
         width: 8px;
     }
-    .stm-rows::-webkit-scrollbar-thumb {
+    .stm-body::-webkit-scrollbar-thumb {
         background-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
         border-radius: 999px;
     }
-    .stm-rows::-webkit-scrollbar-thumb:hover {
+    .stm-body::-webkit-scrollbar-thumb:hover {
         background-color: color-mix(in srgb, var(--color-primary) 45%, transparent);
     }
 
@@ -475,12 +511,16 @@
         outline-offset: 2px;
     }
 
-    /* ---------- Add row button (replaces inline Tailwind .text-blue-600 link) ---------- */
+    /* ---------- Add row button ----------
+       Lives in the footer next to .stm-btn (Confirm/Cancel) in both
+       modal and inline modes, so its height matches .stm-btn's 2.25rem
+       to keep the action bar visually aligned. */
     .stm-add-btn {
         display: inline-flex;
         align-items: center;
         gap: 0.25rem;
-        padding: 0.375rem 0.875rem;
+        height: 2.25rem;
+        padding: 0 0.875rem;
         border: 1px dashed color-mix(in srgb, var(--color-primary) 45%, transparent);
         border-radius: 999px;
         background-color: transparent;
@@ -563,6 +603,10 @@
     :global(.dark) .stm-panel {
         background-color: rgb(31 41 55);
         border-color: rgb(55 65 81);
+    }
+    :global(.dark) .stm-inline {
+        background-color: rgb(31 41 55);
+        border-bottom-color: rgb(55 65 81);
     }
     :global(.dark) .stm-input {
         background-color: rgb(17 24 39);
