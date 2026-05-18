@@ -216,6 +216,7 @@ function skipLoader(config) {
         new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data/(.*?)', 'g'),
         new RegExp('http(s*)://(.*?)/knowledge/collection/(.*?)/data', 'g'),
+        new RegExp('http(s*)://(.*?)/conversation/(.*?)/message/(.*?)', 'g')
     ];
 
     /** @type {RegExp[]} */

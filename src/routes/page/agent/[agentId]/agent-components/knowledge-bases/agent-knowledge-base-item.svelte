@@ -1,6 +1,7 @@
 <script>
     import { slide } from 'svelte/transition';
 	import { DECIMAL_REGEX } from "$lib/helpers/constants";
+	import Select from '$lib/common/dropdowns/Select.svelte';
 
     const duration = 200;
 
@@ -27,6 +28,15 @@
         oncollapse
     } = $props();
 
+    const kbOptions = $derived(
+        knowledgeBaseOptions
+            .filter((/** @type {any} */ o) => !!o.name)
+            .map((/** @type {any} */ o) => ({ label: o.displayName || o.name, value: JSON.stringify(o) }))
+    );
+    const selectedKb = $derived(
+        knowledgeBaseOptions.find((/** @type {any} */ o) => o.name === knowledge.name)
+    );
+
     /** @param {any} e */
     function validateConfidenceInput(e) {
         const reg = new RegExp(DECIMAL_REGEX, 'g');
@@ -51,10 +61,12 @@
 
     /** @param {any} e */
     function changeKnowledgeBase(e) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        // Parent expects a JSON-stringified {name, type, ...} object; emit empty object on clear
         onchange?.({
             knowledgeIdx: knwoledgeIdx,
             field: 'knowledge',
-            value: e.target.value
+            value: values[0] || JSON.stringify({ name: '', type: '' })
         });
     }
 
@@ -75,12 +87,12 @@
     }
 </script>
 
-<div class="utility-wrapper">
-    <div class="utility-row utility-row-primary">
-        <div class="utility-label fw-bold">
-            <div class="line-align-center">
+<div class="kbi-wrapper">
+    <div class="kbi-row kbi-row-primary">
+        <div class="kbi-label kbi-label-strong">
+            <div class="kbi-cell">
                 <i
-                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class="bx bx-chevron-right kbi-collapse-toggle"
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
@@ -88,37 +100,36 @@
                     onclick={() => toggleCollapse()}
                 ></i>
             </div>
-            <div class="line-align-center">
+            <div class="kbi-cell">
                 {`Collection #${knwoledgeIdx + 1}`}
             </div>
-            <div class="utility-tooltip">
-                <div class="line-align-center">
+            <div class="kbi-tooltip-wrap">
+                <label class="kbi-checkbox">
                     <input
                         type="checkbox"
-                        class="form-check-input"
+                        class="kbi-checkbox-input"
                         checked={!knowledge.disabled}
                         onchange={e => toggleKnowledgeBase(e)}
                     />
-                </div>
+                    <span class="kbi-checkbox-box"></span>
+                </label>
             </div>
         </div>
-        <div class="utility-value">
-            <div class="utility-input line-align-center">
-                <select
-                    class="form-select"
+        <div class="kbi-value">
+            <div class="kbi-input-wrap kbi-cell">
+                <Select
+                    tag={`knowledge-base-${knwoledgeIdx}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a collection'}
                     disabled={knowledge.disabled}
-                    onchange={e => changeKnowledgeBase(e)}
-                >
-                    {#each [...knowledgeBaseOptions] as option}
-                        <option value={`${JSON.stringify(option)}`} selected={option.name == knowledge.name}>
-                            {option.displayName || option.name}
-                        </option>
-                    {/each}
-                </select>
+                    selectedValues={selectedKb ? [JSON.stringify(selectedKb)] : []}
+                    options={kbOptions}
+                    onselect={e => changeKnowledgeBase(e)}
+                />
             </div>
-            <div class="utility-delete line-align-center">
+            <div class="kbi-delete kbi-cell">
                 <i
-                    class="bx bxs-no-entry text-danger clickable fs-6"
+                    class="bx bxs-no-entry kbi-delete-icon"
                     role="link"
                     tabindex="0"
                     onkeydown={() => {}}
@@ -129,27 +140,29 @@
     </div>
 
     {#if !collapsed}
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        <div class="utility-content">
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
+    <div class="kbi-row kbi-row-secondary" transition:slide={{ duration: duration }}>
+        <div class="kbi-content">
+            <div class="kbi-list-item">
+                <div class="kbi-label kbi-cell">
                     {'Confidence'}
                 </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
+                <div class="kbi-value">
+                    <div class="kbi-input-wrap kbi-cell">
                         <input
                             type="text"
-                            class="form-control text-center"
+                            class="kbi-input kbi-input-number"
                             bind:value={knowledge.confidence}
                             disabled={knowledge.disabled}
                             onkeydown={e => validateConfidenceInput(e)}
                             onblur={e => changeConfidence(e)}
                         />
                     </div>
-                    <div class="utility-delete line-align-center"></div>
+                    <div class="kbi-delete kbi-cell"></div>
                 </div>
             </div>
         </div>
     </div>
     {/if}
 </div>
+
+

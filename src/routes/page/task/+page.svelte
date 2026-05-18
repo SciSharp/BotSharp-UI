@@ -6,10 +6,12 @@
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import TablePagination from '$lib/common/shared/TablePagination.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { getAgentTasks, updateAgentTask } from '$lib/services/task-service';
 	import { AgentTaskStatus } from '$lib/helpers/enums';
+	import { formatNumber } from '$lib/helpers/utils/common';
 	import TaskItem from './task-item.svelte';
 	
 
@@ -56,6 +58,11 @@
 	const statusOptions = Object.entries(AgentTaskStatus).map(([k, v]) => (
 		{ key: k, value: v }
 	));
+
+	/** @type {import('$commonTypes').LabelValuePair[]} */
+	let statusSelectOptions = $derived(statusOptions.map(op => (
+		{ label: $_(op.key), value: `${op.value}` }
+	)));
 
     onMount(async () => {
 		isLoading = true;
@@ -145,9 +152,11 @@
 	 */
 	 function changeOption(e, type) {
 		if (type === 'status') {
+			// Select fires `{ detail: { selecteds: [{ label, value }] } }`.
+			const selectedValues = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
 			searchOption = {
 				...searchOption,
-				status: e.target.value || null
+				status: selectedValues.length > 0 ? selectedValues[0] : null
 			};
 		}
 	}
@@ -231,57 +240,82 @@
 	isComplete={isComplete}
 />
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body border-bottom">
-				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">{$_('Task List')}</h5>
-					<div class="flex-shrink-0">
-						<div class="dropdown d-inline-block">
-							<button type="button" class="btn" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More actions">
-								<i class="mdi mdi-dots-vertical"></i>
-							</button>
-							<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-								<li><button type="button" class="dropdown-item">{$_('Action')}</button></li>
-							</ul>
-						</div>
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="flex items-center gap-3">
+					<span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+						<i class="mdi mdi-clipboard-list-outline text-xl"></i>
+					</span>
+					<div class="grow">
+						<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Task List')}</h5>
+						<p class="mb-0 text-xs text-muted">{formatNumber(pager.count)} {pager.count === 1 ? 'task' : 'tasks'} total</p>
 					</div>
+					<details class="relative">
+						<summary
+							class="inline-flex h-9 w-9 cursor-pointer list-none items-center justify-center rounded-full text-muted transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 [&::-webkit-details-marker]:hidden"
+							aria-label="More actions"
+						>
+							<i class="mdi mdi-dots-vertical text-lg"></i>
+						</summary>
+						<ul class="absolute right-0 z-10 mt-1 min-w-[140px] rounded-md bg-white py-1 shadow-lg ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+							<li>
+								<button
+									type="button"
+									class="block w-full px-3 py-2 text-left text-sm text-dark transition-colors hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+								>
+									{$_('Action')}
+								</button>
+							</li>
+						</ul>
+					</details>
 				</div>
 			</div>
-			<div class="card-body border-bottom">
-				<div class="row g-3">
-					<div class="col-xxl-5 col-lg-5">
-						<input
-							type="search"
-							class="form-control"
-							id="searchTableList"
-							placeholder={$_('Search for ...')}
-						/>
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+					<div class="lg:col-span-5">
+						<div class="relative">
+							<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+								<i class="mdi mdi-magnify text-base leading-none"></i>
+							</span>
+							<input
+								type="search"
+								id="searchTableList"
+								class="h-10 w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm text-dark transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+								placeholder={$_('Search for ...')}
+							/>
+						</div>
 					</div>
-					<div class="col-xxl-5 col-lg-5">
-						<select class="form-select" id="idStatus" value={searchOption.status} onchange={e => changeOption(e, 'status')}>
-							<option value={null}>{$_('Select Status')}</option>
-							{#each statusOptions as op}
-								<option value={`${op.value}`} selected={op.value === searchOption.status}>{$_(`${op.key}`)}</option>
-							{/each}
-						</select>
+					<div class="lg:col-span-5">
+						<Select
+							tag={'task-status-select'}
+							placeholder={$_('Select Status')}
+							selectedValues={searchOption.status ? [`${searchOption.status}`] : []}
+							options={statusSelectOptions}
+							onselect={e => changeOption(e, 'status')}
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-filter-variant"></i>
+							{/snippet}
+						</Select>
 					</div>
-					<div class="col-xxl-2 col-lg-2">
+					<div class="lg:col-span-2">
 						<button
-							class="btn btn-soft-secondary w-100"
 							type="button"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
 							onclick={e => searchTasks(e)}
 						>
-							<i class="mdi mdi-filter-outline align-middle"></i> {$_('Filter')}
+							<i class="mdi mdi-filter-outline align-middle"></i>
+							<span>{$_('Filter')}</span>
 						</button>
 					</div>
 				</div>
 			</div>
-			<div class="card-body">
-				<div class="table-responsive">
-					<table class="table table-bordered align-middle nowrap">
-						<thead>
+			<div class="p-4 sm:p-6">
+				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+					<table class="tasks-table w-full border-collapse text-sm">
+						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
 								<th scope="col">{$_('Name')}</th>
 								<th scope="col">{$_('Description')}</th>
@@ -290,7 +324,7 @@
 								<th scope="col">{$_('Updated Time')}</th>
 								<th scope="col">{$_('Enabled')}</th>
 								<th scope="col">{$_('Status')}</th>
-								<th scope="col">{$_('Action')}</th>
+								<th scope="col" class="text-center">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -309,3 +343,4 @@
 		</div>
 	</div>
 </div>
+

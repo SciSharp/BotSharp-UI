@@ -334,23 +334,22 @@
 	isLoading={isLoading}
 />
 
-<div class="agents-header-container mb-4">
-	<div>
+<div class="ag-header">
+	<div class="ag-header-actions">
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
-		<button type="button" class="btn btn-primary" onclick={() => createNewAgent()}>
+		<button type="button" class="ag-btn ag-btn-primary" onclick={() => createNewAgent()}>
 			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
 		</button>
-		<button type="button" class="btn btn-outline-info" onclick={() => importAgent()}>
+		<button type="button" class="ag-btn ag-btn-ghost" onclick={() => importAgent()}>
 			<i class="mdi mdi-upload"></i> {$_('Import Agent')}
 		</button>
 		{/if}
 	</div>
-	<div class="agent-filter">
+	<div class="ag-filter">
 		<input
 			type="text"
-			class="form-control"
+			class="ag-input"
 			placeholder="Search by name"
-			style="width: fit-content;"
 			maxlength={500}
 			value={searchItem.name}
 			oninput={e => changeSearchName(e)}
@@ -378,7 +377,7 @@
 		/>
 		<button
 			type="button"
-			class="btn btn-info"
+			class="ag-btn-icon ag-btn-icon-info"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Search"
@@ -388,7 +387,7 @@
 		</button>
 		<button
 			type="button"
-			class="btn btn-warning"
+			class="ag-btn-icon ag-btn-icon-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Reset"
@@ -400,8 +399,11 @@
 </div>
 
 
-<div class="row">
+<div class="ag-grid">
 	<CardAgent agents={agents.items} />
 </div>
 
-<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+<div class="ag-pagination">
+	<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+</div>
+

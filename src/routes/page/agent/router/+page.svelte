@@ -60,15 +60,14 @@
 <Breadcrumb title={$_('Agent')} pagetitle={$_('Routing')} />
 
 {#if routers}
-<div class="row">
-  <div class="col">
-    <RoutingFlow
-      routers={routers}
-      viewOnlyMode={!!targetAgentId}
-      onuserNodeSelected={() => handleUserNodeSelected()}
-      onrouterNodeSelected={() => handleRouterNodeSelected()}
-      onagentNodeSelected={() => handleAgentNodeSelected()}/>
-  </div>
+<div class="rt-container">
+  <RoutingFlow
+    routers={routers}
+    viewOnlyMode={!!targetAgentId}
+    onuserNodeSelected={() => handleUserNodeSelected()}
+    onrouterNodeSelected={() => handleRouterNodeSelected()}
+    onagentNodeSelected={() => handleAgentNodeSelected()}/>
 </div>
 {/if}
+
 

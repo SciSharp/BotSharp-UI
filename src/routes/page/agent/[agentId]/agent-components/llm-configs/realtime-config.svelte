@@ -1,5 +1,6 @@
 <script>
     import { slide } from 'svelte/transition';
+    import Select from '$lib/common/dropdowns/Select.svelte';
     import { LlmModelCapability, LlmModelType, ReasoningEffortLevel } from '$lib/helpers/enums';
 
     /**
@@ -84,7 +85,8 @@
 
     /** @param {any} e */
     async function changeProvider(e) {
-        const provider = e.target.value;
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        const provider = values[0] || '';
         config.provider = provider || null;
 
         if (!provider) {
@@ -104,7 +106,8 @@
 
     /** @param {any} e */
     function changeModel(e) {
-        config.model = e.target.value || null;
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        config.model = values[0] || null;
         onModelChanged(config);
         config.reasoning_effort_level = null;
         handleAgentChange();
@@ -112,7 +115,8 @@
 
     /** @param {any} e */
     function changeReasoningEffortLevel(e) {
-        config.reasoning_effort_level = e.target.value || null;
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        config.reasoning_effort_level = values[0] || null;
         handleAgentChange();
     }
 
@@ -143,65 +147,69 @@
 </script>
 
 
-<div class="agent-config-container">
+<div class="rc-card">
     <div
-        class="config-header text-center"
+        class="rc-header"
         role="button"
         tabindex="0"
         onclick={() => collapsed = !collapsed}
         onkeydown={(e) => e.key === 'Enter' && (collapsed = !collapsed)}
     >
-        <h6 class="mt-1 mb-3 d-flex align-items-center justify-content-center gap-2">
+        <h6 class="rc-header-title">
             <i class="mdi {collapsed ? 'mdi-chevron-right' : 'mdi-chevron-down'}"></i>
             {title}
         </h6>
     </div>
 
     {#if !collapsed}
-    <div transition:slide={{ duration: 200 }}>
-        <div class="mb-3 row llm-config-item">
-            <label for={`provider-${title}`} class="col-form-label llm-config-label">
+    <div transition:slide={{ duration: 200 }} class="rc-body">
+        <div class="rc-field">
+            <label for={`provider-${title}`} class="rc-label">
                 Provider
             </label>
-            <div class="llm-config-input">
-                <select class="form-select" id={`provider-${title}`} value={config.provider} onchange={e => changeProvider(e)}>
-                    {#each providers as option}
-                        <option value={option} selected={option == config.provider}>
-                            {option}
-                        </option>
-                    {/each}
-                </select>
+            <div class="rc-input-wrap">
+                <Select
+                    tag={`provider-${title}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a provider'}
+                    selectedValues={config.provider ? [config.provider] : []}
+                    options={providers.filter(p => !!p).map(p => ({ label: p, value: p }))}
+                    onselect={e => changeProvider(e)}
+                />
             </div>
         </div>
 
-        <div class="mb-3 row llm-config-item">
-            <label for={`model-${title}`} class="col-form-label llm-config-label">
+        <div class="rc-field">
+            <label for={`model-${title}`} class="rc-label">
                 Model
             </label>
-            <div class="llm-config-input">
-                <select class="form-select" id={`model-${title}`} value={config.model} disabled={models.length === 0} onchange={e => changeModel(e)}>
-                    {#each models as option}
-                        <option value={option.name} selected={option.name == config.model}>
-                            {option.name}
-                        </option>
-                    {/each}
-                </select>
+            <div class="rc-input-wrap">
+                <Select
+                    tag={`model-${title}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a model'}
+                    disabled={models.length === 0}
+                    selectedValues={config.model ? [config.model] : []}
+                    options={models.map(m => ({ label: m.name, value: m.name }))}
+                    onselect={e => changeModel(e)}
+                />
             </div>
         </div>
 
         {#if isReasoningModel}
-        <div class="mb-3 row llm-config-item">
-            <label for={`reasoning-${title}`} class="col-form-label llm-config-label">
+        <div class="rc-field">
+            <label for={`reasoning-${title}`} class="rc-label">
                 Reasoning level
             </label>
-            <div class="llm-config-input">
-                <select class="form-select" id={`reasoning-${title}`} value={config.reasoning_effort_level} onchange={e => changeReasoningEffortLevel(e)}>
-                    {#each reasoningLevelOptions as option}
-                        <option value={option.value} selected={option.value == config.reasoning_effort_level}>
-                            {option.label}
-                        </option>
-                    {/each}
-                </select>
+            <div class="rc-input-wrap">
+                <Select
+                    tag={`reasoning-${title}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a level'}
+                    selectedValues={config.reasoning_effort_level ? [config.reasoning_effort_level] : []}
+                    options={reasoningLevelOptions.filter(o => !!o.value)}
+                    onselect={e => changeReasoningEffortLevel(e)}
+                />
             </div>
         </div>
         {/if}

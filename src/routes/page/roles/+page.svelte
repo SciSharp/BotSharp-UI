@@ -147,23 +147,29 @@
 	errorText={errorText}
 />
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body border-bottom">
-				<div class="d-flex align-items-center">
-					<h5 class="mb-0 card-title flex-grow-1">{$_('Role List')}</h5>
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="flex items-center gap-3">
+					<span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+						<i class="mdi mdi-shield-account-outline text-xl"></i>
+					</span>
+					<div class="grow">
+						<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Role List')}</h5>
+						<p class="mb-0 text-xs text-muted">{roleItems.length} {roleItems.length === 1 ? 'role' : 'roles'} configured</p>
+					</div>
 				</div>
 			</div>
-			<div class="card-body">
-				<div class="table-responsive thin-scrollbar">
-					<table class="table table-bordered align-middle nowrap roles-table">
-						<thead>
+			<div class="p-4 sm:p-6">
+				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+					<table class="roles-table w-full border-collapse text-sm">
+						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
 								<th scope="col">{$_('Name')}</th>
 								<th scope="col" class="role-permission-col">{$_('Permissions')}</th>
 								<th scope="col">{$_('Update Date')}</th>
-								<th scope="col">{$_('')}</th>
+								<th scope="col" class="text-center">{$_('Actions')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -182,3 +188,4 @@
 		</div>
 	</div>
 </div>
+

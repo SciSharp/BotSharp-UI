@@ -100,41 +100,39 @@
 </script>
 
 {#if cards}
-    <div class="complex-option-container">
+    <div class="rcco-grid">
         {#each cards as card, idx (idx)}
-            <div class="card-element" in:fade={{ duration: duration }}>
-                <div class="card">
-                    <div class="card-body card-element-body">
-                        {#if !!card.title}
-                            <div class="card-element-title hide-text">{card.title}</div>
-                        {/if}
-                        {#if !!card.image_url}
-                            <div class="avatar-md">
-                                <span class="avatar-title rounded-circle bg-light text-danger font-size-16">
-                                    <img src={card.image_url} alt="" height="60" class="rounded-circle">
-                                </span>
-                            </div>
-                        {/if}
-                        {#if !!card.subtitle}
-                            <div class="card-element-subtitle hide-text">{@html card.subtitle}</div>
-                        {/if}
-                        {#if !!card.text}
-                            <div class="card-element-text hide-text">{card.text}</div>
-                        {/if}
-                        {#if card.options?.length > 0}
-                            <div class="card-option-group">
-                                {#each card.options as option, i (i)}
-                                    <button
-                                        class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-                                        disabled={disabled}
-                                        onclick={(e) => handleClickOption(e, option)}
-                                    >
-                                        <span class={`${option.type === ElementType.Web && option.url ? 'link-option' : ''}`}>{option.title}</span>
-                                    </button>
-                                {/each}
-                            </div>
-                        {/if}
-                    </div>
+            <div class="rcco-card" in:fade={{ duration: duration }}>
+                <div class="rcco-card-body">
+                    {#if !!card.title}
+                        <div class="rcco-title rcco-clip">{card.title}</div>
+                    {/if}
+                    {#if !!card.image_url}
+                        <div class="rcco-avatar">
+                            <span class="rcco-avatar-frame">
+                                <img src={card.image_url} alt="" height="60" class="rcco-avatar-img">
+                            </span>
+                        </div>
+                    {/if}
+                    {#if !!card.subtitle}
+                        <div class="rcco-subtitle rcco-clip">{@html card.subtitle}</div>
+                    {/if}
+                    {#if !!card.text}
+                        <div class="rcco-text rcco-clip">{card.text}</div>
+                    {/if}
+                    {#if card.options?.length > 0}
+                        <div class="rcco-option-group">
+                            {#each card.options as option, i (i)}
+                                <button
+                                    class={`rcco-btn ${option.is_secondary ? 'rcco-btn-secondary' : 'rcco-btn-primary'}`}
+                                    disabled={disabled}
+                                    onclick={(e) => handleClickOption(e, option)}
+                                >
+                                    <span class={`${option.type === ElementType.Web && option.url ? 'rcco-link' : ''}`}>{option.title}</span>
+                                </button>
+                            {/each}
+                        </div>
+                    {/if}
                 </div>
             </div>
         {/each}
@@ -142,10 +140,10 @@
 {/if}
 
 {#if buttons}
-    <div class="plain-option-container center-option" style="margin-top: 5px;">
+    <div class="rcco-button-row">
         {#each buttons as option, index (index)}
             <button
-                class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+                class={`rcco-btn ${option.is_secondary ? 'rcco-btn-secondary' : 'rcco-btn-primary'}`}
                 in:fade={{ duration: duration }}
                 disabled={disabled}
                 onclick={(e) => handleClickOption(e, option)}
@@ -155,3 +153,4 @@
         {/each}
     </div>
 {/if}
+

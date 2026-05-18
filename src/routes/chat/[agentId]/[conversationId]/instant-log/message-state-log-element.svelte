@@ -36,32 +36,32 @@
 </script>
 
 {#if beforeDataValue != defaultValue || afterDataValue != defaultValue}
-<div class="log-element state-change-container">
-    <div class="log-meta state-key text-danger">
+<div class="mss-element">
+    <div class="mss-meta mss-state-key">
         <div>
             <span><b>{`${data?.name}`}</b></span>
             {#if !!data?.source}
-            <span class="state-source text-secondary">{`${data?.source}`}</span>
+            <span class="mss-state-source">{`${data?.source}`}</span>
             {/if}
         </div>
     </div>
-    <div class="log-content state-value-container">
-        <div class="state-value">
-            <div class="value">
+    <div class="mss-content">
+        <div class="mss-state-value">
+            <div class="mss-value">
                 {beforeDataValue}
             </div>
             {#if !!beforeActiveRoundText}
-            <div class="active-rounds">
+            <div class="mss-active-rounds">
                 {`${beforeActiveRoundText}`}
             </div>
             {/if}
         </div>
-        <div class="state-value text-warning">
-            <div class="value">
+        <div class="mss-state-value mss-state-value-warn">
+            <div class="mss-value">
                 {afterDataValue}
             </div>
             {#if !!afterActiveRoundText}
-            <div class="active-rounds">
+            <div class="mss-active-rounds">
                 {`${afterActiveRoundText}`}
             </div>
             {/if}
@@ -69,3 +69,4 @@
     </div>
 </div>
 {/if}
+

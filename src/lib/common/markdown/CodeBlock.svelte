@@ -43,7 +43,7 @@
                     </div>
                 </div>
             {:else}
-                <i class="bx bx-copy clickable"></i>
+                <i class="bx bx-copy cursor-pointer"></i>
             {/if}
         </div>
     </div>

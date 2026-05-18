@@ -18,8 +18,7 @@
 	 * }}
 	 */
 	let {
-		user = undefined,
-		toggleRightBar = () => {}
+		user = undefined
 	} = $props();
 
 	let searchText = $state('');
@@ -77,33 +76,26 @@
 	};
 </script>
 
-<header id="page-topbar">
-	<div class="navbar-header">
-		<div class="d-flex align-items-center">
+<header
+	id="page-topbar"
+	class="fixed inset-x-0 top-0 z-[1002] h-[var(--header-height)] bg-white shadow-sm dark:bg-gray-800"
+>
+	<div class="mx-auto flex h-full items-center justify-between pr-2">
+		<div class="flex items-center">
 			<!-- LOGO -->
-			<div class="navbar-brand-box">
-				<a href="page/dashboard" class="logo logo-dark">
-					<span class="logo-sm">
-						<img src={PUBLIC_LOGO_URL} alt="" height="22" style="max-height: 22px; width: auto;" />
-					</span>
-					<span class="logo-lg">
-						<img src={PUBLIC_LOGO_URL} alt="" height="38" style="max-height: 38px; width: auto;" />
-					</span>
-				</a>
-
-				<a href="page/dashboard" class="logo logo-light">
-					<span class="logo-sm">
-						<img src={PUBLIC_LOGO_URL} alt="" height="22" style="max-height: 22px; width: auto;" />
-					</span>
-					<span class="logo-lg">
-						<img src={PUBLIC_LOGO_URL} alt="" height="38" style="max-height: 38px; width: auto;" />
-					</span>
+			<div class="flex h-[var(--header-height)] w-auto shrink-0 items-center justify-center px-3 transition-[width] duration-200 lg:w-[var(--sidebar-width)] lg:px-6 vertical-collpsed:lg:w-[var(--sidebar-collapsed-width)] vertical-collpsed:lg:px-2">
+				<a href="page/dashboard" aria-label="Home" class="block">
+					<img
+						src={PUBLIC_LOGO_URL}
+						alt=""
+						class="h-[38px] w-auto max-w-full vertical-collpsed:h-[22px]"
+					/>
 				</a>
 			</div>
 
 			<button
 				type="button"
-				class="btn btn-sm px-3 font-size-16 header-item waves-effect"
+				class="ml-1 inline-flex h-10 w-10 items-center justify-center rounded text-base text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 				id="vertical-menu-btn"
 				aria-label="Toggle sidebar"
 				onclick={() => toggleSideBar()}
@@ -112,23 +104,23 @@
 			</button>
 
 			<!-- App Search-->
-			<form class="app-search d-none d-lg-block">
-				<div class="position-relative">
+			<form class="ml-2 hidden lg:block">
+				<div class="relative">
 					<input
 						type="text"
-						class="form-control"
+						class="h-9 w-60 rounded border border-transparent bg-[#f3f3f9] py-1 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-100"
 						placeholder="{$_('Search')}..."
 						maxlength={500}
 						bind:value={searchText}
 						onkeydown={e => search(e)}
 					/>
-					<span class="bx bx-search-alt"></span>
+					<span class="bx bx-search-alt absolute left-3 top-1/2 -translate-y-1/2 text-base text-gray-400"></span>
 				</div>
 			</form>
 		</div>
-		<div class="d-flex align-items-center">
+		<div class="flex items-center">
 			{#if tenantName}
-				<span class="ms-2 me-2 align-self-center text-muted">Tenant: {tenantName}</span>
+				<span class="mx-2 hidden self-center text-sm text-muted sm:inline">Tenant: {tenantName}</span>
 			{/if}
 			<LanguageDropdown />
 			<FullScreenDropdown />
@@ -137,3 +129,5 @@
 		</div>
 	</div>
 </header>
+
+

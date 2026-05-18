@@ -3,6 +3,7 @@
     import util from "lodash";
     import { getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
+    import { formatNumber } from '$lib/helpers/utils/common';
 	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
@@ -71,7 +72,7 @@
 
 <DialogModal
     title={'Notification'}
-    size={'md'}
+    size={'xl'}
     isOpen={isOpenNotificationModal}
     toggleModal={() => toggleNotificationModal()}
     confirm={() => confirmMsg()}
@@ -79,73 +80,78 @@
     confirmBtnText={'Send'}
     disableConfirmBtn={!util.trim(text)}
 >
-    <textarea
-        class="form-control chat-input"
-        rows="5"
-        maxlength={maxTextLength}
-        bind:value={text}
-        placeholder="Enter Message..."
-    ></textarea>
-    <div class="text-secondary text-end text-count">
-        <div>{`${(text?.length || 0)}/${maxTextLength}`}</div>
+    <div class="notif-form">
+        <label class="notif-label" for="notif-textarea">Message</label>
+        <textarea
+            id="notif-textarea"
+            class="notif-textarea"
+            rows="5"
+            maxlength={maxTextLength}
+            bind:value={text}
+            placeholder="Enter the notification message you want to send to this conversation..."
+        ></textarea>
+        <div class="notif-counter" class:notif-counter-warning={(text?.length || 0) > maxTextLength * 0.8}>
+            <i class="mdi mdi-counter"></i>
+            <span>{formatNumber(text?.length || 0)} / {formatNumber(maxTextLength)}</span>
+        </div>
     </div>
 </DialogModal>
 
-<div class="card">
-    <div class="card-body">
-        <div style="display: flex; justify-content: space-between;">
-            <div>
-                <h4 class="card-title mb-5">{$_('Dialogs')}</h4>
+<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+    <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-3">
+                <span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <i class="mdi mdi-message-text-outline text-xl"></i>
+                </span>
+                <div>
+                    <h4 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Dialogs')}</h4>
+                    <p class="mb-0 text-xs text-muted">{formatNumber(dialogs.length)} {dialogs.length === 1 ? 'message' : 'messages'}</p>
+                </div>
             </div>
-            <div style="display: flex; justify-content: flex-end; gap: 5px;">
-                <div>
-                    <button
-                        type="button"
-                        class="btn btn-soft-warning btn-sm btn-rounded"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Send notification"
-                        aria-label="Send notification"
-                        onclick={() => handleSendNotification()}
-                    >
-                        <i class="mdi mdi-bell-ring"></i>
-                    </button>
-                </div>
-                <div>
-                    <button
-                        type="button"
-                        class="btn btn-soft-info btn-sm btn-rounded"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Go to chat"
-                        aria-label="Go to chat"
-                        onclick={() => goToChat()}
-                    >
-                        <i class="mdi mdi-chat"></i>
-                    </button>
-                </div>
+            <div class="flex items-center gap-1.5">
+                <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-warning/15 text-warning transition-all hover:scale-105 hover:bg-warning/25"
+                    title="Send notification"
+                    aria-label="Send notification"
+                    onclick={() => handleSendNotification()}
+                >
+                    <i class="mdi mdi-bell-ring"></i>
+                </button>
+                <button
+                    type="button"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+                    title="Go to chat"
+                    aria-label="Go to chat"
+                    onclick={() => goToChat()}
+                >
+                    <i class="mdi mdi-chat"></i>
+                </button>
             </div>
         </div>
-        <div>
-            <ul class="verti-timeline list-unstyled">
+    </div>
+
+    <div class="p-4 sm:p-6">
+        <div class="thin-scrollbar max-h-[calc(100vh-22rem)] min-h-[200px] overflow-y-auto pr-2">
+            <ul class="dialog-timeline relative m-0 list-none space-y-5 p-0 pl-8">
                 {#each dialogs as dialog}
-                <li class="event-list">
-                    <div class="event-timeline-dot">
-                      <i
-                        class={"bx " + (showInRight(dialog)
-                          ? "bx-right-arrow-circle bx-fade-right"
-                          : "bx-right-arrow-circle")}></i>
-                    </div>
-                    <div class="d-flex" style="gap: 10px;">
-                        <div class="flex-shrink-0">
-                            <i class={"bx " + (showInRight(dialog) ? "bx-user" : "bx-bot") + " h2 text-primary"}></i>
-                        </div>
-                        <div class="flex-grow-1" style="min-width: 200px;">
-                            <div>
-                                <span>{dialog.sender?.full_name || dialog.sender?.user_name || 'Unkown'}</span>
-                                <span class="text-muted ms-2" style="font-size: 0.7rem;">{utcToLocal(dialog.created_at)}</span>
+            <li class="relative">
+                <!-- Timeline dot -->
+                <span class="absolute -left-8 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-white ring-2 ring-primary/30 dark:bg-gray-800">
+                    <i class="bx bx-right-arrow-circle text-primary text-base leading-none {showInRight(dialog) ? 'bx-fade-right' : ''}"></i>
+                </span>
+                <div class="rounded-lg border border-gray-100 bg-white p-3 transition-colors hover:border-primary/30 dark:border-gray-700 dark:bg-gray-800 dark:hover:border-primary/40">
+                    <div class="flex items-start gap-3">
+                        <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                            <i class="bx {showInRight(dialog) ? 'bx-user' : 'bx-bot'} text-xl leading-none"></i>
+                        </span>
+                        <div class="min-w-0 flex-1">
+                            <div class="flex flex-wrap items-baseline gap-2">
+                                <span class="text-sm font-semibold text-dark dark:text-gray-100">{dialog.sender?.full_name || dialog.sender?.user_name || 'Unknown'}</span>
+                                <span class="text-[0.7rem] text-muted">{utcToLocal(dialog.created_at)}</span>
                             </div>
-                            <div>
+                            <div class="mt-1.5">
                                 <ConvDialogElement dialog={dialog} />
                                 {#if dialog.has_message_files || dialog.data?.startsWith(IMAGE_DATA_PREFIX)}
                                     <MessageFileGallery
@@ -157,15 +163,17 @@
                                 {/if}
                             </div>
                             {#if dialog.message_id}
-                            <div>
-                                <span class="text-muted" style="font-size: 0.7rem;">{`Message id: ${dialog.message_id}`}</span>
+                            <div class="mt-1.5 font-mono text-[0.7rem] text-muted">
+                                Message id: {dialog.message_id}
                             </div>
                             {/if}
                         </div>
                     </div>
-                  </li>
+                </div>
+                </li>
                 {/each}
             </ul>
         </div>
     </div>
 </div>
+

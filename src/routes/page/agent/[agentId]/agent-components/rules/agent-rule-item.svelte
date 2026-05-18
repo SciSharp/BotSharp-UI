@@ -1,6 +1,7 @@
 <script>
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 
     /**
      * @type {{
@@ -44,10 +45,11 @@
      * @param {string} field
      */
     function changeRule(e, field) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             ruleIdx: ruleIndex,
             field: field,
-            value: e?.target?.value || ''
+            value: values[0] || ''
         });
     }
 
@@ -69,12 +71,12 @@
     }
 </script>
 
-<div class="utility-wrapper">
-    <div class="utility-row utility-row-primary">
-        <div class="utility-label fw-bold">
-            <div class="line-align-center">
+<div class="ari-wrapper">
+    <div class="ari-row ari-row-primary">
+        <div class="ari-label ari-label-strong">
+            <div class="ari-cell">
                 <i
-                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class="bx bx-chevron-right ari-collapse-toggle"
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
@@ -82,24 +84,23 @@
                     onclick={() => toggleCollapse()}
                 ></i>
             </div>
-            <div class="line-align-center">
+            <div class="ari-cell">
                 {`Rule #${ruleIndex + 1}`}
             </div>
-            <div class="utility-tooltip">
-                <div class="line-align-center">
+            <div class="ari-tooltip-wrap">
+                <label class="ari-checkbox">
                     <input
                         type="checkbox"
-                        class="form-check-input"
-                        style="margin-top: 0;"
+                        class="ari-checkbox-input"
                         checked={!rule.disabled}
                         onchange={e => toggleRule(e, 'rule')}
                     />
-                </div>
+                    <span class="ari-checkbox-box"></span>
+                </label>
                 {#if rule.statement}
-                <div class="line-align-center">
+                <div class="ari-cell">
                     <i
-                        class="bx bx-info-circle text-primary fs-6"
-                        style="padding-top: 2px;"
+                        class="bx bx-info-circle ari-info-icon"
                         id={`rule-statement-${ruleIndex}`}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
@@ -124,23 +125,21 @@
                 {/if}
             </div>
         </div>
-        <div class="utility-value">
-            <div class="utility-input line-align-center">
-                <select
-                    class="form-select"
+        <div class="ari-value">
+            <div class="ari-input-wrap ari-cell">
+                <Select
+                    tag={`rule-trigger-${ruleIndex}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a trigger'}
                     disabled={rule.disabled}
-                    onchange={e => changeRule(e, 'rule')}
-                >
-                    {#each [...ruleOptions] as option}
-                        <option value={option.name} selected={option.name == rule.trigger_name}>
-                            {option.displayName || option.name}
-                        </option>
-                    {/each}
-                </select>
+                    selectedValues={rule.trigger_name ? [rule.trigger_name] : []}
+                    options={ruleOptions.filter(o => !!o.name).map(o => ({ label: o.displayName || o.name, value: o.name }))}
+                    onselect={e => changeRule(e, 'rule')}
+                />
             </div>
-            <div class="utility-delete line-align-center">
+            <div class="ari-delete ari-cell">
                 <i
-                    class="bx bxs-no-entry text-danger clickable fs-6"
+                    class="bx bxs-no-entry ari-delete-icon"
                     role="link"
                     tabindex="0"
                     onkeydown={() => {}}
@@ -150,3 +149,5 @@
         </div>
     </div>
 </div>
+
+

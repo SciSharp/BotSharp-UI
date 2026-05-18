@@ -48,7 +48,7 @@
 
 {#if text || thinkingText}
     <div
-        class={`ctext-wrap bg-primary ${containerClasses}`}
+        class={`rcm-bubble ${containerClasses}`}
         style={`${containerStyles}`}
     >
         {#if thinkingText}
@@ -58,7 +58,7 @@
                     onclick={() => isThinkingExpanded = !isThinkingExpanded}
                 >
                     <span class="thinking-sparkle" class:pulsing={isThinking}><Icon src={Sparkles} solid size="16" /></span>
-                    <span class="font-bold">{'Thinking'}</span>
+                    <span class="rcm-thinking-label">{'Thinking'}</span>
                     {#if isThinking}
                         <Loader disableDefaultStyles size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
                     {:else if isStoppedThinking}
@@ -79,7 +79,7 @@
                 {/if}
             </div>
         {/if}
-        <div class="flex-shrink-0 align-self-center">
+        <div class="rcm-body">
             {#if message?.rich_content?.message?.rich_type === RichType.ProgramCode
                 && message?.rich_content?.message?.language === 'javascript'}
                 <RcJsInterpreter message={message} scrollable />
@@ -90,75 +90,3 @@
     </div>
 {/if}
 
-<style>
-    .thinking-section {
-        margin-bottom: 15px;
-    }
-
-    .thinking-toggle {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        background: none;
-        border: none;
-        color: #555;
-        cursor: pointer;
-        padding: 4px 0;
-        font-size: 0.9em;
-    }
-
-    .thinking-toggle:hover {
-        color: #333;
-    }
-
-    .thinking-sparkle {
-        color: #4285f4;
-        display: flex;
-        align-items: center;
-    }
-
-    .thinking-sparkle.pulsing {
-        animation: thinking-sparkle-pulse 1.4s ease-in-out infinite;
-    }
-
-    @keyframes thinking-sparkle-pulse {
-        0%, 100% {
-            opacity: 1;
-            transform: scale(1);
-        }
-        50% {
-            opacity: 0.55;
-            transform: scale(1.15);
-        }
-    }
-
-    .thinking-chevron {
-        font-size: 1em;
-        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-        display: inline-block;
-    }
-
-    .thinking-chevron.expanded {
-        transform: rotate(90deg);
-    }
-
-    .stopped-thinking-label {
-        font-size: 0.85em;
-        color: #999;
-        font-style: italic;
-    }
-
-    .thinking-content {
-        font-size: 0.9em;
-        padding: 4px 0 4px 16px;
-        border-left: 1px solid #888;
-        margin-top: 4px;
-        max-height: 200px;
-        overflow-y: auto;
-        scrollbar-width: none;
-    }
-
-    .thinking-content::-webkit-scrollbar {
-        display: none;
-    }
-</style>

@@ -1,5 +1,6 @@
 <script>
     import { slide } from 'svelte/transition';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     const duration = 200;
     const limit = 10;
@@ -28,6 +29,12 @@
         onadd,
         oncollapse
     } = $props();
+
+    const toolOptions = $derived(
+        (mcpOptions.find((/** @type {any} */ x) => x.id === mcp.server_id)?.tools || [])
+            .filter((/** @type {string} */ t) => !!t)
+            .map((/** @type {string} */ t) => ({ label: t, value: t }))
+    );
 
     /** @param {any} e */
     function toggleMcp(e) {
@@ -58,10 +65,11 @@
 
     /** @param {any} e */
     function changeMcp(e) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             mcpIdx: mcpIndex,
             field: 'mcp',
-            value: e.target.value
+            value: values[0] || ''
         });
     }
 
@@ -71,11 +79,12 @@
      * @param {string} type
      */
     function changeMcpItem(e, fid, type) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             mcpIdx: mcpIndex,
             field: type,
             itemIdx: fid,
-            value: e.target.value
+            value: values[0] || ''
         });
     }
 
@@ -95,12 +104,12 @@
     }
 </script>
 
-<div class="utility-wrapper">
-    <div class="utility-row utility-row-primary">
-        <div class="utility-label fw-bold">
-            <div class="line-align-center">
+<div class="mti-wrapper">
+    <div class="mti-row mti-row-primary">
+        <div class="mti-label mti-label-strong">
+            <div class="mti-cell">
                 <i
-                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class="bx bx-chevron-right mti-collapse-toggle"
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
@@ -108,37 +117,36 @@
                     onclick={() => toggleCollapse()}
                 ></i>
             </div>
-            <div class="line-align-center">
+            <div class="mti-cell">
                 {`MCP #${mcpIndex + 1}`}
             </div>
-            <div class="utility-tooltip">
-                <div class="line-align-center">
+            <div class="mti-tooltip-wrap">
+                <label class="mti-checkbox">
                     <input
                         type="checkbox"
-                        class="form-check-input"
+                        class="mti-checkbox-input"
                         checked={!mcp.disabled}
                         onchange={e => toggleMcp(e)}
                     />
-                </div>
+                    <span class="mti-checkbox-box"></span>
+                </label>
             </div>
         </div>
-        <div class="utility-value">
-            <div class="utility-input line-align-center">
-                <select
-                    class="form-select"
+        <div class="mti-value">
+            <div class="mti-input-wrap mti-cell">
+                <Select
+                    tag={`mcp-server-${mcpIndex}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a server'}
                     disabled={mcp.disabled}
-                    onchange={e => changeMcp(e)}
-                >
-                    {#each [...mcpOptions] as option}
-                        <option value={option.id} selected={option.id == mcp.server_id}>
-                            {option.displayName || option.name}
-                        </option>
-                    {/each}
-                </select>
+                    selectedValues={mcp.server_id ? [mcp.server_id] : []}
+                    options={mcpOptions.filter(o => !!o.id).map(o => ({ label: o.displayName || o.name, value: o.id }))}
+                    onselect={e => changeMcp(e)}
+                />
             </div>
-            <div class="utility-delete line-align-center">
+            <div class="mti-delete mti-cell">
                 <i
-                    class="bx bxs-no-entry text-danger clickable fs-6"
+                    class="bx bxs-no-entry mti-delete-icon"
                     role="link"
                     tabindex="0"
                     onkeydown={() => {}}
@@ -149,48 +157,46 @@
     </div>
 
     {#if !collapsed}
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        <div class="utility-content">
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
+    <div class="mti-row mti-row-secondary" transition:slide={{ duration: duration }}>
+        <div class="mti-content">
+            <div class="mti-list-item">
+                <div class="mti-label mti-cell">
                     {'Server'}
                 </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
+                <div class="mti-value">
+                    <div class="mti-input-wrap mti-cell">
                         <input
                             type="text"
-                            class="form-control"
+                            class="mti-input"
                             disabled
                             value={mcp.server_id}
                         />
                     </div>
-                    <div class="utility-delete line-align-center"></div>
+                    <div class="mti-delete mti-cell"></div>
                 </div>
             </div>
         </div>
-        <div class="utility-content">
+        <div class="mti-content">
             {#each mcp.functions as fn, fid (fid)}
-                <div class="utility-list-item">
-                    <div class="utility-label line-align-center">
+                <div class="mti-list-item">
+                    <div class="mti-label mti-cell">
                         {fid === 0 ? 'Tools' : ''}
                     </div>
-                    <div class="utility-value">
-                        <div class="utility-input line-align-center">
-                            <select
-                                class="form-select"
+                    <div class="mti-value">
+                        <div class="mti-input-wrap mti-cell">
+                            <Select
+                                tag={`mcp-fn-${mcpIndex}-${fid}`}
+                                containerStyles={'width: 100%;'}
+                                placeholder={'Select a tool'}
                                 disabled={mcp.disabled}
-                                onchange={e => changeMcpItem(e, fid, 'function')}
-                            >
-                                {#each [...mcpOptions.find(x => x.id === mcp.server_id)?.tools || []] as option}
-                                    <option value={option} selected={option == fn.name}>
-                                        {option}
-                                    </option>
-                                {/each}
-                            </select>
+                                selectedValues={fn.name ? [fn.name] : []}
+                                options={toolOptions}
+                                onselect={e => changeMcpItem(e, fid, 'function')}
+                            />
                         </div>
-                        <div class="utility-delete line-align-center">
+                        <div class="mti-delete mti-cell">
                             <i
-                                class="bx bxs-no-entry text-danger clickable fs-6"
+                                class="bx bxs-no-entry mti-delete-icon"
                                 role="link"
                                 tabindex="0"
                                 onkeydown={() => {}}
@@ -202,13 +208,13 @@
             {/each}
 
             {#if mcp.functions?.length < limit}
-                <div class="utility-list-item">
-                    <div class="utility-label">
+                <div class="mti-list-item">
+                    <div class="mti-label">
                         {mcp.functions.length === 0 ? 'Functions' : ''}
                     </div>
-                    <div class="utility-value">
+                    <div class="mti-value">
                         <i
-                            class="bx bx-list-plus add-list clickable fs-6"
+                            class="bx bx-list-plus mti-add-list"
                             data-bs-toggle="tooltip"
                             data-bs-placement="top"
                             title="Add function"
@@ -224,3 +230,5 @@
     </div>
     {/if}
 </div>
+
+

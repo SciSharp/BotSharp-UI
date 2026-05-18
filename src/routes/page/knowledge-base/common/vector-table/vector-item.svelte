@@ -75,19 +75,20 @@
 {/if}
 
 <tr in:fly={{ y: -5, duration: 800 }}>
-    <td class={`knowledge-text-qa ${isDocumentCollection ? 'knowledge-text' : ''}`}>
-        <div class="ellipsis">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
+    <td class={`vti-text-qa ${isDocumentCollection ? 'vti-text' : ''}`}>
+        <div class="vti-ellipsis">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
     </td>
     {#if isQuestionAnswerCollection}
-        <td class="knowledge-text-qa">
-            <div class="ellipsis">{item?.payload?.answer?.data_value || ''}</div>
+        <td class="vti-text-qa">
+            <div class="vti-ellipsis">{item?.payload?.answer?.data_value || ''}</div>
         </td>
     {/if}
-    <td class="knowledge-op">
-        <ul class="list-unstyled hstack gap-1 mb-0 knowledge-op-list">
+    <td class="vti-op">
+        <ul class="vti-op-list">
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="View Detail">
                 <button
-                    class="btn btn-sm btn-soft-primary"
+                    type="button"
+                    class="vti-icon-btn vti-icon-btn-primary"
                     aria-label="View detail"
                     onclick={() => toggleKnowledgeDetail()}
                 >
@@ -100,7 +101,8 @@
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Edit">
                 <button
-                    class="btn btn-sm btn-soft-warning"
+                    type="button"
+                    class="vti-icon-btn vti-icon-btn-warning"
                     disabled={disabled}
                     aria-label="Edit"
                     onclick={() => editKnowledge()}
@@ -110,7 +112,8 @@
             </li>
             <li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
                 <button
-                    class="btn btn-sm btn-soft-danger"
+                    type="button"
+                    class="vti-icon-btn vti-icon-btn-danger"
                     disabled={disabled}
                     aria-label="Delete"
                     onclick={() => deleteKnowledge(item?.id)}
@@ -125,67 +128,68 @@
 {#if open}
     <tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
         <td colspan="12">
-            <div class="knowledge-detail">
+            <div class="vti-detail">
                 <ul>
                     {#if isQuestionAnswerCollection}
                         <li>
-                            <div class="wrappable fw-bold text-primary">
+                            <div class="vti-wrappable vti-detail-label">
                                 {'Question:'}
                             </div>
-                            <div class="wrappable">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
+                            <div class="vti-wrappable">{item?.payload?.text?.data_value || item?.payload?.question?.data_value || ''}</div>
                         </li>
                         <li>
-                            <div class="wrappable fw-bold text-primary">
+                            <div class="vti-wrappable vti-detail-label">
                                 {'Answer:'}
                             </div>
-                            <div class="wrappable">{item?.payload?.answer?.data_value || ''}</div>
+                            <div class="vti-wrappable">{item?.payload?.answer?.data_value || ''}</div>
                         </li>
                     {:else if isDocumentCollection}
                         <li>
-                            <div class="wrappable fw-bold text-primary">
+                            <div class="vti-wrappable vti-detail-label">
                                 {'Text:'}
                             </div>
-                            <div class="wrappable">{item?.payload?.text?.data_value || ''}</div>
+                            <div class="vti-wrappable">{item?.payload?.text?.data_value || ''}</div>
                         </li>
                     {/if}
 
                     {#if item?.score}
                         <li>
-                            <div class="wrappable fw-bold text-primary">
+                            <div class="vti-wrappable vti-detail-label">
                                 {'Score:'}
                             </div>
-                            <div class="wrappable">{`${item.score?.toFixed(6)}`}</div>
+                            <div class="vti-wrappable">{`${item.score?.toFixed(6)}`}</div>
                         </li>
                     {/if}
                 </ul>
                 {#if item?.id}
-                    <div class="more-detail">
-                        <button class="toggle-btn btn btn-sm btn-link" onclick={() => loadMore = !loadMore}>
+                    <div class="vti-more-detail">
+                        <button type="button" class="vti-link-btn" onclick={() => loadMore = !loadMore}>
                             {`${loadMore ? 'Less -' : 'More +'}`}
                         </button>
                     </div>
                     {#if loadMore}
                         <ul
-                            class="more-detail-list text-secondary"
+                            class="vti-more-detail-list"
                             in:fly={{ y: -5, duration: 300 }}
                             out:fly={{ y: -5, duration: 200 }}
                         >
-                            <li class="more-detail-item wrappable">
+                            <li class="vti-more-detail-item vti-wrappable">
                                 Data point id: {item?.id || ''}
                             </li>
                             {#if item?.vector_dimension}
-                                <li class="more-detail-item wrappable">
+                                <li class="vti-more-detail-item vti-wrappable">
                                     Vector dimension: {item?.vector_dimension}
                                 </li>
                             {/if}
                             {#if item?.payload}
                                 {#each Object.keys(item.payload) as key (`${key}-${item?.id}`)}
                                     {#if (!excludedPayloads.includes(key))}
-                                        <li class="more-detail-item wrappable">
+                                        <li class="vti-more-detail-item vti-wrappable">
                                             <span>{key} {`(${item.payload[key]?.data_type?.toLowerCase()})`}: </span>
                                             {#if key === KnowledgePayloadName.FileUrl}
                                                 <button
-                                                    class="link clickable btn btn-link p-0"
+                                                    type="button"
+                                                    class="vti-link"
                                                     onclick={() => window.open(item.payload[key]?.data_value)}
                                                 >
                                                     link
@@ -204,3 +208,5 @@
         </td>
     </tr>
 {/if}
+
+

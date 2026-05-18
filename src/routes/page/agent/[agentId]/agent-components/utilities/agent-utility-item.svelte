@@ -2,6 +2,7 @@
     import { slide } from 'svelte/transition';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 
     const duration = 200;
 
@@ -62,10 +63,11 @@
      * @param {any} e
 	 */
     function changeUtilityCategory(e) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             utilityIdx: utilityIndex,
             field: 'utility-category',
-            value: e.target.value
+            value: values[0] || ''
         });
     }
 
@@ -73,10 +75,11 @@
      * @param {any} e
 	 */
     function changeUtilityName(e) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             utilityIdx: utilityIndex,
             field: 'utility-name',
-            value: e.target.value
+            value: values[0] || ''
         });
     }
 
@@ -155,12 +158,12 @@
     }
 </script>
 
-<div class="utility-wrapper">
-    <div class="utility-row utility-row-primary">
-        <div class="utility-label fw-bold">
-            <div class="line-align-center">
+<div class="aui-wrapper">
+    <div class="aui-row aui-row-primary">
+        <div class="aui-label aui-label-strong">
+            <div class="aui-cell">
                 <i
-                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class="bx bx-chevron-right aui-collapse-toggle"
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
@@ -168,37 +171,36 @@
                     onclick={() => toggleCollapse()}
                 ></i>
             </div>
-            <div class="line-align-center">
+            <div class="aui-cell">
                 {`Utility #${utilityIndex + 1}`}
             </div>
-            <div class="utility-tooltip">
-                <div class="line-align-center">
+            <div class="aui-tooltip-wrap">
+                <label class="aui-checkbox">
                     <input
                         type="checkbox"
-                        class="form-check-input"
+                        class="aui-checkbox-input"
                         checked={!utility.disabled}
                         onchange={e => toggleUtility(e)}
                     />
-                </div>
+                    <span class="aui-checkbox-box"></span>
+                </label>
             </div>
         </div>
-        <div class="utility-value">
-            <div class="utility-input line-align-center">
-                <select
-                    class="form-select"
+        <div class="aui-value">
+            <div class="aui-input-wrap aui-cell">
+                <Select
+                    tag={`utility-category-${utilityIndex}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a category'}
                     disabled={utility.disabled}
-                    onchange={e => changeUtilityCategory(e)}
-                >
-                    {#each utilityCategoryOptions as option}
-                        <option value={option.value} selected={option.value == utility.category}>
-                            {option.label}
-                        </option>
-                    {/each}
-                </select>
+                    selectedValues={utility.category ? [utility.category] : []}
+                    options={utilityCategoryOptions.filter(o => !!o.value)}
+                    onselect={e => changeUtilityCategory(e)}
+                />
             </div>
-            <div class="utility-delete line-align-center">
+            <div class="aui-delete aui-cell">
                 <i
-                    class="bx bxs-no-entry text-danger clickable fs-6"
+                    class="bx bxs-no-entry aui-delete-icon"
                     role="link"
                     tabindex="0"
                     onkeydown={() => {}}
@@ -209,18 +211,17 @@
     </div>
 
     {#if !collapsed}
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
+    <div class="aui-row aui-row-secondary" transition:slide={{ duration: duration }}>
         {#if utility.category}
             {@const utilityOptions = getUtilityOptions(utilityMapper[utility.category]?.map((/** @type {any} */ x) => x.name), 'Select a utility')}
-            <div class="utility-content">
-                <div class="utility-list-item">
-                    <div class="utility-label d-flex" style="gap: 10px;">
-                        <div class="line-align-center">{'Name'}</div>
+            <div class="aui-content">
+                <div class="aui-list-item">
+                    <div class="aui-label aui-label-flex">
+                        <div class="aui-cell">{'Name'}</div>
                         {#if utility.name}
-                        <div class="line-align-center">
+                        <div class="aui-cell">
                             <i
-                                class="mdi mdi-refresh clickable fs-6"
-                                style="padding-top: 3px;"
+                                class="mdi mdi-refresh aui-refresh-icon"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Reset"
@@ -232,54 +233,52 @@
                         </div>
                         {/if}
                     </div>
-                    <div class="utility-value">
-                        <div class="utility-input line-align-center">
-                            <select
-                                class="form-select"
+                    <div class="aui-value">
+                        <div class="aui-input-wrap aui-cell">
+                            <Select
+                                tag={`utility-name-${utilityIndex}`}
+                                containerStyles={'width: 100%;'}
+                                placeholder={'Select a utility'}
                                 disabled={utility.disabled}
-                                onchange={e => changeUtilityName(e)}
-                            >
-                                {#each utilityOptions as option}
-                                    <option value={option.value} selected={option.value == utility.name}>
-                                        {option.label}
-                                    </option>
-                                {/each}
-                            </select>
+                                selectedValues={utility.name ? [utility.name] : []}
+                                options={utilityOptions.filter(o => !!o.value)}
+                                onselect={e => changeUtilityName(e)}
+                            />
                         </div>
-                        <div class="utility-delete line-align-center"></div>
+                        <div class="aui-delete aui-cell"></div>
                     </div>
                 </div>
-                <div class="utility-list-item">
-                    <div class="utility-label line-align-center">
+                <div class="aui-list-item">
+                    <div class="aui-label aui-cell">
                         {'Visibility'}
                     </div>
-                    <div class="utility-value">
-                        <div class="utility-input line-align-center">
+                    <div class="aui-value">
+                        <div class="aui-input-wrap aui-cell">
                             <input
                                 type="text"
-                                class="form-control"
+                                class="aui-input"
                                 disabled={utility.disabled}
                                 maxlength={1000}
                                 value={utility.visibility_expression}
                                 onchange={e => changeUtilityVisibility(e)}
                             />
                         </div>
-                        <div class="utility-delete line-align-center"></div>
+                        <div class="aui-delete aui-cell"></div>
                     </div>
                 </div>
             </div>
         {/if}
         {#each utility.items as item, fid (fid)}
-            <div class="utility-content">
+            <div class="aui-content">
                 {#if item.function_name}
                     {@const description = getUtilityItemDescription(utility.category, utility.name, item.function_name)}
-                    <div class="utility-list-item">
-                        <div class="utility-label d-flex" style="gap: 10px;">
-                            <div class="line-align-center">{'Function'}</div>
+                    <div class="aui-list-item">
+                        <div class="aui-label aui-label-flex">
+                            <div class="aui-cell">{'Function'}</div>
                             {#if description}
-                            <div class="line-align-center">
+                            <div class="aui-cell">
                                 <i
-                                    class="bx bx-info-circle fs-6"
+                                    class="bx bx-info-circle aui-info-icon"
                                     id={`utility-${utilityIndex}-${fid}`}></i>
                                 <BotsharpTooltip
                                     containerClasses="agent-utility-desc"
@@ -299,18 +298,18 @@
                             </div>
                             {/if}
                         </div>
-                        <div class="utility-value">
-                            <div class="utility-input line-align-center">
+                        <div class="aui-value">
+                            <div class="aui-input-wrap aui-cell">
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="aui-input"
                                     value={item.function_display_name}
                                     disabled
                                 />
                             </div>
-                            <div class="utility-delete line-align-center">
+                            <div class="aui-delete aui-cell">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable fs-6"
+                                    class="bx bxs-no-entry aui-delete-icon"
                                     role="link"
                                     tabindex="0"
                                     onkeydown={() => {}}
@@ -321,22 +320,22 @@
                     </div>
                 {/if}
                 {#if item.template_name}
-                    <div class="utility-list-item">
-                        <div class="utility-label line-align-center">
+                    <div class="aui-list-item">
+                        <div class="aui-label aui-cell">
                             {'Template'}
                         </div>
-                        <div class="utility-value">
-                            <div class="utility-input line-align-center">
+                        <div class="aui-value">
+                            <div class="aui-input-wrap aui-cell">
                                 <input
                                     type="text"
-                                    class="form-control"
+                                    class="aui-input"
                                     value={item.template_display_name}
                                     disabled
                                 />
                             </div>
-                            <div class="utility-delete line-align-center">
+                            <div class="aui-delete aui-cell">
                                 <i
-                                    class="bx bxs-no-entry text-danger clickable fs-6"
+                                    class="bx bxs-no-entry aui-delete-icon"
                                     role="link"
                                     tabindex="0"
                                     onkeydown={() => {}}
@@ -346,22 +345,22 @@
                         </div>
                     </div>
                 {/if}
-                <div class="utility-list-item">
-                    <div class="utility-label line-align-center">
+                <div class="aui-list-item">
+                    <div class="aui-label aui-cell">
                         {'Visibility'}
                     </div>
-                    <div class="utility-value">
-                        <div class="utility-input line-align-center">
+                    <div class="aui-value">
+                        <div class="aui-input-wrap aui-cell">
                             <input
                                 type="text"
-                                class="form-control"
+                                class="aui-input"
                                 disabled={utility.disabled}
                                 maxlength={1000}
                                 value={item.visibility_expression}
                                 onchange={e => changeUtilityItemVisibility(e, fid)}
                             />
                         </div>
-                        <div class="utility-delete line-align-center"></div>
+                        <div class="aui-delete aui-cell"></div>
                     </div>
                 </div>
             </div>
@@ -369,3 +368,5 @@
     </div>
     {/if}
 </div>
+
+

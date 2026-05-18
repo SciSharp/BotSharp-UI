@@ -25,24 +25,4 @@
 	</NodeWrapper>
 </Node>
 
-<style>
-	.node-body {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
 
-	.note {
-		font-family: 'Reenie Beanie', sans-serif;
-		position: absolute;
-		top: -20px;
-		left: 40px;
-		width: 400px;
-		transform: rotate(3deg);
-		color: inerhit;
-		font-weight: 200px;
-		font-size: 30px;
-		pointer-events: none;
-	}
-</style>

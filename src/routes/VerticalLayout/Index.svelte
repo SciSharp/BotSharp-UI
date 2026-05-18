@@ -48,14 +48,14 @@
 
 <GlobalHeader bind:isLoading={isLoading} bind:hasError={hasError} />
 
-<div id="layout-wrapper">
+<div id="layout-wrapper" class="min-h-screen">
 	<Header {user} toggleRightBar={() => toggleRightBar()} />
 	{#if menu}
-	<Sidebar {menu} />
+		<Sidebar {menu} />
 	{/if}
-	<div class="main-content">
-		<div class="page-content">
-			<div class="container-fluid" style="position: relative;">
+	<div class="main-content relative min-h-screen lg:ml-[var(--sidebar-width)] transition-[margin] duration-200">
+		<div class="page-content pt-[calc(var(--header-height)+1.5rem)] pb-[var(--footer-height)] px-3 sm:px-4 lg:px-6 min-h-screen">
+			<div class="relative mx-auto w-full max-w-full">
 				<LoadingToComplete
 					spinnerSize={50}
 					{isLoading}
@@ -69,3 +69,5 @@
 
 	<RightSidebar closebar={() => closebar()} />
 </div>
+
+

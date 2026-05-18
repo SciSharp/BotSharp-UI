@@ -209,7 +209,7 @@
 
     function loadMoreDocs() {
         if (isLoadingFiles) return;
-        
+
         getKnowledgeDocumentList().then(() => {
             autoScrollToBottom();
         });
@@ -247,7 +247,7 @@
                 isLoadingFiles = false;
             });
         });
-        
+
     }
 
     /** @param {number} index */
@@ -360,46 +360,46 @@
 <LoadingToComplete {isLoading} />
 
 <div
-    class="knowledge-doc-upload-container"
+    class="doc-up-container"
     in:fly={{ y: -10, duration: 500 }}
     out:fly={{ y: -10, duration: 200 }}
 >
-    <div class="doc-upload-header text-primary fw-bold">
-        <div class="form-check form-switch upload-toggle-btn">
+    <div class="doc-up-header">
+        <label class="doc-up-switch">
             <input
                 type="checkbox"
-                class="form-check-input"
                 role="switch"
                 disabled={disabled}
                 checked={showUploader}
                 onchange={e => toggleUploader(e)}
             />
-        </div>
-        <div class="line-align-center">
+            <span class="doc-up-switch-slider"></span>
+        </label>
+        <div class="doc-up-header-label">
             <div>{`${showUploader && !disableFileUpload ? 'Upload' : 'View'} Documents`}</div>
         </div>
         {#if showUploader}
-            <div class="line-align-center" id="upload-tooltip">
+            <div class="doc-up-tooltip-icon" id="upload-tooltip">
                 <i class="bx bx-info-circle"></i>
             </div>
-            <BotsharpTooltip target="upload-tooltip" placement="top" containerClasses="demo-tooltip-note">
-                <ul>
-                    <li>{`At most ${fileLimit} ${fileLimit > 1 ? 'documents are' : 'document is'} allowed for each upload.`}</li>
-                    <li>{`Each document cannot exceed ${fileMaxSize} MB.`}</li>
-                    <li>{`Document types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
+            <BotsharpTooltip target="upload-tooltip" placement="top" containerClasses="[&_.tooltip-inner]:max-w-fit">
+                <ul class="mb-0 list-disc pl-4 text-left">
+                    <li class="my-[3px]">{`At most ${fileLimit} ${fileLimit > 1 ? 'documents are' : 'document is'} allowed for each upload.`}</li>
+                    <li class="my-[3px]">{`Each document cannot exceed ${fileMaxSize} MB.`}</li>
+                    <li class="my-[3px]">{`Document types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
                 </ul>
             </BotsharpTooltip>
         {/if}
     </div>
     {#if showUploader}
         <div
-            class="doc-uploader-container mt-3"
+            class="doc-up-uploader"
             in:fly={{ y: -10, duration: 500 }}
             out:fly={{ y: -10, duration: 200 }}
         >
             {#if !disableFileUpload}
                 <FileGallery
-                    containerClasses={'doc-upload-body'}
+                    containerClasses={'doc-up-gallery'}
                     files={uploadFiles}
                     showFileName
                     needDelete
@@ -411,7 +411,7 @@
                     {#snippet prefix()}
                         <FileDropZone
                             accept={accept}
-                            containerClasses={'doc-drop-zone'}
+                            containerClasses={'doc-up-drop-zone'}
                             disabled={disabled || disableFileDrop}
                             fileLimit={localFileUploadLimit}
                             maxSize={fileMaxSize * 1024 * 1024}
@@ -421,13 +421,11 @@
                         </FileDropZone>
                     {/snippet}
                     {#snippet suffix()}
-                        <div
-                            class="doc-card-btn"
-                        >
+                        <div class="doc-up-card-btn">
                             <!-- svelte-ignore a11y_click_events_have_key_events -->
                             <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <i
-                                class="mdi mdi-arrow-up-bold-circle clickable"
+                                class="mdi mdi-arrow-up-bold-circle doc-up-clickable"
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Submit"
@@ -443,31 +441,28 @@
                 failedFiles={failedFiles}
             />
 
-            <div class="doc-upload-footer" style={`margin-top: ${!disableFileUpload ? '30px;' : '0px;'}`}>
+            <div class="doc-up-footer" class:doc-up-footer-compact={disableFileUpload}>
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <div class="load-doc-btn">
+                <div class="doc-up-load-doc-row">
                     <button
-                        class={`btn btn-md knowledge-demo-btn ${showDocList ? 'btn-soft-warning' : 'btn-soft-primary'}`}
+                        type="button"
+                        class={`doc-up-btn ${showDocList ? 'doc-up-btn-warning' : 'doc-up-btn-primary'}`}
                         disabled={disabled}
                         onclick={() => toggleShowDocList()}
                     >
                         {#if !showDocList}
-                            <div class="btn-content">
-                                <div class="knowledge-btn-icon line-align-center"><i class="bx bx-search-alt"></i></div>
-                                <div>{'View Collection Documents'}</div>
-                            </div>
+                            <i class="bx bx-search-alt"></i>
+                            <span>{'View Collection Documents'}</span>
                         {:else}
-                            <div class="btn-content">
-                                <div class="knowledge-btn-icon"><i class="bx bx-hide"></i></div>
-                                <div>{'Hide Collection Documents'}</div>
-                            </div>
+                            <i class="bx bx-hide"></i>
+                            <span>{'Hide Collection Documents'}</span>
                         {/if}
                     </button>
                     {#if showDocList && !disableFileDelete}
-                        <div class="reset-docs-btn line-align-center">
+                        <div class="doc-up-reset-docs">
                             <!-- svelte-ignore a11y_no_static_element_interactions -->
                             <i
-                                class={`bx bx-trash ${disabled || savedFiles.length === 0 ? '' : 'clickable'}`}
+                                class={`bx bx-trash ${disabled || savedFiles.length === 0 ? '' : 'doc-up-clickable'}`}
                                 data-bs-toggle="tooltip"
                                 data-bs-placement="top"
                                 title="Delete all docs"
@@ -477,7 +472,7 @@
                     {/if}
                 </div>
                 {#if showDocList}
-                    <div class="collection-docs docs-scrollbar">
+                    <div class="doc-up-collection-docs">
                         <div>
                             {#if savedFiles.length > 0}
                                 <FileGallery
@@ -491,11 +486,11 @@
                                     showSuffix={!noMoreDocs}
                                 >
                                     {#snippet suffix()}
-                                        <div class="doc-card-btn doc-load-more">
+                                        <div class="doc-up-card-btn doc-up-load-more">
                                             <!-- svelte-ignore a11y_no_static_element_interactions -->
                                             <!-- svelte-ignore a11y_click_events_have_key_events -->
                                             <i
-                                                class="mdi mdi-eye-plus-outline clickable"
+                                                class="mdi mdi-eye-plus-outline doc-up-clickable"
                                                 data-bs-toggle="tooltip"
                                                 data-bs-placement="top"
                                                 title="Load more"
@@ -505,17 +500,17 @@
                                     {/snippet}
                                 </FileGallery>
                             {:else if !isLoadingFiles && savedFiles.length === 0}
-                                <div class="mt-3 text-center">
-                                    <h4 class="text-secondary">{"Ehhh, nothing is found..."}</h4>
+                                <div class="doc-up-empty">
+                                    <h4>{"Ehhh, nothing is found..."}</h4>
                                 </div>
                             {/if}
                             {#if isLoadingFiles}
-                                <div class="knowledge-loader mt-3 mb-3">
-                                    <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+                                <div class="doc-up-loader">
+                                    <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--color-primary)'} />
                                 </div>
                             {:else if noMoreDocs && savedFiles.length > 0}
-                                <div class="mt-3 text-center">
-                                    <h4 class="text-secondary">{"No more files..."}</h4>
+                                <div class="doc-up-empty">
+                                    <h4>{"No more files..."}</h4>
                                 </div>
                             {/if}
                         </div>
@@ -525,3 +520,4 @@
         </div>
     {/if}
 </div>
+

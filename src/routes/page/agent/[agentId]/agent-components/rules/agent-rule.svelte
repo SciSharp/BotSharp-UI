@@ -248,14 +248,14 @@
     {errorText}
 />
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Triggers & Rules</h5>
-            <h6 class="mt-1 mb-3">Wake-up your agent by rules</h6>
+<div class="ar-card">
+    <div class="ar-card-body">
+        <div class="ar-header">
+            <h5 class="ar-title">Triggers & Rules</h5>
+            <h6 class="ar-subtitle">Wake-up your agent by rules</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="ar-list" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
                 <AgentRuleItem
                     rule={rule}
@@ -271,19 +271,19 @@
             {/each}
 
             {#if innerRules.length < limit}
-                <div class="add-utility">
+                <div class="ar-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="ar-add-btn"
                         onclick={() => addRule()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add Rule</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add Rule</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+
+

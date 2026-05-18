@@ -7,6 +7,21 @@ export function range(size = 3, startAt = 0) {
     return [...Array(size).keys()].map((i) => i + startAt);
 };
 
+/**
+ * Format an integer using the user's locale digit-grouping rules (e.g.,
+ * 1234567 → "1,234,567" in en-US, "1.234.567" in de-DE).
+ * Falls back to an empty string when the value is null/undefined/NaN.
+ *
+ * @param {number | null | undefined} value
+ * @returns {string}
+ */
+export function formatNumber(value) {
+    if (value === null || value === undefined || Number.isNaN(value)) {
+        return '';
+    }
+    return new Intl.NumberFormat().format(value);
+}
+
 export const durationUnitRegex = /[a-zA-Z]/;
 
 /**

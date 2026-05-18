@@ -58,7 +58,6 @@
 		"@vincjo/datatables": "^2.8.0",
 		"apexcharts": "^3.44.2",
 		"axios": "^1.6.2",
-		"bootstrap": "^5.3.2",
 		"chart.js": "^4.4.0",
 		"drawflow": "^0.0.59",
 		"flatpickr": "^4.6.13",

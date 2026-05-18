@@ -9,29 +9,29 @@
 	let { agent } = $props();
 </script>
 
-<div>
-    <div class="chat-agent-row">
+<div class="cai-wrapper">
+    <div class="cai-row">
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <h3
-            class="text-primary fw-bold"
+            class="cai-name"
             onclick={() => directToAgentPage(agent?.id)}
         >
-            <span class="clickable">{agent?.name || ''}</span>
+            <span class="cai-name-link">{agent?.name || ''}</span>
         </h3>
     </div>
-    <div class="chat-agent-row">
-        <div class="text-secondary">
+    <div class="cai-row">
+        <div class="cai-desc">
             <span>{agent?.description || ''}</span>
         </div>
     </div>
-    <div class="chat-agent-row">
-        <div>
+    <div class="cai-row">
+        <div class="cai-meta">
             <span>{agent?.llm_config?.provider || ''}{agent?.llm_config?.provider ? ',': ''} {agent?.llm_config?.model || ''}</span>
         </div>
     </div>
-    <div class="chat-agent-row">
-        <div>
+    <div class="cai-row">
+        <div class="cai-meta">
             {#if !!agent?.profiles}
             <span>{agent?.profiles?.length || 0} {agent?.profiles?.length > 1 ? 'profiles' : 'profile'}{', '}</span>
             {/if}
@@ -47,3 +47,4 @@
         </div>
     </div>
 </div>
+

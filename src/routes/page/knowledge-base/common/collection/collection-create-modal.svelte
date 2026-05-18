@@ -121,92 +121,94 @@
 
 {#if open}
 <div
-    class="modal show d-block"
+    class="cm-modal"
     tabindex="-1"
     role="dialog"
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
     onkeydown={(e) => { if (e.key === 'Escape') toggle(); }}
 >
-    <div class={`modal-dialog modal-${size} vector-collection-create-container ${className}`} role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{title}</h5>
-                <button type="button" class="btn-close" aria-label="Close" onclick={() => toggle()}></button>
+    <div class={`cm-dialog cm-dialog-${size} ${className}`} role="document">
+        <div class="cm-content">
+            <div class="cm-header">
+                <h5 class="cm-title">{title}</h5>
+                <button type="button" class="cm-close" aria-label="Close" onclick={() => toggle()}>
+                    <i class="bx bx-x"></i>
+                </button>
             </div>
-            <div class="modal-body">
+            <div class="cm-body">
                 <form onsubmit={(e) => handleConfirm(e)}>
-                    <div class="row">
-                        <div class="mb-3 collection-input">
-                            <label class="fw-bold" for="collection">Collection name: </label>
+                    <div class="cm-row">
+                        <div class="cm-field">
+                            <label class="cm-label" for="collection">Collection name: </label>
                             <input
                                 type="text"
                                 id="collection"
-                                class={`form-control text-center ${!isValidCollection ? 'invalid-input' : ''}`}
+                                class={`cm-input ${!isValidCollection ? 'cm-input-invalid' : ''}`}
                                 maxlength={maxLength}
                                 value={collection}
                                 oninput={(e) => changeCollectionText(e)}
                             />
-                            <div class={`text-secondary text-count collection-note ${isValidCollection ? 'valid' : 'invalid'}`}>
+                            <div class={`cm-note ${isValidCollection ? 'cm-note-valid' : 'cm-note-invalid'}`}>
                                 {#if !isValidCollection}
-                                    <div style="color: var(--bs-danger);">* The collection already exists.</div>
+                                    <div class="cm-error">* The collection already exists.</div>
                                 {/if}
                                 <div>{collection?.length || 0}/{maxLength}</div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="provider">Embedding provider: </label>
+                    <div class="cm-row">
+                        <div class="cm-field">
+                            <label class="cm-label" for="provider">Embedding provider: </label>
                             <input
                                 type="text"
                                 id="provider"
-                                class="form-control text-center"
+                                class="cm-input"
                                 maxlength={maxLength}
                                 bind:value={provider}
                             />
-                            <div class="text-secondary text-end text-count">
+                            <div class="cm-note cm-note-right">
                                 {provider?.length || 0}/{maxLength}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="model">Embedding model: </label>
+                    <div class="cm-row">
+                        <div class="cm-field">
+                            <label class="cm-label" for="model">Embedding model: </label>
                             <input
                                 type="text"
                                 id="model"
-                                class="form-control text-center"
+                                class="cm-input"
                                 maxlength={maxLength}
                                 bind:value={model}
                             />
-                            <div class="text-secondary text-end text-count">
+                            <div class="cm-note cm-note-right">
                                 {model?.length || 0}/{maxLength}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="dimension">Vector dimension: </label>
+                    <div class="cm-row">
+                        <div class="cm-field">
+                            <label class="cm-label" for="dimension">Vector dimension: </label>
                             <input
                                 type="number"
                                 id="dimension"
-                                class="form-control text-center"
+                                class="cm-input"
                                 bind:value={dimension}
                                 min={minDimension}
                                 step={step}
                             />
-                            <div class="text-secondary text-count">
+                            <div class="cm-note">
                                 * The value must be larger than 0.
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="cm-footer">
                 <button
                     type="button"
-                    class="btn btn-primary"
+                    class="cm-btn cm-btn-primary"
                     disabled={disableConfirmBtn}
                     onclick={(e) => handleConfirm(e)}
                 >
@@ -214,7 +216,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-secondary"
+                    class="cm-btn cm-btn-secondary"
                     onclick={(e) => handleCancel(e)}
                 >
                     Cancel
@@ -223,5 +225,7 @@
         </div>
     </div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
+<div class="cm-backdrop" transition:fade={{ duration: 150 }}></div>
 {/if}
+
+
