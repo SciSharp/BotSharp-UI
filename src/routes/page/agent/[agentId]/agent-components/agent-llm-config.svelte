@@ -4,6 +4,7 @@
     import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
     import ChatConfig from './llm-configs/chat-config.svelte';
     import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
+    import RealtimeConfig from './llm-configs/realtime-config.svelte';
 
     /**
      * @type {{
@@ -78,13 +79,11 @@
                 modelCapability={LlmModelCapability.AudioTranscription}
                 {handleAgentChange}
             />
-            <LlmBasicConfig
+            <RealtimeConfig
                 title="Realtime"
                 bind:this={realtimeConfigCmp}
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.realtime}
-                modelType={LlmModelType.Realtime}
-                modelCapability={LlmModelCapability.Realtime}
                 {handleAgentChange}
             />
         </div>
