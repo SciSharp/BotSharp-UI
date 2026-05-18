@@ -3,6 +3,7 @@
     import { cubicOut } from 'svelte/easing';
     import { untrack } from 'svelte';
     import _ from "lodash";
+    import { scrollToBottom } from '$lib/helpers/utils/common';
 
     let {
         isOpen = false,
@@ -38,6 +39,9 @@
         value: { data: '', isValid: true },
         active_rounds: { data: -1, isValid: true }
     };
+
+    /** @type {HTMLDivElement | undefined} */
+    let bodyEl = $state();
 
     $effect(() => {
         if (isOpen) {
@@ -91,6 +95,7 @@
 
     function addState() {
         states = [...states, {...JSON.parse(JSON.stringify(defaultState))}];
+        scrollToBottom(bodyEl);
     }
 
     /** @param {number} index */
@@ -204,7 +209,7 @@
     </div>
 
     <!-- Body -->
-    <div class="stm-body px-5 py-4">
+    <div class="stm-body px-5 py-4" bind:this={bodyEl}>
         <form>
             <div class="stm-rows flex flex-col gap-2.5">
             {#each states as state, idx (idx)}
@@ -410,8 +415,7 @@
     }
 
     .stm-body {
-        min-height: 200px;
-        max-height: 300px;
+        height: 25vh;
         overflow-y: auto;
         scrollbar-width: thin;
         margin-right: -0.375rem;

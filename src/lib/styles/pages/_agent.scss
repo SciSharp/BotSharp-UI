@@ -1925,6 +1925,115 @@
 
 
 /* ========================================================================
+ * src/routes/page/agent/[agentId]/agent-components/llm-configs/realtime-config.svelte
+ * ======================================================================== */
+
+
+.rc-card {
+    padding: 0.625rem;
+    border: 1px dashed var(--color-primary);
+    border-radius: 0.5rem;
+    background-color: color-mix(in srgb, var(--color-primary) 3%, transparent);
+}
+
+
+.rc-header {
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        outline: none;
+
+
+        &:hover .rc-header-title {
+                opacity: 0.8;
+        }
+}
+
+
+.rc-header-title {
+    margin: 0.25rem 0 0;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: opacity 0.15s ease;
+}
+
+
+.rc-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    margin-top: 0.75rem;
+}
+
+
+.rc-field {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+
+.rc-label {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(75 85 99);
+    overflow-x: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+
+.rc-input-wrap {
+    flex: 0 0 75%;
+    max-width: 75%;
+    padding: 0 0.75rem;
+}
+
+
+/* Selects are rendered via the Select component, which owns its styles */
+
+
+@media (max-width: 1250px) {
+    .rc-field {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .rc-label,
+    .rc-input-wrap {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+
+/* ===== Dark mode ===== */
+
+
+.dark .rc-card {
+    background-color: color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55));
+}
+
+
+.dark .rc-header-title {
+    color: rgb(229 231 235);
+}
+
+
+.dark .rc-label {
+    color: rgb(156 163 175);
+}
+
+
+/* ========================================================================
  * src/routes/page/agent/[agentId]/agent-components/mcp-tools/agent-mcp-tool-item.svelte
  * ======================================================================== */
 
