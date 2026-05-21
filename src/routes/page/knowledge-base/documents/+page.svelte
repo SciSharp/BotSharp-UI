@@ -1273,7 +1273,7 @@
 
 							{#if isLoadingMore}
 								<div class="doc-loader doc-loader-sm">
-									<Loader size={25} disableDefaultStyles />
+									<Loader size={25} disableDefaultStyles spinnerType="doubleBounce" />
 								</div>
 							{:else if !!nextId}
 								<div class="doc-load-more-wrap">

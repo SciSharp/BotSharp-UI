@@ -273,7 +273,7 @@
 	<tr in:fly={{ y: -5, duration: 800 }} out:fly={{ y: -5, duration: 300 }}>
 		{#if isLoading}
 			<td colspan="12" class="p-6">
-				<Loader disableDefaultStyles size={30} containerStyles={'display: flex; justify-content: center;'} />
+				<Loader disableDefaultStyles size={30} spinnerType="doubleBounce" containerStyles={'display: flex; justify-content: center;'} />
 			</td>
 		{:else}
 			<td colspan="12" class="!whitespace-normal !p-3">

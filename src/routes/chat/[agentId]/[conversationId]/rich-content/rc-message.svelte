@@ -60,7 +60,7 @@
                     <span class="thinking-sparkle" class:pulsing={isThinking}><Icon src={Sparkles} solid size="16" /></span>
                     <span class="rcm-thinking-label">{'Thinking'}</span>
                     {#if isThinking}
-                        <Loader disableDefaultStyles size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
+                        <Loader disableDefaultStyles spinnerType="jumper" size={14} color="#4285f4" containerStyles="display: flex; align-items: center;" />
                     {:else if isStoppedThinking}
                         <span class="stopped-thinking-label">Stopped thinking</span>
                     {:else}

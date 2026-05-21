@@ -1163,7 +1163,7 @@
 
 							{#if isLoadingMore}
 								<div class="qa-loader qa-loader-sm">
-									<Loader size={25} disableDefaultStyles />
+									<Loader size={25} disableDefaultStyles spinnerType="doubleBounce" />
 								</div>
 							{:else if !!nextId}
 								<div class="qa-load-more-wrap">

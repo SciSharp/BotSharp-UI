@@ -9,6 +9,7 @@
 	 *   spinnerClasses?: string,
 	 *   spinnerStyles?: string,
 	 *   spinnerSize?: number,
+	 *   spinnerType?: 'circle' | 'jumper' | 'doubleBounce' | 'chasing' | 'random',
 	 *   successText?: string,
 	 *   errorText?: string
 	 * }}
@@ -20,6 +21,7 @@
 		spinnerClasses = '',
 		spinnerStyles = '',
 		spinnerSize = 50,
+		spinnerType = 'chasing',
 		successText = 'Update completed!',
 		errorText = 'Error!'
 	} = $props();
@@ -30,6 +32,7 @@
         size={spinnerSize}
         containerClasses={spinnerClasses}
         containerStyles={spinnerStyles}
+        {spinnerType}
     />
 {/if}
 
