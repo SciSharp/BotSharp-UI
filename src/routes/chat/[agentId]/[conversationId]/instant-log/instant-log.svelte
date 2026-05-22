@@ -59,6 +59,7 @@
         cleanLogs();
     });
 
+    let _scrollScheduled = false;
     function scrollToBottom() {
         const scrollbarElements = [
             document.querySelector('.latest-state-log-scrollbar'),
@@ -70,11 +71,18 @@
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
 
-        scrollbars.forEach(scrollbar => {
+        if (_scrollScheduled) {
+            return;
+        }
+        _scrollScheduled = true;
+        requestAnimationFrame(() => {
             setTimeout(() => {
-                const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
-            }, 200);
+                scrollbars.forEach(scrollbar => {
+                    const { viewport } = scrollbar.elements();
+                    viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+                });
+                _scrollScheduled = false;
+            }, 150);
         });
     }
 

@@ -25,7 +25,7 @@
     </div>
     {#if data.message_id}
         <div class="csle-msg-id">
-            {`MessageId: ${data.message_id}`}
+            {`Message id: ${data.message_id}`}
         </div>
     {/if}
 </div>

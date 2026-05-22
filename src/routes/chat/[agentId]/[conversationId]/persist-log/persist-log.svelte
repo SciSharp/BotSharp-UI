@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
     import { page } from '$app/state';
     import moment from 'moment';
     import { v4 as uuidv4 } from 'uuid';
@@ -67,10 +67,16 @@
 	};
 
     onMount(() => {
-        Promise.all([getChatContentLogs(), getChatStateLogs()]).then(() => {
+        // Load history, wait for Svelte to flush the new list items to the
+        // DOM, then attach OverlayScrollbars and scroll to bottom. Without
+        // the tick() wait, scrollHeight is read before the rows render and
+        // the viewport ends up parked at the top.
+        (async () => {
+            await Promise.all([getChatContentLogs(), getChatStateLogs()]);
+            await tick();
             initScrollbars();
             scroll();
-        });
+        })();
 
         return () => {
             cleanLogs();
@@ -86,14 +92,22 @@
         }
     });
 
+    let _scrollScheduled = false;
     /** @param {boolean} goToTop */
     function scroll(goToTop = false) {
-        // @ts-ignore
-        scrollbars.forEach(scrollbar => {
+        if (_scrollScheduled) {
+            return;
+        }
+        _scrollScheduled = true;
+        requestAnimationFrame(() => {
             setTimeout(() => {
-                const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
-            }, 200);
+                // @ts-ignore
+                scrollbars.forEach(scrollbar => {
+                    const { viewport } = scrollbar.elements();
+                    viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
+                });
+                _scrollScheduled = false;
+            }, 150);
         });
     }
 

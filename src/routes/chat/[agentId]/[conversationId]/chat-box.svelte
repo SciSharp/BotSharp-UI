@@ -4,7 +4,6 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
 	import { page } from '$app/state';
-	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import _ from "lodash";
@@ -41,6 +40,7 @@
 	import { BOT_SENDERS, LEARNER_AGENT_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
@@ -111,6 +111,9 @@
 	let bigText = $state('');
 	let botText = $state('');
 	let truncateMsgId = $state('');
+	let editingMsgId = $state('');
+	let editingBotMsgUid = $state('');
+	let highlightedMsgId = $state('');
 	let indication = $state('');
 	let mode = $state('');
 	let notificationText = $state('');
@@ -187,14 +190,13 @@
 	let isInstantLogClosed = $state(false); // initial condition
 	let isOpenEditMsgModal = $state(false);
 	let isOpenBigMsgModal = $state(false);
-	let isOpenEditBotMsgModal = $state(false);
 	let isOpenUserAddStateModal = $state(false);
 	let isOpenTagModal = $state(false);
 	let isOpenCodeScriptModal = $state(false);
+	let isOpenEndChatConfirm = $state(false);
+	let isOpenClearStatesConfirm = $state(false);
 	let isHeaderMenuOpen = $state(false);
 	let isHeaderStatesOpen = $state(false);
-	/** @type {string} */
-	let openMsgActionId = $state('');
 	let isSendingMsg = $state(false);
 	let isThinking = $state(false);
 	let isListening = $state(false);
@@ -208,7 +210,8 @@
 	let isDisplayNotification = $state(false);
 	let isComplete = $state(false);
 	let isError = $state(false);
-	let copyClicked = $state(false);
+	/** @type {string | null} */
+	let copiedMsgUid = $state(null);
 	let isStreaming = $state(false);
 	let isHandlingQueue = $state(false);
 	let isStopStreamClicked = $state(false);
@@ -454,12 +457,17 @@
 		autoScrollToBottom();
     }
 
+	let _autoScrollScheduled = false;
 	function autoScrollToBottom() {
-		scrollbars.forEach(scrollbar => {
-			setTimeout(() => {
+		if (_autoScrollScheduled) return;
+		_autoScrollScheduled = true;
+		requestAnimationFrame(() => {
+			scrollbars.forEach(scrollbar => {
+				if (!scrollbar) return;
 				scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
-			}, 200);
-		})
+			});
+			_autoScrollScheduled = false;
+		});
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
@@ -608,6 +616,7 @@
 					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
+					autoScrollToBottom();
 				}, 0);
 			}
 		} else {
@@ -643,6 +652,7 @@
 					for (const tt of thinkingText) {
 						dialogs[dialogs.length - 1].thought.thinking_text += tt;
 						refreshDialogs();
+						autoScrollToBottom();
 						await delay(10);
 					}
 				}
@@ -650,6 +660,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refreshDialogs();
+					autoScrollToBottom();
 					await delay(10);
 				}
 			} catch (err) {
@@ -1036,23 +1047,15 @@
 
 	function endChat() {
 		if (!isFrame) {
-			// @ts-ignore
-			Swal.fire({
-				title: 'Are you sure?',
-				text: "You will exit this conversation.",
-				icon: 'warning',
-				customClass: 'custom-modal',
-				showCancelButton: true,
-				confirmButtonText: 'Yes',
-				cancelButtonText: 'No'
-			}).then((result) => {
-				if (result.value) {
-					window.close();
-				}
-			});
+			isOpenEndChatConfirm = true;
 		} else {
 			window.parent.postMessage({ action: ChatAction.Close }, "*");
 		}
+	}
+
+	function confirmEndChat() {
+		isOpenEndChatConfirm = false;
+		window.close();
 	}
 
 	function openLogs() {
@@ -1117,46 +1120,14 @@
 	}
 
 	function clearUserAddStates() {
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				userAddStates = [];
-				conversationUserStateStore.resetOne(page.params.conversationId);
-				isOpenUserAddStateModal = false;
-			}
-		});
+		isOpenClearStatesConfirm = true;
 	}
 
-	/**
-	 * @param {any} e
-	 * @param {import('$conversationTypes').ChatResponseModel} message
-	 */
-	function resendMessage(e, message) {
-		e.preventDefault();
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "Send this message again!",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, go ahead!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				const postback = buildPostback(message?.message_id);
-				// @ts-ignore
-				deleteConversationMessage(page.params.conversationId, message?.message_id, true).then(res => {
-					sendChatMessage(message?.text, { postback: postback, inputMessageId: res?.messageId });
-				});
-			}
-		});
+	function confirmClearUserAddStates() {
+		isOpenClearStatesConfirm = false;
+		userAddStates = [];
+		conversationUserStateStore.resetOne(page.params.conversationId);
+		isOpenUserAddStateModal = false;
 	}
 
 	/**
@@ -1164,22 +1135,7 @@
 	 * @param {string} messageId
 	 */
 	function deleteMessage(e, messageId) {
-		e.preventDefault();
-
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
-			icon: 'warning',
-			customClass: 'custom-modal',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				await handleDeleteMessage(messageId);
-			}
-		});
+		handleDeleteMessage(messageId);
 	}
 
 	/** @param {string} messageId */
@@ -1196,9 +1152,13 @@
 	 */
 	async function editMessage(message) {
 		truncateMsgId = message?.message_id;
-		editText = message?.text;
+		editText = message?.text || '';
 		await tick();
-		isOpenEditMsgModal = true;
+		editingMsgId = message?.message_id;
+	}
+
+	function cancelEditMessage() {
+		resetEditMsg();
 	}
 
 	function toggleEditMsgModal() {
@@ -1211,10 +1171,12 @@
 	function resetEditMsg() {
 		truncateMsgId = "";
 		editText = "";
+		editingMsgId = "";
 	}
 
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
+		editingMsgId = "";
 		const postback = buildPostback(truncateMsgId);
 		// @ts-ignore
 		deleteConversationMessage(page.params.conversationId, truncateMsgId, true).then(res => {
@@ -1223,6 +1185,20 @@
 			}).catch(() => {
 				resetEditMsg();
 			});
+		});
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	async function resendMessage(message) {
+		if (isSendingMsg || isThinking || disableAction) return;
+		const msgId = message?.message_id;
+		const msgText = message?.text || '';
+		if (!msgId || !msgText) return;
+
+		const postback = buildPostback(msgId);
+		// @ts-ignore
+		deleteConversationMessage(page.params.conversationId, msgId, true).then(res => {
+			sendChatMessage(msgText, { postback: postback, inputMessageId: res?.messageId });
 		});
 	}
 
@@ -1251,22 +1227,9 @@
 	function directToLog(messageId) {
 		if (!messageId || isLite || !isLoadPersistLog) return;
 
-		highlightChatMessage(messageId);
+		highlightedMsgId = messageId;
 		highlightStateLog(messageId);
 		autoScrollToTargetLog(messageId);
-	}
-
-	/** @param {string} messageId */
-	function highlightChatMessage(messageId) {
-		const targets = document.querySelectorAll('.user-msg');
-		const style = ['bg-danger'];
-		targets.forEach(elm => {
-			if (elm.id === `user-msg-${messageId}`) {
-				elm.classList.add(...style);
-			} else {
-				elm.classList.remove(...style);
-			}
-		});
 	}
 
 	/** @param {string} messageId */
@@ -1357,13 +1320,12 @@
 	 */
 	function likeMessage(e, message) {
 		e.preventDefault();
-
 		const text = 'I like this message.';
 		const data = {
 			postback: {
 				functionName: 'like_response',
 				payload: message.text || 'I really like this message!',
-				parentId: message?.id
+				parentId: message?.message_id
 			},
 			states: []
 		};
@@ -1382,9 +1344,13 @@
 			text = message?.rich_content?.message?.code_script || text;
 		}
 
+		const uid = message.uuid;
+		copiedMsgUid = uid;
 		navigator.clipboard.writeText(text).then(() => {
 			setTimeout(() => {
-				copyClicked = false;
+				if (copiedMsgUid === uid) {
+					copiedMsgUid = null;
+				}
 			}, 800);
 		});
 	}
@@ -1418,8 +1384,7 @@
 
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	function openEditBotMsgModal(message) {
-		isOpenEditBotMsgModal = true;
+	async function openBotMsgEditor(message) {
 		let source = "text";
 		if (message.rich_content?.message?.text === message.text) {
 			source = "both";
@@ -1431,14 +1396,14 @@
 			source: source
 		};
 		botText = message?.rich_content?.message?.text || message?.text;
+		await tick();
+		editingBotMsgUid = message?.uuid || '';
 	}
 
-	function toggleEditBotMsgModal() {
-		isOpenEditBotMsgModal = !isOpenEditBotMsgModal;
-		if (!isOpenEditBotMsgModal) {
-			editBotMsg = null;
-			botText = '';
-		}
+	function cancelBotMsgEdit() {
+		editingBotMsgUid = '';
+		editBotMsg = null;
+		botText = '';
 	}
 
 	function toggleTagModal() {
@@ -1545,7 +1510,7 @@
 					successText = "";
 				}, duration);
 
-				toggleEditBotMsgModal();
+				cancelBotMsgEdit();
 				refresh();
 			} else {
 				throw "failed to update message";
@@ -1557,7 +1522,7 @@
 				isError = false;
 				errorText = "";
 			}, duration);
-			toggleEditBotMsgModal();
+			cancelBotMsgEdit();
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -1594,6 +1559,32 @@
 		isHeaderStatesOpen = false;
 	}
 </script>
+
+
+<ConfirmModal
+	isOpen={isOpenEndChatConfirm}
+	icon="warning"
+	title="Are you sure?"
+	text="You will exit this conversation."
+	confirmBtnText="Yes"
+	cancelBtnText="No"
+	confirm={confirmEndChat}
+	cancel={() => isOpenEndChatConfirm = false}
+	toggleModal={() => isOpenEndChatConfirm = false}
+/>
+
+<ConfirmModal
+	isOpen={isOpenClearStatesConfirm}
+	icon="warning"
+	title="Are you sure?"
+	text="You won't be able to revert this!"
+	confirmBtnText="Yes, delete it!"
+	cancelBtnText="No"
+	confirmBtnColor="danger"
+	confirm={confirmClearUserAddStates}
+	cancel={() => isOpenClearStatesConfirm = false}
+	toggleModal={() => isOpenClearStatesConfirm = false}
+/>
 
 
 <svelte:window onresize={() => resizeChatWindow()}/>
@@ -1716,27 +1707,6 @@
 	></textarea>
 	<div class="cb-modal-counter">
 		<div>{`${formatNumber(bigText?.length || 0)}/${formatNumber(maxTextLength)}`}</div>
-	</div>
-</DialogModal>
-
-<DialogModal
-	title={'Edit bot message'}
-	size={'xl'}
-	isOpen={isOpenEditBotMsgModal}
-	toggleModal={() => toggleEditBotMsgModal()}
-	confirm={() => saveBotMsg()}
-	cancel={() => toggleEditBotMsgModal()}
-	disableConfirmBtn={!_.trim(botText)}
->
-	<textarea
-		class="cb-modal-textarea"
-		rows="10"
-		maxlength={maxTextLength}
-		bind:value={botText}
-		placeholder="Enter Message...">
-	</textarea>
-	<div class="cb-modal-counter">
-		<div>{`${formatNumber(botText?.length || 0)}/${formatNumber(maxTextLength)}`}</div>
 	</div>
 </DialogModal>
 
@@ -1945,80 +1915,188 @@
 										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
-												<div class="cb-msg-stack">
-													<div
-														class="cb-user-msg-link"
-														tabindex="0"
-														aria-label="user-msg-to-log"
-														role="link"
-														onkeydown={() => {}}
-														onclick={() => directToLog(message.message_id)}
-													>
-														<div
-															class="cb-bubble cb-bubble-user"
-															class:cb-clickable={!isLite && isLoadPersistLog}
-															id={`user-msg-${message.message_id}`}
-														>
-															<div class="cb-bubble-text-user">{@html replaceNewLine(message.text)}</div>
+												<div class="cb-msg-stack" class:cb-msg-stack-editing={editingMsgId === message.message_id}>
+													{#if editingMsgId === message.message_id}
+														<div class="cb-msg-edit-wrap">
+															<div class="cb-msg-edit-box">
+																<textarea
+																	class="cb-msg-edit-textarea"
+																	maxlength={maxTextLength}
+																	placeholder="Edit message..."
+																	bind:value={editText}
+																></textarea>
+															</div>
+															<div class="cb-msg-edit-actions">
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-cancel"
+																	onclick={() => cancelEditMessage()}
+																>
+																	Cancel
+																</button>
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-send"
+																	disabled={!_.trim(editText)}
+																	onclick={() => confirmEditMsg()}
+																>
+																	Send
+																</button>
+															</div>
 														</div>
+													{:else}
+														<div
+															class="cb-user-msg-link"
+															tabindex="0"
+															aria-label="user-msg-to-log"
+															role="link"
+															onkeydown={() => {}}
+															onclick={() => directToLog(message.message_id)}
+														>
+															<div
+																class="cb-bubble cb-bubble-user"
+																class:cb-clickable={!isLite && isLoadPersistLog}
+																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
+																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
+																id={`user-msg-${message.message_id}`}
+															>
+																<div class="cb-bubble-text-user">{@html replaceNewLine(message.text)}</div>
+															</div>
+														</div>
+														{#if !disableAction}
+															<div class="cb-msg-actions cb-msg-actions-user">
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-edit"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Edit"
+																		onclick={() => editMessage(message)}
+																	>
+																		<i class="bx bxs-edit cb-text-primary"></i>
+																	</div>
+																</div>
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-resend"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Resend"
+																		aria-disabled={isSendingMsg || isThinking || disableAction}
+																		onclick={() => resendMessage(message)}
+																	>
+																		<i class="bx bx-redo cb-text-primary"></i>
+																	</div>
+																</div>
+																<div class="cb-msg-action">
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-vcenter cb-text-primary cb-msg-action-icon-copy cursor-pointer"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Copy"
+																		onmouseup={e => copyMessage(e, message)}
+																	>
+																		{#if copiedMsgUid === message.uuid}
+																			<div class="cb-copied-feedback">
+																				<i class="bx bx-check cb-copied-icon"></i>
+																				<span class="cb-copied-label">Copied!</span>
+																			</div>
+																		{:else}
+																			<i class="bx bx-copy"></i>
+																		{/if}
+																	</div>
+																</div>
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-delete"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Delete"
+																		aria-disabled={isSendingMsg || isThinking || disableAction}
+																		onclick={(e) => {
+																			if (isSendingMsg || isThinking || disableAction) return;
+																			deleteMessage(e, message.message_id);
+																		}}
+																	>
+																		<i class="bx bx-trash cb-text-danger"></i>
+																	</div>
+																</div>
+															</div>
+														{/if}
 														<p class="cb-chat-time">
 															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
 															{utcToLocal(message.created_at, 'h:mm:ss A')}
 														</p>
-													</div>
-													{#if !!message.post_action_disclaimer}
-														<RcDisclaimer content={message.post_action_disclaimer} />
-													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
-														<MessageFileGallery
-															message={message}
-															appendImage
-															galleryStyles={'justify-content: flex-end;'}
-															fetchFiles={() => getConversationFiles(page.params.conversationId, message.message_id, FileSourceType.User)}
-														/>
+														{#if !!message.post_action_disclaimer}
+															<RcDisclaimer content={message.post_action_disclaimer} />
+														{/if}
+														{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
+															<MessageFileGallery
+																message={message}
+																appendImage
+																galleryStyles={'justify-content: flex-end;'}
+																fetchFiles={() => getConversationFiles(page.params.conversationId, message.message_id, FileSourceType.User)}
+															/>
+														{/if}
 													{/if}
 												</div>
-													{#if !isLite}
-														<div
-															class="cb-dropdown"
-															use:clickoutsideDirective
-															onclickoutside={(/** @type {any} */ e) => {
-																if (!e.detail.currentNode?.contains(e.detail.targetNode)) {
-																	if (openMsgActionId === message.message_id) {
-																		openMsgActionId = '';
-																	}
-																}
-															}}
-														>
-															<button class="cb-msg-action-btn" type="button" aria-expanded={openMsgActionId === message.message_id} aria-label="Message actions" disabled={isSendingMsg || isThinking || disableAction} onclick={() => { openMsgActionId = openMsgActionId === message.message_id ? '' : message.message_id; }}>
-																<i class="bx bx-dots-vertical-rounded"></i>
-															</button>
-															<ul class="cb-menu cb-menu-end cb-msg-menu" class:show={openMsgActionId === message.message_id} style="right: 0; left: auto;">
-																<li><button class="cb-menu-item" type="button" onclick={() => { openMsgActionId = ''; editMessage(message); }}>Edit</button></li>
-																<li><button class="cb-menu-item" type="button" onclick={(e) => { openMsgActionId = ''; resendMessage(e, message); }}>Resend</button></li>
-																<li><button class="cb-menu-item" type="button" onclick={(e) => { openMsgActionId = ''; deleteMessage(e, message.message_id); }}>Delete</button></li>
-															</ul>
-														</div>
-													{/if}
 												{:else}
 												<div class="cb-cicon cb-cicon-end">
 													{#if message.sender.role == UserRole.Client}
 														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
+														{@const isLastBotIcon = message?.uuid === lastBotMsg?.uuid}
 														<img
-															class="cb-avatar"
+															class={`cb-avatar ${isLastBotIcon ? 'cb-avatar-bounce' : ''}`}
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
 														>
 													{/if}
 												</div>
-												<div class="cb-msg-stack">
-													<RcMessage markdownClasses={'markdown-dark cb-md-dark'} message={message} isStreaming={isStreaming || isThinking} />
+												<div class="cb-msg-stack" class:cb-msg-stack-editing={editingBotMsgUid === message.uuid}>
+													{#if editingBotMsgUid === message.uuid}
+														<div class="cb-msg-edit-wrap cb-msg-edit-wrap-bot">
+															<div class="cb-msg-edit-box">
+																<textarea
+																	class="cb-msg-edit-textarea"
+																	maxlength={maxTextLength}
+																	placeholder="Edit message..."
+																	bind:value={botText}
+																></textarea>
+															</div>
+															<div class="cb-msg-edit-actions">
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-cancel"
+																	onclick={() => cancelBotMsgEdit()}
+																>
+																	Cancel
+																</button>
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-send"
+																	disabled={!_.trim(botText)}
+																	onclick={() => saveBotMsg()}
+																>
+																	Save
+																</button>
+															</div>
+														</div>
+													{:else}
+														<RcMessage markdownClasses={'markdown-dark cb-md-dark'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
-														<div class="cb-msg-actions" style={`display: ${isStreamEnd ? 'flex' : 'none'};`}>
+														<div class="cb-msg-actions" style={`display: ${isStreamEnd && editingBotMsgUid !== message.uuid ? 'flex' : 'none'};`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
 																	id={message?.message_id}
@@ -2049,7 +2127,7 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
-																		onclick={() => openEditBotMsgModal(message)}
+																		onclick={() => openBotMsgEditor(message)}
 																	>
 																		<i class="bx bxs-edit cb-text-primary"></i>
 																	</div>
@@ -2063,16 +2141,11 @@
 																	data-bs-placement="top"
 																	title="Copy"
 																	onmouseup={e => copyMessage(e, message)}
-																	onmousedown={() => copyClicked = true}
 																>
-																	{#if copyClicked}
-																		<div class="cb-div-center">
-																			<div class="cb-vcenter">
-																				<i class="bx bx-check"></i>
-																			</div>
-																			<div class="cb-vcenter">
-																				<span class="cb-copied-label">{'Copied!'}</span>
-																			</div>
+																	{#if copiedMsgUid === message.uuid}
+																		<div class="cb-copied-feedback">
+																			<i class="bx bx-check cb-copied-icon"></i>
+																			<span class="cb-copied-label">Copied!</span>
 																		</div>
 																	{:else}
 																		<i class="bx bx-copy"></i>
@@ -2151,8 +2224,9 @@
 								{#if PUBLIC_LIVECHAT_VOICE_ENABLED === 'true' && !disableSpeech}
 									<button
 										type="submit"
-										class={`cb-btn cb-btn-round ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'}`}
+										class={`cb-btn cb-btn-round ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'} ${isListening ? 'cb-btn-listening' : ''}`}
 										aria-label="Start/stop listening"
+										aria-pressed={isListening}
 										disabled={isSendingMsg || isThinking || disableAction}
 										onclick={() => startListen()}
 									>
@@ -2236,8 +2310,9 @@
 								{#if !isStopStreamClicked && isStreaming && PUBLIC_LIVECHAT_STREAM_ENABLED === 'true'}
 									<button
 										type="button"
-										class="cb-btn cb-btn-round cb-btn-send cb-btn-danger"
+										class="cb-btn cb-btn-round cb-btn-send cb-btn-danger cb-btn-streaming"
 										aria-label="Stop streaming"
+										aria-pressed="true"
 										onclick={() => stopStreaming()}
 									>
 										<i class="mdi mdi-stop"></i>

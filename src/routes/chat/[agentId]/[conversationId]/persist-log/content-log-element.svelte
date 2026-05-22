@@ -90,7 +90,7 @@
 
     {#if data.message_id && data.source === ContentLogSource.UserInput}
     <div class="cle-msg-id">
-        {`MessageId: ${data.message_id}`}
+        {`Message id: ${data.message_id}`}
     </div>
     {/if}
 </div>

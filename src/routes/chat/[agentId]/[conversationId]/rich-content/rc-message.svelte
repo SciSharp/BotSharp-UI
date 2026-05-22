@@ -32,6 +32,10 @@
     let isThinkingExpanded = $state(false);
     let isThinkingAutoControlled = $state(true);
 
+    /** @type {HTMLElement | null} */
+    let thinkingContentEl = $state(/** @type {any} */ (null));
+    let _thinkingScrollScheduled = false;
+
     $effect(() => {
         if (!isThinkingAutoControlled) {
             return;
@@ -44,6 +48,30 @@
             isThinkingAutoControlled = false;
         }
     });
+
+    $effect(() => {
+        thinkingText;
+        isThinkingExpanded;
+        if (!thinkingContentEl || !isStreaming) {
+            return;
+        }
+
+        scrollToBottom();
+    });
+
+    function scrollToBottom() {
+        if (_thinkingScrollScheduled) {
+            return;
+        }
+        _thinkingScrollScheduled = true;
+        requestAnimationFrame(() => {
+            const el = thinkingContentEl;
+            if (el) {
+                el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+            }
+            _thinkingScrollScheduled = false;
+        });
+    }
 </script>
 
 {#if text || thinkingText}
@@ -69,6 +97,7 @@
                 </button>
                 {#if isThinkingExpanded}
                     <div
+                        bind:this={thinkingContentEl}
                         class="thinking-content"
                         transition:slide={{ duration: 200, easing: cubicOut }}
                     >

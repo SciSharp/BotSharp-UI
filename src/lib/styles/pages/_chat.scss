@@ -648,20 +648,19 @@
 }
 
 
-/* Header bar (replaces .border-bottom.chat-head) */
-
-
+/* Header bar */
 .cb-head {
     font-size: 1rem;
     padding: 2vmin 2%;
     height: 10%;
-    border-bottom: 1px solid rgb(229 231 235);
+    background: linear-gradient(180deg, rgb(255 255 255) 0%, rgb(249 250 252) 100%);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(226 232 240));
+    box-shadow:
+        inset 0 -1px 0 rgb(255 255 255 / 0.6),
+        0 1px 3px -1px rgb(15 23 42 / 0.04);
 }
 
-
-/* Header row (replaces .row.chat-row) */
-
-
+/* Header row */
 .cb-head-row {
     display: flex;
     flex-wrap: nowrap;
@@ -669,10 +668,7 @@
     height: 100%;
 }
 
-
-/* Left column with agent/user info (replaces .col-md-4.col-4.chat-head-info) */
-
-
+/* Left column with agent/user info */
 .cb-head-left {
     flex: 0 0 33.333333%;
     max-width: 33.333333%;
@@ -685,46 +681,80 @@
 }
 
 
-/* Agent row (replaces .chat-head-agent) */
-
-
+/* Agent row */
 .cb-head-agent {
     flex: 0.5;
     display: flex;
+    align-items: center;
     gap: 0.625rem;
     width: fit-content;
     height: 50%;
+    transform-origin: center bottom;
+    animation: cb-agent-bounce 1.5s ease-in-out infinite;
+}
+
+
+@keyframes cb-agent-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-head-agent { animation: none; }
 }
 
 
 .cb-head-agent-icon {
     height: 80%;
-    max-height: 25px;
+    max-height: 28px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1.5px solid color-mix(in srgb, var(--color-primary) 35%, white);
+    box-shadow:
+        0 0 0 2px rgb(255 255 255),
+        0 2px 6px -2px color-mix(in srgb, var(--color-primary) 35%, transparent);
 }
 
 
 .cb-head-agent-name {
-    font-size: 0.8em;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: rgb(17 24 39);
+    letter-spacing: 0.005em;
 }
 
 
-/* User row (replaces .text-muted.mb-0.chat-head-user) */
-
-
+/* User row */
 .cb-head-user {
     flex: 0.5;
-    display: flex;
-    gap: 0.3125rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
     width: fit-content;
-    font-size: 0.7em;
+    font-size: 0.72em;
     color: var(--color-muted);
     margin-bottom: 0;
+    padding: 0.125rem 0.5rem 0.125rem 0.375rem;
+    background-color: color-mix(in srgb, var(--color-primary) 6%, rgb(244 246 250));
+    border: 1px solid color-mix(in srgb, var(--color-primary) 10%, rgb(226 232 240));
+    border-radius: 999px;
+
+    & .mdi-circle {
+        font-size: 0.55em;
+        animation: cb-status-pulse 2s ease-in-out infinite;
+    }
 }
 
 
-/* Right column (replaces .col-md-8.col-8) */
+@keyframes cb-status-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%      { opacity: 0.55; transform: scale(0.85); }
+}
 
 
+/* Right column */
 .cb-head-right {
     flex: 0 0 66.666667%;
     max-width: 66.666667%;
@@ -764,14 +794,15 @@
     border: 1px solid transparent;
     border-radius: 50%;
     cursor: pointer;
-    background-color: transparent;
+    background: transparent;
     color: rgb(255 255 255);
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 
 
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
+        box-shadow: none;
     }
 
 
@@ -782,25 +813,53 @@
 
 
 .cb-icon-btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+    background: linear-gradient(
+        180deg,
+        var(--color-primary),
+        color-mix(in srgb, var(--color-primary) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+        0 2px 7px -3px color-mix(in srgb, var(--color-primary) 55%, transparent);
 
 
     &:hover:not(:disabled) {
-        background-color: var(--color-primary-hover);
-        border-color: var(--color-primary-hover);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-primary) 96%, white 4%),
+            var(--color-primary)
+        );
+        border-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 28%, transparent),
+            0 4px 12px -4px color-mix(in srgb, var(--color-primary) 65%, transparent);
     }
 }
 
 
 .cb-icon-btn-secondary {
-    background-color: var(--color-secondary);
-    border-color: var(--color-secondary);
+    background: linear-gradient(
+        180deg,
+        var(--color-secondary),
+        color-mix(in srgb, var(--color-secondary) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-secondary) 70%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+        0 2px 7px -3px color-mix(in srgb, var(--color-secondary) 55%, transparent);
 
 
     &:hover:not(:disabled) {
-        background-color: var(--color-secondary-hover);
-        border-color: var(--color-secondary-hover);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-secondary) 96%, white 4%),
+            var(--color-secondary)
+        );
+        border-color: color-mix(in srgb, var(--color-secondary) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 28%, transparent),
+            0 4px 12px -4px color-mix(in srgb, var(--color-secondary) 65%, transparent);
     }
 }
 
@@ -826,17 +885,29 @@
     width: 2em;
     height: 2em;
     padding: 0;
-    background-color: var(--color-light);
+    background-color: rgb(255 255 255);
     color: rgb(55 65 81);
-    border: none;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(226 232 240));
     border-radius: 50%;
-    box-shadow: none;
+    box-shadow:
+        inset 0 1px 0 rgb(255 255 255 / 0.7),
+        0 1px 2px rgb(15 23 42 / 0.04);
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 
 
     &:hover {
-        background-color: color-mix(in srgb, var(--color-primary) 8%, var(--color-light));
+        background-color: color-mix(in srgb, var(--color-primary) 10%, rgb(255 255 255));
+        border-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.8),
+            0 2px 6px -2px color-mix(in srgb, var(--color-primary) 25%, transparent);
+        color: var(--color-primary);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
     }
 
 
@@ -1041,21 +1112,23 @@
     justify-content: center;
     gap: 0.25rem;
     height: 2.125rem;
-    padding: 0 0.75rem;
+    padding: 0 0.875rem;
     font-size: 0.8125rem;
     font-weight: 500;
     line-height: 1;
+    letter-spacing: 0.01em;
     color: rgb(255 255 255);
-    background-color: transparent;
+    background: transparent;
     border: 1px solid transparent;
     border-radius: 50rem;
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.12s ease;
 
 
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
+        box-shadow: none;
     }
 
 
@@ -1071,24 +1144,53 @@
 
 
 .cb-pill-btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+    background: linear-gradient(
+        180deg,
+        var(--color-primary),
+        color-mix(in srgb, var(--color-primary) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-primary) 50%, transparent);
 
 
     &:hover:not(:disabled) {
-        background-color: var(--color-primary-hover);
-        border-color: var(--color-primary-hover);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-primary) 96%, white 4%),
+            var(--color-primary)
+        );
+        border-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 28%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-primary) 65%, transparent);
     }
 }
 
 
 .cb-pill-btn-danger {
-    background-color: var(--color-danger);
-    border-color: var(--color-danger);
+    background: linear-gradient(
+        180deg,
+        var(--color-danger),
+        color-mix(in srgb, var(--color-danger) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-danger) 70%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-danger) 50%, transparent);
 
 
     &:hover:not(:disabled) {
-        filter: brightness(0.95);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-danger) 96%, white 4%),
+            var(--color-danger)
+        );
+        border-color: color-mix(in srgb, var(--color-danger) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 28%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-danger) 65%, transparent);
     }
 }
 
@@ -1311,6 +1413,24 @@
 }
 
 
+/* Gentle continuous bounce — applied only to the latest bot avatar so it
+   acts as a subtle "I'm alive" indicator without distracting from older
+   messages. Mirrors the timing/amplitude of the header agent bounce. */
+.cb-avatar-bounce {
+    transform-origin: center bottom;
+    animation: cb-avatar-bounce 1.5s ease-in-out infinite;
+}
+
+@keyframes cb-avatar-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-avatar-bounce { animation: none; }
+}
+
+
 /* Message stack (replaces .msg-container) */
 
 
@@ -1336,32 +1456,83 @@
 
 
 .cb-bubble {
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 0.875rem;
     overflow: hidden;
     width: fit-content;
     max-width: 100%;
-    word-break: break-all;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.cb-bubble-user {
+    background: linear-gradient(
+        180deg,
+        var(--color-primary),
+        color-mix(in srgb, var(--color-primary) 88%, black 8%)
+    );
+    border-radius: 12px 12px 2px 12px;
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-primary) 50%, transparent);
+
+    &:hover {
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-primary) 60%, transparent);
+    }
 }
 
 
-/* User bubble (replaces .user-msg.bg-primary on the right side) */
+.cb-bubble-user-danger {
+    background: linear-gradient(
+        180deg,
+        var(--color-danger),
+        color-mix(in srgb, var(--color-danger) 88%, black 8%)
+    );
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 18%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-danger) 50%, transparent);
 
-
-.cb-bubble-user {
-    background-color: var(--color-primary);
-    border-radius: 8px 8px 0 8px;
+    &:hover {
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 22%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-danger) 60%, transparent);
+    }
 }
 
 
 .cb-bubble-text-user {
     text-align: start;
-    font-weight: 700;
+    font-weight: 600;
     color: rgb(255 255 255);
+    line-height: 1.5;
+    letter-spacing: 0.005em;
 }
 
 
 .cb-clickable {
     cursor: pointer;
+}
+
+
+/* Continuous gentle bounce applied to the user bubble currently linked to
+   the visible log entry — keeps the visual association alive while the
+   user scrolls through the log panel. */
+.cb-bubble-bounce {
+    transform-origin: center bottom;
+    animation: cb-bubble-bounce 1.2s ease-in-out infinite;
+}
+
+
+@keyframes cb-bubble-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-bubble-bounce { animation: none; }
 }
 
 
@@ -1395,82 +1566,25 @@
     margin-bottom: 0;
     float: right;
     color: var(--color-muted);
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    transition: opacity 0.15s ease;
+}
+
+
+/* Mirror the chat-utils toolbar behavior: reveal the timestamp only when the
+   message row is hovered or has keyboard focus within. Collapsed `max-height`
+   removes the vertical space when hidden so the bubble sits flush. */
+.cb-msg-row:hover .cb-chat-time,
+.cb-msg-row:focus-within .cb-chat-time {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 
 .cb-chat-time-icon {
     margin-right: 0.25rem;
-}
-
-
-/* Message action 3-dots button (replaces .dropdown-toggle.btn.btn-link.p-0.border-0) */
-
-
-.cb-msg-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.75rem;
-    height: 1.75rem;
-    padding: 0;
-    font-size: 18px;
-    line-height: 1;
-    background-color: transparent;
-    border: 0;
-    border-radius: 50%;
-    color: var(--color-secondary);
-    cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, transform 0.12s ease;
-
-
-    /* Pill-style hover + persistent highlight while the menu is open
-       (driven by the existing aria-expanded="true" attribute). */
-    &:hover:not(:disabled), &[aria-expanded="true"] {
-        color: var(--color-primary);
-        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
-    }
-
-
-    &:active:not(:disabled) {
-        transform: scale(0.92);
-    }
-
-
-    &:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-    }
-}
-
-
-/* Message action menu — opens ABOVE the trigger. Overrides the default
-   downward animation/origin from .cb-menu so the popup feels like it's
-   anchored to the kebab (bottom-right) instead of dropping in from
-   above the row. */
-
-
-.cb-msg-menu {
-    top: auto;
-    bottom: 100%;
-    margin: 0 0 0.375rem 0;
-    transform-origin: bottom right;
-
-
-    &.show {
-        animation-name: cb-menu-pop-up;
-    }
-}
-
-
-@keyframes cb-menu-pop-up {
-    from {
-        opacity: 0;
-        transform: scale(0.94) translateY(4px);
-    }
-    to {
-        opacity: 1;
-        transform: scale(1) translateY(0);
-    }
 }
 
 
@@ -1489,6 +1603,21 @@
     font-size: 17px;
     line-height: 1;
     color: var(--color-primary);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+
+/* Reveal the action toolbar (Edit / Copy / Delete on user side;
+   Like / Edit / Copy / Code on bot side) only when the message row is
+   hovered or has keyboard focus within. Uses opacity so the layout stays
+   stable and the inline `display: flex/none` on the bot toolbar (which is
+   driven by isStreamEnd) is preserved. */
+.cb-msg-row:hover .cb-msg-actions,
+.cb-msg-row:focus-within .cb-msg-actions {
+    opacity: 1;
+    pointer-events: auto;
 }
 
 
@@ -1520,9 +1649,14 @@
 }
 
 
+.cb-text-danger {
+    color: var(--color-danger);
+}
+
+
 /* AudioSpeaker is rendered inside .cb-msg-actions but lives in its own
    component with the legacy .chat-speaker-container class. Force it to
-   inherit the toolbar's primary color and sit centered. Uses 
+   inherit the toolbar's primary color and sit centered. Uses
    because the container is rendered in a separate component scope. */
 
 
@@ -1552,9 +1686,183 @@
 }
 
 
-.cb-copied-label {
-    font-size: 10px;
+.cb-copied-feedback {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1;
 }
+
+
+.cb-copied-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+
+.cb-copied-label {
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+
+/* User-side action toolbar (Edit / Copy icons under a user bubble).
+   Mirrors the existing bot `.cb-msg-actions` row but right-aligned so the
+   icons sit flush with the right edge of the user bubble. */
+
+
+.cb-msg-actions-user {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* While the inline editor is open, let the user .cb-msg-stack expand to the
+   full message row width (overrides the default 80% cap from .cb-msg-stack)
+   so the textarea has the maximum horizontal room. */
+.cb-msg-stack-editing {
+    width: 100%;
+}
+
+
+/* Inline user-message editor (replaces the user bubble in-place while
+   `editingMsgId === message.message_id`). Two-row layout:
+     - .cb-msg-edit-box  -> scrollable textarea container
+     - .cb-msg-edit-actions -> Cancel + Send pinned to bottom-right
+   The wrap fills the parent .cb-msg-stack-editing (full row width). */
+.cb-msg-edit-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 0.625rem;
+    background-color: rgb(255 255 255);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+    border-radius: 8px 8px 0 8px;
+    box-shadow: 0 4px 12px -4px color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+
+/* Bot-side editor: mirror the border-radius so the sharp corner sits at
+   the bottom-left, matching the bot bubble shape. */
+.cb-msg-edit-wrap-bot {
+    border-radius: 8px 8px 8px 0;
+}
+
+
+.cb-msg-edit-box {
+    width: 100%;
+    max-height: 12rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+
+.cb-msg-edit-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.cb-msg-edit-box::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    border-radius: 999px;
+}
+
+
+.cb-msg-edit-textarea {
+    display: block;
+    width: 100%;
+    min-height: 10rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(17 24 39);
+    background-color: transparent;
+    border: 0;
+    border-radius: 0.375rem;
+    resize: none;
+    outline: none;
+}
+
+
+.cb-msg-edit-textarea::placeholder {
+    color: rgb(156 163 175);
+}
+
+
+.cb-msg-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+
+.cb-msg-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.5rem;
+    height: 2rem;
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+        box-shadow 0.15s ease, transform 0.1s ease;
+
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+
+.cb-msg-edit-btn-cancel {
+    border: 1px solid rgb(229 231 235);
+    background-color: rgb(255 255 255);
+    color: rgb(55 65 81);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(243 244 246);
+        border-color: rgb(209 213 219);
+        color: rgb(17 24 39);
+    }
+}
+
+
+.cb-msg-edit-btn-send {
+    border: 1px solid var(--color-primary);
+    background-color: var(--color-primary);
+    color: rgb(255 255 255);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08),
+        0 4px 12px -4px color-mix(in srgb, var(--color-primary) 50%, transparent);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+}
+
+
 
 
 /* ===== Dark mode (Step 4c) ===== */
@@ -1576,15 +1884,36 @@
 }
 
 
-.dark .cb-msg-action-btn {
-    color: rgb(156 163 175);
+.dark .cb-msg-edit-wrap {
+    background-color: rgb(31 41 55);
+    border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
 
 
-    &:hover:not(:disabled), &[aria-expanded="true"] {
+.dark .cb-msg-edit-textarea {
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-msg-edit-textarea::placeholder {
+    color: rgb(107 114 128);
+}
+
+
+.dark .cb-msg-edit-btn-cancel {
+    background-color: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(229 231 235);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(75 85 99);
+        border-color: rgb(107 114 128);
         color: rgb(255 255 255);
-        background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
     }
 }
+
+
 
 
 /* ===== 4d: Compose footer (mic, textarea wrapper, util links, send) ===== */
@@ -1657,10 +1986,7 @@
 }
 
 
-/* Round action buttons (replaces .btn.btn-rounded with primary/danger variants).
-   Also replaces .chat-send (Bootstrap had no shared rule beyond btn). */
-
-
+/* Round action buttons. */
 .cb-btn {
     display: inline-flex;
     align-items: center;
@@ -1672,43 +1998,175 @@
     background: transparent;
     color: inherit;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+    transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, transform 0.1s ease;
 
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
 
     &:disabled {
         opacity: 0.55;
         cursor: not-allowed;
+        box-shadow: none;
     }
 }
-
 
 .cb-btn-round {
     border-radius: 999px;
 }
 
-
 .cb-btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+    background: linear-gradient(
+        180deg,
+        var(--color-primary),
+        color-mix(in srgb, var(--color-primary) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
     color: rgb(255 255 255);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-primary) 55%, transparent);
 
 
     &:hover:not(:disabled), &:focus:not(:disabled) {
-        background-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-primary) 96%, white 4%),
+            var(--color-primary)
+        );
+        border-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-primary) 65%, transparent);
     }
 }
 
 
 .cb-btn-danger {
-    background-color: var(--color-danger, #ef4444);
-    border-color: var(--color-danger, #ef4444);
+    background: linear-gradient(
+        180deg,
+        var(--color-danger, #ef4444),
+        color-mix(in srgb, var(--color-danger, #ef4444) 88%, black 8%)
+    );
+    border-color: color-mix(in srgb, var(--color-danger, #ef4444) 70%, transparent);
     color: rgb(255 255 255);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 20%, transparent),
+        0 2px 8px -3px color-mix(in srgb, var(--color-danger, #ef4444) 55%, transparent);
 
 
     &:hover:not(:disabled), &:focus:not(:disabled) {
-        background-color: color-mix(in srgb, var(--color-danger, #ef4444) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-danger, #ef4444) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-danger, #ef4444) 96%, white 4%),
+            var(--color-danger, #ef4444)
+        );
+        border-color: color-mix(in srgb, var(--color-danger, #ef4444) 85%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+            0 4px 14px -4px color-mix(in srgb, var(--color-danger, #ef4444) 65%, transparent);
+    }
+}
+
+
+/* Active "listening" state for the mic button — overrides the primary/danger
+   gradient with a warm accent gradient, adds a pulsing halo ring and a
+   gentle bounce so the button clearly signals "I'm recording you". */
+@keyframes cb-listening-bounce {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-3px); }
+}
+
+@keyframes cb-listening-halo {
+    0% {
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+            0 0 0 0 color-mix(in srgb, #ef4444 55%, transparent),
+            0 4px 14px -4px color-mix(in srgb, #ef4444 60%, transparent);
+    }
+    70% {
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+            0 0 0 10px color-mix(in srgb, #ef4444 0%, transparent),
+            0 4px 14px -4px color-mix(in srgb, #ef4444 60%, transparent);
+    }
+    100% {
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 25%, transparent),
+            0 0 0 0 color-mix(in srgb, #ef4444 0%, transparent),
+            0 4px 14px -4px color-mix(in srgb, #ef4444 60%, transparent);
+    }
+}
+
+.cb-btn-listening {
+    background: linear-gradient(
+        180deg,
+        #f87171,
+        #ef4444
+    ) !important;
+    border-color: color-mix(in srgb, #ef4444 80%, transparent) !important;
+    color: rgb(255 255 255) !important;
+    animation:
+        cb-listening-bounce 0.9s ease-in-out infinite,
+        cb-listening-halo 1.6s ease-out infinite;
+
+    &:hover:not(:disabled), &:focus:not(:disabled) {
+        background: linear-gradient(
+            180deg,
+            #fca5a5,
+            #f87171
+        ) !important;
+        border-color: color-mix(in srgb, #ef4444 90%, transparent) !important;
+    }
+
+    & .mdi-microphone {
+        animation: cb-listening-bounce 0.9s ease-in-out infinite reverse;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-btn-listening,
+    .cb-btn-listening .mdi-microphone {
+        animation: none;
+    }
+}
+
+
+/* Active "streaming" state for the send button (which morphs into a stop
+   button while the bot is replying). Reuses the listening keyframes for a
+   consistent "active" feel — red gradient, pulsing halo ring, and a gentle
+   bounce — so the user gets clear visual feedback that streaming is live
+   and the button now stops it. */
+.cb-btn-streaming {
+    background: linear-gradient(
+        180deg,
+        #f87171,
+        #ef4444
+    ) !important;
+    border-color: color-mix(in srgb, #ef4444 80%, transparent) !important;
+    color: rgb(255 255 255) !important;
+    animation:
+        cb-listening-bounce 0.9s ease-in-out infinite,
+        cb-listening-halo 1.6s ease-out infinite;
+
+    &:hover:not(:disabled), &:focus:not(:disabled) {
+        background: linear-gradient(
+            180deg,
+            #fca5a5,
+            #f87171
+        ) !important;
+        border-color: color-mix(in srgb, #ef4444 90%, transparent) !important;
+    }
+
+    & .mdi-stop {
+        animation: cb-listening-bounce 0.9s ease-in-out infinite reverse;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-btn-streaming,
+    .cb-btn-streaming .mdi-stop {
+        animation: none;
     }
 }
 
@@ -1764,23 +2222,31 @@
 /* ===== Util uploader trigger (replaces .line-align-center.text-primary.chat-util-item).
    Applied via containerClasses prop on ChatFileUploader, which puts the class
    on a <div>; uses  for the same reason as cb-textarea-more-util. */
-
-
 .cb-util-uploader {
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 30px;
+    font-size: 28px;
     color: var(--color-primary);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+
+    &:hover:not([aria-disabled='true']) {
+        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    }
+
+    &:active:not([aria-disabled='true']) {
+        transform: translateY(1px);
+    }
 }
 
 
 /* Util links cluster pinned over the right side of the textarea
    (replaces .chat-util-links). Sized to fit comfortably inside the
    ~38px textarea without the icons overflowing it vertically. */
-
-
 .cb-util-links {
     display: flex;
     align-items: center;
@@ -1791,10 +2257,7 @@
     top: 50%;
     transform: translateY(-50%);
     line-height: 1;
-    color: var(--color-primary);/* Flatten the cu-/cbm- glyph sizing — their own scoped 200% rule
-   compounds with our wrapper's old 160% to ~51px which dwarfed the
-   textarea. Anchor to a flat 1.25rem (20px) here so the icons fit. */
-
+    color: var(--color-primary);
 
     & .cu-glyph, & .cbm-glyph {
         font-size: 1.25rem;
@@ -1972,56 +2435,65 @@
 }
 
 
-/* ===== Popup container (replaces .chat-util-common) ===== */
-
-
+/* ===== Popup container ===== */
 .cta-popup {
     position: absolute;
-    bottom: 100%;
+    bottom: calc(100% + 6px);
     left: 0;
     right: 0;
     max-width: 100%;
     max-height: 25em;
     z-index: 99;
     font-size: 0.8rem;
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.5rem;
+    background: linear-gradient(180deg, rgb(255 255 255) 0%, rgb(250 251 253) 100%);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 18%, rgb(226 232 240));
+    border-radius: 12px;
     box-shadow:
-        0 10px 25px -5px rgb(15 23 42 / 0.12),
-        0 8px 10px -6px rgb(15 23 42 / 0.05);
+        inset 0 1px 0 rgb(255 255 255 / 0.7),
+        0 12px 28px -8px rgb(15 23 42 / 0.18),
+        0 6px 12px -6px rgb(15 23 42 / 0.08);
     overflow-y: auto;
     scrollbar-width: thin;
-}
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 35%, transparent) transparent;
 
 
-/* ===== Option list (replaces .dropdown-menu .chat-option-list) ===== */
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
 
 
-.cta-option-list {
-    list-style: none;
-    padding: 0.25rem 0;
-    margin: 0 0 0.25rem 0;
-}
-
-
-.cta-option-item {
-    padding: 0.375rem 0.9375rem;
-    cursor: pointer;
-    color: rgb(17 24 39);
-    transition: background-color 0.15s ease, color 0.15s ease;
-
-
-    &:hover {
-        background-color: var(--color-primary);
-        color: rgb(255 255 255);
+    &::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        border-radius: 999px;
     }
 }
 
 
-/* ===== Util container (replaces .chat-util-container) ===== */
+/* ===== Option list ===== */
+.cta-option-list {
+    list-style: none;
+    padding: 0.375rem 0.375rem;
+    margin: 0;
+}
 
 
+.cta-option-item {
+    padding: 0.4375rem 0.75rem;
+    margin: 0.125rem 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgb(17 24 39);
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        color: var(--color-primary);
+    }
+}
+
+
+/* ===== Util container ===== */
 .cta-util-container {
     display: flex;
     gap: 1.25rem;
@@ -2029,51 +2501,54 @@
     flex-wrap: wrap;
     width: 100%;
     height: fit-content;
-    padding: 0.625rem 0.9375rem;
-    margin-bottom: 0.25rem;
+    padding: 0.75rem 1rem;
 }
 
 
-/* ===== Themed textarea (replaces Bootstrap .form-control).
+/* ===== Themed textarea.
    Fixed height (no manual resize) and no scrollbar — long input
    still scrolls programmatically but the bar stays hidden. */
-
-
 .cta-textarea {
     display: block;
     width: 100%;
-    padding: 0.5rem 0.75rem;
+    padding: 0.625rem 0.875rem;
     font-size: 0.875rem;
     line-height: 1.5;
     color: rgb(17 24 39);
     background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.5rem;
+    border: 1px solid rgb(226 232 240);
+    border-radius: 10px;
     font-family: inherit;
     resize: none;
     overflow: auto;
     scrollbar-width: none;
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
+    box-shadow:
+        inset 0 1px 2px rgb(15 23 42 / 0.04),
+        0 1px 2px rgb(15 23 42 / 0.04);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
 
     &::-webkit-scrollbar {
         display: none;
     }
 
+    &:hover:not(:disabled):not(:focus) {
+        border-color: color-mix(in srgb, var(--color-primary) 25%, rgb(226 232 240));
+    }
 
     &:focus {
         outline: 0;
         border-color: var(--color-primary);
-        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+        box-shadow:
+            inset 0 1px 2px rgb(15 23 42 / 0.03),
+            0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent),
+            0 2px 8px -3px color-mix(in srgb, var(--color-primary) 30%, transparent);
     }
-
 
     &:disabled {
         background-color: rgb(243 244 246);
         cursor: not-allowed;
         color: var(--color-muted);
     }
-
 
     &::placeholder {
         color: var(--color-muted);
@@ -2161,8 +2636,14 @@
 
 
 .aql-element {
-    margin: 5px 0;
-    padding: 0 10px;
+    margin: 0;
+    padding: 8px 10px;
+    border-top: 1px dashed color-mix(in srgb, var(--color-secondary) 20%, transparent);
+
+
+    &:first-child {
+        border-top: 0;
+    }
 }
 
 
@@ -2171,9 +2652,11 @@
 
 .aql-content {
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
     margin: 2px 0;
     color: rgb(255 255 255);
+    font-style: italic;
+    letter-spacing: 0.02em;
 }
 
 
@@ -2182,6 +2665,7 @@
 
 .aql-warn {
     color: var(--color-warning, #f1b44c);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--color-warning, #f1b44c) 30%, transparent);
 }
 
 
@@ -2205,7 +2689,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: rgb(0 0 0);
+    background: linear-gradient(180deg, rgb(11 16 30) 0%, rgb(5 8 17) 100%);
     margin-bottom: 0;
     border: 0;
     border-radius: 0;
@@ -2218,11 +2702,12 @@
 .il-close-bar {
     flex: 0 0 auto;
     margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    padding: 0 20px;
+    margin-bottom: 0.75rem;
+    padding: 0 20px 0.75rem 20px;
     position: sticky;
     display: flex;
     justify-content: space-between;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-secondary) 18%, transparent);
 }
 
 
@@ -2233,20 +2718,39 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem 0.6rem;
+    padding: 0.3rem 0.75rem;
     font-size: 0.8125rem;
     line-height: 1.2;
     border-radius: 999px;
-    border: 1px solid var(--color-secondary);
-    background-color: var(--color-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 55%, transparent);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-secondary) 80%, transparent),
+        color-mix(in srgb, var(--color-secondary) 60%, transparent)
+    );
     color: rgb(255 255 255);
     cursor: pointer;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.25),
+        inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 
 
     &:hover, &:focus {
-        background-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-secondary) 92%, transparent),
+            color-mix(in srgb, var(--color-secondary) 75%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-secondary) 80%, transparent);
+        box-shadow:
+            0 2px 6px rgb(0 0 0 / 0.35),
+            inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
     }
 }
 
@@ -2282,20 +2786,32 @@
 
 
 .il-section {
-    background-color: rgb(0 0 0);
-    border-radius: 10px;
-    border: 1px solid var(--color-secondary);
+    background: linear-gradient(180deg, rgb(15 21 36) 0%, rgb(9 13 24) 100%);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent);
     display: flex;
     flex-direction: column;
+    position: relative;
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 4px 16px -8px rgb(0 0 0 / 0.4);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-secondary) 50%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+            0 6px 22px -10px rgb(0 0 0 / 0.5);
+    }
 }
 
 
 .il-section-sm {
-    flex: 0 0 150px;
-    height: 150px;
-    min-height: 150px;
+    flex: 0 0 auto;
+    min-height: 60px;
+    max-height: 150px;
 }
-
 
 .il-section-md {
     flex: 0 0 280px;
@@ -2303,11 +2819,10 @@
     min-height: 280px;
 }
 
-
 .il-section-lg {
-    flex: 0 0 400px;
-    height: 400px;
-    min-height: 400px;
+    flex: 0 0 auto;
+    min-height: 80px;
+    max-height: 400px;
 }
 
 
@@ -2335,24 +2850,27 @@
 
 
 .il-section-close {
-    font-size: 20px;
+    font-size: 16px;
     color: var(--color-danger, #ef4444);
-    padding: 0 5px;
+    padding: 8px 10px 0 5px;
 }
 
 
 .il-section-close-btn {
     background: transparent;
     border: 0;
-    padding: 0;
+    padding: 2px 6px;
     color: inherit;
     float: right;
     cursor: pointer;
     line-height: 1;
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
 
 
     &:hover {
-        opacity: 0.85;
+        background-color: color-mix(in srgb, var(--color-danger, #ef4444) 18%, transparent);
+        color: color-mix(in srgb, var(--color-danger, #ef4444) 55%, white);
     }
 }
 
@@ -2365,6 +2883,8 @@
 
 .il-scroll {
     padding: 0 20px;
+    flex: 1 1 auto;
+    min-height: 0;
 }
 
 
@@ -2380,7 +2900,7 @@
 
 
 .il-latest-scroll {
-    padding: 8px;
+    padding: 12px 14px;
 }
 
 
@@ -2394,6 +2914,14 @@
 
 .lsl-element {
     margin: 5px 0 10px 0;
+    padding: 10px 12px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-info, #0ea5e9) 7%, transparent),
+        color-mix(in srgb, var(--color-info, #0ea5e9) 2%, transparent)
+    );
+    border-radius: 8px;
+    border-left: 3px solid color-mix(in srgb, var(--color-info, #0ea5e9) 70%, transparent);
 }
 
 
@@ -2420,8 +2948,18 @@
 
 
 .mss-element {
-    margin: 0 0 5px 0;
-    padding-left: 10px;
+    margin: 0 0 8px 0;
+    padding: 8px 10px 8px 12px;
+    background-color: color-mix(in srgb, white 2.5%, transparent);
+    border-radius: 8px;
+    border-left: 3px solid color-mix(in srgb, var(--color-danger, #ef4444) 55%, transparent);
+    transition: background-color 0.15s ease, border-left-color 0.15s ease;
+
+
+    &:hover {
+        background-color: color-mix(in srgb, white 5%, transparent);
+        border-left-color: var(--color-danger, #ef4444);
+    }
 }
 
 
@@ -2436,6 +2974,7 @@
 
 .mss-state-key {
     color: var(--color-danger, #ef4444);
+    letter-spacing: 0.02em;
 }
 
 
@@ -2443,6 +2982,7 @@
     font-size: 12px;
     color: var(--color-secondary);
     margin-left: 0.375rem;
+    font-style: italic;
 }
 
 
@@ -2454,22 +2994,34 @@
     color: rgb(255 255 255);
     display: flex;
     flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
 }
 
 
 .mss-state-value {
-    min-width: 50%;
-    font-size: 15px;
+    flex: 1 1 calc(50% - 6px);
+    min-width: calc(50% - 6px);
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    background-color: color-mix(in srgb, white 3%, transparent);
+    border: 1px solid color-mix(in srgb, white 5%, transparent);
 }
 
 
 .mss-state-value-warn {
     color: var(--color-warning, #f1b44c);
+    background-color: color-mix(in srgb, var(--color-warning, #f1b44c) 10%, transparent);
+    border-color: color-mix(in srgb, var(--color-warning, #f1b44c) 25%, transparent);
 }
 
 
 .mss-active-rounds {
-    font-size: 12px;
+    font-size: 11px;
+    color: color-mix(in srgb, white 60%, transparent);
+    font-style: italic;
+    margin-top: 2px;
 }
 
 
@@ -2482,10 +3034,28 @@
 
 
 .cle-element {
-    margin: 10px 0 15px 0;
-    padding: 3px;
-    border-radius: 0.25rem;
+    margin: 10px 0 14px 0;
+    padding: 12px 14px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, white 3%, transparent),
+        color-mix(in srgb, white 1.5%, transparent)
+    );
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 22%, transparent);
     color: rgb(255 255 255);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 2px 8px -4px rgb(0 0 0 / 0.35);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-secondary) 45%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+            0 4px 14px -6px rgb(0 0 0 / 0.5);
+    }
 }
 
 
@@ -2493,8 +3063,11 @@
 
 
 .cle-meta {
-    font-size: 15px;
+    font-size: 13px;
     color: var(--color-secondary);
+    margin-bottom: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed color-mix(in srgb, var(--color-secondary) 22%, transparent);
 }
 
 
@@ -2502,9 +3075,10 @@
 
 
 .cle-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    line-height: 1.2;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.3;
+    letter-spacing: 0.01em;
 }
 
 
@@ -2536,6 +3110,8 @@
 
 .cle-meta-ts {
     margin-left: 0.5rem;
+    font-size: 12px;
+    color: color-mix(in srgb, var(--color-secondary) 75%, transparent);
 }
 
 
@@ -2543,10 +3119,10 @@
    Wide content (e.g. JSON dumps) overflows horizontally — allow the
    scroll but hide the visible scrollbar in all engines. */
 .cle-content {
-    font-size: 17px;
+    font-size: 15px;
     color: rgb(255 255 255);
-    padding: 5px 8px;
-    border-radius: 0.25rem;
+    padding: 8px 10px;
+    border-radius: 8px;
     overflow-x: auto;
     scrollbar-width: none;
 
@@ -2590,22 +3166,27 @@
 
 
 .cle-bordered {
-    border: 1px solid var(--color-secondary);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 55%, transparent);
+    background-color: color-mix(in srgb, var(--color-secondary) 5%, transparent);
 }
 
 
 .cle-bg-secondary {
-    background-color: var(--color-secondary);
+    background-color: color-mix(in srgb, var(--color-secondary) 22%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 40%, transparent);
 }
 
 
 .cle-text-warning {
     color: var(--color-warning, #f1b44c);
+    background-color: color-mix(in srgb, var(--color-warning, #f1b44c) 8%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-warning, #f1b44c) 30%, transparent);
 }
 
 
 .cle-bg-danger {
-    background-color: var(--color-danger, #ef4444);
+    background-color: color-mix(in srgb, var(--color-danger, #ef4444) 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger, #ef4444) 40%, transparent);
 }
 
 
@@ -2644,13 +3225,17 @@
     border: 0;
     outline: none;
     box-shadow: none;
-    color: rgb(255 255 255);
-    font-size: 15px;
-    padding: 0;
+    color: color-mix(in srgb, var(--color-primary) 75%, white);
+    font-size: 13px;
+    font-weight: 500;
+    padding: 4px 0 0 0;
+    margin-top: 4px;
     cursor: pointer;
+    transition: color 0.15s ease;
 
 
     &:hover {
+        color: var(--color-primary);
         text-decoration: underline;
     }
 }
@@ -2660,8 +3245,14 @@
 
 
 .cle-msg-id {
-    margin-top: 10px;
-    color: rgb(255 255 255);
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--color-secondary);
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: color-mix(in srgb, var(--color-secondary) 55%, white);
+    }
 }
 
 
@@ -2674,7 +3265,27 @@
 
 
 .csle-element {
-    margin: 5px 0 10px 0;
+    margin: 8px 0 12px 0;
+    padding: 10px 12px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-info, #0ea5e9) 5%, transparent),
+        color-mix(in srgb, var(--color-info, #0ea5e9) 1.5%, transparent)
+    );
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-info, #0ea5e9) 22%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 2px 8px -4px rgb(0 0 0 / 0.35);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-info, #0ea5e9) 45%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+            0 4px 14px -6px rgb(0 0 0 / 0.5);
+    }
 }
 
 
@@ -2682,22 +3293,25 @@
 
 
 .csle-content {
-    font-size: 17px;
+    font-size: 15px;
     color: rgb(255 255 255);
 
 
     & span {
-        font-size: 16px;
+        font-size: 14px;
     }
 }
 
 
-/* MessageId footer (replaces inline style="margin-top: 10px;") */
-
-
 .csle-msg-id {
-    margin-top: 10px;
-    color: rgb(255 255 255);
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--color-secondary);
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: color-mix(in srgb, var(--color-secondary) 55%, white);
+    }
 }
 
 
@@ -2721,7 +3335,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    background-color: rgb(0 0 0);
+    background: linear-gradient(180deg, rgb(11 16 30) 0%, rgb(5 8 17) 100%);
     margin-bottom: 0;
     border: 0;
     border-radius: 0;
@@ -2735,18 +3349,19 @@
 .pl-header-bar {
     flex: 0 0 auto;
     margin-top: 1rem;
-    margin-bottom: 0.5rem;
-    padding: 0 20px;
+    margin-bottom: 0.75rem;
+    padding: 0 20px 0.75rem 20px;
     position: sticky;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-secondary) 18%, transparent);
 }
 
 
 .pl-action-group {
     display: inline-flex;
-    gap: 0.25rem;
+    gap: 0.375rem;
 }
 
 
@@ -2757,55 +3372,93 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    padding: 0.25rem 0.6rem;
+    padding: 0.3rem 0.7rem;
+    min-width: 2rem;
     font-size: 0.8125rem;
     line-height: 1.2;
     border: 1px solid transparent;
-    border-radius: 999px;
+    border-radius: 8px;
     background-color: transparent;
     color: inherit;
     cursor: pointer;
-    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.25),
+        inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+
+
+    &:hover, &:focus {
+        box-shadow:
+            0 2px 6px rgb(0 0 0 / 0.35),
+            inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
+    }
 }
 
 
 .pl-action-btn-secondary {
-    background-color: var(--color-secondary);
-    border-color: var(--color-secondary);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-secondary) 80%, transparent),
+        color-mix(in srgb, var(--color-secondary) 60%, transparent)
+    );
+    border-color: color-mix(in srgb, var(--color-secondary) 55%, transparent);
     color: rgb(255 255 255);
 
 
     &:hover, &:focus {
-        background-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-secondary) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-secondary) 92%, transparent),
+            color-mix(in srgb, var(--color-secondary) 75%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-secondary) 80%, transparent);
     }
 }
 
 
 .pl-action-btn-primary {
-    background-color: var(--color-primary);
-    border-color: var(--color-primary);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-primary) 90%, transparent),
+        color-mix(in srgb, var(--color-primary) 72%, transparent)
+    );
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
     color: rgb(255 255 255);
-    border-radius: 0.25rem;
 
 
     &:hover, &:focus {
-        background-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-primary) 96%, transparent),
+            color-mix(in srgb, var(--color-primary) 82%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
     }
 }
 
 
 .pl-action-btn-light {
-    background-color: var(--color-light, #eff2f7);
-    border-color: var(--color-light, #eff2f7);
+    background: linear-gradient(
+        180deg,
+        var(--color-light, #eff2f7),
+        color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 6%)
+    );
+    border-color: color-mix(in srgb, var(--color-dark, #2a3042) 12%, var(--color-light, #eff2f7));
     color: var(--color-dark, #2a3042);
-    border-radius: 0.25rem;
 
 
     &:hover, &:focus {
-        background-color: color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 12%);
-        border-color: color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 12%);
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-light, #eff2f7) 96%, white),
+            var(--color-light, #eff2f7)
+        );
+        border-color: color-mix(in srgb, var(--color-dark, #2a3042) 22%, var(--color-light, #eff2f7));
     }
 }
 
@@ -2815,7 +3468,7 @@
 
 .pl-scroll-area {
     flex: 1 1 auto;
-    background-color: rgb(0 0 0);
+    background-color: transparent;
     padding: 0 20px;
     overflow-y: scroll;
     scrollbar-width: none;
@@ -3254,14 +3907,32 @@
 
 
 .rcm-bubble {
-    padding: 8px 12px;
-    background-color: var(--color-light, #eff2f7);
-    border-radius: 8px 8px 8px 0;
+    padding: 10px 14px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-light, #eff2f7) 65%, white),
+        var(--color-light, #eff2f7)
+    );
+    border: 1px solid color-mix(in srgb, var(--color-dark, #2a3042) 8%, transparent);
+    border-radius: 12px 12px 12px 2px;
     overflow: hidden;
     width: fit-content;
     max-width: 100%;
     word-break: break-word;
+    overflow-wrap: anywhere;
     color: var(--color-dark);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
+        0 2px 8px -3px rgb(0 0 0 / 0.08);
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-dark, #2a3042) 14%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 70%, transparent),
+            0 4px 14px -4px rgb(0 0 0 / 0.12);
+    }
 }
 
 
@@ -3278,13 +3949,41 @@
 /* Bold "Thinking" label inside the toggle row (replaces Bootstrap .font-bold) */
 
 
+/* Gradient "Thinking" label — Gemini-style blue → purple sheen via background
+   clipping. The clip stack is required for Webkit; modern browsers also need
+   the standard `background-clip: text` for the same effect. */
 .rcm-thinking-label {
-    font-weight: 700;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    background: linear-gradient(90deg, #4285f4 0%, #9333ea 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    transition: filter 0.15s ease;
 }
 
 
+/* Disclosure card — subtle blue/purple gradient tint that reads as a quiet
+   pill when collapsed and as a soft callout when expanded. Lives inside a
+   bot bubble whose backdrop is var(--color-light), so the tint is gentle. */
 .thinking-section {
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: linear-gradient(
+        135deg,
+        color-mix(in srgb, #4285f4 7%, transparent),
+        color-mix(in srgb, #9333ea 5%, transparent)
+    );
+    border: 1px solid color-mix(in srgb, #4285f4 22%, transparent);
+    border-radius: 12px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, #4285f4 38%, transparent);
+        box-shadow: 0 4px 14px -6px color-mix(in srgb, #4285f4 25%, transparent);
+    }
 }
 
 
@@ -3292,24 +3991,28 @@
     display: flex;
     align-items: center;
     gap: 8px;
+    width: 100%;
     background: none;
     border: none;
     color: #555;
     cursor: pointer;
-    padding: 4px 0;
-    font-size: 0.9em;
+    padding: 2px 0;
+    font-size: 0.875em;
 
 
-    &:hover {
-        color: #333;
+    &:hover .rcm-thinking-label {
+        filter: brightness(1.1);
     }
 }
 
 
+/* Sparkle glyph (Gemini blue) — soft halo via drop-shadow at rest,
+   stronger halo + scale during the pulsing animation. */
 .thinking-sparkle {
     color: #4285f4;
     display: flex;
     align-items: center;
+    filter: drop-shadow(0 0 4px color-mix(in srgb, #4285f4 30%, transparent));
 
 
     &.pulsing {
@@ -3322,45 +4025,75 @@
     0%, 100% {
         opacity: 1;
         transform: scale(1);
+        filter: drop-shadow(0 0 4px color-mix(in srgb, #4285f4 30%, transparent));
     }
     50% {
-        opacity: 0.55;
+        opacity: 0.72;
         transform: scale(1.15);
+        filter: drop-shadow(0 0 8px color-mix(in srgb, #4285f4 60%, transparent));
     }
 }
 
 
 .thinking-chevron {
-    font-size: 1em;
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 1.1em;
+    color: color-mix(in srgb, #4285f4 65%, #555);
+    margin-left: auto;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s ease;
     display: inline-block;
 
 
     &.expanded {
         transform: rotate(90deg);
+        color: #4285f4;
     }
 }
 
 
 .stopped-thinking-label {
-    font-size: 0.85em;
-    color: #999;
+    margin-left: auto;
+    font-size: 0.8em;
+    color: color-mix(in srgb, #4285f4 30%, #888);
     font-style: italic;
+    letter-spacing: 0.01em;
 }
 
 
+/* Reveal panel — soft inset tint + 3px gradient accent stripe so the
+   thinking text reads as a sub-quote inside the disclosure card. A custom
+   thin scrollbar replaces the previously hidden one to make long
+   reasoning streams obviously scrollable. */
 .thinking-content {
-    font-size: 0.9em;
-    padding: 4px 0 4px 16px;
-    border-left: 1px solid #888;
-    margin-top: 4px;
-    max-height: 200px;
+    font-size: 0.875em;
+    line-height: 1.55;
+    padding: 10px 12px 10px 14px;
+    margin-top: 8px;
+    border-radius: 8px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, #4285f4 5%, transparent),
+        color-mix(in srgb, #9333ea 3%, transparent)
+    );
+    border-left: 3px solid color-mix(in srgb, #4285f4 60%, transparent);
+    max-height: 220px;
     overflow-y: auto;
-    scrollbar-width: none;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, #4285f4 35%, transparent) transparent;
 
 
     &::-webkit-scrollbar {
-        display: none;
+        width: 4px;
+    }
+
+
+    &::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, #4285f4 35%, transparent);
+        border-radius: 999px;
+    }
+
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
     }
 }
 
@@ -3371,17 +4104,13 @@
 
 
 /* Centered row — replaces .center-option (justify-content: center, 0 10px) */
-
-
 .rcpo-center {
     justify-content: center;
     padding: 0 10px;
 }
 
 
-/* ===== Video row (replaces .video-option-container + nested elements) ===== */
-
-
+/* ===== Video row ===== */
 .rcpo-video-row {
     display: flex;
     flex-wrap: wrap;
@@ -3397,9 +4126,7 @@
 }
 
 
-/* Inner body (replaces .card .card-body with !important padding:0) */
-
-
+/* Inner body */
 .rcpo-video-body {
     padding: 0;
 }
@@ -3428,9 +4155,7 @@
 }
 
 
-/* ===== Plain option row (replaces .plain-option-container) ===== */
-
-
+/* ===== Plain option row ===== */
 .rcpo-option-row {
     display: flex;
     flex-wrap: wrap;
@@ -3440,8 +4165,6 @@
 /* Themed action buttons (replace .btn .btn-sm .m-1 .btn-outline-primary/secondary/success).
    The .btn:not([name="confirm"]):hover legacy rule swapped to white bg + primary text;
    .btn.active:hover kept primary bg + white text. We replicate that behavior here. */
-
-
 .rcpo-btn {
     display: inline-flex;
     align-items: center;
@@ -3501,9 +4224,7 @@
 }
 
 
-/* Active selection (replaces Bootstrap .btn.active rule) */
-
-
+/* Active selection */
 .rcpo-active {
     background-color: var(--color-primary);
     color: rgb(255 255 255);
@@ -3516,19 +4237,13 @@
 }
 
 
-/* Link-style hover underline (replaces .link-option:hover) */
-
-
+/* Link-style hover underline */
 .rcpo-link:hover {
     text-decoration: underline;
 }
 
 
-/* File uploader trigger inside the option row (replaces
-   'line-align-center text-primary chat-uploader' containerClasses).
-   Applied on a <div> inside a child component, hence . */
-
-
+/* File uploader trigger inside the option row */
 .rcpo-uploader {
     display: flex;
     align-items: center;

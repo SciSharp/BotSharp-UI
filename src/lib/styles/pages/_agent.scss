@@ -872,19 +872,30 @@
 		font-weight: 500;
 		line-height: 1;
 		cursor: pointer;
+		transform-origin: center bottom;
 		transition: background-color 0.15s ease, color 0.15s ease;
-
+		animation: ao-chat-btn-bounce 1.5s ease-in-out infinite;
 
 		&:hover {
 				background-color: var(--color-info);
 				color: rgb(255 255 255);
+				animation-play-state: paused;
 		}
-
 
 		& i {
 				font-size: 0.875rem;
 				line-height: 1;
 		}
+}
+
+
+@keyframes ao-chat-btn-bounce {
+		0%, 100% { transform: translateY(0); }
+		50%      { transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+		.ao-chat-btn { animation: none; }
 }
 
 
