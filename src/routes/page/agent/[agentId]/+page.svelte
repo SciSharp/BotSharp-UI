@@ -3,7 +3,7 @@
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { _ } from 'svelte-i18n';
-    import Swal from 'sweetalert2';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -66,19 +66,34 @@
 		unsubscriber?.();
 	});
 
+    /** @typedef {{ kind: 'update' } | { kind: 'delete' }} PendingAction */
+
+    let confirmOpen = $state(false);
+    /** @type {PendingAction | null} */
+    let pendingAction = $state(null);
+
     function updateCurrentAgent() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to update these changes?",
-            icon: 'warning',
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                handleAgentUpdate();
-            }
-        });
+        pendingAction = { kind: 'update' };
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingAction = null;
+    }
+
+    function onConfirm() {
+        if (!pendingAction) {
+            closeConfirm();
+            return;
+        }
+        const action = pendingAction;
+        closeConfirm();
+        if (action.kind === 'update') {
+            handleAgentUpdate();
+        } else {
+            handleAgentDelete();
+        }
     }
 
     function handleAgentUpdate() {
@@ -160,19 +175,8 @@
 
 
     function deleteCurrentAgent() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to delete this agent?",
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                handleAgentDelete();
-            }
-        });
+        pendingAction = { kind: 'delete' };
+        confirmOpen = true;
     }
 
     function handleAgentDelete() {
@@ -216,6 +220,21 @@
 <LoadingToComplete
     isLoading={isLoading}
     isComplete={isComplete}
+/>
+
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text={pendingAction?.kind === 'delete'
+        ? 'Are you sure you want to delete this agent?'
+        : 'Are you sure you want to update these changes?'}
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirmBtnColor={pendingAction?.kind === 'delete' ? 'danger' : 'primary'}
+    confirm={onConfirm}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
 />
 
 {#if agent}
@@ -288,4 +307,3 @@
     {/if}
 </div>
 {/if}
-

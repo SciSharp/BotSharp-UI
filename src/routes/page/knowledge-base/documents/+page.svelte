@@ -3,7 +3,6 @@
     import { fly } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import util from "lodash";
-	import Swal from 'sweetalert2';
 	import { v4 as uuidv4 } from 'uuid';
     import {
         getKnowledgeCollections,
@@ -19,6 +18,7 @@
 		deleteKnowledgeIndexes,
 		getKnowledgeProcessors
     } from '$lib/services/knowledge-base-service';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import Loader from '$lib/common/spinners/Loader.svelte';
@@ -516,40 +516,58 @@
 		isOpenEditKnowledge = true;
 	}
 
+	/** @typedef {{ kind: 'delete-all' } | { kind: 'delete-collection' }} PendingAction */
+
+	let confirmOpen = $state(false);
+	/** @type {PendingAction | null} */
+	let pendingAction = $state(null);
+
 	function onKnowledgeDeleteAll() {
-		Swal.fire({
-            title: 'Are you sure?',
-            text: `Are you sure you want to delete all data in collection "${selectedCollection}"?`,
-            icon: 'warning',
-			customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes',
-        }).then(async (result) => {
-            if (result.value) {
-				isLoading = true;
-                deleteAllKnowledgeData(selectedCollection, knowledgeType).then(res => {
-					if (res) {
-						successText = "All data has been deleted!";
-						isComplete = true;
-						setTimeout(() => {
-							isComplete = false;
-						}, duration);
-						reset(true);
-					} else {
-						throw 'Error when deleting all data';
-					}
-				}).catch(() => {
-					errorText = "Failed to delete all data."
-					isError = true;
-					setTimeout(() => {
-						isError = false;
-					}, duration);
-				}).finally(() => {
-					isLoading = false;
-				});
-            }
-        });
+		pendingAction = { kind: 'delete-all' };
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingAction = null;
+	}
+
+	function onConfirm() {
+		if (!pendingAction) {
+			closeConfirm();
+			return;
+		}
+		const action = pendingAction;
+		closeConfirm();
+		if (action.kind === 'delete-all') {
+			handleDeleteAllKnowledge();
+		} else {
+			handleDeleteCollection();
+		}
+	}
+
+	function handleDeleteAllKnowledge() {
+		isLoading = true;
+		deleteAllKnowledgeData(selectedCollection, knowledgeType).then(res => {
+			if (res) {
+				successText = "All data has been deleted!";
+				isComplete = true;
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+				reset(true);
+			} else {
+				throw 'Error when deleting all data';
+			}
+		}).catch(() => {
+			errorText = "Failed to delete all data."
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		}).finally(() => {
+			isLoading = false;
+		});
 	}
 
 	function toggleKnowledgeEditModal() {
@@ -702,39 +720,32 @@
 	}
 
 	function deleteCollection() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `Are you sure you want to delete collection "${selectedCollection}"?`,
-            icon: 'warning',
-			customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes',
-        }).then(async (result) => {
-            if (result.value) {
-				isLoading = true;
-                deleteKnowledgeCollection(selectedCollection, knowledgeType).then(res => {
-					if (res) {
-						successText = "Collection has been deleted!";
-						isComplete = true;
-						setTimeout(() => {
-							isComplete = false;
-						}, duration);
-						initPage();
-					} else {
-						throw 'Error when deleting vector collection';
-					}
-				}).catch(() => {
-					errorText = "Failed to delete collection."
-					isError = true;
-					setTimeout(() => {
-						isError = false;
-					}, duration);
-				}).finally(() => {
-					isLoading = false;
-				});
-            }
-        });
+		pendingAction = { kind: 'delete-collection' };
+		confirmOpen = true;
+	}
+
+	function handleDeleteCollection() {
+		isLoading = true;
+		deleteKnowledgeCollection(selectedCollection, knowledgeType).then(res => {
+			if (res) {
+				successText = "Collection has been deleted!";
+				isComplete = true;
+				setTimeout(() => {
+					isComplete = false;
+				}, duration);
+				initPage();
+			} else {
+				throw 'Error when deleting vector collection';
+			}
+		}).catch(() => {
+			errorText = "Failed to delete collection."
+			isError = true;
+			setTimeout(() => {
+				isError = false;
+			}, duration);
+		}).finally(() => {
+			isLoading = false;
+		});
 	}
 
     /**
@@ -871,6 +882,21 @@
 	isError={isError}
 	successText={successText}
 	errorText={errorText}
+/>
+
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon="warning"
+	title="Are you sure?"
+	text={pendingAction?.kind === 'delete-collection'
+		? `Are you sure you want to delete collection "${selectedCollection}"?`
+		: `Are you sure you want to delete all data in collection "${selectedCollection}"?`}
+	confirmBtnText="Yes"
+	cancelBtnText="No"
+	confirmBtnColor="danger"
+	confirm={onConfirm}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
 />
 
 {#if isOpenEditKnowledge}
@@ -1294,4 +1320,6 @@
 		</div>
 	</div>
 </div>
+
+
 

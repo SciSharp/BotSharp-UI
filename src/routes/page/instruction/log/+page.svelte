@@ -432,7 +432,7 @@
 								<th scope="col" class="instruction-log-col">{$_('Template')}</th>
 								<th scope="col" class="instruction-log-col">{$_('Caller')}</th>
 								<th scope="col" class="instruction-log-col">{$_('Created Time')}</th>
-								<th scope="col" class="text-center">{$_('Action')}</th>
+								<th scope="col" class="text-start">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>

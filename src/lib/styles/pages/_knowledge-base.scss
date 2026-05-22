@@ -1171,7 +1171,7 @@
 
 .ti-op-actions {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 0.25rem;
 }
 
@@ -1774,7 +1774,7 @@
 
 .vti-op-list {
     display: flex;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 0.3rem;
     list-style: none;

@@ -78,7 +78,7 @@
         <span class="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info">{task.status}</span>
     </td>
     <td>
-        <div class="flex items-center justify-center gap-1.5">
+        <div class="flex items-center justify-start gap-1.5">
             <a
                 href="page/task/{task.id}?agentId={task.agent_id}"
                 target="_blank"
@@ -90,7 +90,7 @@
             </a>
             <button
                 type="button"
-                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all cursor-pointer hover:scale-105 hover:bg-info/25"
                 onclick={() => handleSaveTask()}
                 aria-label="Save"
                 title="Save"
@@ -99,7 +99,7 @@
             </button>
             <button
                 type="button"
-                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all cursor-pointer hover:scale-105 hover:bg-danger/20"
                 onclick={() => handleDeleteTask()}
                 aria-label="Delete"
                 title="Delete"

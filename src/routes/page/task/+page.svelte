@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
@@ -13,7 +13,7 @@
 	import { AgentTaskStatus } from '$lib/helpers/enums';
 	import { formatNumber } from '$lib/helpers/utils/common';
 	import TaskItem from './task-item.svelte';
-	
+
 
 	const duration = 3000;
 	const firstPage = 1;
@@ -170,19 +170,8 @@
 
 	/** @param {import('$agentTypes').AgentTaskModel} task */
 	function openSaveModal(task) {
-		// @ts-ignore
-		Swal.fire({
-            title: 'Are you sure?',
-            text: "You can change it back.",
-            icon: 'warning',
-			customClass: 'custom-modal',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, save it!'
-        }).then((result) => {
-            if (result.value) {
-				handleTaskSave(task);
-            }
-        });
+		pendingAction = { kind: 'save', task };
+		confirmOpen = true;
 	}
 
 	/** @param {import('$agentTypes').AgentTaskModel} task */
@@ -202,7 +191,7 @@
 		});
     }
 
-	
+
 
 	/** @param {import('$agentTypes').AgentTaskModel} task */
 	function onTaskDeleted(task) {
@@ -213,23 +202,40 @@
 
 	/** @param {string} taskId */
 	function openDeleteModal(taskId) {
-		// @ts-ignore
-		Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-			customClass: 'custom-modal',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.value) {
-				handleTaskDeletion(taskId);
-            }
-        });
+		pendingAction = { kind: 'delete', taskId };
+		confirmOpen = true;
 	}
 
 	/** @param {string} _taskId */
     function handleTaskDeletion(_taskId) {}
+
+	/**
+	 * @typedef {{ kind: 'save', task: import('$agentTypes').AgentTaskModel }
+	 *   | { kind: 'delete', taskId: string }} PendingAction
+	 */
+
+	let confirmOpen = $state(false);
+	/** @type {PendingAction | null} */
+	let pendingAction = $state(null);
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingAction = null;
+	}
+
+	function onConfirm() {
+		if (!pendingAction) {
+			closeConfirm();
+			return;
+		}
+		const action = pendingAction;
+		closeConfirm();
+		if (action.kind === 'save') {
+			handleTaskSave(action.task);
+		} else {
+			handleTaskDeletion(action.taskId);
+		}
+	}
 </script>
 
 <HeadTitle title={$_('Task List')} />
@@ -238,6 +244,21 @@
 <LoadingToComplete
 	isLoading={isLoading}
 	isComplete={isComplete}
+/>
+
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon={pendingAction?.kind === 'delete' ? 'error' : 'warning'}
+	title="Are you sure?"
+	text={pendingAction?.kind === 'delete'
+		? "You won't be able to revert this!"
+		: 'You can change it back.'}
+	confirmBtnText={pendingAction?.kind === 'delete' ? 'Yes, delete it!' : 'Yes, save it!'}
+	cancelBtnText="No"
+	confirmBtnColor={pendingAction?.kind === 'delete' ? 'danger' : 'primary'}
+	confirm={onConfirm}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
 />
 
 <div class="flex flex-wrap">
@@ -263,7 +284,7 @@
 							<li>
 								<button
 									type="button"
-									class="block w-full px-3 py-2 text-left text-sm text-dark transition-colors hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
+									class="block w-full px-3 py-2 text-left text-sm text-dark transition-colors cursor-pointer hover:bg-gray-50 dark:text-gray-100 dark:hover:bg-gray-700"
 								>
 									{$_('Action')}
 								</button>
@@ -303,7 +324,7 @@
 					<div class="lg:col-span-2">
 						<button
 							type="button"
-							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover"
 							onclick={e => searchTasks(e)}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
@@ -324,7 +345,7 @@
 								<th scope="col">{$_('Updated Time')}</th>
 								<th scope="col">{$_('Enabled')}</th>
 								<th scope="col">{$_('Status')}</th>
-								<th scope="col" class="text-center">{$_('Action')}</th>
+								<th scope="col" class="text-start">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -343,4 +364,3 @@
 		</div>
 	</div>
 </div>
-

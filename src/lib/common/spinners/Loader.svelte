@@ -65,8 +65,8 @@
         align-items: center;
         justify-content: center;
         background-color: rgb(255 255 255 / 0.55);
-        backdrop-filter: blur(2px);
-        -webkit-backdrop-filter: blur(2px);
+        backdrop-filter: blur(1px);
+        -webkit-backdrop-filter: blur(1px);
         animation: loader-fade-in 0.25s ease-out;
         transition: left 0.2s;
     }

@@ -2,7 +2,7 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import { page } from '$app/state';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
@@ -144,20 +144,32 @@
 		});
 	}
 
+	/** @typedef {{ kind: 'create' } | { kind: 'import-error' }} PendingAction */
+
+	let confirmOpen = $state(false);
+	/** @type {PendingAction | null} */
+	let pendingAction = $state(null);
+
 	function createNewAgent() {
-		// @ts-ignore
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to create a new agent?",
-            icon: 'warning',
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                await handleCreateNewAgent();
-            }
-        });
+		pendingAction = { kind: 'create' };
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingAction = null;
+	}
+
+	async function onConfirm() {
+		if (!pendingAction) {
+			closeConfirm();
+			return;
+		}
+		const action = pendingAction;
+		closeConfirm();
+		if (action.kind === 'create') {
+			await handleCreateNewAgent();
+		}
 	}
 
 	async function handleCreateNewAgent() {
@@ -206,7 +218,8 @@
 
 				goto(`page/agent/${createdAgent.id}`);
 			} catch (err) {
-				Swal.fire('Error', 'Failed to import agent. Please check the JSON file.', 'error');
+				pendingAction = { kind: 'import-error' };
+				confirmOpen = true;
 			}
 		};
 		input.click();
@@ -280,7 +293,7 @@
 			search();
 		}
 	}
-	
+
 	/** @param {any} e */
 	function selectAgentTypeOption(e) {
 		// @ts-ignore
@@ -332,6 +345,22 @@
 
 <LoadingToComplete
 	isLoading={isLoading}
+/>
+
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon={pendingAction?.kind === 'import-error' ? 'error' : 'warning'}
+	title={pendingAction?.kind === 'import-error' ? 'Error' : 'Are you sure?'}
+	text={pendingAction?.kind === 'import-error'
+		? 'Failed to import agent. Please check the JSON file.'
+		: 'Are you sure you want to create a new agent?'}
+	confirmBtnText={pendingAction?.kind === 'import-error' ? 'OK' : 'Yes'}
+	cancelBtnText="No"
+	showCancelBtn={pendingAction?.kind !== 'import-error'}
+	confirmBtnColor={pendingAction?.kind === 'import-error' ? 'danger' : 'primary'}
+	confirm={onConfirm}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
 />
 
 <div class="ag-header">
@@ -398,7 +427,6 @@
 	</div>
 </div>
 
-
 <div class="ag-grid">
 	<CardAgent agents={agents.items} />
 </div>
@@ -406,4 +434,7 @@
 <div class="ag-pagination">
 	<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
 </div>
+
+
+
 

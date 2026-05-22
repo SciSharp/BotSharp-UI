@@ -68,7 +68,7 @@
         <span class="text-xs text-muted">{utcToLocal(item.created_time, 'MMM D YYYY, hh:mm:ss A')}</span>
     </td>
     <td>
-        <div class="flex justify-center">
+        <div class="flex justify-start">
             <button
                 type="button"
                 class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-warning/15 text-warning transition-all hover:scale-105 hover:bg-warning/25"

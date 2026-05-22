@@ -2,9 +2,9 @@
     import { onMount, onDestroy } from 'svelte';
     import { fly } from 'svelte/transition';
     import { PUBLIC_SERVICE_URL } from '$env/static/public';
-    import Swal from 'sweetalert2';
     import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
     import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
     import FileDropZone from '$lib/common/files/FileDropZone.svelte';
     import FileGallery from '$lib/common/files/FileGallery.svelte';
@@ -152,51 +152,76 @@
         });
     }
 
+    /**
+     * @typedef {{ kind: 'submit' }
+     *   | { kind: 'delete-file', index: number, fileName: string }
+     *   | { kind: 'delete-all' }} PendingAction
+     */
+
+    let confirmOpen = $state(false);
+    /** @type {PendingAction | null} */
+    let pendingAction = $state(null);
+
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingAction = null;
+    }
+
+    function onConfirm() {
+        if (!pendingAction) {
+            closeConfirm();
+            return;
+        }
+        const action = pendingAction;
+        closeConfirm();
+        if (action.kind === 'submit') {
+            handleSubmitUpload();
+        } else if (action.kind === 'delete-file') {
+            handleDeleteFile(action.index);
+        } else {
+            handleDeleteAllFiles();
+        }
+    }
+
     function handleFileSubmit() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `Are you sure you want to submit ${uploadFiles.length > 1 ? 'these documents' : 'this document'} to knowledgebase"?`,
-            icon: 'warning',
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes',
-        }).then(async (result) => {
-            if (result.value) {
-                const files = uploadFiles.map(x => {
-                    return {
-                        file_name: x.file_name,
-                        file_data: x.file_data,
-                        file_source: KnowledgeDocSource.User
-                    };
-                });
+        pendingAction = { kind: 'submit' };
+        confirmOpen = true;
+    }
 
-                disabled = true;
-                isLoading = true;
-				uploadKnowledgeFiles(collection,
-                {
-                    files: files,
-                    options: {
-                        processor: defaultProcessor
-                    }
-                }).then(res => {
-                    successFiles = res.success || [];
-                    failedFiles = res.failed || [];
-                    uploadFiles = [];
-                    knowledgeBaseDocumentStore.reset();
-                    ondocuploaded();
+    function handleSubmitUpload() {
+        const files = uploadFiles.map(x => {
+            return {
+                file_name: x.file_name,
+                file_data: x.file_data,
+                file_source: KnowledgeDocSource.User
+            };
+        });
 
-                    if (showDocList) {
-                        docPage = startPage;
-                        getKnowledgeDocumentList();
-                    }
-                }).catch(() => {
-                    successFiles = [];
-                    failedFiles = files.map(x => x.file_name);
-                }).finally(() => {
-                    disabled = false;
-                    isLoading = false;
-                });
+        disabled = true;
+        isLoading = true;
+        uploadKnowledgeFiles(collection,
+        {
+            files: files,
+            options: {
+                processor: defaultProcessor
             }
+        }).then(res => {
+            successFiles = res.success || [];
+            failedFiles = res.failed || [];
+            uploadFiles = [];
+            knowledgeBaseDocumentStore.reset();
+            ondocuploaded();
+
+            if (showDocList) {
+                docPage = startPage;
+                getKnowledgeDocumentList();
+            }
+        }).catch(() => {
+            successFiles = [];
+            failedFiles = files.map(x => x.file_name);
+        }).finally(() => {
+            disabled = false;
+            isLoading = false;
         });
     }
 
@@ -253,62 +278,50 @@
     /** @param {number} index */
     function handleDeleteSavedFile(index) {
         const found = savedFiles.find((_, idx) => idx === index);
+        if (!found) return;
+        pendingAction = { kind: 'delete-file', index, fileName: found.file_name };
+        confirmOpen = true;
+    }
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `Are you sure you want to delete "${found.file_name}" and its knowledge"?`,
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes',
-        }).then(async (result) => {
-            if (result.value) {
-                disabled = true;
-                deleteKnowledgeFile(collection, found.file_id).then(res => {
-                    if (res) {
-                        savedFiles = savedFiles.filter((_, idx) => idx !== index);
-                        docPage = startPage;
-                        getKnowledgeDocumentList();
-                    }
-                    ondocdeleted({ success: res });
-                }).catch(() => {
-                    ondocdeleted({ success: false });
-                }).finally(() => {
-                    disabled = false;
-                    reset();
-                });
+    /** @param {number} index */
+    function handleDeleteFile(index) {
+        const found = savedFiles.find((_, idx) => idx === index);
+        if (!found) return;
+        disabled = true;
+        deleteKnowledgeFile(collection, found.file_id).then(res => {
+            if (res) {
+                savedFiles = savedFiles.filter((_, idx) => idx !== index);
+                docPage = startPage;
+                getKnowledgeDocumentList();
             }
+            ondocdeleted({ success: res });
+        }).catch(() => {
+            ondocdeleted({ success: false });
+        }).finally(() => {
+            disabled = false;
+            reset();
         });
     }
 
     function handleDeleteAllSavedFiles() {
         if (disabled || savedFiles.length === 0) return;
+        pendingAction = { kind: 'delete-all' };
+        confirmOpen = true;
+    }
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: `Are you sure you want to delete all the documents and their knowledge"?`,
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes',
-        }).then(async (result) => {
-            if (result.value) {
-                disabled = true;
-                deleteAllKnowledgeFiles(collection, { page: 1, size: 10 }).then(res => {
-                    if (res) {
-                        savedFiles = [];
-                        docPage = startPage;
-                        getKnowledgeDocumentList();
-                    }
-                    onresetdocs({ success: res });
-                }).catch(() => {
-                    onresetdocs({ success: false });
-                }).finally(() => {
-                    disabled = false;
-                });
+    function handleDeleteAllFiles() {
+        disabled = true;
+        deleteAllKnowledgeFiles(collection, { page: 1, size: 10 }).then(res => {
+            if (res) {
+                savedFiles = [];
+                docPage = startPage;
+                getKnowledgeDocumentList();
             }
+            onresetdocs({ success: res });
+        }).catch(() => {
+            onresetdocs({ success: false });
+        }).finally(() => {
+            disabled = false;
         });
     }
 
@@ -358,6 +371,23 @@
 </script>
 
 <LoadingToComplete {isLoading} />
+
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text={pendingAction?.kind === 'submit'
+        ? `Are you sure you want to submit ${uploadFiles.length > 1 ? 'these documents' : 'this document'} to knowledgebase?`
+        : pendingAction?.kind === 'delete-file'
+            ? `Are you sure you want to delete "${pendingAction.fileName}" and its knowledge?`
+            : 'Are you sure you want to delete all the documents and their knowledge?'}
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirmBtnColor={pendingAction?.kind === 'submit' ? 'primary' : 'danger'}
+    confirm={onConfirm}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
 
 <div
     class="doc-up-container"
@@ -520,4 +550,6 @@
         </div>
     {/if}
 </div>
+
+
 

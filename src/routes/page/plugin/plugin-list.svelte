@@ -1,7 +1,7 @@
 <script>
 	import { _ } from 'svelte-i18n';
 	import { installPlugin, removePlugin } from '$lib/services/plugin-service';
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import { sendToChatBot } from '$lib/helpers/utils/chat';
 	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
 	import { ChatAction } from '$lib/helpers/enums';
@@ -13,33 +13,34 @@
 	 */
 	let { plugins } = $props();
 
+	let confirmOpen = $state(false);
+	/** @type {{ id: string, name: string, enable: boolean } | null} */
+	let pendingAction = $state(null);
+
 	/**
 	 * @param {string} id
 	 * @param {string} name
 	 * @param {boolean} enable
 	 */
 	function handlePluginStatus(id, name, enable) {
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: `We will ${enable ? 'install' : 'remove'} ${name}.`,
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes',
-			cancelButtonText: 'No'
-		}).then((result) => {
-			if (result.value) {
-				if (enable) {
-					installPlugin(id).then(() => {
-						refresh();
-					});
-				} else {
-					removePlugin(id).then(() => {
-						refresh();
-					})
-				}
-			}
-		});
+		pendingAction = { id, name, enable };
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingAction = null;
+	}
+
+	function onConfirm() {
+		if (!pendingAction) {
+			closeConfirm();
+			return;
+		}
+		const { id, enable } = pendingAction;
+		const op = enable ? installPlugin(id) : removePlugin(id);
+		op.then(() => refresh());
+		closeConfirm();
 	}
 
 	function refresh() {
@@ -62,6 +63,21 @@
 	}
 </script>
 
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon="warning"
+	title="Are you sure?"
+	text={pendingAction
+		? `We will ${pendingAction.enable ? 'install' : 'remove'} ${pendingAction.name}.`
+		: ''}
+	confirmBtnText="Yes"
+	cancelBtnText="No"
+	confirmBtnColor={pendingAction?.enable ? 'success' : 'danger'}
+	confirm={onConfirm}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
+/>
+
 <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
 	{#each plugins as item}
 		<div class="plugin-card group relative flex flex-col overflow-hidden rounded-2xl bg-white shadow-md ring-1 ring-black/5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl dark:bg-gray-800 dark:ring-white/10">
@@ -76,7 +92,7 @@
 					</div>
 					<button
 						type="button"
-						class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-300 transition-colors hover:bg-primary/10 hover:text-primary dark:text-gray-500"
+						class="inline-flex h-8 w-8 items-center justify-center rounded-full text-gray-300 transition-colors cursor-pointer hover:bg-primary/10 hover:text-primary dark:text-gray-500"
 						aria-label="Favorite"
 					>
 						<i class="uil uil-heart-alt text-lg"></i>
@@ -134,7 +150,7 @@
 				<div class="mt-auto flex flex-wrap gap-2 border-t border-gray-100 pt-3 dark:border-gray-700">
 					<button
 						type="button"
-						class="inline-flex items-center gap-1 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success transition-colors hover:bg-success/20"
+						class="inline-flex items-center gap-1 rounded-md bg-success/10 px-3 py-1.5 text-xs font-medium text-success transition-colors cursor-pointer hover:bg-success/20"
 						onclick={() => clickView(item)}
 					>
 						<i class="bx bx-show"></i>
@@ -164,3 +180,4 @@
 		</div>
 	{/each}
 </div>
+

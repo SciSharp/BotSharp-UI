@@ -3,7 +3,7 @@
 	import { fly } from 'svelte/transition';
 	import { v4 as uuidv4 } from 'uuid';
 	import moment from "moment";
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Loader from '$lib/common/spinners/Loader.svelte';
 	import { UserAction } from '$lib/helpers/enums';
 	import { getRoleDetails } from '$lib/services/role-service';
@@ -27,6 +27,8 @@
 
 	/** @type {boolean} */
 	let isLoading = $state(false);
+
+	let confirmOpen = $state(false);
 
 	/** @type {import('$roleTypes').RoleModel} */
 	let innerItem = $state(/** @type {import('$roleTypes').RoleModel} */ ({}));
@@ -166,19 +168,17 @@
 	}
 
 	function save() {
-		Swal.fire({
-			title: 'Are you sure?',
-			text: `Are you sure you want to update role "${item.name}"?`,
-			icon: 'warning',
-			showCancelButton: true,
-			cancelButtonText: 'No',
-			confirmButtonText: 'Yes'
-		}).then(async (result) => {
-			if (result.value) {
-				const data = formatUpdatedData();
-				onsave?.(data);
-			}
-		});
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+	}
+
+	function doSave() {
+		const data = formatUpdatedData();
+		closeConfirm();
+		onsave?.(data);
 	}
 
 	function formatUpdatedData() {
@@ -222,6 +222,18 @@
 	}
 </script>
 
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon="warning"
+	title="Are you sure?"
+	text={`Are you sure you want to update role "${item.name}"?`}
+	confirmBtnText="Yes"
+	cancelBtnText="No"
+	confirm={doSave}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
+/>
+
 <tr in:fly={{ y: -5, duration: 800 }} class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
 	<td>
 		<div class="flex items-center gap-3">
@@ -254,10 +266,10 @@
 		</span>
 	</td>
 	<td>
-		<div class="flex justify-center">
+		<div class="flex justify-start">
 			<button
 				type="button"
-				class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-warning/15 text-warning transition-all hover:scale-105 hover:bg-warning/25 disabled:cursor-not-allowed disabled:opacity-50"
+				class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-warning/15 text-warning transition-all cursor-pointer hover:scale-105 hover:bg-warning/25 disabled:cursor-not-allowed disabled:opacity-50"
 				disabled={disabled}
 				onclick={() => toggleRoleDetail()}
 				aria-label={open ? 'Collapse' : 'Edit'}
@@ -282,7 +294,7 @@
 					<div class="edit-btn absolute right-4 top-4">
 						<button
 							type="button"
-							class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
+							class="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover"
 							title="Save"
 							onclick={() => save()}
 						>
@@ -322,7 +334,7 @@
 											/>
 											<button
 												type="button"
-												class="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-danger transition-colors hover:bg-danger/10"
+												class="absolute right-1 top-1/2 inline-flex h-6 w-6 -translate-y-1/2 items-center justify-center rounded-full text-danger transition-colors cursor-pointer hover:bg-danger/10"
 												aria-label="Remove permission"
 												onclick={() => deletePermission(index)}
 											>
@@ -333,7 +345,7 @@
 									{#if innerItem.permissions?.length < 5}
 										<button
 											type="button"
-											class="list-add inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
+											class="list-add inline-flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-primary transition-all cursor-pointer hover:scale-105 hover:bg-primary/20"
 											aria-label="Add permission"
 											onclick={() => addPermission()}
 										>

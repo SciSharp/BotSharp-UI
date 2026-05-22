@@ -112,7 +112,7 @@
             <div class="flex items-center gap-1.5">
                 <button
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-warning/15 text-warning transition-all hover:scale-105 hover:bg-warning/25"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-warning/15 text-warning transition-all cursor-pointer hover:scale-105 hover:bg-warning/25"
                     title="Send notification"
                     aria-label="Send notification"
                     onclick={() => handleSendNotification()}
@@ -121,7 +121,7 @@
                 </button>
                 <button
                     type="button"
-                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
+                    class="inline-flex h-9 w-9 items-center justify-center rounded-full bg-info/15 text-info transition-all cursor-pointer hover:scale-105 hover:bg-info/25"
                     title="Go to chat"
                     aria-label="Go to chat"
                     onclick={() => goToChat()}

@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     import { _ } from 'svelte-i18n';
-    import Swal from 'sweetalert2';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
     import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import { getSettings, getSettingDetail } from '$lib/services/setting-service';
@@ -16,6 +16,8 @@
     let isError = $state(false);
     let successText = $state('');
     let errorText = $state('');
+
+    let confirmOpen = $state(false);
 
     let selectedTab = $state('1');
     /** @type {string[]} */
@@ -41,19 +43,16 @@
     }
 
     function readyToRefresh() {
-        // @ts-ignore
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You will migrate all agents data to mongoDb.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes',
-            cancelButtonText: 'No'
-        }).then((result) => {
-            if (result.value) {
-                refreshAgentData();
-            }
-        });
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+    }
+
+    function onConfirmRefresh() {
+        closeConfirm();
+        refreshAgentData();
     }
 
     const refreshAgentData = () => {
@@ -90,6 +89,18 @@
     {errorText}
 />
 
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text="You will migrate all agents data to mongoDb."
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirm={onConfirmRefresh}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
+
 <div class="mb-4 rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
     <div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
         <div class="flex items-center gap-3">
@@ -111,7 +122,7 @@
                     <button
                         type="button"
                         id={tab}
-                        class="setting-tab {selectedTab === tab ? 'is-active' : ''}"
+                        class="setting-tab cursor-pointer {selectedTab === tab ? 'is-active' : ''}"
                         onclick={() => handleGetSettingDetail(tab)}
                     >
                         <i class="mdi mdi-cog-outline text-base leading-none sm:hidden"></i>
@@ -155,7 +166,7 @@
             </div>
             <button
                 type="button"
-                class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
+                class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
                 onclick={() => readyToRefresh()}
                 disabled={isLoading}
             >
@@ -165,4 +176,3 @@
         </div>
     </div>
 </div>
-

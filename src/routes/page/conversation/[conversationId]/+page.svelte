@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
-    import Swal from 'sweetalert2';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
     import { _ } from 'svelte-i18n';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
@@ -30,23 +30,22 @@
         dialogs = await getDialogs(conversation.id, dialogCount);
     });
 
+    let confirmOpen = $state(false);
+
     function handleConversationDeletion() {
-        // @ts-ignore
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then(async (result) => {
-            if (result.value) {
-                if (conversation?.id) {
-                    await deleteConversation(conversation.id);
-                    goto("page/conversation");
-                }
-            }
-        });
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+    }
+
+    async function onConfirmDelete() {
+        closeConfirm();
+        if (conversation?.id) {
+            await deleteConversation(conversation.id);
+            goto("page/conversation");
+        }
     }
 
     function goBack() {
@@ -64,6 +63,19 @@
 
 <LoadingToComplete {isLoading} />
 
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="error"
+    title="Are you sure?"
+    text="You won't be able to revert this!"
+    confirmBtnText="Yes, delete it!"
+    cancelBtnText="No"
+    confirmBtnColor="danger"
+    confirm={onConfirmDelete}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
+
 {#if conversation}
     <div class="space-y-4 pb-8">
         <!-- Action toolbar -->
@@ -72,7 +84,7 @@
                 <div class="flex min-w-0 flex-1 items-center gap-2">
                     <button
                         type="button"
-                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:bg-primary/10 hover:text-primary"
+                        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-muted transition-colors cursor-pointer hover:bg-primary/10 hover:text-primary"
                         aria-label="Back to conversations"
                         title="Back to conversations"
                         onclick={goBack}
@@ -90,7 +102,7 @@
                 <div class="flex shrink-0 items-center gap-1.5">
                     <button
                         type="button"
-                        class="inline-flex items-center gap-1.5 rounded-md bg-info/10 px-3 py-1.5 text-sm font-medium text-info transition-colors hover:bg-info/20"
+                        class="inline-flex items-center gap-1.5 rounded-md bg-info/10 px-3 py-1.5 text-sm font-medium text-info transition-colors cursor-pointer hover:bg-info/20"
                         title="Open in chat"
                         onclick={openInChat}
                     >
@@ -133,7 +145,7 @@
                     </div>
                     <button
                         type="button"
-                        class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-danger px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-danger/90"
+                        class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-danger px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-danger/90"
                         onclick={() => handleConversationDeletion()}
                     >
                         <i class="mdi mdi-delete text-base leading-none"></i>

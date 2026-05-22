@@ -2,7 +2,7 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { _ } from 'svelte-i18n';
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import lodash from "lodash";
 	import StateSearch from '$lib/common/shared/StateSearch.svelte';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
@@ -226,21 +226,27 @@
 		});
     }
 
+	let confirmOpen = $state(false);
+	/** @type {string | null} */
+	let pendingDeleteId = $state(null);
+
 	/** @param {string} conversationId */
 	function openDeleteModal(conversationId) {
-		// @ts-ignore
-		Swal.fire({
-            title: 'Are you sure?',
-            text: "You won't be able to revert this!",
-            icon: 'warning',
-			customClass: 'custom-modal',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
-            if (result.value) {
-				handleConversationDeletion(conversationId);
-            }
-        });
+		pendingDeleteId = conversationId;
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingDeleteId = null;
+	}
+
+	function onConfirmDelete() {
+		const id = pendingDeleteId;
+		closeConfirm();
+		if (id) {
+			handleConversationDeletion(id);
+		}
 	}
 
 	/**
@@ -418,6 +424,19 @@
 	successText={'Delete completed!'}
 />
 
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon="error"
+	title="Are you sure?"
+	text="You won't be able to revert this!"
+	confirmBtnText="Yes, delete it!"
+	cancelBtnText="No"
+	confirmBtnColor="danger"
+	confirm={onConfirmDelete}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
+/>
+
 <div class="flex flex-wrap">
 	<div class="w-full">
 		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
@@ -536,7 +555,7 @@
 					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover"
 							onclick={(e) => searchConversations(e)}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
@@ -557,7 +576,7 @@
 								<th scope="col">{$_('Posted Date')}</th>
 								<th scope="col">{$_('Last Date')}</th>
 								<th scope="col">{$_('Status')}</th>
-								<th scope="col" class="text-center">{$_('Action')}</th>
+								<th scope="col" class="text-start">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -604,7 +623,7 @@
 									</span>
 								</td>
 								<td>
-									<div class="flex items-center justify-center gap-1.5">
+									<div class="flex items-center justify-start gap-1.5">
 										<button
 											type="button"
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
@@ -644,4 +663,3 @@
 		</div>
 	</div>
 </div>
-

@@ -1,6 +1,6 @@
 <script>
     import { fly } from 'svelte/transition';
-    import Swal from 'sweetalert2';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Loader from "$lib/common/spinners/Loader.svelte";
 	import { KnowledgeBaseType, KnowledgePayloadName } from "$lib/helpers/enums";
 
@@ -33,6 +33,10 @@
     let isLoading = $state(false);
     let loadMore = $state(false);
 
+    let confirmOpen = $state(false);
+    /** @type {string | null} */
+    let pendingDeleteId = $state(null);
+
     $effect(() => {
         if (!open) {
             loadMore = false;
@@ -46,20 +50,21 @@
     /** @param {string} id */
     function deleteKnowledge(id) {
         if (!id) return;
+        pendingDeleteId = id;
+        confirmOpen = true;
+    }
 
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to delete this knowledge?",
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-            cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                ondelete?.({ id: id });
-            }
-        });
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingDeleteId = null;
+    }
+
+    function onConfirmDelete() {
+        const id = pendingDeleteId;
+        closeConfirm();
+        if (id) {
+            ondelete?.({ id });
+        }
     }
 
     function editKnowledge() {
@@ -73,6 +78,19 @@
 {#if isLoading}
     <Loader />
 {/if}
+
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text="Are you sure you want to delete this knowledge?"
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirmBtnColor="danger"
+    confirm={onConfirmDelete}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
 
 <tr in:fly={{ y: -5, duration: 800 }}>
     <td class={`vti-text-qa ${isDocumentCollection ? 'vti-text' : ''}`}>
@@ -208,5 +226,7 @@
         </td>
     </tr>
 {/if}
+
+
 
 
