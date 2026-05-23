@@ -123,14 +123,14 @@
     toggleModal={() => toggleModal?.()}
 >
     <div>
-        <div class="mb-3">
-            <span class="fw-bold">{'Collection: '}</span>
-            <span class="text-primary collection-value">{collection}</span>
+        <div class="kum-collection-row">
+            <span class="kum-collection-label">{'Collection: '}</span>
+            <span class="kum-collection-value">{collection}</span>
         </div>
         <form>
-            <div class="mt-2 d-flex flex-column gap-2">
-                <div class="d-flex gap-1">
-                    <div class="fw-bold">{'Document Processor'}</div>
+            <div class="kum-field">
+                <div class="kum-field-label-row">
+                    <div class="kum-field-label">{'Document Processor'}</div>
                 </div>
                 <Select
                     tag={'kn-doc-processor-select'}
@@ -141,27 +141,27 @@
                     onselect={e => changeProcessor(e)}
                 />
             </div>
-            <div class="mt-2 d-flex flex-column gap-2">
+            <div class="kum-field">
                 <FileGallery
-                    containerClasses={'doc-upload-body'}
+                    containerClasses={'kum-gallery'}
                     showPrefix={true}
                     disabled={disabled || !selectedProcessor}
                 >
                     {#snippet prefix()}
                         <FileDropZone
                             accept={accept}
-                            containerClasses={'doc-drop-zone'}
+                            containerClasses={'kum-drop-zone'}
                             disabled={!selectedProcessor}
                             fileLimit={1}
                             maxSize={fileMaxSize * 1024 * 1024}
                             ondrop={handleFileDrop}
                         >
-                            <div>
-                                <div class="doc-drop-icon">
+                            <div class="kum-drop-content">
+                                <div class="kum-drop-icon">
                                     <i class="bx bx-cloud-upload"></i>
                                 </div>
                                 <div>
-                                    <ul>
+                                    <ul class="kum-drop-list">
                                         <li>{'Please select a processor before uploading.'}</li>
                                         <li>{'File cannot exceed 10 MB.'}</li>
                                         <li>{`File types allowed: ${accept?.split(',')?.join(', ') || 'none'}`}</li>
@@ -175,3 +175,4 @@
         </form>
     </div>
 </PlainModal>
+

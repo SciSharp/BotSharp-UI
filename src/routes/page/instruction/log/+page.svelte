@@ -11,7 +11,7 @@
 	import { getInstructionLogSearchKeys } from '$lib/services/instruct-service';
 	import { getInstructionLogs } from '$lib/services/logging-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
-	import { convertTimeRange, removeDuplicates } from '$lib/helpers/utils/common';
+	import { convertTimeRange, removeDuplicates, formatNumber } from '$lib/helpers/utils/common';
 	import StateSearch from '$lib/common/shared/StateSearch.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import TimeRangePicker from '$lib/common/shared/TimeRangePicker.svelte';
@@ -292,46 +292,46 @@
 
 <LoadingToComplete isLoading={isLoading} />
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body border-bottom">
-				<div class="d-flex flex-wrap align-items-center justify-content-between">
-					<div class="mb-0 card-title flex-grow-0">
-						<h5 class="mb-0 card-title flex-grow-1">{$_('Log List')}</h5>
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+							<i class="mdi mdi-text-box-search-outline text-xl"></i>
+						</span>
+						<div>
+							<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Log List')}</h5>
+							<p class="mb-0 text-xs text-muted">{formatNumber(pager.count)} {pager.count === 1 ? 'log entry' : 'log entries'} total</p>
+						</div>
 					</div>
-					<div class="state-search-btn-wrapper">
-						<button
-							type="button"
-							class="btn btn-{showStateSearch ? 'secondary' : 'primary'}"
-							onclick={() => showStateSearch = !showStateSearch}
-						>
-							<div class="state-search-btn">
-								<div>
-									{#if showStateSearch}
-										<i class="bx bx-hide"></i>
-									{:else}
-										<i class="bx bx-search-alt"></i>
-									{/if}
-								</div>
-								<div class="search-btn-text">{'State Search'}</div>
-							</div>
-						</button>
-					</div>
+					<button
+						type="button"
+						class="inline-flex cursor-pointer items-center gap-1.5 rounded-md px-3 py-2 text-sm font-medium shadow-sm transition-colors {showStateSearch ? 'bg-gray-200 text-dark hover:bg-gray-300 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600' : 'bg-primary text-white hover:bg-primary-hover'}"
+						onclick={() => showStateSearch = !showStateSearch}
+					>
+						{#if showStateSearch}
+							<i class="bx bx-hide text-base leading-none"></i>
+						{:else}
+							<i class="bx bx-search-alt text-base leading-none"></i>
+						{/if}
+						<span class="search-btn-text">{'State Search'}</span>
+					</button>
 				</div>
 			</div>
 			{#if showStateSearch}
-				<div class="card-body border-bottom">
-					<div class="row g-3 justify-content-end">
-						<div class="col-lg-6">
+				<div class="instruct-state-search border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+					<div class="flex justify-end">
+						<div class="w-full lg:w-1/2">
 							<StateSearch bind:states={states} onSearch={(query) => handleStateSearch(query)} />
 						</div>
 					</div>
 				</div>
 			{/if}
-			<div class="card-body border-bottom">
-				<div class="row g-3">
-					<div class="col-lg-3">
+			<div class="instruct-filter border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+					<div class="lg:col-span-3">
 						<Select
 							tag={'agent-select'}
 							placeholder={'Select agents'}
@@ -341,9 +341,13 @@
 							selectedValues={searchOption.agentIds}
 							options={agentOptions}
 							onselect={e => changeOption(e, 'agent')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-robot-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<Select
 							tag={'llm-provider-select'}
 							placeholder={'Select LLM provider'}
@@ -351,9 +355,13 @@
 							selectedValues={searchOption.providers}
 							options={providerOptions}
 							onselect={e => changeOption(e, 'provider')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-chip"></i>
+							{/snippet}
+						</Select>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<Select
 							tag={'llm-model-select'}
 							placeholder={'Select LLM model'}
@@ -363,18 +371,27 @@
 							selectedValues={searchOption.models}
 							options={modelOptions}
 							onselect={e => changeOption(e, 'model')}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-cube-outline"></i>
+							{/snippet}
+						</Select>
 					</div>
-					<div class="col-lg-2">
-						<input
-							type="text"
-							class="form-control"
-							bind:value={searchOption.template}
-							maxlength={100}
-							placeholder={'Search template...'}
-						/>
+					<div class="lg:col-span-2">
+						<div class="relative">
+							<span class="pointer-events-none absolute inset-y-0 left-3 flex items-center text-gray-400">
+								<i class="mdi mdi-file-document-outline text-base leading-none"></i>
+							</span>
+							<input
+								type="text"
+								class="h-10 w-full rounded-md border border-gray-200 bg-white pl-9 pr-3 text-sm text-dark transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary dark:border-gray-700 dark:bg-gray-900 dark:text-gray-100"
+								bind:value={searchOption.template}
+								maxlength={100}
+								placeholder={'Search template...'}
+							/>
+						</div>
 					</div>
-					<div class="col-lg-2">
+					<div class="lg:col-span-2">
 						<TimeRangePicker
 							storageKey="botsharp_instruction_recent_time_ranges"
 							bind:timeRange={searchOption.timeRange}
@@ -386,32 +403,36 @@
 								searchOption.startDate = data.startDate;
 								searchOption.endDate = data.endDate;
 							}}
-						/>
+						>
+							{#snippet prefixIcon()}
+								<i class="mdi mdi-clock-outline"></i>
+							{/snippet}
+						</TimeRangePicker>
 					</div>
-					<div class="col-lg-1">
+					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="btn btn-secondary btn-soft-secondary w-100"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
 							onclick={() => search()}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
-							<span class="d-none">{$_('Filter')}</span>
+							<span class="sr-only">{$_('Filter')}</span>
 						</button>
 					</div>
 				</div>
 			</div>
-			<div class="card-body">
-				<div class="table-responsive thin-scrollbar">
-					<table class="table table-bordered align-middle nowrap users-table">
-						<thead>
+			<div class="p-4 sm:p-6">
+				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+					<table class="instruct-table w-full border-collapse text-sm">
+						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Agent')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Llm Provider')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Llm Model')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Template')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Caller')}</th>
-								<th scope="col" class="instruction-log-col ellipsis">{$_('Created Time')}</th>
-								<th scope="col">{$_('')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Agent')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Llm Provider')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Llm Model')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Template')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Caller')}</th>
+								<th scope="col" class="instruction-log-col">{$_('Created Time')}</th>
+								<th scope="col" class="text-start">{$_('Action')}</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -426,3 +447,4 @@
 		</div>
 	</div>
 </div>
+

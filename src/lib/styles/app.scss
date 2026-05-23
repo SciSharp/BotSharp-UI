@@ -1,0 +1,21 @@
+/*
+ * Top-level SCSS entry point for route-level styles.
+ *
+ * Each partial below collects the scoped <style> blocks from every
+ * `.svelte` file under a single route path. The conventional per-file
+ * class prefixes (cb-, pl-, cle-, ad-, …) provide the namespace
+ * isolation that Svelte's scope hashing used to provide.
+ *
+ * Loaded once from src/routes/+layout.svelte alongside the icon CSS.
+ */
+
+@import "pages/auth";
+@import "pages/chat";
+@import "pages/conversation";
+@import "pages/instruction";
+@import "pages/knowledge-base";
+@import "pages/agent";
+@import "pages/settings";
+
+@import "layout/vertical";
+@import "layout/root";

@@ -59,6 +59,7 @@
         cleanLogs();
     });
 
+    let _scrollScheduled = false;
     function scrollToBottom() {
         const scrollbarElements = [
             document.querySelector('.latest-state-log-scrollbar'),
@@ -70,11 +71,18 @@
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
 
-        scrollbars.forEach(scrollbar => {
+        if (_scrollScheduled) {
+            return;
+        }
+        _scrollScheduled = true;
+        requestAnimationFrame(() => {
             setTimeout(() => {
-                const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
-            }, 200);
+                scrollbars.forEach(scrollbar => {
+                    const { viewport } = scrollbar.elements();
+                    viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+                });
+                _scrollScheduled = false;
+            }, 150);
         });
     }
 
@@ -96,13 +104,19 @@
     }
 </script>
 
-<div class="chat-log">
-    <div class="card mb-0 log-background log-flex">
-        <div class="log-close-btn padding-side log-header">
+<!--
+  NOTE: .latest-state-log-scrollbar, .msg-state-log-scrollbar and
+  .agent-queue-log-scrollbar are DOM hooks queried by scrollToBottom().
+  Keep those class names on the markup; styling is done via the
+  scoped .il-* siblings.
+-->
+<div class="il-root font-code">
+    <div class="il-card">
+        <div class="il-close-bar">
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    class="il-close-btn"
                     aria-label="Close log window"
                     onclick={() => closeWindow()}
                 >
@@ -110,13 +124,13 @@
                 </button>
             </div>
         </div>
-        <div class="log-body instant-log-body">
+        <div class="il-body">
             {#if !!agent}
             <div
-                class="log-list instant-log-section"
+                class="il-section il-section-agent"
                 transition:fade={{ duration: duration }}
             >
-                <div class="chat-agent-info padding-side">
+                <div class="il-agent-info">
                     <ChatAgentInfo agent={agent} />
                 </div>
             </div>
@@ -124,23 +138,22 @@
 
             {#if !!agentQueueLogs && agentQueueLogs?.length > 0}
             <div
-                class="log-list instant-log-section instant-log-sec-sm"
+                class="il-section il-section-sm"
                 in:fade={{ duration: inDuration }}
                 out:fade={{ duration: outDuration }}
             >
-                <div class="close-icon">
+                <div class="il-section-close">
                     <button
                         type="button"
-                        class="btn btn-link p-0"
-                        style="float: right;"
+                        class="il-section-close-btn"
                         aria-label="Close agent queue log"
                         onclick={() => closeLog(agentQueueLogTab)}
                     >
                         <i class="mdi mdi-window-close"></i>
                     </button>
                 </div>
-                <div class="agent-queue-log-scrollbar padding-side">
-                    <ul>
+                <div class="il-scroll agent-queue-log-scrollbar">
+                    <ul class="il-list">
                         {#each agentQueueLogs as log (log.uid)}
                             <AgentQueueLogElement data={log} />
                         {/each}
@@ -151,23 +164,22 @@
 
             {#if !!msgStateLogs && msgStateLogs?.length > 0}
             <div
-                class="log-list instant-log-section instant-log-sec-lg"
+                class="il-section il-section-lg"
                 in:fade={{ duration: inDuration }}
                 out:fade={{ duration: outDuration }}
             >
-                <div class="close-icon">
+                <div class="il-section-close">
                     <button
                         type="button"
-                        class="btn btn-link p-0"
-                        style="float: right;"
+                        class="il-section-close-btn"
                         aria-label="Close message state log"
                         onclick={() => closeLog(msgStateLogTab)}
                     >
                         <i class="mdi mdi-window-close"></i>
                     </button>
                 </div>
-                <div class="msg-state-log-scrollbar padding-side" >
-                    <ul>
+                <div class="il-scroll msg-state-log-scrollbar">
+                    <ul class="il-list">
                         {#each msgStateLogs as log (log.uid)}
                             <MessageStateLogElement data={log} />
                         {/each}
@@ -177,11 +189,11 @@
             {/if}
             {#if latestStateLog && Object.keys(latestStateLog)?.length > 0}
             <div
-                class="log-list instant-log-section instant-log-sec-md"
+                class="il-section il-section-md"
                 in:fade={{ duration: inDuration }}
                 out:fade={{ duration: outDuration }}
             >
-                <div class="latest-state-log-scrollbar latest-state-log">
+                <div class="il-latest-scroll latest-state-log-scrollbar">
                     <div>
                         <LatestStateLog data={latestStateLog} />
                     </div>
@@ -189,7 +201,9 @@
             </div>
             {/if}
         </div>
-        
-        <div class="log-footer"></div>
+
+        <div class="il-footer"></div>
     </div>
 </div>
+
+

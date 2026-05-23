@@ -153,26 +153,21 @@
 </script>
 
 
-<div class="card agent-prompt-container">
-    <div class="card-header agent-prompt-header border-bottom">
-        <div class="d-flex">
-            <div class="flex-grow-1">
-                <h5 class="fw-semibold">{'Templates'}</h5>
-            </div>
-        </div>
+<div class="tpl-card">
+    <div class="tpl-card-header">
+        <h5 class="tpl-title">{'Templates'}</h5>
     </div>
-    <div class="card-body">
-        <div class="agent-prompt-body">
-            <div class="mb-2" style="display: flex; gap: 10px;">
-                <div class="line-align-center fw-bold">
+    <div class="tpl-card-body">
+        <div class="tpl-section">
+            <div class="tpl-section-header">
+                <div class="tpl-section-label">
                     {'Contents:'}
                 </div>
                 <div
-                    class="text-primary clickable"
+                    class="tpl-add-btn"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Add templates"
-                    style="font-size: 16px;"
                     role="button"
                     tabindex="0"
                     onclick={() => addTemplate()}
@@ -208,10 +203,10 @@
                 {/each}
             </NavBar>
 
-            <div class="template-content-wrapper">
-                <div class="template-editor-area">
+            <div class="tpl-content-wrapper">
+                <div class="tpl-editor-area">
                     <textarea
-                        class="form-control template-textarea"
+                        class="tpl-textarea"
                         placeholder="Enter your content"
                         value={selected_template.content}
                         oninput={(e) => changePrompt(e)}
@@ -221,7 +216,7 @@
 
                 <!-- Config toggle button -->
                 <div
-                    class="config-toggle-btn"
+                    class="tpl-config-toggle"
                     role="button"
                     tabindex="0"
                     title={showConfig ? 'Hide config' : 'Show config'}
@@ -232,7 +227,7 @@
                 </div>
 
                 <!-- Config panel -->
-                <div class="template-config-panel" class:expanded={showConfig}>
+                <div class="tpl-config-panel" class:expanded={showConfig}>
                     {#if showConfig}
                         <AgentTemplateConfig
                             bind:template={selected_template}
@@ -245,3 +240,6 @@
         </div>
     </div>
 </div>
+
+
+

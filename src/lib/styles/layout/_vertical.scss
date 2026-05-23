@@ -1,0 +1,264 @@
+/*
+ * Vertical layout styles — consolidated from scoped <style> blocks
+ * in src/routes/VerticalLayout (Sidebar, Header, layout root).
+ */
+
+
+/* ========================================================================
+ * src/routes/VerticalLayout/Header.svelte
+ * ========================================================================
+ * Collapsed-sidebar variants used inside this component. We resolve them
+ * via custom selectors because `body.vertical-collpsed` is a global
+ * state. The width/padding rules are gated to >=lg because the sidebar
+ * collapse only takes effect on desktop — on mobile the logo container
+ * stays at intrinsic width so the toggle button hugs it.
+ */
+body.vertical-collpsed {
+    @media (min-width: 1024px) {
+        .vertical-collpsed\:lg\:w-\[var\(--sidebar-collapsed-width\)\] {
+            width: var(--sidebar-collapsed-width);
+        }
+        .vertical-collpsed\:lg\:px-2 {
+            padding-inline: 0.5rem;
+        }
+    }
+    .vertical-collpsed\:h-\[22px\] {
+        height: 22px;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/VerticalLayout/Index.svelte
+ * ========================================================================
+ * Body-class-driven layout states. These selectors mirror the JS toggles
+ * in Header.svelte (hamburger) and RightSidebar.svelte (settings) so we
+ * don't need to rewire any of the existing toggle logic.
+ */
+
+/* Collapsed sidebar (icon-only) on desktop */
+body.vertical-collpsed .main-content {
+    margin-left: var(--sidebar-collapsed-width);
+}
+
+/* Mobile-first: sidebar is hidden by default below lg */
+@media (max-width: 1023.98px) {
+    .vertical-menu {
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+    body.sidebar-enable .vertical-menu {
+        transform: translateX(0);
+    }
+    .main-content {
+        margin-left: 0 !important;
+    }
+}
+
+/* Right-bar slide-in */
+body.right-bar-enabled {
+    .right-bar { right: 0; }
+    .rightbar-overlay { display: block; }
+}
+
+
+/* ========================================================================
+ * src/routes/VerticalLayout/Sidebar.svelte
+ * ========================================================================
+ * Sidebar menu styling. These rules are global because the menu
+ * structure is generated dynamically and the JS adds/removes mm-active,
+ * mm-show, etc.
+ */
+#sidebar-menu {
+    ul li a {
+        display: block;
+        padding: 0.625rem 1.5rem;
+        color: var(--sidebar-menu-item-color);
+        position: relative;
+        font-size: 13px;
+        line-height: 1.5;
+        transition: color 0.2s, background-color 0.2s;
+        cursor: pointer;
+
+        i {
+            display: inline-block;
+            min-width: 1.75rem;
+            padding-bottom: 0.125em;
+            font-size: 1.25rem;
+            line-height: 1.40625rem;
+            vertical-align: middle;
+            color: var(--sidebar-menu-item-icon-color);
+            transition: color 0.2s;
+        }
+
+        &:hover,
+        &:hover i {
+            color: var(--sidebar-menu-item-hover-color);
+        }
+    }
+
+    /* Has-arrow chevron */
+    .has-arrow:after {
+        content: "\F0140";
+        font-family: 'Material Design Icons';
+        display: block;
+        float: right;
+        transition: transform 0.2s;
+        font-size: 1rem;
+    }
+    .revert-arrow:after,
+    .mm-active > .has-arrow:after {
+        transform: rotate(-180deg);
+    }
+
+    /* Submenu collapse/expand */
+    .sub-menu {
+        padding: 0;
+        list-style: none;
+
+        &.mm-collapse { display: none; }
+        &.mm-show {
+            display: block;
+            background-color: rgba(0, 0, 0, 0.02);
+        }
+
+        li a {
+            padding: 0.4rem 1.5rem 0.4rem 3.5rem;
+            font-size: 13px;
+
+            &:hover {
+                background-color: rgba(0, 0, 0, 0.03);
+            }
+        }
+
+        .sub-menu li a {
+            padding: 0.4rem 1.5rem 0.4rem 4.5rem;
+        }
+    }
+
+    /* Active state */
+    .mm-active,
+    .mm-active > a,
+    .mm-active > a i,
+    .mm-active .active,
+    .mm-active .active i {
+        color: var(--color-primary) !important;
+    }
+}
+
+
+/* ========================================================================
+ * Collapsed (icon-only) sidebar — all selectors below are scoped under
+ * `body.vertical-collpsed`.
+ * ======================================================================== */
+body.vertical-collpsed {
+    .vertical-menu {
+        width: var(--sidebar-collapsed-width);
+    }
+
+    #sidebar-menu {
+        .menu-title,
+        .has-arrow:after,
+        > ul > li > a > span {
+            display: none;
+        }
+
+        /* Auto-hide any in-flow sub-menus when collapsed (mm-show carried over
+           from the expanded state would otherwise leak items into the 70px
+           column). The hover-to-show floating panel below overrides this
+           with !important. */
+        .sub-menu {
+            display: none;
+        }
+
+        > ul > li {
+            position: relative;
+            white-space: nowrap;
+
+            > a {
+                text-align: center;
+                padding: 15px 0;
+                transition: none;
+            }
+
+            /* Leaf items (no sub-menu): expand on hover to reveal the label inline */
+            &:not(:has(> ul.sub-menu)):hover > a {
+                width: calc(var(--sidebar-collapsed-width) + 200px);
+                position: relative;
+                z-index: 2;
+                background-color: rgba(0, 0, 0, 0.025);
+                color: var(--color-primary);
+                text-align: left;
+                padding: 15px 20px;
+
+                > i { color: var(--color-primary); }
+                > span {
+                    display: inline;
+                    padding-left: 0.75rem;
+                }
+            }
+
+            /* Parent items (with sub-menu): just tint the icon — the floating panel does the work */
+            &:has(> ul.sub-menu):hover > a {
+                background-color: rgba(0, 0, 0, 0.025);
+                color: var(--color-primary);
+
+                > i { color: var(--color-primary); }
+            }
+
+            /* Floating sub-menu panel (first level under collapsed parent) */
+            &:hover > ul.sub-menu {
+                display: block !important;
+                position: fixed;
+                left: var(--sidebar-collapsed-width);
+                width: 200px;
+                height: auto;
+                z-index: 9999;
+                padding: 0.375rem 0;
+                background-color: var(--sidebar-bg);
+                border: 1px solid rgb(229 231 235);
+                border-left: 0;
+                border-radius: 0 0.375rem 0.375rem 0;
+                box-shadow: 6px 6px 18px -4px rgba(54, 61, 71, 0.12);
+
+                /* Reset over-indented padding from the cascade so items fit the floating panel */
+                li a {
+                    padding: 0.5rem 1rem;
+                    width: 100%;
+                    text-align: left;
+
+                    &:hover {
+                        background-color: rgba(0, 0, 0, 0.04);
+                        color: var(--color-primary);
+                    }
+                }
+
+                /* Active state inside floating panel */
+                .mm-active > a {
+                    background-color: rgba(0, 0, 0, 0.04);
+                }
+
+                /* Nested floating sub-menu (second level) */
+                li:hover > ul.sub-menu {
+                    display: block !important;
+                    position: fixed;
+                    left: calc(var(--sidebar-collapsed-width) + 200px);
+                    width: 200px;
+                    height: auto;
+                    z-index: 9999;
+                    padding: 0.375rem 0;
+                    background-color: var(--sidebar-bg);
+                    border: 1px solid rgb(229 231 235);
+                    border-radius: 0.375rem;
+                    box-shadow: 6px 6px 18px -4px rgba(54, 61, 71, 0.12);
+
+                    li a {
+                        padding: 0.5rem 1rem;
+                        width: 100%;
+                    }
+                }
+            }
+        }
+    }
+}
+

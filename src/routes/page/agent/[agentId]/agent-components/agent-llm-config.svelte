@@ -47,14 +47,14 @@
     });
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-1">LLM Configurations</h5>
-            <img src="images/brands/azure-openai-logo.avif" alt="" style="height: 50px; width: auto; display: inline-block;" />
+<div class="llmc-card">
+    <div class="llmc-card-body">
+        <div class="llmc-header">
+            <h5 class="llmc-title">LLM Configurations</h5>
+            <img src="images/brands/azure-openai-logo.avif" alt="" class="llmc-brand-logo" />
         </div>
 
-        <div class="agent-utility-container">
+        <div class="llmc-list">
             <ChatConfig
                 bind:this={chatConfigCmp}
                 {agent}
@@ -89,3 +89,4 @@
         </div>
     </div>
 </div>
+

@@ -65,16 +65,16 @@
 <HeadTitle title={$_('Relation Knowledge')} />
 <Breadcrumb pagetitle={$_('Relation Knowledge')} title={$_('Knowledge Base')}/>
 
-<div class="d-xl-flex">
-	<div class="w-100">
+<div class="rel-page">
+	<div class="rel-page-col">
         {#if showDemo}
             <div
                 in:fly={{ y: -10, duration: 500 }}
                 out:fly={{ y: -10, duration: 200 }}
             >
-                <div class="knowledge-search-container mb-4">
+                <div class="rel-search-card">
                     <textarea
-                        class='form-control knowledge-textarea'
+                        class="rel-textarea"
                         rows={5}
                         maxlength={maxLength}
                         disabled={isSearching}
@@ -82,36 +82,37 @@
                         bind:value={text}
                         onkeydown={(e) => pressKey(e)}
                     ></textarea>
-                    <div class="text-secondary text-end text-count">
-                        {text?.length || 0}/{maxLength}
+                    <div class="rel-meta-row">
+                        <span class="rel-meta-count">{text?.length || 0}/{maxLength}</span>
                     </div>
-                
-                    <div class="mt-2 text-end">
+
+                    <div class="rel-search-footer">
                         <button
-                            class="btn btn-primary"
+                            type="button"
+                            class="rel-btn rel-btn-primary"
                             disabled={!text || util.trim(text).length === 0 || isSearching}
                             onclick={() => search()}
                         >
-                            {'Search'}
+                            <span>{'Search'}</span>
                         </button>
                     </div>
-                
+
                     {#if isSearching}
-                        <div class="knowledge-loader mt-4">
-                            <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--bs-primary)'} />
+                        <div class="rel-loader">
+                            <LoadingDots duration={'1s'} size={12} gap={5} color={'var(--color-primary)'} />
                         </div>
                     {:else if searchDone && !!result}
-                        <div class="graph-searh-result-container mt-3">
-                            <div class="text-primary fw-bold graph-result-header">
+                        <div class="rel-result-container">
+                            <div class="rel-result-header">
                                 {'Answer:'}
                             </div>
-                            <div class="graph-result-body mt-2">
+                            <div class="rel-result-body">
                                 {result}
                             </div>
                         </div>
                     {:else if searchDone && !result}
-                        <div class="mt-3 text-center">
-                            <h4 class="text-secondary">{"Ehhh, no idea..."}</h4>
+                        <div class="rel-empty">
+                            <h4>{"Ehhh, no idea..."}</h4>
                         </div>
                     {/if}
                 </div>
@@ -119,3 +120,4 @@
         {/if}
     </div>
 </div>
+

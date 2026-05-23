@@ -37,8 +37,6 @@
     /** @type {any} */
     let agentUtilityCmp = $state(null);
     /** @type {any} */
-    // let agentKnowledgeBaseCmp = $state(null);
-    /** @type {any} */
     let agentEventRuleCmp = $state(null);
     /** @type {any} */
     let agentMcpToolCmp = $state(null);
@@ -61,8 +59,8 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
+<div class="at-card">
+    <div class="at-card-body">
         <NavBar
             disableDefaultStyles
             containerClasses={'nav-tabs-secondary'}
@@ -81,20 +79,21 @@
             {/each}
         </NavBar>
 
-        <div class:hide={selectedTab !== 'agent-llm-config'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-llm-config'}>
             <AgentLlmConfig agent={agent} bind:this={agentLlmConfigCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-routing-rule'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-routing-rule'}>
             <AgentRouting agent={agent} />
         </div>
-        <div class:hide={selectedTab !== 'agent-utility'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-utility'}>
             <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-event-rule'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-event-rule'}>
             <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-mcp-tool'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />
         </div>
     </div>
 </div>
+

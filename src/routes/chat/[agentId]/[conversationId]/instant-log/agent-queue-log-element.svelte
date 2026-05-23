@@ -3,8 +3,9 @@
     let { data } = $props();
 </script>
 
-<div class="log-element queue-change-container">
-    <div class="log-content">
-        <span class="text-warning">{data?.log}</span>
+<div class="aql-element">
+    <div class="aql-content">
+        <span class="aql-warn">{data?.log}</span>
     </div>
 </div>
+

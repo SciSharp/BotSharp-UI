@@ -2,20 +2,11 @@
 	let { title = '', pagetitle = '' } = $props();
 </script>
 
-<div class="row">
-	<div class="col-12">
-		<div class="page-title-box d-sm-flex align-items-center justify-content-between">
-			<h4 class="mb-sm-0 font-size-18">{pagetitle}</h4>
-			<div class="page-title-right">
-				<ol class="breadcrumb m-0">
-					<li class="breadcrumb-item">
-						<span class="breadcrumb-link disabled">{title}</span>
-					</li>
-					<li class="breadcrumb-item active" aria-current="page">
-						{pagetitle}
-					</li>
-				</ol>
-			</div>
-		</div>
-	</div>
+<div class="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+	<h4 class="text-lg font-medium text-dark dark:text-gray-100">{pagetitle}</h4>
+	<ol class="flex items-center gap-1 text-sm text-muted">
+		<li class="text-gray-500">{title}</li>
+		<li aria-hidden="true" class="text-gray-400">/</li>
+		<li class="font-medium text-primary" aria-current="page">{pagetitle}</li>
+	</ol>
 </div>

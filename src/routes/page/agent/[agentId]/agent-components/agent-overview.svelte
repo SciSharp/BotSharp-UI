@@ -22,11 +22,10 @@
         handleAgentChange = () => {}
     } = $props();
 
-    /** @type {import('$commonTypes').IdName[]} */
-	let routingModeOptions = [
-        { id: null, name: '' },
-        ...Object.entries(RoutingMode).map(([_, v]) => ({ id: v, name: v }))
-    ];
+    /** @type {import('$commonTypes').LabelValuePair[]} */
+    const routingModeOptions = Object.entries(RoutingMode).map(([_, v]) => (
+        { label: v, value: v }
+    ));
 
     const functionVisibilityModeOptions = Object.entries(FunctionVisMode).map(([_, v]) => (
 		{ label: v, value: v }
@@ -70,8 +69,9 @@
 	 * @param {any} e
 	 */
     function changeRoutingMode(e) {
-        const value = e.target.value || null;
-        agent.mode = value;
+        // Select fires `{ detail: { selecteds: [{ label, value }] } }`.
+        const selectedValues = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        agent.mode = selectedValues.length > 0 ? selectedValues[0] : null;
         handleAgentChange();
     }
 
@@ -92,42 +92,41 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-header">
-        <div class="text-center">
-            <div class="agent-overview-header">
+<div class="ao-card">
+    <div class="ao-card-header">
+        <div class="ao-header-block">
+            <div class="ao-avatar-row">
                 <img
                     src="images/users/bot.png"
                     alt=""
                     width="50"
                     height="50"
-                    style="width: 50px; height: 50px;"
-                    class="mx-auto d-block"
+                    class="ao-avatar-img"
                 />
                 {#if !!AgentExtensions.chatable(agent)}
                     <button
                         type="button"
-                        class="btn btn-sm btn-soft-info agent-chat"
+                        class="ao-chat-btn"
                         onclick={() => chatWithAgent()}
                     >
                         <span>{'Chat with me'}</span>
-                        <span><i class="mdi mdi-chat"></i></span>
+                        <i class="mdi mdi-chat"></i>
                     </button>
                 {/if}
             </div>
-            <h5 class="mt-1 mb-1 div-center">
+            <h5 class="ao-name">
                 <InPlaceEdit bind:value={agent.name} onInput={handleAgentChange} />
             </h5>
-            <p class="text-muted mb-0">{`Updated at ${utcToLocal(agent.updated_datetime)}`}</p>
+            <p class="ao-updated">{`Updated at ${utcToLocal(agent.updated_datetime)}`}</p>
         </div>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table">
+    <div class="ao-card-body">
+        <div class="ao-table-wrap">
+            <table class="ao-table">
                 <tbody>
                     <tr>
-                        <th class="agent-prop-key">Type</th>
-                        <td>
+                        <th class="ao-key">Type</th>
+                        <td class="ao-val">
                             {#if agent.type == AgentType.Routing}
                                 Routing Agent
                             {:else if agent.type == AgentType.Planning}
@@ -145,86 +144,66 @@
                     </tr>
                     {#if agent.is_router}
                     <tr>
-                        <th class="agent-prop-key" style="vertical-align: middle">
-                            <div class="mt-1">
-                                Routing Mode
-                            </div>
+                        <th class="ao-key">
+                            Routing Mode
                         </th>
-                        <td>
-                            <div class="mt-2 mb-2" style="width: fit-content;">
-                                <select
-                                    class="form-select"
-                                    onchange={e => changeRoutingMode(e)}
-                                >
-                                    {#each [...routingModeOptions] as option}
-                                        <option value={option.id} selected={option.id === agent.mode}>
-                                            {option.name}
-                                        </option>
-                                    {/each}
-                                </select>
-                            </div>
+                        <td class="ao-val">
+                            <Select
+                                tag={'agent-routing-mode-select'}
+                                containerStyles={'width: 50%; min-width: 100px;'}
+                                placeholder={'Select'}
+                                selectedValues={agent.mode ? [agent.mode] : []}
+                                options={routingModeOptions}
+                                onselect={e => changeRoutingMode(e)}
+                            />
                         </td>
                     </tr>
                     {/if}
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Visibility
-                            </div>
-                        </th>
-                        <td>
-                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
+                        <th class="ao-key">Visibility</th>
+                        <td class="ao-val">
+                            <label class="ao-check">
                                 <input
-                                    class="form-check-input"
+                                    class="ao-checkbox"
                                     type="checkbox"
                                     bind:checked={agent.is_public}
                                     onchange={handleAgentChange}
                                     id="is_public"
                                 />
-                                <label class="form-check-label" for="is_public">
-                                    Public
-                                </label>
-                            </div>
+                                <span>Public</span>
+                            </label>
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Routable
-                            </div>
-                        </th>
-                        <td>
-                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
+                        <th class="ao-key">Routable</th>
+                        <td class="ao-val">
+                            <label class="ao-check">
                                 <input
-                                    class="form-check-input"
+                                    class="ao-checkbox"
                                     type="checkbox"
                                     bind:checked={agent.allow_routing}
                                     onchange={handleAgentChange}
                                     id="allow_routing"
                                 />
-                                <label class="form-check-label" for="allow_routing">Allow</label>
-                            </div>
+                                <span>Allow</span>
+                            </label>
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Profiles
-                            </div>
-                        </th>
-                        <td>
-                            <div class="agent-prop-list-container vertical-flexible">
+                        <th class="ao-key">Profiles</th>
+                        <td class="ao-val">
+                            <div class="ao-list">
                                 {#each profiles as _, index}
-                                <div class="edit-wrapper">
+                                <div class="ao-list-row">
                                     <input
-                                        class="form-control edit-text-box"
+                                        class="ao-input"
                                         type="text"
                                         placeholder="Typing here..."
                                         maxlength={30}
                                         bind:value={profiles[index]}
                                         oninput={handleAgentChange}
                                     />
-                                    <div class="delete-icon">
+                                    <span class="ao-list-remove">
                                         <i
                                             class="bx bxs-no-entry"
                                             role="link"
@@ -232,11 +211,11 @@
                                             onkeydown={() => {}}
                                             onclick={() => removeProfile(index)}
                                         ></i>
-                                    </div>
+                                    </span>
                                 </div>
                                 {/each}
                                 {#if profiles?.length < limit}
-                                <div class="list-add">
+                                <div class="ao-list-add">
                                     <i
                                         class="bx bx bx-list-plus"
                                         role="link"
@@ -250,24 +229,20 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Labels
-                            </div>
-                        </th>
-                        <td>
-                            <div class="agent-prop-list-container vertical-flexible">
+                        <th class="ao-key">Labels</th>
+                        <td class="ao-val">
+                            <div class="ao-list">
                                 {#each labels as _, index}
-                                <div class="edit-wrapper">
+                                <div class="ao-list-row">
                                     <input
-                                        class="form-control edit-text-box"
+                                        class="ao-input"
                                         type="text"
                                         placeholder="Typing here..."
                                         maxlength={30}
                                         bind:value={labels[index]}
                                         oninput={handleAgentChange}
                                     />
-                                    <div class="delete-icon">
+                                    <span class="ao-list-remove">
                                         <i
                                             class="bx bxs-no-entry"
                                             role="link"
@@ -275,11 +250,11 @@
                                             onkeydown={() => {}}
                                             onclick={() => removeLabel(index)}
                                         ></i>
-                                    </div>
+                                    </span>
                                 </div>
                                 {/each}
                                 {#if labels?.length < limit}
-                                <div class="list-add">
+                                <div class="ao-list-add">
                                     <i
                                         class="bx bx bx-list-plus"
                                         role="link"
@@ -293,74 +268,51 @@
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Status
-                            </div>
-                        </th>
-                        <td>							
-                            <div class="form-check mt-2 mb-2" style="width: fit-content;">
+                        <th class="ao-key">Status</th>
+                        <td class="ao-val">
+                            <label class="ao-check">
                                 <input
-                                    class="form-check-input"
+                                    class="ao-checkbox"
                                     type="checkbox"
                                     bind:checked={agent.disabled}
                                     onchange={handleAgentChange}
                                     id="disabled"
                                 />
-                                <label class="form-check-label" for="disabled">Disabled</label>
-                            </div>
+                                <span>Disabled</span>
+                            </label>
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key" style="vertical-align: middle">
-                            <div class="mt-1">
-                                Function visibility
-                            </div>
-                        </th>
-                        <td>							
-                            <div class="mt-2 mb-2">
-                                <Select
-                                    tag={'function-visibility-mode-select'}
-                                    containerStyles={'width: 50%; min-width: 100px;'}
-                                    placeholder={'Select'}
-                                    selectedValues={agent.function_visibility_mode ? [agent.function_visibility_mode] : []}
-                                    options={functionVisibilityModeOptions}
-                                    onselect={e => changeFunctionVisibilityMode(e)}
-                                />
-                            </div>
+                        <th class="ao-key">Function visibility</th>
+                        <td class="ao-val">
+                            <Select
+                                tag={'function-visibility-mode-select'}
+                                containerStyles={'width: 50%; min-width: 100px;'}
+                                placeholder={'Select'}
+                                selectedValues={agent.function_visibility_mode ? [agent.function_visibility_mode] : []}
+                                options={functionVisibilityModeOptions}
+                                onselect={e => changeFunctionVisibilityMode(e)}
+                            />
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key" style="vertical-align: middle">
-                            <div class="mt-1">
-                                Max messages
-                            </div>
-                        </th>
-                        <td>							
-                            <div class="mt-2 mb-2">
-                                <input
-                                    type="number"
-                                    style="width: 50%; min-width: 100px;"
-                                    class="form-control text-center"
-                                    min={1}
-                                    max={1000}
-                                    step={1}
-                                    bind:value={agent.max_message_count}
-                                    oninput={handleAgentChange}
-                                />
-                            </div>
+                        <th class="ao-key">Max messages</th>
+                        <td class="ao-val">
+                            <input
+                                type="number"
+                                class="ao-input ao-input-number"
+                                min={1}
+                                max={1000}
+                                step={1}
+                                bind:value={agent.max_message_count}
+                                oninput={handleAgentChange}
+                            />
                         </td>
                     </tr>
                     <tr>
-                        <th class="agent-prop-key">
-                            <div class="mt-2 mb-2">
-                                Created Date
-                            </div>
-                        </th>
-                        <td>
-                            <div class="mt-2 mb-2">
-                                {utcToLocal(agent.created_datetime)}
-                            </div>
+                        <th class="ao-key">Created Date</th>
+                        <td class="ao-val">
+                            {utcToLocal(agent.created_datetime)}
                         </td>
                     </tr>
                 </tbody>
@@ -368,3 +320,5 @@
         </div>
     </div>
 </div>
+
+

@@ -10,56 +10,56 @@
     let { agent } = $props();
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Routing</h5>
+<div class="arr-card">
+    <div class="arr-card-body">
+        <div class="arr-header">
+            <h5 class="arr-title">Routing</h5>
         </div>
 
         {#each agent.routing_rules as rule, idx (idx)}
-        <div class="routing-rule-container">
+        <div class="arr-rule">
             <CollapsibleCard open={idx === 0}>
                 {#snippet header()}
-                    <h5 class="rule-header">{`Rule #${idx + 1}`}</h5>
+                    <h5 class="arr-rule-header">{`Rule #${idx + 1}`}</h5>
                 {/snippet}
                 {#snippet body()}
-                    <div class="table-responsive rule-body">
-                        <table class="table">
+                    <div class="arr-rule-body">
+                        <table class="arr-table">
                             <tbody>
                                 {#if !!rule.field}
-                                <tr>
-                                    <th class="agent-prop-key">Field</th>
-                                    <td>{rule.field}</td>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Field</th>
+                                    <td class="arr-value">{rule.field}</td>
                                 </tr>
                                 {/if}
                                 {#if !!rule.description}
-                                <tr>
-                                    <th class="agent-prop-key">Description</th>
-                                    <td>{rule.description}</td>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Description</th>
+                                    <td class="arr-value">{rule.description}</td>
                                 </tr>
                                 {/if}
                                 {#if !!rule.fieldType}
-                                <tr>
-                                    <th class="agent-prop-key">Field Type</th>
-                                    <td>{rule.fieldType}</td>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Field Type</th>
+                                    <td class="arr-value">{rule.fieldType}</td>
                                 </tr>
                                 {/if}
-                                <tr>
-                                    <th class="agent-prop-key">Required</th>
-                                    <td>{rule.required ? `Yes` : `No`}</td>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Required</th>
+                                    <td class="arr-value">{rule.required ? `Yes` : `No`}</td>
                                 </tr>
                                 {#if !!rule.redirectTo}
-                                <tr>
-                                    <th class="agent-prop-key">Redirect to Agent</th>
-                                    <td style="cursor: pointer;" onclick={() => directToAgentPage(rule.redirectTo)}>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Redirect to Agent</th>
+                                    <td class="arr-value arr-value-link" onclick={() => directToAgentPage(rule.redirectTo)}>
                                         {rule.redirect_to_agent || ''}
                                     </td>
                                 </tr>
                                 {/if}
                                 {#if !!rule.type}
-                                <tr>
-                                    <th class="agent-prop-key">Type</th>
-                                    <td>{rule.type}</td>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Type</th>
+                                    <td class="arr-value">{rule.type}</td>
                                 </tr>
                                 {/if}
                             </tbody>
@@ -71,3 +71,4 @@
         {/each}
     </div>
 </div>
+

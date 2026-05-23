@@ -4,6 +4,7 @@
     import { INTEGER_REGEX } from '$lib/helpers/constants';
     import { LlmModelCapability, LlmModelType, ReasoningEffortLevel, ResponseFormat } from '$lib/helpers/enums';
     import { getLlmConfigs } from '$lib/services/llm-provider-service';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     /**
      * @type {{
@@ -88,7 +89,8 @@
 
     /** @param {any} e */
     function changeResponseFormat(e) {
-        template.response_format = e.target.value || null;
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
+        template.response_format = value;
         handleAgentChange();
     }
 
@@ -114,7 +116,7 @@
 
     /** @param {any} e */
     function changeProvider(e) {
-        const provider = e.target.value;
+        const provider = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || '';
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
@@ -136,10 +138,11 @@
 
     /** @param {any} e */
     function changeModel(e) {
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
-        template.llm_config.model = e.target.value || null;
+        template.llm_config.model = value;
         template.llm_config.reasoning_effort_level = null;
         reasoningLevelOptions = getReasoningLevelOptions(template.llm_config.model);
         handleAgentChange();
@@ -157,10 +160,11 @@
 
     /** @param {any} e */
     function changeReasoningEffortLevel(e) {
+        const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
         if (!template.llm_config) {
             template.llm_config = { provider: null, model: null };
         }
-        template.llm_config.reasoning_effort_level = e.target.value || null;
+        template.llm_config.reasoning_effort_level = value;
         handleAgentChange();
     }
 
@@ -173,61 +177,55 @@
     }
 </script>
 
-<div class="template-config-content">
-    <div class="config-section">
-        <h6 class="fw-semibold">Template Configuration</h6>
-        <div class="config-field">
-            <label for="tpl-response-format" class="form-label config-label">Response format</label>
-            <select class="form-select form-select-sm" id="tpl-response-format"
-                value={template.response_format || ''}
-                onchange={e => changeResponseFormat(e)}
-            >
-                {#each responseFormatOptions as option}
-                    <option value={option.value} selected={option.value === (template.response_format || '')}>
-                        {option.label}
-                    </option>
-                {/each}
-            </select>
+<div class="tplc-content">
+    <div class="tplc-section">
+        <h6 class="tplc-section-title">Template Configuration</h6>
+        <div class="tplc-field">
+            <label for="tpl-response-format" class="tplc-label">Response format</label>
+            <Select
+                tag={'tpl-response-format'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a format'}
+                selectedValues={template.response_format ? [template.response_format] : []}
+                options={responseFormatOptions.filter(o => !!o.value)}
+                onselect={e => changeResponseFormat(e)}
+            />
         </div>
     </div>
 
-    <hr class="my-2" />
+    <hr class="tplc-divider" />
 
-    <div class="config-section">
-        <h6 class="fw-semibold">LLM Configuration</h6>
-        <div class="config-field">
-            <label for="tpl-provider" class="form-label config-label">Provider</label>
-            <select class="form-select form-select-sm" id="tpl-provider"
-                value={template.llm_config?.provider || ''}
-                onchange={e => changeProvider(e)}
-            >
-                {#each providers as option}
-                    <option value={option} selected={option === (template.llm_config?.provider || '')}>
-                        {option}
-                    </option>
-                {/each}
-            </select>
+    <div class="tplc-section">
+        <h6 class="tplc-section-title">LLM Configuration</h6>
+        <div class="tplc-field">
+            <label for="tpl-provider" class="tplc-label">Provider</label>
+            <Select
+                tag={'tpl-provider'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a provider'}
+                selectedValues={template.llm_config?.provider ? [template.llm_config.provider] : []}
+                options={providers.filter(p => !!p).map(p => ({ label: p, value: p }))}
+                onselect={e => changeProvider(e)}
+            />
         </div>
 
-        <div class="config-field">
-            <label for="tpl-model" class="form-label config-label">Model</label>
-            <select class="form-select form-select-sm" id="tpl-model"
-                value={template.llm_config?.model || ''}
+        <div class="tplc-field">
+            <label for="tpl-model" class="tplc-label">Model</label>
+            <Select
+                tag={'tpl-model'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a model'}
                 disabled={models.length === 0 || !template.llm_config?.provider}
-                onchange={e => changeModel(e)}
-            >
-                {#each models as option}
-                    <option value={option.name} selected={option.name === (template.llm_config?.model || '')}>
-                        {option.name}
-                    </option>
-                {/each}
-            </select>
+                selectedValues={template.llm_config?.model ? [template.llm_config.model] : []}
+                options={models.map(m => ({ label: m.name, value: m.name }))}
+                onselect={e => changeModel(e)}
+            />
         </div>
 
-        <div class="config-field">
-            <label for="tpl-max-tokens" class="form-label config-label">Max output tokens</label>
+        <div class="tplc-field">
+            <label for="tpl-max-tokens" class="tplc-label">Max output tokens</label>
             <input
-                class="form-control form-control-sm"
+                class="tplc-input"
                 id="tpl-max-tokens"
                 type="number"
                 value={template.llm_config?.max_output_tokens || ''}
@@ -237,20 +235,20 @@
         </div>
 
         {#if isReasoningModel}
-        <div class="config-field">
-            <label for="tpl-reasoning" class="form-label config-label">Reasoning level</label>
-            <select class="form-select form-select-sm" id="tpl-reasoning"
-                value={template.llm_config?.reasoning_effort_level || ''}
-                onchange={e => changeReasoningEffortLevel(e)}
-            >
-                {#each reasoningLevelOptions as option}
-                    <option value={option.value} selected={option.value === (template.llm_config?.reasoning_effort_level || '')}>
-                        {option.label}
-                    </option>
-                {/each}
-            </select>
+        <div class="tplc-field">
+            <label for="tpl-reasoning" class="tplc-label">Reasoning level</label>
+            <Select
+                tag={'tpl-reasoning'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a level'}
+                selectedValues={template.llm_config?.reasoning_effort_level ? [template.llm_config.reasoning_effort_level] : []}
+                options={reasoningLevelOptions.filter(o => !!o.value)}
+                onselect={e => changeReasoningEffortLevel(e)}
+            />
         </div>
         {/if}
     </div>
 </div>
+
+
 

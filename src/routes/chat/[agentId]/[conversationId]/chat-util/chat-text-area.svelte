@@ -82,14 +82,14 @@
 </script>
 
 
-<div use:clickoutsideDirective onclickoutside={handleClickOutside}>
+<div class="cta-wrap" use:clickoutsideDirective onclickoutside={handleClickOutside}>
     {#if showOptions}
-        <ul class="dropdown-menu chat-option-list chat-util-common">
+        <ul class="cta-option-list cta-popup">
             {#each options as option, idx (idx)}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <li
-                    class="chat-option-item"
+                    class="cta-option-item"
                     onclick={() => handleOptionClick(option)}
                 >
                     {option}
@@ -98,7 +98,7 @@
         </ul>
     {/if}
     {#if loadUtils}
-        <div class="chat-util-container chat-util-common">
+        <div class="cta-util-container cta-popup">
             {#if children}
                 {@render children()}
             {/if}
@@ -106,7 +106,7 @@
     {/if}
     <textarea
         id={id}
-        class={`form-control ${className}`}
+        class={`cta-textarea ${className}`}
         rows={rows}
         maxlength={maxLength}
         disabled={disabled}
@@ -118,3 +118,5 @@
         onfocus={e => handleFocus(e)}
     ></textarea>
 </div>
+
+

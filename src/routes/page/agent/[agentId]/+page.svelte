@@ -3,7 +3,7 @@
     import { page } from '$app/state';
     import { goto } from '$app/navigation';
     import { _ } from 'svelte-i18n';
-    import Swal from 'sweetalert2';
+    import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -66,19 +66,34 @@
 		unsubscriber?.();
 	});
 
+    /** @typedef {{ kind: 'update' } | { kind: 'delete' }} PendingAction */
+
+    let confirmOpen = $state(false);
+    /** @type {PendingAction | null} */
+    let pendingAction = $state(null);
+
     function updateCurrentAgent() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to update these changes?",
-            icon: 'warning',
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                handleAgentUpdate();
-            }
-        });
+        pendingAction = { kind: 'update' };
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingAction = null;
+    }
+
+    function onConfirm() {
+        if (!pendingAction) {
+            closeConfirm();
+            return;
+        }
+        const action = pendingAction;
+        closeConfirm();
+        if (action.kind === 'update') {
+            handleAgentUpdate();
+        } else {
+            handleAgentDelete();
+        }
     }
 
     function handleAgentUpdate() {
@@ -160,19 +175,8 @@
 
 
     function deleteCurrentAgent() {
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to delete this agent?",
-            icon: 'warning',
-            customClass: { confirmButton: 'danger-background' },
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                handleAgentDelete();
-            }
-        });
+        pendingAction = { kind: 'delete' };
+        confirmOpen = true;
     }
 
     function handleAgentDelete() {
@@ -218,38 +222,53 @@
     isComplete={isComplete}
 />
 
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text={pendingAction?.kind === 'delete'
+        ? 'Are you sure you want to delete this agent?'
+        : 'Are you sure you want to update these changes?'}
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirmBtnColor={pendingAction?.kind === 'delete' ? 'danger' : 'primary'}
+    confirm={onConfirm}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
+
 {#if agent}
-<div>
-    <div class="row agent-detail-sections">
-        <div class="col section-min-width agent-col" style="flex: 40%;">
-            <div class="agent-detail-section">
+<div class="ad-page">
+    <div class="ad-grid">
+        <div class="ad-col ad-col-left">
+            <div class="ad-section">
                 <AgentOverview
                     bind:agent={agent}
                     bind:profiles={agent.profiles}
                     bind:labels={agent.labels}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
                 />
             </div>
         </div>
-        <div class="col section-min-width agent-col" style="flex: 60%;">
-            <div class="agent-detail-section">
+        <div class="ad-col ad-col-right">
+            <div class="ad-section">
                 <AgentInstruction
                     bind:this={agentInstructionCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentTemplate
                     bind:this={agentTemplateCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="agent-detail-section">
+            <div class="ad-section">
                 <AgentFunction
                     bind:this={agentFunctionCmp}
                     bind:agent={agent}
@@ -259,14 +278,31 @@
     </div>
 
     {#if !!AgentExtensions.editable(agent)}
-        <div class="row">
-            <div class="hstack gap-2 my-4">
-                <button type="button" class="btn btn-soft-primary" onclick={() => updateCurrentAgent()}>{$_('Save Agent')}</button>
-                <button type="button" class="btn btn-outline-info" onclick={() => exportAgent()}>
-                    <i class="mdi mdi-download"></i> {$_('Export Agent')}
-                </button>
-                <button type="button" class="btn btn-danger" onclick={() => deleteCurrentAgent()}>{$_('Delete Agent')}</button>
-            </div>
+        <div class="ad-action-bar">
+            <button
+                type="button"
+                class="ad-btn ad-btn-primary"
+                onclick={() => updateCurrentAgent()}
+            >
+                <i class="bx bx-check"></i>
+                {$_('Save Agent')}
+            </button>
+            <button
+                type="button"
+                class="ad-btn ad-btn-ghost"
+                onclick={() => exportAgent()}
+            >
+                <i class="mdi mdi-download"></i>
+                {$_('Export Agent')}
+            </button>
+            <button
+                type="button"
+                class="ad-btn ad-btn-danger"
+                onclick={() => deleteCurrentAgent()}
+            >
+                <i class="bx bx-trash"></i>
+                {$_('Delete Agent')}
+            </button>
         </div>
     {/if}
 </div>

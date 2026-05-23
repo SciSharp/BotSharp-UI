@@ -214,14 +214,14 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">MCP Tools</h5>
-            <h6 class="mt-1 mb-3">Tools powered by MCP Servers</h6>
+<div class="amt-card">
+    <div class="amt-card-body">
+        <div class="amt-header">
+            <h5 class="amt-title">MCP Tools</h5>
+            <h6 class="amt-subtitle">Tools powered by MCP Servers</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="amt-list" bind:this={scrollContainer}>
             {#each innerMcps as mcp, uid (uid)}
                 <AgentMcpToolItem
                     mcp={mcp}
@@ -237,19 +237,18 @@
             {/each}
 
             {#if innerMcps.length < limit}
-                <div class="add-utility">
+                <div class="amt-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="amt-add-btn"
                         onclick={() => addMcp()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add MCP</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add MCP</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+

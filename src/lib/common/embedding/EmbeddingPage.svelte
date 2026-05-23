@@ -16,6 +16,9 @@
     /** @type {boolean} */
     let fullScreen = $state(false);
 
+    /** @type {HTMLDivElement | null} */
+    let containerEl = $state(null);
+
     $effect(() => {
         const footer = document.querySelector('.footer');
         const pageContent = document.querySelector('.page-content');
@@ -43,6 +46,38 @@
             if (pageContent instanceof HTMLElement) {
                 pageContent.style.paddingBottom = '';
             }
+        };
+    });
+
+    /* Measure the container's actual top-offset from the viewport and feed it
+       into a `--embedding-top` CSS variable. The page route may render
+       arbitrary siblings (e.g. a `<Breadcrumb>`) above the embedding
+       container, so a static `calc(100vh - header)` would overshoot. By
+       binding the offset reactively, the height stays correct across
+       breadcrumb-line-wraps, sidebar collapse, window resize, etc. */
+    $effect(() => {
+        const el = containerEl;
+        if (!el) return;
+
+        const updateOffset = () => {
+            const top = el.getBoundingClientRect().top;
+            el.style.setProperty('--embedding-top', `${top}px`);
+        };
+
+        updateOffset();
+        window.addEventListener('resize', updateOffset);
+
+        // Track ancestor size/visibility changes (breadcrumb wrap on
+        // viewport-narrow, sidebar toggle, etc.). The observer is cheap
+        // because the callback only sets a CSS variable.
+        const ro = new ResizeObserver(updateOffset);
+        if (el.parentElement) {
+            ro.observe(el.parentElement);
+        }
+
+        return () => {
+            window.removeEventListener('resize', updateOffset);
+            ro.disconnect();
         };
     });
 
@@ -123,7 +158,65 @@
 </script>
 
 <div
+    bind:this={containerEl}
     id={`${htmlTagId}`}
     class="embedding-container"
+    class:embedding-container-fullscreen={fullScreen}
 >
 </div>
+
+<style>
+    /* ============================================================
+       Embedding container — owns its own sizing so the embedded
+       <iframe> child (which typically uses `height: 100%`/`98%`)
+       has a non-collapsing parent.
+
+       The legacy global rule in `_agent.scss` referenced Bootstrap
+       SCSS variables ($header-height, $grid-gutter-width,
+       $footer-height) that no longer resolve after the Tailwind
+       migration, so the iframe collapsed to its 150px default. Now
+       the container computes its height from `--embedding-top`
+       (the container's actual viewport offset, set at runtime by a
+       ResizeObserver) and the `--footer-height` theme token.
+       ============================================================ */
+
+    .embedding-container {
+        /* Default `--embedding-top` is a sensible fallback for SSR /
+           the brief window before the runtime ResizeObserver fires. */
+        --embedding-top: calc(var(--header-height) + 1.5rem);
+
+        width: 100%;
+        height: calc(100vh - var(--embedding-top) - var(--footer-height));
+        padding: 0;
+        margin: 0;
+        overflow: hidden;
+        background-color: rgb(255 255 255);
+        border-radius: 0.5rem;
+    }
+
+    /* Fullscreen mode: the component's $effect hides the page
+       footer and zeroes the page-content's `padding-bottom`, so the
+       container can extend down to the viewport edge. */
+    .embedding-container.embedding-container-fullscreen {
+        height: calc(100vh - var(--embedding-top));
+        border-radius: 0;
+    }
+
+    /* The embed() function injects a single child element whose tag
+       name comes from the plugin config (typically <iframe>, but
+       <embed>, <object>, <video>, etc. are all valid). The universal
+       `> *` selector future-proofs the rule against any tag name; the
+       container's contract is "exactly one runtime-injected child",
+       so there's nothing else inside to accidentally match.
+
+       Note: `width`/`height` here are defaults — plugins may set their
+       own inline width/height (e.g. `height: 98%`) which will win via
+       standard CSS specificity. `display: block` and `border: 0` apply
+       universally regardless. */
+    .embedding-container :global(> *) {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+    }
+</style>

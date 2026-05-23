@@ -21,39 +21,36 @@
     });
 </script>
 
-<div class="container-fluid">
-    <div class="row">
-        <div class="col-12">
-            <div style="margin-top: 10vh; margin-left:10vw;">
-                {#each agents as agent}
-                <div>
-                    <input
-                        class="form-check-input m-1"
-                        type="radio"
-                        name="agents"
-                        id={agent.id}
-                        value={agent.id}
-                        checked={agentId == agent.id}
-                        onclick={() => agentId = agent.id}
-                    />
-                    <label class="form-check-label" for={agent.id}>
-                        {agent.name}
-                    </label>
-                    <div class="mx-4">{agent.description}</div>
-                </div>
-                {/each}
+<div class="cs-page">
+    <div class="cs-block">
+        <div class="cs-list">
+            {#each agents as agent}
+            <div class="cs-item" class:cs-item-selected={agentId == agent.id}>
+                <input
+                    class="cs-radio"
+                    type="radio"
+                    name="agents"
+                    id={agent.id}
+                    value={agent.id}
+                    checked={agentId == agent.id}
+                    onclick={() => agentId = agent.id}
+                />
+                <label class="cs-label" for={agent.id}>
+                    {agent.name}
+                </label>
+                <div class="cs-desc">{agent.description}</div>
             </div>
+            {/each}
         </div>
     </div>
-    <div class="row text-center">
-        <div class="col">
-            <p class="section-subtitle text-muted text-center pt-4 font-secondary">Select a bot you want to start chatting with and click the Start button.</p>
-            <div class="d-flex justify-content-center">
-                <a href="chat/{agentId}" class="btn btn-primary">
-                    <i class="mdi mdi-chat"></i>
-                    <span>Start Conversation</span>
-                </a>
-            </div>
+    <div class="cs-footer">
+        <p class="cs-hint">Select a bot you want to start chatting with and click the Start button.</p>
+        <div class="cs-cta-wrap">
+            <a href="chat/{agentId}" class="cs-start-btn">
+                <i class="mdi mdi-chat"></i>
+                <span>Start Conversation</span>
+            </a>
         </div>
     </div>
 </div>
+

@@ -38,7 +38,7 @@
                 <i class="bx bx-link-external"></i>
             </a>
         </div>
-        <div use:collapse={{ open, duration: collapseDuration, easing: 'ease' }} style="width: 100%; margin-top: 8px;">
+        <div class="rc-embedding-collapse" use:collapse={{ open, duration: collapseDuration, easing: 'ease' }}>
             {#if open}
             <div class="rc-embedding-container">
                 {#if htmlTag === 'iframe'}
@@ -57,4 +57,6 @@
         </div>
     </div>
 {/if}
+
+
 

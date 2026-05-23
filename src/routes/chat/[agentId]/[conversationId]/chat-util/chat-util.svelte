@@ -26,16 +26,16 @@
 
 
 <div
-    class={`${disableDefaultStyles ? '' : 'chat-util-trigger'} ${containerClasses}`}
+    class={`${disableDefaultStyles ? '' : 'cu-trigger'} ${containerClasses}`}
     style={`${containerStyles}`}
 >
-    <ul class="list-inline mb-0">
-        <li class="list-inline-item">
-            <span>
+    <ul class="cu-list">
+        <li class="cu-item">
+            <span class="cu-glyph">
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <i
-                    class="bx bx-plus-circle clickable"
+                    class="bx bx-plus-circle cu-icon"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="More"
@@ -45,3 +45,4 @@
         </li>
     </ul>
 </div>
+
