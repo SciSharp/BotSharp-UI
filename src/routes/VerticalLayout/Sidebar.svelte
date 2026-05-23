@@ -277,7 +277,7 @@
 </script>
 
 <div
-	class="vertical-menu fixed bottom-0 left-0 top-[var(--header-height)] z-[1001] w-[var(--sidebar-width)] bg-[var(--sidebar-bg)] shadow-sm transition-[width,transform] duration-200 dark:bg-gray-800"
+	class="vertical-menu fixed bottom-0 left-0 top-[var(--header-height)] z-[1001] w-[var(--sidebar-width)] bg-[var(--sidebar-bg)] shadow-sm transition-[width,transform] duration-200 dark:bg-gray-800 font-averia"
 >
 	<div class="h-full" id="vertical-menu">
 		<!--- Sidemenu -->

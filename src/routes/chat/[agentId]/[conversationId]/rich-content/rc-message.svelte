@@ -102,7 +102,7 @@
                         transition:slide={{ duration: 200, easing: cubicOut }}
                     >
                         <div in:fade={{ duration: 200, delay: 80 }}>
-                            <Markdown containerStyles="color: #444 !important;" text={thinkingText} rawText />
+                            <Markdown containerClasses="font-rethink" containerStyles="color: #444 !important;" text={thinkingText} rawText />
                         </div>
                     </div>
                 {/if}

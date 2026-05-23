@@ -78,7 +78,7 @@
 
 <header
 	id="page-topbar"
-	class="fixed inset-x-0 top-0 z-[1002] h-[var(--header-height)] bg-white shadow-sm dark:bg-gray-800"
+	class="fixed inset-x-0 top-0 z-[1002] h-[var(--header-height)] bg-white shadow-sm dark:bg-gray-800 font-script"
 >
 	<div class="mx-auto flex h-full items-center justify-between pr-2">
 		<div class="flex items-center">
@@ -108,7 +108,7 @@
 				<div class="relative">
 					<input
 						type="text"
-						class="h-9 w-60 rounded border border-transparent bg-[#f3f3f9] py-1 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-100"
+						class="h-9 w-60 rounded border border-transparent bg-[#f3f3f9] py-1 pl-9 pr-3 text-sm text-gray-700 placeholder:text-gray-400 focus:border-primary focus:bg-white focus:outline-none focus:ring-1 focus:ring-primary dark:bg-gray-700 dark:text-gray-100 font-sans"
 						placeholder="{$_('Search')}..."
 						maxlength={500}
 						bind:value={searchText}

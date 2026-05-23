@@ -1960,7 +1960,7 @@
 																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
 																id={`user-msg-${message.message_id}`}
 															>
-																<div class="cb-bubble-text-user">{@html replaceNewLine(message.text)}</div>
+																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
 															</div>
 														</div>
 														{#if !disableAction}
@@ -2092,7 +2092,7 @@
 															</div>
 														</div>
 													{:else}
-														<RcMessage markdownClasses={'markdown-dark cb-md-dark'} message={message} isStreaming={isStreaming || isThinking} />
+														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
 													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}

@@ -110,7 +110,7 @@
   Keep those class names on the markup; styling is done via the
   scoped .il-* siblings.
 -->
-<div class="il-root">
+<div class="il-root font-code">
     <div class="il-card">
         <div class="il-close-bar">
             <div>

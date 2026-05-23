@@ -1,4 +1,14 @@
 <script>
+	import '@fontsource/poppins/300.css';
+	import '@fontsource/playfair-display/400.css';
+	import '@fontsource/pacifico/400.css';
+	import '@fontsource/lobster/400.css';
+	import '@fontsource/bebas-neue/400.css';
+	import '@fontsource/averia-libre/400.css';
+	import '@fontsource/libre-baskerville/400.css';
+	import '@fontsource/source-code-pro/400.css';
+	import '@fontsource/rethink-sans/400.css';
+
 	import '../app.css';
 	import '$lib/scss/icons.scss';
 	import '$lib/styles/app.scss';

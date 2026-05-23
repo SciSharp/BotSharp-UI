@@ -6,6 +6,16 @@
 @theme {
     --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
 
+    /* Fancy / accent fonts — use via Tailwind utilities: font-display, font-script, font-handwriting, font-condensed */
+    --font-display: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-script: 'Pacifico', cursive;
+    --font-handwriting: 'Lobster', cursive;
+    --font-condensed: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+    --font-averia: 'Averia Libre', ui-serif, Georgia, serif;
+    --font-libre: 'Libre Baskerville', ui-serif, Georgia, serif;
+    --font-code: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-rethink: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+
     /* Brand colors (overridable at runtime via PUBLIC_PRIMARY_COLOR / PUBLIC_SECONDARY_COLOR) */
     --color-primary: #6f42c1;
     --color-primary-hover: color-mix(in srgb, var(--color-primary), black 20%);
@@ -38,3 +48,8 @@
     --sidebar-menu-title-color: #7f8387;
 }
 
+@layer base {
+    body {
+        font-weight: 300;
+    }
+}
