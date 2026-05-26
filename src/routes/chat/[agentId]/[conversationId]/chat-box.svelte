@@ -464,7 +464,9 @@
 		requestAnimationFrame(() => {
 			scrollbars.forEach(scrollbar => {
 				if (!scrollbar) return;
-				scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
+				setTimeout(() => {
+					scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
+				}, 150);
 			});
 			_autoScrollScheduled = false;
 		});

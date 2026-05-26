@@ -67,7 +67,9 @@
         requestAnimationFrame(() => {
             const el = thinkingContentEl;
             if (el) {
-                el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+                setTimeout(() => {
+                    el.scrollTo({ top: el.scrollHeight, behavior: 'smooth' });
+                }, 150);
             }
             _thinkingScrollScheduled = false;
         });
