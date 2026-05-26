@@ -217,7 +217,7 @@
                 <div class="min-w-0" style="flex: 0.4;">
                     {#if idx === 0}
                     <label for={`stm-key-${idx}`} class="stm-label">
-                        {`Key ${validateKey ? '*' : ''}`}
+                        {`Name ${validateKey ? '*' : ''}`}
                     </label>
                     {/if}
                     <input
