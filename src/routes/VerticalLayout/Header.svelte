@@ -78,7 +78,7 @@
 
 <header
 	id="page-topbar"
-	class="fixed inset-x-0 top-0 z-[1002] h-[var(--header-height)] bg-white shadow-sm dark:bg-gray-800 font-script"
+	class="fixed inset-x-0 top-0 z-[1002] h-[var(--header-height)] bg-white shadow-sm dark:bg-gray-800"
 >
 	<div class="mx-auto flex h-full items-center justify-between pr-2">
 		<div class="flex items-center">

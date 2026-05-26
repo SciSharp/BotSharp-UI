@@ -216,7 +216,7 @@
 	let isHandlingQueue = $state(false);
 	let isStopStreamClicked = $state(false);
 
-	let isWaiting = $derived(isSendingMsg || isThinking || messageQueue.length > 0);
+	let isWaiting = $derived(isSendingMsg || isThinking || isStreaming || messageQueue.length > 0);
 	let loadEditor = true;
 	let disableAction = $derived(!ADMIN_ROLES.includes(currentUser?.role || '')
 								&& currentUser?.id !== conversationUser?.id
@@ -916,7 +916,7 @@
 			return;
 		}
 
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !_.trim(text) || isSendingMsg || isThinking) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !_.trim(text) || isWaiting) {
 			return;
 		}
 
@@ -962,7 +962,7 @@
 	 * @param {string} payload
 	 */
 	async function confirmSelectedOption(title, payload) {
-		if (isSendingMsg || isThinking) return;
+		if (isWaiting) return;
 
 		const postback = buildPostbackMessage(dialogs, payload || title, null);;
 		await sendChatMessage(title, { postback: postback });
@@ -1137,6 +1137,7 @@
 	 * @param {string} messageId
 	 */
 	function deleteMessage(e, messageId) {
+		if (isWaiting || disableAction) return;
 		handleDeleteMessage(messageId);
 	}
 
@@ -1153,6 +1154,7 @@
 	 * @param {import('$conversationTypes').ChatResponseModel} message
 	 */
 	async function editMessage(message) {
+		if (isWaiting || disableAction) return;
 		truncateMsgId = message?.message_id;
 		editText = message?.text || '';
 		await tick();
@@ -1192,7 +1194,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	async function resendMessage(message) {
-		if (isSendingMsg || isThinking || disableAction) return;
+		if (isWaiting || disableAction) return;
 		const msgId = message?.message_id;
 		const msgText = message?.text || '';
 		if (!msgId || !msgText) return;
@@ -1387,6 +1389,7 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	async function openBotMsgEditor(message) {
+		if (isWaiting || disableAction) return;
 		let source = "text";
 		if (message.rich_content?.message?.text === message.text) {
 			source = "both";
@@ -1975,6 +1978,7 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
+																		aria-disabled={isWaiting || disableAction}
 																		onclick={() => editMessage(message)}
 																	>
 																		<i class="bx bxs-edit cb-text-primary"></i>
@@ -1988,7 +1992,7 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Resend"
-																		aria-disabled={isSendingMsg || isThinking || disableAction}
+																		aria-disabled={isWaiting || disableAction}
 																		onclick={() => resendMessage(message)}
 																	>
 																		<i class="bx bx-redo cb-text-primary"></i>
@@ -2021,11 +2025,8 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Delete"
-																		aria-disabled={isSendingMsg || isThinking || disableAction}
-																		onclick={(e) => {
-																			if (isSendingMsg || isThinking || disableAction) return;
-																			deleteMessage(e, message.message_id);
-																		}}
+																		aria-disabled={isWaiting || disableAction}
+																		onclick={(e) => deleteMessage(e, message.message_id)}
 																	>
 																		<i class="bx bx-trash cb-text-danger"></i>
 																	</div>
@@ -2129,6 +2130,7 @@
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
+																		aria-disabled={isWaiting || disableAction}
 																		onclick={() => openBotMsgEditor(message)}
 																	>
 																		<i class="bx bxs-edit cb-text-primary"></i>
@@ -2209,11 +2211,11 @@
 								{/if}
 							</ul>
 
-							<ChatFileGallery disabled={isSendingMsg || isThinking} />
+							<ChatFileGallery disabled={isWaiting} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
-									disabled={isSendingMsg || isThinking || disableAction}
+									disabled={isWaiting || disableAction}
 									onConfirm={(title, payload) => confirmSelectedOption(title, payload)}
 								/>
 							{/if}
@@ -2229,7 +2231,7 @@
 										class={`cb-btn cb-btn-round ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'} ${isListening ? 'cb-btn-listening' : ''}`}
 										aria-label="Start/stop listening"
 										aria-pressed={isListening}
-										disabled={isSendingMsg || isThinking || disableAction}
+										disabled={isWaiting || disableAction}
 										onclick={() => startListen()}
 									>
 										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} cb-md-36"></i>
@@ -2242,7 +2244,7 @@
 										id={'chat-textarea'}
 										className={`${!isLite ? 'cb-textarea-more-util' : ''}`}
 										maxLength={maxTextLength}
-										disabled={isSendingMsg || isThinking || disableAction}
+										disabled={isWaiting || disableAction}
 										bind:text={text}
 										bind:loadUtils={loadChatUtils}
 										bind:options={chatUtilOptions}
@@ -2254,7 +2256,7 @@
 										<ChatFileUploader
 											accept={'.png,.jpg,.jpeg'}
 											containerClasses={'cb-util-uploader'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2268,7 +2270,7 @@
 										<ChatFileUploader
 											accept={'.pdf,.xlsx,.xls,.csv'}
 											containerClasses={'cb-util-uploader'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2282,7 +2284,7 @@
 										<ChatFileUploader
 											accept={'.wav,.mp3'}
 											containerClasses={'cb-util-uploader'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
@@ -2296,12 +2298,12 @@
 									</ChatTextArea>
 									<div class="cb-util-links">
 										<ChatBigMessage
-											disabled={isSendingMsg || isThinking || disableAction}
+											disabled={isWaiting || disableAction}
 											onclick={() => toggleBigMessageModal()}
 										/>
 										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
 											<ChatUtil
-												disabled={isSendingMsg || isThinking || disableAction}
+												disabled={isWaiting || disableAction}
 												onclick={() => loadChatUtils = true}
 											/>
 										{/if}
@@ -2323,7 +2325,7 @@
 									<button
 										type="submit"
 										class={`cb-btn cb-btn-round cb-btn-send ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'}`}
-										disabled={!_.trim(text) || isSendingMsg || isThinking || disableAction}
+										disabled={!_.trim(text) || isWaiting || disableAction}
 										onclick={() => sentTextMessage()}
 									>
 										<span class="cb-send-label">Send</span>
