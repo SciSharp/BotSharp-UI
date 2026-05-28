@@ -266,11 +266,11 @@
  * ========================================================================
  * Replaces the legacy `.text-collapse` rule from
  * src/lib/scss/custom/pages/_conversation.scss. The dialog text is
- * collapsed to the first 5 lines by default; clicking the More button
+ * collapsed to the first 10 lines by default; clicking the More button
  * removes this class so the content can flow to its natural height.
  *
  * Two clamping mechanisms are layered here for reliability:
- * 1. `-webkit-line-clamp: 5` with `display: -webkit-box` gives the
+ * 1. `-webkit-line-clamp: 10` with `display: -webkit-box` gives the
  *    nicer "line truncation with ellipsis" effect on simple text.
  * 2. `max-height: 10lh` is the hard fallback. The inner `<Markdown>`
  *    wraps its rendered HTML in a `.markdown-container` with
@@ -278,15 +278,40 @@
  *    context — that BFC defeats line-clamp on the parent because text
  *    flow is sealed inside the child. The max-height cap clips
  *    reliably regardless of inner BFCs and is what actually keeps long
- *    code blocks / tables collapsed.
+ *    code blocks / tables collapsed. A `::after` pseudo-element below
+ *    paints a '...' in the bottom-right corner so the truncation is
+ *    still signaled visually when line-clamp's native ellipsis is
+ *    suppressed by the inner BFC.
  */
 .text-collapse {
+    position: relative;
     overflow: hidden;
     max-height: 10lh;
     display: -webkit-box;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 5;
-    line-clamp: 5;
+    -webkit-line-clamp: 10;
+    line-clamp: 10;
+}
+
+/* Ellipsis fallback for collapsed content whose inner BFC defeats
+ * -webkit-line-clamp (notably the Markdown container's overflow-x: auto
+ * around code blocks / tables). The native line-clamp ellipsis already
+ * handles plain text; this pseudo-element guarantees a '...' indicator
+ * is rendered even when line-clamp is sealed inside the child BFC.
+ *
+ * The gradient fades from transparent to the conversation page
+ * background (white) so the '...' sits cleanly over the last visible
+ * line without obscuring readable text. */
+.text-collapse::after {
+    content: '...';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 0.25rem 0 1.5rem;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(255 255 255) 50%);
+    color: inherit;
+    font-weight: inherit;
+    pointer-events: none;
 }
 
 

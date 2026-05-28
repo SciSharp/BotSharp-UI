@@ -4,6 +4,16 @@
 
     const defaultValue = '-';
 
+    let collapsed = $state(true);
+
+    /** @param {KeyboardEvent} e @param {() => void} fn */
+    function handleKey(e, fn) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            fn();
+        }
+    }
+
     /** @param {any} value */
     function buildDataValue(value) {
         return value || defaultValue;
@@ -46,21 +56,37 @@
         </div>
     </div>
     <div class="mss-content">
-        <div class="mss-state-value">
+        <div
+            class="mss-state-value"
+            class:mss-state-value-collapsed={collapsed}
+            role="button"
+            tabindex="0"
+            title={collapsed ? 'Click to expand' : 'Click to collapse'}
+            onclick={() => (collapsed = !collapsed)}
+            onkeydown={(e) => handleKey(e, () => (collapsed = !collapsed))}
+        >
             <div class="mss-value">
                 {beforeDataValue}
             </div>
-            {#if !!beforeActiveRoundText}
+            {#if !!beforeActiveRoundText && !collapsed}
             <div class="mss-active-rounds">
                 {`${beforeActiveRoundText}`}
             </div>
             {/if}
         </div>
-        <div class="mss-state-value mss-state-value-warn">
+        <div
+            class="mss-state-value mss-state-value-warn"
+            class:mss-state-value-collapsed={collapsed}
+            role="button"
+            tabindex="0"
+            title={collapsed ? 'Click to expand' : 'Click to collapse'}
+            onclick={() => (collapsed = !collapsed)}
+            onkeydown={(e) => handleKey(e, () => (collapsed = !collapsed))}
+        >
             <div class="mss-value">
                 {afterDataValue}
             </div>
-            {#if !!afterActiveRoundText}
+            {#if !!afterActiveRoundText && !collapsed}
             <div class="mss-active-rounds">
                 {`${afterActiveRoundText}`}
             </div>

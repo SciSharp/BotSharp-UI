@@ -8,8 +8,13 @@
     let { data } = $props();
 
     let is_collapsed = $state(true);
+    let contentEl = $state();
+    let isOverflowing = $state(false);
+    
+    const COLLAPSE_LINE_THRESHOLD = 10;
     const unknownAgent = "Uknown";
     const collapsedSources = [
+        ContentLogSource.UserInput,
         ContentLogSource.Prompt,
         ContentLogSource.AgentResponse,
         ContentLogSource.FunctionCall,
@@ -48,12 +53,26 @@
         e.preventDefault();
         is_collapsed = !is_collapsed;
     }
+
+    $effect(() => {
+        void data?.content;
+        if (!contentEl || !collapsedSources.includes(data.source)) {
+            isOverflowing = false;
+            return;
+        }
+        requestAnimationFrame(() => {
+            if (!contentEl) return;
+            const cs = getComputedStyle(contentEl);
+            let lineHeight = parseFloat(cs.lineHeight);
+            if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+                lineHeight = parseFloat(cs.fontSize) * 1.5 || 21;
+            }
+            isOverflowing = contentEl.scrollHeight > lineHeight * COLLAPSE_LINE_THRESHOLD + 1;
+        });
+    });
 </script>
 
-<!--
-  NOTE: id={`content-log-${data.message_id}`} is queried by chat-box.svelte's
-  autoScrollToTargetLog(); keep this id attribute as-is.
--->
+
 <div class="cle-element" id={`content-log-${data.message_id}`}>
     <div class="cle-meta">
         <div>
@@ -77,11 +96,14 @@
         </div>
     </div>
     <div class={`cle-content ${logDisplayStyle}`}>
-        <div class:cle-collapse={collapsedSources.includes(data.source) && !!is_collapsed}>
+        <div
+            bind:this={contentEl}
+            class:cle-collapse={collapsedSources.includes(data.source) && isOverflowing && !!is_collapsed}
+        >
             <Markdown containerClasses={logTextStyle} text={data?.content} rawText={rawTextSources.includes(data.source)} />
         </div>
 
-        {#if collapsedSources.includes(data.source)}
+        {#if collapsedSources.includes(data.source) && isOverflowing}
             <button class="cle-toggle-btn" onclick={(e) => toggleText(e)}>
                 {`${is_collapsed ? 'More +' : 'Less -'}`}
             </button>
