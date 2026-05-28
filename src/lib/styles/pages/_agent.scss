@@ -898,6 +898,18 @@
 		.ao-chat-btn { animation: none; }
 }
 
+@media (max-width: 768px) {
+		.ao-chat-btn {
+				gap: 0;
+				padding: 0;
+				width: 1.875rem;
+				justify-content: center;
+		}
+		.ao-chat-btn-label {
+				display: none;
+		}
+}
+
 
 .ao-name {
     margin: 0.25rem 0;

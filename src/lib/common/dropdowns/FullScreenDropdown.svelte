@@ -45,7 +45,7 @@
 <div class="ms-1 hidden lg:inline-block">
 	<button
 		onclick={toggleFullscreen}
-		class="inline-flex h-[var(--header-height)] items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+		class="inline-flex h-[var(--header-height)] cursor-pointer items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 		aria-label="Toggle fullscreen"
 	>
 		<i class={isFullScreenMode ? 'bx bx-fullscreen text-[22px]' : 'bx bx-exit-fullscreen text-[22px]'}></i>

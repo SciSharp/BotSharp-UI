@@ -51,7 +51,7 @@
 >
 	<button
 		type="button"
-		class="inline-flex h-[var(--header-height)] items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+		class="inline-flex h-[var(--header-height)] cursor-pointer items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 		id="page-header-user-dropdown"
 		aria-label="User menu"
 		onclick={() => (isOpen = !isOpen)}
@@ -87,7 +87,7 @@
 			<div class="my-1 h-px bg-gray-200 dark:bg-gray-700"></div>
 			<button
 				type="button"
-				class="flex w-full items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
+				class="flex w-full cursor-pointer items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-700"
 				onclick={() => logout()}
 			>
 				<i class="bx bx-power-off me-2 align-middle text-base text-danger"></i>

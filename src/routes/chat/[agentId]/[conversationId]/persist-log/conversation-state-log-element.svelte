@@ -16,6 +16,7 @@
     <div class="csle-content log-content">
         <JSONTree
             value={formatObject(data?.states)}
+            --json-tree-font-family="var(--font-code)"
             --json-tree-property-color="white"
             --json-tree-label-color="white"
             --json-tree-number-color="var(--color-info, #0ea5e9)"
