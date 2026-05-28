@@ -412,7 +412,7 @@
 					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-primary-hover"
+							class="inline-flex h-10 w-full items-center justify-center gap-1.5 rounded-md bg-primary px-3 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover"
 							onclick={() => search()}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>

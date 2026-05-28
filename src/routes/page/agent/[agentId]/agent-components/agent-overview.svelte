@@ -107,9 +107,11 @@
                     <button
                         type="button"
                         class="ao-chat-btn"
+                        title="Chat with me"
+                        aria-label="Chat with me"
                         onclick={() => chatWithAgent()}
                     >
-                        <span>{'Chat with me'}</span>
+                        <span class="ao-chat-btn-label">{'Chat with me'}</span>
                         <i class="mdi mdi-chat"></i>
                     </button>
                 {/if}

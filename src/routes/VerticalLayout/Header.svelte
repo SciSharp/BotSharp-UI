@@ -95,7 +95,7 @@
 
 			<button
 				type="button"
-				class="ml-1 inline-flex h-10 w-10 items-center justify-center rounded text-base text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+				class="ml-1 inline-flex h-10 w-10 cursor-pointer items-center justify-center rounded text-base text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 				id="vertical-menu-btn"
 				aria-label="Toggle sidebar"
 				onclick={() => toggleSideBar()}

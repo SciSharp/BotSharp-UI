@@ -97,6 +97,7 @@
                             <JSONTree
                                 value={formatObject(item)}
                                 defaultExpandedLevel={1}
+                                --json-tree-font-family="var(--font-sans)"
                                 --json-tree-number-color="var(--color-info)"
                                 --json-tree-boolean-color="var(--color-info)"
                                 --json-tree-string-color="var(--color-info)"

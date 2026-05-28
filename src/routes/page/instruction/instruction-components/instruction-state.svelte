@@ -37,7 +37,7 @@
 
 <div class="flex flex-col py-3">
     <div class="grid grid-cols-[1fr_1fr_auto] gap-2 px-1 pb-1">
-        <div class="text-xs font-semibold uppercase tracking-wider text-primary">{'Key'}</div>
+        <div class="text-xs font-semibold uppercase tracking-wider text-primary">{'Name'}</div>
         <div class="text-xs font-semibold uppercase tracking-wider text-primary">{'Value'}</div>
         <div class="w-5"></div>
     </div>

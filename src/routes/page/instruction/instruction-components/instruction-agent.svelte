@@ -5,7 +5,7 @@
      * @type {{
      *   agents?: import('$agentTypes').AgentModel[],
      *   disabled?: boolean,
-     *   onSelectAgent?: (detail: { agent: import('$agentTypes').AgentModel | null, template: any }) => void
+     *   onSelectAgent?: (detail: { agent: import('$agentTypes').AgentModel | null, template: any, llmConfig: any }) => void
      * }}
      */
     let {
@@ -45,7 +45,8 @@
             name: x.name,
             label: x.name,
             value: x.name,
-            content: x.content
+            content: x.content,
+            llm_config: x.llm_config || null
         })) || [];
 
         fireSelectAgent();
@@ -62,7 +63,8 @@
     function fireSelectAgent() {
         onSelectAgent?.({
             agent: selectedAgent || null,
-            template: selectedTemplate || null
+            template: selectedTemplate || null,
+            llmConfig: selectedTemplate?.llm_config || selectedAgent?.llm_config || null
         });
     }
 </script>

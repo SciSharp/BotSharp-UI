@@ -52,6 +52,12 @@
     let selectedModel = $state(null);
 
     /** @type {string | null} */
+    let selectedReasoningEffortLevel = $state(null);
+
+    /** @type {number | null} */
+    let selectedMaxOutputTokens = $state(null);
+
+    /** @type {string | null} */
     let selectedTemplate = $state(null);
 
     /** @type {import('$agentTypes').AgentCodeScriptViewModel | null | undefined} */
@@ -102,7 +108,14 @@
         isThinking = true;
         requestDone = false;
         elapsedTime = '';
-        const formattedStates = formatKeyValues(states);
+        const clonedStates = [
+            { key: 'reasoning_effort_level', value: selectedReasoningEffortLevel ? selectedReasoningEffortLevel : 'disable' }
+        ];
+        if (selectedMaxOutputTokens && selectedMaxOutputTokens > 0) {
+            clonedStates.push({ key: 'max_tokens', value: selectedMaxOutputTokens.toString() });
+        }
+
+        const formattedStates = formatKeyValues(states, clonedStates);
         const formatedArgs = formatKeyValues(args);
         const start = new Date();
         const agentId = selectedAgent?.id || '';
@@ -113,10 +126,10 @@
             model: selectedModel,
             template: selectedTemplate,
             states: formattedStates,
-            codeOptions: {
+            codeOptions: selectedCodeScript?.name ? {
                 script_name: selectedCodeScript?.name,
                 arguments: formatedArgs
-            }
+            } : null
         }).then(res => {
             result = res?.text || '';
         }).finally(() => {
@@ -127,14 +140,20 @@
         });
     }
 
-    /** @param {import('$commonTypes').KeyValuePair[]} kvs */
-    function formatKeyValues(kvs) {
-        return kvs?.filter(x => !!util.trim(x.key) && !!util.trim(x.value)).map(x => {
+    /**
+     * @param {import('$commonTypes').KeyValuePair[]} kvs
+     * @param {import('$commonTypes').KeyValuePair[]} [defaults]
+     */
+    function formatKeyValues(kvs, defaults) {
+        const primary = kvs || [];
+        const primaryKeys = new Set(primary.map(x => util.trim(x.key)).filter(k => !!k));
+        const merged = [...(defaults || []).filter(x => !primaryKeys.has(util.trim(x.key))), ...primary];
+        return merged.filter(x => !!util.trim(x.key) && !!util.trim(x.value)).map(x => {
             return {
                 key: util.trim(x.key),
                 value: util.trim(x.value)
             };
-        }) || [];
+        });
     }
 
     /** @param {KeyboardEvent} e */
@@ -156,7 +175,7 @@
         elapsedTime = ''
     }
 
-    /** @param {{ agent: import('$agentTypes').AgentModel | null, template: any }} detail */
+    /** @param {{ agent: import('$agentTypes').AgentModel | null, template: any, llmConfig: any }} detail */
     function onAgentSelected(detail) {
         selectedAgent = detail.agent || null;
         let localText = selectedAgent?.instruction;
@@ -168,10 +187,13 @@
         }
 
         instruction = localText || '';
-        const providerName = selectedAgent?.llm_config?.provider || null;
-        const modelName = selectedAgent?.llm_config?.model || null;
+        const llmConfig = detail?.llmConfig || null;
+        const providerName = llmConfig?.provider || null;
+        const modelName = llmConfig?.model || null;
         selectedProvider = llmConfigs?.find(x => x.provider === providerName) || null;
         selectedModel = modelName;
+        selectedReasoningEffortLevel = llmConfig?.reasoning_effort_level || null;
+        selectedMaxOutputTokens = llmConfig?.max_output_tokens || null;
 
         if (selectedAgent?.id) {
             initAgentCodeScripts(selectedAgent.id);
@@ -180,10 +202,12 @@
         }
     }
 
-    /** @param {{ provider: import('$commonTypes').LlmConfig | null, model: string | null }} detail */
+    /** @param {{ provider: import('$commonTypes').LlmConfig | null, model: string | null, reasoning_effort_level: string | null, max_output_tokens: number | null }} detail */
     function onLlmSelected(detail) {
         selectedProvider = detail.provider || null;
         selectedModel = detail.model || '';
+        selectedReasoningEffortLevel = detail.reasoning_effort_level || null;
+        selectedMaxOutputTokens = detail.max_output_tokens || null;
     }
 
     /** @param {string} agentId */
@@ -246,7 +270,7 @@
                     </span>
                 {/if}
             </div>
-            <div>{text?.length || 0}/{formatNumber(maxLength)}</div>
+            <div>{formatNumber(text?.length || 0)}/{formatNumber(maxLength)}</div>
         </div>
 
         <div class="mt-3 flex justify-end">
@@ -378,6 +402,8 @@
                         disabled={isThinking}
                         bind:selectedProvider={selectedProvider}
                         bind:selectedModel={selectedModel}
+                        bind:selectedReasoningEffortLevel={selectedReasoningEffortLevel}
+                        bind:selectedMaxOutputTokens={selectedMaxOutputTokens}
                         onSelectLlm={detail => onLlmSelected(detail)}
                     />
                 </div>

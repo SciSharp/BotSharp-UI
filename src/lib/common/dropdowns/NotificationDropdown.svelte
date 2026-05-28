@@ -21,7 +21,7 @@
 >
 	<button
 		type="button"
-		class="relative inline-flex h-[var(--header-height)] items-center px-3 text-[22px] text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
+		class="relative inline-flex h-[var(--header-height)] cursor-pointer items-center px-3 text-[22px] text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 		aria-label="Notifications"
 		onclick={() => (isOpen = !isOpen)}
 	>
