@@ -2996,17 +2996,36 @@
     flex-wrap: wrap;
     gap: 6px;
     margin-top: 4px;
+    min-width: 0;
 }
 
 
 .mss-state-value {
     flex: 1 1 calc(50% - 6px);
-    min-width: calc(50% - 6px);
+    min-width: 0;
+    max-width: 100%;
     font-size: 14px;
     padding: 4px 8px;
     border-radius: 6px;
     background-color: color-mix(in srgb, white 3%, transparent);
     border: 1px solid color-mix(in srgb, white 5%, transparent);
+    cursor: pointer;
+}
+
+
+.mss-value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+
+.mss-state-value-collapsed .mss-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: normal;
+    overflow-wrap: normal;
 }
 
 

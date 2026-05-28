@@ -292,7 +292,7 @@
 					{:else if item.subMenu}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="has-arrow clickable">
+							<a href="javascript:void(0);" class="has-arrow cursor-pointer">
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
@@ -301,14 +301,14 @@
 									{#if subMenu.isChildItem}
 										<li>
 											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="javascript:void(0);" class="has-arrow clickable">
+											<a href="javascript:void(0);" class="has-arrow cursor-pointer">
 												<span>{$_(subMenu.label)}</span>
 											</a>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
 													<li>
 														<!-- svelte-ignore a11y_invalid_attribute -->
-														<a href="javascript:void(0);" class="clickable" id={getCleanUrl(childItem.link)} onclick={() => goToPage(childItem.link)}>
+														<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(childItem.link)} onclick={() => goToPage(childItem.link)}>
 															{$_(childItem.label)}
 														</a>
 													</li>
@@ -318,7 +318,7 @@
 									{:else}
 										<li>
 											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="javascript:void(0);" class="clickable" id={getCleanUrl(subMenu.link)} onclick={() => goToPage(subMenu.link)}>
+											<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(subMenu.link)} onclick={() => goToPage(subMenu.link)}>
 												{$_(subMenu.label)}
 											</a>
 										</li>
@@ -329,7 +329,7 @@
 					{:else}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="clickable" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
+							<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
