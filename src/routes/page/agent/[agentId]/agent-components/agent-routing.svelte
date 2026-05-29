@@ -38,10 +38,10 @@
                                     <td>{rule.description}</td>
                                 </tr>
                                 {/if}
-                                {#if !!rule.fieldType}
+                                {#if !!rule.field_type}
                                 <tr>
                                     <th class="agent-prop-key">Field Type</th>
-                                    <td>{rule.fieldType}</td>
+                                    <td>{rule.field_type}</td>
                                 </tr>
                                 {/if}
                                 <tr>
