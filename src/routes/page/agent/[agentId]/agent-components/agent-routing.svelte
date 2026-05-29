@@ -38,10 +38,10 @@
                                     <td class="arr-value">{rule.description}</td>
                                 </tr>
                                 {/if}
-                                {#if !!rule.fieldType}
+                                {#if !!rule.field_type}
                                 <tr class="arr-tr">
                                     <th class="arr-key">Field Type</th>
-                                    <td class="arr-value">{rule.fieldType}</td>
+                                    <td class="arr-value">{rule.field_type}</td>
                                 </tr>
                                 {/if}
                                 <tr class="arr-tr">

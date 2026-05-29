@@ -183,7 +183,7 @@
  * @property {string} type
  * @property {string} field
  * @property {string} description
- * @property {string} fieldType
+ * @property {string} [field_type]
  * @property {boolean} required
  * @property {string} redirectTo
  * @property {string?} [redirect_to_agent]
