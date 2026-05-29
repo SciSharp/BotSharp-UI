@@ -71,7 +71,7 @@
         <div class="flex justify-start">
             <button
                 type="button"
-                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-warning/15 text-warning transition-all hover:scale-105 hover:bg-warning/25"
+                class="inline-flex h-8 w-8 items-center justify-center rounded-md bg-warning/15 text-warning transition-all cursor-pointer hover:scale-105 hover:bg-warning/25"
                 aria-label={open ? 'Collapse' : 'Detail'}
                 title={open ? 'Collapse' : 'Detail'}
                 onclick={() => toggleLogDetail()}

@@ -86,6 +86,7 @@
     .ipe-display {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.375rem;
         width: fit-content;
         min-width: 30%;
@@ -94,6 +95,7 @@
         border: 1px solid transparent;
         border-radius: 0.375rem;
         cursor: text;
+        text-align: center;
         transition:
             background-color 0.15s ease,
             border-color 0.15s ease,
@@ -107,6 +109,7 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         border-bottom: 1px dashed transparent;
+        text-align: center;
         transition: border-color 0.15s ease;
     }
 
@@ -146,12 +149,14 @@
     .ipe-form {
         margin: 0;
         width: 100%;
+        text-align: center;
     }
     .ipe-input.form-control {
         width: 100%;
         padding: 0.25rem 0.5rem;
         font: inherit;
         color: inherit;
+        text-align: center;
         background-color: rgb(255 255 255);
         border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
         border-radius: 0.375rem;
