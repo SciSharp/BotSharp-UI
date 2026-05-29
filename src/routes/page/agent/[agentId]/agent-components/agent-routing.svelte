@@ -39,8 +39,8 @@
                                 </tr>
                                 {/if}
                                 {#if !!rule.field_type}
-                                <tr class="arr-key">
-                                    <th class="agent-prop-key">Field Type</th>
+                                <tr class="arr-tr">
+                                    <th class="arr-key">Field Type</th>
                                     <td class="arr-value">{rule.field_type}</td>
                                 </tr>
                                 {/if}
