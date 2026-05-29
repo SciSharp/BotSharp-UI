@@ -6,11 +6,6 @@
   let { data } = $props();
 </script>
 
-<!--
-  NOTE: .state-log-item and .log-content are DOM hooks queried by
-  chat-box.svelte's highlightStateLog() — do not rename them.
-  .lsl-element / .lsl-content are the scoped style hooks.
--->
 <div class="lsl-element state-log-item">
   <div class="lsl-content log-content">
     {#if data}

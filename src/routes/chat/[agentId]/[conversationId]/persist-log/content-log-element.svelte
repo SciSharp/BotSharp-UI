@@ -28,7 +28,7 @@
 
     let logDisplayStyle = $derived.by(() => {
         if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
-            return 'cle-bordered';
+            return '';
         } else if (data.source === ContentLogSource.FunctionCall) {
             return 'cle-bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {

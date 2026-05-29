@@ -27,7 +27,9 @@
     </div>
     <div class="cai-row">
         <div class="cai-meta">
-            <span>{agent?.llm_config?.provider || ''}{agent?.llm_config?.provider ? ',': ''} {agent?.llm_config?.model || ''}</span>
+            <span>
+                {[agent?.llm_config?.provider, agent?.llm_config?.model, agent?.llm_config?.reasoning_effort_level].filter(Boolean).join(', ')}
+            </span>
         </div>
     </div>
     <div class="cai-row">
