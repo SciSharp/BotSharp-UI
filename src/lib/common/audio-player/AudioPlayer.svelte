@@ -161,7 +161,7 @@
     player.addEventListener("loadedmetadata", () => {
       $duration = player.duration;
     });
-    
+
     player.addEventListener("error", () => {
       console.warn("An audio error has occurred, player will skip forward in 2 seconds.");
       if ($audioList.length > 1) {
@@ -227,6 +227,22 @@
     if (rootEl) {
       rootEl.style.setProperty("--theme-color", themeColor);
       rootEl.style.setProperty("--base-font-size", baseFontSize);
+    }
+  });
+
+  // Bootstrap playerListHeight whenever the list is shown.
+  // The original transitionend listener in onMount only updates the height
+  // after a real height transition runs — but with playerListHeight=0
+  // initially, the very first toggle goes 0 → 0 and no transition fires,
+  // so the list would stay invisible forever. Read scrollHeight directly
+  // here; it reports the natural content height even while overflow is
+  // clipped and the visible height is 0.
+  $effect(() => {
+    // Reading $audioList here registers it as a dependency so the height
+    // also recomputes when the playlist contents change (e.g. tracks
+    // added or removed after mount), not just on isShowList flips.
+    if (isShowList && playListElement && $audioList.length > 0) {
+      playerListHeight = Math.min(playListElement.scrollHeight, listMaxHeight);
     }
   });
 
@@ -515,3 +531,328 @@
     </div>
   </div>
 </div>
+
+<style>
+    /* ===== Audio player =====
+       Self-contained port of the legacy `_audio.scss` rules into a scoped
+       Svelte <style>. Replaces the SCSS bundle entries dropped in the
+       Tailwind v4 migration. Class names on every targeted node are
+       static and live in this component's template, so Svelte's scoper
+       handles them without :global(). Theme accent is supplied at
+       runtime via the inline `--theme-color` CSS variable (see the
+       $effect block in <script>). */
+
+    .aplayer {
+        --base-font-size: 12px;
+        --aplayer-height: calc(var(--base-font-size) * 5.5);
+        --theme-color: #fadfa3;
+        position: relative;
+        background: #fff;
+        box-shadow:
+            0 2px 2px 0 rgb(0 0 0 / 0.07),
+            0 1px 5px 0 rgb(0 0 0 / 0.1);
+        font-family: Arial, Helvetica, sans-serif;
+        overflow: hidden;
+        border-radius: 4px;
+        user-select: none;
+        line-height: normal;
+    }
+    .aplayer :global(svg) {
+        width: 100%;
+        height: 100%;
+    }
+    .aplayer :global(svg path) {
+        fill: #fff;
+    }
+
+    /* ----- Icons (volume / order / loop / menu) ----- */
+    .aplayer-icon {
+        width: calc(var(--base-font-size) + 3px);
+        height: calc(var(--base-font-size) + 3px);
+        border: none;
+        background-color: transparent;
+        outline: none;
+        cursor: pointer;
+        opacity: 0.8;
+        vertical-align: middle;
+        padding: 0;
+        font-size: var(--base-font-size);
+        margin: 0;
+        display: inline-block;
+        transition: opacity 0.15s ease;
+    }
+    .aplayer-icon:hover {
+        opacity: 1;
+    }
+    .aplayer-icon :global(path) {
+        transition: fill 0.2s ease-in-out;
+    }
+
+    /* ----- Cover / play-pause button ----- */
+    .aplayer-pic {
+        position: relative;
+        float: left;
+        height: var(--aplayer-height);
+        width: var(--aplayer-height);
+        background-color: antiquewhite;
+        background-size: cover;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        transition: filter 0.3s ease;
+        cursor: pointer;
+    }
+    .aplayer-pic:hover .aplayer-button {
+        opacity: 1;
+    }
+    .aplayer-button {
+        position: absolute;
+        border-radius: 50%;
+        opacity: 0.8;
+        text-shadow: 0 1px 1px rgb(0 0 0 / 0.2);
+        box-shadow: 0 1px 1px rgb(0 0 0 / 0.2);
+        background: rgb(0 0 0 / 0.35);
+        transition: opacity 0.15s ease, background-color 0.15s ease;
+    }
+    .aplayer-play,
+    .aplayer-pause {
+        width: 26px;
+        height: 26px;
+    }
+    .aplayer-play :global(svg),
+    .aplayer-pause :global(svg) {
+        position: absolute;
+        top: 3px;
+        left: 4px;
+        height: 20px;
+        width: 20px;
+    }
+
+    /* ----- Info panel (title / artist / controller) ----- */
+    .aplayer-info {
+        margin-left: var(--aplayer-height);
+        height: var(--aplayer-height);
+        padding: 14px 7px 0 10px;
+        box-sizing: border-box;
+    }
+    .aplayer-music {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        user-select: text;
+        margin: 0 0 calc(var(--base-font-size) + 1px) 5px;
+        padding-bottom: 2px;
+        cursor: default;
+    }
+    .aplayer-title {
+        font-size: calc(var(--base-font-size) + 2px);
+        color: #333;
+    }
+    .aplayer-artist {
+        font-size: var(--base-font-size);
+        color: #666;
+    }
+
+    .aplayer-controller {
+        display: flex;
+        position: relative;
+        align-items: center;
+    }
+
+    /* ----- Progress bar ----- */
+    .aplayer-bar-wrap {
+        flex: 1;
+        margin: 0 0 0 5px;
+        padding: 4px 0;
+        cursor: pointer !important;
+    }
+    .aplayer-bar-wrap:hover .aplayer-bar .aplayer-played .aplayer-thumb {
+        transform: scale(1);
+    }
+    .aplayer-bar {
+        position: relative;
+        height: 2px;
+        width: 100%;
+        background: #cdcdcd;
+    }
+    .aplayer-loaded {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        background: #aaa;
+        height: 2px;
+        transition: width 0.5s ease;
+    }
+    .aplayer-played {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--theme-color) none repeat scroll 0 0;
+    }
+    .aplayer-thumb {
+        position: absolute;
+        top: 0;
+        right: 5px;
+        margin-top: -4px;
+        margin-right: -10px;
+        height: 10px;
+        width: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+        transition: transform 0.2s ease-in-out;
+        background: var(--theme-color) none repeat scroll 0 0;
+        transform: scale(0);
+    }
+    .aplayer-loading-icon :global(svg) {
+        display: block;
+        position: absolute;
+        animation: aplayer-rotate 1s linear infinite;
+    }
+
+    /* ----- Time + control cluster ----- */
+    .aplayer-time {
+        position: relative;
+        right: 0;
+        bottom: 4px;
+        height: calc(var(--base-font-size) + 5px);
+        color: #999;
+        font-size: 11px;
+        padding-left: 7px;
+    }
+    .aplayer-time-inner {
+        vertical-align: middle;
+    }
+    .aplayer-time .aplayer-icon {
+        cursor: pointer;
+        transition: opacity 0.15s ease;
+    }
+    .aplayer-time .aplayer-icon :global(path) {
+        fill: #666;
+    }
+
+    /* ----- Volume slider ----- */
+    .aplayer-volume-wrap {
+        display: inline-block;
+        position: relative;
+        margin-left: 3px;
+        cursor: pointer;
+    }
+    .aplayer-volume-wrap:hover .aplayer-volume-bar-wrap {
+        height: 40px;
+    }
+    .aplayer-volume-bar-wrap {
+        position: absolute;
+        bottom: 15px;
+        right: -3px;
+        width: 25px;
+        height: 0;
+        z-index: 99;
+        overflow: hidden;
+        transition: height 0.2s ease-in-out;
+    }
+    .aplayer-volume-bar {
+        position: absolute;
+        bottom: 0;
+        right: 10px;
+        width: 5px;
+        height: 35px;
+        background: #aaa;
+        border-radius: 2.5px;
+        overflow: hidden;
+    }
+    .aplayer-volume {
+        background: var(--theme-color) none repeat scroll 0 0;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 5px;
+        transition: height 0.1s ease;
+    }
+
+    /* ----- Playlist ----- */
+    .aplayer-list {
+        scrollbar-width: none;
+        transition: height 0.3s ease;
+        will-change: height;
+        display: none;
+        overflow: hidden;
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+    }
+    .aplayer-list::-webkit-scrollbar {
+        display: none;
+    }
+    .aplayer-list ol {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        overflow-y: auto;
+    }
+    .aplayer-list li {
+        position: relative;
+        text-align: left;
+        height: calc((var(--base-font-size) + 4px) * 2);
+        line-height: 32px;
+        padding: 0 15px;
+        font-size: var(--base-font-size);
+        border-top: 1px solid #e9e9e9;
+        cursor: pointer;
+        transition: background-color 0.15s ease;
+        overflow: hidden;
+        margin: 0;
+        color: #333;
+    }
+    .aplayer-list li:first-child {
+        border-top: none;
+    }
+    .aplayer-list li:hover {
+        background: #efefef;
+    }
+    .aplayer-list-cur {
+        width: 3px;
+        height: calc((var(--base-font-size) + 4px) * 2 - 10px);
+        position: absolute;
+        left: 0;
+        top: 5px;
+        cursor: pointer;
+        background-color: var(--theme-color);
+    }
+    .aplayer-list-index {
+        color: #666;
+        margin-right: 12px;
+        cursor: pointer;
+    }
+    .aplayer-list-artist {
+        color: #666;
+        float: right;
+        cursor: pointer;
+    }
+
+    /* ----- Layout variants (with-list / narrow) ----- */
+    .aplayer.aplayer-withlist .aplayer-list {
+        display: block;
+    }
+    .aplayer.aplayer-narrow {
+        width: var(--aplayer-height);
+    }
+    .aplayer.aplayer-narrow .aplayer-info,
+    .aplayer.aplayer-narrow .aplayer-list {
+        display: none;
+    }
+    .aplayer.aplayer-narrow .aplayer-pic,
+    .aplayer.aplayer-narrow .aplayer-body {
+        height: var(--aplayer-height);
+        width: var(--aplayer-height);
+    }
+
+    @keyframes aplayer-rotate {
+        0% { transform: rotate(0); }
+        100% { transform: rotate(360deg); }
+    }
+</style>

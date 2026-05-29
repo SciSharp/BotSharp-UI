@@ -253,34 +253,35 @@
 
 <svelte:window onresize={() => resizeWindow()}/>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Utilities</h5>
-            <h6 class="mt-1 mb-3">Tools shared across plugins</h6>
+<div class="au-card">
+    <div class="au-card-body">
+        <div class="au-header">
+            <h5 class="au-title">Utilities</h5>
+            <h6 class="au-subtitle">Tools shared across plugins</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="au-list" bind:this={scrollContainer}>
             {#if !agent?.is_router}
-                <div class="merge-utility">
-                    <input
-                        type="checkbox"
-                        class="form-check-input"
-                        checked={agent?.merge_utility || false}
-                        onchange={e => toggleMergeUtility(e)}
-                    />
-                    <div class="fw-bold">
-                        Merge utilities
-                    </div>
-                    <div
-                        class="line-align-center"
+                <label class="au-merge">
+                    <span class="au-checkbox-wrap">
+                        <input
+                            type="checkbox"
+                            class="au-checkbox-input"
+                            checked={agent?.merge_utility || false}
+                            onchange={e => toggleMergeUtility(e)}
+                        />
+                        <span class="au-checkbox-box"></span>
+                    </span>
+                    <span class="au-merge-label">Merge utilities</span>
+                    <span
+                        class="au-merge-info"
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
                         title="Merge with entry agent utilities"
                     >
-                        <i class="bx bx-info-circle fs-6"></i>
-                    </div>
-                </div>
+                        <i class="bx bx-info-circle"></i>
+                    </span>
+                </label>
             {/if}
 
             {#each innerUtilities as utility, uid (uid)}
@@ -301,19 +302,18 @@
             {/each}
 
             {#if innerUtilities.length < limit}
-                <div class="add-utility">
+                <div class="au-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="au-add-btn"
                         onclick={() => addUtility()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add utility</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add utility</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+

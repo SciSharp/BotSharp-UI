@@ -1,7 +1,7 @@
 <script>
 	import Headtitle from '$lib/common/shared/HeadTitle.svelte';
 	import { goto } from '$app/navigation';
-	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME } from '$env/static/public';
+	import { PUBLIC_LOGO_URL, PUBLIC_COMPANY_NAME, PUBLIC_BRAND_NAME } from '$env/static/public';
 
 	let username = $state('');
 	let emailid = $state('');
@@ -56,123 +56,161 @@
 
 <Headtitle title="Register" />
 
-<div class="account-pages my-5 pt-sm-5">
-	<div class="container">
-		<div class="row justify-content-center">
-			<div class="col-md-8 col-lg-8 col-xl-5">
-				<div class="card overflow-hidden">
-					<div class="bg-primary-subtle">
-						<div class="row">
-							<div class="col-7">
-								<div class="text-primary p-4">
-									<h5 class="text-primary">Free Register</h5>
-									<p>Get your free account now.</p>
+<div class="flex min-h-screen items-center overflow-hidden bg-white dark:bg-gray-900">
+	<div class="mx-auto w-full max-w-7xl px-4">
+		<div class="flex min-h-screen items-center justify-center">
+			<div class="w-full md:w-5/6 lg:w-2/3 xl:w-1/2">
+				<div class="animate-slide-in-up py-8">
+
+					<!-- Card -->
+					<div class="overflow-hidden rounded-3xl bg-white shadow-2xl ring-1 ring-black/10 dark:bg-gray-800 dark:ring-white/10">
+
+						<!-- Gradient header -->
+						<div class="flex flex-col items-center justify-between gap-6 bg-linear-to-br from-primary to-primary-hover px-6 py-8 text-center text-white md:flex-row md:gap-0 md:px-8 md:py-10 md:text-left">
+							<div class="flex-1">
+								<div class="mb-6 flex justify-center md:justify-start">
+									<a href="/">
+										<div class="flex h-20 w-20 items-center justify-center rounded-full border-2 border-white/30 bg-white shadow-md transition-transform hover:scale-105">
+											<img src={PUBLIC_LOGO_URL} alt="Logo" class="h-12 w-12 rounded-[20%] object-cover" />
+										</div>
+									</a>
 								</div>
+								<h2 class="mb-1 text-3xl font-bold drop-shadow-sm">Create your account</h2>
+								<p class="text-lg opacity-90">Join {PUBLIC_BRAND_NAME} and start building</p>
 							</div>
-							<div class="col-5 align-self-end">
-								<img src="images/profile-img.png" alt="" class="img-fluid" />
+							<div class="md:ml-8 md:shrink-0">
+								<img src="images/profile-img.png" alt="Register illustration" class="max-w-[120px] drop-shadow-lg md:max-w-[150px]" />
 							</div>
 						</div>
-					</div>
-					<div class="card-body pt-0">
-						<div>
-							<a href="page/dashboard">
-								<div class="avatar-md profile-user-wid mb-4">
-									<span class="avatar-title rounded-circle bg-light">
-										<img src={PUBLIC_LOGO_URL} alt="" class="rounded-circle" height="34" />
-									</span>
-								</div>
-							</a>
-						</div>
-						<div class="p-2">
+
+						<!-- Form body -->
+						<div class="px-6 py-8 md:px-8 md:py-10">
 							{#if isOpen}
-								<div class="alert alert-{status}" role="alert">{msg}</div>
+								<div
+									class="mb-6 rounded-xl px-4 py-3 font-medium {status === 'success' ? 'bg-green-100 text-green-800' : ''} {status === 'danger' ? 'bg-red-100 text-red-800' : ''}"
+									role="alert"
+								>
+									{msg}
+								</div>
 							{/if}
-							<form class="needs-validation" onsubmit={onSubmit}>
-								<div class="mb-3">
-									<label for="useremail" class="form-label">Email</label>
-									<input
-										type="email"
-										class="form-control"
-										id="useremail"
-										placeholder="Enter email"
-										bind:value={emailid}
-									/>
-									<div class="invalid-feedback">Please Enter Email</div>
+
+							<form onsubmit={onSubmit}>
+								<!-- Email -->
+								<div class="mb-6">
+									<label for="useremail" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Email</label>
+									<div class="relative">
+										<i class="mdi mdi-email-outline pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-xl text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+										<input
+											type="email"
+											id="useremail"
+											class="h-12 w-full rounded-xl border-2 border-gray-200 bg-white pl-[3.25rem] pr-4 text-base text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+											placeholder="Enter your email"
+											bind:value={emailid}
+										/>
+									</div>
 								</div>
 
-								<div class="mb-3">
-									<label for="username" class="form-label">Username</label>
-									<input
-										type="text"
-										class="form-control"
-										id="username"
-										placeholder="Enter username"
-										bind:value={username}
-									/>
-									<div class="invalid-feedback">Please Enter Username</div>
+								<!-- Username -->
+								<div class="mb-6">
+									<label for="username" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Username</label>
+									<div class="relative">
+										<i class="mdi mdi-account pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-xl text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+										<input
+											type="text"
+											id="username"
+											class="h-12 w-full rounded-xl border-2 border-gray-200 bg-white pl-[3.25rem] pr-4 text-base text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+											placeholder="Choose a username"
+											bind:value={username}
+										/>
+									</div>
 								</div>
 
-								<div class="mb-3">
-									<label for="userpassword" class="form-label">Password</label>
-									<input
-										type="password"
-										class="form-control"
-										id="userpassword"
-										placeholder="Enter password"
-										bind:value={password}
-									/>
-									<div class="invalid-feedback">Please Enter Password</div>
+								<!-- Password -->
+								<div class="mb-8">
+									<label for="userpassword" class="mb-2 block text-sm font-semibold text-gray-700 dark:text-gray-300">Password</label>
+									<div class="relative">
+										<i class="mdi mdi-lock-outline pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-xl text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+										<input
+											type="password"
+											id="userpassword"
+											class="h-12 w-full rounded-xl border-2 border-gray-200 bg-white pl-[3.25rem] pr-4 text-base text-gray-900 transition-colors placeholder:text-gray-400 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 dark:border-gray-600 dark:bg-gray-800 dark:text-white"
+											placeholder="Create a password"
+											bind:value={password}
+										/>
+									</div>
 								</div>
 
-								<div class="mt-4 d-grid">
-									<button type="submit" class="btn btn-primary waves-effect waves-light">
+								<!-- Submit -->
+								<div class="mb-6 flex justify-center">
+									<button
+										type="submit"
+										class="register-btn h-14 min-w-[200px] rounded-xl bg-linear-to-br from-primary to-primary-hover px-8 text-lg font-semibold text-white shadow-md transition-all hover:-translate-y-0.5 hover:shadow-xl active:translate-y-0"
+									>
+										<i class="mdi mdi-account-plus mr-2"></i>
 										Register
 									</button>
 								</div>
 
-								<div class="mt-4 text-center">
-									<h5 class="font-size-14 mb-3">Sign up using</h5>
-
-									<ul class="list-inline">
-										<li class="list-inline-item">
-											<button type="button" class="social-list-item bg-primary text-white border-primary" aria-label="Sign up with Facebook">
-												<i class="mdi mdi-facebook"></i>
-											</button>
-										</li>
-										<li class="list-inline-item">
-											<button type="button" class="social-list-item bg-info text-white border-info" aria-label="Sign up with Twitter">
-												<i class="mdi mdi-twitter"></i>
-											</button>
-										</li>
-										<li class="list-inline-item">
-											<button type="button" class="social-list-item bg-danger text-white border-danger" aria-label="Sign up with Google">
-												<i class="mdi mdi-google"></i>
-											</button>
-										</li>
-									</ul>
+								<!-- Divider -->
+								<div class="relative my-8 text-center">
+									<div class="absolute inset-x-0 top-1/2 h-px bg-gray-300 dark:bg-gray-600"></div>
+									<span class="relative z-10 bg-white px-4 text-sm text-gray-500 dark:bg-gray-800 dark:text-gray-400">or sign up with</span>
 								</div>
 
-								<div class="mt-4 text-center">
-									<p class="mb-0">
-										By registering you agree to the <button type="button" class="btn btn-link text-primary p-0 align-baseline">Terms of Use</button>
-									</p>
+								<!-- Social -->
+								<div class="mb-6 flex justify-center gap-4">
+									<button
+										type="button"
+										class="flex h-[50px] w-[50px] items-center justify-center rounded-xl bg-[#3b5998] text-white transition-all hover:-translate-y-0.5 hover:bg-[#2d4373] hover:shadow-lg"
+										aria-label="Sign up with Facebook"
+									>
+										<i class="mdi mdi-facebook text-2xl"></i>
+									</button>
+									<button
+										type="button"
+										class="flex h-[50px] w-[50px] items-center justify-center rounded-xl bg-[#1da1f2] text-white transition-all hover:-translate-y-0.5 hover:bg-[#0d8bd9] hover:shadow-lg"
+										aria-label="Sign up with Twitter"
+									>
+										<i class="mdi mdi-twitter text-2xl"></i>
+									</button>
+									<button
+										type="button"
+										class="flex h-[50px] w-[50px] items-center justify-center rounded-xl bg-[#db4437] text-white transition-all hover:-translate-y-0.5 hover:bg-[#c23321] hover:shadow-lg"
+										aria-label="Sign up with Google"
+									>
+										<i class="mdi mdi-google text-2xl"></i>
+									</button>
 								</div>
+
+								<!-- Terms -->
+								<p class="text-center text-sm text-gray-600 dark:text-gray-400">
+									By registering you agree to the
+									<button type="button" class="border-0 bg-transparent p-0 align-baseline font-medium text-primary transition-colors hover:text-primary-hover hover:underline">
+										Terms of Use
+									</button>
+								</p>
 							</form>
 						</div>
 					</div>
-				</div>
-				<div class="mt-5 text-center">
-					<p>
-						Already have an account ?
-						<a href="login" class="fw-medium text-primary">Login</a>
-					</p>
-					<p>
-						© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
-						<i class="mdi mdi-heart text-danger"></i> by Open Source community
-					</p>
+
+					<!-- Footer -->
+					<div class="mt-8 text-center">
+						<p class="mb-4 text-sm text-gray-600 dark:text-gray-300">
+							Already have an account?
+							<a href="login" class="ml-1 font-semibold text-primary transition-colors hover:text-primary-hover hover:underline">
+								Sign in
+							</a>
+						</p>
+						<p class="text-xs text-gray-500 dark:text-gray-400">
+							© {new Date().getFullYear()} {PUBLIC_COMPANY_NAME}. Crafted with
+							<i class="mdi mdi-heart text-danger"></i> by Open Source community
+						</p>
+					</div>
+
 				</div>
 			</div>
 		</div>
 	</div>
 </div>
+
+

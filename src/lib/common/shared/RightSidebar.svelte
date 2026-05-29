@@ -147,207 +147,91 @@
 	});
 </script>
 
-<div class="right-bar">
-	<div class="h-100" id="right-bar">
-		<div class="rightbar-title d-flex align-items-center px-3 py-4">
-			<h5 class="m-0 me-2">Settings</h5>
-
+<div
+	class="right-bar fixed bottom-0 top-0 right-[calc(-1*(var(--rightbar-width)+10px))] z-[9999] w-full max-w-[var(--rightbar-width)] overflow-y-auto bg-white shadow-2xl transition-[right] duration-200 dark:bg-gray-800"
+>
+	<div class="h-full" id="right-bar">
+		<div class="flex items-center px-3 py-4">
+			<h5 class="m-0 me-2 text-base font-semibold text-dark dark:text-gray-100">Settings</h5>
 			<!-- svelte-ignore a11y_invalid_attribute -->
-			<a href="javascript:void(0);" class="right-bar-toggle ms-auto" aria-label="Close settings" onclick={closebar}>
-				<i class="mdi mdi-close noti-icon"></i>
+			<a
+				href="javascript:void(0);"
+				class="ms-auto inline-flex h-6 w-6 items-center justify-center rounded-full bg-dark text-center text-gray-200 transition-colors hover:bg-black"
+				aria-label="Close settings"
+				onclick={closebar}
+			>
+				<i class="mdi mdi-close text-base"></i>
 			</a>
 		</div>
+
+		{#snippet radioOption(name, id, label, checked, onChange)}
+			<div class="mb-3 flex items-center gap-2 last:mb-0">
+				<input
+					class="theme-choice h-4 w-4 cursor-pointer accent-primary"
+					type="radio"
+					{name}
+					{id}
+					{checked}
+					onchange={onChange}
+				/>
+				<label class="cursor-pointer text-sm text-dark dark:text-gray-200" for={id}>{label}</label>
+			</div>
+		{/snippet}
+
 		<!-- Sidebar Color -->
 		<div class="p-4" id="sidebaroption">
-			<h6 class="mb-3">Sidebar Color</h6>
-			<hr class="mt-0" />
-
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-color"
-					id="sidebar-color-light"
-					checked={sidebarColor == 'light'}
-					onchange={() => changeBodyAttribute('data-sidebar', 'light')}
-				/>
-				<label class="form-check-label" for="sidebar-color-light">Light</label>
-			</div>
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-color"
-					id="sidebar-color-dark"
-					checked={sidebarColor == 'dark'}
-					onchange={() => changeBodyAttribute('data-sidebar', 'dark')}
-				/>
-				<label class="form-check-label" for="sidebar-color-dark">Dark</label>
-			</div>
-			<div class="form-check form-switch">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-color"
-					id="sidebar-color-colored"
-					checked={sidebarColor == 'colored'}
-					onchange={() => changeBodyAttribute('data-sidebar', 'colored')}
-				/>
-				<label class="form-check-label" for="sidebar-color-colored">Colored</label>
-			</div>
+			<h6 class="mb-3 text-sm font-semibold text-dark dark:text-gray-100">Sidebar Color</h6>
+			<hr class="mb-3 mt-0 border-gray-200 dark:border-gray-700" />
+			{@render radioOption('sidebar-color', 'sidebar-color-light', 'Light', sidebarColor == 'light', () => changeBodyAttribute('data-sidebar', 'light'))}
+			{@render radioOption('sidebar-color', 'sidebar-color-dark', 'Dark', sidebarColor == 'dark', () => changeBodyAttribute('data-sidebar', 'dark'))}
+			{@render radioOption('sidebar-color', 'sidebar-color-colored', 'Colored', sidebarColor == 'colored', () => changeBodyAttribute('data-sidebar', 'colored'))}
 		</div>
-		
+
 		<!-- Sidebar Size -->
 		<div class="p-4" id="sidebarsizeoption">
-			<h6 class="mb-3">Sidebar Size</h6>
-			<hr class="mt-0" />
-
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-size"
-					id="sidebar-size-light"
-					checked={sidebarSize == 'fluid'}
-					onchange={() => changeBodyAttribute('data-sidebar-size', 'fluid')}
-				/>
-				<label class="form-check-label" for="sidebar-size-fluid">Fluid</label>
-			</div>
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-size"
-					id="sidebar-size-small"
-					checked={sidebarSize == 'small'}
-					onchange={() => changeBodyAttribute('data-sidebar-size', 'small')}
-				/>
-				<label class="form-check-label" for="sidebar-size-small">Compact</label>
-			</div>
-			<div class="form-check form-switch">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="sidebar-size"
-					id="sidebar-size-icon"
-					checked={sidebarSize == 'icon'}
-					onchange={() => changeBodyAttribute('data-sidebar-size', 'icon')}
-				/>
-				<label class="form-check-label" for="sidebar-size-icon">Icon</label>
-			</div>
+			<h6 class="mb-3 text-sm font-semibold text-dark dark:text-gray-100">Sidebar Size</h6>
+			<hr class="mb-3 mt-0 border-gray-200 dark:border-gray-700" />
+			{@render radioOption('sidebar-size', 'sidebar-size-fluid', 'Fluid', sidebarSize == 'fluid', () => changeBodyAttribute('data-sidebar-size', 'fluid'))}
+			{@render radioOption('sidebar-size', 'sidebar-size-small', 'Compact', sidebarSize == 'small', () => changeBodyAttribute('data-sidebar-size', 'small'))}
+			{@render radioOption('sidebar-size', 'sidebar-size-icon', 'Icon', sidebarSize == 'icon', () => changeBodyAttribute('data-sidebar-size', 'icon'))}
 		</div>
 
 		<!-- Topbar Theme -->
 		<div class="p-4">
-			<h6 class=" mb-3">Topbar Theme</h6>
-			<hr class="mt-0" />
-
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="topbar-color"
-					id="topbar-color-light"
-					checked={topbarColor == 'light'}
-					onchange={() => changeBodyAttribute('data-topbar', 'light')}
-				/>
-				<label class="form-check-label" for="topbar-color-light">Light</label>
-			</div>
-			<div class="form-check form-switch">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="topbar-color"
-					id="topbar-color-dark"
-					checked={topbarColor == 'dark'}
-					onchange={() => changeBodyAttribute('data-topbar', 'dark')}
-				/>
-				<label class="form-check-label" for="topbar-color-dark">Dark</label>
-			</div>
+			<h6 class="mb-3 text-sm font-semibold text-dark dark:text-gray-100">Topbar Theme</h6>
+			<hr class="mb-3 mt-0 border-gray-200 dark:border-gray-700" />
+			{@render radioOption('topbar-color', 'topbar-color-light', 'Light', topbarColor == 'light', () => changeBodyAttribute('data-topbar', 'light'))}
+			{@render radioOption('topbar-color', 'topbar-color-dark', 'Dark', topbarColor == 'dark', () => changeBodyAttribute('data-topbar', 'dark'))}
 		</div>
 
 		<!-- Layout Width -->
 		<div class="p-4">
-			<h6 class=" mb-3">Layout Width</h6>
-			<hr class="mt-0" />
-
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="layout-width"
-					id="layout-width-fluid"
-					checked={layoutWidth == 'fluid'}
-					onchange={() => changeLayoutwidth('data-layout-size', 'fluid')}
-				/>
-				<label class="form-check-label" for="layout-width-fluid">Fluid</label>
-			</div>
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="layout-width"
-					id="layout-width-boxed"
-					checked={layoutWidth == 'boxed'}
-					onchange={() => changeLayoutwidth('data-layout-size', 'boxed')}
-				/>
-				<label class="form-check-label" for="layout-width-boxed">Boxed</label>
-			</div>
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="layout-width"
-					id="layout-width-boxed"
-					checked={layoutWidth == 'scrollable'}
-					onchange={() => changeLayoutwidth('data-layout-scrollable', 'true')}
-				/>
-				<label class="form-check-label" for="layout-width-scrollable">Scrollable</label>
-			</div>
+			<h6 class="mb-3 text-sm font-semibold text-dark dark:text-gray-100">Layout Width</h6>
+			<hr class="mb-3 mt-0 border-gray-200 dark:border-gray-700" />
+			{@render radioOption('layout-width', 'layout-width-fluid', 'Fluid', layoutWidth == 'fluid', () => changeLayoutwidth('data-layout-size', 'fluid'))}
+			{@render radioOption('layout-width', 'layout-width-boxed', 'Boxed', layoutWidth == 'boxed', () => changeLayoutwidth('data-layout-size', 'boxed'))}
+			{@render radioOption('layout-width', 'layout-width-scrollable', 'Scrollable', layoutWidth == 'scrollable', () => changeLayoutwidth('data-layout-scrollable', 'true'))}
 		</div>
 
-		<!-- Settings -->
-		<hr class="mt-0" />
-		<h6 class="text-center mb-0">Choose Layouts</h6>
+		<!-- Layout Mode -->
+		<hr class="mx-4 mt-0 border-gray-200 dark:border-gray-700" />
+		<h6 class="mb-0 text-center text-sm font-semibold text-dark dark:text-gray-100">Choose Layouts</h6>
 
 		<div class="p-4">
 			<div class="mb-2">
-				<img src='images/layouts/layout-1.jpg' class="img-thumbnail" alt="layout images" />
+				<img src="images/layouts/layout-1.jpg" class="block w-full rounded border border-gray-200 p-1 dark:border-gray-700" alt="layout images" />
 			</div>
+			{@render radioOption('layout-mode', 'layout-mode-light', 'Light', layoutMode == 'light', () => changeLayoutMode('data-bs-theme', 'light'))}
 
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="layout-mode"
-					id="layout-mode-light"
-					checked={layoutMode == 'light'}
-					onchange={() => changeLayoutMode('data-bs-theme', 'light')}
-				/>
-				<label class="form-check-label" for="layout-mode-light">Light</label>
+			<div class="mb-2 mt-3">
+				<img src="images/layouts/layout-2.jpg" class="block w-full rounded border border-gray-200 p-1 dark:border-gray-700" alt="layout images" />
 			</div>
-
-			<div class="mb-2">
-				<img src='images/layouts/layout-2.jpg' class="img-thumbnail" alt="layout images" />
-			</div>
-			<div class="form-check form-switch mb-3">
-				<input
-					class="form-check-input theme-choice"
-					type="radio"
-					name="layout-mode"
-					id="layout-mode-dark"
-					checked={layoutMode == 'dark'}
-					onchange={() => changeLayoutMode('data-bs-theme', 'dark')}
-				/>
-				<label class="form-check-label" for="layout-mode-dark">Dark</label>
-			</div>
+			{@render radioOption('layout-mode', 'layout-mode-dark', 'Dark', layoutMode == 'dark', () => changeLayoutMode('data-bs-theme', 'dark'))}
 		</div>
 	</div>
-	<!-- end slimscroll-menu-->
 </div>
-<!-- /Right-bar -->
 
-<!-- Right bar overlay-->
+<!-- Right bar overlay -->
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="rightbar-overlay" onclick={closebar}></div>
+<div class="rightbar-overlay fixed inset-0 z-[9998] hidden bg-black/55" onclick={closebar}></div>

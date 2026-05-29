@@ -13,7 +13,8 @@
 	import {
 		getPagingQueryParams,
 		setUrlQueryParams,
-		goToUrl
+		goToUrl,
+		formatNumber
 	} from '$lib/helpers/utils/common';
 
 	const firstPage = 1;
@@ -146,5 +147,24 @@
 <HeadTitle title={$_('Plugin')} />
 <Breadcrumb title={$_('Plugin')} pagetitle={$_('List')} />
 
-<Plugins plugins={plugins.items} />
-<PlainPagination pagination={pager} pageTo={pageTo} />
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
+				<div class="flex items-center gap-3">
+					<span class="flex h-10 w-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+						<i class="mdi mdi-puzzle-outline text-xl"></i>
+					</span>
+					<div class="grow">
+						<h5 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Plugin')} {$_('List')}</h5>
+						<p class="mb-0 text-xs text-muted">{formatNumber(pager.count)} {pager.count === 1 ? 'plugin' : 'plugins'} total</p>
+					</div>
+				</div>
+			</div>
+			<div class="p-4 sm:p-6">
+				<Plugins plugins={plugins.items} />
+				<PlainPagination pagination={pager} pageTo={pageTo} />
+			</div>
+		</div>
+	</div>
+</div>

@@ -53,7 +53,7 @@
 </script>
 
 <div
-    class={`${containerClasses}`}
+    class={`cfu-root ${containerClasses}`}
     style={`${containerStyles}`}
 >
     <FileDropZone
@@ -68,14 +68,13 @@
         {#if children}
             {@render children()}
         {:else}
-            <span>
+            <span class="cfu-fallback">
                 <i
-                    class="bx bx-image-add"
-                    data-bs-toggle="tooltip"
-                    data-bs-placement="top"
+                    class="bx bx-image-add cursor-pointer"
                     title="Upload files"
                 ></i>
             </span>
         {/if}
     </FileDropZone>
 </div>
+

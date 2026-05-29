@@ -2,7 +2,7 @@
     import { onMount, tick } from "svelte";
     import { fade } from 'svelte/transition'; // used in template transition directives
     import util from "lodash";
-	import { getVectorCollectionDetails } from "$lib/services/knowledge-base-service";
+	import { getKnowledgeCollectionDetails } from "$lib/services/knowledge-base-service";
 	import { VectorIndexSchemaType } from "$lib/helpers/enums";
     import Select from "$lib/common/dropdowns/Select.svelte";
 
@@ -24,7 +24,9 @@
         /** @type {(e: any) => void} */
         confirm = () => {},
         /** @type {() => void} */
-        cancel = () => {}
+        cancel = () => {},
+        /** @type {string} */
+        knowledgeType
     } = $props();
 
     const maxLength = 500;
@@ -59,7 +61,7 @@
 
     function getCollectionDetail() {
 		return new Promise((resolve) => {
-			getVectorCollectionDetails(collection).then(res => {
+			getKnowledgeCollectionDetails(collection, knowledgeType).then(res => {
 				indexesToAdd = res?.payload_schema?.map(x => ({
                     field_name: x.field_name,
                     field_schema_type: x.field_data_type
@@ -215,181 +217,175 @@
 
 {#if open}
 <div
-    class="modal show d-block"
+    class="vim-modal"
     tabindex="-1"
     role="dialog"
     transition:fade={{ duration: 150 }}
     onclick={(e) => { if (e.target === e.currentTarget) toggleModal?.(); }}
     onkeydown={(e) => { if (e.key === 'Escape') toggleModal?.(); }}
 >
-    <div class={`modal-dialog modal-${size} ${className}`} role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <div>{title}</div>
-                    <div>
-                        <span class="fw-bold">Collection: </span>
-                        <span class="text-primary collection-value">{collection}</span>
+    <div class={`vim-dialog vim-dialog-${size} ${className}`} role="document">
+        <div class="vim-content">
+            <div class="vim-header">
+                <div class="vim-header-text">
+                    <div class="vim-title">{title}</div>
+                    <div class="vim-collection">
+                        <span class="vim-collection-label">Collection: </span>
+                        <span class="vim-collection-value">{collection}</span>
                     </div>
                 </div>
-                <button type="button" class="btn-close" aria-label="Close" onclick={() => toggleModal?.()}></button>
+                <button type="button" class="vim-close" aria-label="Close" onclick={() => toggleModal?.()}>
+                    <i class="bx bx-x"></i>
+                </button>
             </div>
-            <div class="modal-body thin-scrollbar" style="max-height: 70vh; overflow-y: auto;">
+            <div class="vim-body">
                 <form onsubmit={(e) => handleConfirm(e)}>
-                    <div class="mt-2">
-                        <div class="index-layout-container">
-                            <!-- Existing Index Items Block -->
-                            <div class="index-block">
-                                <div class="card index-block-card">
-                                    <div class="card-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h6 class="mb-0">Index Items to Add</h6>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm btn-primary"
-                                                disabled={indexesToAdd.length >= limit}
-                                                onclick={(e) => addNewIndex(e)}
-                                            >
-                                                <i class="mdi mdi-plus"></i> Add
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body card-body-scrollable">
-                                        <div
-                                            class="thin-scrollbar"
-                                            style="height: 100%; overflow-y: auto;"
-                                            bind:this={addIndexScrollContainer}
-                                        >
-                                            {#if indexesToAdd.length === 0}
-                                                <div class="text-muted text-center py-3">
-                                                    No index items. Click "Add" to create one.
-                                                </div>
-                                            {:else}
-                                                {#each indexesToAdd as item, idx (idx)}
-                                                    <div class="mb-3 p-3 border rounded">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <small class="text-muted">Index Item {idx + 1}</small>
-                                                            <div class="d-flex gap-1">
-                                                                <button type="button" class="btn btn-sm btn-info" onclick={(e) => moveItemToDelete(e, idx)} title="Move to delete list">
-                                                                    <i class="mdi mdi-arrow-right arrow-horizontal"></i>
-                                                                    <i class="mdi mdi-arrow-down arrow-vertical"></i>
-                                                                </button>
-                                                                <button type="button" class="btn btn-sm btn-danger" onclick={(e) => removeIndex(e, idx)} title="Remove item">
-                                                                    <i class="mdi mdi-trash-can"></i>
-                                                                </button>
+                    <div class="vim-layout">
+                        <!-- Existing Index Items Block -->
+                        <div class="vim-block vim-block-add">
+                            <div class="vim-card">
+                                <div class="vim-card-header">
+                                    <h6 class="vim-card-title">Index Items to Add</h6>
+                                    <button
+                                        type="button"
+                                        class="vim-btn vim-btn-primary vim-btn-sm"
+                                        disabled={indexesToAdd.length >= limit}
+                                        onclick={(e) => addNewIndex(e)}
+                                    >
+                                        <i class="mdi mdi-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div class="vim-card-body">
+                                    <div
+                                        class="vim-scroll-area"
+                                        bind:this={addIndexScrollContainer}
+                                    >
+                                        {#if indexesToAdd.length === 0}
+                                            <div class="vim-empty">
+                                                No index items. Click "Add" to create one.
+                                            </div>
+                                        {:else}
+                                            {#each indexesToAdd as item, idx (idx)}
+                                                <div class="vim-index-item">
+                                                    <div class="vim-index-item-head">
+                                                        <small class="vim-index-item-label">Index Item {idx + 1}</small>
+                                                        <div class="vim-index-item-actions">
+                                                            <button type="button" class="vim-btn vim-btn-info vim-btn-sm" onclick={(e) => moveItemToDelete(e, idx)} title="Move to delete list">
+                                                                <i class="mdi mdi-arrow-right vim-arrow-h"></i>
+                                                                <i class="mdi mdi-arrow-down vim-arrow-v"></i>
+                                                            </button>
+                                                            <button type="button" class="vim-btn vim-btn-danger vim-btn-sm" onclick={(e) => removeIndex(e, idx)} title="Remove item">
+                                                                <i class="mdi mdi-trash-can"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                    <div class="vim-field-row">
+                                                        <div class="vim-field-item">
+                                                            <div class="vim-field">
+                                                                <label class="vim-label" for={`field-name-${idx}`}>Field Name</label>
+                                                                <input
+                                                                    id={`field-name-${idx}`}
+                                                                    type="text"
+                                                                    class="vim-input"
+                                                                    value={item.field_name}
+                                                                    placeholder="Enter field name"
+                                                                    maxlength={maxLength}
+                                                                    oninput={(e) => updateIndexFieldName(idx, /** @type {HTMLInputElement} */(e.target).value)}
+                                                                />
                                                             </div>
                                                         </div>
-                                                        <div class="field-row">
-                                                            <div class="field-item">
-                                                                <div class="mb-2">
-                                                                    <label class="form-label" for={`field-name-${idx}`}>Field Name</label>
-                                                                    <input
-                                                                        id={`field-name-${idx}`}
-                                                                        type="text"
-                                                                        class="form-control"
-                                                                        value={item.field_name}
-                                                                        placeholder="Enter field name"
-                                                                        maxlength={maxLength}
-                                                                        oninput={(e) => updateIndexFieldName(idx, /** @type {HTMLInputElement} */(e.target).value)}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <div class="field-item">
-                                                                <div class="mb-2">
-                                                                    <label class="form-label" for={`index-type-${idx}`}>Field Type</label>
-                                                                    <Select
-                                                                        tag={`index-type-${idx}`}
-                                                                        placeholder="Select field type"
-                                                                        selectedValues={item.field_schema_type ? [item.field_schema_type] : []}
-                                                                        options={indexTypeOptions}
-                                                                        onselect={(e) => updateIndexFieldType(e, idx)}
-                                                                    />
-                                                                </div>
+                                                        <div class="vim-field-item">
+                                                            <div class="vim-field">
+                                                                <label class="vim-label" for={`index-type-${idx}`}>Field Type</label>
+                                                                <Select
+                                                                    tag={`index-type-${idx}`}
+                                                                    placeholder="Select field type"
+                                                                    selectedValues={item.field_schema_type ? [item.field_schema_type] : []}
+                                                                    options={indexTypeOptions}
+                                                                    onselect={(e) => updateIndexFieldType(e, idx)}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
-                                                {/each}
-                                            {/if}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Arrow buttons container -->
-                            <div class="arrow-container">
-                                <div class="arrow-buttons">
-                                    <button type="button" class="btn btn-sm btn-info" disabled={indexesToAdd.length === 0} onclick={(e) => moveAllToDelete(e)} title="Move all items to delete list">
-                                        <i class="mdi mdi-arrow-right arrow-horizontal"></i>
-                                        <i class="mdi mdi-arrow-down arrow-vertical"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-sm btn-info" disabled={indexesToDelete.length === 0} onclick={(e) => moveAllToAdd(e)} title="Move all items to existing list">
-                                        <i class="mdi mdi-arrow-left arrow-horizontal"></i>
-                                        <i class="mdi mdi-arrow-up arrow-vertical"></i>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Delete Index Items Block -->
-                            <div class="index-block">
-                                <div class="card index-block-card">
-                                    <div class="card-header">
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <h6 class="mb-0">Index Items to Delete</h6>
-                                            <button
-                                                type="button"
-                                                class="btn btn-sm btn-warning"
-                                                disabled={indexesToDelete.length >= limit}
-                                                onclick={(e) => addToDeleteIndex(e)}
-                                            >
-                                                <i class="mdi mdi-plus"></i> Add
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <div class="card-body card-body-scrollable">
-                                        <div
-                                            class="thin-scrollbar"
-                                            style="height: 100%; overflow-y: auto;"
-                                            bind:this={deleteIndexScrollContainer}
-                                        >
-                                            {#if indexesToDelete.length === 0}
-                                                <div class="text-muted text-center py-3">
-                                                    No items to delete. Click "Add" to specify items for deletion.
                                                 </div>
-                                            {:else}
-                                                {#each indexesToDelete as item, idx (idx)}
-                                                    <div class="mb-3 p-3 border rounded border-warning">
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <small class="text-warning">Delete Item {idx + 1}</small>
-                                                            <div class="d-flex gap-1">
-                                                                <button type="button" class="btn btn-sm btn-info" onclick={(e) => moveItemToAdd(e, idx)} title="Move to existing list">
-                                                                    <i class="mdi mdi-arrow-left arrow-horizontal"></i>
-                                                                    <i class="mdi mdi-arrow-up arrow-vertical"></i>
-                                                                </button>
-                                                                <button type="button" class="btn btn-sm btn-danger" title="Remove item" onclick={(e) => removeFromDeleteList(e, idx)}>
-                                                                    <i class="mdi mdi-trash-can"></i>
-                                                                </button>
-                                                            </div>
+                                            {/each}
+                                        {/if}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Arrow buttons container -->
+                        <div class="vim-arrow-container">
+                            <div class="vim-arrow-buttons">
+                                <button type="button" class="vim-btn vim-btn-info vim-btn-sm" disabled={indexesToAdd.length === 0} onclick={(e) => moveAllToDelete(e)} title="Move all items to delete list">
+                                    <i class="mdi mdi-arrow-right vim-arrow-h"></i>
+                                    <i class="mdi mdi-arrow-down vim-arrow-v"></i>
+                                </button>
+                                <button type="button" class="vim-btn vim-btn-info vim-btn-sm" disabled={indexesToDelete.length === 0} onclick={(e) => moveAllToAdd(e)} title="Move all items to existing list">
+                                    <i class="mdi mdi-arrow-left vim-arrow-h"></i>
+                                    <i class="mdi mdi-arrow-up vim-arrow-v"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Delete Index Items Block -->
+                        <div class="vim-block vim-block-delete">
+                            <div class="vim-card">
+                                <div class="vim-card-header">
+                                    <h6 class="vim-card-title">Index Items to Delete</h6>
+                                    <button
+                                        type="button"
+                                        class="vim-btn vim-btn-warning vim-btn-sm"
+                                        disabled={indexesToDelete.length >= limit}
+                                        onclick={(e) => addToDeleteIndex(e)}
+                                    >
+                                        <i class="mdi mdi-plus"></i> Add
+                                    </button>
+                                </div>
+                                <div class="vim-card-body">
+                                    <div
+                                        class="vim-scroll-area"
+                                        bind:this={deleteIndexScrollContainer}
+                                    >
+                                        {#if indexesToDelete.length === 0}
+                                            <div class="vim-empty">
+                                                No items to delete. Click "Add" to specify items for deletion.
+                                            </div>
+                                        {:else}
+                                            {#each indexesToDelete as item, idx (idx)}
+                                                <div class="vim-index-item vim-index-item-warning">
+                                                    <div class="vim-index-item-head">
+                                                        <small class="vim-index-item-label vim-text-warning">Delete Item {idx + 1}</small>
+                                                        <div class="vim-index-item-actions">
+                                                            <button type="button" class="vim-btn vim-btn-info vim-btn-sm" onclick={(e) => moveItemToAdd(e, idx)} title="Move to existing list">
+                                                                <i class="mdi mdi-arrow-left vim-arrow-h"></i>
+                                                                <i class="mdi mdi-arrow-up vim-arrow-v"></i>
+                                                            </button>
+                                                            <button type="button" class="vim-btn vim-btn-danger vim-btn-sm" title="Remove item" onclick={(e) => removeFromDeleteList(e, idx)}>
+                                                                <i class="mdi mdi-trash-can"></i>
+                                                            </button>
                                                         </div>
-                                                        <div class="field-row">
-                                                            <div class="field-item">
-                                                                <div class="mb-2">
-                                                                    <label class="form-label" for={`delete-field-name-${idx}`}>Field Name</label>
-                                                                    <input
-                                                                        id={`delete-field-name-${idx}`}
-                                                                        type="text"
-                                                                        class="form-control"
-                                                                        value={item.field_name}
-                                                                        placeholder="Enter field name to delete"
-                                                                        maxlength={maxLength}
-                                                                        oninput={(e) => updateDeleteIndexFieldName(idx, /** @type {HTMLInputElement} */(e.target).value)}
-                                                                    />
-                                                                </div>
+                                                    </div>
+                                                    <div class="vim-field-row">
+                                                        <div class="vim-field-item">
+                                                            <div class="vim-field">
+                                                                <label class="vim-label" for={`delete-field-name-${idx}`}>Field Name</label>
+                                                                <input
+                                                                    id={`delete-field-name-${idx}`}
+                                                                    type="text"
+                                                                    class="vim-input"
+                                                                    value={item.field_name}
+                                                                    placeholder="Enter field name to delete"
+                                                                    maxlength={maxLength}
+                                                                    oninput={(e) => updateDeleteIndexFieldName(idx, /** @type {HTMLInputElement} */(e.target).value)}
+                                                                />
                                                             </div>
                                                         </div>
                                                     </div>
-                                                {/each}
-                                            {/if}
-                                        </div>
+                                                </div>
+                                            {/each}
+                                        {/if}
                                     </div>
                                 </div>
                             </div>
@@ -397,16 +393,17 @@
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick={(e) => handleConfirm(e)}>
+            <div class="vim-footer">
+                <button type="button" class="vim-btn vim-btn-primary" onclick={(e) => handleConfirm(e)}>
                     Confirm
                 </button>
-                <button type="button" class="btn btn-secondary" onclick={(e) => handleCancel(e)}>
+                <button type="button" class="vim-btn vim-btn-secondary" onclick={(e) => handleCancel(e)}>
                     Cancel
                 </button>
             </div>
         </div>
     </div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
+<div class="vim-backdrop" transition:fade={{ duration: 150 }}></div>
 {/if}
+

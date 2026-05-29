@@ -2,7 +2,7 @@
     import { onMount, tick } from "svelte";
     import { fade } from 'svelte/transition';
     import {
-        KnowledgeCollectionType,
+        KnowledgeBaseType,
         KnowledgePayloadName,
         VectorPayloadDataType
     } from "$lib/helpers/enums";
@@ -11,12 +11,12 @@
 	import Select from "$lib/common/dropdowns/Select.svelte";
 
     let {
-        /** @type {import('$knowledgeTypes').KnowledgeSearchViewModel | null} */
+        /** @type {import('$knowledgeTypes').KnowledgeQueryViewModel | null} */
         item = null,
         /** @type {string} */
         collection = '',
         /** @type {string} */
-        collectionType = '',
+        knowledgeType = '',
         /** @type {boolean} */
         open = false,
         /** @type {string} */
@@ -47,8 +47,8 @@
         value: v.name
     }));
 
-    let isQuestionAnswerCollection = $derived(collectionType === KnowledgeCollectionType.QuestionAnswer);
-    let isDocumentCollection = $derived(collectionType === KnowledgeCollectionType.Document);
+    let isQuestionAnswerCollection = $derived(knowledgeType === KnowledgeBaseType.QuestionAnswer);
+    let isDocumentCollection = $derived(knowledgeType === KnowledgeBaseType.Document);
 
     /** @type {{ uuid: string, key: string, value: any }[]} */
     let innerPayloads = $state([]);
@@ -157,7 +157,7 @@
             value: {
                 data_value: util.trim(x.value.data_value),
                 data_type: x.value.data_type || `${VectorPayloadDataType.String.id}`
-            } 
+            }
         })).filter(x => !!x.key && !!x.value.data_value && !excludedPayloads.includes(x.key));
 
         const obj = validPayloads.reduce((acc, cur) => {
@@ -188,76 +188,78 @@
 
 {#if open}
 <div
-    class="modal show d-block"
+    class="vie-modal"
     tabindex="-1"
     role="dialog"
     transition:fade={{ duration: 150 }}
     onclick={(e) => { if (e.target === e.currentTarget) toggleModal?.(); }}
     onkeydown={(e) => { if (e.key === 'Escape') toggleModal?.(); }}
 >
-    <div class={`modal-dialog modal-${size} ${className}`} role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div>
-                    <div>{title}</div>
-                    <div>
-                        <span class="fw-bold">Collection: </span>
-                        <span class="text-primary collection-value">{collection}</span>
+    <div class={`vie-dialog vie-dialog-${size} ${className}`} role="document">
+        <div class="vie-content">
+            <div class="vie-header">
+                <div class="vie-header-text">
+                    <div class="vie-title">{title}</div>
+                    <div class="vie-collection">
+                        <span class="vie-collection-label">Collection: </span>
+                        <span class="vie-collection-value">{collection}</span>
                     </div>
                 </div>
-                <button type="button" class="btn-close" aria-label="Close" onclick={() => toggleModal?.()}></button>
+                <button type="button" class="vie-close" aria-label="Close" onclick={() => toggleModal?.()}>
+                    <i class="bx bx-x"></i>
+                </button>
             </div>
-            <div class="modal-body">
+            <div class="vie-body">
                 <form onsubmit={(e) => handleConfirm(e)}>
                     {#if isQuestionAnswerCollection}
-                    <div class="row">
-                        <div class="mb-3 edit-group">
-                            <label class="fw-bold textarea-label" for="question">
+                    <div class="vie-row">
+                        <div class="vie-edit-group">
+                            <label class="vie-textarea-label" for="question">
                                 Question:
                             </label>
                             <textarea
-                                class="form-control knowledge-textarea"
+                                class="vie-textarea"
                                 placeholder="Enter question..."
                                 rows={question.rows}
                                 maxlength={question.maxLength}
                                 bind:value={question.text}
                             ></textarea>
-                            <div class="text-secondary text-end text-count">
+                            <div class="vie-char-count">
                                 {question.text?.length || 0}/{question.maxLength}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3 edit-group">
-                            <label class="fw-bold textarea-label" for="answer">
+                    <div class="vie-row">
+                        <div class="vie-edit-group">
+                            <label class="vie-textarea-label" for="answer">
                                 Answer:
                             </label>
                             <textarea
-                                class="form-control knowledge-textarea"
+                                class="vie-textarea"
                                 placeholder="Enter answer..."
                                 rows={answer.rows}
                                 maxlength={answer.maxLength}
                                 bind:value={answer.text}
                             ></textarea>
-                            <div class="text-secondary text-end text-count">
+                            <div class="vie-char-count">
                                 {answer.text?.length || 0}/{answer.maxLength}
                             </div>
                         </div>
                     </div>
                     {:else if isDocumentCollection}
-                    <div class="row">
-                        <div class="mb-3 edit-group">
-                            <label class="fw-bold textarea-label" for="text">
+                    <div class="vie-row">
+                        <div class="vie-edit-group">
+                            <label class="vie-textarea-label" for="text">
                                 Text:
                             </label>
                             <textarea
-                                class="form-control knowledge-textarea"
+                                class="vie-textarea"
                                 placeholder="Enter text..."
                                 rows={question.rows}
                                 maxlength={question.maxLength}
                                 bind:value={question.text}
                             ></textarea>
-                            <div class="text-secondary text-end text-count">
+                            <div class="vie-char-count">
                                 {question.text?.length || 0}/{question.maxLength}
                             </div>
                         </div>
@@ -265,87 +267,80 @@
                     {/if}
 
                     {#if allowPayload}
-                    <div class="row mt-2">
-                        <div class="mb-3">
-                            <div class="payload-container" bind:this={scrollContainer}>
-                                {#if innerPayloads.length > 0}
-                                <div class="payload-item">
-                                    <div class="payload-item-content fw-bold" style="flex: 0.4;">Name</div>
-                                    <div class="payload-item-content fw-bold" style="flex: 0.4;">Data Value</div>
-                                    <div class="payload-item-content fw-bold" style="flex: 0.2;">Data Type</div>
-                                    <div style="flex: 0 0 12px;"></div>
-                                </div>
-                                {/if}
-                                {#each innerPayloads as payload, idx (payload.uuid)}
-                                <div class="payload-item">
-                                    <div class="payload-item-content line-align-center" style="flex: 0.4;">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            maxlength={1000}
-                                            value={payload.key}
-                                            oninput={e => changePayloadItem(e, idx, 'key')}
-                                        />
-                                    </div>
-                                    <div class="payload-item-content line-align-center" style="flex: 0.4;">
-                                        <input
-                                            type="text"
-                                            class="form-control"
-                                            maxlength={1000}
-                                            value={payload.value.data_value}
-                                            oninput={e => changePayloadItem(e, idx, 'data_value')}
-                                        />
-                                    </div>
-                                    <div class="payload-item-content line-align-center" style="flex: 0.2;">
-                                        <Select
-                                            tag={'payload-data-type-select'}
-                                            placeholder={'Select'}
-                                            selectedValues={payload.value.data_type ? [payload.value.data_type] : []}
-                                            options={dataTypeOptions}
-                                            onselect={e => changePayloadItem(e, idx, 'data_type')}
-                                        />
-                                    </div>
-                                    <div class="line-align-center" style="flex: 0 0 12px;">
-                                        <div class="line-align-center">
-                                            <button
-                                                type="button"
-                                                class="btn btn-link p-0"
-                                                aria-label="Remove payload"
-                                                onclick={() => removePayloadItem(idx)}
-                                            >
-                                                <i class="bx bxs-no-entry text-danger clickable"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                {/each}
-
-                                {#if innerPayloads.length < payloadLimit}
-                                    <div class="payload-item justify-content-end">
-                                        <div class="payload-item-content line-align-center">
-                                            <div class="d-flex justify-content-end">
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-link"
-                                                    style="width: fit-content"
-                                                    onclick={e => addPayloadItem(e)}
-                                                >
-                                                    Add Payload +
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                {/if}
+                    <div class="vie-row vie-payload-row">
+                        <div class="vie-payload-container" bind:this={scrollContainer}>
+                            {#if innerPayloads.length > 0}
+                            <div class="vie-payload-item">
+                                <div class="vie-payload-item-content vie-payload-header" style="flex: 0.4;">Name</div>
+                                <div class="vie-payload-item-content vie-payload-header" style="flex: 0.4;">Data Value</div>
+                                <div class="vie-payload-item-content vie-payload-header" style="flex: 0.2;">Data Type</div>
+                                <div class="vie-payload-remove-spacer"></div>
                             </div>
+                            {/if}
+                            {#each innerPayloads as payload, idx (payload.uuid)}
+                            <div class="vie-payload-item">
+                                <div class="vie-payload-item-content" style="flex: 0.4;">
+                                    <input
+                                        type="text"
+                                        class="vie-input"
+                                        maxlength={1000}
+                                        value={payload.key}
+                                        oninput={e => changePayloadItem(e, idx, 'key')}
+                                    />
+                                </div>
+                                <div class="vie-payload-item-content" style="flex: 0.4;">
+                                    <input
+                                        type="text"
+                                        class="vie-input"
+                                        maxlength={1000}
+                                        value={payload.value.data_value}
+                                        oninput={e => changePayloadItem(e, idx, 'data_value')}
+                                    />
+                                </div>
+                                <div class="vie-payload-item-content" style="flex: 0.2;">
+                                    <Select
+                                        tag={'payload-data-type-select'}
+                                        placeholder={'Select'}
+                                        selectedValues={payload.value.data_type ? [payload.value.data_type] : []}
+                                        options={dataTypeOptions}
+                                        onselect={e => changePayloadItem(e, idx, 'data_type')}
+                                    />
+                                </div>
+                                <div class="vie-payload-remove">
+                                    <button
+                                        type="button"
+                                        class="vie-remove-btn"
+                                        aria-label="Remove payload"
+                                        onclick={() => removePayloadItem(idx)}
+                                    >
+                                        <i class="bx bxs-no-entry"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            {/each}
+
+                            {#if innerPayloads.length < payloadLimit}
+                                <div class="vie-payload-item vie-payload-add-row">
+                                    <div class="vie-payload-item-content vie-payload-add-wrap">
+                                        <button
+                                            type="button"
+                                            class="vie-link-btn"
+                                            onclick={e => addPayloadItem(e)}
+                                        >
+                                            Add Payload +
+                                        </button>
+                                    </div>
+                                </div>
+                            {/if}
                         </div>
                     </div>
                     {/if}
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="vie-footer">
                 <button
                     type="button"
-                    class="btn btn-primary"
+                    class="vie-btn vie-btn-primary"
                     disabled={disableConfirmBtn}
                     onclick={(e) => handleConfirm(e)}
                 >
@@ -353,7 +348,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-secondary"
+                    class="vie-btn vie-btn-secondary"
                     onclick={(e) => handleCancel(e)}
                 >
                     Cancel
@@ -362,5 +357,6 @@
         </div>
     </div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
+<div class="vie-backdrop" transition:fade={{ duration: 150 }}></div>
 {/if}
+

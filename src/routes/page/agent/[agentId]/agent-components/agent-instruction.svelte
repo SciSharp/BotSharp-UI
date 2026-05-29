@@ -131,24 +131,17 @@
     }
 </script>
 
-<div class="card agent-prompt-container">
-    <div class="card-header agent-prompt-header border-bottom">
-        <div class="d-flex">
-            <div class="flex-grow-1">
-                <h5 class="fw-semibold">{agent.name}</h5>
-            </div>
-        </div>
+<div class="ai-card">
+    <div class="ai-card-header">
+        <h5 class="ai-agent-name">{agent.name}</h5>
     </div>
-    <div class="card-body">
-        <div class="mb-3">
-            <div class="mb-2">
-                <div class="line-align-center fw-bold">
-                    {'Description:'}
-                </div>
+    <div class="ai-card-body">
+        <div class="ai-section">
+            <div class="ai-section-label">
+                {'Description:'}
             </div>
             <textarea
-                class="form-control"
-                style="scrollbar-width: thin; resize: none;"
+                class="ai-textarea ai-textarea-sm"
                 rows={4}
                 bind:value={agent.description}
                 placeholder="Enter your Message"
@@ -156,9 +149,9 @@
             ></textarea>
         </div>
 
-        <div class="mb-3 agent-prompt-body">
-            <div class="mb-2" style="display: flex; gap: 10px;">
-                <div class="line-align-center fw-bold">
+        <div class="ai-section">
+            <div class="ai-section-header">
+                <div class="ai-section-label">
                     {#if inner_instructions.length > 1}
                         {'Instructions:'}
                     {:else}
@@ -168,11 +161,10 @@
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                    class="text-primary clickable"
+                    class="ai-add-btn"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Add channel instruction"
-                    style="font-size: 16px;"
                     onclick={() => addChannel()}
                 >
                     <i class="mdi mdi-plus-circle-outline"></i>
@@ -206,8 +198,7 @@
             </NavBar>
             {/if}
             <textarea
-                class="form-control"
-                style="scrollbar-width: thin; resize: none;"
+                class="ai-textarea"
                 value={selected_instruction.instruction}
                 rows={20}
                 oninput={(e) => changePrompt(e)}
@@ -217,3 +208,4 @@
         </div>
     </div>
 </div>
+

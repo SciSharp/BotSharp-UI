@@ -180,11 +180,14 @@
     {isError}
 />
 
-<div class="card">
-    <div class="card-body border-bottom">
-        <div class="row g-3">
-            <div class="col-lg-3 d-flex flex-column gap-1">
-                <div class="fw-bold">Agent</div>
+<div class="cs-card cs-card-accent">
+    <div class="cs-card-body">
+        <div class="cs-field">
+            <div class="cs-field-label">
+                <i class="bx bx-code-alt cs-field-icon"></i>
+                <span>Agent</span>
+            </div>
+            <div class="cs-field-control">
                 <Select
                     tag={'agent-select'}
                     placeholder={'Select agent'}
@@ -212,25 +215,42 @@
     />
 
     {#if ADMIN_ROLES.includes(user?.role || '')}
-    <div class="row">
-        <div class="hstack gap-2 my-4">
+    <div class="cs-action-bar">
+        <div class="cs-action-bar-hint">
+            <i class="bx bx-info-circle"></i>
+            <span>Changes are not saved until you click Save</span>
+        </div>
+        <div class="cs-actions">
             <button
                 type="button"
-                class="btn btn-soft-primary"
-                disabled={!selectedAgentId}
-                onclick={() => saveCodeScripts()}
-            >
-                {$_('Save')}
-            </button>
-            <button
-                type="button"
-                class="btn btn-warning"
+                class="cs-btn cs-btn-ghost"
                 disabled={!selectedAgentId}
                 onclick={() => resetCodeScripts()}
             >
+                <i class="bx bx-revision"></i>
                 {$_('Reset')}
+            </button>
+            <button
+                type="button"
+                class="cs-btn cs-btn-primary"
+                disabled={!selectedAgentId}
+                onclick={() => saveCodeScripts()}
+            >
+                <i class="bx bx-check"></i>
+                {$_('Save')}
             </button>
         </div>
     </div>
     {/if}
+{:else}
+    <div class="cs-empty-card">
+        <div class="cs-empty-illustration">
+            <i class="bx bx-code-block"></i>
+        </div>
+        <h5 class="cs-empty-title">Pick an agent to get started</h5>
+        <p class="cs-empty-text">
+            Select an agent above to view and edit its source and test scripts.
+        </p>
+    </div>
 {/if}
+

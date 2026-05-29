@@ -1,0 +1,99 @@
+/*
+ * Root-level styles — consolidated from scoped <style> blocks in
+ * src/routes/+error.svelte and src/routes/+layout.svelte.
+ */
+
+
+/* ========================================================================
+ * src/routes/+error.svelte
+ * ======================================================================== */
+
+/* Gradient status code */
+.err-code {
+    background-image: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+}
+
+/* Backdrop blob drift */
+.err-blob {
+    animation: err-blob-anim 16s ease-in-out infinite;
+
+    &-delayed {
+        animation-delay: -8s;
+    }
+}
+
+@keyframes err-blob-anim {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(-20px, 20px) scale(1.08); }
+}
+
+/* Buttons */
+.err-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    border: 1px solid transparent;
+    border-radius: 0.625rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+        background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease,
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+    i {
+        font-size: 1.125rem;
+        line-height: 1;
+    }
+
+    &-primary {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+        box-shadow:
+            0 1px 2px rgb(15 23 42 / 0.1),
+            0 8px 24px -8px color-mix(in srgb, var(--color-primary) 60%, transparent);
+
+        &:hover {
+            background-color: var(--color-primary-hover);
+            box-shadow:
+                0 1px 2px rgb(15 23 42 / 0.1),
+                0 12px 28px -8px color-mix(in srgb, var(--color-primary) 70%, transparent);
+        }
+    }
+
+    &-ghost {
+        background-color: rgb(255 255 255);
+        border-color: rgb(229 231 235);
+        color: rgb(55 65 81);
+
+        &:hover {
+            background-color: rgb(249 250 251);
+            border-color: rgb(209 213 219);
+        }
+
+        .dark & {
+            background-color: rgb(31 41 55);
+            border-color: rgb(55 65 81);
+            color: rgb(229 231 235);
+
+            &:hover {
+                background-color: rgb(55 65 81);
+                border-color: rgb(75 85 99);
+            }
+        }
+    }
+}

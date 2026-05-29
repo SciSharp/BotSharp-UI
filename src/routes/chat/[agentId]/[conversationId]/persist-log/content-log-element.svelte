@@ -8,8 +8,13 @@
     let { data } = $props();
 
     let is_collapsed = $state(true);
+    let contentEl = $state();
+    let isOverflowing = $state(false);
+    
+    const COLLAPSE_LINE_THRESHOLD = 10;
     const unknownAgent = "Uknown";
     const collapsedSources = [
+        ContentLogSource.UserInput,
         ContentLogSource.Prompt,
         ContentLogSource.AgentResponse,
         ContentLogSource.FunctionCall,
@@ -23,22 +28,22 @@
 
     let logDisplayStyle = $derived.by(() => {
         if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
-            return 'border border-secondary';
+            return 'cle-bordered';
         } else if (data.source === ContentLogSource.FunctionCall) {
-            return 'bg-secondary';
+            return 'cle-bg-secondary';
         } else if (data.source === ContentLogSource.Prompt) {
-            return 'text-secondary';
+            return 'cle-text-secondary';
         } else if (data.source === ContentLogSource.HardRule) {
-            return 'text-warning';
+            return 'cle-text-warning';
         } else if (data.source === ContentLogSource.UserInput) {
-            return 'bg-danger';
+            return 'cle-bg-danger';
         }
         return '';
     });
 
     let logTextStyle = $derived.by(() => {
         if (data.source === ContentLogSource.AgentResponse || data.source === ContentLogSource.Notification) {
-            return 'text-info';
+            return 'cle-text-info';
         }
         return '';
     });
@@ -48,48 +53,67 @@
         e.preventDefault();
         is_collapsed = !is_collapsed;
     }
+
+    $effect(() => {
+        void data?.content;
+        if (!contentEl || !collapsedSources.includes(data.source)) {
+            isOverflowing = false;
+            return;
+        }
+        requestAnimationFrame(() => {
+            if (!contentEl) return;
+            const cs = getComputedStyle(contentEl);
+            let lineHeight = parseFloat(cs.lineHeight);
+            if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
+                lineHeight = parseFloat(cs.fontSize) * 1.5 || 21;
+            }
+            isOverflowing = contentEl.scrollHeight > lineHeight * COLLAPSE_LINE_THRESHOLD + 1;
+        });
+    });
 </script>
 
-<div class="log-element rounded" style="padding: 3px;" id={`content-log-${data.message_id}`}>
-    <div class="log-meta text-secondary">
+
+<div class="cle-element" id={`content-log-${data.message_id}`}>
+    <div class="cle-meta">
         <div>
-            <span class="h4">
+            <span class="cle-title">
             {#if data?.agent_id?.length > 0}
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <span
-                    class="text-secondary text-decoration-underline clickable"
+                    class="cle-link"
                     onclick={() => directToAgentPage(data.agent_id)}
                 >
                     {data.name || unknownAgent}
                 </span>
             {:else}
-                <span class="text-secondary">
+                <span class="cle-text-secondary">
                     {data.name || unknownAgent}
                 </span>
             {/if}
             </span>
-            <span class="ms-2">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
+            <span class="cle-meta-ts">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>
     </div>
-    <div
-        class={`rounded log-content ${logDisplayStyle}`}
-        style="padding: 5px 8px;"
-    >
-        <div class:log-collapse={collapsedSources.includes(data.source) && !!is_collapsed}>
+    <div class={`cle-content ${logDisplayStyle}`}>
+        <div
+            bind:this={contentEl}
+            class:cle-collapse={collapsedSources.includes(data.source) && isOverflowing && !!is_collapsed}
+        >
             <Markdown containerClasses={logTextStyle} text={data?.content} rawText={rawTextSources.includes(data.source)} />
         </div>
 
-        {#if collapsedSources.includes(data.source)}
-            <button class="btn btn-link toggle-btn btn-sm" onclick={(e) => toggleText(e)}>
+        {#if collapsedSources.includes(data.source) && isOverflowing}
+            <button class="cle-toggle-btn" onclick={(e) => toggleText(e)}>
                 {`${is_collapsed ? 'More +' : 'Less -'}`}
             </button>
         {/if}
     </div>
 
     {#if data.message_id && data.source === ContentLogSource.UserInput}
-    <div style="margin-top: 10px;">
-        {`MessageId: ${data.message_id}`}
+    <div class="cle-msg-id">
+        {`Message id: ${data.message_id}`}
     </div>
     {/if}
 </div>
+

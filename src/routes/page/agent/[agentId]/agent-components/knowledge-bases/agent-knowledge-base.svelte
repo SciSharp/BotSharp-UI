@@ -1,7 +1,7 @@
 <script>
     import { onMount } from 'svelte';
-	import { getVectorKnowledgeCollections } from '$lib/services/knowledge-base-service';
-	import { KnowledgeCollectionDisplayType } from '$lib/helpers/enums';
+	import { getKnowledgeCollections } from '$lib/services/knowledge-base-service';
+	import { KnowledgeBaseDisplayType } from '$lib/helpers/enums';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
 	import AgentKnowledgeBaseItem from './agent-knowledge-base-item.svelte';
 
@@ -55,7 +55,7 @@
     let scrollContainer;
 
     onMount(async () => {
-        getVectorKnowledgeCollections().then(data => {
+        getKnowledgeCollections().then(data => {
             const list = data?.map(x => {
                 return {
                     name: x.name,
@@ -84,8 +84,8 @@
 
     /** @param {import('$agentTypes').AgentKnowledgeBase | any} b */
     function getDisplayOption(b) {
-        return `${b.name} ${KnowledgeCollectionDisplayType[b.type]
-                   ? `(${KnowledgeCollectionDisplayType[b.type]})` : ''}`
+        return `${b.name} ${KnowledgeBaseDisplayType[b.type]
+                   ? `(${KnowledgeBaseDisplayType[b.type]})` : ''}`
     }
 
     /**
@@ -192,14 +192,14 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Knowledge Base</h5>
-            <h6 class="mt-1 mb-3">Make your Agent have memory</h6>
+<div class="akb-card">
+    <div class="akb-card-body">
+        <div class="akb-header">
+            <h5 class="akb-title">Knowledge Base</h5>
+            <h6 class="akb-subtitle">Make your Agent have memory</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="akb-list" bind:this={scrollContainer}>
             {#each innerKnowledgeBases as knowledge, uid (uid)}
                 <AgentKnowledgeBaseItem
                     knowledge={knowledge}
@@ -214,19 +214,18 @@
             {/each}
 
             {#if innerKnowledgeBases.length < limit}
-                <div class="add-utility">
+                <div class="akb-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="akb-add-btn"
                         onclick={() => addKnowledgeBase()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add Knowledge Base</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add Knowledge Base</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+

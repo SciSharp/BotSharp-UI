@@ -1,2 +1,55 @@
 @import "tailwindcss";
 
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@theme {
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+
+    /* Fancy / accent fonts — use via Tailwind utilities: font-display, font-script, font-handwriting, font-condensed */
+    --font-display: 'Playfair Display', ui-serif, Georgia, serif;
+    --font-script: 'Pacifico', cursive;
+    --font-handwriting: 'Lobster', cursive;
+    --font-condensed: 'Bebas Neue', ui-sans-serif, system-ui, sans-serif;
+    --font-averia: 'Averia Libre', ui-serif, Georgia, serif;
+    --font-libre: 'Libre Baskerville', ui-serif, Georgia, serif;
+    --font-code: 'Source Code Pro', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --font-rethink: 'Rethink Sans', ui-sans-serif, system-ui, sans-serif;
+
+    /* Brand colors (overridable at runtime via PUBLIC_PRIMARY_COLOR / PUBLIC_SECONDARY_COLOR) */
+    --color-primary: #6f42c1;
+    --color-primary-hover: color-mix(in srgb, var(--color-primary), black 20%);
+    --color-secondary: #74788d;
+    --color-secondary-hover: color-mix(in srgb, var(--color-secondary), black 20%);
+
+    /* Semantic state colors (matched to original Skote palette) */
+    --color-success: #34c38f;
+    --color-info: #50a5f1;
+    --color-warning: #f1b44c;
+    --color-danger: #f46a6a;
+
+    /* Neutrals */
+    --color-light: #eff2f7;
+    --color-dark: #343a40;
+    --color-muted: #74788d;
+
+    /* Layout dimensions */
+    --header-height: 70px;
+    --sidebar-width: 250px;
+    --sidebar-collapsed-width: 70px;
+    --footer-height: 60px;
+    --rightbar-width: 280px;
+
+    /* Sidebar palette (light theme) */
+    --sidebar-bg: #ffffff;
+    --sidebar-menu-item-color: #545a6d;
+    --sidebar-menu-item-icon-color: #7f8387;
+    --sidebar-menu-item-hover-color: #383c40;
+    --sidebar-menu-title-color: #7f8387;
+}
+
+@layer base {
+    body {
+        font-weight: 300;
+    }
+}

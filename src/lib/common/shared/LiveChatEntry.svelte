@@ -64,7 +64,7 @@
     }
 </script>
 
-<div class="chatbot-container fixed-bottom float-bottom-right">
+<div class="chatbot-container float-bottom-right fixed bottom-0 left-0 right-0 z-[1030]">
     {#if showBubbleMsg}
         <div transition:fade={{ delay: 50, duration: 200 }}>
             <BubbleChat text={receivedMsg} close={() => closeBubbleMsg()} />
@@ -73,9 +73,9 @@
 
     <iframe
         src={chatUrl}
-        width={'380px'} 
+        width={'380px'}
         height={'650px'}
-        class={`border border-2 rounded-3 m-3 float-end ${showChatBox ? 'chat-iframe' : 'hide'}`}
+        class={`m-4 self-end rounded-lg border-2 border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-800 ${showChatBox ? 'chat-iframe' : 'hidden'}`}
         title="live chat"
         id={CHAT_FRAME_ID}
     >
@@ -84,11 +84,16 @@
     {#if !showChatBox}
         <div
             id="chatbot-icon"
-            class="chatbot-icon mb-3 float-end wave-effect"
+            class="chatbot-icon wave-effect mb-4 self-end"
             transition:fade={{ delay: 50, duration: 200 }}
         >
-            <button class="btn btn-transparent chat-icon-btn" onclick={() => openChatBox()}>
-                <img alt="live chat" class="avatar-md rounded-circle" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
+            <button
+                type="button"
+                class="chat-icon-btn cursor-pointer rounded-full border-0 bg-transparent p-0 transition-transform hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                aria-label="Open live chat"
+                onclick={() => openChatBox()}
+            >
+                <img alt="live chat" class="h-20 w-20 rounded-full shadow-lg" src={PUBLIC_LIVECHAT_ENTRY_ICON} />
             </button>
         </div>
     {/if}

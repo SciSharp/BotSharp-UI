@@ -276,19 +276,23 @@
 	}
 </script>
 
-<div class="vertical-menu">
-	<div class="h-100" id="vertical-menu">
+<div
+	class="vertical-menu fixed bottom-0 left-0 top-[var(--header-height)] z-[1001] w-[var(--sidebar-width)] bg-[var(--sidebar-bg)] shadow-sm transition-[width,transform] duration-200 dark:bg-gray-800"
+>
+	<div class="h-full" id="vertical-menu">
 		<!--- Sidemenu -->
-		<div id="sidebar-menu">
+		<div id="sidebar-menu" class="pt-2.5 pb-8">
 			<!-- Left Menu Start -->
-			<ul class="metismenu list-unstyled" id="side-menu">
+			<ul class="metismenu m-0 list-none p-0" id="side-menu">
 				{#each menu as item}
 					{#if item.isHeader}
-						<li class="menu-title" key="t-menu">{$_(item.label)}</li>
+						<li class="menu-title px-5 py-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--sidebar-menu-title-color)]" key="t-menu">
+							{$_(item.label)}
+						</li>
 					{:else if item.subMenu}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
+							<a href="javascript:void(0);" class="has-arrow cursor-pointer">
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
@@ -297,14 +301,14 @@
 									{#if subMenu.isChildItem}
 										<li>
 											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="javascript:void(0);" class="has-arrow waves-effect clickable">
+											<a href="javascript:void(0);" class="has-arrow cursor-pointer">
 												<span>{$_(subMenu.label)}</span>
 											</a>
 											<ul class="sub-menu mm-collapse">
 												{#each subMenu.childItems as childItem}
 													<li>
 														<!-- svelte-ignore a11y_invalid_attribute -->
-														<a href="javascript:void(0);" class="clickable" id={getCleanUrl(childItem.link)} onclick={() => goToPage(childItem.link)}>
+														<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(childItem.link)} onclick={() => goToPage(childItem.link)}>
 															{$_(childItem.label)}
 														</a>
 													</li>
@@ -314,7 +318,7 @@
 									{:else}
 										<li>
 											<!-- svelte-ignore a11y_invalid_attribute -->
-											<a href="javascript:void(0);" class="clickable" id={getCleanUrl(subMenu.link)} onclick={() => goToPage(subMenu.link)}>
+											<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(subMenu.link)} onclick={() => goToPage(subMenu.link)}>
 												{$_(subMenu.label)}
 											</a>
 										</li>
@@ -325,7 +329,7 @@
 					{:else}
 						<li>
 							<!-- svelte-ignore a11y_invalid_attribute -->
-							<a href="javascript:void(0);" class="waves-effect clickable" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
+							<a href="javascript:void(0);" class="cursor-pointer" id={getCleanUrl(item.link)} onclick={() => goToPage(item.link)}>
 								<i class={item.icon}></i>
 								<span>{$_(item.label)}</span>
 							</a>
@@ -336,3 +340,5 @@
 		</div>
 	</div>
 </div>
+
+

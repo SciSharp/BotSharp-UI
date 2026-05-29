@@ -2,14 +2,14 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import { page } from '$app/state';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import PlainPagination from '$lib/common/shared/PlainPagination.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
-  	import { createAgent, getAgentLabels, getAgents } from '$lib/services/agent-service.js';
+  	import { createAgent, getAgentLabels, getAgents, saveAgent } from '$lib/services/agent-service.js';
 	import { AgentType, GlobalEvent, UserPermission } from '$lib/helpers/enums';
   	import { myInfo } from '$lib/services/auth-service';
 	import { ADMIN_ROLES } from '$lib/helpers/constants';
@@ -144,20 +144,32 @@
 		});
 	}
 
+	/** @typedef {{ kind: 'create' } | { kind: 'import-error' }} PendingAction */
+
+	let confirmOpen = $state(false);
+	/** @type {PendingAction | null} */
+	let pendingAction = $state(null);
+
 	function createNewAgent() {
-		// @ts-ignore
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "Are you sure you want to create a new agent?",
-            icon: 'warning',
-            showCancelButton: true,
-			cancelButtonText: 'No',
-            confirmButtonText: 'Yes'
-        }).then(async (result) => {
-            if (result.value) {
-                await handleCreateNewAgent();
-            }
-        });
+		pendingAction = { kind: 'create' };
+		confirmOpen = true;
+	}
+
+	function closeConfirm() {
+		confirmOpen = false;
+		pendingAction = null;
+	}
+
+	async function onConfirm() {
+		if (!pendingAction) {
+			closeConfirm();
+			return;
+		}
+		const action = pendingAction;
+		closeConfirm();
+		if (action.kind === 'create') {
+			await handleCreateNewAgent();
+		}
 	}
 
 	async function handleCreateNewAgent() {
@@ -170,6 +182,47 @@
 		// @ts-ignore
 		const createdAgent = await createAgent(newAgent);
 		goto(`page/agent/${createdAgent.id}`);
+	}
+
+	function importAgent() {
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json';
+		input.onchange = async (e) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+
+			try {
+				const text = await file.text();
+				const data = JSON.parse(text);
+
+				const newAgent = {
+					name: data.name || 'Imported Agent',
+					description: data.description || '',
+					instruction: data.instruction || '',
+					isPublic: data.is_public ?? true
+				};
+
+				// @ts-ignore
+				const createdAgent = await createAgent(newAgent);
+
+				// Merge remaining fields and save
+				const fullAgent = {
+					...data,
+					id: createdAgent.id,
+					created_datetime: createdAgent.created_datetime,
+					updated_datetime: createdAgent.updated_datetime,
+					plugin: createdAgent.plugin
+				};
+				await saveAgent(fullAgent);
+
+				goto(`page/agent/${createdAgent.id}`);
+			} catch (err) {
+				pendingAction = { kind: 'import-error' };
+				confirmOpen = true;
+			}
+		};
+		input.click();
 	}
 
 	function refresh() {
@@ -240,7 +293,7 @@
 			search();
 		}
 	}
-	
+
 	/** @param {any} e */
 	function selectAgentTypeOption(e) {
 		// @ts-ignore
@@ -294,20 +347,38 @@
 	isLoading={isLoading}
 />
 
-<div class="agents-header-container mb-4">
-	<div>
+<ConfirmModal
+	isOpen={confirmOpen}
+	icon={pendingAction?.kind === 'import-error' ? 'error' : 'warning'}
+	title={pendingAction?.kind === 'import-error' ? 'Error' : 'Are you sure?'}
+	text={pendingAction?.kind === 'import-error'
+		? 'Failed to import agent. Please check the JSON file.'
+		: 'Are you sure you want to create a new agent?'}
+	confirmBtnText={pendingAction?.kind === 'import-error' ? 'OK' : 'Yes'}
+	cancelBtnText="No"
+	showCancelBtn={pendingAction?.kind !== 'import-error'}
+	confirmBtnColor={pendingAction?.kind === 'import-error' ? 'danger' : 'primary'}
+	confirm={onConfirm}
+	cancel={closeConfirm}
+	toggleModal={closeConfirm}
+/>
+
+<div class="ag-header">
+	<div class="ag-header-actions">
 		{#if !!user && (ADMIN_ROLES.includes(user.role || '') || !!user.permissions?.includes(UserPermission.CreateAgent))}
-		<button type="button" class="btn btn-primary" onclick={() => createNewAgent()}>
+		<button type="button" class="ag-btn ag-btn-primary" onclick={() => createNewAgent()}>
 			<i class="mdi mdi-content-copy"></i> {$_('New Agent')}
+		</button>
+		<button type="button" class="ag-btn ag-btn-ghost" onclick={() => importAgent()}>
+			<i class="mdi mdi-upload"></i> {$_('Import Agent')}
 		</button>
 		{/if}
 	</div>
-	<div class="agent-filter">
+	<div class="ag-filter">
 		<input
 			type="text"
-			class="form-control"
+			class="ag-input"
 			placeholder="Search by name"
-			style="width: fit-content;"
 			maxlength={500}
 			value={searchItem.name}
 			oninput={e => changeSearchName(e)}
@@ -335,7 +406,7 @@
 		/>
 		<button
 			type="button"
-			class="btn btn-info"
+			class="ag-btn-icon ag-btn-icon-info"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Search"
@@ -345,7 +416,7 @@
 		</button>
 		<button
 			type="button"
-			class="btn btn-warning"
+			class="ag-btn-icon ag-btn-icon-warning"
 			data-bs-toggle="tooltip"
 			data-bs-placement="bottom"
 			title="Reset"
@@ -356,9 +427,14 @@
 	</div>
 </div>
 
-
-<div class="row">
+<div class="ag-grid">
 	<CardAgent agents={agents.items} />
 </div>
 
-<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+<div class="ag-pagination">
+	<PlainPagination pagination={pager} pageTo={pn => pageTo(pn)} />
+</div>
+
+
+
+

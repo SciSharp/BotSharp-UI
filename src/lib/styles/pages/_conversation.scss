@@ -1,0 +1,433 @@
+/*
+ * Conversation page styles — consolidated from scoped <style> blocks
+ * in the src/routes/page/conversation folder. Each section is annotated
+ * with the source file path so the original component context is
+ * preserved.
+ *
+ * The Select-component overrides are identical across .conv-filter and
+ * .conv-state-search, so the rules are written once with a comma-
+ * separated selector list and then nested.
+ */
+
+
+/* ========================================================================
+ * src/routes/page/conversation/+page.svelte
+ * ======================================================================== */
+
+/* Conversation table cell styling. Applied globally so it covers the
+   headers here as well as the body rows. Preserves the original column
+   ellipsis behaviour. */
+.conv-table {
+    th,
+    td {
+        border-bottom: 1px solid rgb(243 244 246);
+        padding: 0.75rem 1rem;
+        vertical-align: middle;
+        max-width: 180px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    thead th {
+        text-align: left;
+        font-weight: 600;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-muted);
+        border-bottom-width: 2px;
+        border-bottom-color: rgb(229 231 235);
+    }
+
+    th.list-title,
+    td.list-title {
+        max-width: 240px;
+    }
+
+    tbody tr:last-child > td {
+        border-bottom: 0;
+    }
+
+    .dark & {
+        th,
+        td {
+            border-bottom-color: rgb(55 65 81);
+        }
+    }
+}
+
+/* Hide the "State Search" label on narrow viewports — matches the
+   original behaviour from _state.scss for the state-search-btn group. */
+@media (max-width: 800px) {
+    .search-btn-text {
+        display: none;
+    }
+}
+
+
+/* ========================================================================
+ * Shared filter / state-search overrides
+ *
+ * Scoped overrides for the Select component, RemoteSearchInput and the
+ * native form inputs so they share the Tailwind-aligned look of the
+ * page chrome. The rules rely on the `.conv-filter` and
+ * `.conv-state-search` wrappers so they don't leak into other pages
+ * still on Bootstrap.
+ * ======================================================================== */
+.conv-filter,
+.conv-state-search {
+    .multiselect-container {
+        .display-container {
+            input[type='text'] {
+                height: 2.5rem;
+                border-radius: 0.375rem;
+                border: 1px solid rgb(229 231 235);
+                background-color: rgb(255 255 255);
+                padding-left: 0.75rem;
+                padding-right: 2rem;
+                font-size: 0.875rem;
+                color: rgb(31 41 55);
+                transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+                &:focus {
+                    border-color: var(--color-primary);
+                    outline: 0;
+                    box-shadow: 0 0 0 1px var(--color-primary);
+                }
+            }
+
+            /* When a prefixIcon snippet is rendered on the Select, the
+               component sets `.has-prefix` on the display container and
+               shifts the input padding to reserve room for the icon —
+               these page-level overrides must honour that, otherwise the
+               placeholder collides with the icon. */
+            &.has-prefix input[type='text'] {
+                padding-left: 2.25rem;
+            }
+        }
+
+        .display-suffix {
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.125rem;
+            color: rgb(156 163 175);
+            line-height: 1;
+        }
+
+        .option-list {
+            margin-top: 0.25rem;
+            border: 1px solid rgb(229 231 235);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+        }
+
+        .option-item {
+            &:hover {
+                background-color: rgb(243 244 246);
+            }
+
+            .select-name {
+                font-size: 0.875rem;
+            }
+        }
+    }
+
+    /* Plain inputs (tag input + state-search value input) */
+    input.form-control {
+        height: 2.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid rgb(229 231 235);
+        background-color: rgb(255 255 255);
+        font-size: 0.875rem;
+        color: rgb(31 41 55);
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:focus {
+            border-color: var(--color-primary);
+            outline: 0;
+            box-shadow: 0 0 0 1px var(--color-primary);
+        }
+    }
+}
+
+
+/* ========================================================================
+ * .conv-filter — TimeRangePicker trigger button (button.form-control,
+ * no .display-container wrapper).
+ * ======================================================================== */
+.conv-filter {
+    .multiselect-container > button.form-control {
+        height: 2.5rem;
+        border-radius: 0.375rem;
+        border: 1px solid rgb(229 231 235);
+        background-color: rgb(255 255 255);
+        padding: 0 2rem 0 0.75rem;
+        font-size: 0.875rem;
+        color: rgb(31 41 55);
+        text-align: left;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: relative;
+        width: 100%;
+        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+        &:hover {
+            border-color: rgb(209 213 219);
+        }
+
+        &:focus {
+            border-color: var(--color-primary);
+            outline: 0;
+            box-shadow: 0 0 0 1px var(--color-primary);
+        }
+
+        > i.bx-chevron-down {
+            position: absolute;
+            right: 0.625rem;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.125rem;
+            color: rgb(156 163 175);
+            line-height: 1;
+        }
+    }
+}
+
+
+/* ========================================================================
+ * .conv-state-search — state-search items, "Add +" link button and the
+ * RemoteSearchInput autocomplete dropdown.
+ * ======================================================================== */
+.conv-state-search {
+    .state-search-container {
+        gap: 0.5rem;
+    }
+
+    .state-search-item {
+        align-items: center;
+        gap: 0.5rem;
+
+        .bxs-no-entry {
+            font-size: 1.125rem;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+
+            &:hover { transform: scale(1.15); }
+            &.hide { visibility: hidden; }
+        }
+    }
+
+    .btn-link {
+        color: var(--color-primary);
+        font-weight: 500;
+        font-size: 0.8125rem;
+        text-decoration: none;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        transition: background-color 0.15s ease;
+
+        &:hover {
+            background-color: var(--color-primary);
+            color: rgb(255 255 255);
+        }
+    }
+
+    .scrollable-dropdown {
+        .dropdown-menu {
+            margin-top: 0.25rem;
+            border: 1px solid rgb(229 231 235);
+            border-radius: 0.5rem;
+            box-shadow: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.05);
+            padding: 0.25rem;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .dropdown-item {
+            border-radius: 0.25rem;
+            padding: 0.375rem 0.625rem;
+            font-size: 0.8125rem;
+            color: rgb(31 41 55);
+
+            &:hover,
+            &.active {
+                background-color: rgb(243 244 246);
+                color: var(--color-primary);
+            }
+        }
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/page/conversation/[conversationId]/conv-dialog-element.svelte
+ * ========================================================================
+ * Replaces the legacy `.text-collapse` rule from
+ * src/lib/scss/custom/pages/_conversation.scss. The dialog text is
+ * collapsed to the first 10 lines by default; clicking the More button
+ * removes this class so the content can flow to its natural height.
+ *
+ * Two clamping mechanisms are layered here for reliability:
+ * 1. `-webkit-line-clamp: 10` with `display: -webkit-box` gives the
+ *    nicer "line truncation with ellipsis" effect on simple text.
+ * 2. `max-height: 10lh` is the hard fallback. The inner `<Markdown>`
+ *    wraps its rendered HTML in a `.markdown-container` with
+ *    `overflow-x: auto`, which establishes its own block formatting
+ *    context — that BFC defeats line-clamp on the parent because text
+ *    flow is sealed inside the child. The max-height cap clips
+ *    reliably regardless of inner BFCs and is what actually keeps long
+ *    code blocks / tables collapsed. A `::after` pseudo-element below
+ *    paints a '...' in the bottom-right corner so the truncation is
+ *    still signaled visually when line-clamp's native ellipsis is
+ *    suppressed by the inner BFC.
+ */
+.text-collapse {
+    position: relative;
+    overflow: hidden;
+    max-height: 10lh;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
+    line-clamp: 10;
+}
+
+/* Ellipsis fallback for collapsed content whose inner BFC defeats
+ * -webkit-line-clamp (notably the Markdown container's overflow-x: auto
+ * around code blocks / tables). The native line-clamp ellipsis already
+ * handles plain text; this pseudo-element guarantees a '...' indicator
+ * is rendered even when line-clamp is sealed inside the child BFC.
+ *
+ * The gradient fades from transparent to the conversation page
+ * background (white) so the '...' sits cleanly over the last visible
+ * line without obscuring readable text. */
+.text-collapse::after {
+    content: '...';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 0 0.25rem 0 1.5rem;
+    background: linear-gradient(to right, rgba(255, 255, 255, 0), rgb(255 255 255) 50%);
+    color: inherit;
+    font-weight: inherit;
+    pointer-events: none;
+}
+
+
+/* ========================================================================
+ * src/routes/page/conversation/[conversationId]/conv-dialogs.svelte
+ * ======================================================================== */
+
+/* Vertical line behind the timeline dots */
+.dialog-timeline::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    width: 2px;
+    background-color: rgb(229 231 235);
+
+    .dark & {
+        background-color: rgb(55 65 81);
+    }
+}
+
+/* ---------- Notification modal form ----------
+   Themed textarea + character counter that match the DialogModal's
+   primary-accented panel. Replaces Bootstrap `form-control`,
+   `chat-input`, `text-secondary`, `text-end`, and the legacy global
+   `.text-count` rule with scoped styles owned by this component. */
+.notif-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.notif-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+    margin: 0;
+}
+
+.notif-textarea {
+    width: 100%;
+    padding: 0.75rem 0.875rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.5rem;
+    background-color: rgb(249 250 251);
+    font-size: 0.875rem;
+    line-height: 1.55;
+    color: rgb(17 24 39);
+    resize: vertical;
+    min-height: 7.5rem;
+    max-height: 16rem;
+    scrollbar-width: thin;
+    font-family: inherit;
+    transition:
+        border-color 0.15s ease,
+        background-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+    &::placeholder {
+        color: var(--color-muted);
+        opacity: 1;
+    }
+
+    &:hover:not(:focus) {
+        border-color: rgb(209 213 219);
+    }
+
+    &:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        background-color: rgb(255 255 255);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+
+    .dark & {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(243 244 246);
+
+        &:focus {
+            background-color: rgb(31 41 55);
+        }
+    }
+}
+
+/* Character counter — sits below the textarea, right-aligned, with
+   a subtle counter icon. Switches to warning tint when the user is
+   past 80% of the limit. */
+.notif-counter {
+    align-self: flex-end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-muted);
+    transition: color 0.15s ease;
+
+    i {
+        font-size: 0.875rem;
+        line-height: 1;
+    }
+
+    &-warning {
+        color: var(--color-warning);
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/page/conversation/[conversationId]/conv-states.svelte
+ * ======================================================================== */
+.conv-states-tree ul {
+    font-size: 0.8125rem;
+}

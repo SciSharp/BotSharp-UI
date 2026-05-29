@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onMount, tick } from 'svelte';
     import { page } from '$app/state';
     import moment from 'moment';
     import { v4 as uuidv4 } from 'uuid';
@@ -67,10 +67,16 @@
 	};
 
     onMount(() => {
-        Promise.all([getChatContentLogs(), getChatStateLogs()]).then(() => {
+        // Load history, wait for Svelte to flush the new list items to the
+        // DOM, then attach OverlayScrollbars and scroll to bottom. Without
+        // the tick() wait, scrollHeight is read before the rows render and
+        // the viewport ends up parked at the top.
+        (async () => {
+            await Promise.all([getChatContentLogs(), getChatStateLogs()]);
+            await tick();
             initScrollbars();
             scroll();
-        });
+        })();
 
         return () => {
             cleanLogs();
@@ -86,14 +92,22 @@
         }
     });
 
+    let _scrollScheduled = false;
     /** @param {boolean} goToTop */
     function scroll(goToTop = false) {
-        // @ts-ignore
-        scrollbars.forEach(scrollbar => {
+        if (_scrollScheduled) {
+            return;
+        }
+        _scrollScheduled = true;
+        requestAnimationFrame(() => {
             setTimeout(() => {
-                const { viewport } = scrollbar.elements();
-                viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
-            }, 200);
+                // @ts-ignore
+                scrollbars.forEach(scrollbar => {
+                    const { viewport } = scrollbar.elements();
+                    viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
+                });
+                _scrollScheduled = false;
+            }, 150);
         });
     }
 
@@ -172,13 +186,19 @@
     }
 </script>
 
-<div class="chat-log">
-    <div class="card mb-0 log-background log-flex">
-        <div class="log-close-btn padding-side log-header">
+<!--
+  NOTE: .content-log-scrollbar and .conv-state-log-scrollbar are DOM hooks
+  queried by initScrollbars() (this file) and autoScrollToTargetLog()
+  (chat-box.svelte). Keep those class names exactly. Scoped styling is
+  applied through .pl-* siblings.
+-->
+<div class="pl-root font-code">
+    <div class="pl-card">
+        <div class="pl-header-bar">
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-secondary"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Clean log"
@@ -187,10 +207,10 @@
                     <i class="bx bx-trash"></i>
                 </button>
             </div>
-            <div>
+            <div class="pl-action-group">
                 <button
                     type="button"
-                    class="btn btn-sm btn-primary chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-primary"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to top"
@@ -200,7 +220,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-sm btn-light chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-light"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to bottom"
@@ -212,7 +232,7 @@
             <div>
                 <button
                     type="button"
-                    class="btn btn-sm btn-secondary btn-rounded chat-send waves-effect waves-light"
+                    class="pl-action-btn pl-action-btn-secondary"
                     aria-label="Close log window"
                     onclick={() => closeWindow()}
                 >
@@ -221,27 +241,27 @@
             </div>
         </div>
 
-        <div class="content-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== contentLogTab}>
-            <ul>
+        <div class="pl-scroll-area content-log-scrollbar" class:pl-hide={selectedTab !== contentLogTab}>
+            <ul class="pl-list">
                 {#each contentLogs as log (log.uid)}
                     <ContentLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="conv-state-log-scrollbar log-list padding-side log-body" class:hide={selectedTab !== conversationStateLogTab}>
-            <ul>
+        <div class="pl-scroll-area conv-state-log-scrollbar" class:pl-hide={selectedTab !== conversationStateLogTab}>
+            <ul class="pl-list">
                 {#each convStateLogs as log (log.uid)}
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
         </div>
 
-        <div class="log-footer nav-group">
+        <div class="pl-footer">
             <NavBar id={'persist-log-container'}>
                 <NavItem
                     navBtnId={'content-log-tab'}
-                    navBtnClasses={'log-footer-nav-btn'}
+                    navBtnStyles={'font-size: 0.75em;'}
                     dataBsTarget={'#content-log-tab-pane'}
                     ariaControls={'content-log-tab-pane'}
                     navBtnText={'Content Log'}
@@ -251,7 +271,7 @@
                 />
                 <NavItem
                     navBtnId={'conv-state-log-tab'}
-                    navBtnClasses={'log-footer-nav-btn'}
+                    navBtnStyles={'font-size: 0.75em;'}
                     dataBsTarget={'#conv-state-log-tab-pane'}
                     ariaControls={'conv-state-log-tab-pane'}
                     navBtnText={'Conversation States'}
@@ -263,3 +283,4 @@
         </div>
     </div>
 </div>
+

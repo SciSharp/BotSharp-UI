@@ -106,17 +106,21 @@ const agentTaskStatus = {
 export const AgentTaskStatus = Object.freeze(agentTaskStatus);
 
 
-const knowledgeCollectionType = {
+const knowledgeType = {
     QuestionAnswer: 'question-answer',
-    Document: 'document'
+    Document: 'document',
+    Taxonomy: 'taxonomy',
+    SemanticGraph: 'semantic-graph'
 };
-export const KnowledgeCollectionType = Object.freeze(knowledgeCollectionType);
+export const KnowledgeBaseType = Object.freeze(knowledgeType);
 
-const knowledgeCollectionDisplayType =  {
-    [knowledgeCollectionType.QuestionAnswer]: "Q & A",
-    [knowledgeCollectionType.Document]: "Documents",
+const knowledgeBaseDisplayType =  {
+    [knowledgeType.QuestionAnswer]: "Q & A",
+    [knowledgeType.Document]: "Documents",
+    [knowledgeType.Taxonomy]: "Taxonomy",
+    [knowledgeType.SemanticGraph]: "Semantic Graph",
 };
-export const KnowledgeCollectionDisplayType = Object.freeze(knowledgeCollectionDisplayType);
+export const KnowledgeBaseDisplayType = Object.freeze(knowledgeBaseDisplayType);
 
 const knowledgePayloadName = {
     Text: 'text',

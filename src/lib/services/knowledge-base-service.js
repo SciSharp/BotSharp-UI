@@ -5,26 +5,35 @@ import axios from 'axios';
 
 /**
  * @param {string} collection
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function existVectorCollection(collection) {
-    const url = replaceUrl(endpoints.vectorCollectionExistUrl, {
+export async function existKnowledgeCollection(collection, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeCollectionExistUrl, {
         collection: collection
     });
 
-    const response = await axios.get(url);
+    const response = await axios.get(url, {
+        params: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
+        }
+    });
     return response.data;
 }
 
 /**
- * @param {string?} type
+ * @param {string?} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<import('$knowledgeTypes').VectorCollectionConfig[]>}
  */
-export async function getVectorKnowledgeCollections(type = null) {
-    const url = endpoints.vectorCollectionsUrl;
+export async function getKnowledgeCollections(knowledgeType = null, dbProvider = null) {
+    const url = endpoints.knowledgeCollectionsUrl;
     const response = await axios.get(url, {
         params: {
-            type: type
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
         }
     });
     return response.data;
@@ -32,29 +41,61 @@ export async function getVectorKnowledgeCollections(type = null) {
 
 /**
  * @param {string} collection
- * @param {import('$knowledgeTypes').SearchKnowledgeRequest} request
- * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchViewModel[]>}
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
+ * @returns {Promise<import('$knowledgeTypes').VectorCollectionDetails>}
  */
-export async function searchVectorKnowledge(collection, request) {
-    const url = replaceUrl(endpoints.vectorKnowledgeSearchUrl, {
+export async function getKnowledgeCollectionDetails(collection, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeCollectionDetailsUrl, {
         collection: collection
     });
 
-    const response = await axios.post(url, { ...request });
+    const response = await axios.get(url, {
+        params: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
+        }
+    });
+    return response.data;
+}
+
+/**
+ * @param {string} collection
+ * @param {import('$knowledgeTypes').KnowledgeQueryRequest} request
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
+ * @returns {Promise<import('$knowledgeTypes').KnowledgeQueryViewModel[]>}
+ */
+export async function executeKnowledgeQuery(collection, request, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataQueryUrl, {
+        collection: collection
+    });
+
+    const response = await axios.post(url, {
+        ...request,
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider
+    });
     return response.data;
 }
 
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').KnowledgeFilter} filter
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<import('$knowledgeTypes').KnowledgeSearchPageResult>}
  */
-export async function getVectorKnowledgePageList(collection, filter) {
-    const url = replaceUrl(endpoints.vectorKnowledgePageListUrl, {
+export async function getKnowledgePageList(collection, filter, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataPageListUrl, {
         collection: collection
     });
 
-    const response = await axios.post(url, { ...filter });
+    const response = await axios.post(url, {
+        ...filter,
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider
+    });
     return response.data;
 }
 
@@ -62,15 +103,19 @@ export async function getVectorKnowledgePageList(collection, filter) {
  * @param {string} collection
  * @param {string} text
  * @param {any} payload
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function createVectorKnowledgeData(collection, text, payload = null) {
-    const url = replaceUrl(endpoints.vectorKnowledgeCreateUrl, {
+export async function createKnowledgeData(collection, text, payload, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataCreateUrl, {
         collection: collection
     });
 
     const request = {
         text: text,
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider,
         payload: {
             ...payload,
         }
@@ -85,15 +130,19 @@ export async function createVectorKnowledgeData(collection, text, payload = null
  * @param {string} collection
  * @param {string} text
  * @param {any} payload
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function updateVectorKnowledgeData(id, collection, text, payload = null) {
-    const url = replaceUrl(endpoints.vectorKnowledgeUpdateUrl, {
+export async function updateKnowledgeData(id, collection, text, payload, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataUpdateUrl, {
         collection: collection
     });
 
     const request = {
         id: id,
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider,
         text: text,
         payload: {
             ...payload
@@ -106,45 +155,64 @@ export async function updateVectorKnowledgeData(id, collection, text, payload = 
 
 
 /**
- * @param {string} collection
  * @param {string} id
+ * @param {string} collection
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function deleteVectorKnowledgeData(collection, id) {
-    const url = replaceUrl(endpoints.vectorKnowledgeDeleteUrl, {
+export async function deleteKnowledgeData(id, collection, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataDeleteUrl, {
         collection: collection,
         id: id
     });
 
-    const response = await axios.delete(url);
+    const response = await axios.delete(url, {
+        data: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
+        }
+    });
     return response.data;
 }
 
 /**
  * @param {string} collection
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function deleteAllVectorKnowledgeData(collection) {
-    const url = replaceUrl(endpoints.vectorKnowledgeDeleteAllUrl, {
+export async function deleteAllKnowledgeData(collection, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeDataDeleteAllUrl, {
         collection: collection
     });
 
-    const response = await axios.delete(url);
+    const response = await axios.delete(url, {
+        data: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
+        }
+    });
     return response.data;
 }
 
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').VectorKnowledgeUploadRequest} request
+ * @param {string?} dbProvider
  * @returns {Promise<import('$knowledgeTypes').UploadKnowledgeResponse>}
  */
-export async function uploadKnowledgeDocuments(collection, request) {
-    const url = replaceUrl(endpoints.knowledgeDocumentUploadUrl, {
+export async function uploadKnowledgeFiles(collection, request, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeFileUploadUrl, {
         collection: collection
     });
 
     const response = await axios.post(url, {
-        ...request
+        ...request,
+        options: {
+            ...request.options || {},
+            dbProvider: dbProvider
+        }
     });
     return response.data;
 }
@@ -152,29 +220,40 @@ export async function uploadKnowledgeDocuments(collection, request) {
 /**
  * @param {string} collection
  * @param {string} fileId
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function deleteKnowledgeDocument(collection, fileId) {
-    const url = replaceUrl(endpoints.knowledgeDocumentDeleteUrl, {
+export async function deleteKnowledgeFile(collection, fileId, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeFileDeleteUrl, {
         collection: collection,
         fileId: fileId
     });
 
-    const response = await axios.delete(url);
+    const response = await axios.delete(url, {
+        data: {
+            dbProvider: dbProvider
+        }
+    });
     return response.data;
 }
 
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').KnowledgeDocRequest} request
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function deleteAllKnowledgeDocuments(collection, request) {
-    const url = replaceUrl(endpoints.knowledgeDocumentDeleteAllUrl, {
+export async function deleteAllKnowledgeFiles(collection, request, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeFileDeleteAllUrl, {
         collection: collection
     });
 
-    const response = await axios.delete(url, { data: { ...request } });
+    const response = await axios.delete(url, {
+        data: {
+            ...request,
+            dbProvider: dbProvider
+        }
+    });
     return response.data;
 }
 
@@ -182,14 +261,18 @@ export async function deleteAllKnowledgeDocuments(collection, request) {
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').KnowledgeDocRequest} request
+ * @param {string?} dbProvider
  * @returns {Promise<import('$knowledgeTypes').KnowledgeDocPagedResult>}
  */
-export async function getKnowledgeDocumentPageList(collection, request) {
-    const url = replaceUrl(endpoints.knowledgeDocumentPageListUrl, {
+export async function getKnowledgeFilePageList(collection, request, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeFilePageListUrl, {
         collection: collection
     });
 
-    const response = await axios.post(url, { ...request });
+    const response = await axios.post(url, {
+        ...request,
+        dbProvider: dbProvider
+    });
     return response.data;
 }
 
@@ -205,63 +288,56 @@ export async function getKnowledgeProcessors() {
 
 /**
  * @param {import('$knowledgeTypes').CreateVectorCollectionRequest} request
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function createVectorCollection(request) {
-    const url = endpoints.vectorCollectionCreateUrl;
-    const response = await axios.post(url, { ...request });
+export async function createKnowledgeCollection(request, knowledgeType, dbProvider = null) {
+    const url = endpoints.knowledgeCollectionCreateUrl;
+    const response = await axios.post(url, {
+        ...request,
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider
+    });
     return response.data;
 }
 
 /**
  * @param {string} collection
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<boolean>}
  */
-export async function deleteVectorCollection(collection) {
-    const url = replaceUrl(endpoints.vectorCollectionDeleteUrl, {
+export async function deleteKnowledgeCollection(collection, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeCollectionDeleteUrl, {
         collection: collection
     });
 
-    const response = await axios.delete(url);
-    return response.data;
-}
-
-
-/**
- * @param {string} text
- * @param {string } method
- * @returns {Promise<any>}
- */
-export async function searchGraphKnowledge(text, method = "local") {
-    const url = endpoints.graphKnowledgeSearchUrl;
-    const response = await axios.post(url, { query: text, method: method });
-    return response.data;
-}
-
-/**
- * @param {string} collection
- * @returns {Promise<import('$knowledgeTypes').VectorCollectionDetails>}
- */
-export async function getVectorCollectionDetails(collection) {
-    const url = replaceUrl(endpoints.vectorCollectionDetailsUrl, {
-        collection: collection
+    const response = await axios.delete(url, {
+        data: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider
+        }
     });
-
-    const response = await axios.get(url);
     return response.data;
 }
+
 
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
  */
-export async function createVectorIndexes(collection, options) {
-    const url = replaceUrl(endpoints.vectorIndexesCreateUrl, {
+export async function createKnowledgeIndexes(collection, options, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeIndexesCreateUrl, {
         collection: collection
     });
 
     const response = await axios.post(url, {
+        knowledgeType: knowledgeType,
+        dbProvider: dbProvider,
         options: options || []
     });
     return response.data;
@@ -270,22 +346,24 @@ export async function createVectorIndexes(collection, options) {
 /**
  * @param {string} collection
  * @param {import('$knowledgeTypes').VectorCollectionIndexOptions[]} options
+ * @param {string} knowledgeType
+ * @param {string?} dbProvider
  * @returns {Promise<import('$commonTypes').SuccessFailResponse>}
  */
-export async function deleteVectorIndexes(collection, options) {
-    const url = replaceUrl(endpoints.vectorIndexesDeleteUrl, {
+export async function deleteKnowledgeIndexes(collection, options, knowledgeType, dbProvider = null) {
+    const url = replaceUrl(endpoints.knowledgeIndexesDeleteUrl, {
         collection: collection
     });
 
     const response = await axios.delete(url, {
         data: {
+            knowledgeType: knowledgeType,
+            dbProvider: dbProvider,
             options: options || []
         }
     });
     return response.data;
 }
-
-
 
 
 /**
@@ -301,19 +379,7 @@ export async function getEntityAnalyzers() {
  * @returns {Promise<string[]>}
  */
 export async function getEntityDataLoaders() {
-    const url = endpoints.entityDataLoadersUrl;
+    const url = endpoints.entityDataProvidersUrl;
     const response = await axios.get(url);
-    return response.data;
-}
-
-/**
- * @param {import('$knowledgeTypes').EntityAnalysisRequest} request
- * @returns {Promise<import('$knowledgeTypes').EntityAnalysisResponse>}
- */
-export async function analyzeEntity(request) {
-    const url = endpoints.entityAnalyzeUrl;
-    const response = await axios.post(url, {
-        ...request
-    });
     return response.data;
 }

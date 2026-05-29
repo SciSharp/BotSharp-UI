@@ -4,6 +4,7 @@
     import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
     import ChatConfig from './llm-configs/chat-config.svelte';
     import LlmBasicConfig from './llm-configs/llm-basic-config.svelte';
+    import RealtimeConfig from './llm-configs/realtime-config.svelte';
 
     /**
      * @type {{
@@ -46,14 +47,14 @@
     });
 </script>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-1">LLM Configurations</h5>
-            <img src="images/brands/azure-openai-logo.avif" alt="" style="height: 50px; width: auto; display: inline-block;" />
+<div class="llmc-card">
+    <div class="llmc-card-body">
+        <div class="llmc-header">
+            <h5 class="llmc-title">LLM Configurations</h5>
+            <img src="images/brands/azure-openai-logo.avif" alt="" class="llmc-brand-logo" />
         </div>
 
-        <div class="agent-utility-container">
+        <div class="llmc-list">
             <ChatConfig
                 bind:this={chatConfigCmp}
                 {agent}
@@ -78,15 +79,14 @@
                 modelCapability={LlmModelCapability.AudioTranscription}
                 {handleAgentChange}
             />
-            <LlmBasicConfig
+            <RealtimeConfig
                 title="Realtime"
                 bind:this={realtimeConfigCmp}
                 llmConfigOptions={llmConfigs}
                 llmConfig={agent.llm_config?.realtime}
-                modelType={LlmModelType.Realtime}
-                modelCapability={LlmModelCapability.Realtime}
                 {handleAgentChange}
             />
         </div>
     </div>
 </div>
+

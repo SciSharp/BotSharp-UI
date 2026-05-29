@@ -4,7 +4,6 @@
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
 	import { page } from '$app/state';
-	import Swal from 'sweetalert2';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import _ from "lodash";
@@ -27,11 +26,10 @@
 		getConversationFiles,
 		uploadConversationFiles,
 		getAddressOptions,
-		pinConversationToDashboard,
 		stopStreaming as stopStreamingApi,
 	} from '$lib/services/conversation-service.js';
-	import { 
-		PUBLIC_LIVECHAT_ENTRY_ICON, 
+	import {
+		PUBLIC_LIVECHAT_ENTRY_ICON,
 		PUBLIC_LIVECHAT_VOICE_ENABLED,
 		PUBLIC_LIVECHAT_SPEAKER_ENABLED,
 		PUBLIC_LIVECHAT_FILES_ENABLED,
@@ -42,6 +40,7 @@
 	import { BOT_SENDERS, LEARNER_AGENT_ID, TRAINING_MODE, ADMIN_ROLES, IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
 	import { signalr } from '$lib/services/signalr-service.js';
 	import { newConversation } from '$lib/services/conversation-service';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingDots from '$lib/common/spinners/LoadingDots.svelte';
@@ -56,7 +55,7 @@
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay } from '$lib/helpers/utils/common';
+	import { delay, formatNumber } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -73,7 +72,7 @@
 	import ChatBigMessage from './chat-util/chat-big-message.svelte';
 	import PersistLog from './persist-log/persist-log.svelte';
 	import InstantLog from './instant-log/instant-log.svelte';
-	
+
 
 	const options = {
 		scrollbars: {
@@ -112,6 +111,9 @@
 	let bigText = $state('');
 	let botText = $state('');
 	let truncateMsgId = $state('');
+	let editingMsgId = $state('');
+	let editingBotMsgUid = $state('');
+	let highlightedMsgId = $state('');
 	let indication = $state('');
 	let mode = $state('');
 	let notificationText = $state('');
@@ -188,14 +190,13 @@
 	let isInstantLogClosed = $state(false); // initial condition
 	let isOpenEditMsgModal = $state(false);
 	let isOpenBigMsgModal = $state(false);
-	let isOpenEditBotMsgModal = $state(false);
 	let isOpenUserAddStateModal = $state(false);
 	let isOpenTagModal = $state(false);
 	let isOpenCodeScriptModal = $state(false);
+	let isOpenEndChatConfirm = $state(false);
+	let isOpenClearStatesConfirm = $state(false);
 	let isHeaderMenuOpen = $state(false);
 	let isHeaderStatesOpen = $state(false);
-	/** @type {string} */
-	let openMsgActionId = $state('');
 	let isSendingMsg = $state(false);
 	let isThinking = $state(false);
 	let isListening = $state(false);
@@ -209,19 +210,20 @@
 	let isDisplayNotification = $state(false);
 	let isComplete = $state(false);
 	let isError = $state(false);
-	let copyClicked = $state(false);
+	/** @type {string | null} */
+	let copiedMsgUid = $state(null);
 	let isStreaming = $state(false);
 	let isHandlingQueue = $state(false);
 	let isStopStreamClicked = $state(false);
 
-	// let loadEditor = $derived(!isSendingMsg && !isThinking && loadTextEditor && messageQueue.length === 0);
+	let isWaiting = $derived(isSendingMsg || isThinking || isStreaming || messageQueue.length > 0);
 	let loadEditor = true;
 	let disableAction = $derived(!ADMIN_ROLES.includes(currentUser?.role || '')
 								&& currentUser?.id !== conversationUser?.id
 								|| !AgentExtensions.chatable(agent));
 
 	$effect(() => {
-		if (loadEditor) {
+		if (!isWaiting && !disableAction) {
 			focusChatTextArea();
 		}
 	});
@@ -229,7 +231,7 @@
 	setContext('chat-window-context', {
 		autoScrollToBottom: autoScrollToBottom
 	});
-	
+
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		// @ts-ignore
@@ -245,7 +247,7 @@
 		handlePaneResize();
 		const messageDraft = getMessageDraft();
 		text = messageDraft || '';
-		
+
 		signalr.onMessageReceivedFromClient = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromCsr = onMessageReceivedFromClient;
 		signalr.onMessageReceivedFromAssistant = onMessageReceivedFromAssistant;
@@ -255,7 +257,7 @@
 		signalr.onReceiveLlmStreamMessage = onReceiveLlmStreamMessage;
 		signalr.afterReceiveLlmStreamMessage = afterReceiveLlmStreamMessage;
 		signalr.onIndicationReceived = onIndicationReceived;
-		
+
 		signalr.onNotificationGenerated = onNotificationGenerated;
 		signalr.onConversationContentLogGenerated = onConversationContentLogGenerated;
 		signalr.onConversationStateLogGenerated = onConversationStateLogGenerated;
@@ -267,7 +269,7 @@
 		await signalr.start(page.params.conversationId);
 
 		scrollbars = [
-			document.querySelector('.chat-scrollbar')
+			document.querySelector('.cb-msgs-scroll')
 		].filter(Boolean);
 		refresh();
 
@@ -280,8 +282,6 @@
 				handleChatAction(e);
 			}
 		});
-
-		await focusChatTextArea();
 	});
 
 	function handleLogoutAction() {
@@ -457,12 +457,19 @@
 		autoScrollToBottom();
     }
 
+	let _autoScrollScheduled = false;
 	function autoScrollToBottom() {
-		scrollbars.forEach(scrollbar => {
-			setTimeout(() => {
-				scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
-			}, 200);
-		})
+		if (_autoScrollScheduled) return;
+		_autoScrollScheduled = true;
+		requestAnimationFrame(() => {
+			scrollbars.forEach(scrollbar => {
+				if (!scrollbar) return;
+				setTimeout(() => {
+					scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
+				}, 150);
+			});
+			_autoScrollScheduled = false;
+		});
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
@@ -538,7 +545,7 @@
 				});
 			}
 		}
-		
+
 		isStreaming = false;
 		latestStateLog = message.states;
 		refresh();
@@ -564,7 +571,7 @@
 				is_appended: true
 			});
 		}
-		
+
 		refresh();
 
 		if (isFrame) {
@@ -591,7 +598,7 @@
 		refresh();
 	}
 
-	
+
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onReceiveLlmStreamMessage(message) {
 		isThinking = false;
@@ -611,6 +618,7 @@
 					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
+					autoScrollToBottom();
 				}, 0);
 			}
 		} else {
@@ -646,6 +654,7 @@
 					for (const tt of thinkingText) {
 						dialogs[dialogs.length - 1].thought.thinking_text += tt;
 						refreshDialogs();
+						autoScrollToBottom();
 						await delay(10);
 					}
 				}
@@ -653,6 +662,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refreshDialogs();
+					autoScrollToBottom();
 					await delay(10);
 				}
 			} catch (err) {
@@ -766,13 +776,6 @@
 		window.location.href = url;
 	}
 
-	function pinDashboard() {
-		const agentId = page.params.agentId;
-		const convId = page.params.conversationId;
-		// @ts-ignore
-		pinConversationToDashboard(agentId, convId).then().finally();
-	}
-
 	function handleSaveKnowledge() {
 		sendChatMessage("Save knowledge");
 	}
@@ -879,7 +882,7 @@
 			} else {
 				webSpeech.abort();
 			}
-			
+
 		}
 	}
 
@@ -913,7 +916,7 @@
 			return;
 		}
 
-		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !_.trim(text) || isSendingMsg || isThinking) {
+		if ((e.key === 'Enter' && (!!e.shiftKey || !!e.ctrlKey)) || e.key !== 'Enter' || !_.trim(text) || isWaiting) {
 			return;
 		}
 
@@ -954,12 +957,12 @@
 		text = option;
 	}
 
-	/** 
+	/**
 	 * @param {string} title
 	 * @param {string} payload
 	 */
 	async function confirmSelectedOption(title, payload) {
-		if (isSendingMsg || isThinking) return;
+		if (isWaiting) return;
 
 		const postback = buildPostbackMessage(dialogs, payload || title, null);;
 		await sendChatMessage(title, { postback: postback });
@@ -1046,23 +1049,15 @@
 
 	function endChat() {
 		if (!isFrame) {
-			// @ts-ignore
-			Swal.fire({
-				title: 'Are you sure?',
-				text: "You will exit this conversation.",
-				icon: 'warning',
-				customClass: 'custom-modal',
-				showCancelButton: true,
-				confirmButtonText: 'Yes',
-				cancelButtonText: 'No'
-			}).then((result) => {
-				if (result.value) {
-					window.close();
-				}
-			});
+			isOpenEndChatConfirm = true;
 		} else {
 			window.parent.postMessage({ action: ChatAction.Close }, "*");
 		}
+	}
+
+	function confirmEndChat() {
+		isOpenEndChatConfirm = false;
+		window.close();
 	}
 
 	function openLogs() {
@@ -1127,45 +1122,14 @@
 	}
 
 	function clearUserAddStates() {
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				userAddStates = [];
-				conversationUserStateStore.resetOne(page.params.conversationId);
-			}
-		});
+		isOpenClearStatesConfirm = true;
 	}
 
-	/**
-	 * @param {any} e
-	 * @param {import('$conversationTypes').ChatResponseModel} message
-	 */
-	function resendMessage(e, message) {
-		e.preventDefault();
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "Send this message again!",
-			icon: 'warning',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, go ahead!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				const postback = buildPostback(message?.message_id);
-				// @ts-ignore
-				deleteConversationMessage(page.params.conversationId, message?.message_id, true).then(res => {
-					sendChatMessage(message?.text, { postback: postback, inputMessageId: res?.messageId });
-				});
-			}
-		});
+	function confirmClearUserAddStates() {
+		isOpenClearStatesConfirm = false;
+		userAddStates = [];
+		conversationUserStateStore.resetOne(page.params.conversationId);
+		isOpenUserAddStateModal = false;
 	}
 
 	/**
@@ -1173,22 +1137,8 @@
 	 * @param {string} messageId
 	 */
 	function deleteMessage(e, messageId) {
-		e.preventDefault();
-
-		// @ts-ignore
-		Swal.fire({
-			title: 'Are you sure?',
-			text: "You won't be able to revert this!",
-			icon: 'warning',
-			customClass: 'custom-modal',
-			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!',
-			cancelButtonText: 'No'
-		}).then(async (result) => {
-			if (result.value) {
-				await handleDeleteMessage(messageId);
-			}
-		});
+		if (isWaiting || disableAction) return;
+		handleDeleteMessage(messageId);
 	}
 
 	/** @param {string} messageId */
@@ -1204,10 +1154,15 @@
 	 * @param {import('$conversationTypes').ChatResponseModel} message
 	 */
 	async function editMessage(message) {
+		if (isWaiting || disableAction) return;
 		truncateMsgId = message?.message_id;
-		editText = message?.text;
+		editText = message?.text || '';
 		await tick();
-		isOpenEditMsgModal = true;
+		editingMsgId = message?.message_id;
+	}
+
+	function cancelEditMessage() {
+		resetEditMsg();
 	}
 
 	function toggleEditMsgModal() {
@@ -1220,10 +1175,12 @@
 	function resetEditMsg() {
 		truncateMsgId = "";
 		editText = "";
+		editingMsgId = "";
 	}
 
 	async function confirmEditMsg() {
 		isOpenEditMsgModal = false;
+		editingMsgId = "";
 		const postback = buildPostback(truncateMsgId);
 		// @ts-ignore
 		deleteConversationMessage(page.params.conversationId, truncateMsgId, true).then(res => {
@@ -1232,6 +1189,20 @@
 			}).catch(() => {
 				resetEditMsg();
 			});
+		});
+	}
+
+	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	async function resendMessage(message) {
+		if (isWaiting || disableAction) return;
+		const msgId = message?.message_id;
+		const msgText = message?.text || '';
+		if (!msgId || !msgText) return;
+
+		const postback = buildPostback(msgId);
+		// @ts-ignore
+		deleteConversationMessage(page.params.conversationId, msgId, true).then(res => {
+			sendChatMessage(msgText, { postback: postback, inputMessageId: res?.messageId });
 		});
 	}
 
@@ -1260,22 +1231,9 @@
 	function directToLog(messageId) {
 		if (!messageId || isLite || !isLoadPersistLog) return;
 
-		highlightChatMessage(messageId);
+		highlightedMsgId = messageId;
 		highlightStateLog(messageId);
 		autoScrollToTargetLog(messageId);
-	}
-
-	/** @param {string} messageId */
-	function highlightChatMessage(messageId) {
-		const targets = document.querySelectorAll('.user-msg');
-		const style = ['bg-danger'];
-		targets.forEach(elm => {
-			if (elm.id === `user-msg-${messageId}`) {
-				elm.classList.add(...style);
-			} else {
-				elm.classList.remove(...style);
-			}
-		});
 	}
 
 	/** @param {string} messageId */
@@ -1308,7 +1266,7 @@
 				wrapperName: contentLogWrapper
 			});
 		}
-		
+
 		const stateLogElm = document.querySelector(`#state-log-${messageId}`);
 		if (isLoadPersistLog && !!stateLogElm) {
 			elements.push({
@@ -1366,13 +1324,12 @@
 	 */
 	function likeMessage(e, message) {
 		e.preventDefault();
-
 		const text = 'I like this message.';
 		const data = {
 			postback: {
 				functionName: 'like_response',
 				payload: message.text || 'I really like this message!',
-				parentId: message?.id
+				parentId: message?.message_id
 			},
 			states: []
 		};
@@ -1390,10 +1347,14 @@
 		if (message?.rich_content?.message?.rich_type === RichType.ProgramCode) {
 			text = message?.rich_content?.message?.code_script || text;
 		}
-		
+
+		const uid = message.uuid;
+		copiedMsgUid = uid;
 		navigator.clipboard.writeText(text).then(() => {
 			setTimeout(() => {
-				copyClicked = false;
+				if (copiedMsgUid === uid) {
+					copiedMsgUid = null;
+				}
 			}, 800);
 		});
 	}
@@ -1427,8 +1388,8 @@
 
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
-	function openEditBotMsgModal(message) {
-		isOpenEditBotMsgModal = true;
+	async function openBotMsgEditor(message) {
+		if (isWaiting || disableAction) return;
 		let source = "text";
 		if (message.rich_content?.message?.text === message.text) {
 			source = "both";
@@ -1440,14 +1401,14 @@
 			source: source
 		};
 		botText = message?.rich_content?.message?.text || message?.text;
+		await tick();
+		editingBotMsgUid = message?.uuid || '';
 	}
 
-	function toggleEditBotMsgModal() {
-		isOpenEditBotMsgModal = !isOpenEditBotMsgModal;
-		if (!isOpenEditBotMsgModal) {
-			editBotMsg = null;
-			botText = '';
-		}
+	function cancelBotMsgEdit() {
+		editingBotMsgUid = '';
+		editBotMsg = null;
+		botText = '';
 	}
 
 	function toggleTagModal() {
@@ -1523,7 +1484,7 @@
 
 		const candidates = dialogs.filter(x => x.message_id === editBotMsg?.message.message_id && x.sender?.role === editBotMsg?.message.sender?.role);
 		const innerIdx = candidates.findIndex(x => x.uuid === editBotMsg?.message.uuid);
-		
+
 		/** @type {import('$conversationTypes').UpdateBotMessageRequest} */
 		const request = {
 			message: editBotMsg.message,
@@ -1554,7 +1515,7 @@
 					successText = "";
 				}, duration);
 
-				toggleEditBotMsgModal();
+				cancelBotMsgEdit();
 				refresh();
 			} else {
 				throw "failed to update message";
@@ -1566,7 +1527,7 @@
 				isError = false;
 				errorText = "";
 			}, duration);
-			toggleEditBotMsgModal();
+			cancelBotMsgEdit();
 		}).finally(() => {
 			isLoading = false;
 		});
@@ -1605,6 +1566,32 @@
 </script>
 
 
+<ConfirmModal
+	isOpen={isOpenEndChatConfirm}
+	icon="warning"
+	title="Are you sure?"
+	text="You will exit this conversation."
+	confirmBtnText="Yes"
+	cancelBtnText="No"
+	confirm={confirmEndChat}
+	cancel={() => isOpenEndChatConfirm = false}
+	toggleModal={() => isOpenEndChatConfirm = false}
+/>
+
+<ConfirmModal
+	isOpen={isOpenClearStatesConfirm}
+	icon="warning"
+	title="Are you sure?"
+	text="You won't be able to revert this!"
+	confirmBtnText="Yes, delete it!"
+	cancelBtnText="No"
+	confirmBtnColor="danger"
+	confirm={confirmClearUserAddStates}
+	cancel={() => isOpenClearStatesConfirm = false}
+	toggleModal={() => isOpenClearStatesConfirm = false}
+/>
+
+
 <svelte:window onresize={() => resizeChatWindow()}/>
 
 <GlobalHeader
@@ -1624,7 +1611,7 @@
 
 <DialogModal
 	title={'Tags'}
-	size={'md'}
+	size={'xl'}
 	isOpen={isOpenTagModal}
 	closeable
 	toggleModal={() => toggleTagModal()}
@@ -1633,7 +1620,7 @@
 	confirm={() => updateChatTags()}
 	close={() => toggleTagModal()}
 >
-	<div class="conv-tags-container">
+	<div class="cb-tags-container">
 		{#each convTags as tag, idx}
 			<Label
 				text={tag}
@@ -1644,9 +1631,9 @@
 			/>
 		{/each}
 	</div>
-	<div class="conv-tag-add">
+	<div class="cb-tag-add">
 		<input
-			class="form-control form-control-sm"
+			class="cb-tag-input"
 			type="text"
 			placeholder="Enter new tag..."
 			maxlength={50}
@@ -1654,7 +1641,7 @@
 			onkeydown={e => { if (e.key === 'Enter') addTag(); }}
 		/>
 		<button
-			class="btn btn-primary btn-sm"
+			class="cb-tag-add-btn"
 			aria-label="Add tag"
 			disabled={!_.trim(newTagText)}
 			onclick={() => addTag()}
@@ -1675,11 +1662,11 @@
 	close={() => toggleNotificationModal()}
 >
 	{#snippet titleIcon()}
-		<div class="color: text-warning">
+		<div class="cb-title-icon cb-text-warning">
 			<i class="mdi mdi-bell-ring"></i>
 		</div>
 	{/snippet}
-	<div class="chat-notification">
+	<div class="cb-notification">
 		{notificationText}
 	</div>
 </DialogModal>
@@ -1687,7 +1674,7 @@
 
 <DialogModal
 	title={'Edit user message'}
-	size={'md'}
+	size={'xl'}
 	isOpen={isOpenEditMsgModal}
 	toggleModal={() => toggleEditMsgModal()}
 	confirm={() => confirmEditMsg()}
@@ -1695,20 +1682,20 @@
 	disableConfirmBtn={!_.trim(editText)}
 >
 	<textarea
-		class="form-control chat-input"
+		class="cb-modal-textarea"
 		rows="5"
 		maxlength={maxTextLength}
 		bind:value={editText}
 		placeholder="Enter Message..."
 	></textarea>
-	<div class="text-secondary text-end text-count">
+	<div class="cb-modal-counter">
 		<div>{`${(editText?.length || 0)}/${maxTextLength}`}</div>
 	</div>
 </DialogModal>
 
 <DialogModal
 	title={'Send message'}
-	size={'xl'}
+	size={'5xl'}
 	isOpen={isOpenBigMsgModal}
 	toggleModal={() => toggleBigMessageModal()}
 	confirm={() => sendBigMessage()}
@@ -1716,41 +1703,21 @@
 	disableConfirmBtn={!_.trim(bigText)}
 >
 	<textarea
-		class="form-control chat-input"
+		class="cb-modal-textarea"
 		rows="25"
 		maxlength={maxTextLength}
 		bind:value={bigText}
 		placeholder="Enter Message..."
 		oninput={handleInputBigText}
 	></textarea>
-	<div class="text-secondary text-end text-count">
-		<div>{`${(bigText?.length || 0)}/${maxTextLength}`}</div>
-	</div>
-</DialogModal>
-
-<DialogModal
-	title={'Edit bot message'}
-	size={'xl'}
-	isOpen={isOpenEditBotMsgModal}
-	toggleModal={() => toggleEditBotMsgModal()}
-	confirm={() => saveBotMsg()}
-	cancel={() => toggleEditBotMsgModal()}
-	disableConfirmBtn={!_.trim(botText)}
->
-	<textarea
-		class="form-control chat-input"
-		rows="10"
-		maxlength={maxTextLength}
-		bind:value={botText}
-		placeholder="Enter Message...">
-	</textarea>
-	<div class="text-secondary text-end text-count">
-		<div>{`${(botText?.length || 0)}/${maxTextLength}`}</div>
+	<div class="cb-modal-counter">
+		<div>{`${formatNumber(bigText?.length || 0)}/${formatNumber(maxTextLength)}`}</div>
 	</div>
 </DialogModal>
 
 <PlainModal
 	title={'Code script'}
+	size={'3xl'}
 	isOpen={isOpenCodeScriptModal}
 	toggleModal={() => toggleCodeScriptModal()}
 >
@@ -1761,20 +1728,12 @@
 	/>
 </PlainModal>
 
-<StateModal
-	isOpen={isOpenUserAddStateModal}
-	bind:states={userAddStates}
-	requireActiveRounds
-	toggleModal={() => toggleUserAddStateModal()}
-	confirm={() => handleConfirmUserAddStates()}
-	cancel={() => toggleUserAddStateModal()}
-/>
 
 <HeadTitle title="Chat" addOn='' />
-<div class="d-lg-flex">
+<div class="cb-page-flex">
 	<Splitpanes on:resize={() => handlePaneResize()}>
 		{#if isLoadInstantLog}
-		<Pane size={30} minSize={25} maxSize={40} >
+		<Pane size={25} minSize={15} maxSize={40} >
 			<InstantLog
 				bind:msgStateLogs={msgStateLogs}
 				bind:agentQueueLogs={agentQueueLogs}
@@ -1786,23 +1745,23 @@
 		{/if}
 		<Pane minSize={30}>
 			<div style="height: 100vh;">
-				<div class="card mb-0" style="height: 100vh;">
-					<div class="border-bottom chat-head">
-						<div class="row chat-row">
-							<div class="col-md-4 col-4 chat-head-info">
-								<div class="chat-head-agent">
+				<div class="cb-panel-card" style="height: 100vh;">
+					<div class="cb-head">
+						<div class="cb-head-row">
+							<div class="cb-head-left">
+								<div class="cb-head-agent">
 									{#if agent?.icon_url}
-									<div class="line-align-center">
-										<img class="chat-head-agent-icon" src={agent.icon_url} alt="">
+									<div class="cb-vcenter">
+										<img class="cb-head-agent-icon" src={agent.icon_url} alt="">
 									</div>
 									{/if}
-									<div class="chat-head-agent-name line-align-center ellipsis">{agent?.name || 'Unkown'}</div>
+									<div class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</div>
 								</div>
-								<div class="text-muted mb-0 chat-head-user">
+								<div class="cb-head-user">
 									<div>
-										<i class="mdi mdi-circle text-success align-middle"></i>
+										<i class="mdi mdi-circle cb-text-success cb-align-middle"></i>
 									</div>
-									<div class="ellipsis">
+									<div class="cb-ellipsis">
 										<span>
 											{conversationUser?.full_name || conversationUser?.user_name
 											|| currentUser?.full_name || currentUser?.user_name || ''}</span>
@@ -1810,12 +1769,12 @@
 								</div>
 							</div>
 
-							<div class="col-md-8 col-8">
-								<div class="user-chat-nav user-chat-nav-flex mb-0" style={`padding-top: ${!isFrame ? '5px' : '0px'};`}>
+							<div class="cb-head-right">
+								<div class="cb-head-actions" style={`padding-top: ${!isFrame ? '5px' : '0px'};`}>
 									{#if PUBLIC_DEBUG_MODE === 'true' && isFrame}
-										<div class="">
+										<div>
 											<button
-												class="btn btn-secondary btn-rounded btn-sm"
+												class="cb-icon-btn cb-icon-btn-secondary"
 												aria-label="Open full screen"
 												onclick={() => openFullScreen()}
 											>
@@ -1823,10 +1782,10 @@
 											</button>
 										</div>
 									{/if}
-									<div class="">
+									<div>
 										{#if !isLite}
 										<div
-											class="dropdown"
+											class="cb-dropdown"
 											use:clickoutsideDirective
 											onclickoutside={(/** @type {any} */ e) => {
 												if (!e.detail.currentNode?.contains(e.detail.targetNode)) {
@@ -1835,23 +1794,22 @@
 												}
 											}}
 										>
-											<button class="nav-btn dropdown-toggle" type="button" aria-expanded={isHeaderMenuOpen} aria-label="Open dots" onclick={() => toggleHeaderMenu()}>
+											<button class="cb-nav-btn" type="button" aria-expanded={isHeaderMenuOpen} aria-label="Open dots" onclick={() => toggleHeaderMenu()}>
 												<i class="bx bx-dots-horizontal-rounded"></i>
 											</button>
-											<ul class="dropdown-menu dropdown-menu-end" class:show={isHeaderMenuOpen} style="right: 0; left: auto;">
+											<ul class="cb-menu cb-menu-end" class:show={isHeaderMenuOpen} style="right: 0; left: auto;">
 												{#if !isLoadPersistLog || !isLoadInstantLog}
-													<li><button class="dropdown-item" type="button" onclick={() => openLogs()}>View Log</button></li>
+													<li><button class="cb-menu-item" type="button" onclick={() => openLogs()}>View Log</button></li>
 												{/if}
-												{#if !isLoadInstantLog || !isOpenUserAddStateModal}
-												<li class="dropstart state-menu">
-													<button class="dropdown-item dropdown-toggle" type="button" aria-expanded={isHeaderStatesOpen} onclick={() => isHeaderStatesOpen = !isHeaderStatesOpen}>
+												<li class="cb-state-menu">
+													<button class="cb-menu-item cb-menu-item-toggle" type="button" aria-expanded={isHeaderStatesOpen} onclick={() => isHeaderStatesOpen = !isHeaderStatesOpen}>
 														States
 													</button>
-													<ul class="dropdown-menu" class:show={isHeaderStatesOpen} style="left: -160px !important;">
+													<ul class="cb-menu" class:show={isHeaderStatesOpen} style="left: -160px !important;">
 														{#if !isOpenUserAddStateModal}
 														<li>
 															<button
-																class="dropdown-item"
+																class="cb-menu-item"
 																type="button"
 																disabled={disableAction}
 																onclick={() => toggleUserAddStateModal()}
@@ -1862,7 +1820,7 @@
 														{/if}
 														<li>
 															<button
-																class="dropdown-item"
+																class="cb-menu-item"
 																type="button"
 																disabled={disableAction}
 																onclick={() => clearUserAddStates()}
@@ -1872,12 +1830,11 @@
 														</li>
 													</ul>
 												</li>
-												{/if}
 
 												{#if ADMIN_ROLES.includes(currentUser?.role || '')}
 													<li>
 														<button
-															class="dropdown-item"
+															class="cb-menu-item"
 															type="button"
 															disabled={disableAction}
 															onclick={() => toggleTagModal()}
@@ -1887,32 +1844,30 @@
 													</li>
 												{/if}
 												{#if agent?.id === LEARNER_AGENT_ID && mode === TRAINING_MODE}
-													<li><button class="dropdown-item" type="button" onclick={() => handleSaveKnowledge()}>Save Knowledge</button></li>
+													<li><button class="cb-menu-item" type="button" onclick={() => handleSaveKnowledge()}>Save Knowledge</button></li>
 												{/if}
-												<li><button class="dropdown-item" type="button" onclick={() => pinDashboard()}>Pin to Dashboard</button></li>
 											</ul>
 										</div>
 										{:else}
 										<button
-											class={`btn btn-rounded btn-sm btn-primary large-btn`}
+											class={`cb-icon-btn cb-icon-btn-primary cb-icon-btn-lg`}
 											aria-label="Open new conversation"
 											disabled={disableAction}
 											onclick={() => handleNewConversation()}
 										>
-											<i 
-												class="mdi mdi-plus"
-												style="font-size: 15px;"
+											<i
+												class="mdi mdi-plus cb-icon-lg"
 												data-bs-toggle="tooltip"
 												data-bs-placement="top"
 												title="New Conversation"></i>
 										</button>
 										{/if}
 									</div>
-									
-									<div class="btn-pair">
+
+									<div class="cb-btn-pair">
 										{#if !isLite}
 										<button
-											class={`btn btn-rounded btn-sm btn-primary btn-left`}
+											class={`cb-pill-btn cb-pill-btn-primary cb-pill-btn-left`}
 											disabled={disableAction}
 											onclick={() => handleNewConversation()}
 										>
@@ -1922,17 +1877,17 @@
 												title="New Conversation"
 											>
 												<i class="mdi mdi-plus"></i>
-												<span class="me-2">New</span>
+												<span class="cb-pill-btn-label">New</span>
 											</span>
 										</button>
 										{/if}
 										<button
-											class={`btn btn-rounded btn-sm btn-danger ${!isLite ? 'btn-right' : ''}`}
+											class={`cb-pill-btn cb-pill-btn-danger ${!isLite ? 'cb-pill-btn-right' : ''}`}
 											disabled={disableAction}
 											onclick={() => endChat()}
 										>
 											{#if !isLite}
-											<span class="me-2">End</span>
+											<span class="cb-pill-btn-label">End</span>
 											{/if}
 											<i class="mdi mdi-window-close"></i>
 										</button>
@@ -1942,168 +1897,277 @@
 						</div>
 					</div>
 
-					<div class={`chat-scrollbar chat-content scroll-bottom-to-top ${!loadEditor ? 'chat-content-expand' : ''}`}>
-						<div class="chat-conversation p-3">
-							<ul class="list-unstyled mb-0">
+				<StateModal
+					isOpen={isOpenUserAddStateModal}
+					inline
+					bind:states={userAddStates}
+					requireActiveRounds
+					toggleModal={() => toggleUserAddStateModal()}
+					confirm={() => handleConfirmUserAddStates()}
+					cancel={() => toggleUserAddStateModal()}
+				/>
+
+				<div class={`cb-msgs-scroll cb-msgs-content cb-msgs-scroll-rev ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+						<div class="cb-conv">
+							<ul class="cb-conv-list">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
 									<li>
-										<div class="chat-day-title">
-											<span class="title">{createDate}</span>
+										<div class="cb-day-title">
+											<span class="cb-day-title-text">{createDate}</span>
 										</div>
 									</li>
 									{#each dialogGroup as message}
-										<li id={'test_k' + message.message_id} class:right={!BOT_SENDERS.includes(message.sender?.role)}>
-											<div class="conv-msg-container">
+										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
+											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
-												<div class="msg-container">
-													<div
-														tabindex="0"
-														aria-label="user-msg-to-log"
-														role="link"
-														onkeydown={() => {}}
-														onclick={() => directToLog(message.message_id)}
-													>
-														<div
-															class="ctext-wrap user-msg bg-primary" 
-															class:clickable={!isLite && isLoadPersistLog}
-															id={`user-msg-${message.message_id}`}
-														>
-															<div class="text-start fw-bold text-white">{@html replaceNewLine(message.text)}</div>
+												<div class="cb-msg-stack" class:cb-msg-stack-editing={editingMsgId === message.message_id}>
+													{#if editingMsgId === message.message_id}
+														<div class="cb-msg-edit-wrap">
+															<div class="cb-msg-edit-box">
+																<textarea
+																	class="cb-msg-edit-textarea"
+																	maxlength={maxTextLength}
+																	placeholder="Edit message..."
+																	bind:value={editText}
+																></textarea>
+															</div>
+															<div class="cb-msg-edit-actions">
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-cancel"
+																	onclick={() => cancelEditMessage()}
+																>
+																	Cancel
+																</button>
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-send"
+																	disabled={!_.trim(editText)}
+																	onclick={() => confirmEditMsg()}
+																>
+																	Send
+																</button>
+															</div>
 														</div>
-														<p class="chat-time mb-0 float-end">
-															<i class="bx bx-time-five align-middle me-1"></i>
+													{:else}
+														<div
+															class="cb-user-msg-link"
+															tabindex="0"
+															aria-label="user-msg-to-log"
+															role="link"
+															onkeydown={() => {}}
+															onclick={() => directToLog(message.message_id)}
+														>
+															<div
+																class="cb-bubble cb-bubble-user"
+																class:cb-clickable={!isLite && isLoadPersistLog}
+																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
+																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
+																id={`user-msg-${message.message_id}`}
+															>
+																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
+															</div>
+														</div>
+														{#if !disableAction}
+															<div class="cb-msg-actions cb-msg-actions-user">
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-edit"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Edit"
+																		aria-disabled={isWaiting || disableAction}
+																		onclick={() => editMessage(message)}
+																	>
+																		<i class="bx bxs-edit cb-text-primary"></i>
+																	</div>
+																</div>
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-resend"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Resend"
+																		aria-disabled={isWaiting || disableAction}
+																		onclick={() => resendMessage(message)}
+																	>
+																		<i class="bx bx-redo cb-text-primary"></i>
+																	</div>
+																</div>
+																<div class="cb-msg-action">
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-vcenter cb-text-primary cb-msg-action-icon-copy cursor-pointer"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Copy"
+																		onmouseup={e => copyMessage(e, message)}
+																	>
+																		{#if copiedMsgUid === message.uuid}
+																			<div class="cb-copied-feedback">
+																				<i class="bx bx-check cb-copied-icon"></i>
+																				<span class="cb-copied-label">Copied!</span>
+																			</div>
+																		{:else}
+																			<i class="bx bx-copy"></i>
+																		{/if}
+																	</div>
+																</div>
+																<div class="cb-vcenter cb-msg-action">
+																	<!-- svelte-ignore a11y_click_events_have_key_events -->
+																	<!-- svelte-ignore a11y_no_static_element_interactions -->
+																	<div
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-delete"
+																		data-bs-toggle="tooltip"
+																		data-bs-placement="top"
+																		title="Delete"
+																		aria-disabled={isWaiting || disableAction}
+																		onclick={(e) => deleteMessage(e, message.message_id)}
+																	>
+																		<i class="bx bx-trash cb-text-danger"></i>
+																	</div>
+																</div>
+															</div>
+														{/if}
+														<p class="cb-chat-time">
+															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
 															{utcToLocal(message.created_at, 'h:mm:ss A')}
 														</p>
-													</div>
-													{#if !!message.post_action_disclaimer}
-														<RcDisclaimer content={message.post_action_disclaimer} />
-													{/if}
-													{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
-														<MessageFileGallery
-															message={message}
-															appendImage
-															galleryStyles={'justify-content: flex-end;'}
-															fetchFiles={() => getConversationFiles(page.params.conversationId, message.message_id, FileSourceType.User)}
-														/>
+														{#if !!message.post_action_disclaimer}
+															<RcDisclaimer content={message.post_action_disclaimer} />
+														{/if}
+														{#if !!message.is_chat_message || !!message.has_message_files || message?.data?.startsWith(IMAGE_DATA_PREFIX)}
+															<MessageFileGallery
+																message={message}
+																appendImage
+																galleryStyles={'justify-content: flex-end;'}
+																fetchFiles={() => getConversationFiles(page.params.conversationId, message.message_id, FileSourceType.User)}
+															/>
+														{/if}
 													{/if}
 												</div>
-													{#if !isLite}
-														<div
-															class="dropdown"
-															use:clickoutsideDirective
-															onclickoutside={(/** @type {any} */ e) => {
-																if (!e.detail.currentNode?.contains(e.detail.targetNode)) {
-																	if (openMsgActionId === message.message_id) {
-																		openMsgActionId = '';
-																	}
-																}
-															}}
-														>
-															<button class="dropdown-toggle btn btn-link p-0 border-0" type="button" aria-expanded={openMsgActionId === message.message_id} aria-label="Message actions" disabled={isSendingMsg || isThinking || disableAction} onclick={() => { openMsgActionId = openMsgActionId === message.message_id ? '' : message.message_id; }}>
-																<i class="bx bx-dots-vertical-rounded"></i>
-															</button>
-															<ul class="dropdown-menu dropdown-menu-end" class:show={openMsgActionId === message.message_id} style="right: 0; left: auto;">
-																<li><button class="dropdown-item" type="button" onclick={() => { openMsgActionId = ''; editMessage(message); }}>Edit</button></li>
-																<li><button class="dropdown-item" type="button" onclick={(e) => { openMsgActionId = ''; resendMessage(e, message); }}>Resend</button></li>
-																<li><button class="dropdown-item" type="button" onclick={(e) => { openMsgActionId = ''; deleteMessage(e, message.message_id); }}>Delete</button></li>
-															</ul>
-														</div>
-													{/if}
 												{:else}
-												<div class="cicon-wrap align-content-end">
+												<div class="cb-cicon cb-cicon-end">
 													{#if message.sender.role == UserRole.Client}
-														<img src="images/users/user-dummy.jpg" class="rounded-circle avatar-sm" style="margin-bottom: -15px;" alt="avatar">
+														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
+														{@const isLastBotIcon = message?.uuid === lastBotMsg?.uuid}
 														<img
-															class="rounded-circle avatar-sm"
+															class={`cb-avatar ${isLastBotIcon ? 'cb-avatar-bounce' : ''}`}
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
 														>
 													{/if}
 												</div>
-												<div class="msg-container">
-													<RcMessage containerClasses={'bot-msg'} markdownClasses={'markdown-dark text-dark'} message={message} isStreaming={isStreaming || isThinking} />
+												<div class="cb-msg-stack" class:cb-msg-stack-editing={editingBotMsgUid === message.uuid}>
+													{#if editingBotMsgUid === message.uuid}
+														<div class="cb-msg-edit-wrap cb-msg-edit-wrap-bot">
+															<div class="cb-msg-edit-box">
+																<textarea
+																	class="cb-msg-edit-textarea"
+																	maxlength={maxTextLength}
+																	placeholder="Edit message..."
+																	bind:value={botText}
+																></textarea>
+															</div>
+															<div class="cb-msg-edit-actions">
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-cancel"
+																	onclick={() => cancelBotMsgEdit()}
+																>
+																	Cancel
+																</button>
+																<button
+																	type="button"
+																	class="cb-msg-edit-btn cb-msg-edit-btn-send"
+																	disabled={!_.trim(botText)}
+																	onclick={() => saveBotMsg()}
+																>
+																	Save
+																</button>
+															</div>
+														</div>
+													{:else}
+														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
-														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}	
-														<div style={`display: ${isStreamEnd ? 'flex' : 'none'}; gap: 10px; flex-wrap: wrap; margin-top: 5px;`}>
+														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
+														<div class="cb-msg-actions" style={`display: ${isStreamEnd && editingBotMsgUid !== message.uuid ? 'flex' : 'none'};`}>
 															{#if PUBLIC_LIVECHAT_SPEAKER_ENABLED === 'true'}
 																<AudioSpeaker
-																	id={message?.message_id} 
+																	id={message?.message_id}
 																	text={message?.rich_content?.message?.text || message?.text}
 																/>
 															{/if}
 															{#if PUBLIC_LIVECHAT_ENABLE_TRAINING === 'true' && AgentExtensions.trainable(agent)}
 																{#if message?.function}
-																	<div class="line-align-center" style="font-size: 17px;">
+																	<div class="cb-vcenter cb-msg-action">
 																		<!-- svelte-ignore a11y_click_events_have_key_events -->
 																		<!-- svelte-ignore a11y_no_static_element_interactions -->
 																		<div
-																			class="clickable"
-																			style="height: 95%;"
+																			class="cb-clickable cb-msg-action-icon"
 																			data-bs-toggle="tooltip"
 																			data-bs-placement="top"
 																			title="Like"
 																			onclick={e => likeMessage(e, message)}
 																		>
-																			<i class="mdi mdi-thumb-up-outline text-primary"></i>
+																			<i class="mdi mdi-thumb-up-outline cb-text-primary"></i>
 																		</div>
 																	</div>
 																{/if}
-																<div class="line-align-center" style="font-size: 17px;">
+																<div class="cb-vcenter cb-msg-action">
 																	<!-- svelte-ignore a11y_click_events_have_key_events -->
 																	<!-- svelte-ignore a11y_no_static_element_interactions -->
 																	<div
-																		class="clickable"
-																		style="height: 80%;"
+																		class="cb-clickable cb-msg-action-icon cb-msg-action-icon-edit"
 																		data-bs-toggle="tooltip"
 																		data-bs-placement="top"
 																		title="Edit"
-																		onclick={() => openEditBotMsgModal(message)}
+																		aria-disabled={isWaiting || disableAction}
+																		onclick={() => openBotMsgEditor(message)}
 																	>
-																		<i class="bx bxs-edit text-primary"></i>
+																		<i class="bx bxs-edit cb-text-primary"></i>
 																	</div>
 																</div>
 															{/if}
-															<div style="font-size: 17px;">
+															<div class="cb-msg-action">
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="line-align-center text-primary"
-																	style="height: 85%;"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-copy cursor-pointer"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Copy"
 																	onmouseup={e => copyMessage(e, message)}
-																	onmousedown={() => copyClicked = true}
 																>
-																	{#if copyClicked}
-																		<div class="div-center">
-																			<div class="line-align-center">
-																				<i class="bx bx-check"></i> 
-																			</div>
-																			<div class="line-align-center">
-																				<span style="font-size: 10px;">{'Copied!'}</span>
-																			</div>
+																	{#if copiedMsgUid === message.uuid}
+																		<div class="cb-copied-feedback">
+																			<i class="bx bx-check cb-copied-icon"></i>
+																			<span class="cb-copied-label">Copied!</span>
 																		</div>
 																	{:else}
-																		<i class="bx bx-copy clickable"></i>
+																		<i class="bx bx-copy"></i>
 																	{/if}
 																</div>
 															</div>
 															{#if message?.rich_content?.message?.rich_type === RichType.ProgramCode}
-															<div style="font-size: 17px;">
+															<div class="cb-msg-action">
 																<!-- svelte-ignore a11y_click_events_have_key_events -->
 																<!-- svelte-ignore a11y_no_static_element_interactions -->
 																<div
-																	class="line-align-center text-primary"
-																	style="height: 85%;"
+																	class="cb-vcenter cb-text-primary cb-msg-action-icon-code cursor-pointer"
 																	data-bs-toggle="tooltip"
 																	data-bs-placement="top"
 																	title="Code script"
 																	onclick={e => openCodeScriptModal(e, message)}
 																>
-																	<i class="bx bx-terminal clickable"></i>
+																	<i class="bx bx-terminal"></i>
 																</div>
 															</div>
 															{/if}
@@ -2126,19 +2190,19 @@
 
 								{#if isThinking}
 								<li>
-									<div class="conv-msg-container">
-										<div class="cicon-wrap float-start">
-											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="rounded-circle avatar-xs" alt="avatar">
+									<div class="cb-msg-row">
+										<div class="cb-cicon cb-cicon-start">
+											<img src={PUBLIC_LIVECHAT_ENTRY_ICON} class="cb-avatar cb-avatar-xs" alt="avatar">
 										</div>
-										<div class="msg-container">
-											<div class="ctext-wrap float-start">
+										<div class="cb-msg-stack">
+											<div class="cb-bubble cb-bubble-thinking">
 												{#if !!indication}
-													<span class="chat-indication">
+													<span class="cb-chat-indication">
 														{indication}
 													</span>
 												{/if}
-												<div class="flex-shrink-0 align-self-center" style="display: inline-block;">
-													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--bs-primary)'} />
+												<div class="cb-thinking-dots">
+													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--color-primary)'} />
 												</div>
 											</div>
 										</div>
@@ -2147,39 +2211,40 @@
 								{/if}
 							</ul>
 
-							<ChatFileGallery disabled={isSendingMsg || isThinking} />
+							<ChatFileGallery disabled={isWaiting} />
 							{#if !!lastBotMsg && !isSendingMsg && !isThinking}
 								<RichContent
 									message={lastBotMsg}
-									disabled={isSendingMsg || isThinking || disableAction}
+									disabled={isWaiting || disableAction}
 									onConfirm={(title, payload) => confirmSelectedOption(title, payload)}
 								/>
 							{/if}
 						</div>
 					</div>
 
-					<div class={`chat-input-section css-animation ${!loadEditor ? 'chat-input-hide' : 'fade-in-from-none'}`}>
-						<div class="row">
-							<div class="col-auto">
+					<div class={`cb-input-section cb-css-animation ${!loadEditor ? 'cb-input-hide' : 'cb-fade-in'}`}>
+						<div class="cb-input-row">
+							<div class="cb-col-auto">
 								{#if PUBLIC_LIVECHAT_VOICE_ENABLED === 'true' && !disableSpeech}
 									<button
 										type="submit"
-										class={`btn btn-rounded waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
+										class={`cb-btn cb-btn-round ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'} ${isListening ? 'cb-btn-listening' : ''}`}
 										aria-label="Start/stop listening"
-										disabled={isSendingMsg || isThinking || disableAction}
+										aria-pressed={isListening}
+										disabled={isWaiting || disableAction}
 										onclick={() => startListen()}
 									>
-										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} md-36"></i>
+										<i class="mdi mdi-{isListening ? 'microphone' : 'microphone-off'} cb-md-36"></i>
 									</button>
 								{/if}
 							</div>
-							<div class="col">
-								<div class="position-relative">
+							<div class="cb-col-grow">
+								<div class="cb-position-relative">
 									<ChatTextArea
 										id={'chat-textarea'}
-										className={`chat-input ${!isLite ? 'chat-more-util' : ''}`}
+										className={`${!isLite ? 'cb-textarea-more-util' : ''}`}
 										maxLength={maxTextLength}
-										disabled={isSendingMsg || isThinking || disableAction}
+										disabled={isWaiting || disableAction}
 										bind:text={text}
 										bind:loadUtils={loadChatUtils}
 										bind:options={chatUtilOptions}
@@ -2190,13 +2255,13 @@
 									>
 										<ChatFileUploader
 											accept={'.png,.jpg,.jpeg'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											containerClasses={'cb-util-uploader'}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
-													class="bx bx-image-add"
+												<i
+													class="bx bx-image-add cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload images"></i>
@@ -2204,13 +2269,13 @@
 										</ChatFileUploader>
 										<ChatFileUploader
 											accept={'.pdf,.xlsx,.xls,.csv'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											containerClasses={'cb-util-uploader'}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
-													class="bx bxs-folder-open"
+												<i
+													class="bx bxs-folder-open cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload pdf, excel files"></i>
@@ -2218,39 +2283,40 @@
 										</ChatFileUploader>
 										<ChatFileUploader
 											accept={'.wav,.mp3'}
-											containerClasses={'line-align-center text-primary chat-util-item'}
-											disabled={isSendingMsg || isThinking || disableAction}
+											containerClasses={'cb-util-uploader'}
+											disabled={isWaiting || disableAction}
 											onfiledroped={() => refresh()}
 										>
 											<span>
-												<i 
-													class="bx bxs-music"
+												<i
+													class="bx bxs-music cursor-pointer"
 													data-bs-toggle="tooltip"
 													data-bs-placement="top"
 													title="Upload audios"></i>
 											</span>
 										</ChatFileUploader>
 									</ChatTextArea>
-									<div class="chat-util-links">
+									<div class="cb-util-links">
 										<ChatBigMessage
-											disabled={isSendingMsg || isThinking || disableAction}
+											disabled={isWaiting || disableAction}
 											onclick={() => toggleBigMessageModal()}
 										/>
 										{#if PUBLIC_LIVECHAT_FILES_ENABLED === 'true'}
 											<ChatUtil
-												disabled={isSendingMsg || isThinking || disableAction}
+												disabled={isWaiting || disableAction}
 												onclick={() => loadChatUtils = true}
 											/>
 										{/if}
 									</div>
 								</div>
 							</div>
-							<div class="col-auto">
+							<div class="cb-col-auto">
 								{#if !isStopStreamClicked && isStreaming && PUBLIC_LIVECHAT_STREAM_ENABLED === 'true'}
 									<button
 										type="button"
-										class="btn btn-rounded chat-send waves-effect waves-light btn-danger"
+										class="cb-btn cb-btn-round cb-btn-send cb-btn-danger cb-btn-streaming"
 										aria-label="Stop streaming"
+										aria-pressed="true"
 										onclick={() => stopStreaming()}
 									>
 										<i class="mdi mdi-stop"></i>
@@ -2258,11 +2324,11 @@
 								{:else}
 									<button
 										type="submit"
-										class={`btn btn-rounded chat-send waves-effect waves-light ${mode === TRAINING_MODE ? 'btn-danger' : 'btn-primary'}`}
-										disabled={!_.trim(text) || isSendingMsg || isThinking || disableAction}
+										class={`cb-btn cb-btn-round cb-btn-send ${mode === TRAINING_MODE ? 'cb-btn-danger' : 'cb-btn-primary'}`}
+										disabled={!_.trim(text) || isWaiting || disableAction}
 										onclick={() => sentTextMessage()}
 									>
-										<span class="d-none d-md-inline-block me-2">Send</span>
+										<span class="cb-send-label">Send</span>
 										<i class="mdi mdi-send"></i>
 									</button>
 								{/if}
@@ -2273,7 +2339,7 @@
 			</div>
 		</Pane>
 		{#if isLoadPersistLog}
-		<Pane size={30} minSize={25} maxSize={40}>
+		<Pane size={25} minSize={15} maxSize={40}>
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
@@ -2285,3 +2351,6 @@
 		{/if}
 	</Splitpanes>
 </div>
+
+
+

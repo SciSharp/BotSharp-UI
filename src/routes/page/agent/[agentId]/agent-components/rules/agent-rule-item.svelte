@@ -1,40 +1,31 @@
 <script>
-    import { slide } from 'svelte/transition';
 	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import BotsharpTooltip from '$lib/common/tooltip/BotsharpTooltip.svelte';
-	import { ADMIN_ROLES } from '$lib/helpers/constants';
-
-    const duration = 200;
+	import Select from '$lib/common/dropdowns/Select.svelte';
 
     /**
      * @type {{
      *   rule: import('$agentTypes').AgentRule,
      *   ruleIndex: number,
      *   collapsed?: boolean,
-     *   user: import('$userTypes').UserModel,
      *   ruleOptions?: any[],
-     *   configOptions?: any[],
      *   windowWidth: number,
      *   ontoggle?: (data: { ruleIdx: number, field: string, checked: boolean }) => void,
      *   onchange?: (data: { ruleIdx: number, field: string, value: string }) => void,
      *   ondelete?: (data: { ruleIdx: number, field: string }) => void,
-     *   oncollapse?: (data: { ruleIdx: number, collapsed: boolean }) => void,
-     *   onconfig?: (data: { ruleIdx: number }) => void
+     *   oncollapse?: (data: { ruleIdx: number, collapsed: boolean }) => void
      * }}
      */
     let {
         rule,
         ruleIndex,
         collapsed = true,
-        user,
         ruleOptions = [],
-        configOptions = [],
         windowWidth,
         ontoggle,
         onchange,
         ondelete,
-        oncollapse,
-        onconfig
+        oncollapse
     } = $props();
 
     /**
@@ -54,10 +45,11 @@
      * @param {string} field
      */
     function changeRule(e, field) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         onchange?.({
             ruleIdx: ruleIndex,
             field: field,
-            value: e?.target?.value || ''
+            value: values[0] || ''
         });
     }
 
@@ -77,20 +69,14 @@
             collapsed: !collapsed
         });
     }
-
-    function toggleConfig() {
-        onconfig?.({
-            ruleIdx: ruleIndex
-        });
-    }
 </script>
 
-<div class="utility-wrapper">
-    <div class="utility-row utility-row-primary">
-        <div class="utility-label fw-bold">
-            <div class="line-align-center">
+<div class="ari-wrapper">
+    <div class="ari-row ari-row-primary">
+        <div class="ari-label ari-label-strong">
+            <div class="ari-cell">
                 <i
-                    class="bx bx-chevron-right clickable fs-6 collapse-toggle"
+                    class="bx bx-chevron-right ari-collapse-toggle"
                     class:rotated={!collapsed}
                     role="button"
                     tabindex="0"
@@ -98,24 +84,23 @@
                     onclick={() => toggleCollapse()}
                 ></i>
             </div>
-            <div class="line-align-center">
+            <div class="ari-cell">
                 {`Rule #${ruleIndex + 1}`}
             </div>
-            <div class="utility-tooltip">
-                <div class="line-align-center">
+            <div class="ari-tooltip-wrap">
+                <label class="ari-checkbox">
                     <input
                         type="checkbox"
-                        class="form-check-input"
-                        style="margin-top: 0;"
+                        class="ari-checkbox-input"
                         checked={!rule.disabled}
                         onchange={e => toggleRule(e, 'rule')}
                     />
-                </div>
+                    <span class="ari-checkbox-box"></span>
+                </label>
                 {#if rule.statement}
-                <div class="line-align-center">
+                <div class="ari-cell">
                     <i
-                        class="bx bx-info-circle text-primary fs-6"
-                        style="padding-top: 2px;"
+                        class="bx bx-info-circle ari-info-icon"
                         id={`rule-statement-${ruleIndex}`}
                         data-bs-toggle="tooltip"
                         data-bs-placement="top"
@@ -138,41 +123,23 @@
                     </BotsharpTooltip>
                 </div>
                 {/if}
-
-                {#if ADMIN_ROLES.includes(user?.role || '') && !!rule.trigger_name && rule.config?.topology_name}
-                <div class="line-align-center">
-                    <i
-                        class="bx bx-cog text-primary fs-6 clickable"
-                        id={`rule-config-${ruleIndex}`}
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Rule config"
-                        role="button"
-                        tabindex="0"
-                        onkeydown={() => {}}
-                        onclick={() => toggleConfig()}
-                    ></i>
-                </div>
-                {/if}
             </div>
         </div>
-        <div class="utility-value">
-            <div class="utility-input line-align-center">
-                <select
-                    class="form-select"
+        <div class="ari-value">
+            <div class="ari-input-wrap ari-cell">
+                <Select
+                    tag={`rule-trigger-${ruleIndex}`}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a trigger'}
                     disabled={rule.disabled}
-                    onchange={e => changeRule(e, 'rule')}
-                >
-                    {#each [...ruleOptions] as option}
-                        <option value={option.name} selected={option.name == rule.trigger_name}>
-                            {option.displayName || option.name}
-                        </option>
-                    {/each}
-                </select>
+                    selectedValues={rule.trigger_name ? [rule.trigger_name] : []}
+                    options={ruleOptions.filter(o => !!o.name).map(o => ({ label: o.displayName || o.name, value: o.name }))}
+                    onselect={e => changeRule(e, 'rule')}
+                />
             </div>
-            <div class="utility-delete line-align-center">
+            <div class="ari-delete ari-cell">
                 <i
-                    class="bx bxs-no-entry text-danger clickable fs-6"
+                    class="bx bxs-no-entry ari-delete-icon"
                     role="link"
                     tabindex="0"
                     onkeydown={() => {}}
@@ -181,36 +148,6 @@
             </div>
         </div>
     </div>
-
-    {#if !collapsed}
-    <div class="utility-row utility-row-secondary" transition:slide={{ duration: duration }}>
-        <div class="utility-content">
-            <div class="utility-list-item">
-                <div class="utility-label line-align-center">
-                    <div class="d-flex gap-1">
-                        <div class="line-align-center">
-                            {'Topology'}
-                        </div>
-                        <div class="line-align-center"></div>
-                    </div>
-                </div>
-                <div class="utility-value">
-                    <div class="utility-input line-align-center">
-                        <select
-                            class="form-select"
-                            onchange={e => changeRule(e, 'topology')}
-                        >
-                            {#each [...configOptions] as option}
-                                <option value={`${option.name}`} selected={option.name == rule.config?.topology_name}>
-                                    {option.name}
-                                </option>
-                            {/each}
-                        </select>
-                    </div>
-                    <div class="utility-delete line-align-center"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-    {/if}
 </div>
+
+

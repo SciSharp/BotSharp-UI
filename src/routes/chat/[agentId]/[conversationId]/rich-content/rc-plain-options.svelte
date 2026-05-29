@@ -131,17 +131,15 @@
 </script>
 
 {#if videoOptions}
-<div class="video-option-container center-option">
+<div class="rcpo-video-row rcpo-center">
     {#each videoOptions as video}
-        <div class="video-element-card" in:fade={{ duration: duration }}>
-            <div class="card">
-                <div class="card-body">
-                    <div class="video-element-title">
-                        {video.title}
-                    </div>
-                    <div class="video-element-player">
-                        <SveltePlayer url={video.payload} controls />
-                    </div>
+        <div class="rcpo-video-card" in:fade={{ duration: duration }}>
+            <div class="rcpo-video-body">
+                <div class="rcpo-video-title">
+                    {video.title}
+                </div>
+                <div class="rcpo-video-player">
+                    <SveltePlayer url={video.payload} controls />
                 </div>
             </div>
         </div>
@@ -150,23 +148,23 @@
 {/if}
 
 {#if plainOptions || fileOption}
-<div class="plain-option-container center-option">
+<div class="rcpo-option-row rcpo-center">
     {#each plainOptions as option, index}
         <button
-            class={`btn btn-sm m-1 ${option.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
-            class:active={!!option.isClicked}
+            class={`rcpo-btn ${option.is_secondary ? 'rcpo-btn-secondary' : 'rcpo-btn-primary'}`}
+            class:rcpo-active={!!option.isClicked}
             disabled={disabled}
             in:fade={{ duration: duration }}
             onclick={(e) => handleClickOption(e, option, index)}
         >
-            <span class={`${option.type === ElementType.Web && option.url ? 'link-option' : ''}`}>
+            <span class={`${option.type === ElementType.Web && option.url ? 'rcpo-link' : ''}`}>
                 {option.title}
             </span>
         </button>
     {/each}
     {#if plainOptions && isMultiSelect}
         <button
-            class="btn btn-outline-success btn-sm m-1"
+            class="rcpo-btn rcpo-btn-confirm"
             name="confirm"
             in:fade={{ duration: duration }}
             disabled={disabled || plainOptions.every(x => !x.isClicked)}
@@ -176,11 +174,12 @@
         </button>
     {/if}
     {#if fileOption}
-        <ChatFileUploader accept=".png,.jpg,.jpeg" containerClasses={'line-align-center text-primary chat-uploader'}>
-            <span style="position: relative; top: 3px;" in:fade={{ duration: duration }}>
+        <ChatFileUploader accept=".png,.jpg,.jpeg" containerClasses={'rcpo-uploader'}>
+            <span class="rcpo-uploader-glyph" in:fade={{ duration: duration }}>
                 <i class="bx bx-image-add"></i>
             </span>
         </ChatFileUploader>
     {/if}
 </div>
 {/if}
+
