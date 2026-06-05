@@ -7,6 +7,16 @@
      * }}
      */
 	let { agent } = $props();
+
+	/** @param {number} count @param {string} singular @param {string} plural */
+	const pluralize = (count, singular, plural) => `${count || 0} ${count > 1 ? plural : singular}`;
+
+	let stats = $derived([
+		agent?.profiles && pluralize(agent.profiles.length, 'profile', 'profiles'),
+		agent?.functions && pluralize(agent.functions.length, 'function', 'functions'),
+		agent?.utilities && pluralize(agent.utilities.length, 'utility', 'utilities'),
+		agent?.mcp_tools && pluralize(agent.mcp_tools.length, 'MCP', 'MCPs')
+	].filter(Boolean).join(', '));
 </script>
 
 <div class="cai-wrapper">
@@ -34,18 +44,7 @@
     </div>
     <div class="cai-row">
         <div class="cai-meta">
-            {#if !!agent?.profiles}
-            <span>{agent?.profiles?.length || 0} {agent?.profiles?.length > 1 ? 'profiles' : 'profile'}{', '}</span>
-            {/if}
-            {#if !!agent?.functions}
-            <span>{agent?.functions?.length || 0} {agent?.functions?.length > 1 ? 'functions' : 'function'}{', '}</span>
-            {/if}
-            {#if !!agent?.utilities}
-            <span>{agent?.utilities?.length || 0} {agent?.utilities?.length > 1 ? 'utilities' : 'utility'}{', '}</span>
-            {/if}
-            {#if !!agent?.mcp_tools}
-            <span>{agent?.mcp_tools?.length || 0} {agent?.mcp_tools?.length > 1 ? 'MCPs' : 'MCP'}</span>
-            {/if}
+            <span>{stats}</span>
         </div>
     </div>
 </div>

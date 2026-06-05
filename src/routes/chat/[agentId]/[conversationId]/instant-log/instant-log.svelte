@@ -52,6 +52,7 @@
         agentQueueLogs;
         latestStateLog;
 
+        initScrollbars();
         scrollToBottom();
     });
 
@@ -59,18 +60,25 @@
         cleanLogs();
     });
 
-    let _scrollScheduled = false;
-    function scrollToBottom() {
+    function initScrollbars() {
         const scrollbarElements = [
+            document.querySelector('.instant-log-scrollbar'),
             document.querySelector('.latest-state-log-scrollbar'),
             document.querySelector('.msg-state-log-scrollbar'),
             document.querySelector('.agent-queue-log-scrollbar')
         ].filter(Boolean);
         scrollbarElements.forEach(elem => {
             // @ts-ignore
+            if (elem.hasAttribute('data-overlayscrollbars')) {
+                return;
+            }
+            // @ts-ignore
             scrollbars = [ ...scrollbars, OverlayScrollbars(elem, options) ];
         });
+    }
 
+    let _scrollScheduled = false;
+    function scrollToBottom() {
         if (_scrollScheduled) {
             return;
         }
@@ -104,12 +112,6 @@
     }
 </script>
 
-<!--
-  NOTE: .latest-state-log-scrollbar, .msg-state-log-scrollbar and
-  .agent-queue-log-scrollbar are DOM hooks queried by scrollToBottom().
-  Keep those class names on the markup; styling is done via the
-  scoped .il-* siblings.
--->
 <div class="il-root font-code">
     <div class="il-card">
         <div class="il-close-bar">
@@ -124,7 +126,7 @@
                 </button>
             </div>
         </div>
-        <div class="il-body">
+        <div class="il-body instant-log-scrollbar">
             {#if !!agent}
             <div
                 class="il-section il-section-agent"

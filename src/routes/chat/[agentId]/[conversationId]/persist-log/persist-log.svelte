@@ -186,12 +186,7 @@
     }
 </script>
 
-<!--
-  NOTE: .content-log-scrollbar and .conv-state-log-scrollbar are DOM hooks
-  queried by initScrollbars() (this file) and autoScrollToTargetLog()
-  (chat-box.svelte). Keep those class names exactly. Scoped styling is
-  applied through .pl-* siblings.
--->
+
 <div class="pl-root font-code">
     <div class="pl-card">
         <div class="pl-header-bar">
