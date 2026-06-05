@@ -2959,13 +2959,6 @@
     flex-direction: column;
     gap: 20px;
     padding: 0 20px;
-    overflow-y: scroll;
-    scrollbar-width: none;
-
-
-    &::-webkit-scrollbar {
-        display: none;
-    }
 }
 
 
@@ -2984,6 +2977,7 @@
     background: linear-gradient(180deg, rgb(15 21 36) 0%, rgb(9 13 24) 100%);
     border-radius: 12px;
     border: 1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent);
+    margin: 10px 0 14px 0;
     display: flex;
     flex-direction: column;
     position: relative;
