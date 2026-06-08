@@ -1094,6 +1094,8 @@
 	function toggleUserAddStateModal() {
 		isOpenUserAddStateModal = !isOpenUserAddStateModal;
 		if (isOpenUserAddStateModal) {
+			isHeaderStatesOpen = false;
+			isHeaderMenuOpen = false;
 			loadUserAddStates();
 		}
 	}
