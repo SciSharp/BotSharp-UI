@@ -749,6 +749,7 @@
 /* Header bar */
 .cb-head {
     position: relative;
+    z-index: 20;
     font-size: 1rem;
     padding: clamp(0.75rem, 2vmin, 1.25rem) 2%;
     height: 10%;
