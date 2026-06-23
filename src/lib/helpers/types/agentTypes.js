@@ -139,10 +139,17 @@
  * @property {boolean?} [is_upsert]
  */
 
-/** 
+/**
  * @typedef {Object} AgentCodeScriptUpdateModel
  * @property {AgentCodeScriptViewModel[]?} [code_scripts]
  * @property {AgentCodeScriptUpdateOptions?} [options]
+ */
+
+/**
+ * @typedef {Object} AgentDeleteOptions
+ * @property {boolean?} [delete_role_agents]
+ * @property {boolean?} [delete_user_agents]
+ * @property {AgentCodeScriptViewModel[]?} [to_delete_code_scripts]
  */
 
 /** 
