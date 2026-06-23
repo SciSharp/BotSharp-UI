@@ -68,10 +68,11 @@ export async function saveAgent(agent) {
 /**
  * Delete agent detail
  * @param {string} agentId
+ * @param {import('$agentTypes').AgentDeleteOptions | null} options
  */
-export async function deleteAgent(agentId) {
+export async function deleteAgent(agentId, options = null) {
     let url = endpoints.agentDetailUrl.replace("{id}", agentId);
-    await axios.delete(url);
+    await axios.delete(url, { data: options ? { options } : {} });
 }
 
 /**
