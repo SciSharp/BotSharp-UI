@@ -2,7 +2,7 @@
     import { slide } from 'svelte/transition';
     import Select from '$lib/common/dropdowns/Select.svelte';
     import { INTEGER_REGEX } from '$lib/helpers/constants';
-    import { LlmModelCapability, LlmModelType, ReasoningEffortLevel } from '$lib/helpers/enums';
+    import { LlmModelCapability, LlmModelType, ReasoningEffortLevel, ResponseFormat } from '$lib/helpers/enums';
 
     /**
      * @type {{
@@ -24,7 +24,8 @@
             provider: config.provider || null,
             model: config.model || null,
             max_output_tokens: Number(config.max_output_tokens) > 0 ? Number(config.max_output_tokens) : null,
-            reasoning_effort_level: reasoningEffort
+            reasoning_effort_level: reasoningEffort,
+            response_format: config.response_format || null
         };
     }
 
@@ -34,6 +35,14 @@
     const defaultReasonLevelOptions = [
         { value: '', label: '' },
         ...Object.entries(ReasoningEffortLevel).map(([k, v]) => ({
+            value: v,
+            label: v
+        }))
+    ];
+
+    const responseFormatOptions = [
+        { value: '', label: '' },
+        ...Object.values(ResponseFormat).map(v => ({
             value: v,
             label: v
         }))
@@ -136,6 +145,13 @@
     function changeReasoningEffortLevel(e) {
         const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
         config.reasoning_effort_level = values[0] || null;
+        handleAgentChange();
+    }
+
+    /** @param {any} e */
+    function changeResponseFormat(e) {
+        const values = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value) || [];
+        config.response_format = values[0] || null;
         handleAgentChange();
     }
 
@@ -277,6 +293,22 @@
             </div>
         </div>
         {/if}
+
+        <div class="cc-field">
+            <label for="chat-response-format" class="cc-label">
+                Response format
+            </label>
+            <div class="cc-input-wrap">
+                <Select
+                    tag={'chat-response-format'}
+                    containerStyles={'width: 100%;'}
+                    placeholder={'Select a format'}
+                    selectedValues={config.response_format ? [config.response_format] : []}
+                    options={responseFormatOptions.filter(o => !!o.value)}
+                    onselect={e => changeResponseFormat(e)}
+                />
+            </div>
+        </div>
     </div>
     {/if}
 </div>

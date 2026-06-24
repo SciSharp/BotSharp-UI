@@ -58,6 +58,9 @@
     let selectedMaxOutputTokens = $state(null);
 
     /** @type {string | null} */
+    let selectedResponseFormat = $state(null);
+
+    /** @type {string | null} */
     let selectedTemplate = $state(null);
 
     /** @type {import('$agentTypes').AgentCodeScriptViewModel | null | undefined} */
@@ -113,6 +116,9 @@
         ];
         if (selectedMaxOutputTokens && selectedMaxOutputTokens > 0) {
             clonedStates.push({ key: 'max_tokens', value: selectedMaxOutputTokens.toString() });
+        }
+        if (selectedResponseFormat) {
+            clonedStates.push({ key: 'response_format', value: selectedResponseFormat });
         }
 
         const formattedStates = formatKeyValues(states, clonedStates);
@@ -194,6 +200,7 @@
         selectedModel = modelName;
         selectedReasoningEffortLevel = llmConfig?.reasoning_effort_level || null;
         selectedMaxOutputTokens = llmConfig?.max_output_tokens || null;
+        selectedResponseFormat = llmConfig?.response_format || null;
 
         if (selectedAgent?.id) {
             initAgentCodeScripts(selectedAgent.id);
@@ -202,12 +209,13 @@
         }
     }
 
-    /** @param {{ provider: import('$commonTypes').LlmConfig | null, model: string | null, reasoning_effort_level: string | null, max_output_tokens: number | null }} detail */
+    /** @param {{ provider: import('$commonTypes').LlmConfig | null, model: string | null, reasoning_effort_level: string | null, max_output_tokens: number | null, response_format: string | null }} detail */
     function onLlmSelected(detail) {
         selectedProvider = detail.provider || null;
         selectedModel = detail.model || '';
         selectedReasoningEffortLevel = detail.reasoning_effort_level || null;
         selectedMaxOutputTokens = detail.max_output_tokens || null;
+        selectedResponseFormat = detail.response_format || null;
     }
 
     /** @param {string} agentId */
@@ -404,6 +412,7 @@
                         bind:selectedModel={selectedModel}
                         bind:selectedReasoningEffortLevel={selectedReasoningEffortLevel}
                         bind:selectedMaxOutputTokens={selectedMaxOutputTokens}
+                        bind:selectedResponseFormat={selectedResponseFormat}
                         onSelectLlm={detail => onLlmSelected(detail)}
                     />
                 </div>

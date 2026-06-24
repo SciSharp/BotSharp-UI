@@ -1,7 +1,7 @@
 <script>
     import Select from '$lib/common/dropdowns/Select.svelte';
     import { INTEGER_REGEX } from '$lib/helpers/constants';
-    import { ReasoningEffortLevel } from '$lib/helpers/enums';
+    import { ReasoningEffortLevel, ResponseFormat } from '$lib/helpers/enums';
 
     /**
      * @type {{
@@ -11,7 +11,8 @@
      *   selectedModel?: string | null,
      *   selectedReasoningEffortLevel?: string | null,
      *   selectedMaxOutputTokens?: number | null,
-     *   onSelectLlm?: (detail: { provider: import('$commonTypes').LlmConfig | null, model: string | null, reasoning_effort_level: string | null, max_output_tokens: number | null }) => void
+     *   selectedResponseFormat?: string | null,
+     *   onSelectLlm?: (detail: { provider: import('$commonTypes').LlmConfig | null, model: string | null, reasoning_effort_level: string | null, max_output_tokens: number | null, response_format: string | null }) => void
      * }}
      */
     let {
@@ -21,11 +22,18 @@
         selectedModel = $bindable(null),
         selectedReasoningEffortLevel = $bindable(null),
         selectedMaxOutputTokens = $bindable(null),
+        selectedResponseFormat = $bindable(null),
         onSelectLlm
     } = $props();
 
     /** @type {import('$commonTypes').LabelValuePair[]} */
     const defaultReasonLevelOptions = Object.entries(ReasoningEffortLevel).map(([k, v]) => ({
+        value: v,
+        label: v
+    }));
+
+    /** @type {import('$commonTypes').LabelValuePair[]} */
+    const responseFormatOptions = Object.values(ResponseFormat).map(v => ({
         value: v,
         label: v
     }));
@@ -100,6 +108,14 @@
     }
 
     /** @param {any} e */
+    function selectResponseFormat(e) {
+        // @ts-ignore
+        const selectedValues = e.detail.selecteds?.map(x => x.value) || [];
+        selectedResponseFormat = selectedValues.length > 0 ? selectedValues[0] : null;
+        fireSelectLlm();
+    }
+
+    /** @param {any} e */
     function validateIntegerInput(e) {
         const reg = new RegExp(INTEGER_REGEX, 'g');
         if (e.key !== 'Backspace' && !reg.test(e.key)) {
@@ -112,7 +128,8 @@
             provider: selectedProvider || null,
             model: selectedModel,
             reasoning_effort_level: selectedReasoningEffortLevel || null,
-            max_output_tokens: selectedMaxOutputTokens || null
+            max_output_tokens: selectedMaxOutputTokens || null,
+            response_format: selectedResponseFormat || null
         });
     }
 </script>
@@ -183,4 +200,19 @@
         />
     </div>
     {/if}
+
+    <div>
+        <label for="response-format-select" class="mb-1.5 inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary">
+            <i class="mdi mdi-code-json text-sm leading-none"></i>
+            Response format
+        </label>
+        <Select
+            tag={'response-format-select'}
+            placeholder={'Select a format'}
+            disabled={disabled}
+            selectedValues={selectedResponseFormat ? [selectedResponseFormat] : []}
+            options={responseFormatOptions}
+            onselect={e => selectResponseFormat(e)}
+        />
+    </div>
 </div>
