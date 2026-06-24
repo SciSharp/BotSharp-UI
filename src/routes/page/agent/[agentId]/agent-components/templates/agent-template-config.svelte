@@ -90,7 +90,10 @@
     /** @param {any} e */
     function changeResponseFormat(e) {
         const value = e?.detail?.selecteds?.map((/** @type {any} */ x) => x.value)[0] || null;
-        template.response_format = value;
+        if (!template.llm_config) {
+            template.llm_config = { provider: null, model: null };
+        }
+        template.llm_config.response_format = value;
         handleAgentChange();
     }
 
@@ -179,23 +182,6 @@
 
 <div class="tplc-content">
     <div class="tplc-section">
-        <h6 class="tplc-section-title">Template Configuration</h6>
-        <div class="tplc-field">
-            <label for="tpl-response-format" class="tplc-label">Response format</label>
-            <Select
-                tag={'tpl-response-format'}
-                containerStyles={'width: 100%;'}
-                placeholder={'Select a format'}
-                selectedValues={template.response_format ? [template.response_format] : []}
-                options={responseFormatOptions.filter(o => !!o.value)}
-                onselect={e => changeResponseFormat(e)}
-            />
-        </div>
-    </div>
-
-    <hr class="tplc-divider" />
-
-    <div class="tplc-section">
         <h6 class="tplc-section-title">LLM Configuration</h6>
         <div class="tplc-field">
             <label for="tpl-provider" class="tplc-label">Provider</label>
@@ -247,6 +233,18 @@
             />
         </div>
         {/if}
+
+        <div class="tplc-field">
+            <label for="tpl-response-format" class="tplc-label">Response format</label>
+            <Select
+                tag={'tpl-response-format'}
+                containerStyles={'width: 100%;'}
+                placeholder={'Select a format'}
+                selectedValues={template.llm_config?.response_format ? [template.llm_config.response_format] : []}
+                options={responseFormatOptions.filter(o => !!o.value)}
+                onselect={e => changeResponseFormat(e)}
+            />
+        </div>
     </div>
 </div>
 

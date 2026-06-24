@@ -45,7 +45,6 @@
             return {
                 name: x.name.trim().toLowerCase(),
                 content: x.content,
-                response_format: x.response_format || null,
                 llm_config: llmConfig
             };
         });
@@ -78,7 +77,6 @@
                 uid: uuidv4(),
                 name: x.name,
                 content: x.content,
-                response_format: x.response_format || null,
                 llm_config: x.llm_config || null
             })) || []
         ];
