@@ -15,6 +15,7 @@
         cancel = () => {},
         close = () => {},
         disableConfirmBtn = false,
+        disableBackdropClick = false,
         children,
         titleIcon = undefined
     } = $props();
@@ -51,6 +52,9 @@
 
     /** @param {MouseEvent} e */
     function handleBackdropClick(e) {
+        if (disableBackdropClick) {
+            return;
+        }
         if (e.target === e.currentTarget) {
             toggleModal();
         }
