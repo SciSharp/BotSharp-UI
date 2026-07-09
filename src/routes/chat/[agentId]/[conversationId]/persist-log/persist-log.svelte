@@ -68,14 +68,14 @@
 
     onMount(() => {
         // Load history, wait for Svelte to flush the new list items to the
-        // DOM, then attach OverlayScrollbars and scroll to bottom. Without
+        // DOM, then attach OverlayScrollbars and pin to the bottom. Without
         // the tick() wait, scrollHeight is read before the rows render and
         // the viewport ends up parked at the top.
         (async () => {
             await Promise.all([getChatContentLogs(), getChatStateLogs()]);
             await tick();
             initScrollbars();
-            scroll();
+            pinToBottomWhileSettling();
         })();
 
         return () => {
@@ -108,6 +108,43 @@
                 });
                 _scrollScheduled = false;
             }, 150);
+        });
+    }
+
+    /**
+     * Keep each log panel pinned to the very bottom while the initial layout
+     * settles. Async content can grow the row heights after first paint, so a
+     * fixed delay isn't enough — a ResizeObserver re-pins on every height change
+     * using instant `scrollTop` writes (no animation, no visible scroll).
+     * Pinning stops as soon as the user interacts with a panel, or after a
+     * safety timeout, so it never fights manual scrolling.
+     * @param {number} timeoutMs
+     */
+    function pinToBottomWhileSettling(timeoutMs = 3000) {
+        scrollbars.forEach(scrollbar => {
+            if (!scrollbar) return;
+
+            const { viewport } = scrollbar.elements();
+            const content = viewport.firstElementChild || viewport;
+            const pin = () => { viewport.scrollTop = viewport.scrollHeight; };
+            pin();
+
+            const observer = new ResizeObserver(pin);
+            observer.observe(content);
+
+            /** @type {ReturnType<typeof setTimeout>} */
+            let timer;
+            const stop = () => {
+                observer.disconnect();
+                clearTimeout(timer);
+                viewport.removeEventListener('wheel', stop);
+                viewport.removeEventListener('pointerdown', stop);
+                viewport.removeEventListener('keydown', stop);
+            };
+            viewport.addEventListener('wheel', stop, { passive: true });
+            viewport.addEventListener('pointerdown', stop);
+            viewport.addEventListener('keydown', stop);
+            timer = setTimeout(stop, timeoutMs);
         });
     }
 

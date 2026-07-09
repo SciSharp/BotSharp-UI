@@ -1,5 +1,5 @@
 <script>
-	import { onMount, setContext, tick } from 'svelte';
+	import { onDestroy, onMount, setContext, tick } from 'svelte';
 	import { get } from 'svelte/store';
 	import { Pane, Splitpanes } from 'svelte-splitpanes';
 	import Viewport from 'svelte-viewport-info';
@@ -232,6 +232,10 @@
 		autoScrollToBottom: autoScrollToBottom
 	});
 
+	onDestroy(() => {
+		scrollbars.forEach(scrollbar => scrollbar?.destroy?.());
+	});
+
 	onMount(async () => {
 		disableSpeech = navigator.userAgent.includes('Firefox');
 		// @ts-ignore
@@ -268,10 +272,9 @@
 		// @ts-ignore
 		await signalr.start(page.params.conversationId);
 
-		scrollbars = [
-			document.querySelector('.cb-msgs-scroll')
-		].filter(Boolean);
-		refresh();
+		initScrollbar();
+		await refresh(true);
+		pinToBottomWhileSettling();
 
 		window.addEventListener('message', async (e) => {
 			if (e.data.action === ChatAction.Logout) {
@@ -283,6 +286,15 @@
 			}
 		});
 	});
+
+	function initScrollbar() {
+		/** @type {HTMLElement | null} */
+		const msgScrollElem = document.querySelector('.cb-msgs-scroll');
+		if (msgScrollElem) {
+			// @ts-ignore
+			scrollbars = [OverlayScrollbars(msgScrollElem, options)];
+		}
+	}
 
 	function handleLogoutAction() {
 		resetStorage(true);
@@ -443,7 +455,8 @@
 		return dialogs;
     }
 
-	async function refresh() {
+	/** @param {boolean} stopScroll */
+	async function refresh(stopScroll = false) {
 		// trigger UI render
 		dialogs = await refreshDialogs();
 		lastBotMsg = null;
@@ -454,7 +467,9 @@
 		groupedDialogs = groupDialogs(dialogs);
 		await tick();
 
-		autoScrollToBottom();
+		if (!stopScroll) {
+			autoScrollToBottom();
+		}
     }
 
 	let _autoScrollScheduled = false;
@@ -462,14 +477,52 @@
 		if (_autoScrollScheduled) return;
 		_autoScrollScheduled = true;
 		requestAnimationFrame(() => {
-			scrollbars.forEach(scrollbar => {
-				if (!scrollbar) return;
-				setTimeout(() => {
-					scrollbar.scrollTo({ top: scrollbar.scrollHeight, behavior: 'smooth' });
-				}, 150);
-			});
-			_autoScrollScheduled = false;
+			const scrollToBottom = () => {
+				scrollbars.forEach(scrollbar => {
+					if (!scrollbar) return;
+					const { viewport } = scrollbar.elements();
+					viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
+				});
+				_autoScrollScheduled = false;
+			};
+			scrollToBottom();
 		});
+	}
+
+	/**
+	 * Keep the thread pinned to the very bottom while the initial layout settles.
+	 * Async content (images, code blocks, mermaid diagrams) can grow the height
+	 * after first paint, so a fixed delay isn't enough — a ResizeObserver re-pins
+	 * on every height change using instant `scrollTop` writes (no animation, no
+	 * visible scroll). Pinning stops as soon as the user interacts with the pane,
+	 * or after a safety timeout, so it never fights manual scrolling.
+	 * @param {number} timeoutMs
+	 */
+	function pinToBottomWhileSettling(timeoutMs = 3000) {
+		const scrollbar = scrollbars[0];
+		if (!scrollbar) return;
+
+		const { viewport } = scrollbar.elements();
+		const content = viewport.firstElementChild || viewport;
+		const pin = () => { viewport.scrollTop = viewport.scrollHeight; };
+		pin();
+
+		const observer = new ResizeObserver(pin);
+		observer.observe(content);
+
+		/** @type {ReturnType<typeof setTimeout>} */
+		let timer;
+		const stop = () => {
+			observer.disconnect();
+			clearTimeout(timer);
+			viewport.removeEventListener('wheel', stop);
+			viewport.removeEventListener('pointerdown', stop);
+			viewport.removeEventListener('keydown', stop);
+		};
+		viewport.addEventListener('wheel', stop, { passive: true });
+		viewport.addEventListener('pointerdown', stop);
+		viewport.addEventListener('keydown', stop);
+		timer = setTimeout(stop, timeoutMs);
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
@@ -1699,6 +1752,7 @@
 	title={'Send message'}
 	size={'5xl'}
 	isOpen={isOpenBigMsgModal}
+	disableBackdropClick={true}
 	toggleModal={() => toggleBigMessageModal()}
 	confirm={() => sendBigMessage()}
 	cancel={() => toggleBigMessageModal()}
@@ -1899,17 +1953,17 @@
 						</div>
 					</div>
 
-				<StateModal
-					isOpen={isOpenUserAddStateModal}
-					inline
-					bind:states={userAddStates}
-					requireActiveRounds
-					toggleModal={() => toggleUserAddStateModal()}
-					confirm={() => handleConfirmUserAddStates()}
-					cancel={() => toggleUserAddStateModal()}
-				/>
+					<StateModal
+						isOpen={isOpenUserAddStateModal}
+						inline
+						bind:states={userAddStates}
+						requireActiveRounds
+						toggleModal={() => toggleUserAddStateModal()}
+						confirm={() => handleConfirmUserAddStates()}
+						cancel={() => toggleUserAddStateModal()}
+					/>
 
-				<div class={`cb-msgs-scroll cb-msgs-content cb-msgs-scroll-rev ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+					<div class={`cb-msgs-scroll cb-msgs-content ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
 						<div class="cb-conv">
 							<ul class="cb-conv-list">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}

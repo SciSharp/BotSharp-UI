@@ -1439,13 +1439,14 @@
 
 /* Scrollable thread area (replaces .chat-scrollbar.chat-content.scroll-bottom-to-top) */
 
-
 .cb-msgs-scroll {
-    display: flex;
-    flex-direction: column-reverse;
-    overflow-y: auto;
+    overflow-y: scroll;
     scrollbar-width: none;
     scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
 }
 
 
@@ -1456,15 +1457,6 @@
 
 .cb-msgs-content-expand {
     height: 98%;
-}
-
-
-/* Alias of .cb-msgs-scroll for clarity at the markup site */
-
-
-.cb-msgs-scroll-rev {
-    display: flex;
-    flex-direction: column-reverse;
 }
 
 
