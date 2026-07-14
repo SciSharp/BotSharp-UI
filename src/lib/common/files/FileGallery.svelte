@@ -162,9 +162,6 @@
                     {:else}
                         <img src={file.file_data} alt={''} />
                     {/if}
-                    {#if !!file.file_name}
-                        <div class="item-text">{file.file_name}</div>
-                    {/if}
                 </GalleryImage>
             {/each}
         </LightboxGallery>
@@ -259,6 +256,11 @@
         word-break: break-all;
         font-size: 0.7rem;
         line-height: 1.2;
+    }
+    :global(.svelte-lightbox-footer h2),
+    :global(.svelte-lightbox-footer h5),
+    :global(.svelte-lightbox-footer p) {
+        text-align: center;
     }
     /* Narrow viewports: shrink the thumbnail box (mirrors the
        legacy 500px media query). */
