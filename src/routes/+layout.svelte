@@ -6,6 +6,7 @@
 	import '@fontsource/bebas-neue/400.css';
 	import '@fontsource/averia-libre/400.css';
 	import '@fontsource/libre-baskerville/400.css';
+	import '@fontsource/libre-baskerville/700.css';
 	import '@fontsource/source-code-pro/400.css';
 	import '@fontsource/rethink-sans/400.css';
 

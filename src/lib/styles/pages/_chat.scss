@@ -4504,6 +4504,59 @@
 }
 
 
+/* Markdown theme for the bot bubble. Markdown.svelte zeroes paragraph margins
+   for its other call sites, and headings otherwise fall through to the global
+   theme sizes, so block spacing and a modest heading scale are restored here. */
+
+
+.rcm-body .markdown-container {
+    & p {
+        margin: 0.3rem 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    & h1,
+    & h2,
+    & h3,
+    & h4,
+    & h5,
+    & h6 {
+        margin: 0.75rem 0 0.35rem;
+        color: inherit;
+        font-weight: 700;
+        line-height: 1.25;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    & h1 { font-size: 1.25rem; }
+    & h2 { font-size: 1.15rem; }
+    & h3 { font-size: 1.05rem; }
+    & h4,
+    & h5,
+    & h6 { font-size: 1rem; }
+
+    & ul,
+    & ol {
+        margin: 0.35rem 0;
+        padding-left: 1.4rem;
+    }
+
+    & li {
+        margin: 0.2rem 0;
+    }
+}
+
+
 /* Bold "Thinking" label inside the toggle row (replaces Bootstrap .font-bold) */
 
 

@@ -50,7 +50,7 @@
 		const normalizedText = typeof text !== 'string' ? `${JSON.stringify(text)}` : text;
 		const markedText = !rawText
 			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''))?.toString())
-			: marked(normalizedText || '')?.toString();
+			: marked(normalizedText || '', { breaks: true })?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			return markedText.substring(0, idx);
@@ -124,8 +124,20 @@
         margin-bottom: 0;
     }
 
+    /* Tailwind's Preflight (app.css) resets ol/ul to `list-style: none` and
+       zero padding in @layer base. These unlayered rules restore the markers
+       for rendered markdown; call sites may still override padding/margins. */
+    .markdown-container :global(strong) {
+        font-weight: 700;
+    }
+
     .markdown-container :global(ul) {
-        list-style-position: outside;
+        list-style: disc outside;
+        padding-left: 1.5rem;
+    }
+    .markdown-container :global(ol) {
+        list-style: decimal outside;
+        padding-left: 1.5rem;
     }
 
     /* Variant: `markdown-lite` — used when the container sits on a dark
