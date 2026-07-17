@@ -1,10 +1,13 @@
 <script>
-    import { getAgentRuleOptionsById } from '$lib/services/agent-service';
+    import { getAgentRuleOptionsById, generateAgentCodeScript } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
+	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import AgentRuleItem from './agent-rule-item.svelte';
 
     const limit = 100;
+    const duration = 2000;
 
     /**
      * @type {{
@@ -29,6 +32,11 @@
     let successText = $state('');
     /** @type {string} */
     let errorText = $state('');
+
+    /** @type {boolean} */
+    let confirmOpen = $state(false);
+    /** @type {import('$agentTypes').AgentRule | null} */
+    let pendingRule = $state(null);
 
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
@@ -157,6 +165,8 @@
         if (field === 'rule') {
             found.trigger_name = value;
             innerRefresh(innerRules);
+        } else if (field === 'criteria') {
+            found.config = { ...(found.config || {}), criteria: value };
         }
 
         handleAgentChange();
@@ -220,6 +230,65 @@
 
 
 
+    /**
+     * @param {any} data
+     */
+    function compileCodeScript(data) {
+        pendingRule = data.rule;
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingRule = null;
+    }
+
+    function onConfirmCompile() {
+        const rule = pendingRule;
+        closeConfirm();
+        if (rule) {
+            generateCodeScript(rule);
+        }
+    }
+
+    /**
+     * @param {import('$agentTypes').AgentRule} rule
+     */
+    function generateCodeScript(rule) {
+        isLoading = true;
+        generateAgentCodeScript(agent.id, {
+            options: {
+                save_to_db: true,
+                script_name: `${rule.trigger_name}_rule.py`,
+                script_type: AgentCodeScriptType.Src,
+                data: {
+                    "user_request": rule.config?.criteria
+                }
+            }
+        }).then(res => {
+            isLoading = false;
+            if (res?.success) {
+                isComplete = true;
+                successText = 'Code script has been generated!';
+                setTimeout(() => {
+                    isComplete = false;
+                    successText = '';
+                }, duration);
+            } else {
+                throw new Error('error when generating code script.');
+            }
+        }).catch(() => {
+            isLoading = false;
+            isComplete = false;
+            isError = true;
+            errorText = 'Failed to generate code script.';
+            setTimeout(() => {
+                isError = false;
+                errorText = '';
+            }, duration);
+        });
+    }
+
     /** @param {import('$agentTypes').AgentRule[]} list */
     function innerRefresh(list) {
         innerRules = list?.map(x => {
@@ -248,6 +317,20 @@
     {errorText}
 />
 
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text={pendingRule
+        ? `Are you sure you want to generate code script "${pendingRule.trigger_name}_rule.py"? This will overwrite the existing code script if any.`
+        : ''}
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirm={onConfirmCompile}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
+
 <div class="ar-card">
     <div class="ar-card-body">
         <div class="ar-header">
@@ -267,6 +350,7 @@
                     ondelete={data => deleteRule(data, uid)}
                     onchange={data => changeRule(data, uid)}
                     oncollapse={data => toggleCollapse(data, uid)}
+                    oncompile={data => compileCodeScript(data)}
                 />
             {/each}
 
