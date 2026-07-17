@@ -9,7 +9,7 @@
 
 /* ===== Modal overlay & dialog ===== */
 
-.cm-modal {
+.ccm-modal {
     position: fixed;
     inset: 0;
     z-index: 1055;
@@ -22,7 +22,7 @@
     outline: 0;
 }
 
-.cm-backdrop {
+.ccm-backdrop {
     position: fixed;
     inset: 0;
     z-index: 1050;
@@ -30,7 +30,7 @@
     opacity: 0.5;
 }
 
-.cm-dialog {
+.ccm-dialog {
     position: relative;
     width: 100%;
     margin: 0 auto;
@@ -38,15 +38,15 @@
     pointer-events: none;
 }
 
-.cm-dialog-sm { max-width: 300px; }
+.ccm-dialog-sm { max-width: 300px; }
 
-.cm-dialog-md { max-width: 500px; }
+.ccm-dialog-md { max-width: 500px; }
 
-.cm-dialog-lg { max-width: 800px; }
+.ccm-dialog-lg { max-width: 800px; }
 
-.cm-dialog-xl { max-width: 1140px; }
+.ccm-dialog-xl { max-width: 1140px; }
 
-.cm-content {
+.ccm-content {
     position: relative;
     display: flex;
     flex-direction: column;
@@ -62,7 +62,7 @@
 
 /* ===== Header ===== */
 
-.cm-header {
+.ccm-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -71,14 +71,14 @@
     border-bottom: 1px solid rgb(243 244 246);
 }
 
-.cm-title {
+.ccm-title {
     margin: 0;
     font-size: 1rem;
     font-weight: 600;
     color: rgb(17 24 39);
 }
 
-.cm-close {
+.ccm-close {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -105,11 +105,11 @@
 
 /* ===== Body / Footer ===== */
 
-.cm-body {
+.ccm-body {
     padding: 1rem 1.25rem;
 }
 
-.cm-footer {
+.ccm-footer {
     display: flex;
     flex-wrap: wrap;
     justify-content: flex-end;
@@ -120,7 +120,7 @@
 
 /* ===== Form ===== */
 
-.cm-row {
+.ccm-row {
     margin-bottom: 1rem;
 
     &:last-child {
@@ -128,20 +128,20 @@
     }
 }
 
-.cm-field {
+.ccm-field {
     display: flex;
     flex-direction: column;
     gap: 0.375rem;
 }
 
-.cm-label {
+.ccm-label {
     font-weight: 700;
     font-size: 0.875rem;
     color: rgb(55 65 81);
     margin: 0;
 }
 
-.cm-input {
+.ccm-input {
     width: 100%;
     height: 2.25rem;
     padding: 0 0.625rem;
@@ -162,11 +162,11 @@
     }
 }
 
-.cm-input-invalid {
+.ccm-input-invalid {
     border-color: var(--color-danger);
 }
 
-.cm-note {
+.ccm-note {
     margin-top: 0.125rem;
     display: flex;
     justify-content: space-between;
@@ -175,25 +175,25 @@
     font-variant-numeric: tabular-nums;
 }
 
-.cm-note-valid {
+.ccm-note-valid {
     justify-content: flex-end;
 }
 
-.cm-note-invalid {
+.ccm-note-invalid {
     justify-content: space-between;
 }
 
-.cm-note-right {
+.ccm-note-right {
     justify-content: flex-end;
 }
 
-.cm-error {
+.ccm-error {
     color: var(--color-danger);
 }
 
 /* ===== Buttons ===== */
 
-.cm-btn {
+.ccm-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
@@ -213,7 +213,7 @@
     }
 }
 
-.cm-btn-primary {
+.ccm-btn-primary {
     background-color: var(--color-primary);
     border-color: var(--color-primary);
     color: rgb(255 255 255);
@@ -224,7 +224,7 @@
     }
 }
 
-.cm-btn-secondary {
+.ccm-btn-secondary {
     background-color: rgb(255 255 255);
     border-color: rgb(229 231 235);
     color: rgb(55 65 81);
@@ -237,22 +237,22 @@
 
 /* ===== Dark mode ===== */
 
-.dark .cm-content {
+.dark .ccm-content {
     background-color: rgb(31 41 55);
     border-color: rgb(55 65 81);
 }
 
-.dark .cm-header,
-.dark .cm-footer {
+.dark .ccm-header,
+.dark .ccm-footer {
     border-color: rgb(55 65 81);
 }
 
-.dark .cm-title,
-.dark .cm-label {
+.dark .ccm-title,
+.dark .ccm-label {
     color: rgb(243 244 246);
 }
 
-.cm-input {
+.ccm-input {
 
     .dark & {
         background-color: rgb(17 24 39);
@@ -265,7 +265,7 @@
     }
 }
 
-.cm-btn-secondary {
+.ccm-btn-secondary {
 
     .dark & {
         background-color: rgb(55 65 81);
@@ -278,7 +278,7 @@
     }
 }
 
-.dark .cm-close:hover {
+.dark .ccm-close:hover {
     background-color: rgb(55 65 81);
     color: rgb(243 244 246);
 }
