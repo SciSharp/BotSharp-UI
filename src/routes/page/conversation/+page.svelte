@@ -24,8 +24,11 @@
 		setUrlQueryParams,
 		goToUrl,
 		convertTimeRange,
-		formatNumber
+		formatNumber,
+		getCleanUrl
 	} from '$lib/helpers/utils/common';
+	import { globalMenuStore } from '$lib/helpers/store';
+	import { SIMPLECLAW_ROUTE, SIMPLECLAW_PLANNER_AGENT_ID } from '$lib/helpers/constants/simpleclaw';
 
 	const duration = 3000;
 	const firstPage = 1;
@@ -57,6 +60,19 @@
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentOptions = $state([]);
+
+	/**
+	 * Whether the SimpleClaw module is available here.
+	 *
+	 * One check answers all three questions at once. The backend only puts this entry in
+	 * the menu when the plugin is installed and the signed-in role is allowed it, and the
+	 * layout then drops it in the web build, where the feature cannot work at all. Asking
+	 * the menu we were actually given is therefore more accurate than testing any of the
+	 * three separately — and it stays correct if any of them changes.
+	 */
+	let simpleClawEnabled = $derived(
+		($globalMenuStore || []).some((x) => getCleanUrl(x.link) === SIMPLECLAW_ROUTE)
+	);
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
 	const statusOptions = [
@@ -439,7 +455,8 @@
 
 <div class="flex flex-wrap">
 	<div class="w-full">
-		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+		<!-- Flat: no ring, no shadow. The surface colour alone separates it from the page. -->
+		<div class="rounded-2xl bg-white dark:bg-gray-800">
 			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex items-center gap-3">
@@ -565,7 +582,8 @@
 				</div>
 			</div>
 			<div class="p-4 sm:p-6">
-				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+				<!-- No ring around the table: the header band and row separators already bound it. -->
+			<div class="thin-scrollbar overflow-x-auto rounded-lg">
 					<table class="conv-table w-full border-collapse text-sm">
 						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
@@ -642,6 +660,22 @@
 										>
 											<i class="mdi mdi-chat"></i>
 										</button>
+										{#if simpleClawEnabled && conv.agent_id === SIMPLECLAW_PLANNER_AGENT_ID}
+											<!--
+												Only on this agent's own conversations. The SimpleClaw page is bound to
+												that one agent, so pointing it at any other thread would show a
+												conversation it cannot continue.
+											-->
+											<button
+												type="button"
+												class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
+												aria-label={$_('Open in SimpleClaw')}
+												title={$_('Open in SimpleClaw')}
+												onclick={() => window.open(`${SIMPLECLAW_ROUTE}?conversationId=${conv.id}`)}
+											>
+												<i class="bx bx-mouse"></i>
+											</button>
+										{/if}
 										<button
 											type="button"
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-danger/10 text-danger transition-all hover:scale-105 hover:bg-danger/20"
@@ -658,7 +692,21 @@
 						</tbody>
 					</table>
 				</div>
-				<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
+				<!--
+					Pinned to the bottom of the viewport while there is still list below it,
+					then settling at the card's real bottom edge once you reach the end.
+
+					The negative margins let the bar bleed through the card's padding, so the
+					opaque background covers the full width and rows do not show through the
+					gap at the sides. Wrapped here rather than inside TablePagination: that
+					component is shared by every list page, and most of them are short enough
+					that a floating bar would be noise.
+				-->
+				<div
+					class="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-gray-100 bg-white px-4 pb-4 sm:-mx-6 sm:-mb-6 sm:px-6 sm:pb-6 dark:border-gray-700 dark:bg-gray-800"
+				>
+					<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
+				</div>
 			</div>
 		</div>
 	</div>

@@ -13,8 +13,8 @@
     "windows": [
       {
         "title": "BotSharp",
-        "width": 1440,
-        "height": 900,
+        "width": 1680,
+        "height": 1000,
         "minWidth": 1024,
         "minHeight": 700,
         "resizable": true,
