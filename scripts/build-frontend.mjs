@@ -1,16 +1,24 @@
 /**
- * Builds the frontend for a desktop bundle.
+ * Builds the frontend for DISTRIBUTION, with a credential check that fails the build.
  *
- * `PUBLIC_`-prefixed values are inlined into the client bundle, so any
- * credential kept in an .env file for local convenience would ship inside the
- * installer and be readable by anyone who unpacks it. This strips those values
- * for desktop builds and then verifies they are actually gone, failing the
- * build rather than shipping a secret.
+ * `PUBLIC_`-prefixed values are inlined into the client bundle, so any credential kept in an
+ * .env file for local convenience ships inside whatever is distributed and is readable by
+ * anyone who unpacks it. This blanks those values and then VERIFIES they are actually gone.
  *
- * Dev builds are left alone — nothing is distributed, so the login prefill
- * stays useful.
+ * The verification is the point, not the blanking. `.env.production` and `.env.staging`
+ * happen to define `PUBLIC_ADMIN_*` as empty today, which is what keeps the deployed bundle
+ * clean — but that is a convention nothing enforces, and the tracked `.env` holds real
+ * values that any mode file omitting the keys would fall through to. This script is the
+ * enforcement, so it has to be on the path that actually builds what gets deployed.
+ *
+ * It used to be reachable only through the script that packaged the desktop app. That build
+ * is gone, so the guarantee moved to the web deployment, where it matters just as much: see
+ * `build:verified` in package.json and `app_build_command` in the Static Web Apps workflow.
+ *
+ * Dev builds are left alone — nothing is distributed, so the login prefill stays useful.
  *
  * Usage:
+ *   node scripts/build-frontend.mjs                        # --mode production
  *   node scripts/build-frontend.mjs --mode staging
  *   node scripts/build-frontend.mjs --mode staging --verify-only
  */
@@ -44,7 +52,12 @@ const overrides = Object.fromEntries(CREDENTIAL_KEYS.map((key) => [key, '']));
 
 if (!verifyOnly) {
 	if (stripped.length > 0) {
-		console.log(`Stripping from the desktop bundle: ${stripped.join(', ')}`);
+		console.log(`Stripping from the distributed bundle: ${stripped.join(', ')}`);
+	} else {
+		// Said out loud, because a check that verifies nothing looks exactly like a check
+		// that passed. Nothing to strip means the resolved env already defines these as
+		// empty (as `.env.production` does), so there is no value that could leak.
+		console.log(`No credentials to strip for mode "${mode}": ${CREDENTIAL_KEYS.join(', ')} are already empty.`);
 	}
 
 	const build = spawnSync('npx', ['vite', 'build', '--mode', mode], {

@@ -18,7 +18,7 @@
 	import { OverlayScrollbars } from 'overlayscrollbars';
 	import { addMessages, init, getLocaleFromNavigator } from 'svelte-i18n';
 	import { PUBLIC_PRIMARY_COLOR, PUBLIC_SECONDARY_COLOR } from '$env/static/public';
-	import { isDesktop } from '$lib/services/simpleclaw-service';
+	import { isDesktop } from '$lib/helpers/utils/desktop';
 	import en from '$lib/langs/en.json';
 
 	addMessages('en', en);

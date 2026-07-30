@@ -18,8 +18,7 @@ const config = {
 			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
 			$realtimeTypes: './src/lib/helpers/types/realtimeTypes.js',
 			$instructTypes: './src/lib/helpers/types/instructTypes.js',
-			$mcpTypes: './src/lib/helpers/types/mcpTypes.js',
-			$simpleclawTypes: './src/lib/helpers/types/simpleclawTypes.js'
+			$mcpTypes: './src/lib/helpers/types/mcpTypes.js'
 		},
 
 		// for static deployment
@@ -66,7 +65,6 @@ const config = {
 				"/page/plugin",
 				"/page/plugin/[pluginId]",
 				"/page/setting",
-				"/simpleclaw",
 				"/page/user/me",
 				"/page/users",
 				"/page/roles",

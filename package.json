@@ -11,6 +11,7 @@
 		"dev:vite": "vite dev",
 		"open-browser": "start http://localhost:5015/",
 		"build": "vite build",
+		"build:verified": "node scripts/build-frontend.mjs",
 		"preview": "vite preview",
 		"tauri": "tauri",
 		"tauri:dev": "node scripts/tauri-run.mjs dev",

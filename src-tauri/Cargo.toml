@@ -23,8 +23,11 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.11.3", features = [] }
 tauri-plugin-log = "2"
-# SimpleClaw's control API is plain HTTP on 127.0.0.1, so TLS is dead weight —
-# default-features off keeps native-tls/openssl out of the build entirely.
-reqwest = { version = "0.12", default-features = false, features = ["json", "stream"] }
-futures-util = "0.3"
-dirs = "5"
+# reqwest, futures-util and dirs are deliberately gone from here. They served a bridge that
+# spoke HTTP and SSE to a service on the operator's own machine and read its discovery file
+# out of the userData directory. Nothing native does I/O now, and an HTTP client compiled
+# into the shell with no caller is only attack surface.
+#
+# Cargo.lock still lists all three: Tauri resolves its own `dirs` (v6, and it IS built) plus
+# optional copies of reqwest and futures-util that no enabled feature reaches. A name in the
+# lockfile is not a crate in the binary — `cargo tree -e normal` is what answers that.

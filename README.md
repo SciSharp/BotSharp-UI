@@ -92,21 +92,44 @@ Only the sizes listed in `bundle.icon` in
 and Microsoft Store sizes `tauri icon` also emits are gitignored — rerun the
 command if you start building for those targets.
 
-`PUBLIC_`-prefixed values are inlined into the client bundle, so
-`PUBLIC_ADMIN_USERNAME` and `PUBLIC_ADMIN_PASSWORD` are stripped from desktop
-builds — otherwise they would be readable by anyone who unpacks the installer.
-`tauri:build` verifies they are gone and refuses to package if they are not.
-`tauri:dev` keeps them, so the login prefill still works while developing.
+The shell exposes **no native commands** to the page. It is a window around the same app the
+browser loads, so a feature that works in one works in the other. It did once bridge to a
+service running on the user's own machine — that is what a native process was needed for —
+and when that service moved into a container with an HTTP API, the bridge had nothing left to
+do. Adding a Tauri command means adding a capability the browser build will not have, so
+prefer a backend endpoint unless the thing genuinely requires the OS.
 
 ## Deployment
 
-To manual deploy as [Azure Static Web Apps](https://learn.microsoft.com/en-us/azure/static-web-apps/) at scale.
+Deployed as an [Azure Static Web App](https://learn.microsoft.com/en-us/azure/static-web-apps/).
+CI runs `npm run build:verified`, not `npm run build` — see the credential note below.
 
 ```bash
-npm run build -- --mode production
+npm run build:verified -- --mode production
 npm install -g @azure/static-web-apps-cli
 swa deploy ./build/ --env production --deployment-token {token}
 ```
+
+### Credentials are never inlined into a distributed bundle
+
+`PUBLIC_`-prefixed values are compiled into the client bundle, and the committed `.env`
+holds real `PUBLIC_ADMIN_USERNAME` / `PUBLIC_ADMIN_PASSWORD` values for the local login
+prefill. `npm run build:verified` blanks them for the build **and then searches the output
+to prove they are gone**, failing rather than deploying a readable credential.
+
+The verification is the part that matters. `.env.production` and `.env.staging` define both
+keys as empty today, which is what keeps the deployed bundle clean — but that is a
+convention nothing enforces, and any future mode file that simply omitted the keys would
+fall through to `.env`'s real values. `npm run build` alone performs no such check.
+
+`npm run dev` and `npm run tauri:dev` are untouched: nothing is distributed, so the prefill
+stays useful.
+
+Both distributable paths run the same check. `tauri:build` invokes
+`scripts/build-frontend.mjs` as its `beforeBuildCommand`, and CI invokes it through
+`build:verified`. The check began life on the desktop path only, where an installer anyone
+could unpack made the risk obvious; a static bundle served over HTTPS is just as readable, so
+it now guards both.
 
 ## Customization
 

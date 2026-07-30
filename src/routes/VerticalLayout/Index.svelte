@@ -5,9 +5,6 @@
 	import { getPluginMenu } from '$lib/services/plugin-service';
 	import { myInfo } from '$lib/services/auth-service';
 	import { globalMenuStore } from '$lib/helpers/store';
-	import { getCleanUrl } from '$lib/helpers/utils/common';
-	import { isDesktop } from '$lib/services/simpleclaw-service';
-	import { SIMPLECLAW_ROUTE } from '$lib/helpers/constants/simpleclaw';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 	import Header from './Header.svelte';
@@ -52,19 +49,16 @@
 		toggleRightBar();
 	};
 
-	// Features that only work in the desktop shell. The backend serves one menu to both
-	// builds, so the web build has to drop these itself rather than show a dead entry.
-	// A second such feature should turn this into a lookup, not another condition.
-	const DESKTOP_ONLY_ROUTES = [SIMPLECLAW_ROUTE];
-
-	/** @param {import('$pluginTypes').PluginMenuDefModel[]} items */
-	function applyPlatformVisibility(items) {
-		if (isDesktop()) return items;
-		return (items || []).filter((x) => !DESKTOP_ONLY_ROUTES.includes(getCleanUrl(x.link)));
-	}
-
+	// The backend menu is the only source of truth for which entries appear; it already
+	// role-gates them, and nothing is filtered client-side.
+	//
+	// There was a platform filter here that dropped desktop-only routes in the browser build.
+	// It existed for a single entry whose page drove a service reachable only from the user's
+	// own machine. That page is gone and every remaining entry works in both builds, so the
+	// filter had nothing left to hide. Bring it back only for a feature that genuinely cannot
+	// work in a browser tab — not for one that merely has a nicer desktop experience.
 	onMount(async () => {
-		menu = applyPlatformVisibility(await getPluginMenu());
+		menu = await getPluginMenu();
 		globalMenuStore.set(menu || []);
 		user = await myInfo();
 		if (browser) {

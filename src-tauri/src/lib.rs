@@ -1,5 +1,3 @@
-mod simpleclaw;
-
 use tauri::{App, LogicalSize, Manager, Size};
 
 /// Shrink the configured window if it would not fit the screen it opens on.
@@ -38,19 +36,12 @@ fn fit_to_screen(app: &App) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+  // No invoke_handler: the shell exposes no commands to the page. It held a bridge to a
+  // service that ran on the operator's own machine, reachable from nowhere else, which is
+  // what a native process was needed FOR. That service is a container with an HTTP API now,
+  // so the page talks to it the same way it talks to any other backend and the shell is back
+  // to being a window around the app.
   tauri::Builder::default()
-    .manage(simpleclaw::Bridge::default())
-    .invoke_handler(tauri::generate_handler![
-      simpleclaw::simpleclaw_status,
-      simpleclaw::simpleclaw_capabilities,
-      simpleclaw::simpleclaw_start_run,
-      simpleclaw::simpleclaw_get_run,
-      simpleclaw::simpleclaw_follow_run,
-      simpleclaw::simpleclaw_unfollow_run,
-      simpleclaw::simpleclaw_answer_run,
-      simpleclaw::simpleclaw_stop_run,
-      simpleclaw::simpleclaw_show_window,
-    ])
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(
