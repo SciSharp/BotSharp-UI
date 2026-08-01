@@ -56,7 +56,7 @@
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay, formatNumber, liveRunIdInText } from '$lib/helpers/utils/common';
+	import { delay, directToAgentPage, formatNumber, liveRunIdInText } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -610,11 +610,12 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
+		const isSameAsLast = dialogs[dialogs.length - 1]?.message_id === message.message_id
+			&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+			&& !dialogs[dialogs.length - 1]?.is_appended;
+
 		if (!message.is_streaming) {
-			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
-				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
-				&& !dialogs[dialogs.length - 1]?.is_appended
-			) {
+			if (isSameAsLast) {
 				dialogs[dialogs.length - 1] = {
 					...message,
 					is_chat_message: true
@@ -625,6 +626,11 @@
 					is_chat_message: true
 				});
 			}
+		} else if (isSameAsLast) {
+			// The streamed bubble was created on the first BeforeReceiveLlmStreamMessage of the round,
+			// so it carries the time the request started, not the time this reply was produced.
+			// This event is the completed response, so take its timestamp.
+			dialogs[dialogs.length - 1].created_at = message.created_at;
 		}
 
 		isStreaming = false;
@@ -1847,14 +1853,19 @@
 					<div class="cb-head">
 						<div class="cb-head-row">
 							<div class="cb-head-left">
-								<div class="cb-head-agent">
+								<button
+									type="button"
+									class="cb-head-agent"
+									title="Open agent detail"
+									onclick={() => directToAgentPage(agent?.id)}
+								>
 									{#if agent?.icon_url}
-									<div class="cb-vcenter">
+									<span class="cb-vcenter">
 										<img class="cb-head-agent-icon" src={agent.icon_url} alt="">
-									</div>
+									</span>
 									{/if}
-									<div class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</div>
-								</div>
+									<span class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</span>
+								</button>
 								<div class="cb-head-user">
 									<div>
 										<i class="mdi mdi-circle cb-text-success cb-align-middle"></i>
@@ -2085,12 +2096,15 @@
 																class="cb-bubble cb-bubble-user"
 																class:cb-clickable={!isLite && isLoadPersistLog}
 																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
-																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
 																id={`user-msg-${message.message_id}`}
 															>
 																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
 															</div>
 														</div>
+														<p class="cb-chat-time">
+															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+															{utcToLocal(message.created_at, 'h:mm:ss A')}
+														</p>
 														{#if !disableAction}
 															<div class="cb-msg-actions cb-msg-actions-user">
 																<div class="cb-vcenter cb-msg-action">
@@ -2156,10 +2170,6 @@
 																</div>
 															</div>
 														{/if}
-														<p class="cb-chat-time">
-															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
-															{utcToLocal(message.created_at, 'h:mm:ss A')}
-														</p>
 														{#if !!message.post_action_disclaimer}
 															<RcDisclaimer content={message.post_action_disclaimer} />
 														{/if}
@@ -2179,9 +2189,8 @@
 														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
-														{@const isLastBotIcon = message?.uuid === lastBotMsg?.uuid}
 														<img
-															class={`cb-avatar ${isLastBotIcon ? 'cb-avatar-bounce' : ''}`}
+															class="cb-avatar"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
@@ -2219,6 +2228,17 @@
 														</div>
 													{:else}
 														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
+													{#if !!(message?.rich_content?.message?.text || message?.text) && editingBotMsgUid !== message.uuid}
+														{@const isLastBotMsg = message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
+														<!-- Suppressed while the last bot message is still streaming, so the timestamp
+															 does not flicker in before the text has settled. -->
+														{#if !isLastBotMsg || (!isStreaming && !isHandlingQueue && !isThinking)}
+															<p class="cb-chat-time cb-chat-time-bot">
+																<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+																{utcToLocal(message.created_at, 'h:mm:ss A')}
+															</p>
+														{/if}
 													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
