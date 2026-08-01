@@ -19,6 +19,7 @@
 	import { addMessages, init, getLocaleFromNavigator } from 'svelte-i18n';
 	import { PUBLIC_PRIMARY_COLOR, PUBLIC_SECONDARY_COLOR } from '$env/static/public';
 	import { isDesktop } from '$lib/helpers/utils/desktop';
+	import StatusBar from '$lib/common/shared/StatusBar.svelte';
 	import en from '$lib/langs/en.json';
 
 	addMessages('en', en);
@@ -75,4 +76,8 @@
 </svelte:head>
 
 <slot />
+
+<!-- Window chrome, not page content: every route sits above the same status bar.
+     Renders nothing at all in the browser build. -->
+<StatusBar />
 

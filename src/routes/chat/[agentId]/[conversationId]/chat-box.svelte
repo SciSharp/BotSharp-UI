@@ -50,12 +50,13 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import Label from '$lib/common/shared/Label.svelte';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay, formatNumber } from '$lib/helpers/utils/common';
+	import { delay, formatNumber, liveRunIdInText } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -548,12 +549,39 @@
 		}
 	}
 
+	/**
+	 * Drops every live-view link but the most recent one.
+	 *
+	 * These are pushed into the conversation each time a browser task starts, and they
+	 * accumulate: a session that looks up three things leaves three identical-looking
+	 * "Watch this run" lines, only the last of which leads anywhere. The URLs carry a
+	 * short-lived single-run token, so an earlier one is a dead link dressed as a live
+	 * one — and the reader has no way to tell them apart, since the sentence is the same
+	 * every time. Clicking the wrong one is the whole cost.
+	 *
+	 * Hidden at render, not deleted: the messages stay in `dialogs` and in the server's
+	 * history, so message ids, truncation indices and the content log are untouched, and
+	 * a link comes back into view if a later one is ever truncated away.
+	 *
+	 * @param {import('$conversationTypes').ChatResponseModel[]} dialogs
+	 */
+	function hideSupersededLiveLinks(dialogs) {
+		const isLiveLink = dialogs.map(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
+		const latest = isLiveLink.lastIndexOf(true);
+
+		// Nothing to supersede: zero or one live link. Returning the array as-is keeps the
+		// common case — every conversation that never touches SimpleClaw — free.
+		if (latest < 0 || isLiveLink.indexOf(true) === latest) return dialogs;
+
+		return dialogs.filter((_msg, idx) => !isLiveLink[idx] || idx === latest);
+	}
+
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
 		if (!dialogs) return [];
 		const format = 'MMM D, YYYY';
 		// @ts-ignore
-		return _.groupBy(dialogs, (x) => {
+		return _.groupBy(hideSupersededLiveLinks(dialogs), (x) => {
 			const createDate = moment.utc(x.created_at).local().format(format);
 			if (createDate == moment.utc().local().format(format)) {
 				return 'Today';
@@ -1343,6 +1371,20 @@
 		});
 	}
 
+	/**
+	 * Deliberately still `window.open`, unlike the other "open in a new tab" buttons in this app
+	 * (which now go through `openAppRoute`). Two reasons it cannot use the same treatment:
+	 *
+	 * - The button only renders when `isFrame`, i.e. this chat is inside the livechat IFRAME.
+	 *   `isDesktop()` cannot answer there: Tauri injects `__TAURI_INTERNALS__` into the main
+	 *   frame only, so a nested frame always reads as "browser" and the branch would never fire.
+	 * - The target is the CURRENT path. Navigating the one desktop window to the page it is
+	 *   already on is a reload, not a full-screen view — a change that would look like a fix and
+	 *   do nothing. Escaping the frame needs a real answer (a Tauri window, or dropping the
+	 *   surrounding chrome), not a redirect.
+	 *
+	 * So in the desktop shell this button is inert, and it is gated behind PUBLIC_DEBUG_MODE.
+	 */
 	function openFullScreen() {
 		window.open(page.url.pathname);
 	}
@@ -1800,8 +1842,8 @@
 		</Pane>
 		{/if}
 		<Pane minSize={30}>
-			<div style="height: 100vh;">
-				<div class="cb-panel-card" style="height: 100vh;">
+			<div style="height: calc(100vh - var(--statusbar-height));">
+				<div class="cb-panel-card" style="height: calc(100vh - var(--statusbar-height));">
 					<div class="cb-head">
 						<div class="cb-head-row">
 							<div class="cb-head-left">
@@ -1973,6 +2015,31 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
+										{@const runId = BOT_SENDERS.includes(message.sender?.role)
+											? liveRunIdInText(message?.rich_content?.message?.text || message?.text)
+											: null}
+										{#if runId}
+											<!--
+												A live view is the app telling you what it is doing, not the agent
+												talking to you, so it is not dressed as speech: no avatar, no bubble,
+												no copy or edit actions. Sitting between two of the agent's own
+												sentences, a bubble made it read as a third one — and one you might
+												be expected to answer.
+
+												Still rendered through Markdown so the link keeps its click handler,
+												which is what opens the run beside the conversation instead of on
+												top of it.
+											-->
+											<li class="cb-sys-note-row" id={'test_k' + message.message_id}>
+												<div class="cb-sys-note">
+													<i class="bx bx-broadcast cb-sys-note-icon"></i>
+													<Markdown
+														containerClasses={'cb-sys-note-text'}
+														text={message?.rich_content?.message?.text || message?.text}
+													/>
+												</div>
+											</li>
+										{:else}
 										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
@@ -2241,6 +2308,7 @@
 												{/if}
 											</div>
 										</li>
+										{/if}
 									{/each}
 								{/each}
 

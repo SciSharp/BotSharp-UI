@@ -42,6 +42,10 @@ pub fn run() {
   // so the page talks to it the same way it talks to any other backend and the shell is back
   // to being a window around the app.
   tauri::Builder::default()
+    // Lets the page hand an external URL to the user's browser. Registered here rather than in
+    // `setup` because it must be available to the very first page load: the plugin's command is
+    // what `openUrl` invokes, and a link clicked before setup finished would otherwise fail.
+    .plugin(tauri_plugin_opener::init())
     .setup(|app| {
       if cfg!(debug_assertions) {
         app.handle().plugin(

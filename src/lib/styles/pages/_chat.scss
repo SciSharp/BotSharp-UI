@@ -1520,6 +1520,73 @@
 }
 
 
+/* System note — the app speaking about itself, not the agent speaking to you */
+
+
+.cb-sys-note-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+
+/*
+ * Centred and quieter than a bubble on purpose. It shares the day separator's palette
+ * rather than the agent's, because that is the register it belongs to: something the
+ * conversation is passing through, not a turn in it. The dashed border says the same
+ * thing again for anyone who cannot rely on the colour difference alone.
+ */
+.cb-sys-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 82%;
+    padding: 0.5rem 0.875rem;
+    border: 1px dashed rgb(229 231 235);
+    border-radius: 0.5rem;
+    background-color: rgb(249 250 251);
+    color: rgb(107 114 128);
+}
+
+
+.cb-sys-note-icon {
+    flex-shrink: 0;
+    margin-top: 0.14rem;
+    font-size: 0.95rem;
+    color: var(--color-primary);
+}
+
+
+.cb-sys-note-text {
+    min-width: 0;
+    color: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+
+
+    & p {
+        margin: 0;
+    }
+
+
+    /*
+     * The one thing in here that is meant to be clicked, so it carries the accent while
+     * the sentence around it stays muted. Underlined only on hover — a permanent underline
+     * on a line this quiet reads as emphasis rather than as a link.
+     */
+    & a {
+        color: var(--color-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+
+    & a:hover {
+        text-decoration: underline;
+    }
+}
+
+
 /* Message row (replaces .conv-msg-container) */
 
 
@@ -2071,6 +2138,13 @@
 .dark .cb-day-title-text {
     background-color: rgb(55 65 81);
     color: rgb(229 231 235);
+}
+
+
+.dark .cb-sys-note {
+    border-color: rgb(55 65 81);
+    background-color: rgb(31 41 55);
+    color: rgb(156 163 175);
 }
 
 
@@ -2873,7 +2947,8 @@
 
 
 .il-root {
-    height: 100vh;
+    /* Leave the desktop status bar uncovered; 0px in the browser. */
+    height: calc(100vh - var(--statusbar-height));
 }
 
 
@@ -3889,7 +3964,8 @@
 
 
 .pl-root {
-    height: 100vh;
+    /* Leave the desktop status bar uncovered; 0px in the browser. */
+    height: calc(100vh - var(--statusbar-height));
 }
 
 
@@ -5051,6 +5127,22 @@
         border-radius: 999px;
         font-size: 0.68rem;
         letter-spacing: 0.015em;
+    }
+
+
+    .cb-sys-note-row {
+        margin-bottom: 0.9rem;
+    }
+
+
+    .cb-sys-note {
+        max-width: 100%;
+        padding: 0.4rem 0.6rem;
+    }
+
+
+    .cb-sys-note-text {
+        font-size: 0.72rem;
     }
 
 

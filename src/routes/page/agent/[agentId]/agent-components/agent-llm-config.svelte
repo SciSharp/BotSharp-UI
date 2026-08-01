@@ -54,7 +54,7 @@
             <img src="images/brands/azure-openai-logo.avif" alt="" class="llmc-brand-logo" />
         </div>
 
-        <div class="llmc-list">
+        <div class="llmc-list scrollbar-on-hover">
             <ChatConfig
                 bind:this={chatConfigCmp}
                 {agent}

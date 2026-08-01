@@ -1,4 +1,5 @@
 import { goto } from '$app/navigation';
+import { openAppRoute } from './desktop';
 import moment from 'moment';
 import { TIME_RANGE_OPTIONS, CUSTOM_DATE_RANGE } from '../constants';
 import { TimeRange } from '../enums';
@@ -35,8 +36,8 @@ export function buildUrl(baseUrl, relativePath) {
 /** @param {string} agentId */
 export function directToAgentPage(agentId) {
     if (!agentId) return;
-        
-    window.open(`/page/agent/${agentId}`);
+
+    openAppRoute(`/page/agent/${agentId}`);
 }
 
 /** @param {string} url */
@@ -44,6 +45,70 @@ export function isExternalUrl(url) {
     if (!url) return false;
 
     return /^(https?:\/\/)/.test(url)
+}
+
+/**
+ * The run id in an autoplay live-view link, or null for any other URL.
+ *
+ * These arrive as ordinary markdown links in agent messages ("Watch this run"), pointing at
+ * `<publicBaseUrl>/run/<runId>?t=<token>` on the executor container. Nothing in the payload
+ * marks them as special and the base URL is the container's, not ours, so shape is all there
+ * is to match on: an app that wants to treat a live run differently from a cited article has
+ * to recognise it here. The token matters to the match — it is what makes the URL a live
+ * session handed to a person rather than a bare path someone typed.
+ *
+ * Heuristic by nature. If the executor changes its live-view route, this stops matching and
+ * the link degrades to a normal external link rather than breaking.
+ *
+ * @param {URL} url
+ * @returns {string | null}
+ */
+export function liveRunId(url) {
+    if (url.protocol !== 'http:' && url.protocol !== 'https:') return null;
+    if (!url.searchParams.get('t')) return null;
+
+    const match = /^\/run\/([^/]+)\/?$/.exec(url.pathname);
+    return match ? decodeURIComponent(match[1]) : null;
+}
+
+/**
+ * Absolute URLs in a run of text. Stops at whitespace, at the quote and angle characters
+ * that would mean the URL is embedded in something else, and at `)` — which is not a
+ * character a live-view URL contains but IS what closes the markdown link these arrive in.
+ */
+const urlPattern = /https?:\/\/[^\s)"'<>]+/g;
+
+/**
+ * The run id of a live-view link inside a message, or null when the message has none.
+ *
+ * The counterpart to `liveRunId` for text that has not been parsed into links yet: a
+ * message is only ever a string of markdown until Markdown.svelte renders it, so anything
+ * that wants to reason about a message BEING a live view — rather than about a link
+ * someone clicked — has to look for the URL itself.
+ *
+ * Same heuristic and the same failure mode: an executor that changes its live-view route
+ * stops matching here too, and such a message then reads as ordinary prose.
+ *
+ * @param {string | null | undefined} text
+ * @returns {string | null}
+ */
+export function liveRunIdInText(text) {
+    if (!text) return null;
+
+    for (const match of text.matchAll(urlPattern)) {
+        let url;
+        try {
+            url = new URL(match[0]);
+        } catch {
+            // Something URL-shaped that isn't a URL. It cannot be a live view either.
+            continue;
+        }
+
+        const runId = liveRunId(url);
+        if (runId) return runId;
+    }
+
+    return null;
 }
 
 /** @param {any} object */

@@ -23,6 +23,13 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 tauri = { version = "2.11.3", features = [] }
 tauri-plugin-log = "2"
+# `opener`, deliberately NOT `shell`. The only thing the page needs is "hand this URL to the
+# user's browser", and that is all this plugin can do. `tauri-plugin-shell` would also bring
+# process spawning into a shell that renders model output and third-party page content — a
+# capability with no caller here and a bad one to have lying around. See openExternal in
+# src/lib/helpers/utils/desktop.js for the single caller, and capabilities/default.json for
+# the permission, which is narrowed to open-url only.
+tauri-plugin-opener = "2"
 # reqwest, futures-util and dirs are deliberately gone from here. They served a bridge that
 # spoke HTTP and SSE to a service on the operator's own machine and read its discovery file
 # out of the userData directory. Nothing native does I/O now, and an HTTP client compiled

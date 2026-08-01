@@ -186,6 +186,20 @@ const createGlobalErrorStore = () => {
 export const globalErrorStore = createGlobalErrorStore();
 
 
+/**
+ * Whether the backend is reachable, inferred from the requests the app already makes
+ * rather than from a poll of its own — the desktop status bar reads this.
+ *
+ * `'unknown'` until the first response comes back. Only a request that returned NO
+ * response at all counts as `'offline'`: a 401 or a 500 means the server answered, so
+ * the connection is fine and something else is wrong. Reporting those as offline would
+ * point the user at their network when the problem is on the server.
+ *
+ * @type {import('svelte/store').Writable<'unknown' | 'online' | 'offline'>}
+ */
+export const apiStatusStore = writable('unknown');
+
+
 const createConversationUserStateStore = () => {
     return {
         resetAll: () => {

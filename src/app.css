@@ -37,8 +37,15 @@
     --header-height: 70px;
     --sidebar-width: 250px;
     --sidebar-collapsed-width: 70px;
-    --footer-height: 60px;
     --rightbar-width: 280px;
+
+    /*
+     * Desktop status bar. Zero here on purpose: the browser build has no status bar, so
+     * every `calc(100vh - var(--statusbar-height))` and `pb-[var(--statusbar-height)]` in
+     * the app collapses to a no-op there and needs no `[data-desktop]` twin of its own.
+     * The real height is set on :root[data-desktop] below.
+     */
+    --statusbar-height: 0px;
 
     /* Sidebar palette (light theme) */
     --sidebar-bg: #ffffff;
@@ -51,6 +58,79 @@
 @layer base {
     body {
         font-weight: 300;
+    }
+}
+
+/*
+ * The one place the status bar's height is declared. Not in @layer base — it has to beat
+ * the @theme default on :root, and the attribute selector alone would not be enough if
+ * the default sat in a later layer.
+ */
+:root[data-desktop] {
+    --statusbar-height: 26px;
+}
+
+/*
+ * `scrollbar-on-hover` — a scroll container whose scrollbar only appears while the
+ * pointer is over it. Pair with `overflow-y-auto` / `overflow-x-auto`.
+ *
+ * Deliberately NO `scrollbar-width` / `scrollbar-color`: setting either makes Chromium
+ * render the standard scrollbar and ignore every ::-webkit-scrollbar rule below — the
+ * two mechanisms are exclusive, not layered. Since the standard properties cannot
+ * express "reveal on hover", the WebKit pseudo-elements have to be the only mechanism.
+ * Firefox therefore keeps its own thin scrollbar; the layout does not shift either way
+ * because the gutter is reserved regardless of whether the thumb is painted.
+ */
+@utility scrollbar-on-hover {
+    &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+        background: transparent;
+    }
+
+    /* The widget, the track AND the track-piece all have to be cleared — styling
+       ::-webkit-scrollbar at all opts out of the native look but leaves each part's own
+       default background behind, which shows as a pale gutter down the edge. */
+    &::-webkit-scrollbar-track,
+    &::-webkit-scrollbar-track-piece,
+    &::-webkit-scrollbar-corner {
+        background: transparent;
+        box-shadow: none;
+        border: none;
+    }
+
+    /* Transparent, not `display: none` — the thumb keeps its box and so keeps receiving
+       the pointer, which is what lets it be grabbed and dragged at all. */
+    &::-webkit-scrollbar-thumb {
+        background-color: transparent;
+        border-radius: 9999px;
+        /* Inset via a transparent border: the visible thumb is 4px while the hit area
+           stays the full 8px — a 4px pointer target is below what most people can hit. */
+        border: 2px solid transparent;
+        background-clip: content-box;
+        transition: background-color 0.15s ease;
+    }
+
+    /* Revealed by hovering the scrolling element, not the thumb: an invisible target
+       gives no hint of where to aim, nor that the content scrolls at all. */
+    &:hover::-webkit-scrollbar-thumb {
+        background-color: rgb(0 0 0 / 0.2);
+    }
+
+    &::-webkit-scrollbar-thumb:hover,
+    &::-webkit-scrollbar-thumb:active {
+        background-color: rgb(0 0 0 / 0.38);
+    }
+
+    @media (prefers-color-scheme: dark) {
+        &:hover::-webkit-scrollbar-thumb {
+            background-color: rgb(255 255 255 / 0.22);
+        }
+
+        &::-webkit-scrollbar-thumb:hover,
+        &::-webkit-scrollbar-thumb:active {
+            background-color: rgb(255 255 255 / 0.4);
+        }
     }
 }
 

@@ -6,6 +6,11 @@
     "main"
   ],
   "permissions": [
-    "core:default"
+    "core:default",
+    "opener:allow-open-url",
+    "core:webview:allow-create-webview-window",
+    "core:webview:allow-get-all-webviews",
+    "core:window:allow-set-focus",
+    "core:window:allow-unminimize"
   ]
 }

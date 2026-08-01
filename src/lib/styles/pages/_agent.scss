@@ -5,6 +5,58 @@
 
 
 /* ========================================================================
+ * Shared panel shell
+ *
+ * Every panel on the agent pages uses these mixins — the outer column cards
+ * (instruction, template, tabs, function editor) and the cards nested inside
+ * the tab panes alike. One flat surface, one hairline border, one radius, no
+ * shadow, matching agent-overview.svelte's Tailwind classes:
+ *
+ *     rounded-lg border border-gray-200 bg-white
+ *     dark:border-gray-700 dark:bg-gray-800
+ *
+ * Edit here, not per component. Copy-pasting the shell into each block is
+ * what let the radii drift apart (0.875rem outer vs 0.625rem nested) and the
+ * primary-tinted gradients accumulate in the first place.
+ * ======================================================================== */
+
+
+$panel-radius: 0.5rem;
+
+
+@mixin panel-shell {
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(229 231 235);
+    border-radius: $panel-radius;
+    overflow: hidden;
+}
+
+
+@mixin panel-shell-dark {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+}
+
+
+@mixin panel-header {
+    padding: 0.75rem 1rem;
+    background-color: rgb(249 250 251);
+    border-bottom: 1px solid rgb(229 231 235);
+}
+
+
+@mixin panel-header-dark {
+    background-color: rgb(17 24 39 / 0.4);
+    border-bottom-color: rgb(55 65 81);
+}
+
+
+@mixin panel-body {
+    padding: 1rem;
+}
+
+
+/* ========================================================================
  * src/routes/page/agent/+page.svelte
  * ======================================================================== */
 
@@ -321,19 +373,14 @@
 
 
 /* ===== Section wrapper =====
-   Each ad-section hosts a panel card. The card itself owns its background
-   and shadow; we just give a smooth transform-on-hover affordance to lift
-   the card subtly when the user is interacting with this region. */
+   Each ad-section hosts a panel card. The card owns its own surface (see the
+   panel-shell mixin); this is only the grid slot. No hover lift — the panels
+   are flat and static, and a panel that moves reads as clickable when it is
+   not. */
 
 
 .ad-section {
-		display: block;
-		transition: transform 0.2s ease, filter 0.2s ease;
-
-
-		&:hover {
-				transform: translateY(-1px);
-		}
+    display: block;
 }
 
 
@@ -347,19 +394,18 @@
 /* ===== Action bar (Save / Delete) ===== */
 
 
+/* No surface of its own — the buttons carry their own weight, and a bar behind
+   them would read as a fourth panel. Zero horizontal padding so the first
+   button's edge lines up with the panels above it. */
+
+
 .ad-action-bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.625rem;
     margin: 1.75rem 0 1rem;
-    padding: 0.875rem 1rem;
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-primary) 4%, transparent),
-        transparent 65%
-    );
-    border-radius: 0.875rem;
+    padding: 0;
 }
 
 
@@ -377,19 +423,13 @@
 		letter-spacing: 0.01em;
 		line-height: 1;
 		border: 1px solid transparent;
-		border-radius: 0.625rem;
+		/* Same 0.375rem as every other button on the agent pages, including the
+		   overview panel's Tailwind `rounded-md`. */
+		border-radius: 0.375rem;
 		cursor: pointer;
-		transition: background 0.18s ease,
-        border-color 0.18s ease,
-        color 0.18s ease,
-        transform 0.12s ease,
-        box-shadow 0.18s ease,
-        filter 0.18s ease;
-
-
-		&:active:not(:disabled) {
-				transform: translateY(1px);
-		}
+		transition: background-color 0.15s ease,
+        border-color 0.15s ease,
+        color 0.15s ease;
 
 
 		&:disabled {
@@ -406,75 +446,48 @@
 
 
 .ad-btn-primary {
-		background: linear-gradient(
-        135deg,
-        var(--color-primary),
-        color-mix(in srgb, var(--color-primary) 78%, black)
-    );
+		background-color: var(--color-primary);
 		color: rgb(255 255 255);
-		box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset,
-        0 4px 12px -4px color-mix(in srgb, var(--color-primary) 60%, transparent),
-        0 2px 4px -2px rgb(15 23 42 / 0.1);
 
 
 		&:hover:not(:disabled) {
-				transform: translateY(-1px);
-				box-shadow: 0 1px 0 rgb(255 255 255 / 0.22) inset,
-        0 8px 18px -6px color-mix(in srgb, var(--color-primary) 70%, transparent),
-        0 3px 6px -2px rgb(15 23 42 / 0.12);
-				filter: brightness(1.05);
+				background-color: var(--color-primary-hover);
 		}
 }
 
 
 .ad-btn-danger {
-		background: linear-gradient(
-        135deg,
-        var(--color-danger),
-        color-mix(in srgb, var(--color-danger) 78%, black)
-    );
+		background-color: var(--color-danger);
 		color: rgb(255 255 255);
-		box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset,
-        0 4px 12px -4px color-mix(in srgb, var(--color-danger) 55%, transparent),
-        0 2px 4px -2px rgb(15 23 42 / 0.1);
 
 
 		&:hover:not(:disabled) {
-				transform: translateY(-1px);
-				box-shadow: 0 1px 0 rgb(255 255 255 / 0.22) inset,
-        0 8px 18px -6px color-mix(in srgb, var(--color-danger) 65%, transparent),
-        0 3px 6px -2px rgb(15 23 42 / 0.12);
-				filter: brightness(1.05);
+				background-color: color-mix(in srgb, var(--color-danger) 82%, black);
 		}
 }
 
 
 /* Ghost / secondary variant for non-destructive auxiliary actions
-   (e.g. Export Agent). Sits visually quieter than the filled
-   primary/danger gradients while still picking up the design tokens
-   on hover so the action bar reads as a unified cluster. */
+   (e.g. Export Agent). Quieter than the filled primary/danger buttons
+   while still picking up the design tokens on hover so the action bar
+   reads as a unified cluster. */
 
 
 .ad-btn-ghost {
 		background-color: rgb(255 255 255);
-		border-color: color-mix(in srgb, var(--color-primary) 35%, rgb(229 231 235));
+		border-color: rgb(229 231 235);
 		color: var(--color-primary);
-		box-shadow: 0 1px 2px rgb(15 23 42 / 0.04),
-        0 1px 0 rgb(255 255 255 / 0.6) inset;
 
 
 		&:hover:not(:disabled) {
-				background-color: color-mix(in srgb, var(--color-primary) 8%, rgb(255 255 255));
+				background-color: color-mix(in srgb, var(--color-primary) 6%, rgb(255 255 255));
 				border-color: var(--color-primary);
-				transform: translateY(-1px);
-				box-shadow: 0 4px 10px -4px color-mix(in srgb, var(--color-primary) 35%, transparent),
-        0 1px 0 rgb(255 255 255 / 0.6) inset;
 		}
 
 
 		.dark & {
 				background-color: rgb(31 41 55);
-				border-color: color-mix(in srgb, var(--color-primary) 45%, rgb(55 65 81));
+				border-color: rgb(55 65 81);
 				color: color-mix(in srgb, var(--color-primary) 85%, white);
 		}
 
@@ -485,48 +498,21 @@
 }
 
 
-.dark .ad-action-bar {
-    background: linear-gradient(
-        135deg,
-        color-mix(in srgb, var(--color-primary) 10%, transparent),
-        transparent 65%
-    );
-}
-
-
 /* ========================================================================
  * src/routes/page/agent/[agentId]/agent-components/agent-function.svelte
  * ======================================================================== */
 
 
-.af-json-editor {/* define a custom theme color */
-		--jse-theme-color: var(--color-primary);
-		--jse-theme-color-highlight: #687177;
-		position: relative;
-		background: linear-gradient(
-            180deg,
-            rgb(255 255 255),
-            color-mix(in srgb, var(--color-primary) 1.5%, rgb(255 255 255))
-        );
-		border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
-		border-radius: 0.875rem;
-		box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset,
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 35%, rgb(15 23 42 / 0.12));
-		overflow: hidden;
+.af-json-editor {
+    /* JSON editor theme hooks — the library reads these off the host element. */
+    --jse-theme-color: var(--color-primary);
+    --jse-theme-color-highlight: #687177;
+    @include panel-shell;
 
 
-		.dark & {
-				background: linear-gradient(
-            180deg,
-            rgb(31 41 55),
-            color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55))
-        );
-				border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
-				box-shadow: 0 1px 0 rgb(255 255 255 / 0.04) inset,
-        0 1px 2px rgb(0 0 0 / 0.2),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 45%, rgb(0 0 0 / 0.4));
-		}
+    .dark & {
+        @include panel-shell-dark;
+    }
 }
 
 
@@ -540,31 +526,12 @@
 
 .ai-card {
     position: relative;
-    background:
-        linear-gradient(
-            180deg,
-            rgb(255 255 255),
-            color-mix(in srgb, var(--color-primary) 1.5%, rgb(255 255 255))
-        );
-    border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
-    border-radius: 0.875rem;
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.7) inset,
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 35%, rgb(15 23 42 / 0.12));
-    overflow: hidden;
+    @include panel-shell;
 }
 
 
 .ai-card-header {
-    padding: 1.125rem 1.375rem;
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 8%, transparent),
-            color-mix(in srgb, var(--color-primary) 2%, transparent) 60%
-        );
-    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 10%, rgb(229 231 235));
+    @include panel-header;
 }
 
 
@@ -578,9 +545,8 @@
 
 
 .ai-card-body {
-    padding: 1.375rem;
+    @include panel-body;
     overflow-y: auto;
-    scrollbar-width: none;
 }
 
 
@@ -660,7 +626,6 @@
 		line-height: 1.5;
 		color: rgb(17 24 39);
 		resize: none;
-		scrollbar-width: thin;
 		font-family: inherit;
 		transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 
@@ -683,28 +648,12 @@
 
 
 .dark .ai-card {
-    background:
-        linear-gradient(
-            180deg,
-            rgb(31 41 55),
-            color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55))
-        );
-    border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.04) inset,
-        0 1px 2px rgb(0 0 0 / 0.2),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 45%, rgb(0 0 0 / 0.4));
+    @include panel-shell-dark;
 }
 
 
 .dark .ai-card-header {
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 14%, transparent),
-            color-mix(in srgb, var(--color-primary) 4%, transparent) 60%
-        );
-    border-bottom-color: color-mix(in srgb, var(--color-primary) 18%, rgb(55 65 81));
+    @include panel-header-dark;
 }
 
 
@@ -727,17 +676,12 @@
 
 
 .llmc-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
+    @include panel-shell;
 }
 
 
 .llmc-card-body {
-    padding: 1.25rem;
+    @include panel-body;
 }
 
 
@@ -768,7 +712,6 @@
     gap: 0.625rem;
     max-height: 500px;
     overflow-y: auto;
-    scrollbar-width: thin;
     padding: 0 0.625rem;
 }
 
@@ -777,405 +720,12 @@
 
 
 .dark .llmc-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
 .dark .llmc-title {
     color: rgb(229 231 235);
-}
-
-
-/* ========================================================================
- * src/routes/page/agent/[agentId]/agent-components/agent-overview.svelte
- * ======================================================================== */
-
-
-/* ===== Card shell ===== */
-
-
-.ao-card {
-    position: relative;
-    background:
-        linear-gradient(
-            180deg,
-            rgb(255 255 255),
-            color-mix(in srgb, var(--color-primary) 1.5%, rgb(255 255 255))
-        );
-    border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
-    border-radius: 0.875rem;
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.7) inset,
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 35%, rgb(15 23 42 / 0.12));
-    overflow: hidden;
-}
-
-
-.ao-card-header {
-    padding: 1.125rem 1.375rem;
-    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 10%, rgb(229 231 235));
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 8%, transparent),
-            color-mix(in srgb, var(--color-primary) 2%, transparent) 60%
-        );
-}
-
-
-.ao-card-body {
-    padding: 1.125rem 1.375rem;
-}
-
-
-/* ===== Header (avatar + name + updated) ===== */
-
-
-.ao-header-block {
-    text-align: center;
-}
-
-
-.ao-avatar-row {
-    display: flex;
-    justify-content: center;
-    position: relative;
-}
-
-
-.ao-avatar-img {
-    width: 50px;
-    height: 50px;
-    display: block;
-    margin: 0 auto;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
-
-.ao-chat-btn {
-		position: absolute;
-		top: 20%;
-		left: calc(50% + 30px);
-		display: inline-flex;
-		align-items: center;
-		gap: 0.3rem;
-		height: 1.875rem;
-		padding: 0 0.625rem;
-		background-color: color-mix(in srgb, var(--color-info) 14%, transparent);
-		color: var(--color-info);
-		border: 1px solid transparent;
-		border-radius: 0.375rem;
-		font-size: 0.75rem;
-		font-weight: 500;
-		line-height: 1;
-		cursor: pointer;
-		transform-origin: center bottom;
-		transition: background-color 0.15s ease, color 0.15s ease;
-		animation: ao-chat-btn-bounce 1.5s ease-in-out infinite;
-
-		&:hover {
-				background-color: var(--color-info);
-				color: rgb(255 255 255);
-				animation-play-state: paused;
-		}
-
-		& i {
-				font-size: 0.875rem;
-				line-height: 1;
-		}
-}
-
-
-@keyframes ao-chat-btn-bounce {
-		0%, 100% { transform: translateY(0); }
-		50%      { transform: translateY(-3px); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-		.ao-chat-btn { animation: none; }
-}
-
-@media (max-width: 768px) {
-		.ao-chat-btn {
-				gap: 0;
-				padding: 0;
-				width: 1.875rem;
-				justify-content: center;
-		}
-		.ao-chat-btn-label {
-				display: none;
-		}
-}
-
-
-.ao-name {
-    margin: 0.25rem 0;
-    display: flex;
-    justify-content: center;
-    font-size: 1rem;
-    font-weight: 600;
-    color: rgb(55 65 81);
-}
-
-
-.ao-updated {
-    margin: 0;
-    font-size: 0.75rem;
-    color: var(--color-muted);
-}
-
-
-/* ===== Properties table ===== */
-
-
-.ao-table-wrap {
-    width: 100%;
-}
-
-
-.ao-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: 0.8125rem;
-
-
-		& tr {
-				border-top: 1px solid rgb(243 244 246);
-		}
-
-
-		& tr:first-child {
-				border-top: 0;
-		}
-}
-
-
-.ao-key {
-    width: 45%;
-    padding: 0.625rem 0.5rem 0.625rem 0;
-    font-weight: 600;
-    color: rgb(55 65 81);
-    text-align: left;
-    vertical-align: middle;
-}
-
-
-.ao-val {
-    padding: 0.625rem 0;
-    color: rgb(55 65 81);
-    vertical-align: middle;
-}
-
-
-/* ===== Inputs ===== */
-
-
-.ao-input {
-		height: 2rem;
-		width: 100%;
-		padding: 0 0.5rem;
-		border: 1px solid rgb(229 231 235);
-		border-radius: 0.375rem;
-		background-color: rgb(249 250 251);
-		font-size: 0.8125rem;
-		color: rgb(17 24 39);
-		font-family: inherit;
-		transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
-
-
-		&::placeholder {
-				color: var(--color-muted);
-		}
-
-
-		&:focus {
-				outline: 0;
-				border-color: var(--color-primary);
-				background-color: rgb(255 255 255);
-				box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-		}
-}
-
-
-.ao-input-number {
-    width: 50%;
-    min-width: 100px;
-    text-align: center;
-}
-
-
-/* ===== Checkbox ===== */
-
-
-.ao-check {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    cursor: pointer;
-    font-size: 0.8125rem;
-    color: rgb(55 65 81);
-    width: fit-content;
-}
-
-
-.ao-checkbox {
-		appearance: none;
-		-webkit-appearance: none;
-		width: 1rem;
-		height: 1rem;
-		border: 1px solid rgb(209 213 219);
-		border-radius: 0.25rem;
-		background-color: rgb(255 255 255);
-		cursor: pointer;
-		transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
-
-
-		&:hover {
-				border-color: var(--color-primary);
-		}
-
-
-		&:focus-visible {
-				outline: 0;
-				border-color: var(--color-primary);
-				box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
-		}
-
-
-		&:checked {
-				background-color: var(--color-primary);
-				border-color: var(--color-primary);
-				background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%23fff' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' d='M3.5 8.5l3 3 6-6.5'/%3E%3C/svg%3E");
-				background-repeat: no-repeat;
-				background-position: center;
-				background-size: 0.875rem;
-		}
-}
-
-
-/* ===== List (profiles / labels) ===== */
-
-
-.ao-list {
-    width: 95%;
-    max-width: 100%;
-    max-height: 200px;
-    overflow-y: auto;
-    scrollbar-width: none;
-}
-
-
-.ao-list-row {
-		display: flex;
-		align-items: center;
-		gap: 0.3125rem;
-		margin-bottom: 0.3125rem;
-
-
-		& .ao-input {
-				flex: 1 1 auto;
-				border: 1px solid rgb(229 231 235);
-		}
-}
-
-
-.ao-list-remove {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		flex-shrink: 0;
-
-
-		& i {
-				cursor: pointer;
-				color: var(--color-danger);
-				font-size: 1.125rem;
-				line-height: 1;
-				transition: filter 0.15s ease;
-		}
-
-
-		& i:hover {
-				filter: brightness(0.9);
-		}
-}
-
-
-.ao-list-add {
-		font-size: 1.25rem;
-		color: var(--color-primary);
-		display: inline-flex;
-		align-items: center;
-
-
-		& i {
-				cursor: pointer;
-				transition: color 0.15s ease, transform 0.15s ease;
-		}
-
-
-		& i:hover {
-				color: var(--color-primary-hover);
-				transform: scale(1.1);
-		}
-}
-
-
-/* ===== Dark mode ===== */
-
-
-.dark .ao-card {
-    background:
-        linear-gradient(
-            180deg,
-            rgb(31 41 55),
-            color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55))
-        );
-    border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.04) inset,
-        0 1px 2px rgb(0 0 0 / 0.2),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 45%, rgb(0 0 0 / 0.4));
-}
-
-
-.dark .ao-card-header {
-    border-bottom-color: color-mix(in srgb, var(--color-primary) 18%, rgb(55 65 81));
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 14%, transparent),
-            color-mix(in srgb, var(--color-primary) 4%, transparent) 60%
-        );
-}
-
-
-.dark .ao-name,
-.dark .ao-key,
-.dark .ao-val,
-.dark .ao-check {
-    color: rgb(229 231 235);
-}
-
-
-.dark .ao-table tr {
-    border-top-color: rgb(55 65 81);
-}
-
-
-.dark .ao-input {
-    background-color: rgb(17 24 39);
-    border-color: rgb(55 65 81);
-    color: rgb(229 231 235);
-}
-
-
-.dark .ao-checkbox {
-    background-color: rgb(17 24 39);
-    border-color: rgb(75 85 99);
 }
 
 
@@ -1188,16 +738,11 @@
 
 
 .arr-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
+    @include panel-shell;
 }
 
 
-.arr-card-body { padding: 1.25rem; }
+.arr-card-body { @include panel-body; }
 
 
 .arr-header { text-align: center; margin-bottom: 0.5rem; }
@@ -1308,8 +853,7 @@
 
 
 .dark .arr-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
@@ -1567,17 +1111,11 @@
 
 
 .akb-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
-    overflow: hidden;
+    @include panel-shell;
 }
 
 
-.akb-card-body { padding: 1.25rem; }
+.akb-card-body { @include panel-body; }
 
 
 .akb-header { text-align: center; margin-bottom: 0.75rem; }
@@ -1605,7 +1143,6 @@
     gap: 0.625rem;
     max-height: 500px;
     overflow-y: auto;
-    scrollbar-width: thin;
     padding: 0 0.625rem;
 }
 
@@ -1652,8 +1189,7 @@
 
 
 .dark .akb-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
@@ -2301,16 +1837,11 @@
 
 
 .amt-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
+    @include panel-shell;
 }
 
 
-.amt-card-body { padding: 1.25rem; }
+.amt-card-body { @include panel-body; }
 
 
 .amt-header { text-align: center; margin-bottom: 0.75rem; }
@@ -2338,7 +1869,6 @@
     gap: 0.625rem;
     max-height: 500px;
     overflow-y: auto;
-    scrollbar-width: thin;
     padding: 0 0.625rem;
 }
 
@@ -2385,8 +1915,7 @@
 
 
 .dark .amt-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
@@ -2566,16 +2095,11 @@
 
 
 .ar-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
+    @include panel-shell;
 }
 
 
-.ar-card-body { padding: 1.25rem; }
+.ar-card-body { @include panel-body; }
 
 
 .ar-header { text-align: center; margin-bottom: 0.75rem; }
@@ -2603,7 +2127,6 @@
     gap: 0.625rem;
     max-height: 500px;
     overflow-y: auto;
-    scrollbar-width: thin;
     padding: 0 0.625rem;
 }
 
@@ -2650,8 +2173,7 @@
 
 
 .dark .ar-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
@@ -2779,31 +2301,12 @@
 
 .tpl-card {
     position: relative;
-    background:
-        linear-gradient(
-            180deg,
-            rgb(255 255 255),
-            color-mix(in srgb, var(--color-primary) 1.5%, rgb(255 255 255))
-        );
-    border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
-    border-radius: 0.875rem;
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.7) inset,
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 35%, rgb(15 23 42 / 0.12));
-    overflow: hidden;
+    @include panel-shell;
 }
 
 
 .tpl-card-header {
-    padding: 1.125rem 1.375rem;
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 8%, transparent),
-            color-mix(in srgb, var(--color-primary) 2%, transparent) 60%
-        );
-    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 10%, rgb(229 231 235));
+    @include panel-header;
 }
 
 
@@ -2817,9 +2320,8 @@
 
 
 .tpl-card-body {
-    padding: 1.375rem;
+    @include panel-body;
     overflow-y: auto;
-    scrollbar-width: none;
 }
 
 
@@ -2905,7 +2407,6 @@
 		line-height: 1.5;
 		color: rgb(17 24 39);
 		resize: none;
-		scrollbar-width: thin;
 		font-family: inherit;
 		transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
 
@@ -2967,7 +2468,6 @@
 				width: 260px;
 				border-left: 1px solid rgb(229 231 235);
 				overflow-y: auto;
-				scrollbar-width: thin;
 		}
 }
 
@@ -3007,28 +2507,12 @@
 
 
 .dark .tpl-card {
-    background:
-        linear-gradient(
-            180deg,
-            rgb(31 41 55),
-            color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55))
-        );
-    border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.04) inset,
-        0 1px 2px rgb(0 0 0 / 0.2),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 45%, rgb(0 0 0 / 0.4));
+    @include panel-shell-dark;
 }
 
 
 .dark .tpl-card-header {
-    background:
-        linear-gradient(
-            135deg,
-            color-mix(in srgb, var(--color-primary) 14%, transparent),
-            color-mix(in srgb, var(--color-primary) 4%, transparent) 60%
-        );
-    border-bottom-color: color-mix(in srgb, var(--color-primary) 18%, rgb(55 65 81));
+    @include panel-header-dark;
 }
 
 
@@ -3380,17 +2864,12 @@
 
 
 .au-card {
-    background-color: rgb(255 255 255);
-    border: 1px solid rgb(229 231 235);
-    border-radius: 0.625rem;
-    box-shadow:
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 6px 16px -10px rgb(15 23 42 / 0.08);
+    @include panel-shell;
 }
 
 
 .au-card-body {
-    padding: 1.25rem;
+    @include panel-body;
 }
 
 
@@ -3422,7 +2901,6 @@
     gap: 0.625rem;
     max-height: 500px;
     overflow-y: auto;
-    scrollbar-width: thin;
     padding: 0 0.625rem;
 }
 
@@ -3562,8 +3040,7 @@
 
 
 .dark .au-card {
-    background-color: rgb(31 41 55);
-    border-color: rgb(55 65 81);
+    @include panel-shell-dark;
 }
 
 
@@ -3585,40 +3062,12 @@
 
 
 .at-card {
-		position: relative;
-		background: linear-gradient(
-            180deg,
-            rgb(255 255 255),
-            color-mix(in srgb, var(--color-primary) 1.5%, rgb(255 255 255))
-        );
-		border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
-		border-radius: 0.875rem;
-		box-shadow: 0 1px 0 rgb(255 255 255 / 0.7) inset,
-        0 1px 2px rgb(15 23 42 / 0.04),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 35%, rgb(15 23 42 / 0.12));
-		overflow: hidden;
-
-
-		&::before {
-				content: '';
-				position: absolute;
-				inset: 0 0 auto 0;
-				height: 3px;
-				background: linear-gradient(
-        90deg,
-        transparent 0%,
-        color-mix(in srgb, var(--color-primary) 65%, transparent) 25%,
-        color-mix(in srgb, var(--color-primary) 65%, transparent) 75%,
-        transparent 100%
-    );
-				opacity: 0.85;
-				pointer-events: none;
-		}
+    @include panel-shell;
 }
 
 
 .at-card-body {
-    padding: 1.375rem;
+    @include panel-body;
 }
 
 
@@ -3633,17 +3082,7 @@
 
 
 .dark .at-card {
-    background:
-        linear-gradient(
-            180deg,
-            rgb(31 41 55),
-            color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55))
-        );
-    border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
-    box-shadow:
-        0 1px 0 rgb(255 255 255 / 0.04) inset,
-        0 1px 2px rgb(0 0 0 / 0.2),
-        0 10px 28px -16px color-mix(in srgb, var(--color-primary) 45%, rgb(0 0 0 / 0.4));
+    @include panel-shell-dark;
 }
 
 

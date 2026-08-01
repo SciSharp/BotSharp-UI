@@ -9,22 +9,21 @@
 	import GlobalHeader from '$lib/common/shared/GlobalHeader.svelte';
 	import Header from './Header.svelte';
 	import Sidebar from './Sidebar.svelte';
-	import Footer from './Footer.svelte';
 
 	/**
-	 * Both flags are opt-outs for pages that own their own viewport.
+	 * `loader` is an opt-out for pages that own their own progress reporting: the global
+	 * spinner covers the page on every request, so a page that shows progress inline (a
+	 * typing indicator, a live run card) would have that hidden behind an overlay saying
+	 * only "something is happening". Errors are unaffected; the toast comes from the same
+	 * component and stays on.
 	 *
-	 * `footer` — a credit line pinned under a full-height chat thread reads as part of
-	 * the conversation.
+	 * The companion `footer` flag is gone with the footer itself — the copyright line now
+	 * lives in the desktop status bar (StatusBar.svelte, mounted by the root layout) and
+	 * the browser build no longer shows one at all.
 	 *
-	 * `loader` — the global spinner covers the page on every request. A page that shows
-	 * progress inline (a typing indicator, a live run card) would have that hidden behind
-	 * an overlay saying only "something is happening". Errors are unaffected; the toast
-	 * comes from the same component and stays on.
-	 *
-	 * @type {{ children?: import('svelte').Snippet, footer?: boolean, loader?: boolean }}
+	 * @type {{ children?: import('svelte').Snippet, loader?: boolean }}
 	 */
-	let { children, footer = true, loader = true } = $props();
+	let { children, loader = true } = $props();
 
 	/** @type {import('$pluginTypes').PluginMenuDefModel[] | undefined} */
 	let menu = $state(undefined);
@@ -75,10 +74,10 @@
 		<Sidebar {menu} />
 	{/if}
 	<div class="main-content relative min-h-screen lg:ml-[var(--sidebar-width)] transition-[margin] duration-200">
+		<!-- pb keeps the last row of content clear of the fixed desktop status bar; the
+		     token is 0px in the browser, so this costs nothing there. -->
 		<div
-			class="page-content pt-[calc(var(--header-height)+1.5rem)] px-3 sm:px-4 lg:px-6 min-h-screen {footer
-				? 'pb-[var(--footer-height)]'
-				: ''}"
+			class="page-content pt-[calc(var(--header-height)+1.5rem)] px-3 sm:px-4 lg:px-6 pb-[var(--statusbar-height)] min-h-screen"
 		>
 			<div class="relative mx-auto w-full max-w-full">
 				<LoadingToComplete
@@ -89,9 +88,6 @@
 				{@render children?.()}
 			</div>
 		</div>
-		{#if footer}
-			<Footer />
-		{/if}
 	</div>
 
 	<RightSidebar closebar={() => closebar()} />

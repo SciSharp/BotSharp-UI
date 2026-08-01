@@ -221,7 +221,7 @@
             <h6 class="amt-subtitle">Tools powered by MCP Servers</h6>
         </div>
 
-        <div class="amt-list" bind:this={scrollContainer}>
+        <div class="amt-list scrollbar-on-hover" bind:this={scrollContainer}>
             {#each innerMcps as mcp, uid (uid)}
                 <AgentMcpToolItem
                     mcp={mcp}

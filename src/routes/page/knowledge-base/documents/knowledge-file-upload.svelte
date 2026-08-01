@@ -21,6 +21,7 @@
         deleteAllKnowledgeFiles
     } from '$lib/services/knowledge-base-service';
     import KnowledgeUploadResult from './knowledge-upload-result.svelte';
+    import { openExternal } from '$lib/helpers/utils/desktop';
 
     const startPage = 1;
     const docPageSize = 8;
@@ -340,7 +341,7 @@
         }
 
         if (url) {
-            window.open(url);
+            openExternal(url);
         }
     }
 

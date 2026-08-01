@@ -28,7 +28,9 @@
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"@tauri-apps/api": "^2.11.1",
 		"@tauri-apps/cli": "^2.11.4",
+		"@tauri-apps/plugin-opener": "^2.5.4",
 		"@types/drawflow": "^0.0.10",
+		"@types/lodash": "^4.17.24",
 		"eslint": "^8.28.0",
 		"eslint-config-prettier": "^9.0.0",
 		"eslint-plugin-svelte": "^2.30.0",
@@ -41,6 +43,7 @@
 		"svelte-lightbox": "^1.1.2",
 		"svelte-loading-spinners": "^0.3.6",
 		"svelte-range-slider-pips": "^4.1.1",
+		"typescript": "^5.9.3",
 		"vite": "^6.4.1"
 	},
 	"type": "module",

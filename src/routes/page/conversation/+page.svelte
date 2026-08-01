@@ -13,6 +13,7 @@
 	import TimeRangePicker from '$lib/common/shared/TimeRangePicker.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
+	import { openAppRoute } from '$lib/helpers/utils/desktop';
 	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
 	import {
 		getConversations,
@@ -631,7 +632,7 @@
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
 											aria-label="View Detail"
 											title="View Detail"
-											onclick={() => window.open(`page/conversation/${conv.id}`)}
+											onclick={() => openAppRoute(`page/conversation/${conv.id}`)}
 										>
 											<i class="mdi mdi-eye-outline"></i>
 										</button>
@@ -640,7 +641,7 @@
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
 											aria-label="Chat"
 											title="Chat"
-											onclick={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
+											onclick={() => openAppRoute(`chat/${conv.agent_id}/${conv.id}`)}
 										>
 											<i class="mdi mdi-chat"></i>
 										</button>
