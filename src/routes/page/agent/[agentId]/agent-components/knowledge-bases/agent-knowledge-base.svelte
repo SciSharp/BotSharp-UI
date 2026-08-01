@@ -199,7 +199,7 @@
             <h6 class="akb-subtitle">Make your Agent have memory</h6>
         </div>
 
-        <div class="akb-list" bind:this={scrollContainer}>
+        <div class="akb-list scrollbar-on-hover" bind:this={scrollContainer}>
             {#each innerKnowledgeBases as knowledge, uid (uid)}
                 <AgentKnowledgeBaseItem
                     knowledge={knowledge}

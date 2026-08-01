@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getUserStore, globalErrorStore, loaderStore, userStore, getTenantId } from '$lib/helpers/store.js';
+import { apiStatusStore, getUserStore, globalErrorStore, loaderStore, userStore, getTenantId } from '$lib/helpers/store.js';
 import { renewToken } from '$lib/services/auth-service';
 import { delay } from './utils/common';
 
@@ -134,10 +134,14 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
     (response) => {
         loaderStore.set(false);
+        apiStatusStore.set('online');
         return response;
     },
     (error) => {
         loaderStore.set(false);
+        // No `response` means the request never reached anyone — DNS, refused connection,
+        // dropped wifi. Any status code, 401 and 500 included, means the server answered.
+        apiStatusStore.set(error?.response ? 'online' : 'offline');
         const originalRequest = error?.config || {};
         const user = getUserStore();
 

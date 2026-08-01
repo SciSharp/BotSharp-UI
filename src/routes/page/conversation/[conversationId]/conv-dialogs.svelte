@@ -4,6 +4,7 @@
     import { getConversationFiles, sendNotification } from '$lib/services/conversation-service.js';
     import { utcToLocal } from '$lib/helpers/datetime';
     import { formatNumber } from '$lib/helpers/utils/common';
+    import { openAppRoute } from '$lib/helpers/utils/desktop';
 	import { IMAGE_DATA_PREFIX, BOT_SENDERS } from '$lib/helpers/constants';
 	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import { FileSourceType } from '$lib/helpers/enums';
@@ -38,7 +39,7 @@
     }
 
     function goToChat() {
-        window.open(`/chat/${conversation.agent_id}/${conversation.id}`);
+        openAppRoute(`/chat/${conversation.agent_id}/${conversation.id}`);
     }
 
     function handleSendNotification() {

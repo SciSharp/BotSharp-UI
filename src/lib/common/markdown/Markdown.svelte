@@ -5,6 +5,8 @@
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { v4 as uuidv4 } from 'uuid';
+	import { openAppRoute, openExternal, openPopup } from '$lib/helpers/utils/desktop';
+	import { liveRunId } from '$lib/helpers/utils/common';
 
 	let {
 		/** @type {string} */
@@ -46,6 +48,69 @@
 		}
     }
 
+	/**
+	 * Makes links inside the rendered markdown open somewhere other than on top of the page
+	 * they were rendered in.
+	 *
+	 * `marked` emits a plain `<a href>` with no target, so a click navigates the current view
+	 * away — in a chat that means abandoning the conversation the link arrived in, and in the
+	 * desktop shell it means the app's only window becomes the linked page with no way back.
+	 * Neither is what someone clicking a link in a message expects.
+	 *
+	 * Delegated from the container rather than bound per anchor: the markup comes from
+	 * `{@html}`, so Svelte never sees those nodes and cannot attach to them. An action keeps
+	 * this off the element as an `onclick`, which would make a11y demand keyboard handlers on
+	 * a div; the real anchors stay focusable and Enter still reaches this through the click
+	 * event a keypress on a link dispatches.
+	 *
+	 * @param {HTMLElement} node
+	 */
+	function interceptLinks(node) {
+		/** @param {MouseEvent} e */
+		const onClick = (e) => {
+			// Modified clicks are the reader's own instruction about where to open something.
+			if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+			const anchor = /** @type {Element | null} */ (e.target)?.closest?.('a');
+			const href = anchor?.getAttribute('href');
+			if (!href || href.startsWith('#')) return;
+
+			let url;
+			try {
+				url = new URL(href, window.location.href);
+			} catch {
+				return;
+			}
+
+			// mailto:, tel: and friends are the OS's business — let the default happen.
+			if (url.protocol !== 'http:' && url.protocol !== 'https:') return;
+
+			e.preventDefault();
+
+			// A live view is checked before the same-origin split because it is neither case:
+			// it is someone else's page, but one the reader has to operate while this
+			// conversation stays visible. See openPopup.
+			const runId = liveRunId(url);
+			if (runId) {
+				openPopup(url.href, {
+					label: `run-${runId}`,
+					title: `Live view · ${runId.slice(0, 8)}`
+				});
+			} else if (url.origin === window.location.origin) {
+				openAppRoute(`${url.pathname}${url.search}${url.hash}`);
+			} else {
+				openExternal(url.href);
+			}
+		};
+
+		node.addEventListener('click', onClick);
+		return {
+			destroy() {
+				node.removeEventListener('click', onClick);
+			}
+		};
+	}
+
 	let innerText = $derived.by(() => {
 		const normalizedText = typeof text !== 'string' ? `${JSON.stringify(text)}` : text;
 		const markedText = !rawText
@@ -64,6 +129,7 @@
 	id={`${scrollbarId}`}
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
+	use:interceptLinks
 >
 	{@html innerText}
 	<!-- <SvelteMarkdown

@@ -255,7 +255,7 @@
             <h6 class="ar-subtitle">Wake-up your agent by rules</h6>
         </div>
 
-        <div class="ar-list" bind:this={scrollContainer}>
+        <div class="ar-list scrollbar-on-hover" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
                 <AgentRuleItem
                     rule={rule}

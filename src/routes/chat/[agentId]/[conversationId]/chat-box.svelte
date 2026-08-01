@@ -50,12 +50,13 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import Label from '$lib/common/shared/Label.svelte';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay, formatNumber } from '$lib/helpers/utils/common';
+	import { delay, directToAgentPage, formatNumber, liveRunIdInText } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -548,12 +549,39 @@
 		}
 	}
 
+	/**
+	 * Drops every live-view link but the most recent one.
+	 *
+	 * These are pushed into the conversation each time a browser task starts, and they
+	 * accumulate: a session that looks up three things leaves three identical-looking
+	 * "Watch this run" lines, only the last of which leads anywhere. The URLs carry a
+	 * short-lived single-run token, so an earlier one is a dead link dressed as a live
+	 * one — and the reader has no way to tell them apart, since the sentence is the same
+	 * every time. Clicking the wrong one is the whole cost.
+	 *
+	 * Hidden at render, not deleted: the messages stay in `dialogs` and in the server's
+	 * history, so message ids, truncation indices and the content log are untouched, and
+	 * a link comes back into view if a later one is ever truncated away.
+	 *
+	 * @param {import('$conversationTypes').ChatResponseModel[]} dialogs
+	 */
+	function hideSupersededLiveLinks(dialogs) {
+		const isLiveLink = dialogs.map(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
+		const latest = isLiveLink.lastIndexOf(true);
+
+		// Nothing to supersede: zero or one live link. Returning the array as-is keeps the
+		// common case — every conversation that never touches SimpleClaw — free.
+		if (latest < 0 || isLiveLink.indexOf(true) === latest) return dialogs;
+
+		return dialogs.filter((_msg, idx) => !isLiveLink[idx] || idx === latest);
+	}
+
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
 		if (!dialogs) return [];
 		const format = 'MMM D, YYYY';
 		// @ts-ignore
-		return _.groupBy(dialogs, (x) => {
+		return _.groupBy(hideSupersededLiveLinks(dialogs), (x) => {
 			const createDate = moment.utc(x.created_at).local().format(format);
 			if (createDate == moment.utc().local().format(format)) {
 				return 'Today';
@@ -582,11 +610,12 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
+		const isSameAsLast = dialogs[dialogs.length - 1]?.message_id === message.message_id
+			&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+			&& !dialogs[dialogs.length - 1]?.is_appended;
+
 		if (!message.is_streaming) {
-			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
-				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
-				&& !dialogs[dialogs.length - 1]?.is_appended
-			) {
+			if (isSameAsLast) {
 				dialogs[dialogs.length - 1] = {
 					...message,
 					is_chat_message: true
@@ -597,6 +626,11 @@
 					is_chat_message: true
 				});
 			}
+		} else if (isSameAsLast) {
+			// The streamed bubble was created on the first BeforeReceiveLlmStreamMessage of the round,
+			// so it carries the time the request started, not the time this reply was produced.
+			// This event is the completed response, so take its timestamp.
+			dialogs[dialogs.length - 1].created_at = message.created_at;
 		}
 
 		isStreaming = false;
@@ -1343,6 +1377,20 @@
 		});
 	}
 
+	/**
+	 * Deliberately still `window.open`, unlike the other "open in a new tab" buttons in this app
+	 * (which now go through `openAppRoute`). Two reasons it cannot use the same treatment:
+	 *
+	 * - The button only renders when `isFrame`, i.e. this chat is inside the livechat IFRAME.
+	 *   `isDesktop()` cannot answer there: Tauri injects `__TAURI_INTERNALS__` into the main
+	 *   frame only, so a nested frame always reads as "browser" and the branch would never fire.
+	 * - The target is the CURRENT path. Navigating the one desktop window to the page it is
+	 *   already on is a reload, not a full-screen view — a change that would look like a fix and
+	 *   do nothing. Escaping the frame needs a real answer (a Tauri window, or dropping the
+	 *   surrounding chrome), not a redirect.
+	 *
+	 * So in the desktop shell this button is inert, and it is gated behind PUBLIC_DEBUG_MODE.
+	 */
 	function openFullScreen() {
 		window.open(page.url.pathname);
 	}
@@ -1800,19 +1848,24 @@
 		</Pane>
 		{/if}
 		<Pane minSize={30}>
-			<div style="height: 100vh;">
-				<div class="cb-panel-card" style="height: 100vh;">
+			<div style="height: calc(100vh - var(--statusbar-height));">
+				<div class="cb-panel-card" style="height: calc(100vh - var(--statusbar-height));">
 					<div class="cb-head">
 						<div class="cb-head-row">
 							<div class="cb-head-left">
-								<div class="cb-head-agent">
+								<button
+									type="button"
+									class="cb-head-agent"
+									title="Open agent detail"
+									onclick={() => directToAgentPage(agent?.id)}
+								>
 									{#if agent?.icon_url}
-									<div class="cb-vcenter">
+									<span class="cb-vcenter">
 										<img class="cb-head-agent-icon" src={agent.icon_url} alt="">
-									</div>
+									</span>
 									{/if}
-									<div class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</div>
-								</div>
+									<span class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</span>
+								</button>
 								<div class="cb-head-user">
 									<div>
 										<i class="mdi mdi-circle cb-text-success cb-align-middle"></i>
@@ -1973,6 +2026,31 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
+										{@const runId = BOT_SENDERS.includes(message.sender?.role)
+											? liveRunIdInText(message?.rich_content?.message?.text || message?.text)
+											: null}
+										{#if runId}
+											<!--
+												A live view is the app telling you what it is doing, not the agent
+												talking to you, so it is not dressed as speech: no avatar, no bubble,
+												no copy or edit actions. Sitting between two of the agent's own
+												sentences, a bubble made it read as a third one — and one you might
+												be expected to answer.
+
+												Still rendered through Markdown so the link keeps its click handler,
+												which is what opens the run beside the conversation instead of on
+												top of it.
+											-->
+											<li class="cb-sys-note-row" id={'test_k' + message.message_id}>
+												<div class="cb-sys-note">
+													<i class="bx bx-broadcast cb-sys-note-icon"></i>
+													<Markdown
+														containerClasses={'cb-sys-note-text'}
+														text={message?.rich_content?.message?.text || message?.text}
+													/>
+												</div>
+											</li>
+										{:else}
 										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
@@ -2018,12 +2096,15 @@
 																class="cb-bubble cb-bubble-user"
 																class:cb-clickable={!isLite && isLoadPersistLog}
 																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
-																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
 																id={`user-msg-${message.message_id}`}
 															>
 																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
 															</div>
 														</div>
+														<p class="cb-chat-time">
+															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+															{utcToLocal(message.created_at, 'h:mm:ss A')}
+														</p>
 														{#if !disableAction}
 															<div class="cb-msg-actions cb-msg-actions-user">
 																<div class="cb-vcenter cb-msg-action">
@@ -2089,10 +2170,6 @@
 																</div>
 															</div>
 														{/if}
-														<p class="cb-chat-time">
-															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
-															{utcToLocal(message.created_at, 'h:mm:ss A')}
-														</p>
 														{#if !!message.post_action_disclaimer}
 															<RcDisclaimer content={message.post_action_disclaimer} />
 														{/if}
@@ -2112,9 +2189,8 @@
 														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
-														{@const isLastBotIcon = message?.uuid === lastBotMsg?.uuid}
 														<img
-															class={`cb-avatar ${isLastBotIcon ? 'cb-avatar-bounce' : ''}`}
+															class="cb-avatar"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
@@ -2152,6 +2228,17 @@
 														</div>
 													{:else}
 														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
+													{#if !!(message?.rich_content?.message?.text || message?.text) && editingBotMsgUid !== message.uuid}
+														{@const isLastBotMsg = message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
+														<!-- Suppressed while the last bot message is still streaming, so the timestamp
+															 does not flicker in before the text has settled. -->
+														{#if !isLastBotMsg || (!isStreaming && !isHandlingQueue && !isThinking)}
+															<p class="cb-chat-time cb-chat-time-bot">
+																<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+																{utcToLocal(message.created_at, 'h:mm:ss A')}
+															</p>
+														{/if}
 													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
@@ -2241,6 +2328,7 @@
 												{/if}
 											</div>
 										</li>
+										{/if}
 									{/each}
 								{/each}
 

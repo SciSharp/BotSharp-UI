@@ -3,6 +3,7 @@
     import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import Loader from "$lib/common/spinners/Loader.svelte";
 	import { KnowledgeBaseType, KnowledgePayloadName } from "$lib/helpers/enums";
+	import { openExternal } from '$lib/helpers/utils/desktop';
 
     let {
         /** @type {import('$knowledgeTypes').KnowledgeQueryViewModel} */
@@ -208,7 +209,7 @@
                                                 <button
                                                     type="button"
                                                     class="vti-link"
-                                                    onclick={() => window.open(item.payload[key]?.data_value)}
+                                                    onclick={() => openExternal(item.payload[key]?.data_value)}
                                                 >
                                                     link
                                                 </button>

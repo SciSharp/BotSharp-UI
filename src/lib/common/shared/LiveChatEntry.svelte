@@ -6,6 +6,7 @@
 	import { CHAT_FRAME_ID } from '$lib/helpers/constants';
 	import { ChatAction } from '$lib/helpers/enums';
 	import BubbleChat from './BubbleChat.svelte';
+	import { openExternal } from '$lib/helpers/utils/desktop';
 
     let chatUrl = $state(PUBLIC_LIVECHAT_HOST);
     let showChatBox = $state(false);
@@ -38,7 +39,12 @@
                 receivedMsg = '';
             }, receivedMsg?.length > 200 ? 8000 : 3000);
         } else if (e.data.action == ChatAction.NewWindow && e.data.url) {
-            window.open(e.data.url, '_blank');
+            // Treated as EXTERNAL even though it may well be one of our own routes. The URL is
+            // handed over by the embedded livechat frame and nothing in this repo produces the
+            // message, so its origin is not knowable here — and navigating the desktop shell's
+            // only window to an address supplied by a frame is an open redirect of the app
+            // itself. Handing it to the browser is safe whichever it turns out to be.
+            openExternal(e.data.url);
         }
     };
 
