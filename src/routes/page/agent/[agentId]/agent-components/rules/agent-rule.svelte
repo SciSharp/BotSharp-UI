@@ -259,7 +259,7 @@
         generateAgentCodeScript(agent.id, {
             options: {
                 save_to_db: true,
-                script_name: `${rule.trigger_name}_rule.py`,
+                script_name: `${rule.trigger_name}_criteria.py`,
                 script_type: AgentCodeScriptType.Src,
                 data: {
                     "user_request": rule.config?.criteria
@@ -322,7 +322,7 @@
     icon="warning"
     title="Are you sure?"
     text={pendingRule
-        ? `Are you sure you want to generate code script "${pendingRule.trigger_name}_rule.py"? This will overwrite the existing code script if any.`
+        ? `Are you sure you want to generate code script "${pendingRule.trigger_name}_criteria.py"? This will overwrite the existing code script if any.`
         : ''}
     confirmBtnText="Yes"
     cancelBtnText="No"
