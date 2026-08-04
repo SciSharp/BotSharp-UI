@@ -1421,22 +1421,46 @@
     border-radius: 0.5rem;
     background-color: rgb(249 250 251);
     color: rgb(107 114 128);
+
+    /*
+     * An ABSOLUTE line-height, set here and inherited by both children, is what keeps the
+     * icon on the sentence's line. A unitless 1.5 would resolve against each child's own
+     * font-size, giving the larger icon a taller line box than the text and standing it
+     * proud of the first line — which no margin nudge fixes, because the gap changes with
+     * the icon size. One shared line box, so both are centred in the same strip.
+     */
+    font-size: 0.8125rem;
+    line-height: 1.21875rem; /* 0.8125rem × 1.5 */
 }
 
 
 .cb-sys-note-icon {
     flex-shrink: 0;
-    margin-top: 0.14rem;
     font-size: 0.95rem;
     color: var(--color-primary);
 }
 
 
+/* A note with nothing left to offer: the link's credential has expired, so it is a record of
+   something that happened rather than a way in. The accent goes — it is the app's promise that
+   a thing is actionable — and the border stops being dashed, because there is no longer an
+   activity for the dashes to suggest. */
+
+
+.cb-sys-note-spent {
+    border-style: solid;
+}
+
+
+.cb-sys-note-spent .cb-sys-note-icon {
+    color: inherit;
+}
+
+
+/* Size and line box come from the note itself, so the icon shares them exactly. */
 .cb-sys-note-text {
     min-width: 0;
     color: inherit;
-    font-size: 0.8125rem;
-    line-height: 1.5;
 
 
     & p {
@@ -1448,6 +1472,13 @@
      * The one thing in here that is meant to be clicked, so it carries the accent while
      * the sentence around it stays muted. Underlined only on hover — a permanent underline
      * on a line this quiet reads as emphasis rather than as a link.
+     *
+     * The COLOUR here cannot win on its own. Markdown.svelte always applies `markdown-lite`,
+     * whose scoped `.markdown-lite :global(a) { color: white }` carries the component's hash
+     * class and so outranks this selector — white on this near-white note, i.e. invisible.
+     * Which is why the note also passes `markdown-dark`, the variant meant for light
+     * surfaces; it ships last in that component and wins on equal specificity. Dropping that
+     * class is what makes the link vanish, not anything here.
      */
     & a {
         color: var(--color-primary);
@@ -1583,6 +1614,10 @@
 
 .cb-bubble-thinking {
     float: left;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
     background-color: var(--color-light, #eff2f7);
     border: 1px solid rgb(229 231 235);
     border-radius: 14px 14px 14px 4px;
@@ -1591,6 +1626,37 @@
 
 .cb-chat-indication {
     font-size: 1em;
+    min-width: 0;
+}
+
+
+/* Step number and elapsed time, to the right of the progress line. Muted and smaller
+   because they qualify the sentence rather than being part of it: the reader is meant to
+   take in what is happening first and how long it has taken second. */
+
+
+.cb-progress-meta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78em;
+    white-space: nowrap;
+
+    /* Derived from the bubble's own text colour rather than a fixed grey, so it stays
+       readable whichever palette the bubble ends up with. 62% keeps it clearly secondary
+       while holding well above the 4.5:1 small-text minimum on the bubble fill. */
+    color: color-mix(in srgb, currentColor 62%, transparent);
+
+    /* Fixed-width digits. The clock repaints every second, and proportional digits made
+       the bubble's right edge twitch on each tick — motion that means nothing. */
+    font-variant-numeric: tabular-nums;
+}
+
+
+.cb-progress-meta-item:not(:first-child)::before {
+    content: '·';
+    margin-right: 0.4rem;
 }
 
 
@@ -4762,14 +4828,12 @@
     }
 
 
+    /* Both size and line box move together, or the icon leaves the line again. */
     .cb-sys-note {
         max-width: 100%;
         padding: 0.4rem 0.6rem;
-    }
-
-
-    .cb-sys-note-text {
         font-size: 0.72rem;
+        line-height: 1.08rem; /* 0.72rem × 1.5 */
     }
 
 
