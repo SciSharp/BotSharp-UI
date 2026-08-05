@@ -155,7 +155,7 @@
     <div class="tpl-card-header">
         <h5 class="tpl-title">{'Templates'}</h5>
     </div>
-    <div class="tpl-card-body">
+    <div class="tpl-card-body scrollbar-on-hover">
         <div class="tpl-section">
             <div class="tpl-section-header">
                 <div class="tpl-section-label">
@@ -204,7 +204,7 @@
             <div class="tpl-content-wrapper">
                 <div class="tpl-editor-area">
                     <textarea
-                        class="tpl-textarea"
+                        class="tpl-textarea scrollbar-on-hover"
                         placeholder="Enter your content"
                         value={selected_template.content}
                         oninput={(e) => changePrompt(e)}
@@ -225,7 +225,7 @@
                 </div>
 
                 <!-- Config panel -->
-                <div class="tpl-config-panel" class:expanded={showConfig}>
+                <div class="tpl-config-panel scrollbar-on-hover" class:expanded={showConfig}>
                     {#if showConfig}
                         <AgentTemplateConfig
                             bind:template={selected_template}

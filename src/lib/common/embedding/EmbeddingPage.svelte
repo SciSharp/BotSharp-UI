@@ -19,33 +19,18 @@
     /** @type {HTMLDivElement | null} */
     let containerEl = $state(null);
 
+    /* Fullscreen reclaims the page-content's bottom padding so the embed can run the
+       full height. It used to hide the layout footer as well; there is no footer any
+       more, and the desktop status bar deliberately stays put — it is window chrome, so
+       a page going fullscreen inside the window does not get to cover it. */
     $effect(() => {
-        const footer = document.querySelector('.footer');
         const pageContent = document.querySelector('.page-content');
+        if (!(pageContent instanceof HTMLElement)) return;
 
-        if (fullScreen) {
-            if (footer instanceof HTMLElement) {
-                footer.style.display = 'none';
-            }
-            if (pageContent instanceof HTMLElement) {
-                pageContent.style.paddingBottom = '0';
-            }
-        } else {
-            if (footer instanceof HTMLElement) {
-                footer.style.display = '';
-            }
-            if (pageContent instanceof HTMLElement) {
-                pageContent.style.paddingBottom = '';
-            }
-        }
+        pageContent.style.paddingBottom = fullScreen ? '0' : '';
 
         return () => {
-            if (footer instanceof HTMLElement) {
-                footer.style.display = '';
-            }
-            if (pageContent instanceof HTMLElement) {
-                pageContent.style.paddingBottom = '';
-            }
+            pageContent.style.paddingBottom = '';
         };
     });
 
@@ -177,7 +162,8 @@
        migration, so the iframe collapsed to its 150px default. Now
        the container computes its height from `--embedding-top`
        (the container's actual viewport offset, set at runtime by a
-       ResizeObserver) and the `--footer-height` theme token.
+       ResizeObserver) and `--statusbar-height`, which replaced the
+       page footer and is 0px outside the desktop shell.
        ============================================================ */
 
     .embedding-container {
@@ -186,7 +172,7 @@
         --embedding-top: calc(var(--header-height) + 1.5rem);
 
         width: 100%;
-        height: calc(100vh - var(--embedding-top) - var(--footer-height));
+        height: calc(100vh - var(--embedding-top) - var(--statusbar-height));
         padding: 0;
         margin: 0;
         overflow: hidden;
@@ -194,11 +180,12 @@
         border-radius: 0.5rem;
     }
 
-    /* Fullscreen mode: the component's $effect hides the page
-       footer and zeroes the page-content's `padding-bottom`, so the
-       container can extend down to the viewport edge. */
+    /* Fullscreen mode: the component's $effect zeroes the
+       page-content's `padding-bottom` so the container can run down
+       to the status bar. It still stops short of the bar itself —
+       that strip belongs to the window, not to the page. */
     .embedding-container.embedding-container-fullscreen {
-        height: calc(100vh - var(--embedding-top));
+        height: calc(100vh - var(--embedding-top) - var(--statusbar-height));
         border-radius: 0;
     }
 

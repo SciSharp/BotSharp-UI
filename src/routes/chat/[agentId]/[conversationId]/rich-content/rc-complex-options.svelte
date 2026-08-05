@@ -2,6 +2,7 @@
     import { getContext, onMount } from "svelte";
     import { fade } from 'svelte/transition';
 	import { ElementType } from "$lib/helpers/enums";
+	import { openExternal } from '$lib/helpers/utils/desktop';
 
     /**
      * @type {{
@@ -78,7 +79,7 @@
         e.preventDefault();
 
         if (option.type === ElementType.Web && option.url) {
-            window.open(option.url);
+            openExternal(option.url);
             return;
         }
 

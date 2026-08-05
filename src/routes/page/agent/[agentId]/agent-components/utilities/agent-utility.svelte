@@ -260,7 +260,7 @@
             <h6 class="au-subtitle">Tools shared across plugins</h6>
         </div>
 
-        <div class="au-list" bind:this={scrollContainer}>
+        <div class="au-list scrollbar-on-hover" bind:this={scrollContainer}>
             {#if !agent?.is_router}
                 <label class="au-merge">
                     <span class="au-checkbox-wrap">

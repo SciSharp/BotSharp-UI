@@ -135,13 +135,13 @@
     <div class="ai-card-header">
         <h5 class="ai-agent-name">{agent.name}</h5>
     </div>
-    <div class="ai-card-body">
+    <div class="ai-card-body scrollbar-on-hover">
         <div class="ai-section">
             <div class="ai-section-label">
                 {'Description:'}
             </div>
             <textarea
-                class="ai-textarea ai-textarea-sm"
+                class="ai-textarea ai-textarea-sm scrollbar-on-hover"
                 rows={4}
                 bind:value={agent.description}
                 placeholder="Enter your Message"
@@ -198,7 +198,7 @@
             </NavBar>
             {/if}
             <textarea
-                class="ai-textarea"
+                class="ai-textarea scrollbar-on-hover"
                 value={selected_instruction.instruction}
                 rows={20}
                 oninput={(e) => changePrompt(e)}

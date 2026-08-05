@@ -13,6 +13,7 @@
 	import TimeRangePicker from '$lib/common/shared/TimeRangePicker.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service';
 	import { utcToLocal } from '$lib/helpers/datetime';
+	import { openAppRoute } from '$lib/helpers/utils/desktop';
 	import { ConversationChannel, TimeRange } from '$lib/helpers/enums';
 	import {
 		getConversations,
@@ -439,7 +440,8 @@
 
 <div class="flex flex-wrap">
 	<div class="w-full">
-		<div class="rounded-2xl bg-white shadow-xl ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+		<!-- Flat: no ring, no shadow. The surface colour alone separates it from the page. -->
+		<div class="rounded-2xl bg-white dark:bg-gray-800">
 			<div class="border-b border-gray-100 px-6 py-4 dark:border-gray-700">
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex items-center gap-3">
@@ -565,7 +567,8 @@
 				</div>
 			</div>
 			<div class="p-4 sm:p-6">
-				<div class="thin-scrollbar overflow-x-auto rounded-lg ring-1 ring-gray-100 dark:ring-gray-700">
+				<!-- No ring around the table: the header band and row separators already bound it. -->
+			<div class="thin-scrollbar overflow-x-auto rounded-lg">
 					<table class="conv-table w-full border-collapse text-sm">
 						<thead class="bg-gray-50 dark:bg-gray-700/50">
 							<tr>
@@ -629,7 +632,7 @@
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-primary/10 text-primary transition-all hover:scale-105 hover:bg-primary/20"
 											aria-label="View Detail"
 											title="View Detail"
-											onclick={() => window.open(`page/conversation/${conv.id}`)}
+											onclick={() => openAppRoute(`page/conversation/${conv.id}`)}
 										>
 											<i class="mdi mdi-eye-outline"></i>
 										</button>
@@ -638,7 +641,7 @@
 											class="inline-flex cursor-pointer h-8 w-8 items-center justify-center rounded-md bg-info/15 text-info transition-all hover:scale-105 hover:bg-info/25"
 											aria-label="Chat"
 											title="Chat"
-											onclick={() => window.open(`chat/${conv.agent_id}/${conv.id}`)}
+											onclick={() => openAppRoute(`chat/${conv.agent_id}/${conv.id}`)}
 										>
 											<i class="mdi mdi-chat"></i>
 										</button>
@@ -658,7 +661,21 @@
 						</tbody>
 					</table>
 				</div>
-				<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
+				<!--
+					Pinned to the bottom of the viewport while there is still list below it,
+					then settling at the card's real bottom edge once you reach the end.
+
+					The negative margins let the bar bleed through the card's padding, so the
+					opaque background covers the full width and rows do not show through the
+					gap at the sides. Wrapped here rather than inside TablePagination: that
+					component is shared by every list page, and most of them are short enough
+					that a floating bar would be noise.
+				-->
+				<div
+					class="sticky bottom-0 z-10 -mx-4 -mb-4 border-t border-gray-100 bg-white px-4 pb-4 sm:-mx-6 sm:-mb-6 sm:px-6 sm:pb-6 dark:border-gray-700 dark:bg-gray-800"
+				>
+					<TablePagination pagination={pager} pageTo={(pn) => pageTo(pn)} />
+				</div>
 			</div>
 		</div>
 	</div>

@@ -50,12 +50,13 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import AudioSpeaker from '$lib/common/audio-player/AudioSpeaker.svelte';
 	import CodeScript from '$lib/common/shared/CodeScript.svelte';
+	import Markdown from '$lib/common/markdown/Markdown.svelte';
 	import Label from '$lib/common/shared/Label.svelte';
 	import { realtimeChat } from '$lib/services/realtime-chat-service';
 	import { webSpeech } from '$lib/services/web-speech';
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
-	import { delay, formatNumber } from '$lib/helpers/utils/common';
+	import { delay, directToAgentPage, formatNumber, liveRunIdInText, liveViewInText } from '$lib/helpers/utils/common';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -115,6 +116,15 @@
 	let editingBotMsgUid = $state('');
 	let highlightedMsgId = $state('');
 	let indication = $state('');
+	/**
+	 * Wall clock (ms) the progress line currently on screen started at, and its age in whole
+	 * seconds. `progressSince === 0` means nothing is being timed — no wait has begun since
+	 * the last user turn.
+	 */
+	let progressSince = $state(0);
+	let progressElapsed = $state(0);
+	/** How many DISTINCT progress lines this turn has produced, i.e. which step we are on. */
+	let progressStep = $state(0);
 	let mode = $state('');
 	let notificationText = $state('');
 	let successText = $state("Done");
@@ -222,10 +232,98 @@
 								&& currentUser?.id !== conversationUser?.id
 								|| !AgentExtensions.chatable(agent));
 
+	/*
+	 * A wait shorter than this keeps the bare dots. They are the familiar shape of an ordinary
+	 * turn, and a label plus a clock flashing up for one second is noise. Past it the wait is
+	 * long enough that "is this still running?" becomes a real question, so the bubble starts
+	 * answering it in words — even when nothing has told us WHAT is running.
+	 */
+	const SILENT_WAIT_SECONDS = 2;
+
+	/** True once the bubble owes the reader words instead of dots. */
+	let showProgressText = $derived(!!indication || progressElapsed >= SILENT_WAIT_SECONDS);
+
 	$effect(() => {
 		if (!isWaiting && !disableAction) {
 			focusChatTextArea();
 		}
+	});
+
+	/*
+	 * The run still going behind the live-view link on screen.
+	 *
+	 * A planner's turn does not end until its whole plan does — the reason the link is pushed
+	 * from a hook instead of written into the reply — so "this turn is still in flight" IS "the
+	 * run is still going". At most one link is ever rendered (hideSupersededLiveLinks drops the
+	 * rest), so one flag covers the conversation.
+	 *
+	 * A soft signal, and it can be wrong for a few seconds after a reload mid-run, before the
+	 * first progress push arrives. Tolerable because both mislabellings lead to the SAME page:
+	 * one URL serves the live screen and the recording, and the executor renders whichever the
+	 * run actually is. Only the sentence around the link is ever wrong, never the destination.
+	 */
+	let liveRunInFlight = $derived.by(() => {
+		if (!isWaiting) return false;
+
+		const lastUser = dialogs.findLastIndex(msg => !BOT_SENDERS.includes(msg?.sender?.role || ''));
+		const lastLink = dialogs.findLastIndex(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
+		return lastLink > lastUser;
+	});
+
+	/** When the live-view link on screen stops working, or null when nothing on screen expires. */
+	let liveViewExpiresAt = $derived.by(() => {
+		for (let i = dialogs.length - 1; i >= 0; i--) {
+			const msg = dialogs[i];
+			if (!BOT_SENDERS.includes(msg?.sender?.role || '')) continue;
+
+			const view = liveViewInText(msg?.rich_content?.message?.text || msg?.text);
+			if (view) return view.expiresAt;
+		}
+		return null;
+	});
+
+	/** Read by the render to decide whether the link is still worth offering. */
+	let linkClock = $state(Date.now());
+
+	/*
+	 * Ages the live-view link every half minute.
+	 *
+	 * Its credential expires thirty minutes after it was minted and the executor refuses it
+	 * from then on. Nothing pushes a message when that moment passes, so without a clock a link
+	 * that died while the page sat open would go on presenting itself as openable — the same
+	 * failure hideSupersededLiveLinks exists to prevent, reached from the other direction.
+	 * Half a minute is finer than anyone can care about, and the timer stops itself once the
+	 * link is spent, so an idle chat is not left ticking.
+	 */
+	$effect(() => {
+		if (!liveViewExpiresAt) return;
+
+		const timer = setInterval(() => {
+			linkClock = Date.now();
+			if (linkClock >= liveViewExpiresAt) clearInterval(timer);
+		}, 30_000);
+		return () => clearInterval(timer);
+	});
+
+	/*
+	 * Ages the progress line once a second.
+	 *
+	 * The clock is what carries "still running" once the dots are gone: a browser task can sit
+	 * on one step for a minute, and a static sentence in a bot-coloured bubble reads as a reply
+	 * that has already arrived. Re-runs only when the clock starts, stops or restarts — the tick
+	 * writes `progressElapsed`, which nothing in here reads, so it cannot re-trigger itself.
+	 *
+	 * Typing off and on again mid-turn pauses and resumes the same clock rather than restarting
+	 * it, because `progressSince` is untouched: the number stays the age of the STEP, not of the
+	 * latest gap in the signalling.
+	 */
+	$effect(() => {
+		if (!isThinking || !progressSince) return;
+
+		const tick = () => { progressElapsed = Math.floor((Date.now() - progressSince) / 1000); };
+		tick();
+		const timer = setInterval(tick, 1000);
+		return () => clearInterval(timer);
 	});
 
 	setContext('chat-window-context', {
@@ -548,12 +646,39 @@
 		}
 	}
 
+	/**
+	 * Drops every live-view link but the most recent one.
+	 *
+	 * These are pushed into the conversation each time a browser task starts, and they
+	 * accumulate: a session that looks up three things leaves three identical-looking
+	 * "Watch this run" lines, only the last of which leads anywhere. The URLs carry a
+	 * short-lived single-run token, so an earlier one is a dead link dressed as a live
+	 * one — and the reader has no way to tell them apart, since the sentence is the same
+	 * every time. Clicking the wrong one is the whole cost.
+	 *
+	 * Hidden at render, not deleted: the messages stay in `dialogs` and in the server's
+	 * history, so message ids, truncation indices and the content log are untouched, and
+	 * a link comes back into view if a later one is ever truncated away.
+	 *
+	 * @param {import('$conversationTypes').ChatResponseModel[]} dialogs
+	 */
+	function hideSupersededLiveLinks(dialogs) {
+		const isLiveLink = dialogs.map(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
+		const latest = isLiveLink.lastIndexOf(true);
+
+		// Nothing to supersede: zero or one live link. Returning the array as-is keeps the
+		// common case — every conversation that never touches SimpleClaw — free.
+		if (latest < 0 || isLiveLink.indexOf(true) === latest) return dialogs;
+
+		return dialogs.filter((_msg, idx) => !isLiveLink[idx] || idx === latest);
+	}
+
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
 	function groupDialogs(dialogs) {
 		if (!dialogs) return [];
 		const format = 'MMM D, YYYY';
 		// @ts-ignore
-		return _.groupBy(dialogs, (x) => {
+		return _.groupBy(hideSupersededLiveLinks(dialogs), (x) => {
 			const createDate = moment.utc(x.created_at).local().format(format);
 			if (createDate == moment.utc().local().format(format)) {
 				return 'Today';
@@ -571,6 +696,18 @@
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function onMessageReceivedFromClient(message) {
+		/*
+		 * A turn opened by someone else — a CSR, or this user in another tab — never went
+		 * through sendChatMessage, so this is the only place its progress gets cleared.
+		 *
+		 * Restricted to messages that are not ours on purpose. Our own send already reset
+		 * synchronously; resetting again on the echo would risk landing after the turn's first
+		 * indication and dropping the step it was announcing.
+		 */
+		if (message?.sender?.id && message.sender.id !== currentUser?.id) {
+			resetProgress();
+		}
+
 		autoScrollLog = true;
 		dialogs.push({
 			...message,
@@ -582,11 +719,12 @@
 
     /** @param {import('$conversationTypes').ChatResponseModel} message */
     function onMessageReceivedFromAssistant(message) {
+		const isSameAsLast = dialogs[dialogs.length - 1]?.message_id === message.message_id
+			&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
+			&& !dialogs[dialogs.length - 1]?.is_appended;
+
 		if (!message.is_streaming) {
-			if (dialogs[dialogs.length - 1]?.message_id === message.message_id
-				&& dialogs[dialogs.length - 1]?.sender?.role === UserRole.Assistant
-				&& !dialogs[dialogs.length - 1]?.is_appended
-			) {
+			if (isSameAsLast) {
 				dialogs[dialogs.length - 1] = {
 					...message,
 					is_chat_message: true
@@ -597,6 +735,11 @@
 					is_chat_message: true
 				});
 			}
+		} else if (isSameAsLast) {
+			// The streamed bubble was created on the first BeforeReceiveLlmStreamMessage of the round,
+			// so it carries the time the request started, not the time this reply was produced.
+			// This event is the completed response, so take its timestamp.
+			dialogs[dialogs.length - 1].created_at = message.created_at;
 		}
 
 		isStreaming = false;
@@ -741,17 +884,76 @@
 				isSendingMsg = false;
 				messageQueue = [];
 				isHandlingQueue = false;
+				resetProgress();
 				refresh();
 			}
 			isStopStreamClicked = false;
 		});
 	}
 
-	/** @param {import('$conversationTypes').ChatResponseModel} message */
+	/**
+	 * Adopts `text` as what the agent is currently doing, if it is news.
+	 *
+	 * Each distinct line is one step: the backend pushes an indication per function call, and a
+	 * browser task pushes one per browser step, so counting the changes here yields the step
+	 * number without either side having to carry a counter. A resend of the line already showing
+	 * is dropped rather than counted — it is not a new step, and it must not restart the clock
+	 * that is the only sign a long step is still alive.
+	 *
+	 * @param {string} text
+	 */
+	function trackProgress(text) {
+		if (!text || text === indication) return;
+
+		indication = text;
+		progressStep += 1;
+		progressSince = Date.now();
+		progressElapsed = 0;
+	}
+
+	/** Begins timing a wait, unless something is already being timed. */
+	function startProgressClock() {
+		if (progressSince) return;
+
+		progressSince = Date.now();
+		progressElapsed = 0;
+	}
+
+	/**
+	 * Forgets the turn's progress.
+	 *
+	 * Only the end of a turn may call this — a new user message, or the user stopping the run.
+	 * Anything finer-grained (a typing-off, a function returning) is a gap WITHIN a turn, and
+	 * clearing on those is what left the bubble as three anonymous dots.
+	 */
+	function resetProgress() {
+		indication = '';
+		progressStep = 0;
+		progressSince = 0;
+		progressElapsed = 0;
+	}
+
+	/** `m:ss`. Minutes run past 60 rather than growing an hours field no run needs. */
+	function formatElapsed(/** @type {number} */ seconds) {
+		return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+	}
+
+	/**
+	 * Sticky by design: an indication is never cleared here, and typing-off no longer clears it
+	 * either, so the last thing we were told survives the silence after it.
+	 *
+	 * That silence is the whole problem this handles. A web task is one indication followed by
+	 * minutes of the executor working, and the old pairing of "clear on typing-off, only ever
+	 * set on a fresh indication" left the entire run rendered as three dots. Keeping the line
+	 * up means the reader can always see which step is outstanding; the clock beside it says
+	 * how long it has been outstanding for.
+	 *
+	 * @param {import('$conversationTypes').ChatResponseModel} message
+	 */
 	function onIndicationReceived(message) {
 		isThinking = true;
-		const retIndication = message.indication || '';
-		indication = retIndication.split('|')[0];
+		startProgressClock();
+		trackProgress((message.indication || '').split('|')[0]);
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
@@ -795,9 +997,11 @@
 	function onSenderActionGenerated(data) {
 		if (data?.sender_action == SenderAction.TypingOn) {
 			isThinking = true;
+			startProgressClock();
 		} else if (data?.sender_action == SenderAction.TypingOff) {
+			// Label and clock deliberately survive. A single turn toggles typing off and on
+			// between function calls, so this is not the end of anything — see resetProgress.
 			isThinking = false;
-			indication = '';
 		}
 	}
 
@@ -840,6 +1044,7 @@
 	 */
     async function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
+		resetProgress();
 		clearInstantLogs();
 		renewUserSentMessages(msgText);
 		const agentId = page.params.agentId;
@@ -1343,6 +1548,20 @@
 		});
 	}
 
+	/**
+	 * Deliberately still `window.open`, unlike the other "open in a new tab" buttons in this app
+	 * (which now go through `openAppRoute`). Two reasons it cannot use the same treatment:
+	 *
+	 * - The button only renders when `isFrame`, i.e. this chat is inside the livechat IFRAME.
+	 *   `isDesktop()` cannot answer there: Tauri injects `__TAURI_INTERNALS__` into the main
+	 *   frame only, so a nested frame always reads as "browser" and the branch would never fire.
+	 * - The target is the CURRENT path. Navigating the one desktop window to the page it is
+	 *   already on is a reload, not a full-screen view — a change that would look like a fix and
+	 *   do nothing. Escaping the frame needs a real answer (a Tauri window, or dropping the
+	 *   surrounding chrome), not a redirect.
+	 *
+	 * So in the desktop shell this button is inert, and it is gated behind PUBLIC_DEBUG_MODE.
+	 */
 	function openFullScreen() {
 		window.open(page.url.pathname);
 	}
@@ -1800,19 +2019,24 @@
 		</Pane>
 		{/if}
 		<Pane minSize={30}>
-			<div style="height: 100vh;">
-				<div class="cb-panel-card" style="height: 100vh;">
+			<div style="height: calc(100vh - var(--statusbar-height));">
+				<div class="cb-panel-card" style="height: calc(100vh - var(--statusbar-height));">
 					<div class="cb-head">
 						<div class="cb-head-row">
 							<div class="cb-head-left">
-								<div class="cb-head-agent">
+								<button
+									type="button"
+									class="cb-head-agent"
+									title="Open agent detail"
+									onclick={() => directToAgentPage(agent?.id)}
+								>
 									{#if agent?.icon_url}
-									<div class="cb-vcenter">
+									<span class="cb-vcenter">
 										<img class="cb-head-agent-icon" src={agent.icon_url} alt="">
-									</div>
+									</span>
 									{/if}
-									<div class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</div>
-								</div>
+									<span class="cb-head-agent-name cb-vcenter cb-ellipsis">{agent?.name || 'Unkown'}</span>
+								</button>
 								<div class="cb-head-user">
 									<div>
 										<i class="mdi mdi-circle cb-text-success cb-align-middle"></i>
@@ -1973,6 +2197,73 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
+										{@const liveView = BOT_SENDERS.includes(message.sender?.role)
+											? liveViewInText(message?.rich_content?.message?.text || message?.text)
+											: null}
+										{#if liveView}
+											{@const spent = !!liveView.expiresAt && liveView.expiresAt <= linkClock}
+											<!--
+												A live view is the app telling you what it is doing, not the agent
+												talking to you, so it is not dressed as speech: no avatar, no bubble,
+												no copy or edit actions. Sitting between two of the agent's own
+												sentences, a bubble made it read as a third one — and one you might
+												be expected to answer.
+
+												Still rendered through Markdown so the link keeps its click handler,
+												which is what opens the run beside the conversation instead of on
+												top of it.
+											-->
+											<li class="cb-sys-note-row" id={'test_k' + message.message_id}>
+												<div class="cb-sys-note" class:cb-sys-note-spent={spent}>
+													<!--
+														While the run is going: a screen being driven from somewhere
+														else, which is exactly what is happening — a browser on the
+														executor, operated with nobody in front of it. The broadcast
+														icon this replaced read as "streaming to you", the wrong
+														direction, and said nothing about taking the controls.
+
+														Afterwards: the same URL, but what it opens is a recording, so
+														it is labelled as one. Spent: no icon of an action, because
+														there is no longer an action to offer.
+													-->
+													<i
+														class={`mdi cb-sys-note-icon ${spent
+															? 'mdi-link-off'
+															: liveRunInFlight ? 'mdi-remote-desktop' : 'mdi-motion-play-outline'}`}
+													></i>
+													{#if spent}
+														<!--
+															Deliberately not a link. The credential in the URL is a
+															30-minute one and the executor refuses it now, so anything
+															clickable here would lead to an error page — a dead link
+															dressed as a live one is worse than an honest sentence.
+														-->
+														<span class="cb-sys-note-text">This run's recording has expired.</span>
+													{:else if liveRunInFlight}
+														<Markdown
+															containerClasses={'cb-sys-note-text markdown-dark'}
+															text={message?.rich_content?.message?.text || message?.text}
+														/>
+													{:else}
+														<!--
+															The agent's own sentence — "take the controls if needed" —
+															is wrong once the run is over: there are no controls left to
+															take. The URL is unchanged, because the executor's run page
+															serves the recording from the same address; only what to
+															expect on the other side is restated.
+
+															Still rendered through Markdown, on markdown the UI wrote
+															itself, so the link keeps the click handler that opens the
+															run beside the conversation instead of on top of it.
+														-->
+														<Markdown
+															containerClasses={'cb-sys-note-text markdown-dark'}
+															text={`[Replay this session](${liveView.url}) — every step the agent took`}
+														/>
+													{/if}
+												</div>
+											</li>
+										{:else}
 										<li id={'test_k' + message.message_id} class:cb-conv-right={!BOT_SENDERS.includes(message.sender?.role)}>
 											<div class="cb-msg-row">
 												{#if !BOT_SENDERS.includes(message.sender?.role)}
@@ -2018,12 +2309,15 @@
 																class="cb-bubble cb-bubble-user"
 																class:cb-clickable={!isLite && isLoadPersistLog}
 																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
-																class:cb-bubble-bounce={highlightedMsgId === message.message_id}
 																id={`user-msg-${message.message_id}`}
 															>
 																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
 															</div>
 														</div>
+														<p class="cb-chat-time">
+															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+															{utcToLocal(message.created_at, 'h:mm:ss A')}
+														</p>
 														{#if !disableAction}
 															<div class="cb-msg-actions cb-msg-actions-user">
 																<div class="cb-vcenter cb-msg-action">
@@ -2089,10 +2383,6 @@
 																</div>
 															</div>
 														{/if}
-														<p class="cb-chat-time">
-															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
-															{utcToLocal(message.created_at, 'h:mm:ss A')}
-														</p>
 														{#if !!message.post_action_disclaimer}
 															<RcDisclaimer content={message.post_action_disclaimer} />
 														{/if}
@@ -2112,9 +2402,8 @@
 														<img src="images/users/user-dummy.jpg" class="cb-avatar" style="margin-bottom: -15px;" alt="avatar">
 													{:else}
 														{@const isShowIcon = (message?.rich_content?.message?.text || message?.text || message?.thought?.thinking_text) || message?.uuid !== lastBotMsg?.uuid}
-														{@const isLastBotIcon = message?.uuid === lastBotMsg?.uuid}
 														<img
-															class={`cb-avatar ${isLastBotIcon ? 'cb-avatar-bounce' : ''}`}
+															class="cb-avatar"
 															style={`display: ${isShowIcon ? 'block' : 'none'}; margin-bottom: -15px;`}
 															alt="avatar"
 															src={PUBLIC_LIVECHAT_ENTRY_ICON}
@@ -2152,6 +2441,17 @@
 														</div>
 													{:else}
 														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
+													{#if !!(message?.rich_content?.message?.text || message?.text) && editingBotMsgUid !== message.uuid}
+														{@const isLastBotMsg = message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
+														<!-- Suppressed while the last bot message is still streaming, so the timestamp
+															 does not flicker in before the text has settled. -->
+														{#if !isLastBotMsg || (!isStreaming && !isHandlingQueue && !isThinking)}
+															<p class="cb-chat-time cb-chat-time-bot">
+																<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
+																{utcToLocal(message.created_at, 'h:mm:ss A')}
+															</p>
+														{/if}
 													{/if}
 													{#if message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}
 														{@const isStreamEnd = (message?.rich_content?.message?.text || message?.text) && !isStreaming && !isHandlingQueue && !isThinking}
@@ -2241,6 +2541,7 @@
 												{/if}
 											</div>
 										</li>
+										{/if}
 									{/each}
 								{/each}
 
@@ -2252,14 +2553,33 @@
 										</div>
 										<div class="cb-msg-stack">
 											<div class="cb-bubble cb-bubble-thinking">
-												{#if !!indication}
-													<span class="cb-chat-indication">
-														{indication}
+												{#if showProgressText}
+													<!--
+														One line, in reading order: what is being done, which step that
+														is, how long the step has been going. The dots are deliberately
+														absent here — the ticking clock already says "alive", and two
+														things saying it made the bubble busier without being any more
+														informative.
+
+														Only the label is announced. A clock read out once a second is
+														unusable with a screen reader and the step number is a nicety,
+														so both sit in an aria-hidden group and the label carries the
+														live region alone: one announcement per real step.
+													-->
+													<span class="cb-chat-indication" role="status" aria-live="polite">
+														{indication || 'Working on it'}
 													</span>
+													<span class="cb-progress-meta" aria-hidden="true">
+														{#if progressStep > 1}
+															<span class="cb-progress-meta-item">Step {progressStep}</span>
+														{/if}
+														<span class="cb-progress-meta-item">{formatElapsed(progressElapsed)}</span>
+													</span>
+												{:else}
+													<div class="cb-thinking-dots">
+														<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--color-primary)'} />
+													</div>
 												{/if}
-												<div class="cb-thinking-dots">
-													<LoadingDots duration={'1s'} size={5} gap={5} color={'var(--color-primary)'} />
-												</div>
 											</div>
 										</div>
 									</div>

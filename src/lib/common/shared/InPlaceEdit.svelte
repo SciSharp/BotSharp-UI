@@ -6,6 +6,8 @@
         required = true,
         maxLength = 30,
         placeholder = 'Please edit here...',
+        /** 'center' fills and centers within its container (tabs); 'start' hugs its text. */
+        align = /** @type {'center' | 'start'} */ ('center'),
         onSubmit = /** @type {((val: string) => void) | undefined} */ (undefined),
         onInput = /** @type {((event: any) => void) | undefined} */ (undefined)
     } = $props();
@@ -51,7 +53,12 @@
 
 {#if editing}
     <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-    <form class="ipe-form" onsubmit={(e) => { e.preventDefault(); submit(); }} onkeydown={e => keydown(e)}>
+    <form
+        class="ipe-form"
+        class:ipe-start={align === 'start'}
+        onsubmit={(e) => { e.preventDefault(); submit(); }}
+        onkeydown={e => keydown(e)}
+    >
         <input
             class="form-control ipe-input"
             bind:value={value}
@@ -67,6 +74,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
         class="ipe-display"
+        class:ipe-start={align === 'start'}
         title="Click to edit"
         onclick={() => edit()}
     >
@@ -100,6 +108,14 @@
             background-color 0.15s ease,
             border-color 0.15s ease,
             color 0.15s ease;
+    }
+
+    /* Left-aligned host (e.g. a card header band): hug the text so the pill's left edge
+       lines up with whatever sits above and below it. */
+    .ipe-display.ipe-start {
+        justify-content: flex-start;
+        text-align: left;
+        min-width: 0;
     }
 
     .ipe-text {
@@ -162,6 +178,10 @@
         border-radius: 0.375rem;
         box-shadow: 0 1px 2px rgb(0 0 0 / 0.04);
         transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .ipe-form.ipe-start,
+    .ipe-form.ipe-start .ipe-input.form-control {
+        text-align: left;
     }
     .ipe-input.form-control:focus {
         border-color: var(--color-primary);

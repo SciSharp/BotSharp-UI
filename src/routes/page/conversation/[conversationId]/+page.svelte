@@ -8,6 +8,7 @@
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
     import { getConversation, deleteConversation, getDialogs } from '$lib/services/conversation-service.js';
+    import { openAppRoute } from '$lib/helpers/utils/desktop';
     import Overview from './conv-overview.svelte'
     import States from './conv-states.svelte';
     import Dialog from './conv-dialogs.svelte';
@@ -54,7 +55,7 @@
 
     function openInChat() {
         if (!conversation) return;
-        window.open(`/chat/${conversation.agent_id}/${conversation.id}`);
+        openAppRoute(`/chat/${conversation.agent_id}/${conversation.id}`);
     }
 </script>
 
