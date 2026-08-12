@@ -43,7 +43,8 @@
             return {
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
-                config: x.config,
+                message: x.message || null,
+                criteria: normalizeCriteria(x.criteria),
                 expanded: x.expanded
             };
         });
@@ -60,6 +61,23 @@
 
         innerRefresh(rules);
         return rules;
+    }
+
+    /**
+     * Collapse a blank criteria into null so the rule is saved without a
+     * criteria object instead of with an empty one.
+     * @param {import('$agentTypes').RuleCriteria | null | undefined} criteria
+     * @returns {import('$agentTypes').RuleCriteria | null}
+     */
+    function normalizeCriteria(criteria) {
+        const mode = criteria?.mode || '';
+        const text = criteria?.criteria || '';
+        if (!mode.trim() && !text.trim()) return null;
+
+        return {
+            mode: mode.trim() || null,
+            criteria: text || null
+        };
     }
 
     /** @type {any[]} */
@@ -122,7 +140,8 @@
                         displayName: "",
                         output_args: x.output_args,
                         json_args: x.json_args,
-                        statement: x.statement
+                        statement: x.statement,
+                        mode: x.mode
                     };
                 }) || [];
                 ruleOptions = [{
@@ -165,8 +184,12 @@
         if (field === 'rule') {
             found.trigger_name = value;
             innerRefresh(innerRules);
+        } else if (field === 'message') {
+            found.message = value;
         } else if (field === 'criteria') {
-            found.config = { ...(found.config || {}), criteria: value };
+            found.criteria = { ...(found.criteria || {}), criteria: value };
+        } else if (field === 'criteria_mode') {
+            found.criteria = { ...(found.criteria || {}), mode: value };
         }
 
         handleAgentChange();
@@ -179,6 +202,8 @@
                 trigger_name: '',
                 displayName: '',
                 disabled: false,
+                message: '',
+                criteria: { mode: '', criteria: '' },
                 expanded: true
             }
         ];
@@ -262,7 +287,7 @@
                 script_name: `${rule.trigger_name}_criteria.py`,
                 script_type: AgentCodeScriptType.Src,
                 data: {
-                    "user_request": rule.config?.criteria
+                    "user_request": rule.criteria?.criteria
                 }
             }
         }).then(res => {
@@ -297,7 +322,8 @@
                 ...x,
                 output_args: found?.output_args,
                 json_args: found?.json_args,
-                statement: found?.statement
+                statement: found?.statement,
+                default_mode: found?.mode
             }
         }) || [];
     }
@@ -343,6 +369,7 @@
                 <AgentRuleItem
                     rule={rule}
                     ruleIndex={uid}
+                    agentId={agent.id}
                     collapsed={!rule.expanded}
                     ruleOptions={ruleOptions}
                     windowWidth={windowWidth}

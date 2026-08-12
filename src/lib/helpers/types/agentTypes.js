@@ -245,14 +245,33 @@
  */
 
 /**
- * @typedef {Object} AgentRule
- * @property {string} trigger_name 
- * @property {string?} [displayName]
- * @property {boolean} disabled
- * @property {any?} [config]
+ * Trigger option returned by the rule-options endpoints. Note this is the
+ * option catalog, not a rule configured on an agent.
+ * @typedef {Object} AgentRuleOption
+ * @property {string} trigger_name
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
+ * @property {string?} [mode] - Default criteria mode for this trigger
+ */
+
+/**
+ * @typedef {Object} RuleCriteria
+ * @property {string?} [mode] - Criteria mode: llm, code, etc. Takes precedence over the mode carried on the trigger options.
+ * @property {string?} [criteria] - Criteria text
+ */
+
+/**
+ * @typedef {Object} AgentRule
+ * @property {string} trigger_name
+ * @property {string?} [displayName]
+ * @property {boolean} disabled
+ * @property {string?} [message] - Message sent to agent
+ * @property {RuleCriteria?} [criteria]
+ * @property {any?} [output_args]
+ * @property {string?} [json_args]
+ * @property {string?} [statement]
+ * @property {string?} [default_mode] - Criteria mode carried on the trigger options, used as fallback
  * @property {boolean} [expanded]
  */
 
