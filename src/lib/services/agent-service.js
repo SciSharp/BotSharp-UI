@@ -108,7 +108,7 @@ export async function getAgentUtilityOptions() {
 
 /**
  * Get agent rule options
- * @returns {Promise<import('$agentTypes').AgentRule[]>}
+ * @returns {Promise<import('$agentTypes').AgentRuleOption[]>}
  */
 export async function getAgentRuleOptions() {
     const url = endpoints.agentRuleOptionsUrl;
@@ -119,7 +119,7 @@ export async function getAgentRuleOptions() {
 /**
  * Get agent rule options by agent id
  * @param {string} agentId
- * @returns {Promise<import('$agentTypes').AgentRule[]>}
+ * @returns {Promise<import('$agentTypes').AgentRuleOption[]>}
  */
 export async function getAgentRuleOptionsById(agentId) {
     const url = endpoints.agentRuleOptionsByIdUrl.replace("{agentId}", agentId);

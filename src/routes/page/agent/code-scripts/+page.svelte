@@ -1,7 +1,8 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
+	import { page } from '$app/state';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -10,10 +11,13 @@
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
     import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
+	import { goToUrl, setUrlQueryParams } from '$lib/helpers/utils/common';
 	import ScriptEditor from './script-editor.svelte';
 
     /** @type {boolean} */
     let isLoading = $state(false);
+    /** @type {boolean} */
+    let isPageMounted = $state(false);
     /** @type {boolean} */
     let isComplete = $state(false);
     /** @type {boolean} */
@@ -51,9 +55,58 @@
     });
 
     onMount(async () => {
+        isPageMounted = true;
         user = await myInfo();
-		await loadAgentOptions();
+
+        try {
+            await loadAgentOptions();
+        } catch (error) {
+            console.error('Failed to load agent options:', error);
+        }
+
+        await applyAgentIdFromUrl();
 	});
+
+    onDestroy(() => {
+        isPageMounted = false;
+    });
+
+    /**
+     * Preselect the agent carried in `?agentId=` so the dropdown and the loaded
+     * scripts both match the url. An id that no longer maps to an agent is
+     * dropped from the url instead of leaving the page half-selected.
+     */
+    async function applyAgentIdFromUrl() {
+        const agentId = page.url.searchParams.get('agentId')?.trim();
+        if (!agentId) return;
+
+        if (!agentOptions.some(x => x.value === agentId)) {
+            syncAgentIdToUrl(null);
+            return;
+        }
+
+        selectedAgentId = agentId;
+        try {
+            await initAgentCodeScripts(agentId);
+        } catch (error) {
+            console.error('Failed to load agent code scripts:', error);
+            refreshScriptObj([]);
+        }
+    }
+
+    /** @param {string | null | undefined} agentId */
+    function syncAgentIdToUrl(agentId) {
+        if (!isPageMounted) return;
+
+        if (!agentId) {
+            goToUrl(page.url.pathname);
+            return;
+        }
+
+        setUrlQueryParams(page.url, [{ key: 'agentId', value: agentId }], (url) => {
+            goToUrl(`${url.pathname}${url.search}`);
+        });
+    }
 
     function loadAgentOptions() {
 		return new Promise((resolve, reject) => {
@@ -77,9 +130,15 @@
 		// @ts-ignore
 		const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
         selectedAgentId = selectedValues.length > 0 ? selectedValues[0] : null;
+        syncAgentIdToUrl(selectedAgentId);
 
         if (selectedAgentId) {
-            initAgentCodeScripts(selectedAgentId);
+            initAgentCodeScripts(selectedAgentId).catch((error) => {
+                console.error('Failed to load agent code scripts:', error);
+                // Drop the previous agent's scripts so the editors never show
+                // content belonging to an agent other than the selected one.
+                refreshScriptObj([]);
+            });
         } else {
             refreshScriptObj([]);
         }

@@ -90,6 +90,12 @@ const routingMode = {
 };
 export const RoutingMode = Object.freeze(routingMode);
 
+const ruleCriteriaMode = {
+    Llm: "llm",
+    PythonScript: "python_script"
+};
+export const RuleCriteriaMode = Object.freeze(ruleCriteriaMode);
+
 const functionVisMode = {
     Manual: "manual",
     Auto: "auto"
