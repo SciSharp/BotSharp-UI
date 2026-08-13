@@ -44,7 +44,7 @@
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
                 message: x.message || null,
-                criteria: normalizeCriteria(x.criteria),
+                criteria_config: normalizeCriteriaConfig(x.criteria_config),
                 expanded: x.expanded
             };
         });
@@ -64,14 +64,14 @@
     }
 
     /**
-     * Collapse a blank criteria into null so the rule is saved without a
-     * criteria object instead of with an empty one.
-     * @param {import('$agentTypes').RuleCriteria | null | undefined} criteria
-     * @returns {import('$agentTypes').RuleCriteria | null}
+     * Collapse a blank criteria config into null so the rule is saved without a
+     * criteria config instead of with an empty one.
+     * @param {import('$agentTypes').RuleCriteriaConfig | null | undefined} config
+     * @returns {import('$agentTypes').RuleCriteriaConfig | null}
      */
-    function normalizeCriteria(criteria) {
-        const mode = criteria?.mode || '';
-        const text = criteria?.criteria || '';
+    function normalizeCriteriaConfig(config) {
+        const mode = config?.mode || '';
+        const text = config?.criteria || '';
         if (!mode.trim() && !text.trim()) return null;
 
         return {
@@ -187,9 +187,9 @@
         } else if (field === 'message') {
             found.message = value;
         } else if (field === 'criteria') {
-            found.criteria = { ...(found.criteria || {}), criteria: value };
+            found.criteria_config = { ...(found.criteria_config || {}), criteria: value };
         } else if (field === 'criteria_mode') {
-            found.criteria = { ...(found.criteria || {}), mode: value };
+            found.criteria_config = { ...(found.criteria_config || {}), mode: value };
         }
 
         handleAgentChange();
@@ -203,7 +203,7 @@
                 displayName: '',
                 disabled: false,
                 message: '',
-                criteria: { mode: '', criteria: '' },
+                criteria_config: { mode: '', criteria: '' },
                 expanded: true
             }
         ];
@@ -287,7 +287,7 @@
                 script_name: `${rule.trigger_name}_criteria.py`,
                 script_type: AgentCodeScriptType.Src,
                 data: {
-                    "user_request": rule.criteria?.criteria
+                    "user_request": rule.criteria_config?.criteria
                 }
             }
         }).then(res => {
