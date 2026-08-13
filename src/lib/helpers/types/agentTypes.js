@@ -256,8 +256,8 @@
  */
 
 /**
- * @typedef {Object} RuleCriteria
- * @property {string?} [mode] - Criteria mode: llm, code, etc. Takes precedence over the mode carried on the trigger options.
+ * @typedef {Object} RuleCriteriaConfig
+ * @property {string?} [mode] - Criteria mode: llm, python script, etc. Takes precedence over the mode carried on the trigger options.
  * @property {string?} [criteria] - Criteria text
  */
 
@@ -267,7 +267,7 @@
  * @property {string?} [displayName]
  * @property {boolean} disabled
  * @property {string?} [message] - Message sent to agent
- * @property {RuleCriteria?} [criteria]
+ * @property {RuleCriteriaConfig?} [criteria_config]
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
