@@ -76,7 +76,8 @@ const config = {
 				"/page/knowledge-base/relationships",
 				"/page/knowledge-base/documents",
 				"/page/knowledge-base/dictionary",
-				"/page/knowledge-base/[embed]/[embedType]"
+				"/page/knowledge-base/[embed]/[embedType]",
+				"/page/agent-test"
 			]
 		}
 	},
