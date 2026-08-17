@@ -135,6 +135,18 @@ export const endpoints = {
     // Google geocode api
     addressUrl: `${host}/address/options`,
 
-    mcpServerConfigsUrl: `${host}/mcp/server-configs`
+    mcpServerConfigsUrl: `${host}/mcp/server-configs`,
+
+    // agent test
+    agentTestSuiteListUrl: `${host}/agent-test/suites`,
+    agentTestSuiteDetailUrl: `${host}/agent-test/suites/{id}`,
+    agentTestSuiteRunUrl: `${host}/agent-test/suites/{id}/run`,
+    agentTestCaseListUrl: `${host}/agent-test/cases`,
+    agentTestCaseDetailUrl: `${host}/agent-test/cases/{id}`,
+    agentTestRunListUrl: `${host}/agent-test/runs`,
+    agentTestRunDetailUrl: `${host}/agent-test/runs/{id}`,
+    agentTestRunCancelUrl: `${host}/agent-test/runs/{id}/cancel`,
+    agentTestRecordUrl: `${host}/agent-test/record`,
+    agentTestMockTargetsUrl: `${host}/agent-test/mock-targets`
 }
 
