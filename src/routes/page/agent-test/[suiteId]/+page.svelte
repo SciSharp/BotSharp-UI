@@ -117,8 +117,18 @@
 			.filter(x => x.models.length > 0)
 	);
 
+	/**
+	 * Of the ticked cases, the ones that can actually run. The executor drops disabled cases and
+	 * then fails the entire run with "none of them matched an enabled case" -- observed as a run
+	 * with status Error, zero results and no visible reason. Counting them here stops it earlier.
+	 */
+	let selectedEnabledCount = $derived(
+		cases.filter(c => c.enabled && selectedCaseIds.includes(c.id)).length
+	);
+	let selectedDisabledCount = $derived(selectedCaseIds.length - selectedEnabledCount);
+
 	/** Cases x models -- what the run will actually execute, and what it will cost. */
-	let plannedCaseCount = $derived(runPartial ? selectedCaseIds.length : enabledCaseCount);
+	let plannedCaseCount = $derived(runPartial ? selectedEnabledCount : enabledCaseCount);
 	let plannedExecutionCount = $derived(plannedCaseCount * Math.max(1, selectedRunModels.length));
 
 	let enabledCaseCount = $derived(cases.filter(x => x.enabled).length);
@@ -429,7 +439,8 @@
 		isTriggering = true;
 		triggerRun(
 			suiteId,
-			runPartial ? selectedCaseIds : null,
+			// Enabled only: a disabled id contributes nothing but noise to the run's CaseIds record.
+			runPartial ? cases.filter(c => c.enabled && selectedCaseIds.includes(c.id)).map(c => c.id) : null,
 			selectedRunModels.length > 0 ? selectedRunModels : null
 		).then(run => {
 			isRunModalOpen = false;
@@ -595,7 +606,7 @@
 									{:else}
 										<i class="mdi mdi-play"></i>
 									{/if}
-									{$_('Run Selected')} ({selectedCaseIds.length})
+									{$_('Run Selected')} ({selectedEnabledCount})
 								</button>
 							{/if}
 							<button
@@ -796,6 +807,9 @@
 												<span class="badge bg-{statusColor(run.status)}">{$_(run.status)}</span>
 												{#if run.cancelRequested && !isTerminalStatus(run.status)}
 													<span class="badge bg-dark ms-1">{$_('Cancelling')}</span>
+												{/if}
+												{#if run.error}
+													<div class="text-warning small text-break mt-1">{run.error}</div>
 												{/if}
 											</td>
 											<td>
@@ -1026,9 +1040,21 @@
 					</div>
 				{/if}
 
-				<div class="alert alert-warning mb-0" role="alert">
-					{$_('{count} execution(s) will run against live models. This costs real tokens and is not rate limited.', { values: { count: plannedExecutionCount } })}
-				</div>
+				{#if runPartial && selectedDisabledCount > 0}
+					<div class="alert alert-warning" role="alert">
+						{$_('{count} of the selected case(s) are disabled and will be skipped.', { values: { count: selectedDisabledCount } })}
+					</div>
+				{/if}
+
+				{#if plannedCaseCount === 0}
+					<div class="alert alert-danger mb-0" role="alert">
+						{$_('Nothing here can run -- every case you picked is disabled. Enable at least one first.')}
+					</div>
+				{:else}
+					<div class="alert alert-warning mb-0" role="alert">
+						{$_('{count} execution(s) will run against live models. This costs real tokens and is not rate limited.', { values: { count: plannedExecutionCount } })}
+					</div>
+				{/if}
 			</div>
 			<div class="modal-footer">
 				<button

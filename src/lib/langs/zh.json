@@ -729,5 +729,9 @@
   "Do not use AI (one case for the whole conversation)": "不使用 AI（整段会话生成一条用例）",
   "With a model picked, the conversation is split into one case per scenario it covers. The model only decides where to split and what to name each case -- mocks, assertions and state still come verbatim from the conversation.": "选了模型后，会话会按覆盖的场景切成多条用例。模型只决定切在哪、每条叫什么——mock、断言和 state 仍旧逐字来自真实会话。",
   "AI extraction additionally sends the user messages and tool names to {provider}. Tool arguments and results are not sent.": "AI 抽取会额外把用户消息和函数名发给 {provider}。函数入参与返回内容不外发。",
-  "{count} draft cases recorded. Review them, then enable them.": "已录制 {count} 条草稿用例。请逐条审阅后再启用。"
+  "{count} draft cases recorded. Review them, then enable them.": "已录制 {count} 条草稿用例。请逐条审阅后再启用。",
+  "This run could not complete": "这次运行没能执行",
+  "Nothing ran -- see the reason above.": "什么都没跑，原因见上方。",
+  "Nothing here can run -- every case you picked is disabled. Enable at least one first.": "这样跑不起来——你勾选的用例全部处于停用状态。请先至少启用一条。",
+  "{count} of the selected case(s) are disabled and will be skipped.": "勾选的用例里有 {count} 条处于停用状态，将被跳过。"
 }

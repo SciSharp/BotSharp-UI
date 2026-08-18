@@ -535,5 +535,9 @@
     "Do not use AI (one case for the whole conversation)": "Do not use AI (one case for the whole conversation)",
     "With a model picked, the conversation is split into one case per scenario it covers. The model only decides where to split and what to name each case -- mocks, assertions and state still come verbatim from the conversation.": "With a model picked, the conversation is split into one case per scenario it covers. The model only decides where to split and what to name each case -- mocks, assertions and state still come verbatim from the conversation.",
     "AI extraction additionally sends the user messages and tool names to {provider}. Tool arguments and results are not sent.": "AI extraction additionally sends the user messages and tool names to {provider}. Tool arguments and results are not sent.",
-    "{count} draft cases recorded. Review them, then enable them.": "{count} draft cases recorded. Review them, then enable them."
+    "{count} draft cases recorded. Review them, then enable them.": "{count} draft cases recorded. Review them, then enable them.",
+    "This run could not complete": "This run could not complete",
+    "Nothing ran -- see the reason above.": "Nothing ran -- see the reason above.",
+    "Nothing here can run -- every case you picked is disabled. Enable at least one first.": "Nothing here can run -- every case you picked is disabled. Enable at least one first.",
+    "{count} of the selected case(s) are disabled and will be skipped.": "{count} of the selected case(s) are disabled and will be skipped."
 }

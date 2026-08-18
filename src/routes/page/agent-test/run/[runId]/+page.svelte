@@ -324,6 +324,14 @@
 							</div>
 						</div>
 					</div>
+					{#if run.error}
+						<!-- A run-level stop produces no case results at all, so this alert is the only
+						     place its reason can appear. Rendered before the per-case section, which
+						     will be empty in exactly this situation. -->
+						<div class="alert alert-danger mt-3 mb-0" role="alert">
+							<span class="fw-semibold">{$_('This run could not complete')}:</span> {run.error}
+						</div>
+					{/if}
 					{#if run.errorCount > 0}
 						<div class="alert alert-warning mt-3 mb-0" role="alert">
 							{$_('Errored cases never reached their assertions -- a timeout, a mock-seam failure, or a case with no turns. That is a harness problem, not an agent regression.')}
@@ -409,7 +417,11 @@
 				<div class="card-body">
 					{#if results.length === 0}
 						<p class="text-muted text-center py-4 mb-0">
-							{isFinished ? $_('This run produced no case results.') : $_('No case results yet.')}
+							{#if run.error}
+								{$_('Nothing ran -- see the reason above.')}
+							{:else}
+								{isFinished ? $_('This run produced no case results.') : $_('No case results yet.')}
+							{/if}
 						</p>
 					{:else}
 						{#each results as result (result.id)}
