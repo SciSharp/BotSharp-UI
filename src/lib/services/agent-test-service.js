@@ -127,11 +127,14 @@ export async function deleteCase(id) {
  * does not wait for the run to finish.
  * @param {string} suiteId
  * @param {string[]?} [caseIds] - Only run these cases; omit/empty to run every enabled case in the suite.
+ * @param {import('$agentTestTypes').TestModel[]?} [models] - Run every case once per model listed here;
+ *   omit/empty to run a single pass using each agent's own LlmConfig. N models means N times the
+ *   executions and N times the token cost.
  * @returns {Promise<import('$agentTestTypes').AgentTestRun>}
  */
-export async function triggerRun(suiteId, caseIds = null) {
+export async function triggerRun(suiteId, caseIds = null, models = null) {
     const url = endpoints.agentTestSuiteRunUrl.replace("{id}", suiteId);
-    const response = await axios.post(url, { caseIds: caseIds });
+    const response = await axios.post(url, { caseIds: caseIds, models: models });
     return response.data;
 }
 
@@ -170,18 +173,25 @@ export async function cancelRun(id) {
 }
 
 /**
- * Record a draft test case from a real conversation. The returned case comes
- * back with enabled=false -- it must be reviewed and explicitly enabled
- * before it joins a normal run.
+ * Record one or more draft test cases from a real conversation. Every returned
+ * case comes back with enabled=false -- each must be reviewed and explicitly
+ * enabled before it joins a normal run.
  * @param {string} conversationId
  * @param {string} suiteId
- * @returns {Promise<import('$agentTestTypes').AgentTestCase>}
+ * @param {import('$agentTestTypes').TestModel?} [model] - Use this model to split the
+ *   conversation into one or more scenarios, each becoming its own case. Omit to use the
+ *   deterministic recorder, which always produces exactly one case and calls no model.
+ *   The model only decides where to cut and what to name each case; mocks, assertions and
+ *   state still come verbatim from the conversation. Passing a model sends the conversation's
+ *   user messages and tool NAMES to that vendor (tool arguments and results are withheld).
+ * @returns {Promise<import('$agentTestTypes').AgentTestCase[]>}
  */
-export async function recordCase(conversationId, suiteId) {
+export async function recordCases(conversationId, suiteId, model = null) {
     const url = endpoints.agentTestRecordUrl;
     const response = await axios.post(url, {
         conversationId: conversationId,
-        suiteId: suiteId
+        suiteId: suiteId,
+        model: model
     });
     return response.data;
 }

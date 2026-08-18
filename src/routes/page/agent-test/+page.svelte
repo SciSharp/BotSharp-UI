@@ -10,6 +10,7 @@
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service.js';
 	import { getSuites, createSuite, deleteSuite } from '$lib/services/agent-test-service.js';
+	import { t } from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
@@ -73,7 +74,7 @@
 			suites = res || [];
 		}).catch(() => {
 			suites = [];
-			loadErrorText = 'Failed to load test suites. Please try again.';
+			loadErrorText = t('Failed to load test suites. Please try again.');
 		});
 	}
 
@@ -106,7 +107,10 @@
 
 	/** @param {string} suiteId */
 	function goToSuite(suiteId) {
-		goto(`page/agent-test/${suiteId}`);
+		// Absolute: a relative path resolves against the current URL, so the same
+		// call from /page/agent-test/ (with the trailing slash) would land on
+		// /page/agent-test/page/agent-test/<id>.
+		goto(`/page/agent-test/${suiteId}`);
 	}
 
 	function openCreateModal() {
@@ -138,7 +142,7 @@
 		}).then(() => {
 			isCreateModalOpen = false;
 			isComplete = true;
-			successText = 'Test suite created!';
+			successText = t('Test suite created!');
 			setTimeout(() => {
 				isComplete = false;
 				successText = '';
@@ -146,7 +150,7 @@
 			refreshSuites();
 		}).catch(() => {
 			isError = true;
-			errorText = 'Failed to create test suite.';
+			errorText = t('Failed to create test suite.');
 			setTimeout(() => {
 				isError = false;
 				errorText = '';
@@ -174,12 +178,13 @@
 	function openDeleteModal(suite) {
 		// @ts-ignore
 		Swal.fire({
-			title: 'Are you sure?',
-			text: `Delete test suite "${suite.name}"? You won't be able to revert this!`,
+			title: t('Are you sure?'),
+			text: t('Delete test suite "{name}"? You won\'t be able to revert this!', { name: suite.name }),
 			icon: 'warning',
 			customClass: 'custom-modal',
 			showCancelButton: true,
-			confirmButtonText: 'Yes, delete it!'
+			cancelButtonText: t('Cancel'),
+			confirmButtonText: t('Yes, delete it!')
 		}).then((result) => {
 			if (result.value) {
 				handleDeleteSuite(suite.id);
@@ -192,7 +197,7 @@
 		isLoading = true;
 		deleteSuite(suiteId).then(() => {
 			isComplete = true;
-			successText = 'Test suite deleted!';
+			successText = t('Test suite deleted!');
 			setTimeout(() => {
 				isComplete = false;
 				successText = '';
@@ -200,7 +205,7 @@
 			return loadSuites();
 		}).catch(() => {
 			isError = true;
-			errorText = 'Failed to delete test suite.';
+			errorText = t('Failed to delete test suite.');
 			setTimeout(() => {
 				isError = false;
 				errorText = '';
@@ -251,7 +256,7 @@
 							class="btn btn-soft-secondary w-100"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							title="Filter"
+							title={$_('Filter')}
 							onclick={() => applyAgentFilter()}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
@@ -264,7 +269,7 @@
 							class="btn btn-warning w-100"
 							data-bs-toggle="tooltip"
 							data-bs-placement="bottom"
-							title="Reset"
+							title={$_('Reset')}
 							onclick={() => resetAgentFilter()}
 						>
 							<i class="mdi mdi-restore align-middle"></i>
@@ -321,11 +326,11 @@
 										</td>
 										<td>
 											<ul class="list-unstyled hstack gap-1 mb-0">
-												<li data-bs-toggle="tooltip" data-bs-placement="top" title="Delete">
+												<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Delete')}>
 													<button
 														type="button"
 														class="btn btn-sm btn-soft-danger"
-														aria-label="Delete"
+														aria-label={$_('Delete')}
 														onclick={(e) => { e.stopPropagation(); openDeleteModal(suite); }}
 													>
 														<i class="mdi mdi-delete-outline"></i>
@@ -357,7 +362,7 @@
 		<div class="modal-content">
 			<div class="modal-header">
 				<h5 class="modal-title">{$_('New Test Suite')}</h5>
-				<button type="button" class="btn-close" aria-label="Close" onclick={() => closeCreateModal()}></button>
+				<button type="button" class="btn-close" aria-label={$_('Close')} onclick={() => closeCreateModal()}></button>
 			</div>
 			<div class="modal-body">
 				<form onsubmit={(e) => submitCreateSuite(e)}>

@@ -121,9 +121,20 @@
  */
 
 /**
+ * One model to run against.
+ * @typedef {Object} TestModel
+ * @property {string} provider
+ * @property {string} model
+ */
+
+/**
  * @typedef {Object} AgentTestRun
  * @property {string} id
  * @property {string} suiteId
+ * @property {TestModel[]?} models - Models this run swept; null/empty = a single pass on the
+ *   agent's own LlmConfig. When set, the executor runs the cartesian product of cases x models,
+ *   so `totalCount` is "cases x models" and does NOT equal the case count -- showing it as a case
+ *   count in the UI will not add up.
  * @property {string} status - Pending | Running | Passed | Failed | Error | Cancelled。
  *   `Failed` = 跑了但断言没过；`Error` = 没跑成（超时、canary 失败、用例没有 turns、caseIds
  *   匹配不到任何用例）。UI 必须把这两者显示成不同的东西 —— 混在一起会让"平台坏了"看起来
@@ -176,6 +187,10 @@
  * @property {string} caseName
  * @property {string} status - Passed | Failed | Error | Cancelled（不会是 Pending/Running）。
  * @property {string?} conversationId - 本次执行新建的会话 id，不复用线上会话。
+ * @property {string?} provider - Which model produced this result; null = the agent's own
+ *   LlmConfig was used.
+ * @property {string?} model - As above. In a multi-model run the same `caseId` yields several
+ *   results, told apart by these two fields.
  * @property {number} durationMs
  * @property {string?} error - 基础设施层面的失败原因（超时、canary 未生效、用例没有 turns 等），
  *   与断言失败区分开；`status` 为 `Error` 时应把这段文本显示出来。
