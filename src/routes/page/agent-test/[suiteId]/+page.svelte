@@ -15,6 +15,7 @@
 		getSuite,
 		updateSuite,
 		getCases,
+		copyCase,
 		deleteCase,
 		updateCase,
 		getRuns,
@@ -283,6 +284,20 @@
 		goto(`/page/agent-test/${suiteId}/case/${caseId}`);
 	}
 
+	/** @param {import('$agentTestTypes').AgentTestCase} testCase */
+	function copyTestCase(testCase) {
+		isLoading = true;
+		copyCase(testCase.id).then(copy => {
+			notifySuccess(t('Copied to "{name}". It is disabled until you enable it.', { name: copy.name }));
+			// Straight into the copy: it lands disabled and named "(copy)", and neither is
+			// something anyone leaves as it is -- a copy is made in order to be edited.
+			goToCase(copy.id);
+		}).catch(err => {
+			notifyError(errorMessage(err, t('Failed to copy the case.')));
+			isLoading = false;
+		});
+	}
+
 	function goToNewCase() {
 		goto(`/page/agent-test/${suiteId}/case/new`);
 	}
@@ -353,18 +368,15 @@
 	/** @param {import('$agentTestTypes').AgentTestCase} testCase */
 	function toggleCaseEnabled(testCase) {
 		isLoading = true;
-		// Full replace again: everything the editor does not touch here still has
-		// to travel, or flipping the toggle wipes turns/mocks/assertions.
+		// PUT is a full replace, so everything has to travel or flipping this toggle wipes it.
+		// Spread rather than listed field by field: a hand-written payload silently drops each
+		// field added to a case afterwards, which is how caseType, entryAgentId and history all
+		// came to be erased by a single click on this toggle. Server-owned keys (id, createDate,
+		// updateDate) ride along harmlessly -- the upsert request has no such properties, so model
+		// binding ignores them.
 		updateCase(testCase.id, {
-			suiteId: testCase.suiteId,
-			name: testCase.name,
-			enabled: !testCase.enabled,
-			turns: testCase.turns || [],
-			assertions: testCase.assertions || [],
-			initialStates: testCase.initialStates || [],
-			mocks: testCase.mocks || [],
-			unmockedToolPolicy: testCase.unmockedToolPolicy || 'Block',
-			sourceConversationId: testCase.sourceConversationId
+			...testCase,
+			enabled: !testCase.enabled
 		}).then(() => {
 			notifySuccess(testCase.enabled ? t('Case disabled.') : t('Case enabled.'));
 			return loadCases();
@@ -675,7 +687,9 @@
 											/>
 										</th>
 										<th scope="col">{$_('Name')}</th>
+										<th scope="col">{$_('Type')}</th>
 										<th scope="col">{$_('Turns')}</th>
+										<th scope="col">{$_('History')}</th>
 										<th scope="col">{$_('Mocks')}</th>
 										<th scope="col">{$_('Assertions')}</th>
 										<th scope="col">{$_('Source')}</th>
@@ -706,7 +720,19 @@
 													{testCase.name}
 												</button>
 											</td>
+											<td>
+												<!-- Cases stored before caseType existed read back as Agent. Shown
+												     here because the type decides how a case is validated and
+												     whether it counts towards routing accuracy, and that is not
+												     something to have to open every case to discover. -->
+												{#if testCase.caseType === 'Routing'}
+													<span class="badge bg-info">{$_('Routing case')}</span>
+												{:else}
+													<span class="badge bg-secondary">{$_('Agent case')}</span>
+												{/if}
+											</td>
 											<td>{testCase.turns?.length || 0}</td>
+											<td>{testCase.history?.length || 0}</td>
 											<td>{testCase.mocks?.length || 0}</td>
 											<td>{assertionCount}</td>
 											<td>
@@ -748,6 +774,16 @@
 															onclick={() => goToCase(testCase.id)}
 														>
 															<i class="mdi mdi-pencil-outline"></i>
+														</button>
+													</li>
+													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Copy')}>
+														<button
+															type="button"
+															class="btn btn-sm btn-soft-secondary"
+															aria-label={$_('Copy case')}
+															onclick={() => copyTestCase(testCase)}
+														>
+															<i class="mdi mdi-content-copy"></i>
 														</button>
 													</li>
 													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Delete')}>
@@ -946,7 +982,7 @@
 						</div>
 					</div>
 					<div class="alert alert-info" role="alert">
-						{$_('llmJudge assertions always fail in P1 regardless of these two fields.')}
+						{$_('Required by llmJudge assertions. Without both, an llmJudge assertion records an Error rather than a score -- it is never scored with a default model.')}
 					</div>
 					<div class="row">
 						<div class="col-md-6 mb-3">

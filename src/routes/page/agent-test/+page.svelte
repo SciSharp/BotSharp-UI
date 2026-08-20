@@ -9,8 +9,8 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service.js';
-	import { getSuites, createSuite, deleteSuite } from '$lib/services/agent-test-service.js';
-	import { t } from '$lib/helpers/utils/agent-test.js';
+	import { getSuites, createSuite, deleteSuite, selectScope } from '$lib/services/agent-test-service.js';
+	import { errorMessage, t } from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
@@ -31,6 +31,62 @@
 
 	/** @type {import('$commonTypes').LabelValuePair[]} */
 	let agentOptions = $state([]);
+
+	/**
+	 * Scope planning. Deliberately a separate panel and not part of triggering a run: working out
+	 * what a change needs to test is a decision to review before spending anything, and folding it
+	 * into a run button would mean the only way to see the plan is to have already paid for it.
+	 * @type {{ targetAgentIds: string[], fullPlatform: boolean, batch: number | null }}
+	 */
+	let scopeQuery = $state({ targetAgentIds: [], fullPlatform: false, batch: null });
+
+	/** @type {import('$agentTestTypes').ScopeSelection | null} */
+	let scope = $state(null);
+	let isScoping = $state(false);
+	let scopeError = $state('');
+
+	let canScope = $derived(
+		!isScoping && (scopeQuery.fullPlatform || scopeQuery.targetAgentIds.length > 0));
+
+	/** @param {any} e */
+	function changeScopeAgents(e) {
+		scopeQuery.targetAgentIds = (e?.detail?.selecteds || []).map((/** @type {any} */ s) => s.value);
+	}
+
+	function planScope() {
+		if (!canScope) return;
+		isScoping = true;
+		scopeError = '';
+		selectScope({
+			targetAgentIds: scopeQuery.targetAgentIds,
+			fullPlatform: scopeQuery.fullPlatform,
+			batch: scopeQuery.batch
+		}).then(res => {
+			scope = res;
+		}).catch(err => {
+			scope = null;
+			scopeError = errorMessage(err, t('Failed to work out the scope.'));
+		}).finally(() => {
+			isScoping = false;
+		});
+	}
+
+	/**
+	 * Bootstrap class per reason. Included reasons are not all equal: unknownAgents means the harness
+	 * could not show the change misses this case and included it to be safe, which is a nudge to fill
+	 * in the metadata rather than a clean match.
+	 * @param {string} reason
+	 */
+	function reasonColor(reason) {
+		switch (reason) {
+			case 'crossCutting': return 'info';
+			case 'targetAgent': return 'success';
+			case 'fullPlatform': return 'success';
+			case 'unknownAgents': return 'warning';
+			case 'disabled': return 'secondary';
+			default: return 'light text-body';
+		}
+	}
 
 	/** @type {Record<string, string>} */
 	let agentNameById = $state({});
@@ -218,6 +274,125 @@
 
 <HeadTitle title={$_('Test Suites')} />
 <Breadcrumb title={$_('Agent Testing')} pagetitle={$_('Test Suites')} />
+
+<div class="row">
+	<div class="col-lg-12">
+		<div class="card">
+			<div class="card-body border-bottom">
+				<h5 class="mb-0 card-title">{$_('Plan a scope')}</h5>
+			</div>
+			<div class="card-body">
+				<p class="text-muted small">
+					{$_('Which cases a change needs to run, and which it does not. Read-only -- it plans a run, it does not start one.')}
+				</p>
+				<div class="row g-3 align-items-start">
+					<div class="col-md-5">
+						<label class="form-label" for="scope-agents">{$_('Changed agents')}</label>
+						<Select
+							tag={'agent-test-scope-agents'}
+							multiSelect={true}
+							placeholder={$_('Select Agent')}
+							selectedValues={scopeQuery.targetAgentIds}
+							options={agentOptions}
+							disabled={scopeQuery.fullPlatform}
+							onselect={e => changeScopeAgents(e)}
+						/>
+					</div>
+					<div class="col-md-2">
+						<label class="form-label" for="scope-batch">{$_('Batch')}</label>
+						<select id="scope-batch" class="form-select" bind:value={scopeQuery.batch}>
+							<option value={null}>{$_('All batches')}</option>
+							<option value={1}>1</option>
+							<option value={2}>2</option>
+							<option value={3}>3</option>
+						</select>
+					</div>
+					<div class="col-md-3 d-flex align-items-start">
+						<div class="form-check form-switch mt-4">
+							<input
+								id="scope-full-platform"
+								type="checkbox"
+								class="form-check-input"
+								bind:checked={scopeQuery.fullPlatform}
+							/>
+							<label class="form-check-label" for="scope-full-platform">{$_('Platform-wide change')}</label>
+							<div class="form-text">{$_('Narrowing is switched off: no agent is demonstrably untouched.')}</div>
+						</div>
+					</div>
+					<div class="col-md-2 d-flex align-items-start">
+						<button
+							type="button"
+							class="btn btn-primary w-100 mt-4"
+							disabled={!canScope}
+							onclick={() => planScope()}
+						>
+							{$_('Plan')}
+						</button>
+					</div>
+				</div>
+
+				{#if scopeError}
+					<div class="alert alert-warning mt-3 mb-0" role="alert">{scopeError}</div>
+				{/if}
+
+				{#if scope}
+					<div class="mt-3">
+						<div class="d-flex flex-wrap gap-3 mb-2">
+							<span><span class="fw-semibold">{scope.included.length}</span> {$_('included')}</span>
+							<span class="text-muted">
+								<span class="fw-semibold">{scope.excluded.length}</span> {$_('excluded')}
+							</span>
+							<span class="text-muted">{$_('of {n} registered', { values: { n: scope.totalCases } })}</span>
+						</div>
+						<div class="table-responsive thin-scrollbar">
+							<table class="table table-sm table-bordered align-middle mb-0">
+								<thead>
+									<tr>
+										<th scope="col" style="width: 90px;">{$_('In scope')}</th>
+										<th scope="col">{$_('Case')}</th>
+										<th scope="col">{$_('Suite')}</th>
+										<th scope="col" style="width: 80px;">{$_('Batch')}</th>
+										<th scope="col" style="width: 90px;">{$_('Severity')}</th>
+										<th scope="col">{$_('Reason')}</th>
+									</tr>
+								</thead>
+								<tbody>
+									<!-- Both halves in one table, included first. Splitting them into two
+									     collapsible panels would make it possible to read only the
+									     reassuring one, and the exclusions are the half that matters. -->
+									{#each [...scope.included, ...scope.excluded] as scoped (scoped.caseId)}
+										{@const included = scope.included.some(c => c.caseId === scoped.caseId)}
+										<tr class={included ? '' : 'text-muted'}>
+											<td>
+												{#if included}
+													<span class="badge bg-success">{$_('Yes')}</span>
+												{:else}
+													<span class="badge bg-light text-body">{$_('No')}</span>
+												{/if}
+											</td>
+											<td>{scoped.caseName}</td>
+											<td class="small">{scoped.suiteName}</td>
+											<td>{scoped.batch}</td>
+											<td>{scoped.severity}</td>
+											<td>
+												<span class="badge bg-{reasonColor(scoped.reason)}">{scoped.reason}</span>
+												{#if scoped.reason === 'unknownAgents'}
+													<span class="text-muted small ms-1">
+														{$_('No involved agents known, so it was included to be safe.')}
+													</span>
+												{/if}
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+					</div>
+				{/if}
+			</div>
+		</div>
+	</div>
+</div>
 
 <LoadingToComplete
 	isLoading={isLoading}

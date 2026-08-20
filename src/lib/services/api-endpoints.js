@@ -143,10 +143,12 @@ export const endpoints = {
     agentTestSuiteRunUrl: `${host}/agent-test/suites/{id}/run`,
     agentTestCaseListUrl: `${host}/agent-test/cases`,
     agentTestCaseDetailUrl: `${host}/agent-test/cases/{id}`,
+    agentTestCaseCopyUrl: `${host}/agent-test/cases/{id}/copy`,
     agentTestRunListUrl: `${host}/agent-test/runs`,
     agentTestRunDetailUrl: `${host}/agent-test/runs/{id}`,
     agentTestRunCancelUrl: `${host}/agent-test/runs/{id}/cancel`,
     agentTestRecordUrl: `${host}/agent-test/record`,
-    agentTestMockTargetsUrl: `${host}/agent-test/mock-targets`
+    agentTestMockTargetsUrl: `${host}/agent-test/mock-targets`,
+    agentTestScopeUrl: `${host}/agent-test/scope`
 }
 

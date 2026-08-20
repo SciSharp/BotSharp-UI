@@ -113,6 +113,40 @@ export async function updateCase(id, body) {
 }
 
 /**
+ * Work out which cases a change needs to run, before running anything.
+ *
+ * Read-only: it plans a run, it does not start one. Triggering stays per-suite,
+ * so a caller takes the included case ids from here and triggers each suite that
+ * appears among them.
+ * @param {{ targetAgentIds?: string[], fullPlatform?: boolean, batch?: number | null }} body
+ * @returns {Promise<import('$agentTestTypes').ScopeSelection>}
+ */
+export async function selectScope(body) {
+    const url = endpoints.agentTestScopeUrl;
+    const response = await axios.post(url, body);
+    return response.data;
+}
+
+/**
+ * Duplicate an agent test case inside its own suite.
+ *
+ * Server-side rather than a get-then-create here, so the copy carries every
+ * field the case has. Rebuilding the payload from this client would drop
+ * anything it does not know about, and a copy missing its mocks looks identical
+ * in the list right up to the run where it blocks every tool.
+ *
+ * The copy lands disabled -- an exact duplicate joining the next run would
+ * measure the same thing twice.
+ * @param {string} id
+ * @returns {Promise<import('$agentTestTypes').AgentTestCase>}
+ */
+export async function copyCase(id) {
+    const url = endpoints.agentTestCaseCopyUrl.replace("{id}", id);
+    const response = await axios.post(url);
+    return response.data;
+}
+
+/**
  * Delete a test case
  * @param {string} id
  */

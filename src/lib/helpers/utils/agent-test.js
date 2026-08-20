@@ -35,14 +35,84 @@ export const ASSERTION_TYPES = [
 	'toolNotCalled',
 	'stateEquals',
 	'routedToAgent',
+	'agentChain',
 	'llmJudge'
 ];
 
 /** Types whose `expected` the backend rejects as empty. */
-const EXPECTED_REQUIRED = ['outputContains', 'outputNotContains', 'outputRegex', 'routedToAgent', 'llmJudge'];
+const EXPECTED_REQUIRED = [
+	'outputContains',
+	'outputNotContains',
+	'outputRegex',
+	'routedToAgent',
+	'agentChain',
+	'llmJudge'
+];
 
 /** Types whose `target` the backend rejects as empty. */
 const TARGET_REQUIRED = ['toolCalled', 'toolNotCalled', 'stateEquals'];
+
+/**
+ * How an `agentChain` assertion compares its expected list (AgentChainModes in
+ * AssertionEvaluator.cs). On this assertion type `target` carries the mode
+ * rather than a function name or state key.
+ */
+export const AGENT_CHAIN_MODES = ['contains', 'ordered', 'exact'];
+
+/**
+ * What a case is verifying (CaseTypes in AgentTestCase.cs). Routing is checked
+ * more strictly -- see `validateCaseType` -- because it is the only type counted
+ * towards a run's routing accuracy. A multi-agent journey is an Agent case whose
+ * `agentChain` assertion describes the hand-offs.
+ */
+export const CASE_TYPES = ['Routing', 'Agent'];
+
+/**
+ * Roles an authored history message may take (HistoryRoles in AgentTestCase.cs).
+ * Only these two: `system` would compete with the agent's own instruction and
+ * `function` would fake a tool call, letting a case claim a tool ran when
+ * nothing did.
+ */
+export const HISTORY_ROLES = ['user', 'assistant'];
+
+/**
+ * How urgent it is to run a case, which is what decides its batch (CasePriorities
+ * in AgentTestCase.cs). Distinct from severity: priority is scheduling,
+ * severity is consequence.
+ */
+export const CASE_PRIORITIES = ['P0', 'P1', 'P2'];
+
+/**
+ * What a failure means (CaseSeverities in AgentTestCase.cs). S0 is a stop rather
+ * than a statistic; S2 must never be able to mask an S0 or S1.
+ */
+export const CASE_SEVERITIES = ['S0', 'S1', 'S2'];
+
+/** Batches run in order: 1 is the stop-loss batch, 3 does not block a release. */
+export const CASE_BATCHES = [1, 2, 3];
+
+/**
+ * The batch a case will actually run in, mirroring CaseBatches.Effective. An
+ * explicit batch wins; a cross-cutting case is batch 1 whatever its priority,
+ * because a safety case that only runs after everything else has passed cannot
+ * stop anything.
+ * @param {{ batch?: number | null, crossCutting?: boolean, priority?: string }} testCase
+ * @returns {number}
+ */
+export function effectiveBatch(testCase) {
+	if (CASE_BATCHES.includes(Number(testCase?.batch))) {
+		return Number(testCase.batch);
+	}
+	if (testCase?.crossCutting) {
+		return 1;
+	}
+	if (testCase?.priority === 'P0') return 1;
+	if (testCase?.priority === 'P2') return 3;
+	return 2;
+}
+
+/** Assertion types that establish a routing outcome, so a Routing case needs one. */
+const ROUTING_ASSERTION_TYPES = ['routedToAgent', 'agentChain'];
 
 /**
  * Bootstrap contextual class for a run/case status.
@@ -132,11 +202,74 @@ export function validateAssertion(assertion) {
 		}
 	}
 
+	// agentChain puts the comparison mode in `target`. An unrecognised value fails
+	// at evaluation time rather than falling back to the loosest mode, so catching
+	// it here just moves that failure to where the author can see it. Blank is
+	// legal and means `contains`.
+	if (type === 'agentChain' && assertion.target?.trim()
+		&& !AGENT_CHAIN_MODES.includes(assertion.target.trim().toLowerCase())) {
+		return t('Assertion "agentChain" mode must be one of {modes}.', { modes: AGENT_CHAIN_MODES.join(', ') });
+	}
+
 	if (assertion.argsMatchJson?.trim() && !isParsableJson(assertion.argsMatchJson)) {
 		return t('The args match on an assertion is not valid JSON.');
 	}
 
 	return null;
+}
+
+/**
+ * The extra rules the backend applies to a Routing case, checked here so the
+ * author sees them while editing instead of as a 400 on save. Kept in step with
+ * AgentTestController.ValidateRoutingCase -- if these two ever disagree, the
+ * backend wins and the save fails, which is the safe direction.
+ * @param {string} caseType
+ * @param {import('$agentTestTypes').TestTurn[]} turns
+ * @param {import('$agentTestTypes').TestAssertion[]} caseAssertions
+ * @returns {string[]} one message per problem, empty when the case is acceptable
+ */
+export function validateCaseType(caseType, turns, caseAssertions) {
+	if (caseType !== 'Routing') {
+		return [];
+	}
+
+	const problems = [];
+	const all = [...(turns || []).flatMap(turn => turn.assertions || []), ...(caseAssertions || [])];
+
+	// Routing asks a single-turn question: which agent picks this message up. A
+	// second turn asks something else, and its verdict would still land in the
+	// routing accuracy figure.
+	// Authored history is deliberately not counted: replaying a prior exchange and
+	// then asking one question is still a single routing decision, and it is the most
+	// realistic way to test routing that depends on context.
+	if ((turns || []).length !== 1) {
+		problems.push(t('A Routing case must have exactly one turn. Use an Agent case for a multi-turn case.'));
+	}
+
+	// Without one of these the case asserts nothing about routing yet still counts
+	// towards routing accuracy -- it reports Passed for having said anything at all.
+	if (!all.some(a => ROUTING_ASSERTION_TYPES.includes(a?.type))) {
+		problems.push(t('A Routing case needs at least one routedToAgent or agentChain assertion.'));
+	}
+
+	// Routing is scored purely as expected agent == actual agent. An llmJudge would
+	// also make the figure depend on a vendor call, so a vendor outage would read
+	// as a routing regression.
+	if (all.some(a => a?.type === 'llmJudge')) {
+		problems.push(t('A Routing case cannot use llmJudge: routing is judged only by which agent handled the conversation.'));
+	}
+
+	return problems;
+}
+
+/**
+ * An agent chain rendered the way the backend reports it in an assertion's
+ * `actual`, so the two read the same on screen.
+ * @param {string[] | null | undefined} chain
+ * @returns {string}
+ */
+export function formatAgentChain(chain) {
+	return chain?.length ? chain.join(' -> ') : '--';
 }
 
 /**
