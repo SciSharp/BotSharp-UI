@@ -1,0 +1,880 @@
+/*
+ * Agent Testing page styles — the shared component layer for every page under
+ * src/routes/page/agent-test.
+ *
+ * The four pages were originally written against Bootstrap 5 (.card, .row,
+ * .btn-*, .modal-*, .form-control, .badge …), which this app does not ship —
+ * the whole feature rendered as unstyled document flow. Rather than inline the
+ * same 15-utility Tailwind string on every one of ~500 elements, the recurring
+ * pieces are named once here behind an `ats-` prefix, exactly as _chat.scss and
+ * _knowledge-base.scss do for their own pages. One-off spacing and layout stays
+ * in the markup as Tailwind utilities.
+ *
+ * `ats-`, not `at-`: _agent.scss already owns `at-` for the agent detail tabs
+ * (.at-pane / .at-hide), and two features sharing one prefix is exactly the
+ * collision the prefix convention exists to prevent.
+ *
+ * Palette, radii and shadows are matched to the already-migrated pages
+ * (roles / users / task / setting) so Agent Testing does not read as a
+ * different product: rounded-2xl cards on a white/gray-800 ground, a 1px
+ * gray-100/gray-700 divider between card sections, and uppercase 11px
+ * table headers.
+ *
+ * Status tones (`.ats-tone-success`, `.ats-tone-danger`, …) are spelled
+ * out as real classes on purpose. The pages pick a tone at runtime from
+ * `statusColor()`, and a constructed `bg-{tone}` string is invisible to
+ * Tailwind's source scanner — it only emitted `bg-secondary` at all because
+ * some other file happened to name it literally. Declaring the tones here
+ * removes that dependency entirely.
+ */
+
+/* ========================================================================
+ * Tone tokens
+ * ========================================================================
+ * `statusColor()` in $lib/helpers/utils/agent-test.js returns one of these
+ * six names; `ats-tone-*` maps the name onto a single `--ats-tone` custom
+ * property that the badge / dot / alert rules below all read from.
+ */
+.ats-tone-primary   { --ats-tone: var(--color-primary); }
+.ats-tone-secondary { --ats-tone: var(--color-secondary); }
+.ats-tone-success   { --ats-tone: var(--color-success); }
+.ats-tone-info      { --ats-tone: var(--color-info); }
+.ats-tone-warning   { --ats-tone: var(--color-warning); }
+.ats-tone-danger    { --ats-tone: var(--color-danger); }
+.ats-tone-dark      { --ats-tone: var(--color-dark); }
+
+/* ========================================================================
+ * Card shell (replaces .card / .card-body / .card-title / .border-bottom)
+ * ======================================================================== */
+
+.ats-card {
+    border-radius: 1rem;
+    background-color: rgb(255 255 255);
+    box-shadow:
+        0 20px 25px -5px rgb(15 23 42 / 0.1),
+        0 8px 10px -6px rgb(15 23 42 / 0.1);
+    outline: 1px solid rgb(0 0 0 / 0.05);
+    outline-offset: -1px;
+
+    .dark & {
+        background-color: rgb(31 41 55);
+        outline-color: rgb(255 255 255 / 0.1);
+    }
+}
+
+/* A single band inside the card. `ats-card-section` carries the padding;
+   `ats-card-divider` adds the hairline that separated Bootstrap's stacked
+   `.card-body.border-bottom` blocks. */
+.ats-card-section {
+    padding: 1rem 1.5rem;
+}
+
+.ats-card-divider {
+    border-bottom: 1px solid rgb(243 244 246);
+
+    .dark & {
+        border-bottom-color: rgb(55 65 81);
+    }
+}
+
+/* The body band is roomier than the header/filter bands, matching the
+   `p-4 sm:p-6` the roles and users pages use for their table area. */
+.ats-card-body {
+    padding: 1rem;
+
+    @media (min-width: 640px) {
+        padding: 1.5rem;
+    }
+}
+
+.ats-card-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--color-dark);
+
+    .dark & {
+        color: rgb(243 244 246);
+    }
+}
+
+.ats-card-subtitle {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+}
+
+/* Round tinted glyph that opens the card header on every migrated page. */
+.ats-card-icon {
+    display: flex;
+    flex: none;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+    color: var(--color-primary);
+
+    & i {
+        font-size: 1.25rem;
+        line-height: 1;
+    }
+}
+
+/* ========================================================================
+ * Buttons (replaces .btn and every .btn-* variant)
+ * ======================================================================== */
+
+.ats-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    height: 2.5rem;
+    padding: 0 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.375rem;
+    background-color: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease,
+        color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+
+    & i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+}
+
+/* Compact variant (was .btn-sm). */
+.ats-btn-sm {
+    height: 2rem;
+    padding: 0 0.625rem;
+    font-size: 0.8125rem;
+
+    & i {
+        font-size: 0.9375rem;
+    }
+}
+
+/* Square icon-only button, sized to line up with .ats-btn-sm in a row of
+   table actions (was .btn.btn-sm with a single <i> inside). */
+.ats-btn-icon {
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+}
+
+/* ---- Solid variants ---- */
+
+.ats-btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: rgb(255 255 255);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+}
+
+.ats-btn-secondary {
+    background-color: rgb(255 255 255);
+    border-color: rgb(229 231 235);
+    color: rgb(55 65 81);
+
+    &:hover:not(:disabled) {
+        background-color: rgb(243 244 246);
+        border-color: rgb(209 213 219);
+        color: rgb(17 24 39);
+    }
+
+    .dark & {
+        background-color: rgb(55 65 81);
+        border-color: rgb(75 85 99);
+        color: rgb(229 231 235);
+
+        &:hover:not(:disabled) {
+            background-color: rgb(75 85 99);
+            border-color: rgb(107 114 128);
+        }
+    }
+}
+
+.ats-btn-warning {
+    background-color: var(--color-warning);
+    border-color: var(--color-warning);
+    color: rgb(255 255 255);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.08);
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-warning), black 12%);
+        border-color: color-mix(in srgb, var(--color-warning), black 12%);
+    }
+}
+
+/* ---- Soft variants: tinted fill that fills in solid on hover ----
+   (was .btn-soft-primary / -secondary / -info / -danger) */
+
+.ats-btn-soft {
+    background-color: color-mix(in srgb, var(--ats-tone) 12%, transparent);
+    color: var(--ats-tone);
+
+    &:hover:not(:disabled) {
+        background-color: var(--ats-tone);
+        color: rgb(255 255 255);
+    }
+
+    &:focus-visible {
+        outline-color: var(--ats-tone);
+    }
+}
+
+/* ---- Outline variant (was .btn-outline-danger) ---- */
+
+.ats-btn-outline {
+    border-color: var(--ats-tone);
+    color: var(--ats-tone);
+
+    &:hover:not(:disabled) {
+        background-color: var(--ats-tone);
+        color: rgb(255 255 255);
+    }
+
+    &:focus-visible {
+        outline-color: var(--ats-tone);
+    }
+}
+
+/* ---- Inline text button (was .btn-link) ---- */
+
+.ats-btn-link {
+    height: auto;
+    padding: 0.125rem 0.25rem;
+    border: 0;
+    border-radius: 0.25rem;
+    color: var(--color-primary);
+    font-size: 0.8125rem;
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        text-decoration: underline;
+    }
+}
+
+/* ========================================================================
+ * Form controls (replaces .form-label / .form-control / .form-select /
+ * .form-text / .form-check / .form-switch)
+ * ======================================================================== */
+
+.ats-label {
+    display: block;
+    margin-bottom: 0.375rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: rgb(55 65 81);
+
+    .dark & {
+        color: rgb(209 213 219);
+    }
+}
+
+/* One rule for text inputs and textareas. `height` is deliberately left to the
+   element: inputs get a fixed 2.5rem, textareas size to their `rows`.
+
+   There is no select rule here on purpose. Every dropdown on these pages is the
+   shared Select component, which carries its own trigger styling -- matched to
+   this same 2.5rem / 0.375rem / gray-200 look, so the two line up inside a grid
+   row. Reintroducing a native <select> would need its own rule back. */
+.ats-input,
+.ats-textarea {
+    width: 100%;
+    padding: 0 0.75rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.375rem;
+    background-color: rgb(255 255 255);
+    font-size: 0.875rem;
+    color: rgb(31 41 55);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+    &::placeholder {
+        color: rgb(156 163 175);
+    }
+
+    &:focus {
+        border-color: var(--color-primary);
+        outline: 0;
+        box-shadow: 0 0 0 1px var(--color-primary);
+    }
+
+    &:disabled {
+        background-color: rgb(243 244 246);
+        color: rgb(107 114 128);
+        cursor: not-allowed;
+    }
+
+    .dark & {
+        border-color: rgb(75 85 99);
+        background-color: rgb(17 24 39);
+        color: rgb(243 244 246);
+
+        &:disabled {
+            background-color: rgb(55 65 81);
+            color: rgb(156 163 175);
+        }
+    }
+}
+
+.ats-input {
+    height: 2.5rem;
+}
+
+.ats-textarea {
+    padding: 0.5rem 0.75rem;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+/* Monospace variant for the JSON / message-body textareas. */
+.ats-textarea-code {
+    font-family: var(--font-code);
+    font-size: 0.8125rem;
+}
+
+/* Helper text under a field (was .form-text). */
+.ats-help {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--color-muted);
+}
+
+/* Checkbox / radio row (was .form-check + .form-check-input + label). */
+.ats-check {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.ats-check-input {
+    width: 1rem;
+    height: 1rem;
+    flex: none;
+    margin: 0;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+
+.ats-check-label {
+    font-size: 0.875rem;
+    color: rgb(55 65 81);
+    cursor: pointer;
+
+    .dark & {
+        color: rgb(209 213 219);
+    }
+}
+
+/* Toggle switch (was .form-check.form-switch). Built on a real checkbox so
+   it keeps keyboard focus, the checked state and screen-reader semantics. */
+.ats-switch {
+    position: relative;
+    width: 2.25rem;
+    height: 1.25rem;
+    flex: none;
+    margin: 0;
+    appearance: none;
+    border-radius: 999px;
+    background-color: rgb(209 213 219);
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &::after {
+        content: '';
+        position: absolute;
+        top: 0.1875rem;
+        left: 0.1875rem;
+        width: 0.875rem;
+        height: 0.875rem;
+        border-radius: 999px;
+        background-color: rgb(255 255 255);
+        box-shadow: 0 1px 2px rgb(15 23 42 / 0.2);
+        transition: transform 0.15s ease;
+    }
+
+    &:checked {
+        background-color: var(--color-primary);
+    }
+
+    &:checked::after {
+        transform: translateX(1rem);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .dark & {
+        background-color: rgb(75 85 99);
+    }
+}
+
+/* ========================================================================
+ * Badges (replaces .badge.bg-*)
+ * ======================================================================== */
+
+.ats-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.1875rem 0.5rem;
+    border-radius: 0.375rem;
+    background-color: var(--ats-tone);
+    color: rgb(255 255 255);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    line-height: 1.4;
+    white-space: nowrap;
+}
+
+/* Quiet variant: tinted fill with tone-coloured text, for the neutral
+   metadata chips (model names, counts) that should not read as a status. */
+.ats-badge-soft {
+    background-color: color-mix(in srgb, var(--ats-tone) 14%, transparent);
+    color: var(--ats-tone);
+}
+
+/* ========================================================================
+ * Alerts (replaces .alert.alert-danger / -warning / -info)
+ * ======================================================================== */
+
+.ats-alert {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--ats-tone) 35%, transparent);
+    border-radius: 0.5rem;
+    background-color: color-mix(in srgb, var(--ats-tone) 10%, transparent);
+    color: color-mix(in srgb, var(--ats-tone), black 25%);
+    font-size: 0.875rem;
+
+    .dark & {
+        color: color-mix(in srgb, var(--ats-tone), white 30%);
+    }
+}
+
+/* ========================================================================
+ * Tables (replaces .table.table-bordered / .table-sm / .table-responsive)
+ * ======================================================================== */
+
+/* Scroll container. Pairs with `scrollbar-on-hover` from app.css — note that
+   the pages previously asked for `thin-scrollbar`, which is not defined
+   anywhere in this app. */
+.ats-table-wrap {
+    overflow-x: auto;
+    border-radius: 0.5rem;
+    outline: 1px solid rgb(243 244 246);
+    outline-offset: -1px;
+
+    .dark & {
+        outline-color: rgb(55 65 81);
+    }
+}
+
+.ats-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+
+    th,
+    td {
+        padding: 0.75rem 1rem;
+        border-bottom: 1px solid rgb(243 244 246);
+        vertical-align: middle;
+        text-align: left;
+    }
+
+    thead th {
+        background-color: rgb(249 250 251);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-muted);
+        border-bottom: 2px solid rgb(229 231 235);
+        white-space: nowrap;
+    }
+
+    tbody tr:last-child > td {
+        border-bottom: 0;
+    }
+
+    .dark & {
+        th,
+        td {
+            border-bottom-color: rgb(55 65 81);
+        }
+
+        thead th {
+            background-color: rgb(55 65 81 / 0.5);
+            border-bottom-color: rgb(75 85 99);
+        }
+    }
+}
+
+/* Denser cells for the wide result matrix (was .table-sm). */
+.ats-table-sm {
+    th,
+    td {
+        padding: 0.5rem 0.625rem;
+    }
+}
+
+/* Row-level hover + pointer for the rows that navigate on click
+   (was .clickable). */
+.ats-table-row-link {
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+    &:hover {
+        background-color: rgb(249 250 251);
+    }
+
+    .dark &:hover {
+        background-color: rgb(55 65 81 / 0.4);
+    }
+}
+
+/* Inline action list in the last column (was ul.list-unstyled.hstack). */
+.ats-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+/* ========================================================================
+ * Modals (replaces .modal / .modal-backdrop / .modal-dialog / .modal-content
+ * / .modal-header / .modal-title / .modal-body / .modal-footer / .btn-close)
+ * ========================================================================
+ * Sizing, radii and the blurred backdrop are kept in step with
+ * ConfirmModal.svelte, which the delete prompts on these pages use, so the
+ * two kinds of dialog do not look like they came from different apps.
+ */
+
+.ats-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 1040;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 4rem 1rem 1rem;
+    overflow-y: auto;
+    background-color: rgb(15 23 42 / 0.55);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+
+    .dark & {
+        background-color: rgb(0 0 0 / 0.65);
+    }
+}
+
+.ats-modal-dialog {
+    width: 100%;
+    max-width: 28rem;
+    margin: 0 auto;
+}
+
+.ats-modal-lg {
+    max-width: 48rem;
+}
+
+.ats-modal-content {
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(229 231 235);
+    box-shadow: 0 25px 50px -12px rgb(15 23 42 / 0.3);
+    overflow: hidden;
+
+    .dark & {
+        background-color: rgb(31 41 55);
+        border-color: rgb(55 65 81);
+    }
+}
+
+.ats-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid rgb(243 244 246);
+
+    .dark & {
+        border-bottom-color: rgb(55 65 81);
+    }
+}
+
+.ats-modal-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: rgb(17 24 39);
+
+    .dark & {
+        color: rgb(243 244 246);
+    }
+}
+
+.ats-modal-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+    padding: 0;
+    border: 0;
+    border-radius: 0.5rem;
+    background: transparent;
+    color: rgb(156 163 175);
+    font-size: 1.125rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.2s ease;
+
+    &:hover {
+        background-color: rgb(243 244 246);
+        color: var(--color-danger);
+        transform: rotate(90deg);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    .dark &:hover {
+        background-color: rgb(55 65 81);
+    }
+}
+
+.ats-modal-body {
+    padding: 1.25rem;
+    /* Keeps a tall dialog (the record-cases picker, the run matrix) inside the
+       viewport instead of pushing its footer off the bottom. */
+    max-height: calc(100vh - 16rem);
+    overflow-y: auto;
+}
+
+.ats-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.875rem 1.25rem;
+    border-top: 1px solid rgb(243 244 246);
+
+    .dark & {
+        border-top-color: rgb(55 65 81);
+    }
+}
+
+/* ========================================================================
+ * Small shared pieces
+ * ======================================================================== */
+
+/* Key/value definition row used by the run + case detail summaries. */
+.ats-meta-label {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-muted);
+}
+
+.ats-meta-value {
+    font-size: 0.875rem;
+    color: rgb(31 41 55);
+    word-break: break-word;
+
+    .dark & {
+        color: rgb(229 231 235);
+    }
+}
+
+/* Bordered sub-panel inside a card body — one turn, one mock, one assertion
+   row (was .border.rounded.p-3.mb-3). Nested panels step the tint down so an
+   assertion row inside a turn still reads as a level deeper. */
+.ats-panel {
+    padding: 0.875rem 1rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.5rem;
+    background-color: rgb(255 255 255);
+
+    & + .ats-panel {
+        margin-top: 0.75rem;
+    }
+
+    /* Any panel that is not the outermost one gets the tinted ground. */
+    .ats-panel & {
+        background-color: rgb(249 250 251);
+    }
+
+    .dark & {
+        border-color: rgb(55 65 81);
+        background-color: rgb(31 41 55);
+    }
+
+    .dark .ats-panel & {
+        background-color: rgb(17 24 39 / 0.6);
+    }
+}
+
+/* A panel that follows loose content (a paragraph, a header row) needs the
+   same top gap the panel-to-panel rule gives. */
+.ats-card-body > .ats-panel:not(:first-child) {
+    margin-top: 0.75rem;
+}
+
+.ats-panel-title {
+    margin: 0;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgb(31 41 55);
+
+    .dark & {
+        color: rgb(229 231 235);
+    }
+}
+
+/* Pre-formatted output block (agent replies, JSON state, stack traces). */
+.ats-code {
+    margin: 0;
+    padding: 0.75rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.5rem;
+    background-color: rgb(249 250 251);
+    font-family: var(--font-code);
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(31 41 55);
+    white-space: pre-wrap;
+    word-break: break-word;
+
+    .dark & {
+        border-color: rgb(55 65 81);
+        background-color: rgb(17 24 39);
+        color: rgb(229 231 235);
+    }
+}
+
+/* Divider inside a panel, separating the summary row from the expanded
+   detail (was .border-top.p-3). */
+.ats-panel-split {
+    margin-top: 0.875rem;
+    padding-top: 0.875rem;
+    border-top: 1px solid rgb(229 231 235);
+
+    .dark & {
+        border-top-color: rgb(55 65 81);
+    }
+}
+
+/* Stat tile in the run summary (was .border.rounded.py-3 with an h4 inside).
+   The value is a <span>, not a heading: four sibling numbers are not four
+   document sections, and the old h4 put them in the outline. */
+.ats-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.875rem 0.75rem;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.5rem;
+    text-align: center;
+
+    .dark & {
+        border-color: rgb(55 65 81);
+    }
+}
+
+.ats-stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    line-height: 1.2;
+    color: rgb(31 41 55);
+
+    .dark & {
+        color: rgb(243 244 246);
+    }
+}
+
+.ats-stat-label {
+    font-size: 0.75rem;
+    color: var(--color-muted);
+}
+
+/* Tinted rows and cells that mark a failure inside a results table
+   (was .table-danger / .table-warning). Tint only — the status badge in the
+   row carries the actual meaning, so colour is never the sole signal. */
+.ats-row-danger > td,
+.ats-cell-danger {
+    background-color: color-mix(in srgb, var(--color-danger) 8%, transparent);
+}
+
+.ats-row-warning > td {
+    background-color: color-mix(in srgb, var(--color-warning) 10%, transparent);
+}
+
+/* Empty-state block (was .text-center.py-5 with a muted paragraph). */
+.ats-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 3rem 1rem;
+    text-align: center;
+}
+
+.ats-empty-text {
+    margin: 0;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+}

@@ -3,8 +3,8 @@
 	import { fade } from 'svelte/transition';
 	import { _ } from 'svelte-i18n';
 	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
@@ -42,6 +42,9 @@
 	let isCreateModalOpen = $state(false);
 	/** @type {boolean} */
 	let isSaving = $state(false);
+
+	/** @type {import('$agentTestTypes').AgentTestSuite | null} */
+	let suiteToDelete = $state(null);
 
 	/** @type {{ agentId: string, name: string, description: string }} */
 	let newSuite = $state({ agentId: '', name: '', description: '' });
@@ -176,20 +179,19 @@
 
 	/** @param {import('$agentTestTypes').AgentTestSuite} suite */
 	function openDeleteModal(suite) {
-		// @ts-ignore
-		Swal.fire({
-			title: t('Are you sure?'),
-			text: t('Delete test suite "{name}"? You won\'t be able to revert this!', { name: suite.name }),
-			icon: 'warning',
-			customClass: 'custom-modal',
-			showCancelButton: true,
-			cancelButtonText: t('Cancel'),
-			confirmButtonText: t('Yes, delete it!')
-		}).then((result) => {
-			if (result.value) {
-				handleDeleteSuite(suite.id);
-			}
-		});
+		suiteToDelete = suite;
+	}
+
+	function closeDeleteModal() {
+		suiteToDelete = null;
+	}
+
+	function confirmDeleteSuite() {
+		const suite = suiteToDelete;
+		suiteToDelete = null;
+		if (suite) {
+			handleDeleteSuite(suite.id);
+		}
 	}
 
 	/** @param {string} suiteId */
@@ -227,77 +229,102 @@
 	errorText={errorText}
 />
 
-<div class="row">
-	<div class="col-lg-12">
-		<div class="card">
-			<div class="card-body border-bottom">
-				<div class="d-flex flex-wrap align-items-center justify-content-between">
-					<h5 class="mb-0 card-title">{$_('Test Suites')}</h5>
-					<button type="button" class="btn btn-primary" onclick={() => openCreateModal()}>
+<ConfirmModal
+	isOpen={!!suiteToDelete}
+	icon="warning"
+	title={t('Are you sure?')}
+	text={t('Delete test suite "{name}"? You won\'t be able to revert this!', { name: suiteToDelete?.name ?? '' })}
+	confirmBtnText={t('Yes, delete it!')}
+	cancelBtnText={t('Cancel')}
+	confirmBtnColor="danger"
+	confirm={confirmDeleteSuite}
+	cancel={closeDeleteModal}
+	toggleModal={closeDeleteModal}
+/>
+
+<div class="flex flex-wrap">
+	<div class="w-full">
+		<div class="ats-card">
+			<div class="ats-card-section ats-card-divider">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="ats-card-icon">
+							<i class="mdi mdi-flask-outline"></i>
+						</span>
+						<div class="grow">
+							<h5 class="ats-card-title">{$_('Test Suites')}</h5>
+							<p class="ats-card-subtitle">
+								{suites.length} {suites.length === 1 ? $_('suite') : $_('suites')}
+							</p>
+						</div>
+					</div>
+					<button type="button" class="ats-btn ats-btn-primary" onclick={() => openCreateModal()}>
 						<i class="mdi mdi-plus"></i> {$_('New Suite')}
 					</button>
 				</div>
 			</div>
-			<div class="card-body border-bottom">
-				<div class="row g-3">
-					<div class="col-lg-3">
+			<div class="ats-card-section ats-card-divider">
+				<div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-12">
+					<div class="lg:col-span-3">
 						<Select
 							tag={'agent-test-suite-filter'}
 							placeholder={$_('All Agents')}
+							searchMode
+							searchPlaceholder={$_('Search agents')}
 							selectedText={'agent'}
 							selectedValues={selectedAgentId ? [selectedAgentId] : []}
 							options={agentOptions}
 							onselect={e => changeAgentFilter(e)}
 						/>
 					</div>
-					<div class="col-lg-1">
+					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="btn btn-soft-secondary w-100"
-							data-bs-toggle="tooltip"
-							data-bs-placement="bottom"
+							class="ats-btn ats-tone-secondary ats-btn-soft w-full"
 							title={$_('Filter')}
 							onclick={() => applyAgentFilter()}
 						>
 							<i class="mdi mdi-filter-outline align-middle"></i>
-							<span class="d-none">{$_('Filter')}</span>
+							<span class="sr-only">{$_('Filter')}</span>
 						</button>
 					</div>
-					<div class="col-lg-1">
+					<div class="lg:col-span-1">
 						<button
 							type="button"
-							class="btn btn-warning w-100"
-							data-bs-toggle="tooltip"
-							data-bs-placement="bottom"
+							class="ats-btn ats-btn-warning w-full"
 							title={$_('Reset')}
 							onclick={() => resetAgentFilter()}
 						>
 							<i class="mdi mdi-restore align-middle"></i>
-							<span class="d-none">{$_('Reset')}</span>
+							<span class="sr-only">{$_('Reset')}</span>
 						</button>
 					</div>
 				</div>
 			</div>
-			<div class="card-body">
+			<div class="ats-card-body">
 				{#if loadErrorText}
-					<div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+					<div class="ats-alert ats-tone-danger justify-between" role="alert">
 						<span>{loadErrorText}</span>
-						<button type="button" class="btn btn-sm btn-outline-danger" onclick={() => refreshSuites()}>
+						<button
+							type="button"
+							class="ats-btn ats-btn-sm ats-btn-outline ats-tone-danger"
+							onclick={() => refreshSuites()}
+						>
 							<i class="mdi mdi-refresh"></i> {$_('Retry')}
 						</button>
 					</div>
 				{:else if suites.length === 0}
-					<div class="text-center py-5">
-						<p class="text-muted mb-3">
+					<div class="ats-empty">
+						<p class="ats-empty-text">
 							{selectedAgentId ? $_('No test suites for this agent yet.') : $_('No test suites yet.')}
 						</p>
-						<button type="button" class="btn btn-primary" onclick={() => openCreateModal()}>
+						<button type="button" class="ats-btn ats-btn-primary" onclick={() => openCreateModal()}>
 							<i class="mdi mdi-plus"></i> {$_('New Suite')}
 						</button>
 					</div>
 				{:else}
-					<div class="table-responsive thin-scrollbar">
-						<table class="table table-bordered align-middle nowrap">
+					<div class="ats-table-wrap scrollbar-on-hover">
+						<table class="ats-table">
 							<thead>
 								<tr>
 									<th scope="col">{$_('Name')}</th>
@@ -309,27 +336,27 @@
 							<tbody>
 								{#each suites as suite (suite.id)}
 									<tr
-										class="clickable"
+										class="ats-table-row-link"
 										role="button"
 										tabindex="0"
 										onkeydown={() => {}}
 										onclick={() => goToSuite(suite.id)}
 									>
-										<td class="text-primary">{suite.name}</td>
-										<td>{agentName(suite.agentId)}</td>
+										<td class="font-medium text-primary">{suite.name}</td>
+										<td class="whitespace-nowrap">{agentName(suite.agentId)}</td>
 										<td>
 											{#if suite.enabled}
-												<span class="badge bg-success">{$_('Enabled')}</span>
+												<span class="ats-badge ats-tone-success">{$_('Enabled')}</span>
 											{:else}
-												<span class="badge bg-danger">{$_('Disabled')}</span>
+												<span class="ats-badge ats-tone-danger">{$_('Disabled')}</span>
 											{/if}
 										</td>
 										<td>
-											<ul class="list-unstyled hstack gap-1 mb-0">
-												<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Delete')}>
+											<ul class="ats-actions">
+												<li title={$_('Delete')}>
 													<button
 														type="button"
-														class="btn btn-sm btn-soft-danger"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
 														aria-label={$_('Delete')}
 														onclick={(e) => { e.stopPropagation(); openDeleteModal(suite); }}
 													>
@@ -351,47 +378,58 @@
 
 {#if isCreateModalOpen}
 <div
-	class="modal show d-block"
+	class="ats-modal"
 	tabindex="-1"
 	role="dialog"
 	transition:fade={{ duration: 150 }}
 	onclick={handleModalBackdropClick}
 	onkeydown={handleModalKeydown}
 >
-	<div class="modal-dialog modal-md" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">{$_('New Test Suite')}</h5>
-				<button type="button" class="btn-close" aria-label={$_('Close')} onclick={() => closeCreateModal()}></button>
+	<div class="ats-modal-dialog" role="document">
+		<div class="ats-modal-content">
+			<div class="ats-modal-header">
+				<h5 class="ats-modal-title">{$_('New Test Suite')}</h5>
+				<button
+					type="button"
+					class="ats-modal-close"
+					aria-label={$_('Close')}
+					onclick={() => closeCreateModal()}
+				>
+					<i class="mdi mdi-close"></i>
+				</button>
 			</div>
-			<div class="modal-body">
+			<div class="ats-modal-body">
 				<form onsubmit={(e) => submitCreateSuite(e)}>
-					<div class="mb-3">
-						<label class="form-label" for="new-suite-agent">{$_('Agent')} <span class="text-danger">*</span></label>
+					<div class="mb-4">
+						<span class="ats-label">{$_('Agent')} <span class="text-danger">*</span></span>
 						<Select
 							tag={'agent-test-suite-create-agent'}
 							placeholder={$_('Select Agent')}
+							searchMode
+							searchPlaceholder={$_('Search agents')}
 							selectedValues={newSuite.agentId ? [newSuite.agentId] : []}
 							options={agentOptions}
 							onselect={e => changeNewSuiteAgent(e)}
 						/>
 					</div>
-					<div class="mb-3">
-						<label class="form-label" for="new-suite-name">{$_('Name')} <span class="text-danger">*</span></label>
+					<div class="mb-4">
+						<label class="ats-label" for="new-suite-name">
+							{$_('Name')} <span class="text-danger">*</span>
+						</label>
 						<input
 							id="new-suite-name"
 							type="text"
-							class="form-control"
+							class="ats-input"
 							maxlength={nameMaxLength}
 							bind:value={newSuite.name}
 							placeholder={$_('Enter suite name')}
 						/>
 					</div>
-					<div class="mb-3">
-						<label class="form-label" for="new-suite-description">{$_('Description')}</label>
+					<div>
+						<label class="ats-label" for="new-suite-description">{$_('Description')}</label>
 						<textarea
 							id="new-suite-description"
-							class="form-control"
+							class="ats-textarea"
 							rows="3"
 							maxlength={descriptionMaxLength}
 							bind:value={newSuite.description}
@@ -400,24 +438,28 @@
 					</div>
 				</form>
 			</div>
-			<div class="modal-footer">
+			<div class="ats-modal-footer">
 				<button
 					type="button"
-					class="btn btn-primary"
+					class="ats-btn ats-btn-secondary"
+					disabled={isSaving}
+					onclick={() => closeCreateModal()}
+				>
+					{$_('Cancel')}
+				</button>
+				<button
+					type="button"
+					class="ats-btn ats-btn-primary"
 					disabled={!canCreateSuite || isSaving}
 					onclick={(e) => submitCreateSuite(e)}
 				>
 					{#if isSaving}
-						<i class="mdi mdi-loading mdi-spin me-1"></i>
+						<i class="mdi mdi-loading mdi-spin"></i>
 					{/if}
 					{$_('Create')}
-				</button>
-				<button type="button" class="btn btn-secondary" disabled={isSaving} onclick={() => closeCreateModal()}>
-					{$_('Cancel')}
 				</button>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
 {/if}
