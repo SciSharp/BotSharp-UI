@@ -18,7 +18,8 @@ const config = {
 			$pluginTypes: './src/lib/helpers/types/pluginTypes.js',
 			$realtimeTypes: './src/lib/helpers/types/realtimeTypes.js',
 			$instructTypes: './src/lib/helpers/types/instructTypes.js',
-			$mcpTypes: './src/lib/helpers/types/mcpTypes.js'
+			$mcpTypes: './src/lib/helpers/types/mcpTypes.js',
+			$agentTestTypes: './src/lib/helpers/types/agentTestTypes.js'
 		},
 
 		// for static deployment
@@ -75,7 +76,11 @@ const config = {
 				"/page/knowledge-base/relationships",
 				"/page/knowledge-base/documents",
 				"/page/knowledge-base/dictionary",
-				"/page/knowledge-base/[embed]/[embedType]"
+				"/page/knowledge-base/[embed]/[embedType]",
+				"/page/agent-test",
+				"/page/agent-test/[suiteId]",
+				"/page/agent-test/[suiteId]/case/[caseId]",
+				"/page/agent-test/run/[runId]"
 			]
 		}
 	},
