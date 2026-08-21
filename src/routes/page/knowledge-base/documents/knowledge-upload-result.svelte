@@ -12,10 +12,10 @@
 </script>
 
 {#if successFiles?.length > 0 || failedFiles?.length > 0}
-    <div class="doc-upload-result-container mt-3">
+    <div class="dur-container">
         {#if successFiles?.length > 0}
             {#each successFiles as file, idx (idx)}
-                <div class="doc-upload-result-item text-success">
+                <div class="dur-item dur-item-success">
                     <div>
                         <i class="mdi mdi-check-circle"></i>
                     </div>
@@ -28,7 +28,7 @@
 
         {#if failedFiles?.length > 0}
             {#each failedFiles as file, idx (idx)}
-                <div class="doc-upload-result-item text-danger">
+                <div class="dur-item dur-item-danger">
                     <div>
                         <i class="mdi mdi-alert-circle"></i>
                     </div>
@@ -40,3 +40,4 @@
         {/if}
     </div>
 {/if}
+

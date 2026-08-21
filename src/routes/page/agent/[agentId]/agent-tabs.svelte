@@ -3,7 +3,6 @@
 	import NavItem from '$lib/common/nav-bar/NavItem.svelte';
 	import AgentLlmConfig from './agent-components/agent-llm-config.svelte';
 	import AgentUtility from './agent-components/utilities/agent-utility.svelte';
-	import AgentKnowledgeBase from './agent-components/knowledge-bases/agent-knowledge-base.svelte';
 	import AgentRouting from './agent-components/agent-routing.svelte';
 	import AgentEventRule from './agent-components/rules/agent-rule.svelte';
 	import AgentMcpTool from './agent-components/mcp-tools/agent-mcp-tool.svelte';
@@ -11,27 +10,23 @@
     /**
      * @type {{
      *   agent: import('$agentTypes').AgentModel,
-     *   user: import('$userTypes').UserModel,
      *   handleAgentChange?: () => void
      * }}
      */
     let {
         agent,
-        user,
         handleAgentChange = () => {}
     } = $props();
 
     export function fetchTabData() {
         const llmConfig = agentLlmConfigCmp?.fetchLlmConfig();
         const utilities = agentUtilityCmp?.fetchUtilities();
-        const knwoledgebases = agentKnowledgeBaseCmp?.fetchKnowledgeBases();
         const rules = agentEventRuleCmp?.fetchRules();
         const mcpTools = agentMcpToolCmp?.fetchMcpTools();
 
         return {
             llmConfig,
             utilities: utilities || [],
-            knwoledgebases: knwoledgebases || [],
             rules: rules || [],
             mcpTools: mcpTools || []
         };
@@ -42,8 +37,6 @@
     /** @type {any} */
     let agentUtilityCmp = $state(null);
     /** @type {any} */
-    let agentKnowledgeBaseCmp = $state(null);
-    /** @type {any} */
     let agentEventRuleCmp = $state(null);
     /** @type {any} */
     let agentMcpToolCmp = $state(null);
@@ -53,7 +46,6 @@
         { name: 'agent-llm-config', displayText: 'LLm Configs' },
         { name: 'agent-routing-rule', displayText: 'Routing' },
         { name: 'agent-utility', displayText: 'Utilities' },
-        { name: 'agent-knowledgebase', displayText: 'Knowledge Base' },
         { name: 'agent-event-rule', displayText: 'Triggers & Rules' },
         { name: 'agent-mcp-tool', displayText: 'MCP Tools' }
     ]);
@@ -67,8 +59,8 @@
     }
 </script>
 
-<div class="card">
-    <div class="card-body">
+<div class="at-card">
+    <div class="at-card-body">
         <NavBar
             disableDefaultStyles
             containerClasses={'nav-tabs-secondary'}
@@ -87,23 +79,21 @@
             {/each}
         </NavBar>
 
-        <div class:hide={selectedTab !== 'agent-llm-config'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-llm-config'}>
             <AgentLlmConfig agent={agent} bind:this={agentLlmConfigCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-routing-rule'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-routing-rule'}>
             <AgentRouting agent={agent} />
         </div>
-        <div class:hide={selectedTab !== 'agent-utility'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-utility'}>
             <AgentUtility agent={agent} bind:this={agentUtilityCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-knowledgebase'}>
-            <AgentKnowledgeBase agent={agent} bind:this={agentKnowledgeBaseCmp} {handleAgentChange} />
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-event-rule'}>
+            <AgentEventRule agent={agent} bind:this={agentEventRuleCmp} {handleAgentChange} />
         </div>
-        <div class:hide={selectedTab !== 'agent-event-rule'}>
-            <AgentEventRule agent={agent} user={user} bind:this={agentEventRuleCmp} {handleAgentChange} />
-        </div>
-        <div class:hide={selectedTab !== 'agent-mcp-tool'}>
+        <div class="at-pane" class:at-hide={selectedTab !== 'agent-mcp-tool'}>
             <AgentMcpTool agent={agent} bind:this={agentMcpToolCmp} {handleAgentChange} />
         </div>
     </div>
 </div>
+

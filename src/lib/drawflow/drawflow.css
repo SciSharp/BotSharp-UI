@@ -3,23 +3,23 @@
 }
 
 .drawflow .drawflow-node {
-    background: var(--bs-primary);
+    background: var(--color-primary);
     color: white;
     width: var(--drawflow-node-width);
-    border: 2px solid var(--bs-primary);
+    border: 2px solid var(--color-primary);
 }
 
 .drawflow .drawflow-node.selected {
-    background: var(--bs-primary);
+    background: var(--color-primary);
     border: 2px solid black;
 }
 
 .drawflow .new-node {
-    background: var(--bs-info);
+    background: var(--color-info);
     color: white;
 }
 
 .drawflow-delete {
-    background-color: var(--bs-danger);
+    background-color: var(--color-danger);
     line-height: 25px;
 }

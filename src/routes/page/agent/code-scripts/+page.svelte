@@ -1,7 +1,8 @@
 <script>
-    import { onMount } from 'svelte';
+    import { onDestroy, onMount } from 'svelte';
 	import { _ } from 'svelte-i18n';
     import { v4 as uuidv4 } from 'uuid';
+	import { page } from '$app/state';
     import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
@@ -10,10 +11,13 @@
 	import { getAgentCodeScripts, getAgentOptions, updateAgentCodeScripts } from '$lib/services/agent-service';
     import { ADMIN_ROLES } from '$lib/helpers/constants';
 	import { AgentCodeScriptType } from '$lib/helpers/enums';
+	import { goToUrl, setUrlQueryParams } from '$lib/helpers/utils/common';
 	import ScriptEditor from './script-editor.svelte';
 
     /** @type {boolean} */
     let isLoading = $state(false);
+    /** @type {boolean} */
+    let isPageMounted = $state(false);
     /** @type {boolean} */
     let isComplete = $state(false);
     /** @type {boolean} */
@@ -51,9 +55,58 @@
     });
 
     onMount(async () => {
+        isPageMounted = true;
         user = await myInfo();
-		await loadAgentOptions();
+
+        try {
+            await loadAgentOptions();
+        } catch (error) {
+            console.error('Failed to load agent options:', error);
+        }
+
+        await applyAgentIdFromUrl();
 	});
+
+    onDestroy(() => {
+        isPageMounted = false;
+    });
+
+    /**
+     * Preselect the agent carried in `?agentId=` so the dropdown and the loaded
+     * scripts both match the url. An id that no longer maps to an agent is
+     * dropped from the url instead of leaving the page half-selected.
+     */
+    async function applyAgentIdFromUrl() {
+        const agentId = page.url.searchParams.get('agentId')?.trim();
+        if (!agentId) return;
+
+        if (!agentOptions.some(x => x.value === agentId)) {
+            syncAgentIdToUrl(null);
+            return;
+        }
+
+        selectedAgentId = agentId;
+        try {
+            await initAgentCodeScripts(agentId);
+        } catch (error) {
+            console.error('Failed to load agent code scripts:', error);
+            refreshScriptObj([]);
+        }
+    }
+
+    /** @param {string | null | undefined} agentId */
+    function syncAgentIdToUrl(agentId) {
+        if (!isPageMounted) return;
+
+        if (!agentId) {
+            goToUrl(page.url.pathname);
+            return;
+        }
+
+        setUrlQueryParams(page.url, [{ key: 'agentId', value: agentId }], (url) => {
+            goToUrl(`${url.pathname}${url.search}`);
+        });
+    }
 
     function loadAgentOptions() {
 		return new Promise((resolve, reject) => {
@@ -77,9 +130,15 @@
 		// @ts-ignore
 		const selectedValues = e?.detail?.selecteds?.map(x => x.value) || [];
         selectedAgentId = selectedValues.length > 0 ? selectedValues[0] : null;
+        syncAgentIdToUrl(selectedAgentId);
 
         if (selectedAgentId) {
-            initAgentCodeScripts(selectedAgentId);
+            initAgentCodeScripts(selectedAgentId).catch((error) => {
+                console.error('Failed to load agent code scripts:', error);
+                // Drop the previous agent's scripts so the editors never show
+                // content belonging to an agent other than the selected one.
+                refreshScriptObj([]);
+            });
         } else {
             refreshScriptObj([]);
         }
@@ -180,11 +239,14 @@
     {isError}
 />
 
-<div class="card">
-    <div class="card-body border-bottom">
-        <div class="row g-3">
-            <div class="col-lg-3 d-flex flex-column gap-1">
-                <div class="fw-bold">Agent</div>
+<div class="cs-card cs-card-accent">
+    <div class="cs-card-body">
+        <div class="cs-field">
+            <div class="cs-field-label">
+                <i class="bx bx-code-alt cs-field-icon"></i>
+                <span>Agent</span>
+            </div>
+            <div class="cs-field-control">
                 <Select
                     tag={'agent-select'}
                     placeholder={'Select agent'}
@@ -212,25 +274,42 @@
     />
 
     {#if ADMIN_ROLES.includes(user?.role || '')}
-    <div class="row">
-        <div class="hstack gap-2 my-4">
+    <div class="cs-action-bar">
+        <div class="cs-action-bar-hint">
+            <i class="bx bx-info-circle"></i>
+            <span>Changes are not saved until you click Save</span>
+        </div>
+        <div class="cs-actions">
             <button
                 type="button"
-                class="btn btn-soft-primary"
-                disabled={!selectedAgentId}
-                onclick={() => saveCodeScripts()}
-            >
-                {$_('Save')}
-            </button>
-            <button
-                type="button"
-                class="btn btn-warning"
+                class="cs-btn cs-btn-ghost"
                 disabled={!selectedAgentId}
                 onclick={() => resetCodeScripts()}
             >
+                <i class="bx bx-revision"></i>
                 {$_('Reset')}
+            </button>
+            <button
+                type="button"
+                class="cs-btn cs-btn-primary"
+                disabled={!selectedAgentId}
+                onclick={() => saveCodeScripts()}
+            >
+                <i class="bx bx-check"></i>
+                {$_('Save')}
             </button>
         </div>
     </div>
     {/if}
+{:else}
+    <div class="cs-empty-card">
+        <div class="cs-empty-illustration">
+            <i class="bx bx-code-block"></i>
+        </div>
+        <h5 class="cs-empty-title">Pick an agent to get started</h5>
+        <p class="cs-empty-text">
+            Select an agent above to view and edit its source and test scripts.
+        </p>
+    </div>
 {/if}
+

@@ -1,0 +1,5042 @@
+/*
+ * Chat page styles — consolidated from scoped <style> blocks in
+ * the src/routes/chat folder. Each section is annotated with the
+ * source file path so the original component context is preserved.
+ *
+ * Class names use per-component prefixes (cb-, cle-, pl-, etc.) so
+ * these globally-scoped rules cannot collide with rules belonging to
+ * other page groups.
+ */
+
+
+/* ====================================================================
+ * chat-util/chat-big-message.svelte
+ * Replaces legacy .chat-util-trigger / .list-inline /
+ * .list-inline-item / .clickable.
+ * ==================================================================== */
+
+
+.cbm-trigger {
+    text-align: center;
+}
+
+
+.cbm-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.cbm-item {
+    display: inline-block;
+}
+
+
+.cbm-glyph {
+    display: inline-block;
+    padding: 0 0.25rem;
+    line-height: 2.25rem;
+    font-size: 200%;
+    color: var(--color-primary);
+}
+
+
+.cbm-icon {
+    cursor: pointer;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/+page.svelte
+ * ======================================================================== */
+
+
+/* ===== Page shell ===== */
+
+
+.cs-page {
+    width: 100%;
+    padding: 0 1rem;
+}
+
+
+/* ===== Agent list block ===== */
+
+
+.cs-block {
+    margin-top: 10vh;
+    margin-left: 10vw;
+    margin-right: 10vw;
+}
+
+
+.cs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+}
+
+
+.cs-item {
+    padding: 0.875rem 1rem;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 8%, rgb(229 231 235));
+    border-radius: 0.625rem;
+    background-color: rgb(255 255 255);
+    transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-primary) 32%, rgb(229 231 235));
+        background-color: color-mix(in srgb, var(--color-primary) 2%, rgb(255 255 255));
+    }
+}
+
+
+.cs-item-selected {
+    border-color: var(--color-primary);
+    background-color: color-mix(in srgb, var(--color-primary) 5%, rgb(255 255 255));
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+}
+
+
+/* ===== Radio (themed, replaces .form-check-input) ===== */
+
+
+.cs-radio {
+    width: 1rem;
+    height: 1rem;
+    margin: 0 0.5rem 0 0;
+    vertical-align: middle;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+
+.cs-label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+    vertical-align: middle;
+    cursor: pointer;
+    margin: 0;
+}
+
+
+.cs-desc {
+    margin: 0.25rem 0 0 1.5rem;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+    line-height: 1.5;
+}
+
+
+/* ===== Footer / CTA ===== */
+
+
+.cs-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    padding-bottom: 2.5rem;
+}
+
+
+.cs-hint {
+    margin: 0 0 1rem 0;
+    font-size: 0.8125rem;
+    color: var(--color-muted);
+}
+
+
+.cs-cta-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+
+.cs-start-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    height: 2.5rem;
+    padding: 0 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1;
+    color: rgb(255 255 255);
+    text-decoration: none;
+    border: 1px solid transparent;
+    border-radius: 0.625rem;
+    background: linear-gradient(
+        135deg,
+        var(--color-primary),
+        color-mix(in srgb, var(--color-primary) 78%, black)
+    );
+    box-shadow: 0 1px 0 rgb(255 255 255 / 0.18) inset,
+        0 4px 12px -4px color-mix(in srgb, var(--color-primary) 60%, transparent),
+        0 2px 4px -2px rgb(15 23 42 / 0.1);
+    transition: transform 0.12s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    cursor: pointer;
+
+
+    &:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 1px 0 rgb(255 255 255 / 0.22) inset,
+        0 8px 18px -6px color-mix(in srgb, var(--color-primary) 70%, transparent),
+        0 3px 6px -2px rgb(15 23 42 / 0.12);
+        filter: brightness(1.05);
+        color: rgb(255 255 255);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
+    }
+
+
+    & i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+}
+
+
+/* ===== Dark mode ===== */
+
+
+.cs-item {
+
+
+    .dark & {
+        background-color: rgb(31 41 55);
+        border-color: color-mix(in srgb, var(--color-primary) 14%, rgb(55 65 81));
+    }
+
+
+    .dark &:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 6%, rgb(31 41 55));
+    }
+}
+
+
+.dark .cs-item-selected {
+    background-color: color-mix(in srgb, var(--color-primary) 10%, rgb(31 41 55));
+}
+
+
+.dark .cs-label {
+    color: rgb(229 231 235);
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/+page.svelte
+ * ======================================================================== */
+
+
+/* ===== Page shell ===== */
+
+
+.ci-page {
+    width: 100%;
+    padding: 0 1rem;
+}
+
+
+.ci-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 3.125rem 1rem;
+    gap: 1.25rem;
+}
+
+
+/* ===== Spinner (replaces .spinner-grow) =====
+   Pulsing primary-tinted dot, accessible (role=status on parent). */
+
+
+.ci-spinner {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background-color: var(--color-primary);
+    animation: ci-pulse 1s ease-in-out infinite;
+}
+
+
+@keyframes ci-pulse {
+    0% {
+        transform: scale(0);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+
+/* ===== Visually hidden (replaces .sr-only) ===== */
+
+
+.ci-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+
+.ci-title {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: rgb(55 65 81);
+}
+
+
+.ci-link {
+    font-size: 0.875rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    transition: color 0.15s ease;
+
+
+    &:hover {
+        color: var(--color-primary-hover);
+        text-decoration: underline;
+    }
+}
+
+
+/* ===== Dark mode ===== */
+
+
+.dark .ci-title {
+    color: rgb(229 231 235);
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/agent-info/chat-agent-info.svelte
+ * ======================================================================== */
+
+
+/* ===== Wrapper ===== */
+
+
+.cai-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    overflow: hidden;
+    padding: 1rem 1.15rem;
+    background:
+        radial-gradient(circle at 50% -18%, color-mix(in srgb, var(--color-primary) 32%, transparent), transparent 48%),
+        linear-gradient(180deg, color-mix(in srgb, white 8%, transparent), color-mix(in srgb, white 2%, transparent));
+    border: 0;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(120deg, transparent 0 38%, color-mix(in srgb, white 10%, transparent) 50%, transparent 62% 100%);
+        opacity: 0.28;
+    }
+}
+
+
+/* ===== Row (replaces legacy .chat-agent-row) =====
+   Centered text, modest vertical rhythm, white text by default since
+   this component currently renders inside the chat-box's dark right
+   log panel. */
+
+
+.cai-row {
+    position: relative;
+    z-index: 1;
+    margin: 0.2rem 0;
+    font-size: 0.875rem;
+    text-align: center;
+    color: rgb(255 255 255);
+}
+
+
+/* ===== Agent name (replaces .text-primary fw-bold + h3) ===== */
+
+
+.cai-name {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    margin: 0;
+    padding: 0.12rem 0.65rem;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    font-weight: 800;
+    line-height: 1.25;
+    color: color-mix(in srgb, var(--color-primary) 62%, white 38%);
+    cursor: pointer;
+    text-shadow:
+        0 0 10px color-mix(in srgb, var(--color-primary) 50%, transparent),
+        0 0 24px color-mix(in srgb, var(--color-primary) 34%, transparent);
+    animation: cai-name-blink 1.75s ease-in-out infinite;
+    transition: transform 0.18s ease, filter 0.18s ease, color 0.18s ease;
+
+
+    &:hover {
+        color: rgb(255 255 255);
+        filter: brightness(1.2) saturate(1.18);
+        transform: translateY(-1px) scale(1.015);
+    }
+}
+
+
+.cai-name-link {
+    /* replaces legacy .clickable */
+    position: relative;
+    display: block;
+    overflow: hidden;
+    box-sizing: border-box;
+    max-width: 100%;
+    padding-right: 0.75rem;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+
+/* ===== Description (replaces .text-secondary) ===== */
+
+
+.cai-desc {
+    display: -webkit-box;
+    overflow: hidden;
+    color: color-mix(in srgb, white 76%, transparent);
+    font-size: 0.82rem;
+    line-height: 1.5;
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.18);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+
+/* ===== Meta rows (provider/model, counts) =====
+   Inherit color from the row (white on dark panel). */
+
+
+.cai-meta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    max-width: 100%;
+    padding: 0.22rem 0.55rem;
+    color: color-mix(in srgb, white 70%, transparent);
+    background: color-mix(in srgb, black 14%, transparent);
+    border: 1px solid color-mix(in srgb, white 7%, transparent);
+    border-radius: 999px;
+    font-size: 0.75rem;
+    line-height: 1.35;
+    opacity: 0.94;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+
+
+    span {
+        overflow: hidden;
+        max-width: 100%;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+}
+
+
+@keyframes cai-name-blink {
+    0%,
+    100% {
+        opacity: 1;
+        text-shadow:
+            0 0 10px color-mix(in srgb, var(--color-primary) 45%, transparent),
+            0 0 24px color-mix(in srgb, var(--color-primary) 32%, transparent);
+    }
+
+
+    50% {
+        opacity: 0.58;
+        text-shadow:
+            0 0 5px color-mix(in srgb, var(--color-primary) 28%, transparent),
+            0 0 12px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+}
+
+
+@keyframes cai-status-pulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+
+    50% {
+        transform: scale(0.58);
+        opacity: 0.42;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/chat-box.svelte
+ * ======================================================================== */
+
+
+/* ============================================================
+   chat-box scoped styles — replaces legacy `_chat.scss` rules.
+   Built up incrementally across Step 4 sub-steps. Each cb-* class
+   is scoped to this component to avoid leaking into other pages.
+   ============================================================ */
+
+
+/* ===== 4a: Modals (Tag / Notification / Edit / Big-message) ===== */
+
+
+/* Tag modal — tags wrapper (replaces .conv-tags-container) */
+
+
+.cb-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    min-height: 5rem;
+    max-height: 11.25rem;
+}
+
+
+/* Tag modal — input + add row (replaces .conv-tag-add) */
+
+
+.cb-tag-add {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.625rem;
+}
+
+
+/* Tag modal — input (replaces .form-control.form-control-sm) */
+
+
+.cb-tag-input {
+    flex: 1;
+    padding: 0.25rem 0.5rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    color: rgb(17 24 39);
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.375rem;
+    font-family: inherit;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+
+    &:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+}
+
+
+/* Tag modal — add button (replaces .btn.btn-primary.btn-sm) */
+
+
+.cb-tag-add-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 1.875rem;
+    padding: 0 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    color: rgb(255 255 255);
+    background-color: var(--color-primary);
+    border: 1px solid var(--color-primary);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+
+
+    &:active:not(:disabled) {
+        transform: translateY(1px);
+    }
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+
+/* Notification modal — warning title icon (replaces .text-warning) */
+
+
+.cb-title-icon {
+    display: inline-flex;
+    align-items: center;
+}
+
+
+.cb-text-warning {
+    color: var(--color-warning);
+}
+
+
+/* Notification modal — body (replaces legacy .chat-notification) */
+
+
+.cb-notification {
+    min-height: 1.25rem;
+    max-height: 9.375rem;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
+
+/* Edit / Big-message modals — textarea (replaces .form-control.chat-input) */
+
+
+.cb-modal-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 1rem 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(17 24 39);
+    background-color: var(--color-light);
+    border: 1px solid var(--color-light);
+    border-radius: 0.3125rem;
+    font-family: inherit;
+    resize: none;
+    scrollbar-width: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+
+    &:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+}
+
+
+/* Edit / Big-message modals — counter row (replaces .text-secondary.text-end.text-count) */
+
+
+.cb-modal-counter {
+    text-align: right;
+    color: var(--color-secondary);
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+}
+
+
+/* ===== Dark mode (Step 4a) ===== */
+
+
+.dark .cb-tag-input {
+    background-color: rgb(17 24 39);
+    border-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-modal-textarea {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-modal-counter {
+    color: rgb(156 163 175);
+}
+
+
+/* ===== 4b: Outer split layout + chat header ===== */
+
+
+/* Shared utilities used across the chat layout */
+
+
+.cb-vcenter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+.cb-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.cb-align-middle {
+    vertical-align: middle;
+}
+
+
+.cb-text-success {
+    color: var(--color-success);
+}
+
+
+/* Page-level flex wrapper (replaces .d-lg-flex) */
+
+
+.cb-page-flex {
+    display: block;
+}
+
+
+@media (min-width: 992px) {
+    .cb-page-flex {
+        display: flex;
+    }
+}
+
+
+/* Main chat panel card (replaces .card.mb-0) */
+
+
+.cb-panel-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    word-wrap: break-word;
+    background-color: rgb(255 255 255);
+    background-clip: border-box;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 0.5rem;
+    margin-bottom: 0;
+}
+
+
+/* Header bar.
+   Flat surface: a single hairline rule carries the separation from the
+   thread below — no glass blur, no layered inset highlights, no glow. */
+.cb-head {
+    position: relative;
+    z-index: 20;
+    font-size: 1rem;
+    padding: clamp(0.75rem, 2vmin, 1.25rem) 2%;
+    height: 10%;
+    background-color: rgb(255 255 255);
+    border-bottom: 1px solid rgb(229 231 235);
+}
+
+/* Header row */
+.cb-head-row {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+}
+
+/* Left column with agent/user info */
+.cb-head-left {
+    flex: 0 0 33.333333%;
+    max-width: 33.333333%;
+    padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100%;
+    gap: 0.3125rem;
+}
+
+
+/* Agent row — a button, not a label: it opens the agent's detail page, the
+   same destination as the agent name in the log panel's info card. Icon and
+   name are both inside the target so the whole identity is one hit area.
+   Styled as a bare row (no chrome at rest) so the header stays flat; the
+   hover tint is what tells you it is clickable. */
+.cb-head-agent {
+    flex: 0.5;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    width: fit-content;
+    max-width: 100%;
+    height: 50%;
+    padding: 0.15rem 0.4rem 0.15rem 0.15rem;
+    margin-left: -0.15rem;
+    font: inherit;
+    text-align: left;
+    color: inherit;
+    background-color: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+
+    &:hover {
+        background-color: rgb(243 244 246);
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+
+.cb-head-agent-icon {
+    height: 80%;
+    max-height: 30px;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid rgb(229 231 235);
+}
+
+
+.cb-head-agent-name {
+    font-size: 0.9em;
+    font-weight: 600;
+    color: rgb(17 24 39);
+    letter-spacing: 0.01em;
+}
+
+
+/* User row — flat chip: solid fill, hairline border, static status dot. */
+.cb-head-user {
+    flex: 0.5;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    width: fit-content;
+    font-size: 0.72em;
+    color: rgb(107 114 128);
+    margin-bottom: 0;
+    padding: 0.15rem 0.5rem;
+    background-color: rgb(243 244 246);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 6px;
+
+    & .mdi-circle {
+        font-size: 0.55em;
+    }
+}
+
+
+/* Right column */
+.cb-head-right {
+    flex: 0 0 66.666667%;
+    max-width: 66.666667%;
+    padding-right: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    padding-left: calc(var(--bs-gutter-x, 1.5rem) * 0.5);
+    position: relative;
+    z-index: 1;
+}
+
+
+/* Header action bar (replaces .user-chat-nav.user-chat-nav-flex.mb-0) */
+
+
+.cb-head-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.42rem;
+    align-self: stretch;
+    min-width: 30px;
+    min-height: 30px;
+    margin-bottom: 0;
+}
+
+
+/* Round icon buttons in the header
+   (replaces .btn.btn-rounded.btn-sm + variants for color) */
+
+
+.cb-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    padding: 0;
+    font-size: 0.8125rem;
+    line-height: 1;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: transparent;
+    color: rgb(255 255 255);
+    transition: background-color 0.15s ease;
+
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+
+.cb-icon-btn-primary {
+    background-color: var(--color-primary);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+    }
+}
+
+
+.cb-icon-btn-secondary {
+    background-color: var(--color-secondary);
+
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-secondary) 85%, black);
+    }
+}
+
+
+.cb-icon-btn-lg {
+    width: 40px;
+    height: 40px;
+}
+
+
+.cb-icon-lg {
+    font-size: 0.9375rem;
+}
+
+
+/* Dots-menu trigger (replaces .nav-btn) */
+
+
+.cb-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.125rem;
+    height: 2.125rem;
+    padding: 0;
+    background-color: transparent;
+    color: rgb(107 114 128);
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+
+    &:hover {
+        background-color: rgb(243 244 246);
+        color: rgb(17 24 39);
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+
+    & i {
+        font-size: 1rem;
+        line-height: 1;
+    }
+}
+
+
+/* Dropdown wrapper (replaces .dropdown) */
+
+
+.cb-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+
+/* Menu popup (replaces .dropdown-menu).
+   Shared by the header dots-menu and the per-message kebab dropdown
+   in chat-box.svelte. Flat surface — solid fill and a hairline border do
+   the work; one soft shadow remains only because a floating layer has to
+   read as detached from the content behind it. */
+.cb-menu {
+    position: absolute;
+    z-index: 1000;
+    display: none;
+    min-width: 11rem;
+    padding: 0.25rem;
+    margin: 0.375rem 0 0;
+    list-style: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(17 24 39);
+    text-align: left;
+    background-color: rgb(255 255 255);
+    background-clip: padding-box;
+    border: 1px solid rgb(229 231 235);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -12px rgb(15 23 42 / 0.2);
+
+
+    &.show {
+        display: block;
+        animation: cb-menu-pop-down 0.12s ease-out both;
+    }
+}
+
+
+@keyframes cb-menu-pop-down {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-menu.show {
+        animation: none;
+    }
+}
+
+
+.cb-menu-end {
+    right: 0;
+    left: auto;
+}
+
+
+/* Flat row: hover is a solid tint only — no accent bar, no padding shift,
+   so the label never moves under the pointer. */
+.cb-menu-item {
+    position: relative;
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    margin: 1px 0;
+    clear: both;
+    font-weight: 500;
+    color: rgb(55 65 81);
+    text-align: inherit;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+
+    &:hover:not(:disabled), &:focus-visible:not(:disabled) {
+        color: var(--color-primary);
+        background-color: color-mix(in srgb, var(--color-primary) 8%, transparent);
+        outline: none;
+    }
+
+
+    &:active:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 14%, transparent);
+    }
+
+
+    &:disabled {
+        color: var(--color-muted);
+        opacity: 0.55;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+}
+
+
+/* "States" entry — has a nested submenu (.cb-state-menu > .cb-menu).
+   Adds room on the right for a chevron indicator that flips when the
+   submenu is open (driven by the existing aria-expanded attribute). */
+.cb-menu-item-toggle {
+    padding-right: 1.75rem;
+
+
+    &::after {
+        content: '‹';
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        font-size: 1rem;
+        line-height: 0;
+        color: currentColor;
+        opacity: 0.55;
+        transform: translateY(-50%);
+        transition: transform 0.2s ease, opacity 0.15s ease;
+        pointer-events: none;
+    }
+
+
+    &[aria-expanded="true"]::after {
+        opacity: 0.95;
+        transform: translateY(-50%) rotate(-90deg);
+    }
+}
+
+
+/* Submenu host (replaces .dropstart.state-menu) */
+
+
+.cb-state-menu {
+    position: relative;
+
+
+    & > .cb-menu {
+        top: 0;
+        left: 0;
+        margin: 0;
+    }
+}
+
+
+/* Button-pair (replaces .btn-pair / .btn-left / .btn-right) */
+
+
+.cb-btn-pair {
+    display: flex;
+}
+
+
+.cb-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    height: 2.125rem;
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: rgb(255 255 255);
+    background-color: transparent;
+    border: 0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+
+    & i, & span {
+        font-size: 0.9em;
+    }
+}
+
+
+.cb-pill-btn-primary {
+    background-color: var(--color-primary);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+    }
+}
+
+
+.cb-pill-btn-danger {
+    background-color: var(--color-danger);
+
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-danger) 85%, black);
+    }
+}
+
+
+/* Segmented pair: the two halves meet on a shared hairline seam rather
+   than overlapping gradients, so they read as one control. */
+.cb-pill-btn-left {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+
+.cb-pill-btn-right {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    box-shadow: inset 1px 0 0 rgb(255 255 255 / 0.25);
+}
+
+
+.cb-pill-btn-label {
+    margin-right: 0.5rem;
+}
+
+
+/* ===== Dark mode (Step 4b) ===== */
+
+
+.dark .cb-panel-card {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+}
+
+
+.dark .cb-head {
+    background-color: rgb(31 41 55);
+    border-bottom-color: rgb(55 65 81);
+}
+
+
+.dark .cb-head-agent:hover {
+    background-color: rgb(55 65 81);
+}
+
+
+.dark .cb-head-agent-icon {
+    border-color: rgb(55 65 81);
+}
+
+
+.dark .cb-head-agent-name {
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-head-user {
+    color: rgb(156 163 175);
+    background-color: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+}
+
+
+.cb-nav-btn {
+
+
+    .dark & {
+        color: rgb(156 163 175);
+    }
+
+
+    .dark &:hover {
+        background-color: rgb(55 65 81);
+        color: rgb(255 255 255);
+    }
+}
+
+
+.dark .cb-menu {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+    box-shadow: 0 8px 24px -12px rgb(0 0 0 / 0.6);
+}
+
+
+.cb-menu-item {
+
+
+    .dark & {
+        color: rgb(229 231 235);
+    }
+
+
+    /* Dark-mode hover keeps the primary-tint feel but bumps the alpha
+       so it stays readable on the darker glass background. */
+    .dark &:hover:not(:disabled), .dark &:focus-visible:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 22%, transparent);
+        color: rgb(255 255 255);
+    }
+
+
+    .dark &:active:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    }
+}
+
+
+/* ===== 4c: Message thread (scroll area + bubbles + actions) ===== */
+
+
+/* Scrollable thread area (replaces .chat-scrollbar.chat-content.scroll-bottom-to-top) */
+
+.cb-msgs-scroll {
+    overflow-y: scroll;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+.cb-msgs-content {
+    height: 82%;
+}
+
+
+.cb-msgs-content-expand {
+    height: 98%;
+}
+
+
+/* Conversation container (replaces .chat-conversation.p-3) */
+
+
+.cb-conv {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+
+    & > :first-child {
+        margin-top: auto;
+    }
+}
+
+
+.cb-conv-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+
+
+    & > li {
+        clear: both;
+    }
+}
+
+
+/* Day separator (replaces .chat-day-title with centered pill on a divider) */
+
+
+.cb-day-title {
+    position: relative;
+    text-align: center;
+    margin-bottom: 1.5rem;
+
+
+    &::before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 1px;
+        left: 0;
+        right: 0;
+        top: 10px;
+        background-color: rgb(229 231 235);
+    }
+}
+
+
+.cb-day-title-text {
+    position: relative;
+    z-index: 1;
+    padding: 0.25rem 0.875rem;
+    background-color: rgb(243 244 246);
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    color: rgb(107 114 128);
+}
+
+
+/* System note — the app speaking about itself, not the agent speaking to you */
+
+
+.cb-sys-note-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1.25rem;
+}
+
+
+/*
+ * Centred and quieter than a bubble on purpose. It shares the day separator's palette
+ * rather than the agent's, because that is the register it belongs to: something the
+ * conversation is passing through, not a turn in it. The dashed border says the same
+ * thing again for anyone who cannot rely on the colour difference alone.
+ */
+.cb-sys-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    max-width: 82%;
+    padding: 0.5rem 0.875rem;
+    border: 1px dashed rgb(229 231 235);
+    border-radius: 0.5rem;
+    background-color: rgb(249 250 251);
+    color: rgb(107 114 128);
+
+    /*
+     * An ABSOLUTE line-height, set here and inherited by both children, is what keeps the
+     * icon on the sentence's line. A unitless 1.5 would resolve against each child's own
+     * font-size, giving the larger icon a taller line box than the text and standing it
+     * proud of the first line — which no margin nudge fixes, because the gap changes with
+     * the icon size. One shared line box, so both are centred in the same strip.
+     */
+    font-size: 0.8125rem;
+    line-height: 1.21875rem; /* 0.8125rem × 1.5 */
+}
+
+
+.cb-sys-note-icon {
+    flex-shrink: 0;
+    font-size: 0.95rem;
+    color: var(--color-primary);
+}
+
+
+/* A note with nothing left to offer: the link's credential has expired, so it is a record of
+   something that happened rather than a way in. The accent goes — it is the app's promise that
+   a thing is actionable — and the border stops being dashed, because there is no longer an
+   activity for the dashes to suggest. */
+
+
+.cb-sys-note-spent {
+    border-style: solid;
+}
+
+
+.cb-sys-note-spent .cb-sys-note-icon {
+    color: inherit;
+}
+
+
+/* Size and line box come from the note itself, so the icon shares them exactly. */
+.cb-sys-note-text {
+    min-width: 0;
+    color: inherit;
+
+
+    & p {
+        margin: 0;
+    }
+
+
+    /*
+     * The one thing in here that is meant to be clicked, so it carries the accent while
+     * the sentence around it stays muted. Underlined only on hover — a permanent underline
+     * on a line this quiet reads as emphasis rather than as a link.
+     *
+     * The COLOUR here cannot win on its own. Markdown.svelte always applies `markdown-lite`,
+     * whose scoped `.markdown-lite :global(a) { color: white }` carries the component's hash
+     * class and so outranks this selector — white on this near-white note, i.e. invisible.
+     * Which is why the note also passes `markdown-dark`, the variant meant for light
+     * surfaces; it ships last in that component and wins on equal specificity. Dropping that
+     * class is what makes the link vanish, not anything here.
+     */
+    & a {
+        color: var(--color-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+
+    & a:hover {
+        text-decoration: underline;
+    }
+}
+
+
+/* Message row (replaces .conv-msg-container) */
+
+
+.cb-msg-row {
+    display: flex;
+    position: relative;
+    width: 100%;
+    margin-bottom: 1.25rem;
+}
+
+
+.cb-conv-right .cb-msg-row {
+    justify-content: flex-end;
+}
+
+
+/* Avatar wrapper (replaces .cicon-wrap with float / align modifiers) */
+
+
+.cb-cicon {
+    margin-right: 0.25rem;
+    flex: 0 0 fit-content;
+}
+
+
+.cb-cicon-end {
+    align-content: end;
+}
+
+
+.cb-cicon-start {
+    float: left;
+}
+
+
+/* Avatar images (replaces .rounded-circle.avatar-sm / .avatar-xs) */
+
+
+.cb-avatar {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+
+.cb-avatar-xs {
+    width: 1.5rem;
+    height: 1.5rem;
+}
+
+
+/* Message stack (replaces .msg-container) */
+
+
+.cb-msg-stack {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+}
+
+
+.cb-conv-right .cb-msg-stack {
+    align-items: flex-end;
+}
+
+.cb-user-msg-link {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+/* Bubble base (replaces .ctext-wrap) */
+
+
+/* Flat bubbles: solid fill, no gradient, no elevation. The 4px tail corner
+   is the only shape cue about who is speaking; everything else is colour. */
+.cb-bubble {
+    padding: 0.625rem 0.875rem;
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.cb-bubble-user {
+    background-color: var(--color-primary);
+    border-radius: 14px 14px 4px 14px;
+}
+
+
+/* Highlighted while its log entry is in view — a solid colour swap rather
+   than motion, so the link is just as obvious but nothing on screen moves. */
+.cb-bubble-user-danger {
+    background-color: var(--color-danger);
+}
+
+
+.cb-bubble-text-user {
+    text-align: start;
+    font-weight: 500;
+    color: rgb(255 255 255);
+    line-height: 1.55;
+}
+
+
+.cb-clickable {
+    cursor: pointer;
+}
+
+
+/* "Thinking" bubble (replaces .ctext-wrap.float-start when isThinking).
+   Deliberately identical to the bot bubble (.rcm-bubble) — same fill, border
+   and tail — because it is the same bubble, just before its text arrives.
+   Anything else made the reply appear to jump surfaces mid-turn. */
+
+
+.cb-bubble-thinking {
+    float: left;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--color-light, #eff2f7);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 14px 14px 14px 4px;
+}
+
+
+.cb-chat-indication {
+    font-size: 1em;
+    min-width: 0;
+}
+
+
+/* Step number and elapsed time, to the right of the progress line. Muted and smaller
+   because they qualify the sentence rather than being part of it: the reader is meant to
+   take in what is happening first and how long it has taken second. */
+
+
+.cb-progress-meta {
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78em;
+    white-space: nowrap;
+
+    /* Derived from the bubble's own text colour rather than a fixed grey, so it stays
+       readable whichever palette the bubble ends up with. 62% keeps it clearly secondary
+       while holding well above the 4.5:1 small-text minimum on the bubble fill. */
+    color: color-mix(in srgb, currentColor 62%, transparent);
+
+    /* Fixed-width digits. The clock repaints every second, and proportional digits made
+       the bubble's right edge twitch on each tick — motion that means nothing. */
+    font-variant-numeric: tabular-nums;
+}
+
+
+.cb-progress-meta-item:not(:first-child)::before {
+    content: '·';
+    margin-right: 0.4rem;
+}
+
+
+.cb-thinking-dots {
+    flex-shrink: 0;
+    align-self: center;
+    display: inline-block;
+}
+
+
+/* Chat time below a message bubble, on both the user and the bot side
+   (replaces .chat-time.mb-0.float-end).
+   Always visible — only the action toolbar (.cb-msg-actions) is hover-revealed.
+   Sits directly under the bubble, above the toolbar. `float` doesn't apply to a
+   flex item, so side alignment comes from .cb-msg-stack's align-items: the user
+   stack is flex-end, the bot stack stretches and stays left. */
+
+
+.cb-chat-time {
+    font-size: 12px;
+    margin-top: 4px;
+    margin-bottom: 0;
+    color: var(--color-muted);
+    overflow: hidden;
+}
+
+
+/* Bot side: the stack stretches, so pin the text left explicitly rather than
+   inheriting whatever text-align the surrounding bubble markup sets. */
+.cb-chat-time-bot {
+    text-align: left;
+}
+
+
+.cb-chat-time-icon {
+    margin-right: 0.25rem;
+}
+
+
+/* Bot bubble action toolbar (Speaker / Like / Edit / Copy / Code script row).
+   align-items: center + uniform line-height + font-size on the row guarantees
+   every glyph sits on the same baseline regardless of which icon font
+   (mdi/bx) it comes from. Icon-specific height: 95/80/85% rules from the
+   legacy were a baseline-compensation hack that's no longer needed. */
+
+
+.cb-msg-actions {
+    align-items: center;
+    gap: 2px;
+    flex-wrap: wrap;
+    margin-top: 4px;
+    font-size: 18px;
+    line-height: 1;
+    color: var(--color-primary);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+}
+
+
+/* Reveal the action toolbar (Edit / Copy / Delete on user side;
+   Like / Edit / Copy / Code on bot side) only when the message row is
+   hovered or has keyboard focus within. Uses opacity so the layout stays
+   stable and the inline `display: flex/none` on the bot toolbar (which is
+   driven by isStreamEnd) is preserved. */
+.cb-msg-row:hover .cb-msg-actions,
+.cb-msg-row:focus-within .cb-msg-actions {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+
+.cb-msg-action {
+    display: flex;
+    align-items: center;
+}
+
+
+/* Icon wrappers — height behavior now comes from flex centering, not
+   the legacy height: 95%/80%/85% hacks. */
+
+
+/* Hover is a tinted square, not a zoom: the icons sit in a tight row, and
+   scaling one of them nudged the reader's aim toward its neighbours. */
+.cb-msg-action-icon,
+.cb-msg-action-icon-edit,
+.cb-msg-action-icon-resend,
+.cb-msg-action-icon-copy,
+.cb-msg-action-icon-delete,
+.cb-msg-action-icon-code {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+    padding: 4px;
+    border-radius: 6px;
+    background-color: transparent;
+    transition: opacity 0.15s ease, background-color 0.15s ease;
+    opacity: 0.75;
+}
+
+.cb-msg-action-icon:hover,
+.cb-msg-action-icon-edit:hover,
+.cb-msg-action-icon-resend:hover,
+.cb-msg-action-icon-copy:hover,
+.cb-msg-action-icon-code:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+
+.cb-msg-action-icon-delete:hover {
+    opacity: 1;
+    background-color: color-mix(in srgb, var(--color-danger) 12%, transparent);
+}
+
+.cb-msg-action-icon[aria-disabled="true"]:hover,
+.cb-msg-action-icon-edit[aria-disabled="true"]:hover,
+.cb-msg-action-icon-resend[aria-disabled="true"]:hover,
+.cb-msg-action-icon-delete[aria-disabled="true"]:hover {
+    opacity: 0.75;
+    background-color: transparent;
+}
+
+
+/* Primary-colored action icons (replaces .text-primary on inline icon wrappers) */
+
+
+.cb-text-primary {
+    color: var(--color-primary);
+}
+
+
+.cb-text-danger {
+    color: var(--color-danger);
+}
+
+
+/* AudioSpeaker is rendered inside .cb-msg-actions but lives in its own
+   component with the legacy .chat-speaker-container class. Force it to
+   inherit the toolbar's primary color and sit centered. Uses
+   because the container is rendered in a separate component scope. */
+
+
+.cb-msg-actions {
+
+
+    & .chat-speaker-container {
+        display: flex;
+        align-items: center;
+        height: auto;
+        font-size: inherit;
+        color: var(--color-primary);
+    }
+
+
+    & .chat-speaker-container i {
+        color: var(--color-primary);
+    }
+}
+
+
+/* "Copied!" feedback cluster (replaces .div-center) */
+
+
+.cb-div-center {
+    text-align: center;
+}
+
+
+.cb-copied-feedback {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    line-height: 1;
+}
+
+
+.cb-copied-icon {
+    font-size: 14px;
+    line-height: 1;
+}
+
+
+.cb-copied-label {
+    font-size: 11px;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+
+/* User-side action toolbar (Edit / Copy icons under a user bubble).
+   Mirrors the existing bot `.cb-msg-actions` row but right-aligned so the
+   icons sit flush with the right edge of the user bubble. */
+
+
+.cb-msg-actions-user {
+    display: flex;
+    justify-content: flex-end;
+}
+
+
+/* While the inline editor is open, let the user .cb-msg-stack expand to the
+   full message row width (overrides the default 80% cap from .cb-msg-stack)
+   so the textarea has the maximum horizontal room. */
+.cb-msg-stack-editing {
+    width: 100%;
+}
+
+
+/* Inline user-message editor (replaces the user bubble in-place while
+   `editingMsgId === message.message_id`). Two-row layout:
+     - .cb-msg-edit-box  -> scrollable textarea container
+     - .cb-msg-edit-actions -> Cancel + Send pinned to bottom-right
+   The wrap fills the parent .cb-msg-stack-editing (full row width). */
+.cb-msg-edit-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    padding: 0.625rem;
+    background-color: rgb(255 255 255);
+    border: 1px solid var(--color-primary);
+    border-radius: 14px 14px 4px 14px;
+}
+
+
+/* Bot-side editor: mirror the border-radius so the sharp corner sits at
+   the bottom-left, matching the bot bubble shape. */
+.cb-msg-edit-wrap-bot {
+    border-radius: 14px 14px 14px 4px;
+}
+
+
+.cb-msg-edit-box {
+    width: 100%;
+    max-height: 12rem;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+
+.cb-msg-edit-box::-webkit-scrollbar {
+    width: 6px;
+}
+
+
+.cb-msg-edit-box::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    border-radius: 999px;
+}
+
+
+.cb-msg-edit-textarea {
+    display: block;
+    width: 100%;
+    min-height: 10rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(17 24 39);
+    background-color: transparent;
+    border: 0;
+    border-radius: 0.375rem;
+    resize: none;
+    outline: none;
+}
+
+
+.cb-msg-edit-textarea::placeholder {
+    color: rgb(156 163 175);
+}
+
+
+.cb-msg-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+
+.cb-msg-edit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 4.5rem;
+    height: 2rem;
+    padding: 0 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+
+.cb-msg-edit-btn-cancel {
+    border: 1px solid rgb(229 231 235);
+    background-color: rgb(255 255 255);
+    color: rgb(55 65 81);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(243 244 246);
+        border-color: rgb(209 213 219);
+        color: rgb(17 24 39);
+    }
+}
+
+
+.cb-msg-edit-btn-send {
+    border: 1px solid var(--color-primary);
+    background-color: var(--color-primary);
+    color: rgb(255 255 255);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+        border-color: var(--color-primary-hover);
+    }
+}
+
+
+
+
+/* ===== Dark mode (Step 4c) ===== */
+
+
+.dark .cb-day-title::before {
+    background-color: rgb(55 65 81);
+}
+
+
+.dark .cb-day-title-text {
+    background-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-sys-note {
+    border-color: rgb(55 65 81);
+    background-color: rgb(31 41 55);
+    color: rgb(156 163 175);
+}
+
+
+.dark .cb-msg-edit-wrap {
+    background-color: rgb(31 41 55);
+    border-color: var(--color-primary);
+}
+
+
+.dark .cb-msg-edit-textarea {
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-msg-edit-textarea::placeholder {
+    color: rgb(107 114 128);
+}
+
+
+.dark .cb-msg-edit-btn-cancel {
+    background-color: rgb(55 65 81);
+    border-color: rgb(75 85 99);
+    color: rgb(229 231 235);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(75 85 99);
+        border-color: rgb(107 114 128);
+        color: rgb(255 255 255);
+    }
+}
+
+
+
+
+/* ===== 4d: Compose footer (mic, textarea wrapper, util links, send) ===== */
+
+
+/* Footer shell (replaces .chat-input-section) */
+
+
+.cb-input-section {
+    padding: 0 2%;
+    height: 8%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+}
+
+
+.cb-input-hide {
+    display: none;
+    height: 2%;
+}
+
+
+/* Local copies of the legacy css-animation / fade-in-from-none helpers
+   so the footer no longer depends on the global _animation.scss rules. */
+
+
+.cb-css-animation {
+    animation-duration: 0.8s;
+    animation-fill-mode: both;
+}
+
+
+.cb-fade-in {
+    animation-name: cbFadeInFromNone;
+}
+
+
+@keyframes cbFadeInFromNone {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+
+/* Row layout (replaces Bootstrap .row + .col-auto + .col) */
+
+
+.cb-input-row {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+}
+
+
+.cb-col-auto {
+    flex: 0 0 auto;
+}
+
+
+.cb-col-grow {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+
+.cb-position-relative {
+    position: relative;
+}
+
+
+/* Compose-bar action buttons — solid fill, no border, no elevation. */
+.cb-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.9375rem;
+    line-height: 1.2;
+    border: 0;
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+}
+
+.cb-btn-round {
+    border-radius: 10px;
+}
+
+.cb-btn-primary {
+    background-color: var(--color-primary);
+    color: rgb(255 255 255);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary-hover);
+    }
+}
+
+
+.cb-btn-danger {
+    background-color: var(--color-danger, #ef4444);
+    color: rgb(255 255 255);
+
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--color-danger, #ef4444) 85%, black);
+    }
+}
+
+
+/* Active "listening" / "streaming" states.
+   These two are the only places motion survives the flat pass, because the
+   motion is the message: it says recording or replying is happening right
+   now, which no static fill can. Reduced to a single expanding ring — the
+   bounce and the gradient are gone, the halo stays. */
+@keyframes cb-active-halo {
+    0%   { box-shadow: 0 0 0 0 color-mix(in srgb, #ef4444 45%, transparent); }
+    70%  { box-shadow: 0 0 0 9px color-mix(in srgb, #ef4444 0%, transparent); }
+    100% { box-shadow: 0 0 0 0 color-mix(in srgb, #ef4444 0%, transparent); }
+}
+
+.cb-btn-listening,
+.cb-btn-streaming {
+    background-color: #ef4444 !important;
+    color: rgb(255 255 255) !important;
+    animation: cb-active-halo 1.6s ease-out infinite;
+
+    &:hover:not(:disabled), &:focus:not(:disabled) {
+        background-color: #dc2626 !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-btn-listening,
+    .cb-btn-streaming {
+        animation: none;
+    }
+}
+
+
+/* Send button — keep some horizontal padding for the label */
+
+
+.cb-btn-send {
+    padding-left: 1rem;
+    padding-right: 1rem;
+}
+
+
+/* Hidden label on small screens, inline on >=md (replaces .d-none.d-md-inline-block.me-2) */
+
+
+.cb-send-label {
+    display: none;
+    margin-right: 0.5rem;
+}
+
+
+@media (min-width: 768px) {
+    .cb-send-label {
+        display: inline-block;
+    }
+}
+
+
+/* Microphone icon size — sized to fit the round button next to the
+   textarea (~38px height). Previously 36px which produced a 56px-tall
+   button towering over the 39px textarea. */
+
+
+.cb-md-36 {
+    font-size: 20px;
+    line-height: 1;
+}
+
+
+/* ===== Textarea: extra right padding to make room for util links
+   (replaces .chat-more-util { padding-right: 5em }).
+   Applied via className prop passed into ChatTextArea, which is rendered
+   on the inner <textarea>; we need  because ChatTextArea is a
+   scoped child component. */
+
+
+.cb-textarea-more-util {
+    padding-right: 5em !important;
+}
+
+
+/* ===== Util uploader trigger (replaces .line-align-center.text-primary.chat-util-item).
+   Applied via containerClasses prop on ChatFileUploader, which puts the class
+   on a <div>; uses  for the same reason as cb-textarea-more-util. */
+.cb-util-uploader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 28px;
+    color: var(--color-primary);
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+
+    &:hover:not([aria-disabled='true']) {
+        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    }
+
+    &:active:not([aria-disabled='true']) {
+        transform: translateY(1px);
+    }
+}
+
+
+/* Util links cluster pinned over the right side of the textarea
+   (replaces .chat-util-links). Sized to fit comfortably inside the
+   ~38px textarea without the icons overflowing it vertically. */
+.cb-util-links {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    width: fit-content;
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    line-height: 1;
+    color: var(--color-primary);
+
+    & .cu-glyph, & .cbm-glyph {
+        font-size: 1.25rem;
+        line-height: 1;
+        padding: 0 0.2rem;
+    }
+
+
+    & .cu-icon, & .cbm-icon {
+        font-size: inherit;
+    }
+}
+
+
+/* ===== Dark mode (Step 4d) ===== */
+
+
+.dark .cb-btn-primary {
+    color: rgb(255 255 255);
+}
+
+
+.dark .cb-btn-danger {
+    color: rgb(255 255 255);
+}
+
+
+/* Markdown text color override applied via the markdownClasses prop on
+   <RcMessage>; Markdown puts the class on its inner container, so
+    is required. Replaces Bootstrap .text-dark utility. */
+
+
+.cb-md-dark {
+    color: var(--color-dark);
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/chat-util/chat-attachment-options.svelte
+ * ======================================================================== */
+
+
+/* Replaces legacy .plain-option-container + .center-option */
+
+
+.cao-wrap {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+.cao-center {
+    justify-content: center;
+    padding: 0 0.625rem;
+}
+
+
+/* Replaces .btn .btn-sm .m-1 with a themed outline button */
+
+
+.cao-btn {
+    margin: 0.25rem;
+    min-width: 50px;
+    padding: 0.3125rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    border: 1px solid transparent;
+    border-radius: 0.625rem;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
+
+    &:focus-visible {
+        outline: 0;
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 18%, transparent);
+    }
+}
+
+
+/* Replaces .btn-outline-primary */
+
+
+.cao-btn-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+}
+
+
+/* Replaces .btn-outline-secondary */
+
+
+.cao-btn-secondary {
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-secondary);
+        color: rgb(255 255 255);
+    }
+}
+
+
+/* ===== Dark mode ===== */
+
+
+.dark .cao-btn-primary {
+    color: color-mix(in srgb, var(--color-primary) 80%, rgb(255 255 255));
+    border-color: color-mix(in srgb, var(--color-primary) 80%, rgb(255 255 255));
+}
+
+
+.dark .cao-btn-secondary {
+    color: rgb(229 231 235);
+    border-color: rgb(107 114 128);
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/chat-util/chat-file-uploader.svelte
+ * ======================================================================== */
+
+
+/* ===== Chat file uploader =====
+   Tiny wrapper around <FileDropZone> that ChatBox embeds inside the
+   textarea util menu. The actual trigger glyph is supplied by the
+   parent via the `children` snippet; the fallback below renders only
+   when no snippet is passed (e.g. for ad-hoc consumers). */
+
+
+.cfu-root {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+
+.cfu-fallback {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 1.25rem;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/chat-util/chat-text-area.svelte
+ * ======================================================================== */
+
+
+/* ===== Wrapper =====
+   Provides the positioning anchor for the absolutely-positioned
+   option list and util container popups (replaces the absolute
+   anchoring previously provided by .chat-util-common). */
+
+
+.cta-wrap {
+    position: relative;
+}
+
+
+/* ===== Popup container ===== */
+.cta-popup {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    max-height: 25em;
+    z-index: 99;
+    font-size: 0.8rem;
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px -12px rgb(15 23 42 / 0.2);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, var(--color-primary) 35%, transparent) transparent;
+
+
+    &::-webkit-scrollbar {
+        width: 6px;
+    }
+
+
+    &::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        border-radius: 999px;
+    }
+}
+
+
+/* ===== Option list ===== */
+.cta-option-list {
+    list-style: none;
+    padding: 0.375rem 0.375rem;
+    margin: 0;
+}
+
+
+.cta-option-item {
+    padding: 0.4375rem 0.75rem;
+    margin: 0.125rem 0;
+    border-radius: 8px;
+    cursor: pointer;
+    color: rgb(17 24 39);
+    transition: background-color 0.12s ease, color 0.12s ease;
+
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        color: var(--color-primary);
+    }
+}
+
+
+/* ===== Util container ===== */
+.cta-util-container {
+    display: flex;
+    gap: 1.25rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    height: fit-content;
+    padding: 0.75rem 1rem;
+}
+
+
+/* ===== Themed textarea.
+   Fixed height (no manual resize) and no scrollbar — long input
+   still scrolls programmatically but the bar stays hidden. */
+.cta-textarea {
+    display: block;
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: rgb(17 24 39);
+    background-color: rgb(255 255 255);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 10px;
+    font-family: inherit;
+    resize: none;
+    overflow: auto;
+    scrollbar-width: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    &:hover:not(:disabled):not(:focus) {
+        border-color: rgb(209 213 219);
+    }
+
+    /* The one deliberate ring left in the composer: a focused text field has
+       to be unmistakable, and a border-colour change alone is too quiet. */
+    &:focus {
+        outline: 0;
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent);
+    }
+
+    &:disabled {
+        background-color: rgb(243 244 246);
+        cursor: not-allowed;
+        color: var(--color-muted);
+    }
+
+    &::placeholder {
+        color: var(--color-muted);
+        opacity: 0.85;
+    }
+}
+
+
+/* ===== Dark mode ===== */
+
+
+.dark .cta-popup {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+    color: rgb(229 231 235);
+}
+
+
+.dark .cta-option-item {
+    color: rgb(229 231 235);
+}
+
+
+.cta-textarea {
+
+
+    .dark & {
+        background-color: rgb(17 24 39);
+        border-color: rgb(55 65 81);
+        color: rgb(229 231 235);
+    }
+
+
+    .dark &:disabled {
+        background-color: rgb(31 41 55);
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/chat-util/chat-util.svelte
+ * ======================================================================== */
+
+
+/* Replaces legacy .chat-util-trigger / .list-inline / .list-inline-item / .clickable */
+
+
+.cu-trigger {
+    text-align: center;
+}
+
+
+.cu-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+
+.cu-item {
+    display: inline-block;
+}
+
+
+.cu-glyph {
+    display: inline-block;
+    padding: 0 0.25rem;
+    line-height: 2.25rem;
+    font-size: 200%;
+    color: var(--color-primary);
+}
+
+
+.cu-icon {
+    cursor: pointer;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/instant-log/agent-queue-log-element.svelte
+ * ======================================================================== */
+
+
+/* Outer row (replaces .log-element + .queue-change-container) */
+
+
+.aql-element {
+    margin: 0;
+    padding: 8px 10px;
+    border-top: 1px dashed color-mix(in srgb, var(--color-secondary) 20%, transparent);
+
+
+    &:first-child {
+        border-top: 0;
+    }
+}
+
+
+/* Centered content line (replaces .log-content under .queue-change-container) */
+
+
+.aql-content {
+    text-align: center;
+    font-size: 14px;
+    margin: 2px 0;
+    color: rgb(255 255 255);
+    font-style: italic;
+    letter-spacing: 0.02em;
+}
+
+
+/* Warning-colored log text (replaces Bootstrap .text-warning) */
+
+
+.aql-warn {
+    color: var(--color-warning, #f1b44c);
+    text-shadow: 0 0 8px color-mix(in srgb, var(--color-warning, #f1b44c) 30%, transparent);
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/instant-log/instant-log.svelte
+ * ======================================================================== */
+
+
+/* ===== Root wrapper (replaces .chat-log) ===== */
+
+
+.il-root {
+    /* Leave the desktop status bar uncovered; 0px in the browser. */
+    height: calc(100vh - var(--statusbar-height));
+}
+
+
+/* ===== Card shell (replaces .card.mb-0.log-background.log-flex) ===== */
+
+
+.il-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: linear-gradient(180deg, rgb(11 16 30) 0%, rgb(5 8 17) 100%);
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+
+/* ===== Sticky close-window bar (replaces .log-close-btn.padding-side.log-header) ===== */
+
+
+.il-close-bar {
+    flex: 0 0 auto;
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0 20px 0.75rem 20px;
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-secondary) 18%, transparent);
+}
+
+
+/* Close-window button (replaces .btn.btn-sm.btn-secondary.btn-rounded.chat-send) */
+
+
+.il-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 55%, transparent);
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-secondary) 80%, transparent),
+        color-mix(in srgb, var(--color-secondary) 60%, transparent)
+    );
+    color: rgb(255 255 255);
+    cursor: pointer;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.25),
+        inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+
+
+    &:hover, &:focus {
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-secondary) 92%, transparent),
+            color-mix(in srgb, var(--color-secondary) 75%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-secondary) 80%, transparent);
+        box-shadow:
+            0 2px 6px rgb(0 0 0 / 0.35),
+            inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+
+/* ===== Body (replaces .log-body.instant-log-body) ===== */
+
+
+.il-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 0 20px;
+}
+
+
+/* ===== Footer placeholder (replaces .log-footer) ===== */
+
+
+.il-footer {
+    flex: 0 0 auto;
+}
+
+
+/* ===== Log section (replaces .log-list.instant-log-section) ===== */
+
+
+.il-section {
+    background: linear-gradient(180deg, rgb(15 21 36) 0%, rgb(9 13 24) 100%);
+    border-radius: 12px;
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 30%, transparent);
+    margin: 10px 0 14px 0;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 4px 16px -8px rgb(0 0 0 / 0.4);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-secondary) 50%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+            0 6px 22px -10px rgb(0 0 0 / 0.5);
+    }
+}
+
+
+.il-section-agent {
+    overflow: hidden;
+}
+
+
+.il-section-sm {
+    flex: 0 0 auto;
+    min-height: 60px;
+    max-height: 150px;
+}
+
+.il-section-md {
+    flex: 0 0 280px;
+    height: 280px;
+    min-height: 280px;
+    overflow: hidden;
+}
+
+.il-section-lg {
+    flex: 0 0 auto;
+    min-height: 80px;
+    max-height: 400px;
+    overflow: hidden;
+}
+
+
+/* Agent-info section: scrolls within its own panel
+   (replaces .chat-agent-info inside .instant-log-section) */
+
+
+.il-agent-info {
+    padding: 0;
+    overflow-y: scroll;
+    scrollbar-width: none;
+    flex: 0 0 fit-content;
+    height: fit-content;
+    max-height: 280px;
+    border-radius: inherit;
+
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+/* Close-icon header on collapsible sections
+   (replaces .close-icon { color: red; font-size: 20px; padding: 0 5px }) */
+
+
+.il-section-close {
+    font-size: 16px;
+    color: var(--color-danger, #ef4444);
+    padding: 8px 10px 0 5px;
+}
+
+
+.il-section-close-btn {
+    background: transparent;
+    border: 0;
+    padding: 2px 6px;
+    color: inherit;
+    float: right;
+    cursor: pointer;
+    line-height: 1;
+    border-radius: 6px;
+    transition: background-color 0.15s ease, color 0.15s ease;
+
+
+    &:hover {
+        background-color: color-mix(in srgb, var(--color-danger, #ef4444) 18%, transparent);
+        color: color-mix(in srgb, var(--color-danger, #ef4444) 55%, white);
+    }
+}
+
+
+/* Scrollable list containers (the .agent-queue-log-scrollbar /
+   .msg-state-log-scrollbar siblings are kept as DOM hooks for
+   OverlayScrollbars; .il-scroll owns the padding rules previously
+   provided by .padding-side) */
+
+
+.il-scroll {
+    padding: 0 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+
+.il-section-lg .il-scroll {
+    padding: 0 12px 12px;
+}
+
+
+.il-list {
+    list-style: none;
+    margin: 0;
+    padding-left: 2px;
+    padding-right: 0;
+}
+
+
+.il-section-lg .il-list {
+    padding-left: 0;
+}
+
+
+/* Latest-state-log panel: 8px inset (replaces .latest-state-log) */
+
+
+.il-latest-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 0;
+    border-radius: inherit;
+    overflow: hidden;
+
+
+    > div {
+        min-height: 100%;
+        border-radius: inherit;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/instant-log/latest-state-log.svelte
+ * ======================================================================== */
+
+
+/* Outer row (replaces .log-element + .state-log-item nested rule) */
+
+
+.lsl-element {
+    position: relative;
+    min-height: 100%;
+    margin: 0;
+    padding: 12px 14px;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at top left, color-mix(in srgb, var(--color-info, #0ea5e9) 18%, transparent), transparent 38%),
+        linear-gradient(150deg, color-mix(in srgb, var(--color-info, #0ea5e9) 7%, transparent), color-mix(in srgb, white 2%, transparent));
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 7%, transparent);
+
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+            linear-gradient(90deg, color-mix(in srgb, var(--color-info, #0ea5e9) 12%, transparent), transparent 22%),
+            linear-gradient(130deg, transparent 0 42%, color-mix(in srgb, white 7%, transparent) 50%, transparent 58% 100%);
+        opacity: 0.7;
+    }
+}
+
+
+/* Content (replaces .log-content rules under .state-log-item) */
+
+
+.lsl-content {
+    position: relative;
+    z-index: 1;
+    font-size: 17px;
+    color: rgb(255 255 255);
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.28);
+
+
+    & span {
+        font-size: 15px;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/instant-log/message-state-log-element.svelte
+ * ======================================================================== */
+
+
+/* Outer row (replaces .log-element + .state-change-container) */
+
+
+.mss-element {
+    position: relative;
+    overflow: hidden;
+    margin: 0 0 8px 0;
+    padding: 9px 10px;
+    color: rgb(255 255 255);
+    background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--color-danger, #ef4444) 15%, transparent), transparent 38%),
+        linear-gradient(145deg, color-mix(in srgb, white 6%, transparent), color-mix(in srgb, white 1.5%, transparent));
+    border: 0;
+    border-radius: 10px;
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 8%, transparent),
+        0 10px 24px -22px rgb(0 0 0 / 0.9);
+    transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(115deg, transparent 0 44%, color-mix(in srgb, white 8%, transparent) 50%, transparent 56% 100%);
+        opacity: 0;
+        transition: opacity 0.18s ease;
+    }
+
+
+    &:hover {
+        transform: translateY(-1px);
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--color-danger, #ef4444) 22%, transparent), transparent 42%),
+            linear-gradient(145deg, color-mix(in srgb, white 9%, transparent), color-mix(in srgb, white 3%, transparent));
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 13%, transparent),
+            0 16px 32px -22px rgb(0 0 0 / 0.9);
+
+
+        &::before {
+            opacity: 1;
+        }
+    }
+}
+
+
+/* Key row (replaces .log-meta.state-key.text-danger) */
+
+
+.mss-meta {
+    position: relative;
+    z-index: 1;
+    font-size: 13px;
+    color: rgb(255 255 255);
+}
+
+
+.mss-state-key {
+    color: color-mix(in srgb, var(--color-danger, #ef4444) 88%, white 12%);
+    letter-spacing: 0.035em;
+
+
+    b {
+        font-weight: 700;
+        text-shadow: 0 0 18px color-mix(in srgb, var(--color-danger, #ef4444) 32%, transparent);
+    }
+}
+
+
+.mss-state-source {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    margin-left: 0.5rem;
+    padding: 0.125rem 0.45rem;
+    font-size: 11px;
+    color: color-mix(in srgb, white 72%, transparent);
+    background-color: color-mix(in srgb, white 7%, transparent);
+    border: 1px solid color-mix(in srgb, white 9%, transparent);
+    border-radius: 999px;
+    font-style: normal;
+    vertical-align: 0.05rem;
+}
+
+
+/* Before/after value pair (replaces .log-content + .state-value-container) */
+
+
+.mss-content {
+    position: relative;
+    z-index: 1;
+    font-size: 17px;
+    color: rgb(255 255 255);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+    padding: 6px;
+    min-width: 0;
+    background: color-mix(in srgb, black 10%, transparent);
+    border-radius: 10px;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+}
+
+
+.mss-state-value {
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    max-width: 100%;
+    font-size: 14px;
+    line-height: 1.45;
+    padding: 4px 6px;
+    border-radius: 7px;
+    color: color-mix(in srgb, white 84%, transparent);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease, text-shadow 0.15s ease;
+
+
+    &:hover,
+    &:focus-visible {
+        color: rgb(255 255 255);
+        background-color: color-mix(in srgb, white 5%, transparent);
+        text-shadow: 0 0 14px color-mix(in srgb, white 12%, transparent);
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--color-danger, #ef4444) 45%, white 15%);
+        outline-offset: 2px;
+    }
+}
+
+
+.mss-value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+
+.mss-state-value-collapsed .mss-value {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: normal;
+    overflow-wrap: normal;
+}
+
+
+.mss-state-value-warn {
+    color: color-mix(in srgb, var(--color-warning, #f1b44c) 88%, white 12%);
+    text-shadow: 0 0 16px color-mix(in srgb, var(--color-warning, #f1b44c) 18%, transparent);
+
+
+    &:hover,
+    &:focus-visible {
+        background-color: color-mix(in srgb, var(--color-warning, #f1b44c) 8%, transparent);
+    }
+}
+
+
+.mss-active-rounds {
+    font-size: 11px;
+    color: color-mix(in srgb, white 68%, transparent);
+    font-style: italic;
+    margin-top: 4px;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/persist-log/content-log-element.svelte
+ * ======================================================================== */
+
+
+/* Outer row (replaces .log-element + inline padding + .rounded) */
+
+
+.cle-element {
+    position: relative;
+    overflow: hidden;
+    margin: 10px 0 14px 0;
+    padding: 13px 14px 12px;
+    background:
+        radial-gradient(circle at 12% 0%, color-mix(in srgb, var(--color-primary) 16%, transparent), transparent 34%),
+        radial-gradient(circle at 100% 12%, color-mix(in srgb, var(--color-info, #0ea5e9) 10%, transparent), transparent 30%),
+        linear-gradient(145deg, color-mix(in srgb, white 6%, transparent), color-mix(in srgb, white 1.5%, transparent));
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 26%, transparent);
+    color: rgb(255 255 255);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 10%, transparent),
+        0 14px 30px -24px rgb(0 0 0 / 0.85);
+    transition: transform 0.18s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+
+
+    &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(118deg, transparent 0 42%, color-mix(in srgb, white 9%, transparent) 50%, transparent 58% 100%);
+        opacity: 0;
+        transition: opacity 0.18s ease;
+    }
+
+
+    &:hover {
+        transform: translateY(-1px);
+        border-color: color-mix(in srgb, var(--color-primary) 34%, var(--color-secondary) 24%);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 13%, transparent),
+            0 18px 38px -26px rgb(0 0 0 / 0.9);
+
+
+        &::before {
+            opacity: 0.72;
+        }
+    }
+}
+
+
+/* Header line: agent name + timestamp (replaces .log-meta.text-secondary) */
+
+
+.cle-meta {
+    position: relative;
+    z-index: 1;
+    font-size: 13px;
+    color: color-mix(in srgb, white 68%, transparent);
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 0;
+
+
+    &::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-secondary) 28%, transparent), transparent);
+    }
+}
+
+
+/* H4-equivalent heading inside meta row (replaces Bootstrap .h4) */
+
+
+.cle-title {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+}
+
+
+/* Clickable agent name (replaces .text-secondary.text-decoration-underline.clickable) */
+
+
+.cle-link {
+    color: color-mix(in srgb, var(--color-primary) 48%, white 52%);
+    text-decoration: none;
+    text-shadow: 0 0 14px color-mix(in srgb, var(--color-primary) 25%, transparent);
+    cursor: pointer;
+    transition: color 0.15s ease, text-shadow 0.15s ease, filter 0.15s ease;
+
+
+    &:hover {
+        color: rgb(255 255 255);
+        filter: brightness(1.12);
+        text-shadow: 0 0 18px color-mix(in srgb, var(--color-primary) 45%, transparent);
+    }
+}
+
+
+/* Plain secondary text on disabled agent name (replaces Bootstrap .text-secondary) */
+
+
+.cle-text-secondary {
+    color: color-mix(in srgb, white 58%, transparent);
+}
+
+
+/* Timestamp suffix (replaces Bootstrap .ms-2) */
+
+
+.cle-meta-ts {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.12rem 0.45rem;
+    font-size: 11px;
+    color: color-mix(in srgb, white 58%, transparent);
+    background: color-mix(in srgb, black 16%, transparent);
+    border-radius: 999px;
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+}
+
+
+/* Content body (replaces .rounded.log-content + inline padding).
+   Wide content (e.g. JSON dumps) overflows horizontally — allow the
+   scroll but hide the visible scrollbar in all engines. */
+.cle-content {
+    position: relative;
+    z-index: 1;
+    font-size: 15px;
+    color: rgb(255 255 255);
+    padding: 10px 12px;
+    border-radius: 10px;
+    background:
+        linear-gradient(180deg, color-mix(in srgb, black 16%, transparent), color-mix(in srgb, black 8%, transparent));
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 5%, transparent),
+        inset 0 -1px 0 color-mix(in srgb, black 16%, transparent);
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    & pre {
+        scrollbar-width: none;
+        background:
+            radial-gradient(circle at top right, color-mix(in srgb, var(--color-primary) 18%, transparent), transparent 34%),
+            color-mix(in srgb, #2a1845 88%, black 12%) !important;
+        border: 1px solid color-mix(in srgb, white 8%, transparent) !important;
+        border-radius: 0.625rem !important;
+        padding: 0.65rem 0.8rem !important;
+        box-shadow: inset 0 1px 0 color-mix(in srgb, white 6%, transparent) !important;
+    }
+
+
+    & pre::-webkit-scrollbar {
+        display: none;
+    }
+
+    & .markdown-container {
+        min-width: 0;
+        color: inherit;
+        font-size: 0.93rem;
+        line-height: 1.62;
+        letter-spacing: 0.005em;
+        scrollbar-width: none !important;
+    }
+
+    & .markdown-container::-webkit-scrollbar {
+        display: none;
+    }
+
+
+    & .markdown-container p {
+        margin: 0.28rem 0;
+    }
+
+
+    & .markdown-container p:first-child {
+        margin-top: 0;
+    }
+
+
+    & .markdown-container p:last-child {
+        margin-bottom: 0;
+    }
+
+
+    & .markdown-container h1,
+    & .markdown-container h2,
+    & .markdown-container h3,
+    & .markdown-container h4,
+    & .markdown-container h5,
+    & .markdown-container h6 {
+        margin: 0.65rem 0 0.35rem;
+        color: color-mix(in srgb, white 92%, var(--color-info, #0ea5e9) 8%);
+        font-weight: 760;
+        line-height: 1.2;
+        letter-spacing: 0.015em;
+        text-shadow: 0 0 16px color-mix(in srgb, var(--color-info, #0ea5e9) 16%, transparent);
+    }
+
+
+    & .markdown-container h1:first-child,
+    & .markdown-container h2:first-child,
+    & .markdown-container h3:first-child,
+    & .markdown-container h4:first-child,
+    & .markdown-container h5:first-child,
+    & .markdown-container h6:first-child {
+        margin-top: 0;
+    }
+
+
+    & .markdown-container h1 { font-size: 1.25rem; }
+    & .markdown-container h2 { font-size: 1.13rem; }
+    & .markdown-container h3 { font-size: 1.02rem; }
+    & .markdown-container h4,
+    & .markdown-container h5,
+    & .markdown-container h6 { font-size: 0.95rem; }
+
+
+    & .markdown-container strong {
+        color: rgb(255 255 255);
+        font-weight: 760;
+    }
+
+
+    & .markdown-container em {
+        color: color-mix(in srgb, white 78%, transparent);
+    }
+
+
+    & .markdown-container a {
+        color: color-mix(in srgb, var(--color-info, #0ea5e9) 70%, white 30%);
+        text-decoration: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--color-info, #0ea5e9) 42%, transparent);
+        text-shadow: 0 0 12px color-mix(in srgb, var(--color-info, #0ea5e9) 18%, transparent);
+        transition: color 0.15s ease, border-color 0.15s ease, text-shadow 0.15s ease;
+    }
+
+
+    & .markdown-container a:hover {
+        color: rgb(255 255 255);
+        border-color: color-mix(in srgb, white 72%, transparent);
+        text-shadow: 0 0 16px color-mix(in srgb, var(--color-info, #0ea5e9) 42%, transparent);
+    }
+
+
+    & .markdown-container ul,
+    & .markdown-container ol {
+        margin: 0.45rem 0;
+        padding-left: 1.25rem;
+    }
+
+    & li {
+        margin: 0.28rem 0;
+        padding-left: 0.12rem;
+    }
+
+
+    & .markdown-container li::marker {
+        color: color-mix(in srgb, var(--color-primary) 68%, white 32%);
+    }
+
+
+    & .markdown-container blockquote {
+        margin: 0.65rem 0;
+        padding: 0.55rem 0.75rem;
+        color: color-mix(in srgb, white 78%, transparent);
+        background:
+            linear-gradient(90deg, color-mix(in srgb, var(--color-primary) 16%, transparent), color-mix(in srgb, white 3%, transparent));
+        border-left: 3px solid color-mix(in srgb, var(--color-primary) 62%, white 18%);
+        border-radius: 0 0.625rem 0.625rem 0;
+    }
+
+
+    & .markdown-container hr {
+        margin: 0.8rem 0;
+        border: 0;
+        height: 1px;
+        background: linear-gradient(90deg, transparent, color-mix(in srgb, white 18%, transparent), transparent);
+    }
+
+
+    & .markdown-container code:not(pre code) {
+        padding: 0.1rem 0.35rem;
+        color: color-mix(in srgb, var(--color-warning, #f1b44c) 88%, white 12%);
+        background: color-mix(in srgb, black 24%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-warning, #f1b44c) 18%, transparent);
+        border-radius: 0.35rem;
+        font-size: 0.88em;
+        box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+    }
+
+
+    & .markdown-container pre {
+        margin: 0.65rem 0 !important;
+        overflow-x: auto;
+        background:
+            radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--color-primary) 20%, transparent), transparent 36%),
+            linear-gradient(180deg, color-mix(in srgb, #2a1845 94%, black 6%), color-mix(in srgb, #101827 86%, black 14%)) !important;
+        border-color: color-mix(in srgb, var(--color-primary) 20%, white 5%) !important;
+        border-radius: 0.75rem !important;
+    }
+
+
+    & .markdown-container pre code {
+        color: color-mix(in srgb, white 88%, var(--color-info, #0ea5e9) 12%);
+        font-size: 0.86rem;
+        line-height: 1.55;
+        text-shadow: none;
+    }
+
+
+    & .markdown-container table {
+        width: max-content;
+        min-width: min(100%, 26rem);
+        margin: 0.75rem 0;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
+        border: 1px solid color-mix(in srgb, white 11%, transparent);
+        border-radius: 0.75rem;
+        background: color-mix(in srgb, black 12%, transparent);
+        box-shadow: inset 0 1px 0 color-mix(in srgb, white 5%, transparent);
+    }
+
+
+    & .markdown-container th,
+    & .markdown-container td {
+        padding: 0.45rem 0.6rem;
+        border: 0;
+        border-right: 1px solid color-mix(in srgb, white 8%, transparent);
+        border-bottom: 1px solid color-mix(in srgb, white 8%, transparent);
+    }
+
+
+    & .markdown-container th:last-child,
+    & .markdown-container td:last-child {
+        border-right: 0;
+    }
+
+
+    & .markdown-container tr:last-child td {
+        border-bottom: 0;
+    }
+
+
+    & .markdown-container th {
+        color: rgb(255 255 255);
+        background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+        font-weight: 760;
+    }
+
+
+    & .markdown-container td {
+        color: color-mix(in srgb, white 82%, transparent);
+    }
+}
+
+
+/* Source-specific visual variants */
+.cle-bg-secondary {
+    color: color-mix(in srgb, white 86%, transparent);
+    background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--color-secondary) 22%, transparent), transparent 42%),
+        linear-gradient(180deg, color-mix(in srgb, var(--color-secondary) 22%, transparent), color-mix(in srgb, black 12%, transparent));
+}
+
+.cle-text-warning {
+    color: var(--color-warning, #f1b44c);
+    background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--color-warning, #f1b44c) 14%, transparent), transparent 40%),
+        linear-gradient(180deg, color-mix(in srgb, var(--color-warning, #f1b44c) 8%, transparent), color-mix(in srgb, black 10%, transparent));
+}
+
+.cle-bg-danger {
+    color: color-mix(in srgb, white 90%, transparent);
+    background:
+        radial-gradient(circle at top right, color-mix(in srgb, var(--color-danger, #ef4444) 24%, transparent), transparent 42%),
+        linear-gradient(180deg, color-mix(in srgb, var(--color-danger, #ef4444) 18%, transparent), color-mix(in srgb, black 10%, transparent));
+}
+
+
+/* Markdown text color for AgentResponse / Notification (replaces Bootstrap
+   .text-info passed via Markdown's containerClasses prop) */
+
+.cle-text-info {
+    color: color-mix(in srgb, var(--color-info, #0ea5e9) 78%, white 22%);
+    text-shadow: 0 0 14px color-mix(in srgb, var(--color-info, #0ea5e9) 18%, transparent);
+}
+
+
+/* Collapsed text clamp (replaces .log-collapse nested under .log-content).
+   Note: -webkit-line-clamp with display:-webkit-box forces the browser to
+   resolve overflow-x to 'auto' even if we only set overflow-y:hidden,
+   which surfaces a native horizontal scrollbar whenever the clamped
+   content has long lines. Setting overflow:hidden (both axes) clips
+   cleanly without ever showing a scrollbar in collapsed state. */
+
+
+.cle-collapse {
+    overflow: hidden;
+    height: fit-content;
+    max-height: 200px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
+}
+
+
+/* More/Less toggle (replaces .btn.btn-link.toggle-btn.btn-sm) */
+
+
+.cle-toggle-btn {
+    background: color-mix(in srgb, var(--color-primary) 11%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
+    outline: none;
+    box-shadow: none;
+    color: color-mix(in srgb, var(--color-primary) 75%, white);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0.18rem 0.55rem;
+    margin-top: 8px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+
+
+    &:hover {
+        color: rgb(255 255 255);
+        background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+        border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+        transform: translateY(-1px);
+        text-decoration: none;
+    }
+}
+
+
+/* MessageId footer (replaces inline style="margin-top: 10px;") */
+
+
+.cle-msg-id {
+    position: relative;
+    z-index: 1;
+    margin-top: 8px;
+    font-size: 10px;
+    color: color-mix(in srgb, var(--color-secondary) 72%, transparent);
+    letter-spacing: 0.025em;
+    transition: color 0.15s ease, text-shadow 0.15s ease;
+
+    &:hover {
+        color: color-mix(in srgb, var(--color-secondary) 55%, white);
+        text-shadow: 0 0 10px color-mix(in srgb, var(--color-secondary) 20%, transparent);
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/persist-log/conversation-state-log-element.svelte
+ * ======================================================================== */
+
+
+/* Outer row (replaces .log-element + .state-log-item nested rule) */
+
+
+.csle-element {
+    margin: 8px 0 12px 0;
+    padding: 10px 12px;
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-info, #0ea5e9) 5%, transparent),
+        color-mix(in srgb, var(--color-info, #0ea5e9) 1.5%, transparent)
+    );
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--color-info, #0ea5e9) 22%, transparent);
+    box-shadow:
+        inset 0 1px 0 color-mix(in srgb, white 4%, transparent),
+        0 2px 8px -4px rgb(0 0 0 / 0.35);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, var(--color-info, #0ea5e9) 45%, transparent);
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 6%, transparent),
+            0 4px 14px -6px rgb(0 0 0 / 0.5);
+    }
+}
+
+
+/* Content (replaces .log-content under .state-log-item) */
+
+
+.csle-content {
+    font-size: 15px;
+    color: rgb(255 255 255);
+
+
+    & span {
+        font-size: 14px;
+    }
+}
+
+
+.csle-msg-id {
+    margin-top: 5px;
+    font-size: 10px;
+    color: var(--color-secondary);
+    transition: color 0.15s ease;
+
+    &:hover {
+        color: color-mix(in srgb, var(--color-secondary) 55%, white);
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/persist-log/persist-log.svelte
+ * ======================================================================== */
+
+
+/* ===== Root wrapper (replaces .chat-log) ===== */
+
+
+.pl-root {
+    /* Leave the desktop status bar uncovered; 0px in the browser. */
+    height: calc(100vh - var(--statusbar-height));
+}
+
+
+/* ===== Card shell (replaces .card.mb-0.log-background.log-flex) ===== */
+
+
+.pl-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: linear-gradient(180deg, rgb(11 16 30) 0%, rgb(5 8 17) 100%);
+    margin-bottom: 0;
+    border: 0;
+    border-radius: 0;
+}
+
+
+/* ===== Sticky header bar with action buttons
+        (replaces .log-close-btn.padding-side.log-header) ===== */
+
+
+.pl-header-bar {
+    flex: 0 0 auto;
+    margin-top: 1rem;
+    margin-bottom: 0.75rem;
+    padding: 0 20px 0.75rem 20px;
+    position: sticky;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid color-mix(in srgb, var(--color-secondary) 18%, transparent);
+}
+
+
+.pl-action-group {
+    display: inline-flex;
+    gap: 0.375rem;
+}
+
+
+/* Themed action buttons (replace .btn .btn-sm .btn-rounded .chat-send variants) */
+
+
+.pl-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.3rem 0.7rem;
+    min-width: 2rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    background-color: transparent;
+    color: inherit;
+    cursor: pointer;
+    box-shadow:
+        0 1px 2px rgb(0 0 0 / 0.25),
+        inset 0 1px 0 color-mix(in srgb, white 12%, transparent);
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+
+
+    &:hover, &:focus {
+        box-shadow:
+            0 2px 6px rgb(0 0 0 / 0.35),
+            inset 0 1px 0 color-mix(in srgb, white 18%, transparent);
+    }
+
+
+    &:active {
+        transform: translateY(1px);
+    }
+}
+
+
+.pl-action-btn-secondary {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-secondary) 80%, transparent),
+        color-mix(in srgb, var(--color-secondary) 60%, transparent)
+    );
+    border-color: color-mix(in srgb, var(--color-secondary) 55%, transparent);
+    color: rgb(255 255 255);
+
+
+    &:hover, &:focus {
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-secondary) 92%, transparent),
+            color-mix(in srgb, var(--color-secondary) 75%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-secondary) 80%, transparent);
+    }
+}
+
+
+.pl-action-btn-primary {
+    background: linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--color-primary) 90%, transparent),
+        color-mix(in srgb, var(--color-primary) 72%, transparent)
+    );
+    border-color: color-mix(in srgb, var(--color-primary) 70%, transparent);
+    color: rgb(255 255 255);
+
+
+    &:hover, &:focus {
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-primary) 96%, transparent),
+            color-mix(in srgb, var(--color-primary) 82%, transparent)
+        );
+        border-color: color-mix(in srgb, var(--color-primary) 85%, transparent);
+    }
+}
+
+
+.pl-action-btn-light {
+    background: linear-gradient(
+        180deg,
+        var(--color-light, #eff2f7),
+        color-mix(in srgb, var(--color-light, #eff2f7) 88%, black 6%)
+    );
+    border-color: color-mix(in srgb, var(--color-dark, #2a3042) 12%, var(--color-light, #eff2f7));
+    color: var(--color-dark, #2a3042);
+
+
+    &:hover, &:focus {
+        background: linear-gradient(
+            180deg,
+            color-mix(in srgb, var(--color-light, #eff2f7) 96%, white),
+            var(--color-light, #eff2f7)
+        );
+        border-color: color-mix(in srgb, var(--color-dark, #2a3042) 22%, var(--color-light, #eff2f7));
+    }
+}
+
+
+/* ===== Scrollable log list (replaces .log-list.padding-side.log-body) ===== */
+
+
+.pl-scroll-area {
+    flex: 1 1 auto;
+    background-color: transparent;
+    padding: 0 20px;
+    overflow-y: scroll;
+    scrollbar-width: none;
+
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+.pl-list {
+    list-style: none;
+    margin: 0;
+    padding-left: 2px;
+    padding-right: 0;
+}
+
+
+/* Hide inactive tab pane (replaces global .hide utility) */
+
+
+.pl-hide {
+    display: none !important;
+}
+
+
+/* ===== Footer with nav tabs (replaces .log-footer.nav-group) =====
+   Note: the nav button font-size override (was .log-footer-nav-btn)
+   is passed via NavItem's navBtnStyles prop as inline style — that
+   wins the cascade reliably against NavItem's own scoped .tab-btn rule. */
+
+
+.pl-footer {
+    flex: 0 0 auto;
+    margin: 0 3px;/* The persist-log card uses a pure-black background, but the shared
+   NavBar component paints inactive tab labels with `var(--color-dark)`
+   (#343a40) — effectively invisible here. Lift the inactive label and
+   dim the tablist underline so both read clearly against black. The
+   active tab is intentionally untouched so its primary accent (and
+   the underline) keep working. Scoping through `.pl-footer .tab-bar`
+   gives this rule enough specificity to outscore NavBar's
+   .tab-bar.nav-tabs-default .tab-btn:not(.active).... *//* These three rules override the shared NavBar component's defaults
+   (`.tab-bar.nav-tabs-default ...` from src/lib/common/nav-bar/NavBar.svelte).
+   NavBar's scoped <style> uses `:global()` so its rules sit in the global
+   cascade at the same specificity as ours, but they're injected AFTER
+   this stylesheet (Svelte mounts scoped styles at component-mount time),
+   so they win on source order. `!important` is the clearest way to
+   express "these are intentional overrides of the shared component's
+   defaults" — same intent the original scoped block had, where the
+   scope-hash gave us an extra class for free. */
+
+
+    & .tab-bar {
+        border-bottom-color: rgb(255 255 255 / 0.12) !important;
+    }
+
+
+    & .tab-bar .tab-btn:not(.active) {
+        color: rgb(255 255 255 / 0.7) !important;
+    }
+
+
+    & .tab-bar .tab-btn:not(.active):hover {
+        color: rgb(255 255 255 / 0.92) !important;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-complex-options.svelte
+ * ======================================================================== */
+
+
+/* ===== Card grid (replaces .complex-option-container) ===== */
+
+
+.rcco-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 10px;
+}
+
+
+/* Individual card (replaces .card-element + outer .card) */
+
+
+.rcco-card {
+    flex: 1 1 50%;
+    max-width: calc(50% - 2.5px);
+    border: 2px solid var(--color-border, #dee2e6);
+    border-radius: 10px;
+    background-color: rgb(255 255 255);
+    margin-bottom: 0;
+    overflow: hidden;
+}
+
+
+/* Card inner body (replaces .card-body.card-element-body) */
+
+
+.rcco-card-body {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    gap: 5px;
+    padding: 10px 15px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+
+.rcco-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+
+.rcco-subtitle {
+    font-size: 0.8rem;
+    font-weight: 500;
+}
+
+
+.rcco-text {
+    font-size: 0.75rem;
+    font-weight: 400;
+    padding: 5px;
+}
+
+
+/* Clamp long text — replaces legacy .hide-text marker class (was undefined,
+   but the visual intent is to ellipsize / hide overflow). */
+
+
+.rcco-clip {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* Avatar slot (replaces .avatar-md + .avatar-title.rounded-circle.bg-light.text-danger.font-size-16) */
+
+
+.rcco-avatar {
+    height: 4.5rem;
+    width: 4.5rem;
+}
+
+
+.rcco-avatar-frame {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    background-color: var(--color-light, #eff2f7);
+    color: var(--color-danger, #f46a6a);
+    font-size: 16px;
+}
+
+
+.rcco-avatar-img {
+    border-radius: 50%;
+}
+
+
+/* Per-card button group (replaces .card-option-group + nested .btn rules) */
+
+
+.rcco-option-group {
+    margin-top: 5px;
+
+
+    & .rcco-btn {
+        display: block;
+        margin-left: 0 !important;
+        border-radius: 10px;
+        width: 100%;
+    }
+}
+
+
+/* Bottom button row (replaces .plain-option-container.center-option) */
+
+
+.rcco-button-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 0 10px;
+    margin-top: 5px;
+}
+
+
+/* Themed action buttons (replace .btn .btn-sm .m-1 .btn-outline-primary/secondary) */
+
+
+.rcco-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    margin: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+
+.rcco-btn-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(255 255 255);
+        color: var(--color-primary);
+    }
+}
+
+
+.rcco-btn-secondary {
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(255 255 255);
+        color: var(--color-primary);
+    }
+}
+
+
+/* Link-style hover underline (replaces .link-option:hover under .card-option-group) */
+
+
+.rcco-link:hover {
+    text-decoration: underline;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-disclaimer.svelte
+ * ======================================================================== */
+
+
+/* Post-action disclaimer (replaces .msg-disclaimer with subtle success styling) */
+
+
+.rcd-box {
+    margin-top: 3px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid color-mix(in srgb, var(--color-success, #34c38f) 35%, transparent);
+    background-color: color-mix(in srgb, var(--color-success, #34c38f) 12%, transparent);
+    font-size: 0.85em;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-embedding.svelte
+ * ======================================================================== */
+
+
+/* Outer flex column (replaces global _rich_content.scss .rc-embedding-wrapper) */
+
+
+.rc-embedding-wrapper {
+    width: 100%;
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+/* Toggle row with the open/close pill + external link icon */
+
+
+.rc-embedding-toggle-group {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+
+/* External-link icon */
+
+
+.rc-embedding-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-info, #50a5f1);
+    font-size: 16px;
+    transition: color 0.2s ease;
+    text-decoration: none;
+
+
+    &:hover {
+        color: color-mix(in srgb, var(--color-info, #50a5f1) 70%, black 30%);
+    }
+}
+
+
+/* Open/close pill — danger (red) when open, success (green) when closed */
+
+
+.rc-embedding-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 0 auto;
+    width: auto;
+    background: linear-gradient(135deg, rgb(244 106 106 / 0.08), rgb(244 106 106 / 0.15));
+    border: 1px solid rgb(244 106 106 / 0.2);
+    border-radius: 20px;
+    cursor: pointer;
+    padding: 6px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-danger, #f46a6a);
+    user-select: none;
+    transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    backdrop-filter: blur(4px);
+
+
+    &:hover {
+        background: linear-gradient(135deg, rgb(244 106 106 / 0.15), rgb(244 106 106 / 0.25));
+        border-color: rgb(244 106 106 / 0.4);
+        box-shadow: 0 2px 8px rgb(244 106 106 / 0.2);
+        transform: translateY(-1px);
+    }
+
+
+    &:active {
+        transform: translateY(0);
+        box-shadow: none;
+    }
+
+
+    &.closed {
+        background: linear-gradient(135deg, rgb(52 195 143 / 0.08), rgb(52 195 143 / 0.15));
+        border-color: rgb(52 195 143 / 0.2);
+        color: var(--color-success, #34c38f);
+    }
+
+
+    &.closed:hover {
+        background: linear-gradient(135deg, rgb(52 195 143 / 0.15), rgb(52 195 143 / 0.25));
+        border-color: rgb(52 195 143 / 0.4);
+        box-shadow: 0 2px 8px rgb(52 195 143 / 0.2);
+    }
+}
+
+
+/* Collapsible iframe wrapper (replaces inline style="width:100%;margin-top:8px") */
+
+
+.rc-embedding-collapse {
+    width: 100%;
+    margin-top: 8px;
+}
+
+
+/* iframe container */
+
+
+.rc-embedding-container {
+    width: 100%;
+    border-radius: 8px;
+    display: flex;
+    justify-content: center;
+    overflow: auto;
+    scrollbar-width: thin;
+}
+
+
+.rc-embedding-iframe {
+    width: fit-content;
+    min-width: 100%;
+    max-height: 800px;
+    min-height: 500px;
+    border: 1px solid var(--color-border, #dee2e6);
+    border-radius: 8px;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-js-interpreter.svelte
+ * ======================================================================== */
+
+
+/* Vertical rhythm between text + loading + chart (replaces Bootstrap .mb-3) */
+
+
+.rcj-section {
+    margin-bottom: 1rem;
+}
+
+
+/* Chart canvas slot (replaces inline style="min-width:800px; max-height:500px;") */
+
+
+.rcj-chart {
+    min-width: 800px;
+    max-height: 500px;
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-message.svelte
+ * ======================================================================== */
+
+
+/* Bot bubble (replaces legacy .ctext-wrap + .bot-msg override which set
+   padding, primary-tinted bg overridden to --bs-light, and rounded with
+   bottom-left squared corner). Caller-supplied containerClasses are still
+   appended in markup so chat-box and other callers can stack scoped
+   modifiers on top. */
+
+
+/* Flat counterpart of .cb-bubble-user in chat-box: solid fill, hairline
+   border, mirrored 4px tail corner. No gradient, no elevation, no hover
+   lift — a message is not a control, so it should not react to the pointer. */
+.rcm-bubble {
+    padding: 10px 14px;
+    background-color: var(--color-light, #eff2f7);
+    border: 1px solid rgb(229 231 235);
+    border-radius: 14px 14px 14px 4px;
+    overflow: hidden;
+    width: fit-content;
+    max-width: 100%;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    color: var(--color-dark);
+}
+
+
+/* Inner body wrapper around the rich-type renderer / markdown output
+   (replaces Bootstrap .flex-shrink-0.align-self-center) */
+
+
+.rcm-body {
+    flex-shrink: 0;
+    align-self: center;
+}
+
+
+/* Markdown theme for the bot bubble. Markdown.svelte zeroes paragraph margins
+   for its other call sites, and headings otherwise fall through to the global
+   theme sizes, so block spacing and a modest heading scale are restored here. */
+
+
+.rcm-body .markdown-container {
+    & p {
+        margin: 0.3rem 0;
+
+        &:first-child {
+            margin-top: 0;
+        }
+
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+
+    & h1,
+    & h2,
+    & h3,
+    & h4,
+    & h5,
+    & h6 {
+        margin: 0.75rem 0 0.35rem;
+        color: inherit;
+        font-weight: 700;
+        line-height: 1.25;
+
+        &:first-child {
+            margin-top: 0;
+        }
+    }
+
+    & h1 { font-size: 1.25rem; }
+    & h2 { font-size: 1.15rem; }
+    & h3 { font-size: 1.05rem; }
+    & h4,
+    & h5,
+    & h6 { font-size: 1rem; }
+
+    & ul,
+    & ol {
+        margin: 0.35rem 0;
+        padding-left: 1.4rem;
+    }
+
+    & li {
+        margin: 0.2rem 0;
+    }
+}
+
+
+/* Bold "Thinking" label inside the toggle row (replaces Bootstrap .font-bold) */
+
+
+/* Flat "Thinking" label — the clipped blue→purple gradient and the permanent
+   blink are gone. The row still reads as the accent element in the bubble
+   through colour and weight alone; motion is reserved for the sparkle, and
+   only while thinking is actually in progress. */
+.rcm-thinking-label {
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    color: #4285f4;
+}
+
+
+/* Disclosure card — flat tinted panel: solid wash, hairline border, and no
+   hover elevation, since the whole row is the control and the card is just
+   its container. */
+.thinking-section {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background-color: color-mix(in srgb, #4285f4 6%, transparent);
+    border: 1px solid color-mix(in srgb, #4285f4 20%, transparent);
+    border-radius: 10px;
+    transition: border-color 0.15s ease;
+
+
+    &:hover {
+        border-color: color-mix(in srgb, #4285f4 35%, transparent);
+    }
+}
+
+
+.thinking-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    background: none;
+    border: none;
+    color: #555;
+    cursor: pointer;
+    padding: 2px 0;
+    font-size: 0.875em;
+}
+
+
+/* Sparkle glyph (Gemini blue). Static at rest; the opacity pulse is kept for
+   `.pulsing`, which is bound to isThinking — it is progress feedback, not
+   decoration. Flattened to opacity only: no halo, no scale. */
+.thinking-sparkle {
+    color: #4285f4;
+    display: flex;
+    align-items: center;
+
+
+    &.pulsing {
+        animation: thinking-sparkle-pulse 1.4s ease-in-out infinite;
+    }
+}
+
+
+@keyframes thinking-sparkle-pulse {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.4; }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .thinking-sparkle.pulsing {
+        animation: none;
+    }
+}
+
+
+.thinking-chevron {
+    font-size: 1.1em;
+    color: color-mix(in srgb, #4285f4 65%, #555);
+    margin-left: auto;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), color 0.15s ease;
+    display: inline-block;
+
+
+    &.expanded {
+        transform: rotate(90deg);
+        color: #4285f4;
+    }
+}
+
+
+.stopped-thinking-label {
+    margin-left: auto;
+    font-size: 0.8em;
+    color: color-mix(in srgb, #4285f4 30%, #888);
+    font-style: italic;
+    letter-spacing: 0.01em;
+}
+
+
+/* Reveal panel — soft inset tint + 3px gradient accent stripe so the
+   thinking text reads as a sub-quote inside the disclosure card. A custom
+   thin scrollbar replaces the previously hidden one to make long
+   reasoning streams obviously scrollable. */
+.thinking-content {
+    font-size: 0.875em;
+    line-height: 1.55;
+    padding: 10px 12px 10px 14px;
+    margin-top: 8px;
+    border-radius: 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in srgb, #4285f4 35%, transparent) transparent;
+
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+
+    &::-webkit-scrollbar-thumb {
+        background-color: color-mix(in srgb, #4285f4 35%, transparent);
+        border-radius: 999px;
+    }
+
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+}
+
+
+/* ========================================================================
+ * src/routes/chat/[agentId]/[conversationId]/rich-content/rc-plain-options.svelte
+ * ======================================================================== */
+
+
+/* Centered row — replaces .center-option (justify-content: center, 0 10px) */
+.rcpo-center {
+    justify-content: center;
+    padding: 0 10px;
+}
+
+
+/* ===== Video row ===== */
+.rcpo-video-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+
+
+.rcpo-video-card {
+    flex: 1 1 300px;
+    border: 0;
+    box-shadow: none;
+    background-color: transparent;
+}
+
+
+/* Inner body */
+.rcpo-video-body {
+    padding: 0;
+}
+
+
+.rcpo-video-title {
+    font-size: 1.1em;
+    font-weight: 700;
+    padding: 10px 0 10px 5px;
+    margin-bottom: 5px;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+
+.rcpo-video-player {
+    aspect-ratio: 16 / 9;
+
+
+    & video, & iframe {
+        border-radius: 10px;
+        height: 100%;
+    }
+}
+
+
+/* ===== Plain option row ===== */
+.rcpo-option-row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+
+/* Themed action buttons (replace .btn .btn-sm .m-1 .btn-outline-primary/secondary/success).
+   The .btn:not([name="confirm"]):hover legacy rule swapped to white bg + primary text;
+   .btn.active:hover kept primary bg + white text. We replicate that behavior here. */
+.rcpo-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 50px;
+    margin: 0.25rem;
+    padding: 0.25rem 0.6rem;
+    font-size: 0.8125rem;
+    line-height: 1.2;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background-color: transparent;
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+
+
+    &:disabled {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+}
+
+
+.rcpo-btn-primary {
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(255 255 255);
+        color: var(--color-primary);
+    }
+}
+
+
+.rcpo-btn-secondary {
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+
+
+    &:hover:not(:disabled) {
+        background-color: rgb(255 255 255);
+        color: var(--color-primary);
+    }
+}
+
+
+.rcpo-btn-confirm {
+    color: var(--color-success, #34c38f);
+    border-color: var(--color-success, #34c38f);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-success, #34c38f);
+        color: rgb(255 255 255);
+    }
+}
+
+
+/* Active selection */
+.rcpo-active {
+    background-color: var(--color-primary);
+    color: rgb(255 255 255);
+
+
+    &:hover:not(:disabled) {
+        background-color: var(--color-primary);
+        color: rgb(255 255 255);
+    }
+}
+
+
+/* Link-style hover underline */
+.rcpo-link:hover {
+    text-decoration: underline;
+}
+
+
+/* File uploader trigger inside the option row */
+.rcpo-uploader {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary);
+    font-size: 18px;
+}
+
+
+.rcpo-uploader-glyph {
+    position: relative;
+    top: 3px;
+}
+
+
+/* ========================================================================
+ * Compact / embedded lite chatbox
+ * ======================================================================== */
+
+
+@media (max-width: 500px) {
+    .cb-panel-card {
+        border-radius: 18px;
+        background:
+            radial-gradient(circle at 50% -8%, color-mix(in srgb, var(--color-primary) 9%, transparent), transparent 34%),
+            rgb(255 255 255);
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.78),
+            0 18px 40px -30px rgb(15 23 42 / 0.55);
+    }
+
+
+    .cb-head {
+        height: clamp(58px, 10.5vh, 70px);
+        padding: 0.55rem 0.7rem;
+        font-size: 0.92rem;
+        border-bottom-color: color-mix(in srgb, var(--color-primary) 14%, rgb(226 232 240));
+        box-shadow:
+            inset 0 -1px 0 color-mix(in srgb, var(--color-primary) 6%, transparent),
+            0 8px 20px -22px rgb(15 23 42 / 0.4);
+    }
+
+
+    .cb-head-row {
+        gap: 0.45rem;
+    }
+
+
+    .cb-head-left {
+        flex: 1 1 auto;
+        max-width: calc(100% - 88px);
+        min-width: 0;
+        padding-right: 0;
+        padding-left: 0;
+        gap: 0.2rem;
+    }
+
+
+    .cb-head-right {
+        flex: 0 0 auto;
+        max-width: none;
+        padding-right: 0;
+        padding-left: 0;
+    }
+
+
+    .cb-head-agent {
+        max-width: 100%;
+        height: auto;
+        gap: 0.4rem;
+        padding: 0.08rem 0.4rem 0.08rem 0.1rem;
+        animation-duration: 1.9s;
+    }
+
+
+    .cb-head-agent-icon {
+        width: 24px;
+        height: 24px;
+        max-height: 24px;
+        border-width: 1px;
+        box-shadow:
+            0 0 0 1.5px rgb(255 255 255 / 0.92),
+            0 0 12px -4px color-mix(in srgb, var(--color-primary) 70%, transparent);
+    }
+
+
+    .cb-head-agent-name {
+        min-width: 0;
+        max-width: 100%;
+        font-size: 0.84rem;
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+
+    .cb-head-user {
+        max-width: 100%;
+        gap: 0.3rem;
+        padding: 0.13rem 0.45rem 0.13rem 0.36rem;
+        font-size: 0.66rem;
+        line-height: 1.2;
+    }
+
+
+    .cb-head-actions {
+        gap: 0.32rem;
+        min-width: 0;
+        min-height: 0;
+        padding-top: 0 !important;
+    }
+
+
+    .cb-icon-btn,
+    .cb-pill-btn {
+        width: 30px;
+        height: 30px;
+        min-width: 30px;
+        padding: 0;
+        font-size: 0.75rem;
+    }
+
+
+    .cb-icon-btn-lg {
+        width: 32px;
+        height: 32px;
+    }
+
+
+    .cb-icon-lg {
+        font-size: 0.86rem;
+    }
+
+
+    .cb-msgs-content {
+        height: 81%;
+    }
+
+
+    .cb-msgs-content-expand {
+        height: 94%;
+    }
+
+
+    .cb-conv {
+        padding: 0.72rem 0.72rem 0.5rem;
+    }
+
+
+    .cb-day-title {
+        margin-bottom: 1rem;
+    }
+
+
+    .cb-day-title::before {
+        top: 9px;
+    }
+
+
+    .cb-day-title-text {
+        padding: 0.24rem 0.78rem;
+        border-radius: 999px;
+        font-size: 0.68rem;
+        letter-spacing: 0.015em;
+    }
+
+
+    .cb-sys-note-row {
+        margin-bottom: 0.9rem;
+    }
+
+
+    /* Both size and line box move together, or the icon leaves the line again. */
+    .cb-sys-note {
+        max-width: 100%;
+        padding: 0.4rem 0.6rem;
+        font-size: 0.72rem;
+        line-height: 1.08rem; /* 0.72rem × 1.5 */
+    }
+
+
+    .cb-msg-row {
+        margin-bottom: 0.9rem;
+    }
+
+
+    .cb-msg-stack {
+        width: 86%;
+    }
+
+
+    .cb-cicon {
+        margin-right: 0.2rem;
+    }
+
+
+    .cb-avatar {
+        width: 1.55rem;
+        height: 1.55rem;
+        box-shadow: 0 0 0 2px rgb(255 255 255 / 0.9);
+    }
+
+
+    .cb-avatar-xs {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+
+    .cb-bubble,
+    .rcm-bubble {
+        padding: 0.48rem 0.68rem;
+        font-size: 0.83rem;
+        line-height: 1.44;
+        box-shadow:
+            inset 0 1px 0 color-mix(in srgb, white 16%, transparent),
+            0 8px 18px -18px rgb(15 23 42 / 0.62);
+    }
+
+
+    .cb-bubble-user {
+        border-radius: 13px 13px 4px 13px;
+    }
+
+
+    .rcm-bubble,
+    .cb-bubble-thinking {
+        border-radius: 13px 13px 13px 4px;
+    }
+
+
+    .cb-bubble-text-user,
+    .rcm-body {
+        font-size: 0.83rem;
+        line-height: 1.48;
+    }
+
+
+    .rcm-body .markdown-container,
+    .rcm-body .markdown-container p,
+    .rcm-body .markdown-container li {
+        font-size: 0.83rem;
+        line-height: 1.48;
+    }
+
+
+    .rcm-body .markdown-container pre,
+    .rcm-body .markdown-container code {
+        font-size: 0.76rem;
+    }
+
+
+    .cb-chat-time {
+        font-size: 0.66rem;
+        margin-top: 0.1rem;
+    }
+
+
+    .cb-msg-actions {
+        gap: 5px;
+        margin-top: 4px;
+        font-size: 16px;
+    }
+
+
+    .cb-msg-action-icon,
+    .cb-msg-action-icon-edit,
+    .cb-msg-action-icon-resend,
+    .cb-msg-action-icon-copy,
+    .cb-msg-action-icon-delete,
+    .cb-msg-action-icon-code {
+        padding: 3px;
+        border-radius: 7px;
+    }
+
+
+    .cb-input-section {
+        height: clamp(58px, 9.5vh, 72px);
+        padding: 0 0.72rem 0.55rem;
+        justify-content: center;
+    }
+
+
+    .cb-input-row {
+        gap: 0.45rem;
+    }
+
+
+    .cb-btn {
+        padding: 0.42rem;
+        font-size: 0.82rem;
+    }
+
+
+    .cb-btn-round,
+    .cb-btn-send {
+        min-width: 34px;
+        height: 34px;
+        padding-right: 0.42rem;
+        padding-left: 0.42rem;
+    }
+
+
+    .cb-md-36 {
+        font-size: 18px;
+    }
+
+
+    .cta-textarea {
+        min-height: 38px;
+        max-height: 72px;
+        padding: 0.58rem 0.78rem;
+        font-size: 0.84rem;
+        line-height: 1.35;
+        border-radius: 14px;
+        background:
+            linear-gradient(180deg, rgb(255 255 255), color-mix(in srgb, var(--color-primary) 3%, rgb(255 255 255)));
+        box-shadow:
+            inset 0 1px 0 rgb(255 255 255 / 0.78),
+            0 8px 18px -18px rgb(15 23 42 / 0.5);
+    }
+
+
+    .cb-util-links {
+        right: 5px;
+        gap: 0.12rem;
+    }
+
+
+    .cb-util-links .cu-glyph,
+    .cb-util-links .cbm-glyph {
+        padding: 0 0.12rem;
+        font-size: 1.05rem;
+    }
+
+
+    .cta-popup {
+        bottom: calc(100% + 8px);
+        max-height: 14rem;
+        font-size: 0.75rem;
+        border-radius: 14px;
+    }
+
+
+    .cta-option-item {
+        padding: 0.42rem 0.65rem;
+        border-radius: 10px;
+    }
+
+
+    .cta-util-container {
+        gap: 0.8rem;
+        padding: 0.65rem 0.75rem;
+    }
+
+
+    .cb-util-uploader {
+        width: 2.1rem;
+        height: 2.1rem;
+        font-size: 23px;
+        border-radius: 12px;
+    }
+
+
+    .dark .cb-panel-card {
+        background:
+            radial-gradient(circle at 50% -8%, color-mix(in srgb, var(--color-primary) 15%, transparent), transparent 34%),
+            rgb(17 24 39);
+    }
+
+
+    .dark .cb-head-agent-icon,
+    .dark .cb-avatar {
+        box-shadow:
+            0 0 0 1.5px rgb(31 41 55 / 0.95),
+            0 0 12px -4px color-mix(in srgb, var(--color-primary) 70%, transparent);
+    }
+
+
+    .dark .cta-textarea {
+        background:
+            linear-gradient(180deg, rgb(17 24 39), color-mix(in srgb, var(--color-primary) 8%, rgb(17 24 39)));
+    }
+}

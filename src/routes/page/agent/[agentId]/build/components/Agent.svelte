@@ -39,28 +39,4 @@
 	</div>
 </Node>
 
-<style>
-	.node {
-		box-sizing: border-box;
-		width: 400px;
-		height: 400px;
-		border-radius: 8px;
-		position: relative;
-		pointer-events: auto;
-		display: flex;
-		flex-direction: column;
-		padding: 10px;
-		gap: 10px;
-	}
 
-	.selected {
-		border: solid 2px white;
-	}
-	.input-anchors {
-		position: absolute;
-		display: flex;
-		flex-direction: column;
-		gap: 10px;
-		left: -24px;
-	}
-</style>

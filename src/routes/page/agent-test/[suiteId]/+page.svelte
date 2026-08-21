@@ -4,8 +4,9 @@
 	import { _ } from 'svelte-i18n';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
-	import Swal from 'sweetalert2';
 	import Breadcrumb from '$lib/common/shared/Breadcrumb.svelte';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
+	import Select from '$lib/common/dropdowns/Select.svelte';
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
@@ -64,6 +65,9 @@
 	let isRecordOpen = $state(false);
 	let isRunModalOpen = $state(false);
 
+	/** @type {import('$agentTestTypes').AgentTestCase | null} */
+	let caseToDelete = $state(null);
+
 	/** true = the run modal was opened by "Run Selected", false = "Run All Enabled". */
 	let runPartial = $state(false);
 
@@ -89,8 +93,11 @@
 
 	let recordConversationId = $state('');
 
-	/** Model used to split the conversation into scenarios; null = deterministic recorder, no model call. */
-	/** @type {import('$agentTestTypes').TestModel | null} */
+	/**
+	 * Model used to split the conversation into scenarios; null = deterministic
+	 * recorder, no model call.
+	 * @type {import('$agentTestTypes').TestModel | null}
+	 */
 	let recordModel = $state(null);
 
 	/**
@@ -111,11 +118,40 @@
 
 	let judgeModels = $derived(judgeModelsFor(settingsDraft.judgeProvider));
 
+	/*
+	 * Select option lists for the two judge fields.
+	 *
+	 * The leading '' of `judgeProviders` is dropped here: "not configured" is
+	 * the absence of a selection, which Select already expresses through its
+	 * placeholder and its own "Clear selection" row. Keeping the empty string
+	 * as an option would render a blank line in the menu instead.
+	 */
+	let judgeProviderOptions = $derived(
+		judgeProviders.filter(Boolean).map(provider => ({ label: provider, value: provider }))
+	);
+
+	let judgeModelOptions = $derived(judgeModels.map(model => ({ label: model, value: model })));
+
 	/** Flat provider/model catalogue for the run modal's checkbox list. */
 	let runModelCatalogue = $derived(
 		llmConfigs
 			.map(cfg => ({ provider: cfg.provider, models: (cfg.models || []).filter(isChatModel).map(m => m.name) }))
 			.filter(x => x.models.length > 0)
+	);
+
+	/*
+	 * The same catalogue flattened for the record modal's Select. Select renders a
+	 * single flat list -- it has no <optgroup> equivalent -- so the provider moves
+	 * into each label. Two providers can register the same model name, so the
+	 * provider has to stay visible or the two rows would be indistinguishable.
+	 */
+	let recordModelOptions = $derived(
+		runModelCatalogue.flatMap(group =>
+			group.models.map(model => ({
+				label: `${group.provider} / ${model}`,
+				value: `${group.provider}/${model}`
+			}))
+		)
 	);
 
 	/**
@@ -184,10 +220,17 @@
 
 	/** @param {any} e */
 	function changeJudgeProvider(e) {
-		settingsDraft.judgeProvider = e.target.value || '';
+		const selecteds = e?.detail?.selecteds || [];
+		settingsDraft.judgeProvider = selecteds.length > 0 ? selecteds[0].value : '';
 		// The stored model belongs to the old provider; clear it so the two never
 		// disagree. Empty provider means "no judge configured" at all.
 		settingsDraft.judgeModel = '';
+	}
+
+	/** @param {any} e */
+	function changeJudgeModel(e) {
+		const selecteds = e?.detail?.selecteds || [];
+		settingsDraft.judgeModel = selecteds.length > 0 ? selecteds[0].value : '';
 	}
 
 	function loadAll() {
@@ -389,20 +432,19 @@
 
 	/** @param {import('$agentTestTypes').AgentTestCase} testCase */
 	function openDeleteCaseModal(testCase) {
-		// @ts-ignore
-		Swal.fire({
-			title: t('Are you sure?'),
-			text: t('Delete test case "{name}"? You won\'t be able to revert this!', { name: testCase.name }),
-			icon: 'warning',
-			customClass: 'custom-modal',
-			showCancelButton: true,
-			cancelButtonText: t('Cancel'),
-			confirmButtonText: t('Yes, delete it!')
-		}).then((result) => {
-			if (result.value) {
-				handleDeleteCase(testCase.id);
-			}
-		});
+		caseToDelete = testCase;
+	}
+
+	function closeDeleteCaseModal() {
+		caseToDelete = null;
+	}
+
+	function confirmDeleteCase() {
+		const testCase = caseToDelete;
+		caseToDelete = null;
+		if (testCase) {
+			handleDeleteCase(testCase.id);
+		}
 	}
 
 	/** @param {string} caseId */
@@ -489,7 +531,8 @@
 
 	/** @param {any} e */
 	function changeRecordModel(e) {
-		const value = e.target.value;
+		const selecteds = e?.detail?.selecteds || [];
+		const value = selecteds.length > 0 ? selecteds[0].value : '';
 		if (!value) {
 			recordModel = null;
 			return;
@@ -553,16 +596,33 @@
 	errorText={errorText}
 />
 
+<ConfirmModal
+	isOpen={!!caseToDelete}
+	icon="warning"
+	title={t('Are you sure?')}
+	text={t('Delete test case "{name}"? You won\'t be able to revert this!', { name: caseToDelete?.name ?? '' })}
+	confirmBtnText={t('Yes, delete it!')}
+	cancelBtnText={t('Cancel')}
+	confirmBtnColor="danger"
+	confirm={confirmDeleteCase}
+	cancel={closeDeleteCaseModal}
+	toggleModal={closeDeleteCaseModal}
+/>
+
 {#if loadErrorText}
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="alert alert-danger d-flex align-items-center justify-content-between" role="alert">
+	<div class="flex flex-wrap">
+		<div class="w-full">
+			<div class="ats-alert ats-tone-danger justify-between" role="alert">
 				<span>{loadErrorText}</span>
-				<span class="hstack gap-2">
-					<button type="button" class="btn btn-sm btn-outline-danger" onclick={() => refresh()}>
+				<span class="flex flex-none items-center gap-2">
+					<button
+						type="button"
+						class="ats-btn ats-btn-sm ats-btn-outline ats-tone-danger"
+						onclick={() => refresh()}
+					>
 						<i class="mdi mdi-refresh"></i> {$_('Retry')}
 					</button>
-					<button type="button" class="btn btn-sm btn-secondary" onclick={() => goBack()}>
+					<button type="button" class="ats-btn ats-btn-sm ats-btn-secondary" onclick={() => goBack()}>
 						{$_('Back to Suites')}
 					</button>
 				</span>
@@ -570,340 +630,366 @@
 		</div>
 	</div>
 {:else if suite}
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="card">
-				<div class="card-body border-bottom">
-					<div class="d-flex flex-wrap align-items-start justify-content-between gap-2">
-						<div>
-							<h5 class="mb-1 card-title">
-								{suite.name}
-								{#if suite.enabled}
-									<span class="badge bg-success ms-2">{$_('Enabled')}</span>
-								{:else}
-									<span class="badge bg-danger ms-2">{$_('Disabled')}</span>
-								{/if}
-							</h5>
-							<p class="text-muted mb-0">
-								{$_('Agent')}: {agentName(suite.agentId)}
-								<span class="mx-2">|</span>
-								{$_('Case timeout')}: {suite.caseTimeoutSeconds}s
-							</p>
-							{#if suite.description}
-								<p class="text-muted mb-0 mt-1">{suite.description}</p>
+	<div class="flex flex-col gap-4">
+		<div class="ats-card">
+			<div class="ats-card-section">
+				<div class="flex flex-wrap items-start justify-between gap-3">
+					<div class="min-w-0">
+						<h5 class="ats-card-title flex flex-wrap items-center gap-2">
+							{suite.name}
+							{#if suite.enabled}
+								<span class="ats-badge ats-tone-success">{$_('Enabled')}</span>
+							{:else}
+								<span class="ats-badge ats-tone-danger">{$_('Disabled')}</span>
 							{/if}
-						</div>
-						<div class="hstack gap-2 flex-wrap">
-							<button type="button" class="btn btn-soft-secondary" onclick={() => goBack()}>
-								<i class="mdi mdi-arrow-left"></i> {$_('Back')}
-							</button>
-							<button type="button" class="btn btn-soft-secondary" onclick={() => openSettings()}>
-								<i class="mdi mdi-cog-outline"></i> {$_('Settings')}
-							</button>
-							<button type="button" class="btn btn-soft-info" onclick={() => openRecord()}>
-								<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
-							</button>
-							<button type="button" class="btn btn-soft-primary" onclick={() => goToNewCase()}>
-								<i class="mdi mdi-plus"></i> {$_('New Case')}
-							</button>
-							{#if selectedCaseIds.length > 0}
-								<button
-									type="button"
-									class="btn btn-primary"
-									disabled={isTriggering || !suite.enabled}
-									onclick={() => confirmRun(true)}
-								>
-									{#if isTriggering}
-										<i class="mdi mdi-loading mdi-spin me-1"></i>
-									{:else}
-										<i class="mdi mdi-play"></i>
-									{/if}
-									{$_('Run Selected')} ({selectedEnabledCount})
-								</button>
-							{/if}
+						</h5>
+						<p class="mt-1 mb-0 text-sm text-muted">
+							{$_('Agent')}: {agentName(suite.agentId)}
+							<span class="mx-2">|</span>
+							{$_('Case timeout')}: {suite.caseTimeoutSeconds}s
+						</p>
+						{#if suite.description}
+							<p class="mt-1 mb-0 text-sm text-muted">{suite.description}</p>
+						{/if}
+					</div>
+					<div class="flex flex-wrap items-center gap-2">
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-secondary" onclick={() => goBack()}>
+							<i class="mdi mdi-arrow-left"></i> {$_('Back')}
+						</button>
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-secondary" onclick={() => openSettings()}>
+							<i class="mdi mdi-cog-outline"></i> {$_('Settings')}
+						</button>
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>
+							<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
+						</button>
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCase()}>
+							<i class="mdi mdi-plus"></i> {$_('New Case')}
+						</button>
+						{#if selectedCaseIds.length > 0}
 							<button
 								type="button"
-								class="btn btn-primary"
-								disabled={isTriggering || !suite.enabled || enabledCaseCount === 0}
-								onclick={() => confirmRun(false)}
+								class="ats-btn ats-btn-primary"
+								disabled={isTriggering || !suite.enabled}
+								onclick={() => confirmRun(true)}
 							>
 								{#if isTriggering}
-									<i class="mdi mdi-loading mdi-spin me-1"></i>
+									<i class="mdi mdi-loading mdi-spin"></i>
 								{:else}
 									<i class="mdi mdi-play"></i>
 								{/if}
-								{$_('Run All Enabled')} ({enabledCaseCount})
-							</button>
-						</div>
-					</div>
-					{#if !suite.enabled}
-						<div class="alert alert-warning mt-3 mb-0" role="alert">
-							{$_('This suite is disabled. Triggering a run is rejected by the server until you enable it in Settings.')}
-						</div>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="card">
-				<div class="card-body border-bottom">
-					<div class="d-flex flex-wrap align-items-center justify-content-between">
-						<h5 class="mb-0 card-title">{$_('Test Cases')} ({cases.length})</h5>
-						{#if selectedCaseIds.length > 0}
-							<button type="button" class="btn btn-sm btn-soft-secondary" onclick={() => (selectedCaseIds = [])}>
-								{$_('Clear selection')}
+								{$_('Run Selected')} ({selectedEnabledCount})
 							</button>
 						{/if}
-					</div>
-				</div>
-				<div class="card-body">
-					{#if cases.length === 0}
-						<div class="text-center py-5">
-							<p class="text-muted mb-3">{$_('No test cases in this suite yet.')}</p>
-							<div class="hstack gap-2 justify-content-center">
-								<button type="button" class="btn btn-primary" onclick={() => goToNewCase()}>
-									<i class="mdi mdi-plus"></i> {$_('New Case')}
-								</button>
-								<button type="button" class="btn btn-soft-info" onclick={() => openRecord()}>
-									<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
-								</button>
-							</div>
-						</div>
-					{:else}
-						<div class="table-responsive thin-scrollbar">
-							<table class="table table-bordered align-middle nowrap">
-								<thead>
-									<tr>
-										<th scope="col" style="width: 40px;">
-											<input
-												type="checkbox"
-												class="form-check-input"
-												aria-label={$_('Select all cases')}
-												checked={allCasesSelected}
-												onchange={() => toggleAllCases()}
-											/>
-										</th>
-										<th scope="col">{$_('Name')}</th>
-										<th scope="col">{$_('Type')}</th>
-										<th scope="col">{$_('Turns')}</th>
-										<th scope="col">{$_('History')}</th>
-										<th scope="col">{$_('Mocks')}</th>
-										<th scope="col">{$_('Assertions')}</th>
-										<th scope="col">{$_('Source')}</th>
-										<th scope="col">{$_('Enabled')}</th>
-										<th scope="col">{$_('Action')}</th>
-									</tr>
-								</thead>
-								<tbody>
-									{#each cases as testCase (testCase.id)}
-										{@const assertionCount = (testCase.assertions?.length || 0)
-											+ (testCase.turns || []).reduce((sum, t) => sum + (t.assertions?.length || 0), 0)}
-										<tr>
-											<td>
-												<input
-													type="checkbox"
-													class="form-check-input"
-													aria-label={$_('Select case {name}', { values: { name: testCase.name } })}
-													checked={selectedCaseIds.includes(testCase.id)}
-													onchange={() => toggleCase(testCase.id)}
-												/>
-											</td>
-											<td>
-												<button
-													type="button"
-													class="btn btn-link p-0 text-start text-primary"
-													onclick={() => goToCase(testCase.id)}
-												>
-													{testCase.name}
-												</button>
-											</td>
-											<td>
-												<!-- Cases stored before caseType existed read back as Agent. Shown
-												     here because the type decides how a case is validated and
-												     whether it counts towards routing accuracy, and that is not
-												     something to have to open every case to discover. -->
-												{#if testCase.caseType === 'Routing'}
-													<span class="badge bg-info">{$_('Routing case')}</span>
-												{:else}
-													<span class="badge bg-secondary">{$_('Agent case')}</span>
-												{/if}
-											</td>
-											<td>{testCase.turns?.length || 0}</td>
-											<td>{testCase.history?.length || 0}</td>
-											<td>{testCase.mocks?.length || 0}</td>
-											<td>{assertionCount}</td>
-											<td>
-												{#if testCase.sourceConversationId}
-													<span
-														class="badge bg-info"
-														title={$_('Recorded from conversation {id}. May contain live customer data.', { values: { id: testCase.sourceConversationId } })}
-													>
-														{$_('Recorded')}
-													</span>
-												{:else}
-													<span class="badge bg-light text-body">{$_('Manual')}</span>
-												{/if}
-											</td>
-											<td>
-												{#if testCase.enabled}
-													<span class="badge bg-success">{$_('Enabled')}</span>
-												{:else}
-													<span class="badge bg-secondary">{$_('Draft')}</span>
-												{/if}
-											</td>
-											<td>
-												<ul class="list-unstyled hstack gap-1 mb-0">
-													<li data-bs-toggle="tooltip" data-bs-placement="top" title={testCase.enabled ? $_('Disable') : $_('Enable')}>
-														<button
-															type="button"
-															class="btn btn-sm btn-soft-secondary"
-															aria-label={testCase.enabled ? $_('Disable case') : $_('Enable case')}
-															onclick={() => toggleCaseEnabled(testCase)}
-														>
-															<i class={testCase.enabled ? 'mdi mdi-toggle-switch' : 'mdi mdi-toggle-switch-off'}></i>
-														</button>
-													</li>
-													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Edit')}>
-														<button
-															type="button"
-															class="btn btn-sm btn-soft-primary"
-															aria-label={$_('Edit case')}
-															onclick={() => goToCase(testCase.id)}
-														>
-															<i class="mdi mdi-pencil-outline"></i>
-														</button>
-													</li>
-													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Copy')}>
-														<button
-															type="button"
-															class="btn btn-sm btn-soft-secondary"
-															aria-label={$_('Copy case')}
-															onclick={() => copyTestCase(testCase)}
-														>
-															<i class="mdi mdi-content-copy"></i>
-														</button>
-													</li>
-													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Delete')}>
-														<button
-															type="button"
-															class="btn btn-sm btn-soft-danger"
-															aria-label={$_('Delete case')}
-															onclick={() => openDeleteCaseModal(testCase)}
-														>
-															<i class="mdi mdi-delete-outline"></i>
-														</button>
-													</li>
-												</ul>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					{/if}
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="row">
-		<div class="col-lg-12">
-			<div class="card">
-				<div class="card-body border-bottom">
-					<div class="d-flex flex-wrap align-items-center justify-content-between">
-						<h5 class="mb-0 card-title">{$_('Run History')}</h5>
-						<button type="button" class="btn btn-sm btn-soft-secondary" onclick={() => refresh()}>
-							<i class="mdi mdi-refresh"></i> {$_('Refresh')}
+						<button
+							type="button"
+							class="ats-btn ats-btn-primary"
+							disabled={isTriggering || !suite.enabled || enabledCaseCount === 0}
+							onclick={() => confirmRun(false)}
+						>
+							{#if isTriggering}
+								<i class="mdi mdi-loading mdi-spin"></i>
+							{:else}
+								<i class="mdi mdi-play"></i>
+							{/if}
+							{$_('Run All Enabled')} ({enabledCaseCount})
 						</button>
 					</div>
 				</div>
-				<div class="card-body">
-					{#if runs.length === 0}
-						<p class="text-muted text-center py-4 mb-0">{$_('This suite has never been run.')}</p>
-					{:else}
-						<div class="table-responsive thin-scrollbar">
-							<table class="table table-bordered align-middle nowrap">
-								<thead>
+				{#if !suite.enabled}
+					<div class="ats-alert ats-tone-warning mt-3" role="alert">
+						{$_('This suite is disabled. Triggering a run is rejected by the server until you enable it in Settings.')}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="ats-card">
+			<div class="ats-card-section ats-card-divider">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="ats-card-icon">
+							<i class="mdi mdi-format-list-checks"></i>
+						</span>
+						<div class="grow">
+							<h5 class="ats-card-title">{$_('Test Cases')}</h5>
+							<p class="ats-card-subtitle">
+								{cases.length} {cases.length === 1 ? $_('case') : $_('cases')}
+							</p>
+						</div>
+					</div>
+					{#if selectedCaseIds.length > 0}
+						<button
+							type="button"
+							class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+							onclick={() => (selectedCaseIds = [])}
+						>
+							{$_('Clear selection')}
+						</button>
+					{/if}
+				</div>
+			</div>
+			<div class="ats-card-body">
+				{#if cases.length === 0}
+					<div class="ats-empty">
+						<p class="ats-empty-text">{$_('No test cases in this suite yet.')}</p>
+						<div class="flex flex-wrap items-center justify-center gap-2">
+							<button type="button" class="ats-btn ats-btn-primary" onclick={() => goToNewCase()}>
+								<i class="mdi mdi-plus"></i> {$_('New Case')}
+							</button>
+							<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>
+								<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
+							</button>
+						</div>
+					</div>
+				{:else}
+					<div class="ats-table-wrap scrollbar-on-hover">
+						<table class="ats-table">
+							<thead>
+								<tr>
+									<th scope="col" style="width: 40px;">
+										<input
+											type="checkbox"
+											class="ats-check-input"
+											aria-label={$_('Select all cases')}
+											checked={allCasesSelected}
+											onchange={() => toggleAllCases()}
+										/>
+									</th>
+									<th scope="col">{$_('Name')}</th>
+									<th scope="col">{$_('Type')}</th>
+									<th scope="col">{$_('Turns')}</th>
+									<th scope="col">{$_('History')}</th>
+									<th scope="col">{$_('Mocks')}</th>
+									<th scope="col">{$_('Assertions')}</th>
+									<th scope="col">{$_('Source')}</th>
+									<th scope="col">{$_('Enabled')}</th>
+									<th scope="col">{$_('Action')}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each cases as testCase (testCase.id)}
+									{@const assertionCount = (testCase.assertions?.length || 0)
+										+ (testCase.turns || []).reduce((sum, t) => sum + (t.assertions?.length || 0), 0)}
 									<tr>
-										<th scope="col">{$_('Status')}</th>
-										<th scope="col">{$_('Result')}</th>
-										<th scope="col">{$_('Scope')}</th>
-										<th scope="col">{$_('Started')}</th>
-										<th scope="col">{$_('Duration')}</th>
-										<th scope="col">{$_('Action')}</th>
+										<td>
+											<input
+												type="checkbox"
+												class="ats-check-input"
+												aria-label={$_('Select case {name}', { values: { name: testCase.name } })}
+												checked={selectedCaseIds.includes(testCase.id)}
+												onchange={() => toggleCase(testCase.id)}
+											/>
+										</td>
+										<td>
+											<button
+												type="button"
+												class="ats-btn ats-btn-link text-start"
+												onclick={() => goToCase(testCase.id)}
+											>
+												{testCase.name}
+											</button>
+										</td>
+										<td>
+											<!-- Cases stored before caseType existed read back as Agent. Shown here
+											     because the type decides how a case is validated and whether it counts
+											     towards routing accuracy, which is not something to have to open every
+											     case to discover. -->
+											{#if testCase.caseType === 'Routing'}
+												<span class="ats-badge ats-tone-info">{$_('Routing case')}</span>
+											{:else}
+												<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('Agent case')}</span>
+											{/if}
+										</td>
+										<td>{testCase.turns?.length || 0}</td>
+										<td>{testCase.history?.length || 0}</td>
+										<td>{testCase.mocks?.length || 0}</td>
+										<td>{assertionCount}</td>
+										<td>
+											{#if testCase.sourceConversationId}
+												<span
+													class="ats-badge ats-tone-info"
+													title={$_('Recorded from conversation {id}. May contain live customer data.', { values: { id: testCase.sourceConversationId } })}
+												>
+													{$_('Recorded')}
+												</span>
+											{:else}
+												<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('Manual')}</span>
+											{/if}
+										</td>
+										<td>
+											{#if testCase.enabled}
+												<span class="ats-badge ats-tone-success">{$_('Enabled')}</span>
+											{:else}
+												<span class="ats-badge ats-tone-secondary">{$_('Draft')}</span>
+											{/if}
+										</td>
+										<td>
+											<ul class="ats-actions">
+												<li title={testCase.enabled ? $_('Disable') : $_('Enable')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-secondary"
+														aria-label={testCase.enabled ? $_('Disable case') : $_('Enable case')}
+														onclick={() => toggleCaseEnabled(testCase)}
+													>
+														<i class={testCase.enabled ? 'mdi mdi-toggle-switch' : 'mdi mdi-toggle-switch-off'}></i>
+													</button>
+												</li>
+												<li title={$_('Edit')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-primary"
+														aria-label={$_('Edit case')}
+														onclick={() => goToCase(testCase.id)}
+													>
+														<i class="mdi mdi-pencil-outline"></i>
+													</button>
+												</li>
+												<li title={$_('Copy')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-secondary"
+														aria-label={$_('Copy case')}
+														onclick={() => copyTestCase(testCase)}
+													>
+														<i class="mdi mdi-content-copy"></i>
+													</button>
+												</li>
+												<li title={$_('Delete')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+														aria-label={$_('Delete case')}
+														onclick={() => openDeleteCaseModal(testCase)}
+													>
+														<i class="mdi mdi-delete-outline"></i>
+													</button>
+												</li>
+											</ul>
+										</td>
 									</tr>
-								</thead>
-								<tbody>
-									{#each runs as run (run.id)}
-										<tr>
-											<td>
-												<span class="badge bg-{statusColor(run.status)}">{$_(run.status)}</span>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="ats-card">
+			<div class="ats-card-section ats-card-divider">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="ats-card-icon">
+							<i class="mdi mdi-history"></i>
+						</span>
+						<div class="grow">
+							<h5 class="ats-card-title">{$_('Run History')}</h5>
+							<p class="ats-card-subtitle">
+								{runs.length} {runs.length === 1 ? $_('run') : $_('runs')}
+							</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+						onclick={() => refresh()}
+					>
+						<i class="mdi mdi-refresh"></i> {$_('Refresh')}
+					</button>
+				</div>
+			</div>
+			<div class="ats-card-body">
+				{#if runs.length === 0}
+					<div class="ats-empty">
+						<p class="ats-empty-text">{$_('This suite has never been run.')}</p>
+					</div>
+				{:else}
+					<div class="ats-table-wrap scrollbar-on-hover">
+						<table class="ats-table">
+							<thead>
+								<tr>
+									<th scope="col">{$_('Status')}</th>
+									<th scope="col">{$_('Result')}</th>
+									<th scope="col">{$_('Scope')}</th>
+									<th scope="col">{$_('Started')}</th>
+									<th scope="col">{$_('Duration')}</th>
+									<th scope="col">{$_('Action')}</th>
+								</tr>
+							</thead>
+							<tbody>
+								{#each runs as run (run.id)}
+									<tr>
+										<td>
+											<span class="flex flex-wrap items-center gap-1">
+												<span class="ats-badge ats-tone-{statusColor(run.status)}">{$_(run.status)}</span>
 												{#if run.cancelRequested && !isTerminalStatus(run.status)}
-													<span class="badge bg-dark ms-1">{$_('Cancelling')}</span>
+													<span class="ats-badge ats-tone-dark">{$_('Cancelling')}</span>
 												{/if}
-												{#if run.error}
-													<div class="text-warning small text-break mt-1">{run.error}</div>
-												{/if}
-											</td>
-											<td>
-												<span class="text-success">{run.passedCount} {$_('passed')}</span>,
-												<span class="text-danger">{run.failedCount} {$_('failed')}</span>,
-												<span class="text-warning">{run.errorCount} {$_('errored')}</span>
-												<span class="text-muted">/ {run.totalCount}</span>
-											</td>
-											<td>
+											</span>
+											{#if run.error}
+												<div class="mt-1 text-xs break-words text-warning">{run.error}</div>
+											{/if}
+										</td>
+										<td class="whitespace-nowrap">
+											<span class="text-success">{run.passedCount} {$_('passed')}</span>,
+											<span class="text-danger">{run.failedCount} {$_('failed')}</span>,
+											<span class="text-warning">{run.errorCount} {$_('errored')}</span>
+											<span class="text-muted">/ {run.totalCount}</span>
+										</td>
+										<td>
+											<span class="flex flex-wrap items-center gap-1">
 												{#if run.caseIds && run.caseIds.length > 0}
-													<span class="badge bg-light text-body">{$_('Subset')} ({run.caseIds.length})</span>
+													<span class="ats-badge ats-badge-soft ats-tone-secondary">
+														{$_('Subset')} ({run.caseIds.length})
+													</span>
 												{:else}
-													<span class="badge bg-light text-body">{$_('All enabled')}</span>
+													<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('All enabled')}</span>
 												{/if}
 												{#if run.models && run.models.length > 0}
 													<span
-														class="badge bg-primary ms-1"
+														class="ats-badge ats-tone-primary"
 														title={run.models.map(m => `${m.provider}/${m.model}`).join('\n')}
 													>
 														{run.models.length} {$_('models')}
 													</span>
 												{/if}
-											</td>
-											<td>{formatDateTime(run.startedAt)}</td>
-											<td>{runDuration(run)}</td>
-											<td>
-												<ul class="list-unstyled hstack gap-1 mb-0">
-													<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('View')}>
+											</span>
+										</td>
+										<td class="whitespace-nowrap">{formatDateTime(run.startedAt)}</td>
+										<td class="whitespace-nowrap">{runDuration(run)}</td>
+										<td>
+											<ul class="ats-actions">
+												<li title={$_('View')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-primary"
+														aria-label={$_('View run')}
+														onclick={() => goToRun(run.id)}
+													>
+														<i class="mdi mdi-eye-outline"></i>
+													</button>
+												</li>
+												{#if !isTerminalStatus(run.status)}
+													<li title={$_('Cancel')}>
 														<button
 															type="button"
-															class="btn btn-sm btn-soft-primary"
-															aria-label={$_('View run')}
-															onclick={() => goToRun(run.id)}
+															class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+															aria-label={$_('Cancel Run')}
+															onclick={() => handleCancelRun(run.id)}
 														>
-															<i class="mdi mdi-eye-outline"></i>
+															<i class="mdi mdi-stop"></i>
 														</button>
 													</li>
-													{#if !isTerminalStatus(run.status)}
-														<li data-bs-toggle="tooltip" data-bs-placement="top" title={$_('Cancel')}>
-															<button
-																type="button"
-																class="btn btn-sm btn-soft-danger"
-																aria-label={$_('Cancel Run')}
-																onclick={() => handleCancelRun(run.id)}
-															>
-																<i class="mdi mdi-stop"></i>
-															</button>
-														</li>
-													{/if}
-												</ul>
-											</td>
-										</tr>
-									{/each}
-								</tbody>
-							</table>
-						</div>
-					{/if}
-				</div>
+												{/if}
+											</ul>
+										</td>
+									</tr>
+								{/each}
+							</tbody>
+						</table>
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>
@@ -911,162 +997,224 @@
 
 {#if isSettingsOpen}
 <div
-	class="modal show d-block"
+	class="ats-modal"
 	tabindex="-1"
 	role="dialog"
 	transition:fade={{ duration: 150 }}
 	onclick={(e) => handleBackdropClick(e, closeSettings)}
 	onkeydown={(e) => handleModalKeydown(e, closeSettings)}
 >
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">{$_('Suite Settings')}</h5>
-				<button type="button" class="btn-close" aria-label={$_('Close')} onclick={() => closeSettings()}></button>
+	<div class="ats-modal-dialog ats-modal-lg" role="document">
+		<div class="ats-modal-content">
+			<div class="ats-modal-header">
+				<h5 class="ats-modal-title">{$_('Suite Settings')}</h5>
+				<button
+					type="button"
+					class="ats-modal-close"
+					aria-label={$_('Close')}
+					onclick={() => closeSettings()}
+				>
+					<i class="mdi mdi-close"></i>
+				</button>
 			</div>
-			<div class="modal-body">
+			<div class="ats-modal-body">
 				<form onsubmit={(e) => submitSettings(e)}>
-					<div class="mb-3">
-						<label class="form-label" for="suite-name">{$_('Name')} <span class="text-danger">*</span></label>
-						<input id="suite-name" type="text" class="form-control" maxlength={nameMaxLength} bind:value={settingsDraft.name} />
+					<div class="mb-4">
+						<label class="ats-label" for="suite-name">{$_('Name')} <span class="text-danger">*</span></label>
+						<input
+							id="suite-name"
+							type="text"
+							class="ats-input"
+							maxlength={nameMaxLength}
+							bind:value={settingsDraft.name}
+						/>
 					</div>
-					<div class="mb-3">
-						<label class="form-label" for="suite-description">{$_('Description')}</label>
-						<textarea id="suite-description" class="form-control" rows="2" maxlength={descriptionMaxLength} bind:value={settingsDraft.description}></textarea>
+					<div class="mb-4">
+						<label class="ats-label" for="suite-description">{$_('Description')}</label>
+						<textarea
+							id="suite-description"
+							class="ats-textarea"
+							rows="2"
+							maxlength={descriptionMaxLength}
+							bind:value={settingsDraft.description}
+						></textarea>
 					</div>
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<div class="form-check form-switch">
-								<input id="suite-enabled" type="checkbox" class="form-check-input" bind:checked={settingsDraft.enabled} />
-								<label class="form-check-label" for="suite-enabled">{$_('Enabled')}</label>
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div>
+							<div class="ats-check">
+								<input
+									id="suite-enabled"
+									type="checkbox"
+									class="ats-switch"
+									bind:checked={settingsDraft.enabled}
+								/>
+								<label class="ats-check-label" for="suite-enabled">{$_('Enabled')}</label>
 							</div>
-							<div class="form-text">{$_('A disabled suite cannot be run at all.')}</div>
+							<span class="ats-help">{$_('A disabled suite cannot be run at all.')}</span>
 						</div>
-						<div class="col-md-6 mb-3">
-							<label class="form-label" for="suite-timeout">{$_('Case timeout (seconds)')} <span class="text-danger">*</span></label>
-							<input id="suite-timeout" type="number" min="1" class="form-control" bind:value={settingsDraft.caseTimeoutSeconds} />
+						<div>
+							<label class="ats-label" for="suite-timeout">
+								{$_('Case timeout (seconds)')} <span class="text-danger">*</span>
+							</label>
+							<input
+								id="suite-timeout"
+								type="number"
+								min="1"
+								class="ats-input"
+								bind:value={settingsDraft.caseTimeoutSeconds}
+							/>
 						</div>
-					</div>
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<label class="form-label" for="suite-judge-provider">{$_('Judge provider')}</label>
-							<select
-								id="suite-judge-provider"
-								class="form-select"
-								value={settingsDraft.judgeProvider}
-								onchange={e => changeJudgeProvider(e)}
-							>
-								{#each judgeProviders as provider}
-									<option value={provider}>{provider || $_('Not configured')}</option>
-								{/each}
-							</select>
+						<div>
+							<span class="ats-label">{$_('Judge provider')}</span>
+							<Select
+								tag={'agent-test-judge-provider'}
+								placeholder={$_('Not configured')}
+								selectedValues={settingsDraft.judgeProvider ? [settingsDraft.judgeProvider] : []}
+								options={judgeProviderOptions}
+								onselect={e => changeJudgeProvider(e)}
+							/>
 						</div>
-						<div class="col-md-6 mb-3">
-							<label class="form-label" for="suite-judge-model">{$_('Judge model')}</label>
-							<select
-								id="suite-judge-model"
-								class="form-select"
+						<div>
+							<span class="ats-label">{$_('Judge model')}</span>
+							<Select
+								tag={'agent-test-judge-model'}
+								placeholder={$_('Not configured')}
 								disabled={judgeModels.length === 0}
-								bind:value={settingsDraft.judgeModel}
-							>
-								<option value="">{$_('Not configured')}</option>
-								{#each judgeModels as model}
-									<option value={model}>{model}</option>
-								{/each}
-							</select>
+								selectedValues={settingsDraft.judgeModel ? [settingsDraft.judgeModel] : []}
+								options={judgeModelOptions}
+								onselect={e => changeJudgeModel(e)}
+							/>
 							{#if settingsDraft.judgeProvider && judgeModels.length === 0}
-								<div class="form-text text-warning">
+								<span class="ats-help text-warning">
 									{$_('This provider has no chat-capable model registered.')}
-								</div>
+								</span>
 							{/if}
 						</div>
 					</div>
-					<div class="alert alert-info" role="alert">
+					<div class="ats-alert ats-tone-info mt-4" role="alert">
 						{$_('Required by llmJudge assertions. Without both, an llmJudge assertion records an Error rather than a score -- it is never scored with a default model.')}
 					</div>
-					<div class="row">
-						<div class="col-md-6 mb-3">
-							<label class="form-label" for="suite-extra-allowed">{$_('Extra allowed functions')}</label>
-							<textarea id="suite-extra-allowed" class="form-control font-monospace" rows="4" bind:value={settingsDraft.extraAllowedFunctions}></textarea>
-							<div class="form-text">{$_('One function name per line. These run for real during a test -- only list functions with no side effects.')}</div>
+					<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+						<div>
+							<label class="ats-label" for="suite-extra-allowed">{$_('Extra allowed functions')}</label>
+							<textarea
+								id="suite-extra-allowed"
+								class="ats-textarea ats-textarea-code"
+								rows="4"
+								bind:value={settingsDraft.extraAllowedFunctions}
+							></textarea>
+							<span class="ats-help">
+								{$_('One function name per line. These run for real during a test -- only list functions with no side effects.')}
+							</span>
 						</div>
-						<div class="col-md-6 mb-3">
-							<label class="form-label" for="suite-force-blocked">{$_('Force blocked functions')}</label>
-							<textarea id="suite-force-blocked" class="form-control font-monospace" rows="4" bind:value={settingsDraft.forceBlockedFunctions}></textarea>
-							<div class="form-text">{$_('One per line. Blocked even if allow-listed elsewhere.')}</div>
+						<div>
+							<label class="ats-label" for="suite-force-blocked">{$_('Force blocked functions')}</label>
+							<textarea
+								id="suite-force-blocked"
+								class="ats-textarea ats-textarea-code"
+								rows="4"
+								bind:value={settingsDraft.forceBlockedFunctions}
+							></textarea>
+							<span class="ats-help">{$_('One per line. Blocked even if allow-listed elsewhere.')}</span>
 						</div>
 					</div>
 				</form>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" disabled={!canSaveSettings || isSaving} onclick={(e) => submitSettings(e)}>
+			<div class="ats-modal-footer">
+				<button
+					type="button"
+					class="ats-btn ats-btn-secondary"
+					disabled={isSaving}
+					onclick={() => closeSettings()}
+				>
+					{$_('Cancel')}
+				</button>
+				<button
+					type="button"
+					class="ats-btn ats-btn-primary"
+					disabled={!canSaveSettings || isSaving}
+					onclick={(e) => submitSettings(e)}
+				>
 					{#if isSaving}
-						<i class="mdi mdi-loading mdi-spin me-1"></i>
+						<i class="mdi mdi-loading mdi-spin"></i>
 					{/if}
 					{$_('Save')}
-				</button>
-				<button type="button" class="btn btn-secondary" disabled={isSaving} onclick={() => closeSettings()}>
-					{$_('Cancel')}
 				</button>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
 {/if}
 
 {#if isRunModalOpen}
 <div
-	class="modal show d-block"
+	class="ats-modal"
 	tabindex="-1"
 	role="dialog"
 	transition:fade={{ duration: 150 }}
 	onclick={(e) => handleBackdropClick(e, closeRunModal)}
 	onkeydown={(e) => handleModalKeydown(e, closeRunModal)}
 >
-	<div class="modal-dialog modal-lg" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">{$_('Run this suite?')}</h5>
-				<button type="button" class="btn-close" aria-label={$_('Close')} onclick={() => closeRunModal()}></button>
+	<div class="ats-modal-dialog ats-modal-lg" role="document">
+		<div class="ats-modal-content">
+			<div class="ats-modal-header">
+				<h5 class="ats-modal-title">{$_('Run this suite?')}</h5>
+				<button
+					type="button"
+					class="ats-modal-close"
+					aria-label={$_('Close')}
+					onclick={() => closeRunModal()}
+				>
+					<i class="mdi mdi-close"></i>
+				</button>
 			</div>
-			<div class="modal-body">
-				<p class="mb-3">
+			<div class="ats-modal-body">
+				<p class="mb-4 text-sm">
 					{runPartial ? $_('Running the selected cases') : $_('Running every enabled case')}:
-					<span class="fw-semibold">{plannedCaseCount}</span>
+					<span class="font-semibold">{plannedCaseCount}</span>
 				</p>
 
-				<div class="mb-2 d-flex flex-wrap align-items-center justify-content-between gap-2">
-					<span class="fw-semibold">{$_('Models')}</span>
+				<div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+					<span class="text-sm font-semibold">{$_('Models')}</span>
 					{#if selectedRunModels.length > 0}
-						<button type="button" class="btn btn-sm btn-soft-secondary" onclick={() => (selectedRunModels = [])}>
-							{$_('Use the agent\'s own model')}
+						<button
+							type="button"
+							class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+							onclick={() => (selectedRunModels = [])}
+						>
+							{$_("Use the agent's own model")}
 						</button>
 					{/if}
 				</div>
-				<p class="text-muted small">
+				<p class="mb-3 text-xs text-muted">
 					{$_('Pick nothing to run once on whatever model each agent is configured with. Pick two or more to run the whole set once per model and compare them side by side.')}
 				</p>
 
 				{#if runModelCatalogue.length === 0}
-					<div class="alert alert-warning" role="alert">
-						{$_('No chat-capable model is registered, so this run will use the agent\'s own configuration.')}
+					<div class="ats-alert ats-tone-warning" role="alert">
+						{$_("No chat-capable model is registered, so this run will use the agent's own configuration.")}
 					</div>
 				{:else}
-					<div class="border rounded p-2 mb-3 thin-scrollbar" style="max-height: 260px; overflow-y: auto;">
+					<div
+						class="ats-table-wrap scrollbar-on-hover mb-4 p-2"
+						style="max-height: 260px; overflow-y: auto;"
+					>
 						{#each runModelCatalogue as group (group.provider)}
 							<div class="mb-2">
-								<div class="text-muted small fw-semibold">{group.provider}</div>
+								<div class="mb-1 text-xs font-semibold text-muted">{group.provider}</div>
 								{#each group.models as model (model)}
-									<div class="form-check">
+									<div class="ats-check py-0.5">
 										<input
 											id={`run-model-${group.provider}-${model}`}
 											type="checkbox"
-											class="form-check-input"
+											class="ats-check-input"
 											checked={isRunModelSelected(group.provider, model)}
 											onchange={() => toggleRunModel(group.provider, model)}
 										/>
-										<label class="form-check-label font-monospace" for={`run-model-${group.provider}-${model}`}>
+										<label
+											class="ats-check-label font-code"
+											for={`run-model-${group.provider}-${model}`}
+										>
 											{model}
 										</label>
 									</div>
@@ -1077,110 +1225,131 @@
 				{/if}
 
 				{#if runPartial && selectedDisabledCount > 0}
-					<div class="alert alert-warning" role="alert">
+					<div class="ats-alert ats-tone-warning mb-3" role="alert">
 						{$_('{count} of the selected case(s) are disabled and will be skipped.', { values: { count: selectedDisabledCount } })}
 					</div>
 				{/if}
 
 				{#if plannedCaseCount === 0}
-					<div class="alert alert-danger mb-0" role="alert">
+					<div class="ats-alert ats-tone-danger" role="alert">
 						{$_('Nothing here can run -- every case you picked is disabled. Enable at least one first.')}
 					</div>
 				{:else}
-					<div class="alert alert-warning mb-0" role="alert">
+					<div class="ats-alert ats-tone-warning" role="alert">
 						{$_('{count} execution(s) will run against live models. This costs real tokens and is not rate limited.', { values: { count: plannedExecutionCount } })}
 					</div>
 				{/if}
 			</div>
-			<div class="modal-footer">
+			<div class="ats-modal-footer">
 				<button
 					type="button"
-					class="btn btn-primary"
+					class="ats-btn ats-btn-secondary"
+					disabled={isTriggering}
+					onclick={() => closeRunModal()}
+				>
+					{$_('Cancel')}
+				</button>
+				<button
+					type="button"
+					class="ats-btn ats-btn-primary"
 					disabled={isTriggering || plannedCaseCount === 0}
 					onclick={() => submitRun()}
 				>
 					{#if isTriggering}
-						<i class="mdi mdi-loading mdi-spin me-1"></i>
+						<i class="mdi mdi-loading mdi-spin"></i>
 					{/if}
 					{$_('Yes, run it')}
-				</button>
-				<button type="button" class="btn btn-secondary" disabled={isTriggering} onclick={() => closeRunModal()}>
-					{$_('Cancel')}
 				</button>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
 {/if}
 
 {#if isRecordOpen}
 <div
-	class="modal show d-block"
+	class="ats-modal"
 	tabindex="-1"
 	role="dialog"
 	transition:fade={{ duration: 150 }}
 	onclick={(e) => handleBackdropClick(e, closeRecord)}
 	onkeydown={(e) => handleModalKeydown(e, closeRecord)}
 >
-	<div class="modal-dialog modal-md" role="document">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title">{$_('Record a Draft Case')}</h5>
-				<button type="button" class="btn-close" aria-label={$_('Close')} onclick={() => closeRecord()}></button>
+	<div class="ats-modal-dialog" role="document">
+		<div class="ats-modal-content">
+			<div class="ats-modal-header">
+				<h5 class="ats-modal-title">{$_('Record a Draft Case')}</h5>
+				<button
+					type="button"
+					class="ats-modal-close"
+					aria-label={$_('Close')}
+					onclick={() => closeRecord()}
+				>
+					<i class="mdi mdi-close"></i>
+				</button>
 			</div>
-			<div class="modal-body">
+			<div class="ats-modal-body">
 				<form onsubmit={(e) => submitRecord(e)}>
-					<div class="mb-3">
-						<label class="form-label" for="record-conversation-id">{$_('Conversation id')} <span class="text-danger">*</span></label>
+					<div class="mb-4">
+						<label class="ats-label" for="record-conversation-id">
+							{$_('Conversation id')} <span class="text-danger">*</span>
+						</label>
 						<input
 							id="record-conversation-id"
 							type="text"
-							class="form-control font-monospace"
+							class="ats-input font-code"
 							bind:value={recordConversationId}
 							placeholder={$_('An existing conversation with at least one tool call')}
 						/>
 					</div>
-					<div class="mb-3">
-						<label class="form-label" for="record-model">{$_('AI extraction model')}</label>
-						<select id="record-model" class="form-select" onchange={e => changeRecordModel(e)}>
-							<option value="">{$_('Do not use AI (one case for the whole conversation)')}</option>
-							{#each runModelCatalogue as group (group.provider)}
-								<optgroup label={group.provider}>
-									{#each group.models as model (model)}
-										<option value={`${group.provider}/${model}`}>{model}</option>
-									{/each}
-								</optgroup>
-							{/each}
-						</select>
-						<div class="form-text">
+					<div class="mb-4">
+						<span class="ats-label">{$_('AI extraction model')}</span>
+						<Select
+							tag={'agent-test-record-model'}
+							placeholder={$_('Do not use AI (one case for the whole conversation)')}
+							selectedValues={recordModel ? [`${recordModel.provider}/${recordModel.model}`] : []}
+							options={recordModelOptions}
+							onselect={e => changeRecordModel(e)}
+						/>
+						<span class="ats-help">
 							{$_('With a model picked, the conversation is split into one case per scenario it covers. The model only decides where to split and what to name each case -- mocks, assertions and state still come verbatim from the conversation.')}
-						</div>
+						</span>
 					</div>
 
-					<div class="alert alert-warning mb-0" role="alert">
-						{$_('Recording copies the raw conversation into the test store, including any phone numbers, addresses and tenant names it contains. The draft lands disabled -- review it before enabling.')}
+					<div class="ats-alert ats-tone-warning flex-col items-start gap-2" role="alert">
+						<span>
+							{$_('Recording copies the raw conversation into the test store, including any phone numbers, addresses and tenant names it contains. The draft lands disabled -- review it before enabling.')}
+						</span>
 						{#if recordModel}
-							<div class="mt-2">
+							<span>
 								{$_('AI extraction additionally sends the user messages and tool names to {provider}. Tool arguments and results are not sent.', { values: { provider: recordModel.provider } })}
-							</div>
+							</span>
 						{/if}
 					</div>
 				</form>
 			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-primary" disabled={!canRecord || isSaving} onclick={(e) => submitRecord(e)}>
+			<div class="ats-modal-footer">
+				<button
+					type="button"
+					class="ats-btn ats-btn-secondary"
+					disabled={isSaving}
+					onclick={() => closeRecord()}
+				>
+					{$_('Cancel')}
+				</button>
+				<button
+					type="button"
+					class="ats-btn ats-btn-primary"
+					disabled={!canRecord || isSaving}
+					onclick={(e) => submitRecord(e)}
+				>
 					{#if isSaving}
-						<i class="mdi mdi-loading mdi-spin me-1"></i>
+						<i class="mdi mdi-loading mdi-spin"></i>
 					{/if}
 					{$_('Record')}
-				</button>
-				<button type="button" class="btn btn-secondary" disabled={isSaving} onclick={() => closeRecord()}>
-					{$_('Cancel')}
 				</button>
 			</div>
 		</div>
 	</div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
 {/if}

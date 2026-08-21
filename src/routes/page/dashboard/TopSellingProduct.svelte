@@ -2,57 +2,43 @@
 	import { _ } from 'svelte-i18n';
 </script>
 
-<div class="col-xl-4">
-	<div class="card">
-		<div class="card-body">
-			<h4 class="card-title mb-4">{$_('Top Client Usage')}</h4>
+<div class="w-full xl:w-1/3 px-2">
+	<div class="mb-4 rounded-md bg-white shadow ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+		<div class="p-4">
+			<h4 class="mb-4 text-base font-medium text-dark dark:text-gray-100">{$_('Top Client Usage')}</h4>
 			<div class="text-center">
 				<div class="mb-4">
-					<i class="bx bx-map-pin text-primary display-4"></i>
+					<i class="bx bx-map-pin text-5xl text-primary"></i>
 				</div>
-				<h3>1,456</h3>
-				<p>San Francisco</p>
+				<h3 class="text-2xl font-semibold">1,456</h3>
+				<p class="text-muted">San Francisco</p>
 			</div>
-			<div class="table-responsive mt-4">
-				<table class="table align-middle table-nowrap">
+
+			<div class="mt-4 overflow-x-auto">
+				<table class="w-full whitespace-nowrap align-middle">
 					<tbody>
-						<tr>
-							<td style="width: 30%">
-								<p class="mb-0">San Francisco</p>
-							</td>
-							<td style="width: 25%"> <h5 class="mb-0">1,456</h5></td>
-							<td>
-								<div class="progress progress-sm">
-									<div class="progress-bar bg-primary" role="progressbar" style="width: 94%" aria-valuenow={94} aria-valuemin={0} aria-valuemax={100}></div>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<p class="mb-0">Los Angeles</p>
-							</td>
-							<td>
-								<h5 class="mb-0">1,123</h5>
-							</td>
-							<td>
-								<div class="progress progress-sm">
-									<div class="progress-bar bg-success" role="progressbar" style="width: 82%" aria-valuenow={82} aria-valuemin={0} aria-valuemax={100}></div>
-								</div>
-							</td>
-						</tr>
-						<tr>
-							<td>
-								<p class="mb-0">San Diego</p>
-							</td>
-							<td>
-								<h5 class="mb-0">1,026</h5>
-							</td>
-							<td>
-								<div class="progress progress-sm">
-									<div class="progress-bar bg-warning" role="progressbar" style="width: 70%" aria-valuenow={70} aria-valuemin={0} aria-valuemax={100}></div>
-								</div>
-							</td>
-						</tr>
+						{#each [
+							{ name: 'San Francisco', value: '1,456', width: 94, color: 'bg-primary' },
+							{ name: 'Los Angeles', value: '1,123', width: 82, color: 'bg-success' },
+							{ name: 'San Diego', value: '1,026', width: 70, color: 'bg-warning' }
+						] as row}
+							<tr class="border-t border-gray-100 first:border-t-0 dark:border-gray-700">
+								<td class="w-[30%] py-3"><p class="mb-0 text-sm text-muted">{row.name}</p></td>
+								<td class="w-[25%] py-3"><h5 class="mb-0 text-sm font-semibold">{row.value}</h5></td>
+								<td class="py-3">
+									<div class="relative h-1 w-full overflow-hidden rounded bg-gray-200 dark:bg-gray-700">
+										<div
+											class="h-full {row.color}"
+											role="progressbar"
+											style="width: {row.width}%"
+											aria-valuenow={row.width}
+											aria-valuemin={0}
+											aria-valuemax={100}
+										></div>
+									</div>
+								</td>
+							</tr>
+						{/each}
 					</tbody>
 				</table>
 			</div>

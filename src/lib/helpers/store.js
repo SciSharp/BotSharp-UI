@@ -37,6 +37,42 @@ export const globalMenuStore = createGlobalMenuStore();
 /** @type {Writable<import('$userTypes').UserModel>} */
 export const userStore = writable({ id: "", full_name: "", expires: 0, token: null });
 
+/** @type {boolean} */
+let openerSessionRestored = false;
+
+/**
+ * The signed-in session lives in sessionStorage, which is per-tab: a tab opened
+ * from an in-app link starts without it (browsers only clone session storage in
+ * some cases, and never when the link severs the opener), which would bounce the
+ * user to the login page. When this tab was opened by another tab of the same
+ * app, copy the session across once instead.
+ *
+ * Reading the opener is only permitted — and only attempted — same-origin, and
+ * existing keys in this tab always win.
+ */
+export function restoreSessionFromOpener() {
+    if (!browser || openerSessionRestored) return;
+    openerSessionRestored = true;
+
+    try {
+        const opener = window.opener;
+        if (!opener || opener.closed) return;
+        // Touching location.origin on a cross-origin opener throws, hence the try.
+        if (opener.location.origin !== window.location.origin) return;
+
+        [userKey, tenantKey, tenantNameKey].forEach(key => {
+            if (sessionStorage.getItem(key)) return;
+
+            const value = opener.sessionStorage.getItem(key);
+            if (value) {
+                sessionStorage.setItem(key, value);
+            }
+        });
+    } catch (e) {
+        // No accessible opener (closed, cross-origin, or blocked) — nothing to restore.
+    }
+}
+
 /**
  * @returns {Writable<import('$userTypes').UserModel>}
  */
@@ -48,6 +84,11 @@ export function getUserStore() {
         }
 
         let json = sessionStorage.getItem(userKey);
+        if (!json) {
+            restoreSessionFromOpener();
+            json = sessionStorage.getItem(userKey);
+        }
+
         if (json) {
             return JSON.parse(json);
         }
@@ -60,6 +101,7 @@ export function getUserStore() {
 /** @returns {string} */
 export function getTenantId() {
     if (!browser) return '';
+    restoreSessionFromOpener();
     return sessionStorage.getItem(tenantKey) || '';
 }
 
@@ -81,6 +123,7 @@ export function clearTenantId() {
 /** @returns {string} */
 export function getTenantName() {
     if (!browser) return '';
+    restoreSessionFromOpener();
     return sessionStorage.getItem(tenantNameKey) || '';
 }
 
@@ -184,6 +227,20 @@ const createGlobalErrorStore = () => {
 }
 
 export const globalErrorStore = createGlobalErrorStore();
+
+
+/**
+ * Whether the backend is reachable, inferred from the requests the app already makes
+ * rather than from a poll of its own — the desktop status bar reads this.
+ *
+ * `'unknown'` until the first response comes back. Only a request that returned NO
+ * response at all counts as `'offline'`: a 401 or a 500 means the server answered, so
+ * the connection is fine and something else is wrong. Reporting those as offline would
+ * point the user at their network when the problem is on the server.
+ *
+ * @type {import('svelte/store').Writable<'unknown' | 'online' | 'offline'>}
+ */
+export const apiStatusStore = writable('unknown');
 
 
 const createConversationUserStateStore = () => {

@@ -79,75 +79,108 @@ if __name__ == "__main__":
 
 
 
-<div class="card">
-    <div class="card-body border-bottom">
-        <div class="row g-3">
-            <div class="col-lg-3">
-                <div class="mb-2" style="display: flex; gap: 10px;">
-                    <div class="line-align-center fw-bold">
-                        {title}
+<div class="se-card">
+    <div class="se-header-bar">
+        <div class="se-header-left">
+            <div class="se-section-icon">
+                <i class={scriptType === 'test' ? 'bx bx-test-tube' : 'bx bx-code-block'}></i>
+            </div>
+            <div class="se-title">
+                {title}
+            </div>
+            <div class="se-tooltip-wrap">
+                <div class="se-tooltip-icon" id="{scriptType}-src-tooltip">
+                    <i class="bx bx-info-circle"></i>
+                </div>
+                <BotsharpTooltip target="{scriptType}-src-tooltip" placement="top">
+                    <div>Support python only</div>
+                </BotsharpTooltip>
+            </div>
+        </div>
+        <button
+            type="button"
+            class="se-add-btn"
+            data-bs-toggle="tooltip"
+            data-bs-placement="top"
+            title="Add a new {scriptType} script"
+            onclick={() => addScript()}
+        >
+            <i class="bx bx-plus"></i>
+            <span>Add Script</span>
+        </button>
+    </div>
+
+    <div class="se-card-body">
+        {#if scriptObj.scripts.length > 0}
+            <NavBar
+                id={`agent-${scriptType}-script-container`}
+                disableDefaultStyles
+                containerClasses={'nav-tabs-secondary'}
+            >
+                {#each scriptObj.scripts as item, idx (idx) }
+                <NavItem
+                    containerStyles={`flex: 0 1 calc(100% / ${scriptObj.scripts.length <= 2 ? scriptObj.scripts.length : 3})`}
+                    navBtnStyles={'text-transform: none;'}
+                    navBtnId={`${scriptType}-script-${idx}-tab`}
+                    dataBsTarget={`#${scriptType}-script-${idx}-tab-pane`}
+                    ariaControls={`${scriptType}-script-${idx}-tab-pane`}
+                    bind:navBtnText={item.name}
+                    active={item.uid === scriptObj.selectedScript?.uid}
+                    allowEdit
+                    allowDelete
+                    maxEditLength={50}
+                    editPlaceholder={'Type a title here...'}
+                    onClick={() => selectScript(item.uid)}
+                    onDelete={() => deleteScript(item.uid)}
+                    onInput={() => {}}
+                />
+                {/each}
+            </NavBar>
+
+            <div class="se-editor-frame">
+                <div class="se-editor-titlebar">
+                    <div class="se-window-dots" aria-hidden="true">
+                        <span class="se-dot se-dot-r"></span>
+                        <span class="se-dot se-dot-y"></span>
+                        <span class="se-dot se-dot-g"></span>
                     </div>
-                    <div class="line-align-center">
-                        <div class="line-align-center" id="{scriptType}-src-tooltip">
-                            <i class="bx bx-info-circle"></i>
-                        </div>
-                        <BotsharpTooltip target="{scriptType}-src-tooltip" placement="top">
-                            <div>Support python only</div>
-                        </BotsharpTooltip>
+                    <div class="se-editor-filename">
+                        <i class="bx bxl-python"></i>
+                        <span>{scriptObj.selectedScript?.name || ''}</span>
                     </div>
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <!-- svelte-ignore a11y_no_static_element_interactions -->
-                    <div
-                        class="text-primary clickable"
-                        data-bs-toggle="tooltip"
-                        data-bs-placement="top"
-                        title="Add src script"
-                        style="font-size: 16px;"
-                        onclick={() => addScript()}
-                    >
-                        <i class="mdi mdi-plus-circle-outline"></i>
-                    </div>
+                    <div class="se-editor-lang">python</div>
+                </div>
+                <div class="se-code-editor">
+                    {#key scriptObj.selectedScript?.uid}
+                    <CodeScript
+                        language={'python'}
+                        scriptText={scriptObj.selectedScript?.content || ''}
+                        onchange={(/** @type {string} */ text) => changeScriptContent(text, scriptObj.selectedScript?.uid)}
+                    />
+                    {/key}
                 </div>
             </div>
-        </div>
-        <div class="row g-3">
-            <div class="col-lg-12">
-                {#if scriptObj.scripts.length > 0}
-                    <NavBar
-                        id={`agent-${scriptType}-script-container`}
-                        disableDefaultStyles
-                        containerClasses={'nav-tabs-secondary'}
-                    >
-                        {#each scriptObj.scripts as item, idx (idx) }
-                        <NavItem
-                            containerStyles={`flex: 0 1 calc(100% / ${scriptObj.scripts.length <= 2 ? scriptObj.scripts.length : 3})`}
-                            navBtnStyles={'text-transform: none;'}
-                            navBtnId={`${scriptType}-script-${idx}-tab`}
-                            dataBsTarget={`#${scriptType}-script-${idx}-tab-pane`}
-                            ariaControls={`${scriptType}-script-${idx}-tab-pane`}
-                            bind:navBtnText={item.name}
-                            active={item.uid === scriptObj.selectedScript?.uid}
-                            allowEdit
-                            allowDelete
-                            maxEditLength={50}
-                            editPlaceholder={'Type a title here...'}
-                            onClick={() => selectScript(item.uid)}
-                            onDelete={() => deleteScript(item.uid)}
-                            onInput={() => {}}
-                        />
-                        {/each}
-                    </NavBar>
-                    <div class="code-editor">
-                        {#key scriptObj.selectedScript?.uid}
-                        <CodeScript
-                            language={'python'}
-                            scriptText={scriptObj.selectedScript?.content || ''}
-                            onchange={(/** @type {string} */ text) => changeScriptContent(text, scriptObj.selectedScript?.uid)}
-                        />
-                        {/key}
-                    </div>
-                {/if}
+        {:else}
+            <div class="se-empty">
+                <div class="se-empty-illustration">
+                    <i class={scriptType === 'test' ? 'bx bx-test-tube' : 'bx bx-code-block'}></i>
+                </div>
+                <h6 class="se-empty-title">No {scriptType} scripts yet</h6>
+                <p class="se-empty-text">
+                    {scriptType === 'test'
+                        ? 'Add a test script to validate your source code.'
+                        : 'Add a Python script that this agent can execute.'}
+                </p>
+                <button
+                    type="button"
+                    class="se-empty-cta"
+                    onclick={() => addScript()}
+                >
+                    <i class="bx bx-plus"></i>
+                    Add your first script
+                </button>
             </div>
-        </div>
+        {/if}
     </div>
 </div>
+

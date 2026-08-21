@@ -1,22 +1,22 @@
 <script>
-    import { getAgentRuleOptionsById, getAgentRuleConfigOptions } from '$lib/services/agent-service';
+    import { getAgentRuleOptionsById, generateAgentCodeScript } from '$lib/services/agent-service';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+	import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
 	import { scrollToBottom } from '$lib/helpers/utils/common';
+	import { AgentCodeScriptType } from '$lib/helpers/enums';
 	import AgentRuleItem from './agent-rule-item.svelte';
-	import PlainModal from '$lib/common/modals/PlainModal.svelte';
 
     const limit = 100;
+    const duration = 2000;
 
     /**
      * @type {{
      *   agent: import('$agentTypes').AgentModel,
-     *   user: import('$userTypes').UserModel,
      *   handleAgentChange?: () => void
      * }}
      */
     let {
         agent,
-        user,
         handleAgentChange = () => {}
     } = $props();
 
@@ -26,28 +26,25 @@
     let isComplete = $state(false);
     /** @type {boolean} */
     let isError = $state(false);
-    /** @type {boolean} */
-    let isOpenConfigModal = $state(false);
-
     /** @type {number} */
     let windowWidth = $state(0);
-    let windowHeight = $state(0);
-
     /** @type {string} */
     let successText = $state('');
+    /** @type {string} */
     let errorText = $state('');
 
-    /** @type {any} */
-    let selectedRuleConfig = $state({});
-    /** @type {any} */
-    let ruleConfigs = $state({});
+    /** @type {boolean} */
+    let confirmOpen = $state(false);
+    /** @type {import('$agentTypes').AgentRule | null} */
+    let pendingRule = $state(null);
 
     export const fetchRules = () => {
         const candidates = innerRules?.filter(x => !!x.trigger_name)?.map(x => {
             return {
                 trigger_name: x.trigger_name,
                 disabled: x.disabled,
-                config: x.config,
+                message: x.message || null,
+                criteria_config: normalizeCriteriaConfig(x.criteria_config),
                 expanded: x.expanded
             };
         });
@@ -66,11 +63,25 @@
         return rules;
     }
 
+    /**
+     * Collapse a blank criteria config into null so the rule is saved without a
+     * criteria config instead of with an empty one.
+     * @param {import('$agentTypes').RuleCriteriaConfig | null | undefined} config
+     * @returns {import('$agentTypes').RuleCriteriaConfig | null}
+     */
+    function normalizeCriteriaConfig(config) {
+        const mode = config?.mode || '';
+        const text = config?.criteria || '';
+        if (!mode.trim() && !text.trim()) return null;
+
+        return {
+            mode: mode.trim() || null,
+            criteria: text || null
+        };
+    }
+
     /** @type {any[]} */
     let ruleOptions = $state([]);
-
-    /** @type {any} */
-    let configOptions = $state([]);
 
     /** @type {import('$agentTypes').AgentRule[]} */
     let innerRules = $state([]);
@@ -92,8 +103,7 @@
             void (async () => {
                 try {
                     await Promise.all([
-                        loadAgentRuleOptions(requestedAgentId),
-                        loadAgentRuleConfigOptions(requestedAgentId)
+                        loadAgentRuleOptions(requestedAgentId)
                     ]);
                 } catch (error) {
                     // Error already logged in individual loaders
@@ -130,7 +140,8 @@
                         displayName: "",
                         output_args: x.output_args,
                         json_args: x.json_args,
-                        statement: x.statement
+                        statement: x.statement,
+                        mode: x.mode
                     };
                 }) || [];
                 ruleOptions = [{
@@ -159,38 +170,6 @@
         }) || [];
         innerRefresh(list);
     }
-
-    /**
-     * @param {string} requestedAgentId - The agent ID for which we're loading config options
-     */
-    function loadAgentRuleConfigOptions(requestedAgentId) {
-        return new Promise((resolve, reject) => {
-            getAgentRuleConfigOptions().then(data => {
-                // Guard: only apply results if agent hasn't changed
-                if (agent.id !== requestedAgentId) {
-                    resolve('stale');
-                    return;
-                }
-
-                ruleConfigs = data || {};
-                const keys = Object.keys(data || {});
-                const list = keys?.map(x => ({ name: x })) || [];
-                configOptions = [
-                    { name: '' },
-                    ...list
-                ];
-                resolve('done');
-            }).catch(error => {
-                console.error('Failed to load agent rule config options:', error);
-                // Guard: only apply error state if agent hasn't changed
-                if (agent.id === requestedAgentId) {
-                    ruleConfigs = {};
-                    configOptions = [{ name: '' }];
-                }
-                reject(error);
-            });
-        });
-    }
     
     /**
 	 * @param {any} data
@@ -205,12 +184,12 @@
         if (field === 'rule') {
             found.trigger_name = value;
             innerRefresh(innerRules);
-        } else if (field === 'topology') {
-            found.config = {
-                ...found.config || {},
-                topology_name: value
-            };
-            innerRefresh(innerRules);
+        } else if (field === 'message') {
+            found.message = value;
+        } else if (field === 'criteria') {
+            found.criteria_config = { ...(found.criteria_config || {}), criteria: value };
+        } else if (field === 'criteria_mode') {
+            found.criteria_config = { ...(found.criteria_config || {}), mode: value };
         }
 
         handleAgentChange();
@@ -223,6 +202,8 @@
                 trigger_name: '',
                 displayName: '',
                 disabled: false,
+                message: '',
+                criteria_config: { mode: '', criteria: '' },
                 expanded: true
             }
         ];
@@ -274,6 +255,65 @@
 
 
 
+    /**
+     * @param {any} data
+     */
+    function compileCodeScript(data) {
+        pendingRule = data.rule;
+        confirmOpen = true;
+    }
+
+    function closeConfirm() {
+        confirmOpen = false;
+        pendingRule = null;
+    }
+
+    function onConfirmCompile() {
+        const rule = pendingRule;
+        closeConfirm();
+        if (rule) {
+            generateCodeScript(rule);
+        }
+    }
+
+    /**
+     * @param {import('$agentTypes').AgentRule} rule
+     */
+    function generateCodeScript(rule) {
+        isLoading = true;
+        generateAgentCodeScript(agent.id, {
+            options: {
+                save_to_db: true,
+                script_name: `${rule.trigger_name}_criteria.py`,
+                script_type: AgentCodeScriptType.Src,
+                data: {
+                    "user_request": rule.criteria_config?.criteria
+                }
+            }
+        }).then(res => {
+            isLoading = false;
+            if (res?.success) {
+                isComplete = true;
+                successText = 'Code script has been generated!';
+                setTimeout(() => {
+                    isComplete = false;
+                    successText = '';
+                }, duration);
+            } else {
+                throw new Error('error when generating code script.');
+            }
+        }).catch(() => {
+            isLoading = false;
+            isComplete = false;
+            isError = true;
+            errorText = 'Failed to generate code script.';
+            setTimeout(() => {
+                isError = false;
+                errorText = '';
+            }, duration);
+        });
+    }
+
     /** @param {import('$agentTypes').AgentRule[]} list */
     function innerRefresh(list) {
         innerRules = list?.map(x => {
@@ -282,46 +322,14 @@
                 ...x,
                 output_args: found?.output_args,
                 json_args: found?.json_args,
-                statement: found?.statement
+                statement: found?.statement,
+                default_mode: found?.mode
             }
         }) || [];
     }
 
-    /**
-     * @param {any} _data
-	 * @param {number} uid
-	 */
-    function openRuleConfigModal(_data, uid) {
-        const found = innerRules.find((_, index) => index === uid);
-        if (!found || !found.config?.topology_name) {
-            return;
-        }
-
-        const config = ruleConfigs[found.config.topology_name];
-        const customParam = config?.customParameters || {};
-
-        if (customParam.htmlTag === 'iframe') {
-            const params = JSON.stringify({
-                agent: agent.name,
-                agentId: agent.id,
-                trigger: found.trigger_name || ""
-            });
-            const url = new URL(customParam.url, window.location.origin);
-            url.searchParams.set(customParam.appendParameterName || 'parameters', encodeURIComponent(params));
-
-            selectedRuleConfig = {
-                agent: agent.name,
-                url: url.toString(),
-                rule: found,
-                title: `${found.trigger_name} config`
-            };
-            isOpenConfigModal = true;
-        }
-    }
-
     function resizeWindow() {
         windowWidth = window.innerWidth;
-        windowHeight = window.innerHeight;
     }
 </script>
 
@@ -335,57 +343,58 @@
     {errorText}
 />
 
-{#if isOpenConfigModal}
-    <PlainModal
-        containerClasses={'rule-config-modal'}
-        title={selectedRuleConfig?.rule?.trigger_name || ''}
-        size={'xl'}
-        isOpen={isOpenConfigModal}
-        toggleModal={() => isOpenConfigModal = !isOpenConfigModal}
-    >
-        <iframe src={selectedRuleConfig.url} title={selectedRuleConfig.title} width="100%" height="100%"></iframe>
-    </PlainModal>
-{/if}
+<ConfirmModal
+    isOpen={confirmOpen}
+    icon="warning"
+    title="Are you sure?"
+    text={pendingRule
+        ? `Are you sure you want to generate code script "${pendingRule.trigger_name}_criteria.py"? This will overwrite the existing code script if any.`
+        : ''}
+    confirmBtnText="Yes"
+    cancelBtnText="No"
+    confirm={onConfirmCompile}
+    cancel={closeConfirm}
+    toggleModal={closeConfirm}
+/>
 
-<div class="card">
-    <div class="card-body">
-        <div class="text-center">
-            <h5 class="mt-1 mb-3">Triggers & Rules</h5>
-            <h6 class="mt-1 mb-3">Wake-up your agent by rules</h6>
+<div class="ar-card">
+    <div class="ar-card-body">
+        <div class="ar-header">
+            <h5 class="ar-title">Triggers & Rules</h5>
+            <h6 class="ar-subtitle">Wake-up your agent by rules</h6>
         </div>
 
-        <div class="agent-utility-container" bind:this={scrollContainer}>
+        <div class="ar-list scrollbar-on-hover" bind:this={scrollContainer}>
             {#each innerRules as rule, uid (uid)}
                 <AgentRuleItem
                     rule={rule}
                     ruleIndex={uid}
+                    agentId={agent.id}
                     collapsed={!rule.expanded}
-                    user={user}
                     ruleOptions={ruleOptions}
-                    configOptions={configOptions}
                     windowWidth={windowWidth}
                     ontoggle={data => toggleRule(data, uid)}
                     ondelete={data => deleteRule(data, uid)}
                     onchange={data => changeRule(data, uid)}
-                    onconfig={data => openRuleConfigModal(data, uid)}
                     oncollapse={data => toggleCollapse(data, uid)}
+                    oncompile={data => compileCodeScript(data)}
                 />
             {/each}
 
             {#if innerRules.length < limit}
-                <div class="add-utility">
+                <div class="ar-add">
                     <button
                         type="button"
-                        class="btn btn-primary"
+                        class="ar-add-btn"
                         onclick={() => addRule()}
                     >
-                        <span>
-                            <i class="bx bx-plus"></i>
-                            <span>Add Rule</span>
-                        </span>
+                        <i class="bx bx-plus"></i>
+                        <span>Add Rule</span>
                     </button>
                 </div>
             {/if}
         </div>
     </div>
 </div>
+
+

@@ -1,38 +1,38 @@
 // Knowledgebase
 /**
  * @typedef {Object} CreateVectorCollectionRequest
- * @property {string} collection_name - The collection name.
- * @property {string} collection_type - The collection type.
+ * @property {string} collectionName - The collection name.
  * @property {string} provider - The text embedding provider.
  * @property {string} model - The text embedding model.
  * @property {number} dimension - The text embedding dimension.
  */
 
 /**
- * @typedef {Object} SearchKnowledgeRequest
+ * @typedef {Object} KnowledgeQueryRequest
  * @property {string} text - The text.
  * @property {string[]} [fields] - Data fields.
  * @property {number} [limit] - Data limit.
  * @property {number} [confidence] - Confidence.
- * @property {boolean} [with_vector] - Include vector or not.
- * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
- * @property {VectorSearchParam} [search_param] - Search params.
+ * @property {boolean} [withVector] - Include vector or not.
+ * @property {VectorFilterGroup[]} [filterGroups] - Search filter groups.
+ * @property {any} [searchParam] - Search params.
+ * @property {string[]?} [dataProviders] - Data providers
  */
 
 /**
  * @typedef {Object} KnowledgeFilter
  * @property {string | null} [start_id] - The start id.
  * @property {number} size - Page size.
- * @property {boolean} [with_vector] - Include vector or not.
+ * @property {boolean} [withVector] - Include vector or not.
  * @property {string[]} [fields] - Included payload fields.
- * @property {VectorFilterGroup[]} [filter_groups] - Search filter groups.
- * @property {VectorSort?} [order_by] - Sort by.
+ * @property {VectorFilterGroup[]} [filterGroups] - Search filter groups.
+ * @property {VectorSort?} [orderBy] - Sort by.
  */
 
-/**
- * @typedef {Object} VectorSearchParam
- * @property {boolean?} [exact_search] - Exact search or not.
- */
+// /**
+//  * @typedef {Object} VectorSearchParam
+//  * @property {boolean?} [exact_search] - Exact search or not.
+//  */
 
 /**
  * @typedef {Object} VectorFilterGroup
@@ -80,9 +80,10 @@
  */
 
 /**
- * @typedef {Object} KnowledgeSearchViewModel
+ * @typedef {Object} KnowledgeQueryViewModel
  * @property {string} id - The knowledge data id.
  * @property {any} payload - The knowledge payload.
+ * @property {any} data - The knowledge payload.
  * @property {number} [score] - The knowledge score.
  * @property {number[]} [vector] - The knowledge vector.
  * @property {number} [vector_dimension] - The vector dimension.
@@ -91,7 +92,7 @@
 /**
  * @typedef {Object} KnowledgeSearchPageResult
  * @property {number} count - The total data count.
- * @property {KnowledgeSearchViewModel[]} items - The data items.
+ * @property {KnowledgeQueryViewModel[]} items - The data items.
  * @property {string} [next_id] - The next id.
  */
 
@@ -143,8 +144,6 @@
 /**
  * @typedef {Object} VectorCollectionDetails
  * @property {string} status
- * @property {number} vectors_count
- * @property {number} points_count
  * @property {PayloadSchemaDetail[]} payload_schema
  */
 

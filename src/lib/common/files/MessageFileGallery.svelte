@@ -7,6 +7,7 @@
 	import { isExternalUrl } from '$lib/helpers/utils/common';
     import AudioGallery from './AudioGallery.svelte';
 	import { IMAGE_DATA_PREFIX } from '$lib/helpers/constants';
+	import { openExternal } from '$lib/helpers/utils/desktop';
 
     /**
      * @type {{
@@ -69,7 +70,7 @@
     function handleDownloadFile(idx) {
         const found = textFiles.find((_, index) => index === idx);
         if (found?.file_download_url) {
-            window.open(found.file_download_url);
+            openExternal(found.file_download_url);
         }
     }
 </script>

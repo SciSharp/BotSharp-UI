@@ -32,42 +32,40 @@
 </script>
 
 <div
-	class="dropdown d-inline-block"
+	class="relative inline-block"
 	use:clickoutsideDirective
 	onclickoutside={handleClickOutside}
 >
 	<button
 		type="button"
-		class="btn header-item"
+		class="inline-flex h-[var(--header-height)] cursor-pointer items-center px-3 text-gray-600 transition-colors hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-gray-700"
 		aria-label="Select language"
 		onclick={() => (isOpen = !isOpen)}
 	>
 		<img
 			src={languages.find(lang => lang.value === selectedLang)?.flag || 'images/flags/us.jpg'}
 			alt="Language"
-			height="16"
-			style="max-height: 16px; width: auto;"
+			class="h-4 w-auto"
 		/>
 	</button>
-	<div class="dropdown-menu language-switch dropdown-menu-end" class:show={isOpen}>
-		{#each languages as language}
-			<button
-				type="button"
-				class={`dropdown-item notify-item language ${
-					selectedLang === language.value ? "active" : "none"
-				}`}
-				onclick={() => handleLocaleChange(language.value)}
-			>
-				<img
-					src={language.flag}
-					alt="Samply"
-					class="me-2"
-					height="12"
-				/>
-				<span class="align-middle">
-					{language.label}
-				</span>
-			</button>
-		{/each}
-	</div>
+	{#if isOpen}
+		<div class="absolute right-0 top-full z-[1000] mt-1 w-40 rounded-md border border-gray-200 bg-white py-1 shadow-lg dark:border-gray-700 dark:bg-gray-800">
+			{#each languages as language}
+				<button
+					type="button"
+					class={`flex w-full cursor-pointer items-center px-4 py-2 text-sm transition-colors hover:bg-gray-100 dark:hover:bg-gray-700 ${
+						selectedLang === language.value
+							? 'bg-gray-50 text-primary dark:bg-gray-700'
+							: 'text-gray-700 dark:text-gray-200'
+					}`}
+					onclick={() => handleLocaleChange(language.value)}
+				>
+					<img src={language.flag} alt={language.label} class="me-2 h-3 w-auto" />
+					<span class="align-middle">
+						{language.label}
+					</span>
+				</button>
+			{/each}
+		</div>
+	{/if}
 </div>

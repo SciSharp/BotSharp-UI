@@ -41,7 +41,6 @@ export const endpoints = {
     agentUtilityOptionsUrl: `${host}/agent/utility/options`,
     agentRuleOptionsUrl: `${host}/rule/triggers`,
     agentRuleOptionsByIdUrl: `${host}/rule/triggers/{agentId}`,
-    agentRuleConfigOptionsUrl: `${host}/rule/config/options`,
     agentLabelsUrl: `${host}/agent/labels`,
 
     // agent code script:
@@ -98,32 +97,30 @@ export const endpoints = {
     loggingStateLogUrl: `${host}/logger/conversation/{conversationId}/state-log`,
     
     // knowledge base
-    vectorCollectionExistUrl: `${host}/knowledge/vector/{collection}/exist`,
-    vectorCollectionsUrl: `${host}/knowledge/vector/collections`,
-    vectorCollectionDetailsUrl: `${host}/knowledge/vector/{collection}/details`,
-    vectorKnowledgePageListUrl: `${host}/knowledge/vector/{collection}/page`,
-    vectorKnowledgeSearchUrl: `${host}/knowledge/vector/{collection}/search`,
-    vectorKnowledgeCreateUrl: `${host}/knowledge/vector/{collection}/create`,
-    vectorKnowledgeUpdateUrl: `${host}/knowledge/vector/{collection}/update`,
-    vectorKnowledgeDeleteUrl: `${host}/knowledge/vector/{collection}/data/{id}`,
-    vectorKnowledgeDeleteAllUrl: `${host}/knowledge/vector/{collection}/data`,
-    vectorKnowledgeUploadUrl: `${host}/knowledge/vector/{collection}/upload`,
-    vectorCollectionCreateUrl: `${host}/knowledge/vector/create-collection`,
-    vectorCollectionDeleteUrl: `${host}/knowledge/vector/{collection}/delete-collection`,
-    vectorIndexesCreateUrl: `${host}/knowledge/vector/{collection}/payload/indexes`,
-    vectorIndexesDeleteUrl: `${host}/knowledge/vector/{collection}/payload/indexes`,
-    
-    graphKnowledgeSearchUrl: `${host}/knowledge/graph/search`,
+    knowledgeCollectionExistUrl: `${host}/knowledge/collection/{collection}/exist`,
+    knowledgeCollectionDetailsUrl: `${host}/knowledge/collection/{collection}/details`,
+    knowledgeCollectionsUrl: `${host}/knowledge/collections`,
+    knowledgeCollectionCreateUrl: `${host}/knowledge/collection`,
+    knowledgeCollectionDeleteUrl: `${host}/knowledge/collection/{collection}`,
 
-    knowledgeDocumentUploadUrl: `${host}/knowledge/document/{collection}/upload`,
-    knowledgeDocumentDeleteUrl: `${host}/knowledge/document/{collection}/delete/{fileId}`,
-    knowledgeDocumentDeleteAllUrl: `${host}/knowledge/document/{collection}/delete`,
-    knowledgeDocumentPageListUrl: `${host}/knowledge/document/{collection}/page`,
+    knowledgeDataQueryUrl: `${host}/knowledge/collection/{collection}/query`,
+    knowledgeDataPageListUrl: `${host}/knowledge/collection/{collection}/data/page`,
+    knowledgeDataCreateUrl: `${host}/knowledge/collection/{collection}/data`,
+    knowledgeDataUpdateUrl: `${host}/knowledge/collection/{collection}/data`,
+    knowledgeDataDeleteUrl: `${host}/knowledge/collection/{collection}/data/{id}`,
+    knowledgeDataDeleteAllUrl: `${host}/knowledge/collection/{collection}/data`,
+    
+    knowledgeIndexesCreateUrl: `${host}/knowledge/collection/{collection}/indexes`,
+    knowledgeIndexesDeleteUrl: `${host}/knowledge/collection/{collection}/indexes`,
+
+    knowledgeFileUploadUrl: `${host}/knowledge/collection/{collection}/file/upload`,
+    knowledgeFileDeleteUrl: `${host}/knowledge/collection/{collection}/file/{fileId}`,
+    knowledgeFileDeleteAllUrl: `${host}/knowledge/collection/{collection}/file`,
+    knowledgeFilePageListUrl: `${host}/knowledge/collection/{collection}/file/page`,
     knowledgeProcessorsUrl: `${host}/knowledge/processors`,
 
     entityAnalyzersUrl: `${host}/knowledge/entity/analyzers`,
-    entityDataLoadersUrl: `${host}/knowledge/entity/data-providers`,
-    entityAnalyzeUrl: `${host}/knowledge/entity/analyze`,
+    entityDataProvidersUrl: `${host}/knowledge/entity/data-providers`,
 
     // chathub 
     chatHubUrl: `${host}/chatHub`,

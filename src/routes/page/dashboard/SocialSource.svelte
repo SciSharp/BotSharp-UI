@@ -2,62 +2,48 @@
 	import { _ } from 'svelte-i18n';
 </script>
 
-<div class="col-xl-4">
-	<div class="card">
-		<div class="card-body">
-			<h4 class="card-title mb-4">{$_('Channel Stats')}</h4>
+<div class="w-full xl:w-1/3 px-2">
+	<div class="mb-4 rounded-md bg-white shadow ring-1 ring-black/5 dark:bg-gray-800 dark:ring-white/10">
+		<div class="p-4">
+			<h4 class="mb-4 text-base font-medium text-dark dark:text-gray-100">{$_('Channel Stats')}</h4>
 			<div class="text-center">
-				<div class="avatar-sm mx-auto mb-4">
-					<span class="avatar-title rounded-circle bg-primary-subtle font-size-24">
-						<i class="mdi mdi-facebook text-primary"></i>
-					</span>
+				<div class="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/25 text-2xl text-primary">
+					<i class="mdi mdi-facebook"></i>
 				</div>
-				<p class="font-16 text-muted mb-2"></p>
-				<h5>
-					<a href={'#'} class="text-dark"
-						>Facebook - <span class="text-muted font-16">125 Conversations</span>
+				<h5 class="mb-2">
+					<a href={'#'} class="text-dark hover:underline dark:text-gray-100">
+						Facebook - <span class="text-base text-muted">125 Conversations</span>
 					</a>
 				</h5>
 				<p class="text-muted">
 					{$_('Maecenas nec odio et ante tincidunt tempus. Donec vitae sapien ut libero venenatis faucibus tincidunt.')}
 				</p>
-				<a href={'#'} class="text-primary font-16">
+				<a href={'#'} class="inline-flex items-center text-base text-primary hover:text-primary-hover hover:underline">
 					{$_('Learn more')} <i class="mdi mdi-chevron-right"></i>
 				</a>
 			</div>
-			<div class="row mt-4">
-				<div class="col-4">
-					<div class="social-source text-center mt-3">
-						<div class="avatar-xs mx-auto mb-3">
-							<span class="avatar-title rounded-circle bg-primary font-size-16">
-								<i class="mdi mdi-facebook text-white"></i>
-							</span>
-						</div>
-						<h5 class="font-size-15">Facebook</h5>
-						<p class="text-muted mb-0">125 {$_('sales')}</p>
+
+			<div class="mt-4 flex flex-wrap">
+				<div class="mt-3 w-1/3 text-center">
+					<div class="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-primary text-base text-white">
+						<i class="mdi mdi-facebook"></i>
 					</div>
+					<h5 class="text-[15px] font-semibold">Facebook</h5>
+					<p class="mb-0 text-muted">125 {$_('sales')}</p>
 				</div>
-				<div class="col-4">
-					<div class="social-source text-center mt-3">
-						<div class="avatar-xs mx-auto mb-3">
-							<span class="avatar-title rounded-circle bg-info font-size-16">
-								<i class="mdi mdi-twitter text-white"></i>
-							</span>
-						</div>
-						<h5 class="font-size-15">Twitter</h5>
-						<p class="text-muted mb-0">112 {$_('sales')}</p>
+				<div class="mt-3 w-1/3 text-center">
+					<div class="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-info text-base text-white">
+						<i class="mdi mdi-twitter"></i>
 					</div>
+					<h5 class="text-[15px] font-semibold">Twitter</h5>
+					<p class="mb-0 text-muted">112 {$_('sales')}</p>
 				</div>
-				<div class="col-4">
-					<div class="social-source text-center mt-3">
-						<div class="avatar-xs mx-auto mb-3">
-							<span class="avatar-title rounded-circle bg-pink font-size-16">
-								<i class="mdi mdi-instagram text-white"></i>
-							</span>
-						</div>
-						<h5 class="font-size-15">Instagram</h5>
-						<p class="text-muted mb-0">104 {$_('sales')}</p>
+				<div class="mt-3 w-1/3 text-center">
+					<div class="mx-auto mb-3 flex h-8 w-8 items-center justify-center rounded-full bg-pink-500 text-base text-white">
+						<i class="mdi mdi-instagram"></i>
 					</div>
+					<h5 class="text-[15px] font-semibold">Instagram</h5>
+					<p class="mb-0 text-muted">104 {$_('sales')}</p>
 				</div>
 			</div>
 		</div>

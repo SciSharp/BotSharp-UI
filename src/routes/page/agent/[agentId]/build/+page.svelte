@@ -47,27 +47,4 @@
 	</Svelvet>
 </div>
 
-<style>
-	@import url('https://fonts.googleapis.com/css2?family=Reenie+Beanie&display=swap');
-    #svelet-agent-build {
-        height: 80vh;
-        width: "100%";
-    }
-	.note {
-		font-family: 'Reenie Beanie', sans-serif;
-		position: absolute;
-		color: inherit;
-		width: 400px;
-		transform: rotate(-3deg);
-		font-weight: 200px;
-		font-size: 40px;
-	}
-	#state {
-		top: -30px;
-		left: 620px;
-	}
-	#groups {
-		top: 530px;
-		left: 490px;
-	}
-</style>
+

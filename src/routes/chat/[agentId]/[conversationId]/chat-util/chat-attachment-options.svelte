@@ -74,10 +74,10 @@
     }
 </script>
 
-<div class="plain-option-container center-option">
+<div class="cao-wrap cao-center">
     {#if files?.length > 0 && confirmOption}
         <button
-            class={`btn btn-sm m-1 ${confirmOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+            class={`cao-btn ${confirmOption?.is_secondary ? 'cao-btn-secondary': 'cao-btn-primary'}`}
             disabled={disabled}
             onclick={(e) => handleClickOption(e, confirmOption)}
         >
@@ -86,7 +86,7 @@
     {/if}
     {#if files?.length <= 0 && cancelOption}
         <button
-            class={`btn btn-sm m-1 ${cancelOption?.is_secondary ? 'btn-outline-secondary': 'btn-outline-primary'}`}
+            class={`cao-btn ${cancelOption?.is_secondary ? 'cao-btn-secondary': 'cao-btn-primary'}`}
             disabled={disabled}
             onclick={(e) => handleClickOption(e, cancelOption)}
         >
@@ -94,3 +94,4 @@
         </button>
     {/if}
 </div>
+

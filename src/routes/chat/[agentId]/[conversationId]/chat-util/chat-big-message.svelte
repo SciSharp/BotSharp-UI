@@ -25,16 +25,16 @@
 </script>
 
 <div
-    class={`${disableDefaultStyles ? '' : 'chat-util-trigger'} ${containerClasses}`}
+    class={`${disableDefaultStyles ? '' : 'cbm-trigger'} ${containerClasses}`}
     style={`${containerStyles}`}
 >
-    <ul class="list-inline mb-0">
-        <li class="list-inline-item">
-            <span>
+    <ul class="cbm-list">
+        <li class="cbm-item">
+            <span class="cbm-glyph">
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
                 <i
-                    class="bx bx-pencil clickable"
+                    class="bx bx-pencil cbm-icon"
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Zoom in"
@@ -44,3 +44,4 @@
         </li>
     </ul>
 </div>
+

@@ -51,14 +51,7 @@
     }
 </script>
 
-<div class="my-json-editor">
+<div class="af-json-editor">
     <JSONEditor mode={Mode.table} content={content} onChange={handleChange} />
 </div>
 
-<style>
-    .my-json-editor {
-        /* define a custom theme color */
-        --jse-theme-color: var(--bs-primary);
-        --jse-theme-color-highlight: #687177;
-    }
-</style>

@@ -68,10 +68,11 @@ export async function saveAgent(agent) {
 /**
  * Delete agent detail
  * @param {string} agentId
+ * @param {import('$agentTypes').AgentDeleteOptions | null} options
  */
-export async function deleteAgent(agentId) {
+export async function deleteAgent(agentId, options = null) {
     let url = endpoints.agentDetailUrl.replace("{id}", agentId);
-    await axios.delete(url);
+    await axios.delete(url, { data: options ? { options } : {} });
 }
 
 /**
@@ -107,7 +108,7 @@ export async function getAgentUtilityOptions() {
 
 /**
  * Get agent rule options
- * @returns {Promise<import('$agentTypes').AgentRule[]>}
+ * @returns {Promise<import('$agentTypes').AgentRuleOption[]>}
  */
 export async function getAgentRuleOptions() {
     const url = endpoints.agentRuleOptionsUrl;
@@ -118,7 +119,7 @@ export async function getAgentRuleOptions() {
 /**
  * Get agent rule options by agent id
  * @param {string} agentId
- * @returns {Promise<import('$agentTypes').AgentRule[]>}
+ * @returns {Promise<import('$agentTypes').AgentRuleOption[]>}
  */
 export async function getAgentRuleOptionsById(agentId) {
     const url = endpoints.agentRuleOptionsByIdUrl.replace("{agentId}", agentId);
@@ -126,15 +127,6 @@ export async function getAgentRuleOptionsById(agentId) {
     return response.data;
 }
 
-/**
- * Get agent rule config options
- * @returns {Promise<any>}
- */
-export async function getAgentRuleConfigOptions() {
-    const url = endpoints.agentRuleConfigOptionsUrl;
-    const response = await axios.get(url);
-    return response.data;
-}
 
 /**
  * Get agent labels

@@ -3,6 +3,7 @@
      let { content } = $props();
 </script>
 
-<div class="msg-disclaimer">
+<div class="rcd-box">
     {content}
 </div>
+

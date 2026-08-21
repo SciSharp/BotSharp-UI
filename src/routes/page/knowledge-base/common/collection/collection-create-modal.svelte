@@ -2,7 +2,7 @@
     import { onMount } from "svelte";
     import { fade } from 'svelte/transition';
     import _ from "lodash";
-	import { existVectorCollection } from "$lib/services/knowledge-base-service";
+	import { existKnowledgeCollection } from "$lib/services/knowledge-base-service";
 
     let {
         /** @type {boolean} */
@@ -24,7 +24,9 @@
         /** @type {(args0: any) => void} */
         confirm = () => {},
         /** @type {() => void} */
-        cancel = () => {}
+        cancel = () => {},
+        /** @type {string} */
+        knowledgeType
     } = $props();
 
     /** @type {string} */
@@ -68,7 +70,7 @@
     /** @param {string} text */
     function validateCollection(text) {
         return new Promise((resolve, reject) => {
-            existVectorCollection(text).then(res => {
+            existKnowledgeCollection(text, knowledgeType).then(res => {
                 resolve(res);
             }).catch(err => {
                 reject(err);
@@ -91,7 +93,7 @@
                 isValidCollection = false;
             } else {
                 confirm?.({
-                    collection_name: _.trim(collection),
+                    collectionName: _.trim(collection),
                     dimension: dimension,
                     provider: _.trim(provider),
                     model: _.trim(model)
@@ -119,92 +121,94 @@
 
 {#if open}
 <div
-    class="modal show d-block"
+    class="ccm-modal"
     tabindex="-1"
     role="dialog"
     transition:fade={{ duration: 150 }}
     onclick={handleBackdropClick}
     onkeydown={(e) => { if (e.key === 'Escape') toggle(); }}
 >
-    <div class={`modal-dialog modal-${size} vector-collection-create-container ${className}`} role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">{title}</h5>
-                <button type="button" class="btn-close" aria-label="Close" onclick={() => toggle()}></button>
+    <div class={`ccm-dialog ccm-dialog-${size} ${className}`} role="document">
+        <div class="ccm-content">
+            <div class="ccm-header">
+                <h5 class="ccm-title">{title}</h5>
+                <button type="button" class="ccm-close" aria-label="Close" onclick={() => toggle()}>
+                    <i class="bx bx-x"></i>
+                </button>
             </div>
-            <div class="modal-body">
+            <div class="ccm-body">
                 <form onsubmit={(e) => handleConfirm(e)}>
-                    <div class="row">
-                        <div class="mb-3 collection-input">
-                            <label class="fw-bold" for="collection">Collection name: </label>
+                    <div class="ccm-row">
+                        <div class="ccm-field">
+                            <label class="ccm-label" for="collection">Collection name: </label>
                             <input
                                 type="text"
                                 id="collection"
-                                class={`form-control text-center ${!isValidCollection ? 'invalid-input' : ''}`}
+                                class={`ccm-input ${!isValidCollection ? 'ccm-input-invalid' : ''}`}
                                 maxlength={maxLength}
                                 value={collection}
                                 oninput={(e) => changeCollectionText(e)}
                             />
-                            <div class={`text-secondary text-count collection-note ${isValidCollection ? 'valid' : 'invalid'}`}>
+                            <div class={`ccm-note ${isValidCollection ? 'ccm-note-valid' : 'ccm-note-invalid'}`}>
                                 {#if !isValidCollection}
-                                    <div style="color: var(--bs-danger);">* The collection already exists.</div>
+                                    <div class="ccm-error">* The collection already exists.</div>
                                 {/if}
                                 <div>{collection?.length || 0}/{maxLength}</div>
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="provider">Embedding provider: </label>
+                    <div class="ccm-row">
+                        <div class="ccm-field">
+                            <label class="ccm-label" for="provider">Embedding provider: </label>
                             <input
                                 type="text"
                                 id="provider"
-                                class="form-control text-center"
+                                class="ccm-input"
                                 maxlength={maxLength}
                                 bind:value={provider}
                             />
-                            <div class="text-secondary text-end text-count">
+                            <div class="ccm-note ccm-note-right">
                                 {provider?.length || 0}/{maxLength}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="model">Embedding model: </label>
+                    <div class="ccm-row">
+                        <div class="ccm-field">
+                            <label class="ccm-label" for="model">Embedding model: </label>
                             <input
                                 type="text"
                                 id="model"
-                                class="form-control text-center"
+                                class="ccm-input"
                                 maxlength={maxLength}
                                 bind:value={model}
                             />
-                            <div class="text-secondary text-end text-count">
+                            <div class="ccm-note ccm-note-right">
                                 {model?.length || 0}/{maxLength}
                             </div>
                         </div>
                     </div>
-                    <div class="row">
-                        <div class="mb-3">
-                            <label class="fw-bold" for="dimension">Vector dimension: </label>
+                    <div class="ccm-row">
+                        <div class="ccm-field">
+                            <label class="ccm-label" for="dimension">Vector dimension: </label>
                             <input
                                 type="number"
                                 id="dimension"
-                                class="form-control text-center"
+                                class="ccm-input"
                                 bind:value={dimension}
                                 min={minDimension}
                                 step={step}
                             />
-                            <div class="text-secondary text-count">
+                            <div class="ccm-note">
                                 * The value must be larger than 0.
                             </div>
                         </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
+            <div class="ccm-footer">
                 <button
                     type="button"
-                    class="btn btn-primary"
+                    class="ccm-btn ccm-btn-primary"
                     disabled={disableConfirmBtn}
                     onclick={(e) => handleConfirm(e)}
                 >
@@ -212,7 +216,7 @@
                 </button>
                 <button
                     type="button"
-                    class="btn btn-secondary"
+                    class="ccm-btn ccm-btn-secondary"
                     onclick={(e) => handleCancel(e)}
                 >
                     Cancel
@@ -221,5 +225,7 @@
         </div>
     </div>
 </div>
-<div class="modal-backdrop fade show" transition:fade={{ duration: 150 }}></div>
+<div class="ccm-backdrop" transition:fade={{ duration: 150 }}></div>
 {/if}
+
+

@@ -35,11 +35,4 @@
 	</NodeWrapper>
 </Node>
 
-<style>
-	.node-body {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-	}
-</style>
+

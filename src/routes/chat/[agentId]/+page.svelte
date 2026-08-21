@@ -50,14 +50,15 @@
     });
 </script>
 
-<div class="container-fluid">
-    <div class="row text-center">
-        <div class="col" style="padding: 50px;">
-            <div class="spinner-grow text-primary m-1" role="status" style="padding: 50px;">
-                <span class="sr-only">Loading...</span>
-            </div>
-            <h3>Initializing a conversation, wait a moment please...</h3>
-            <a href={`chat/${agentId}/${conversationId}`}>Click here if the browser doesn't redirect correctly.</a>
+<div class="ci-page">
+    <div class="ci-content">
+        <div class="ci-spinner" role="status">
+            <span class="ci-sr-only">Loading...</span>
         </div>
+        <h3 class="ci-title">Initializing a conversation, wait a moment please...</h3>
+        <a class="ci-link" href={`chat/${agentId}/${conversationId}`}>
+            Click here if the browser doesn't redirect correctly.
+        </a>
     </div>
 </div>
+

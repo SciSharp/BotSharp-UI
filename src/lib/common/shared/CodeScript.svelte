@@ -69,3 +69,14 @@
     value={scriptText}
     onchange={handleChange}
 />
+
+<style>
+    /* CodeMirror applies the class to its root element which lives outside
+       this component's scope hash, so the rule must be :global to reach it. */
+    :global(.code-script-container) {
+        min-height: 200px;
+        max-height: 500px;
+        overflow: auto;
+        scrollbar-width: thin;
+    }
+</style>

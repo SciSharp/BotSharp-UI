@@ -1,0 +1,40 @@
+[package]
+name = "app"
+version = "0.1.0"
+description = "BotSharp UI desktop app"
+authors = []
+license = ""
+repository = ""
+edition = "2021"
+rust-version = "1.77.2"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+name = "app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.6.3", features = [] }
+
+[dependencies]
+serde_json = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+log = "0.4"
+tauri = { version = "2.11.3", features = [] }
+tauri-plugin-log = "2"
+# `opener`, deliberately NOT `shell`. The only thing the page needs is "hand this URL to the
+# user's browser", and that is all this plugin can do. `tauri-plugin-shell` would also bring
+# process spawning into a shell that renders model output and third-party page content — a
+# capability with no caller here and a bad one to have lying around. See openExternal in
+# src/lib/helpers/utils/desktop.js for the single caller, and capabilities/default.json for
+# the permission, which is narrowed to open-url only.
+tauri-plugin-opener = "2"
+# reqwest, futures-util and dirs are deliberately gone from here. They served a bridge that
+# spoke HTTP and SSE to a service on the operator's own machine and read its discovery file
+# out of the userData directory. Nothing native does I/O now, and an HTTP client compiled
+# into the shell with no caller is only attack surface.
+#
+# Cargo.lock still lists all three: Tauri resolves its own `dirs` (v6, and it IS built) plus
+# optional copies of reqwest and futures-util that no enabled feature reaches. A name in the
+# lockfile is not a crate in the binary — `cargo tree -e normal` is what answers that.

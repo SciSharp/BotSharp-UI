@@ -8,7 +8,6 @@
  * @property {string?} [uid]
  * @property {string} name
  * @property {string} content
- * @property {string?} [response_format]
  * @property {AgentTemplateConfig?} [llm_config]
  */
 
@@ -20,6 +19,7 @@
  * @property {number} max_recursion_depth
  * @property {number?} [max_output_tokens]
  * @property {string?} [reasoning_effort_level]
+ * @property {string?} [response_format]
  * @property {any} [image_composition]
  * @property {any} [audio_transcription]
  * @property {any} [realtime]
@@ -27,10 +27,11 @@
 
 /**
  * @typedef {Object} AgentTemplateConfig
- * @property {string?} provider 
+ * @property {string?} provider
  * @property {string?} model
  * @property {number?} [max_output_tokens]
  * @property {string?} [reasoning_effort_level]
+ * @property {string?} [response_format]
  */
 
 
@@ -139,10 +140,17 @@
  * @property {boolean?} [is_upsert]
  */
 
-/** 
+/**
  * @typedef {Object} AgentCodeScriptUpdateModel
  * @property {AgentCodeScriptViewModel[]?} [code_scripts]
  * @property {AgentCodeScriptUpdateOptions?} [options]
+ */
+
+/**
+ * @typedef {Object} AgentDeleteOptions
+ * @property {boolean?} [delete_role_agents]
+ * @property {boolean?} [delete_user_agents]
+ * @property {AgentCodeScriptViewModel[]?} [to_delete_code_scripts]
  */
 
 /** 
@@ -183,7 +191,7 @@
  * @property {string} type
  * @property {string} field
  * @property {string} description
- * @property {string} fieldType
+ * @property {string} [field_type]
  * @property {boolean} required
  * @property {string} redirectTo
  * @property {string?} [redirect_to_agent]
@@ -237,14 +245,33 @@
  */
 
 /**
- * @typedef {Object} AgentRule
- * @property {string} trigger_name 
- * @property {string?} [displayName]
- * @property {boolean} disabled
- * @property {any?} [config]
+ * Trigger option returned by the rule-options endpoints. Note this is the
+ * option catalog, not a rule configured on an agent.
+ * @typedef {Object} AgentRuleOption
+ * @property {string} trigger_name
  * @property {any?} [output_args]
  * @property {string?} [json_args]
  * @property {string?} [statement]
+ * @property {string?} [mode] - Default criteria mode for this trigger
+ */
+
+/**
+ * @typedef {Object} RuleCriteriaConfig
+ * @property {string?} [mode] - Criteria mode: llm, python script, etc. Takes precedence over the mode carried on the trigger options.
+ * @property {string?} [criteria] - Criteria text
+ */
+
+/**
+ * @typedef {Object} AgentRule
+ * @property {string} trigger_name
+ * @property {string?} [displayName]
+ * @property {boolean} disabled
+ * @property {string?} [message] - Message sent to agent
+ * @property {RuleCriteriaConfig?} [criteria_config]
+ * @property {any?} [output_args]
+ * @property {string?} [json_args]
+ * @property {string?} [statement]
+ * @property {string?} [default_mode] - Criteria mode carried on the trigger options, used as fallback
  * @property {boolean} [expanded]
  */
 

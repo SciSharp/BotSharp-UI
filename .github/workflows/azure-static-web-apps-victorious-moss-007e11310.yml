@@ -31,6 +31,14 @@ jobs:
           app_location: "./" # App source code path
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
+          # Not the default `npm run build`. `PUBLIC_`-prefixed values are inlined into the
+          # client bundle, and the tracked `.env` holds real PUBLIC_ADMIN_USERNAME /
+          # PUBLIC_ADMIN_PASSWORD values for local convenience. `.env.production` blanking
+          # them is what keeps the deployed bundle clean today — but that is a convention,
+          # not a check, and any mode file that simply omitted the keys would fall through to
+          # the real ones. `build:verified` blanks them AND fails the build if either string
+          # survives into build/, which is the only version of this that cannot rot.
+          app_build_command: "npm run build:verified"
           ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:

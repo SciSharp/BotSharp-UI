@@ -111,7 +111,7 @@
     {#if !speaking}
       <i class="bx bx-volume-full"></i>
     {:else}
-      <Stretch unit='px' size='5' gap='5' color="var(--bs-primary)" />
+      <Stretch unit='px' size='5' gap='5' color="var(--color-primary)" />
     {/if}
   </span>
 </div>
