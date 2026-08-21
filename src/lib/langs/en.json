@@ -645,5 +645,7 @@
     "Delete {n} runs and all their case results? You won't be able to revert this!": "Delete {n} runs and all their case results? You won't be able to revert this!",
     "Deleted {runs} run(s) and {results} result(s).": "Deleted {runs} run(s) and {results} result(s).",
     "Run {id} was kept: {reason}": "Run {id} was kept: {reason}",
-    "Failed to delete the runs.": "Failed to delete the runs."
+    "Failed to delete the runs.": "Failed to delete the runs.",
+    "Evaluation scope": "Evaluation scope",
+    "No test cases are registered yet.": "No test cases are registered yet."
 }

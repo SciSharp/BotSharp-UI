@@ -839,5 +839,7 @@
     "Delete {n} runs and all their case results? You won't be able to revert this!": "删除 {n} 条跑批记录及其全部用例结果？此操作不可撤销！",
     "Deleted {runs} run(s) and {results} result(s).": "已删除 {runs} 条跑批记录、{results} 条用例结果。",
     "Run {id} was kept: {reason}": "跑批 {id} 未删除：{reason}",
-    "Failed to delete the runs.": "删除跑批记录失败。"
+    "Failed to delete the runs.": "删除跑批记录失败。",
+    "Evaluation scope": "评估范围",
+    "No test cases are registered yet.": "还没有登记任何测试用例。"
 }
