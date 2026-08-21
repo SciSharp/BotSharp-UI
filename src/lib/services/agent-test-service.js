@@ -128,6 +128,24 @@ export async function selectScope(body) {
 }
 
 /**
+ * Clear run history: delete the named runs and the case results underneath them.
+ *
+ * Bulk-only on the server, and the single-row button calls it with one id -- the
+ * guard that refuses to delete a still-running run is worth having in exactly one
+ * place.
+ *
+ * A run that is still executing is skipped rather than failing the whole call, so
+ * the response reports what actually went and what did not.
+ * @param {string[]} runIds
+ * @returns {Promise<import('$agentTestTypes').RunDeleteResult>}
+ */
+export async function deleteRuns(runIds) {
+    const url = endpoints.agentTestRunDeleteUrl;
+    const response = await axios.post(url, { runIds: runIds });
+    return response.data;
+}
+
+/**
  * Duplicate an agent test case inside its own suite.
  *
  * Server-side rather than a get-then-create here, so the copy carries every

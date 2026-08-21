@@ -369,6 +369,16 @@
  */
 
 /**
+ * What clearing run history actually did. The skipped half matters: a still-running run is left
+ * alone, and the caller has to be able to say why one survived rather than leaving the user to
+ * notice a row that quietly stayed.
+ * @typedef {Object} RunDeleteResult
+ * @property {string[]} deletedRunIds
+ * @property {number} deletedResultCount - Case results removed along with those runs.
+ * @property {{ runId: string, reason: string }[]} skipped
+ */
+
+/**
  * Body of GET /agent-test/runs/{id} (the camelCase projection of the backend's
  * AgentTestRunDetailDto).
  * @typedef {Object} AgentTestRunDetail

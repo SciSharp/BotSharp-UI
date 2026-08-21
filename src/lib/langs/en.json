@@ -635,5 +635,15 @@
     "Reason": "Reason",
     "Yes": "Yes",
     "No": "No",
-    "No involved agents known, so it was included to be safe.": "No involved agents known, so it was included to be safe."
+    "No involved agents known, so it was included to be safe.": "No involved agents known, so it was included to be safe.",
+    "Select all runs": "Select all runs",
+    "Select run": "Select run",
+    "Delete selected": "Delete selected",
+    "{n} still running and cannot be deleted": "{n} still running and cannot be deleted",
+    "Delete run": "Delete run",
+    "Delete this run and its case results? You won't be able to revert this!": "Delete this run and its case results? You won't be able to revert this!",
+    "Delete {n} runs and all their case results? You won't be able to revert this!": "Delete {n} runs and all their case results? You won't be able to revert this!",
+    "Deleted {runs} run(s) and {results} result(s).": "Deleted {runs} run(s) and {results} result(s).",
+    "Run {id} was kept: {reason}": "Run {id} was kept: {reason}",
+    "Failed to delete the runs.": "Failed to delete the runs."
 }

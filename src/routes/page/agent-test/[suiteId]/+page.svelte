@@ -22,6 +22,7 @@
 		getRuns,
 		triggerRun,
 		cancelRun,
+		deleteRuns,
 		recordCases
 	} from '$lib/services/agent-test-service.js';
 	import { statusColor, isTerminalStatus, errorMessage, formatDateTime, formatDuration, t } from '$lib/helpers/utils/agent-test.js';
@@ -67,6 +68,13 @@
 
 	/** @type {import('$agentTestTypes').AgentTestCase | null} */
 	let caseToDelete = $state(null);
+
+	/** @type {string[]} */
+	let selectedRunIds = $state([]);
+
+	/** Runs the confirm dialog is currently asking about; empty means it is closed. */
+	/** @type {import('$agentTestTypes').AgentTestRun[]} */
+	let runsToDelete = $state([]);
 
 	/** true = the run modal was opened by "Run Selected", false = "Run All Enabled". */
 	let runPartial = $state(false);
@@ -172,6 +180,14 @@
 	let canSaveSettings = $derived(!!settingsDraft.name?.trim() && settingsDraft.caseTimeoutSeconds > 0);
 	let canRecord = $derived(!!recordConversationId?.trim());
 	let allCasesSelected = $derived(cases.length > 0 && selectedCaseIds.length === cases.length);
+	let allRunsSelected = $derived(runs.length > 0 && selectedRunIds.length === runs.length);
+
+	/**
+	 * Selected runs that can actually go. A run still executing is refused by the server, so counting
+	 * it here would promise a delete that will not happen.
+	 */
+	let deletableSelectedRuns = $derived(
+		runs.filter(r => selectedRunIds.includes(r.id) && isTerminalStatus(r.status)));
 
 	onMount(async () => {
 		isLoading = true;
@@ -259,6 +275,10 @@
 	function loadRuns() {
 		return getRuns(suiteId).then(res => {
 			runs = res || [];
+			// Drop selections for runs that are gone, or a later delete would post ids the server
+			// can only answer "already deleted" for.
+			const ids = new Set(runs.map(r => r.id));
+			selectedRunIds = selectedRunIds.filter(id => ids.has(id));
 		}).catch(() => {
 			runs = [];
 		});
@@ -316,6 +336,55 @@
 
 	function toggleAllCases() {
 		selectedCaseIds = allCasesSelected ? [] : cases.map(x => x.id);
+	}
+
+	/** @param {string} runId */
+	function toggleRun(runId) {
+		selectedRunIds = selectedRunIds.includes(runId)
+			? selectedRunIds.filter(id => id !== runId)
+			: [...selectedRunIds, runId];
+	}
+
+	function toggleAllRuns() {
+		selectedRunIds = allRunsSelected ? [] : runs.map(x => x.id);
+	}
+
+	/** @param {import('$agentTestTypes').AgentTestRun[]} target */
+	function openDeleteRunsModal(target) {
+		runsToDelete = target;
+	}
+
+	function closeDeleteRunsModal() {
+		runsToDelete = [];
+	}
+
+	function confirmDeleteRuns() {
+		const target = runsToDelete.map(r => r.id);
+		runsToDelete = [];
+		if (target.length === 0) return;
+
+		isLoading = true;
+		deleteRuns(target).then(res => {
+			const deleted = res?.deletedRunIds?.length || 0;
+			if (deleted > 0) {
+				notifySuccess(t('Deleted {runs} run(s) and {results} result(s).', {
+					runs: deleted,
+					results: res?.deletedResultCount || 0
+				}));
+			}
+			// Reported, not swallowed: a still-running run is left alone on purpose, and the reason
+			// says what to do about it. Silently showing "deleted 2" while a third row stays put is
+			// how a user concludes the button is broken.
+			(res?.skipped || []).forEach((/** @type {any} */ s) => {
+				notifyError(t('Run {id} was kept: {reason}', { id: s.runId.substring(0, 8), reason: s.reason }));
+			});
+			selectedRunIds = [];
+			return loadRuns();
+		}).catch(err => {
+			notifyError(errorMessage(err, t('Failed to delete the runs.')));
+		}).finally(() => {
+			isLoading = false;
+		});
 	}
 
 	function goBack() {
@@ -594,6 +663,21 @@
 	isError={isError}
 	successText={successText}
 	errorText={errorText}
+/>
+
+<ConfirmModal
+	isOpen={runsToDelete.length > 0}
+	icon="warning"
+	title={t('Are you sure?')}
+	text={runsToDelete.length === 1
+		? t('Delete this run and its case results? You won\'t be able to revert this!')
+		: t('Delete {n} runs and all their case results? You won\'t be able to revert this!', { n: runsToDelete.length })}
+	confirmBtnText={t('Yes, delete it!')}
+	cancelBtnText={t('Cancel')}
+	confirmBtnColor="danger"
+	confirm={confirmDeleteRuns}
+	cancel={closeDeleteRunsModal}
+	toggleModal={closeDeleteRunsModal}
 />
 
 <ConfirmModal
@@ -890,13 +974,36 @@
 							</p>
 						</div>
 					</div>
-					<button
-						type="button"
-						class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
-						onclick={() => refresh()}
-					>
-						<i class="mdi mdi-refresh"></i> {$_('Refresh')}
-					</button>
+					<div class="flex flex-wrap items-center gap-2">
+						{#if selectedRunIds.length > 0}
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-danger"
+								disabled={deletableSelectedRuns.length === 0}
+								onclick={() => openDeleteRunsModal(deletableSelectedRuns)}
+							>
+								<i class="mdi mdi-delete-outline"></i>
+								{$_('Delete selected')} ({deletableSelectedRuns.length})
+							</button>
+							{#if deletableSelectedRuns.length < selectedRunIds.length}
+								<!-- Say it before the click, not after. A run still executing is refused by
+								     the server, and a count that included it would promise a delete that
+								     never happens. -->
+								<span class="text-xs text-muted">
+									{$_('{n} still running and cannot be deleted', {
+										values: { n: selectedRunIds.length - deletableSelectedRuns.length }
+									})}
+								</span>
+							{/if}
+						{/if}
+						<button
+							type="button"
+							class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+							onclick={() => refresh()}
+						>
+							<i class="mdi mdi-refresh"></i> {$_('Refresh')}
+						</button>
+					</div>
 				</div>
 			</div>
 			<div class="ats-card-body">
@@ -909,6 +1016,15 @@
 						<table class="ats-table">
 							<thead>
 								<tr>
+									<th scope="col" style="width: 40px;">
+										<input
+											type="checkbox"
+											class="ats-check-input"
+											aria-label={$_('Select all runs')}
+											checked={allRunsSelected}
+											onchange={() => toggleAllRuns()}
+										/>
+									</th>
 									<th scope="col">{$_('Status')}</th>
 									<th scope="col">{$_('Result')}</th>
 									<th scope="col">{$_('Scope')}</th>
@@ -920,6 +1036,15 @@
 							<tbody>
 								{#each runs as run (run.id)}
 									<tr>
+										<td>
+											<input
+												type="checkbox"
+												class="ats-check-input"
+												aria-label={$_('Select run')}
+												checked={selectedRunIds.includes(run.id)}
+												onchange={() => toggleRun(run.id)}
+											/>
+										</td>
 										<td>
 											<span class="flex flex-wrap items-center gap-1">
 												<span class="ats-badge ats-tone-{statusColor(run.status)}">{$_(run.status)}</span>
@@ -970,7 +1095,21 @@
 														<i class="mdi mdi-eye-outline"></i>
 													</button>
 												</li>
-												{#if !isTerminalStatus(run.status)}
+												{#if isTerminalStatus(run.status)}
+													<li title={$_('Delete')}>
+														<button
+															type="button"
+															class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+															aria-label={$_('Delete run')}
+															onclick={() => openDeleteRunsModal([run])}
+														>
+															<i class="mdi mdi-delete-outline"></i>
+														</button>
+													</li>
+												{:else}
+													<!-- Cancel and delete are mutually exclusive on purpose: deleting a
+													     run that is still executing would not stop it, so the only
+													     useful button on a live run is the one that does. -->
 													<li title={$_('Cancel')}>
 														<button
 															type="button"

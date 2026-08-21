@@ -829,5 +829,15 @@
     "Reason": "依据",
     "Yes": "是",
     "No": "否",
-    "No involved agents known, so it was included to be safe.": "涉及的 agent 未知，出于安全默认纳入。"
+    "No involved agents known, so it was included to be safe.": "涉及的 agent 未知，出于安全默认纳入。",
+    "Select all runs": "全选跑批记录",
+    "Select run": "选择这条跑批",
+    "Delete selected": "删除所选",
+    "{n} still running and cannot be deleted": "{n} 条仍在运行，无法删除",
+    "Delete run": "删除跑批记录",
+    "Delete this run and its case results? You won't be able to revert this!": "删除这条跑批记录及其全部用例结果？此操作不可撤销！",
+    "Delete {n} runs and all their case results? You won't be able to revert this!": "删除 {n} 条跑批记录及其全部用例结果？此操作不可撤销！",
+    "Deleted {runs} run(s) and {results} result(s).": "已删除 {runs} 条跑批记录、{results} 条用例结果。",
+    "Run {id} was kept: {reason}": "跑批 {id} 未删除：{reason}",
+    "Failed to delete the runs.": "删除跑批记录失败。"
 }
