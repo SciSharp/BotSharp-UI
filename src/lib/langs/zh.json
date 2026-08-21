@@ -841,5 +841,6 @@
     "Run {id} was kept: {reason}": "跑批 {id} 未删除：{reason}",
     "Failed to delete the runs.": "删除跑批记录失败。",
     "Evaluation scope": "评估范围",
-    "No test cases are registered yet.": "还没有登记任何测试用例。"
+    "No test cases are registered yet.": "还没有登记任何测试用例。",
+    "batch {n}": "第 {n} 批"
 }

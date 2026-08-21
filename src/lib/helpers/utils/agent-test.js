@@ -92,6 +92,36 @@ export const CASE_SEVERITIES = ['S0', 'S1', 'S2'];
 export const CASE_BATCHES = [1, 2, 3];
 
 /**
+ * Tone for a priority badge. P0 is the stop-loss batch -- one failure there halts the
+ * whole evaluation -- so it reads as urgent; P2 does not block a release and reads as
+ * quiet. The middle stays neutral rather than warning-coloured, because P1 is the
+ * default every untriaged case carries and a wall of amber would say nothing.
+ * @param {string?} priority
+ */
+export function priorityTone(priority) {
+	switch (priority) {
+		case 'P0': return 'danger';
+		case 'P2': return 'secondary';
+		default: return 'primary';
+	}
+}
+
+/**
+ * Tone for a severity badge. S0 is zero-tolerance -- data leakage, an unauthorised
+ * action, a missed escalation -- and has to be visible at a glance in a list, which is
+ * the whole reason severity is worth a column. S2 is phrasing and must never look as
+ * loud as the other two.
+ * @param {string?} severity
+ */
+export function severityTone(severity) {
+	switch (severity) {
+		case 'S0': return 'danger';
+		case 'S1': return 'warning';
+		default: return 'secondary';
+	}
+}
+
+/**
  * The batch a case will actually run in, mirroring CaseBatches.Effective. An
  * explicit batch wins; a cross-cutting case is batch 1 whatever its priority,
  * because a safety case that only runs after everything else has passed cannot

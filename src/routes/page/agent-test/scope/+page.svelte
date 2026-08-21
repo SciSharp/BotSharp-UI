@@ -8,7 +8,7 @@
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service.js';
 	import { selectScope } from '$lib/services/agent-test-service.js';
-	import { errorMessage, t } from '$lib/helpers/utils/agent-test.js';
+	import { errorMessage, severityTone, t } from '$lib/helpers/utils/agent-test.js';
 
 	/**
 	 * Planning which cases a change needs to run is a different job from browsing suites, and it
@@ -227,7 +227,11 @@
 											<td>{scoped.caseName}</td>
 											<td class="text-xs">{scoped.suiteName}</td>
 											<td>{scoped.batch}</td>
-											<td>{scoped.severity}</td>
+											<td>
+												<span class="ats-badge ats-badge-soft ats-tone-{severityTone(scoped.severity)}">
+													{scoped.severity}
+												</span>
+											</td>
 											<td>
 												<span class="ats-badge ats-badge-soft ats-tone-{reasonTone(scoped.reason)}">
 													{scoped.reason}

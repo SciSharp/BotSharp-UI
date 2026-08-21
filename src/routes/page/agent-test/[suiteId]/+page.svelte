@@ -25,7 +25,17 @@
 		deleteRuns,
 		recordCases
 	} from '$lib/services/agent-test-service.js';
-	import { statusColor, isTerminalStatus, errorMessage, formatDateTime, formatDuration, t } from '$lib/helpers/utils/agent-test.js';
+	import {
+		statusColor,
+		isTerminalStatus,
+		priorityTone,
+		severityTone,
+		effectiveBatch,
+		errorMessage,
+		formatDateTime,
+		formatDuration,
+		t
+	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
@@ -841,6 +851,8 @@
 									</th>
 									<th scope="col">{$_('Name')}</th>
 									<th scope="col">{$_('Type')}</th>
+									<th scope="col">{$_('Priority')}</th>
+									<th scope="col">{$_('Severity')}</th>
 									<th scope="col">{$_('Turns')}</th>
 									<th scope="col">{$_('History')}</th>
 									<th scope="col">{$_('Mocks')}</th>
@@ -883,6 +895,24 @@
 											{:else}
 												<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('Agent case')}</span>
 											{/if}
+										</td>
+										<td class="whitespace-nowrap">
+											<span class="ats-badge ats-badge-soft ats-tone-{priorityTone(testCase.priority)}">
+												{testCase.priority || 'P1'}
+											</span>
+											<!-- The batch, not just the priority. Cross-cutting overrides priority
+											     and forces batch 1, so a P2 safety case runs FIRST -- showing the
+											     priority alone would have it read as "runs last", which is the
+											     opposite of the truth and exactly the call this column exists to
+											     inform. -->
+											<div class="text-xs text-muted">
+												{$_('batch {n}', { values: { n: effectiveBatch(testCase) } })}
+											</div>
+										</td>
+										<td>
+											<span class="ats-badge ats-badge-soft ats-tone-{severityTone(testCase.severity)}">
+												{testCase.severity || 'S1'}
+											</span>
 										</td>
 										<td>{testCase.turns?.length || 0}</td>
 										<td>{testCase.history?.length || 0}</td>

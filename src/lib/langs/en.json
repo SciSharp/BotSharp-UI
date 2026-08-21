@@ -647,5 +647,6 @@
     "Run {id} was kept: {reason}": "Run {id} was kept: {reason}",
     "Failed to delete the runs.": "Failed to delete the runs.",
     "Evaluation scope": "Evaluation scope",
-    "No test cases are registered yet.": "No test cases are registered yet."
+    "No test cases are registered yet.": "No test cases are registered yet.",
+    "batch {n}": "batch {n}"
 }
