@@ -5,8 +5,9 @@
  * @property {string} name
  * @property {string?} description
  * @property {boolean} enabled
- * @property {string?} judgeProvider - Provider for llmJudge assertions. In P1 llmJudge always fails,
- *   whether or not this is configured.
+ * @property {string?} judgeProvider - Provider for llmJudge assertions. Both this and judgeModel are
+ *   required for llmJudge to be scored at all; with either missing, an llmJudge assertion records a
+ *   case-level Error rather than being scored with some default model.
  * @property {string?} judgeModel
  * @property {string[]} extraAllowedFunctions - Functions let through on top of the default
  *   control-flow allow list.
@@ -79,9 +80,13 @@
  * null/empty on every run and can never pass. It fails rather than errors, so nothing points at it.
  * The form is deliberately stricter and treats `expected` as required there too.
  *
- * `llmJudge` always fails in P1 (the backend returns "llmJudge is not available in P1"), regardless
- * of minScore or whether the suite configured judgeProvider/judgeModel. The form may offer it, but
- * says so next to it.
+ * `llmJudge` is scored 1-5 by the suite's judge model, and `minScore` is the pass mark (default 4).
+ * It is the one assertion type that is not reproducible, and the one that can end a case in Error
+ * rather than Failed: an unconfigured judge model, an unregistered provider, a vendor failure or a
+ * reply the backend cannot read as a score all mean "no verdict", which is Error. Those are
+ * deliberately not failures -- a vendor timeout is not an agent regression. Note also that the judge
+ * only ever sees the criterion and the agent's reply, never the user's message, so a criterion has
+ * to be self-contained.
  *
  * @typedef {Object} TestAssertion
  * @property {string} type - outputContains | outputNotContains | outputRegex | toolCalled | toolNotCalled | stateEquals | routedToAgent | llmJudge
@@ -99,15 +104,41 @@
  * @property {string} name
  * @property {boolean} enabled - Recorded drafts land as false; a human has to review and enable them
  *   before they join a normal run.
+ * @property {string} caseType - Routing | Agent. Defaults to Agent, which is also what every case
+ *   stored before the field existed reads back as. Routing is validated more strictly (one turn,
+ *   must assert a routing outcome, no llmJudge) and is the only type counted towards a run's routing
+ *   accuracy. A journey across several agents is an Agent case whose `agentChain` assertion
+ *   describes the hand-offs.
+ * @property {string?} entryAgentId - Agent the conversation opens on, overriding the suite's; null
+ *   uses the suite's. This is the switch between testing routing and testing one agent alone:
+ *   BotSharp sends a routing-type agent through the router (which can hand off) and any other agent
+ *   straight into itself (the router never runs).
  * @property {TestTurn[]} turns - Length 1 is a single-turn case.
  * @property {TestAssertion[]} assertions - Case-level assertions, evaluated after every turn has run.
  * @property {TestState[]} initialStates - Injected before the conversation starts; maps to BotSharp's
  *   MessageState.
+ * @property {TestHistoryMessage[]} history - Prior turns written into the conversation before the
+ *   case's own turns run, so a real question-and-answer exchange becomes the fixed starting context.
+ *   Not driven through the model (no token cost, no flakiness) and never counted in `agentChain`.
  * @property {TestToolMock[]} mocks
  * @property {string} unmockedToolPolicy - P1 accepts only "Block"; sending "Passthrough" is a 400
  *   ("Passthrough is not supported in P1"). The form should not offer it.
  * @property {string?} sourceConversationId - The conversation this was recorded from, for
  *   traceability; null for a hand-written case.
+ * @property {string} priority - P0 | P1 | P2. Decides the batch, and therefore whether a failure
+ *   stops the evaluation. Defaults to P1, which is also what a case stored before the field existed
+ *   reads back as.
+ * @property {string} severity - S0 | S1 | S2. What a failure MEANS, as opposed to how urgent the case
+ *   is to run. Defaults to S1.
+ * @property {number?} batch - Explicit override; null derives it from priority and crossCutting.
+ * @property {boolean} crossCutting - Runs in every scope whatever changed, and always in batch 1.
+ * @property {string[]} involvedAgents - Agent ids. Empty falls back to the case's entry agent, which
+ *   is right for an Agent case and only a starting point for a Routing case, where the agents that
+ *   matter are downstream of the router.
+ * @property {string?} businessDomain
+ * @property {string?} expectedOutcome - For whoever reviews the result; never evaluated.
+ * @property {string?} lastReviewedDate - ISO date. Never set by the server: editing a case is not
+ *   reviewing it.
  * @property {string} createDate - ISO date string.
  * @property {string} updateDate - ISO date string.
  */
@@ -125,12 +156,36 @@
  * @property {string} suiteId
  * @property {string} name
  * @property {boolean} [enabled] - Defaults to true.
+ * @property {string} [caseType] - Routing | Agent; blank or omitted means Agent. Any other value is
+ *   a 400 rather than a silent fallback.
+ * @property {string?} [entryAgentId] - Send null rather than "" to mean "use the suite's agent";
+ *   validated to exist at save time.
+ * @property {TestHistoryMessage[]} [history] - Authored prior turns; every message needs a
+ *   user/assistant role and non-empty content.
+ * @property {string} [priority] - P0 | P1 | P2; blank keeps P1. Any other value is a 400.
+ * @property {string} [severity] - S0 | S1 | S2; blank keeps S1.
+ * @property {number?} [batch] - 1, 2 or 3; null derives it. Out of range is a 400, not a clamp.
+ * @property {boolean} [crossCutting]
+ * @property {string[]} [involvedAgents]
+ * @property {string?} [businessDomain]
+ * @property {string?} [expectedOutcome]
+ * @property {string?} [lastReviewedDate] - ISO date; send it only when a human actually reviewed.
  * @property {TestTurn[]} turns
  * @property {TestAssertion[]} assertions
  * @property {TestState[]} initialStates
  * @property {TestToolMock[]} mocks
  * @property {string} [unmockedToolPolicy] - Always send "Block"; that is also the default.
  * @property {string?} [sourceConversationId]
+ */
+
+/**
+ * One authored message in a case's history. Just a role and text: a mocked tool call belongs in
+ * `mocks`, and a fabricated function-call dialog would let a case claim a tool ran when nothing did.
+ * @typedef {Object} TestHistoryMessage
+ * @property {string} role - user | assistant. Nothing else: `system` would compete with the agent's
+ *   own instruction and `function` would fake a tool call.
+ * @property {string} content - Rejected as empty; BotSharp's dialog storage drops blank elements, so
+ *   an empty message would silently not be in the conversation at run time.
  */
 
 /**
@@ -163,10 +218,55 @@
  * @property {number} passedCount
  * @property {number} failedCount
  * @property {number} errorCount
+ * @property {RoutingAccuracy[]} routingAccuracies - One row per model swept, counting only Routing
+ *   cases; empty when the run contained none.
+ * @property {PerformanceSummary[]} performanceSummaries - Latency, token and cost figures, one row per
+ *   model. Computed when the run finishes, because a percentile needs every value at once.
+ * @property {ModelPricingSnapshot[]} modelPricing - The unit costs in force when the run executed. A
+ *   cost figure is not comparable with another run's unless these match. Kept per model because a single run-wide figure would
+ *   average a candidate model together with the baseline and hide the difference the run exists to
+ *   measure.
  * @property {boolean} cancelRequested
  * @property {string?} startedAt - ISO date string; null until it starts.
  * @property {string?} completedAt - ISO date string; null until it finishes.
  * @property {string} createDate - ISO date string. Note AgentTestRun has no updateDate field.
+ */
+
+/**
+ * Latency, tokens and cost for one model within a run. Averages are absent on purpose: an average is
+ * Total/CaseCount, and a stored copy is one more thing that can disagree with the rows it came from.
+ * @typedef {Object} PerformanceSummary
+ * @property {string?} provider
+ * @property {string?} model
+ * @property {number} caseCount - Only the cases that reached the model. A case that failed before its
+ *   first turn would drag a latency percentile towards zero and make a broken run look fast.
+ * @property {number} latencyP50Ms - Nearest-rank median of the agent-call time, so it is always a
+ *   duration some case actually took rather than an interpolated one that none did.
+ * @property {number} latencyP95Ms
+ * @property {number} totalTokens - Over EVERY result, unlike latency: a case that errored still spent
+ *   what it spent.
+ * @property {number} totalCost
+ */
+
+/**
+ * One model's configured text-token unit costs at the moment a run executed.
+ * @typedef {Object} ModelPricingSnapshot
+ * @property {string?} provider
+ * @property {string?} model
+ * @property {number?} textInputCost - Null means the settings could not be read. Never render it as
+ *   0, which would read as "this model is free".
+ * @property {number?} textOutputCost
+ */
+
+/**
+ * Routing accuracy for one model within a run. Counts, never a stored percentage: "3/4" says how
+ * much the figure is worth trusting and "75%" does not.
+ * @typedef {Object} RoutingAccuracy
+ * @property {string?} provider - Null for both when the run swept no models.
+ * @property {string?} model
+ * @property {number} caseCount - Routing cases executed under this model, whatever their outcome --
+ *   Error rows included, because "could not tell" is not "routed correctly".
+ * @property {number} passedCount
  */
 
 /**
@@ -185,6 +285,11 @@
  * @property {string} userMessage
  * @property {string?} output
  * @property {AssertionResult[]} assertions
+ * @property {number} modelDurationMs - Time the agent call for this turn took, excluding the
+ *   assertion evaluation and conversation reads that follow it.
+ * @property {string[]} agentChain - The agents that answered during THIS turn, in order, with
+ *   consecutive repeats collapsed. Not derivable from the case-level chain, which collapses across
+ *   turn boundaries too.
  */
 
 /**
@@ -203,6 +308,8 @@
  * @property {string} runId
  * @property {string} caseId
  * @property {string} caseName
+ * @property {string} caseType - Copied off the case so a result is self-describing; routing
+ *   accuracy is aggregated from these rows rather than from cases that may since have been edited.
  * @property {string} status - Passed | Failed | Error | Cancelled (never Pending/Running).
  * @property {string?} conversationId - The conversation this execution created; live conversations
  *   are never reused.
@@ -210,14 +317,65 @@
  *   LlmConfig was used.
  * @property {string?} model - As above. In a multi-model run the same `caseId` yields several
  *   results, told apart by these two fields.
- * @property {number} durationMs
+ * @property {number} durationMs - Wall clock for the whole case, including the canary and the
+ *   conversation reads. Comparable between models, but not a model-latency measurement.
+ * @property {number} modelDurationMs - The agent calls alone, summed over the turns. This is what the
+ *   run's latency percentiles are built from.
+ * @property {number} totalTokens - Measured as a delta across this case's own execution. Total only:
+ *   the input/output split is not reachable through ITokenStatistics.
+ * @property {number} cost
  * @property {string?} error - Infrastructure-level reason for failure (timeout, a dead mock seam, a
  *   case with no turns), as distinct from an assertion failure. Show this text whenever `status` is
  *   `Error`.
  * @property {TurnResult[]} turns
  * @property {AssertionResult[]} assertions - Case-level assertion results.
  * @property {ObservedToolCall[]} observedToolCalls
+ * @property {string[]} agentChain - Every agent that answered over the whole case, in order,
+ *   consecutive repeats collapsed. The only record of the hand-offs: route_to_agent is allowed
+ *   through the mock seam untouched, so it never appears in `observedToolCalls`.
  * @property {string} createDate - ISO date string.
+ */
+
+/**
+ * One case's place in a scope, carrying the metadata the decision was made from rather than just the
+ * verdict -- a scope nobody can explain is a scope nobody can review.
+ * @typedef {Object} ScopedCase
+ * @property {string} caseId
+ * @property {string} caseName
+ * @property {string} suiteId
+ * @property {string} suiteName
+ * @property {string} caseType
+ * @property {string} priority
+ * @property {string} severity
+ * @property {boolean} crossCutting
+ * @property {boolean} enabled
+ * @property {number} batch - The effective batch, after the priority and cross-cutting derivation.
+ * @property {string[]} involvedAgentIds - Authored, or derived from the entry agent.
+ * @property {string} reason - crossCutting | fullPlatform | targetAgent | unknownAgents |
+ *   notInvolved | disabled | otherBatch.
+ */
+
+/**
+ * The answer to "what will this change actually test". Both halves are returned on purpose: an
+ * excluded case produces no result to notice, so the exclusions and their reasons are the half worth
+ * reading.
+ * @typedef {Object} ScopeSelection
+ * @property {string[]} targetAgentIds
+ * @property {boolean} fullPlatform
+ * @property {number?} batch
+ * @property {number} totalCases - Every registered case, whatever its state: the coverage denominator.
+ * @property {ScopedCase[]} included
+ * @property {ScopedCase[]} excluded
+ */
+
+/**
+ * What clearing run history actually did. The skipped half matters: a still-running run is left
+ * alone, and the caller has to be able to say why one survived rather than leaving the user to
+ * notice a row that quietly stayed.
+ * @typedef {Object} RunDeleteResult
+ * @property {string[]} deletedRunIds
+ * @property {number} deletedResultCount - Case results removed along with those runs.
+ * @property {{ runId: string, reason: string }[]} skipped
  */
 
 /**
@@ -226,6 +384,46 @@
  * @typedef {Object} AgentTestRunDetail
  * @property {AgentTestRun} run
  * @property {AgentTestCaseResult[]} results
+ */
+
+/**
+ * Body of POST /agent-test/author. Carries the whole conversation and the whole draft because the
+ * server keeps no authoring session -- there is no draft row to orphan when a tab is closed.
+ * @typedef {Object} AgentTestAuthorRequest
+ * @property {string} suiteId
+ * @property {string?} [caseId] - The case being edited; null while creating. Supplied so the backend
+ *   can ground the model in that case's most recent run -- what the agent really replied and what
+ *   arguments it really passed -- instead of letting it invent both.
+ * @property {AuthorChatMessage[]} messages - Oldest first; the last one is the new instruction.
+ * @property {AgentTestCaseUpsertRequest?} [draft] - The draft as it stands, or null to start empty.
+ * @property {TestModel?} [model] - Omit to use the suite's judge model.
+ */
+
+/**
+ * @typedef {Object} AuthorChatMessage
+ * @property {string} role - user | assistant.
+ * @property {string} content
+ */
+
+/**
+ * One changed field of a draft.
+ * @typedef {Object} AuthorChange
+ * @property {string} field - camelCase draft field name, e.g. "turns".
+ * @property {string} detail - Short human summary, e.g. "3 -> 4 item(s)".
+ */
+
+/**
+ * Result of one authoring turn.
+ * @typedef {Object} AgentTestAuthorResult
+ * @property {string} reply - What to show in the chat.
+ * @property {AgentTestCaseUpsertRequest} draft - Always populated, so the client can assign it
+ *   unconditionally.
+ * @property {boolean} draftChanged
+ * @property {AuthorChange[]} changes - Computed by the backend by diffing the two drafts, never read
+ *   off the model's own account of what it did.
+ * @property {string[]} validationErrors - Non-empty means the draft cannot be saved as it stands.
+ * @property {string[]} warnings - Silently wrong things that were corrected (a mock for a function
+ *   this agent cannot call) or are merely suspect and were left alone (an unfamiliar state key).
  */
 
 export default {};

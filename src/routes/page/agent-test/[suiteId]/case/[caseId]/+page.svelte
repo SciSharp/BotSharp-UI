@@ -7,14 +7,31 @@
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
-	import { getSuite, getCase, createCase, updateCase, getMockTargets } from '$lib/services/agent-test-service.js';
-	import { ASSERTION_TYPES, validateAssertion, isParsableJson, errorMessage, t } from '$lib/helpers/utils/agent-test.js';
+	import { getSuite, getCase, createCase, updateCase, getMockTargets, authorCase } from '$lib/services/agent-test-service.js';
+	import { getAgentOptions } from '$lib/services/agent-service.js';
+	import { getLlmConfigs } from '$lib/services/llm-provider-service';
+	import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
+	import {
+		ASSERTION_TYPES,
+		AGENT_CHAIN_MODES,
+		HISTORY_ROLES,
+		CASE_PRIORITIES,
+		CASE_SEVERITIES,
+		CASE_BATCHES,
+		effectiveBatch,
+		validateAssertion,
+		validateCaseType,
+		isParsableJson,
+		errorMessage,
+		t
+	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
 
 	/** Assertion types as Select options. Constant -- the list never changes at runtime. */
 	const ASSERTION_TYPE_OPTIONS = ASSERTION_TYPES.map(name => ({ label: name, value: name }));
+	const AGENT_CHAIN_MODE_OPTIONS = AGENT_CHAIN_MODES.map(name => ({ label: name, value: name }));
 
 	let isLoading = $state(false);
 	let isComplete = $state(false);
@@ -38,6 +55,77 @@
 
 	let isSaving = $state(false);
 
+	/* ------------------------------------------------------------------
+	 * Authoring chat
+	 *
+	 * The draft lives in `form`, exactly as it does when a human types it, so everything downstream
+	 * -- validationErrors, buildPayload, the save button -- works on a chat-authored case without
+	 * knowing a chat exists. The server keeps no session: the whole message log and the whole draft
+	 * go up on every turn.
+	 * ------------------------------------------------------------------ */
+
+	let isChatOpen = $state(false);
+
+	/** @type {import('$agentTestTypes').AuthorChatMessage[]} */
+	let chatMessages = $state([]);
+	let chatInput = $state('');
+	let isAuthoring = $state(false);
+
+	/** @type {any[]} */
+	let llmConfigs = $state([]);
+
+	/**
+	 * Model the chat authors with. Null means "use the suite's judge model" -- the same fallback
+	 * ICaseAuthor.ResolveModel applies server-side, so leaving this unset behaves exactly like
+	 * today's default and only needs a picker at all because plenty of suites have no judge model
+	 * configured yet, and going to Settings to set one is a detour this page can remove.
+	 * @type {import('$agentTestTypes').TestModel | null}
+	 */
+	let chatModel = $state(null);
+
+	/** @type {import('$agentTestTypes').AuthorChange[]} */
+	let authorChanges = $state([]);
+	/** @type {string[]} */
+	let authorWarnings = $state([]);
+	/** @type {string[]} */
+	let authorErrors = $state([]);
+	/** @type {string | null} */
+	let authorErrorText = $state(null);
+
+	/**
+	 * Previous drafts, newest last. Undo is entirely local -- no server call and no model call, so
+	 * backing out a bad suggestion costs nothing and cannot fail.
+	 * @type {any[]}
+	 */
+	let draftHistory = $state([]);
+
+	/** Field names the last authoring turn touched, badged on the matching section until the next turn. */
+	let changedFields = $derived(authorChanges.map(c => c.field));
+
+	/**
+	 * Flattened provider/model options for the chat's model Select -- the same shape the suite
+	 * page's record modal builds from the same /llm-provider catalogue, because it is the same
+	 * choice (which chat-capable model backs one AI call) made in a second place.
+	 */
+	let chatModelOptions = $derived(
+		llmConfigs.flatMap(cfg => (cfg.models || [])
+			.filter(isChatModel)
+			.map((/** @type {any} */ m) => ({ label: `${cfg.provider} / ${m.name}`, value: `${cfg.provider}/${m.name}` })))
+	);
+
+	// Cast for the same reason buildPayload() is cast in sendChat() below: `suite` carries a JSDoc
+	// type but svelte-check collapses $state(null)'s inferred type to `never` the moment a property
+	// is read from it inside a $derived, a pre-existing quirk of this file and not specific to
+	// either variable.
+	let suiteHasJudgeModel = $derived(
+		!!(/** @type {any} */ (suite)?.judgeProvider) && !!(/** @type {any} */ (suite)?.judgeModel));
+	let chatModelPlaceholder = $derived(
+		suiteHasJudgeModel
+			? t('Suite default ({provider} / {model})',
+				{ provider: /** @type {any} */ (suite).judgeProvider, model: /** @type {any} */ (suite).judgeModel })
+			: t('No suite default -- pick a model to use chat authoring')
+	);
+
 	/**
 	 * The whole editable case. Every field the backend accepts lives here even
 	 * when it has no control (unmockedToolPolicy, sourceConversationId), because
@@ -53,9 +141,24 @@
 	 *   sourceConversationId: string | null
 	 * }}
 	 */
+	/** Agents the entry-agent and involved-agent pickers can offer. */
+	/** @type {{ label: string, value: string }[]} */
+	let agentOptions = $state([]);
+
 	let form = $state({
 		name: '',
 		enabled: true,
+		caseType: 'Agent',
+		entryAgentId: '',
+		history: [],
+		priority: 'P1',
+		severity: 'S1',
+		batch: null,
+		crossCutting: false,
+		involvedAgents: [],
+		businessDomain: '',
+		expectedOutcome: '',
+		lastReviewedDate: null,
 		turns: [],
 		assertions: [],
 		initialStates: [],
@@ -70,6 +173,11 @@
 
 	onMount(async () => {
 		isLoading = true;
+		// `?chat=1` is how the suite page's "New Case by Chat" lands here. A query parameter rather
+		// than a separate route: it is the same editor, and whatever the chat produces still has to
+		// be reviewed and saved here.
+		isChatOpen = page.url.searchParams.get('chat') === '1';
+		loadLlmConfigs();
 		try {
 			await loadSuite();
 			if (!isNew) {
@@ -86,6 +194,7 @@
 		loadErrorText = null;
 		return getSuite(suiteId).then(res => {
 			suite = res;
+			loadAgentOptions();
 			return getMockTargets(res.agentId).then(targets => {
 				mockTargets = targets || [];
 			}).catch(() => {
@@ -98,44 +207,127 @@
 		});
 	}
 
+	/** @param {any} model */
+	function isChatModel(model) {
+		return model.type === LlmModelType.Chat || model.capabilities?.includes(LlmModelCapability.Chat);
+	}
+
+	function loadLlmConfigs() {
+		return getLlmConfigs().then(res => {
+			llmConfigs = res || [];
+		}).catch(() => {
+			// The picker degrades to "suite default only" rather than blocking the whole editor on
+			// an endpoint the rest of this page does not otherwise need.
+			llmConfigs = [];
+		});
+	}
+
+	/** @param {any} e */
+	function changeChatModel(e) {
+		const selecteds = e?.detail?.selecteds || [];
+		const value = selecteds.length > 0 ? selecteds[0].value : '';
+		if (!value) {
+			chatModel = null;
+			return;
+		}
+		const separator = value.indexOf('/');
+		chatModel = { provider: value.slice(0, separator), model: value.slice(separator + 1) };
+	}
+
+	function loadAgentOptions() {
+		// Only fills the agent pickers, so a failure costs those and nothing else -- the rest of the
+		// editor stays usable and an already-stored entry agent is untouched.
+		return getAgentOptions().then(res => {
+			agentOptions = (res || []).map(x => ({ label: x.name, value: x.id }));
+		}).catch(() => {
+			agentOptions = [];
+		});
+	}
+
+	/** @param {any} e */
+	function changeEntryAgent(e) {
+		const selecteds = e?.detail?.selecteds || [];
+		// Empty means the dropdown own "Clear selection", which is how the author says "use the
+		// suite agent" -- the payload turns '' into null.
+		form.entryAgentId = selecteds.length > 0 ? selecteds[0].value : '';
+	}
+
+	/** @param {any} e */
+	function changeInvolvedAgents(e) {
+		form.involvedAgents = (e?.detail?.selecteds || []).map((/** @type {any} */ x) => x.value);
+	}
+
+	function markReviewedToday() {
+		// A date field nobody can be bothered to type is a date field that stays empty, and an empty
+		// reviewed date is indistinguishable from a case reviewed long ago.
+		form.lastReviewedDate = new Date().toISOString().substring(0, 10);
+	}
+
 	function loadCase() {
 		return getCase(caseId).then(res => {
-			form = {
-				name: res.name || '',
-				enabled: res.enabled,
-				turns: (res.turns || []).map((turn, i) => ({
-					index: i,
-					userMessage: turn.userMessage || '',
-					assertions: (turn.assertions || []).map(normalizeAssertion)
-				})),
-				assertions: (res.assertions || []).map(normalizeAssertion),
-				initialStates: (res.initialStates || []).map(s => ({
+			form = toForm(res);
+		}).catch(err => {
+			loadErrorText = errorMessage(err, t('Failed to load this test case.'));
+		});
+	}
+
+	/**
+	 * A stored case or an authored draft -> the editor's form shape. One function for both because
+	 * the two have the same field names: the authoring endpoint returns the same upsert shape this
+	 * page posts, so a draft can be dropped straight in.
+	 * @param {any} res
+	 */
+	function toForm(res) {
+		return {
+			name: res.name || '',
+			enabled: res.enabled,
+			// Blank for all of these is what a case stored before the fields existed reads back
+			// as, and each blank means the old behaviour: an Agent case on the suite own agent,
+			// untriaged at P1/S1.
+			caseType: res.caseType || 'Agent',
+			entryAgentId: res.entryAgentId || '',
+			history: (res.history || []).map((/** @type {any} */ m) => ({
+				role: m.role || 'user',
+				content: m.content || ''
+			})),
+			priority: res.priority || 'P1',
+			severity: res.severity || 'S1',
+			batch: res.batch ?? null,
+			crossCutting: !!res.crossCutting,
+			involvedAgents: res.involvedAgents || [],
+			businessDomain: res.businessDomain || '',
+			expectedOutcome: res.expectedOutcome || '',
+			lastReviewedDate: res.lastReviewedDate ? res.lastReviewedDate.substring(0, 10) : null,
+			turns: (res.turns || []).map((/** @type {any} */ turn, /** @type {number} */ i) => ({
+				index: i,
+				userMessage: turn.userMessage || '',
+				assertions: (turn.assertions || []).map(normalizeAssertion)
+			})),
+			assertions: (res.assertions || []).map(normalizeAssertion),
+			initialStates: (res.initialStates || []).map((/** @type {any} */ s) => ({
+				key: s.key || '',
+				value: s.value || '',
+				activeRounds: s.activeRounds ?? -1,
+				global: !!s.global
+			})),
+			mocks: (res.mocks || []).map((/** @type {any} */ m) => ({
+				functionName: m.functionName || '',
+				argsMatchJson: m.argsMatchJson || '',
+				callIndex: m.callIndex ?? null,
+				resultContent: m.resultContent || '',
+				stopCompletion: !!m.stopCompletion,
+				stateWrites: (m.stateWrites || []).map((/** @type {any} */ s) => ({
 					key: s.key || '',
 					value: s.value || '',
 					activeRounds: s.activeRounds ?? -1,
 					global: !!s.global
-				})),
-				mocks: (res.mocks || []).map(m => ({
-					functionName: m.functionName || '',
-					argsMatchJson: m.argsMatchJson || '',
-					callIndex: m.callIndex ?? null,
-					resultContent: m.resultContent || '',
-					stopCompletion: !!m.stopCompletion,
-					stateWrites: (m.stateWrites || []).map(s => ({
-						key: s.key || '',
-						value: s.value || '',
-						activeRounds: s.activeRounds ?? -1,
-						global: !!s.global
-					}))
-				})),
-				// Carried through untouched: P1 only accepts Block, and the recorded
-				// source id is the only trace back to where a draft came from.
-				unmockedToolPolicy: res.unmockedToolPolicy || 'Block',
-				sourceConversationId: res.sourceConversationId ?? null
-			};
-		}).catch(err => {
-			loadErrorText = errorMessage(err, t('Failed to load this test case.'));
-		});
+				}))
+			})),
+			// Carried through untouched: P1 only accepts Block, and the recorded
+			// source id is the only trace back to where a draft came from.
+			unmockedToolPolicy: res.unmockedToolPolicy || 'Block',
+			sourceConversationId: res.sourceConversationId ?? null
+		};
 	}
 
 	/** @param {any} a */
@@ -148,6 +340,25 @@
 			minScore: a?.minScore ?? null,
 			fatal: !!a?.fatal
 		};
+	}
+
+	function newHistoryMessage() {
+		// Starts as a user message: a fixed scenario is nearly always opened by the resident saying
+		// something, and an assistant-first history reads as the agent talking to itself.
+		return { role: 'user', content: '' };
+	}
+
+	/**
+	 * Order is the conversation, so history rows have to be movable -- unlike initial states, where
+	 * order means nothing.
+	 * @param {number} i
+	 * @param {number} delta
+	 */
+	function moveHistoryMessage(i, delta) {
+		const target = i + delta;
+		if (target < 0 || target >= form.history.length) return;
+		const [moved] = form.history.splice(i, 1);
+		form.history.splice(target, 0, moved);
 	}
 
 	/** @param {number} index */
@@ -206,6 +417,19 @@
 		if (!value.name?.trim()) {
 			errors.push(t('Name is required.'));
 		}
+
+		// Routing cases carry extra rules; the helper is shared with nothing else, so this cannot
+		// drift from what the backend would reject on save.
+		errors.push(...validateCaseType(value.caseType, value.turns, value.assertions));
+
+		// Rejected by the backend, and worth catching here: BotSharp dialog storage drops elements
+		// with blank content, so an empty message would silently not be in the conversation and the
+		// runner would then fail the whole case for a write that vanished.
+		value.history?.forEach((message, i) => {
+			if (!message.content?.trim()) {
+				errors.push(t('History message {n} has no content.', { n: i + 1 }));
+			}
+		});
 
 		// A case with no turns is accepted by the API but comes back Error at run
 		// time ("case has no turns"), so it is worth blocking here instead.
@@ -282,6 +506,23 @@
 			suiteId: suiteId,
 			name: form.name.trim(),
 			enabled: form.enabled,
+			caseType: form.caseType || 'Agent',
+			// Null, not '', so the backend "fall back to the suite agent" check reads it correctly --
+			// an empty string would be a request to enter on an agent whose id is empty.
+			entryAgentId: form.entryAgentId?.trim() || null,
+			history: form.history.map(m => ({ role: m.role, content: m.content ?? '' })),
+			priority: form.priority || 'P1',
+			severity: form.severity || 'S1',
+			// Number('') from an emptied select is 0, a batch the backend rejects. Null is how to say
+			// "derive it".
+			batch: CASE_BATCHES.includes(Number(form.batch)) ? Number(form.batch) : null,
+			crossCutting: !!form.crossCutting,
+			involvedAgents: form.involvedAgents || [],
+			businessDomain: form.businessDomain?.trim() || null,
+			expectedOutcome: form.expectedOutcome?.trim() || null,
+			// Sent only when set, and never stamped automatically: a case can be edited many times
+			// and still rest on an assumption nobody has questioned.
+			lastReviewedDate: form.lastReviewedDate || null,
 			turns: form.turns.map((turn, i) => ({
 				index: i,
 				userMessage: turn.userMessage.trim(),
@@ -334,6 +575,25 @@
 		if (selecteds.length > 0) {
 			assertion.type = selecteds[0].value;
 		}
+
+		// `target` is a function name for toolCalled, a state key for stateEquals and the comparison
+		// MODE for agentChain, so a value carried over from the previous type is either meaningless
+		// or actively wrong: switching to agentChain would leave the mode picker showing nothing, and
+		// switching away would leave 'ordered' behind as the name of a function to assert was called.
+		const isMode = AGENT_CHAIN_MODES.includes((assertion.target || '').trim().toLowerCase());
+		if (assertion.type === 'agentChain') {
+			if (!isMode) assertion.target = 'contains';
+		} else if (isMode) {
+			assertion.target = '';
+		}
+	}
+
+	/** @param {any} assertion @param {any} e */
+	function changeAgentChainMode(assertion, e) {
+		const selecteds = e?.detail?.selecteds || [];
+		if (selecteds.length > 0) {
+			assertion.target = selecteds[0].value;
+		}
 	}
 
 	/** @param {any} e */
@@ -358,6 +618,81 @@
 	function goBack() {
 		goto(`/page/agent-test/${suiteId}`);
 	}
+
+	async function sendChat() {
+		const text = chatInput.trim();
+		if (!text || isAuthoring) return;
+
+		// Appended before the call so the user sees their own message immediately, and so it is still
+		// there to read if the call fails.
+		chatMessages = [...chatMessages, { role: 'user', content: text }];
+		chatInput = '';
+		isAuthoring = true;
+		authorErrorText = null;
+
+		try {
+			/** @type {import('$agentTestTypes').AgentTestAuthorRequest} */
+			const body = {
+				suiteId: suiteId ?? '',
+				// Sent only for a saved case: it is what lets the backend ground the model in that
+				// case's last run instead of letting it invent an expected reply.
+				caseId: isNew ? null : caseId,
+				messages: chatMessages,
+				// The draft is whatever is on screen right now, in the exact shape the save endpoint
+				// takes -- so a hand edit made between two chat turns is carried in, not overwritten.
+				// Cast because `form` carries no type in this file, so buildPayload's inferred shape
+				// has `any` in it; the save path has the same gap and typing `form` properly is a
+				// separate change.
+				draft: /** @type {any} */ (buildPayload()),
+				// Null (the default) falls back to the suite's judge model on the server, same as
+				// leaving the picker below untouched.
+				model: chatModel
+			};
+
+			const result = await authorCase(body);
+
+			chatMessages = [...chatMessages, { role: 'assistant', content: result.reply }];
+			authorChanges = result.changes || [];
+			authorWarnings = result.warnings || [];
+			authorErrors = result.validationErrors || [];
+
+			if (result.draftChanged && result.draft) {
+				applyDraft(result.draft);
+			}
+		} catch (err) {
+			authorErrorText = errorMessage(err, t('The assistant could not answer.'));
+		} finally {
+			isAuthoring = false;
+		}
+	}
+
+	/** @param {any} draft */
+	function applyDraft(draft) {
+		// JSON round-trip rather than keeping the reactive object: history entries have to be inert
+		// snapshots, or undo would restore something that has since been edited in place.
+		draftHistory = [...draftHistory, JSON.parse(JSON.stringify(form))];
+		form = toForm(draft);
+	}
+
+	function undoDraft() {
+		if (draftHistory.length === 0) return;
+
+		form = draftHistory[draftHistory.length - 1];
+		draftHistory = draftHistory.slice(0, -1);
+		// The badges described the change that has just been undone.
+		authorChanges = [];
+		authorErrors = [];
+	}
+
+	/** @param {KeyboardEvent} e */
+	function chatKeydown(e) {
+		// Enter sends, Shift+Enter is a newline: a case description is usually one line, and the
+		// alternative made every message need a mouse trip to the button.
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			sendChat();
+		}
+	}
 </script>
 
 {#snippet assertionRows(list, idPrefix)}
@@ -373,24 +708,36 @@
 						onselect={e => changeAssertionType(assertion, e)}
 					/>
 					{#if assertion.type === 'llmJudge'}
-						<span class="ats-help text-warning">{$_('Always fails in P1.')}</span>
+						<span class="ats-help">{$_('Scored 1-5 by the judge model configured on this suite. Pass mark defaults to 4.')}</span>
 					{/if}
 				</div>
 				<div class="md:col-span-3">
 					<label class="ats-label" for={`${idPrefix}-target-${i}`}>
-						{$_('Target')}
+						{assertion.type === 'agentChain' ? $_('Mode') : $_('Target')}
 						{#if ['toolCalled', 'toolNotCalled', 'stateEquals'].includes(assertion.type)}
 							<span class="text-danger">*</span>
 						{/if}
 					</label>
-					<input
-						id={`${idPrefix}-target-${i}`}
-						type="text"
-						class="ats-input font-code"
-						list={['toolCalled', 'toolNotCalled'].includes(assertion.type) ? 'agent-test-mock-targets' : undefined}
-						placeholder={assertion.type === 'stateEquals' ? $_('state key') : $_('function name')}
-						bind:value={assertion.target}
-					/>
+					{#if assertion.type === 'agentChain'}
+						<!-- On this one type `target` carries the comparison mode, not a function name.
+						     A picker rather than free text because a typo'd mode fails the assertion
+						     outright instead of falling back to the loosest comparison. -->
+						<Select
+							tag={`${idPrefix}-mode-${i}`}
+							selectedValues={assertion.target ? [assertion.target] : ['contains']}
+							options={AGENT_CHAIN_MODE_OPTIONS}
+							onselect={e => changeAgentChainMode(assertion, e)}
+						/>
+					{:else}
+						<input
+							id={`${idPrefix}-target-${i}`}
+							type="text"
+							class="ats-input font-code"
+							list={['toolCalled', 'toolNotCalled'].includes(assertion.type) ? 'agent-test-mock-targets' : undefined}
+							placeholder={assertion.type === 'stateEquals' ? $_('state key') : $_('function name')}
+							bind:value={assertion.target}
+						/>
+					{/if}
 				</div>
 				<div class="md:col-span-4">
 					<label class="ats-label" for={`${idPrefix}-expected-${i}`}>
@@ -403,8 +750,20 @@
 						id={`${idPrefix}-expected-${i}`}
 						type="text"
 						class="ats-input"
+						placeholder={assertion.type === 'agentChain' ? $_('Copilot, Work Order Creator') : undefined}
 						bind:value={assertion.expected}
 					/>
+					{#if assertion.type === 'agentChain'}
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{#if (assertion.target || 'contains') === 'exact'}
+								{$_('The chain is exactly these agents and nothing else. One name asserts that nothing routed away.')}
+							{:else if assertion.target === 'ordered'}
+								{$_('These agents appear in this order; other agents may come in between. This is the hand-off assertion.')}
+							{:else}
+								{$_('These agents appear somewhere in the chain, in any order.')}
+							{/if}
+						</p>
+					{/if}
 				</div>
 				<div class="flex items-center justify-between gap-2 md:col-span-2 md:items-end md:pb-1">
 					<div class="ats-check">
@@ -528,7 +887,158 @@
 		</div>
 	</div>
 {:else}
-	<div class="flex flex-col gap-4">
+	<!--
+		The draft and the chat that edits it are one activity: every suggestion has to be read
+		against the form it changed, which is why this is a column of the editor and not a page of
+		its own. Chat first in the markup so it sits above the form when the columns collapse --
+		below xl a 700-line form ahead of it would bury it.
+	-->
+	<div class="grid grid-cols-1 gap-4 xl:grid-cols-12">
+		<div class="xl:order-2 xl:col-span-4">
+			<div class="ats-card xl:sticky xl:top-4">
+				<div class="ats-card-section ats-card-divider">
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<div class="flex items-center gap-3">
+							<span class="ats-card-icon">
+								<i class="mdi mdi-message-text-outline"></i>
+							</span>
+							<h5 class="ats-card-title">{$_('Write by Chat')}</h5>
+						</div>
+						<div class="flex flex-wrap items-center gap-2">
+							{#if draftHistory.length > 0}
+								<button
+									type="button"
+									class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+									onclick={() => undoDraft()}
+								>
+									<i class="mdi mdi-undo"></i> {$_('Undo')}
+								</button>
+							{/if}
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+								onclick={() => (isChatOpen = !isChatOpen)}
+							>
+								<i class={isChatOpen ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'}></i>
+								{isChatOpen ? $_('Hide') : $_('Show')}
+							</button>
+						</div>
+					</div>
+				</div>
+
+				{#if isChatOpen}
+					<div class="ats-card-section">
+						<p class="ats-help">
+							{$_('Say what the case should cover, in your own words. Every reply edits the draft on this page -- nothing is stored until you press Save.')}
+						</p>
+
+						<div class="mb-3">
+							<span class="ats-label">{$_('Model')}</span>
+							<Select
+								tag={'agent-test-chat-model'}
+								placeholder={chatModelPlaceholder}
+								selectedValues={chatModel ? [`${chatModel.provider}/${chatModel.model}`] : []}
+								options={chatModelOptions}
+								onselect={e => changeChatModel(e)}
+							/>
+							{#if !chatModel && !suiteHasJudgeModel}
+								<span class="ats-help text-warning">
+									{$_('This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.')}
+								</span>
+							{/if}
+						</div>
+
+						<div class="ats-chat-log scrollbar-on-hover">
+							{#if chatMessages.length === 0}
+								<p class="ats-empty-text">
+									{$_('For example: the resident says the fridge is leaking and asks when someone will come; it should reach the work order agent and look the order up.')}
+								</p>
+							{/if}
+							{#each chatMessages as message}
+								<div class="ats-chat-msg {message.role === 'user' ? 'ats-chat-msg-user' : 'ats-chat-msg-agent'}">
+									{message.content}
+								</div>
+							{/each}
+							{#if isAuthoring}
+								<div class="ats-chat-msg ats-chat-msg-agent">
+									<i class="mdi mdi-loading mdi-spin"></i> {$_('Working on it...')}
+								</div>
+							{/if}
+						</div>
+
+						<label class="ats-label" for="author-chat-input">{$_('Your instruction')}</label>
+						<textarea
+							id="author-chat-input"
+							class="ats-textarea"
+							rows="3"
+							bind:value={chatInput}
+							onkeydown={chatKeydown}
+							placeholder={$_('Add a turn, change an assertion, ask what a field means...')}
+						></textarea>
+
+						<div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+							<span class="ats-help">{$_('Enter sends. Shift+Enter starts a new line.')}</span>
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-primary"
+								disabled={isAuthoring || !chatInput.trim()}
+								onclick={() => sendChat()}
+							>
+								{#if isAuthoring}
+									<i class="mdi mdi-loading mdi-spin"></i>
+								{:else}
+									<i class="mdi mdi-send"></i>
+								{/if}
+								{$_('Send')}
+							</button>
+						</div>
+
+						{#if authorErrorText}
+							<div class="ats-alert ats-tone-danger mt-3" role="alert">
+								<span>{authorErrorText}</span>
+							</div>
+						{/if}
+
+						{#if authorChanges.length > 0}
+							<!-- Computed by the backend by diffing the two drafts, not read off the
+							     model's own account of what it did. -->
+							<div class="ats-panel mt-3">
+								<p class="ats-panel-title">{$_('Changed in this reply')}</p>
+								<ul class="mt-2 list-disc ps-5 text-xs">
+									{#each authorChanges as change}
+										<li><span class="font-code">{change.field}</span> — {change.detail}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+
+						{#if authorErrors.length > 0}
+							<div class="ats-alert ats-tone-warning mt-3 flex-col items-start gap-1" role="alert">
+								<div class="font-semibold">{$_('The assistant could not produce a valid draft:')}</div>
+								<ul class="list-disc ps-5">
+									{#each authorErrors as error}
+										<li>{error}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+
+						{#if authorWarnings.length > 0}
+							<div class="ats-alert ats-tone-info mt-3 flex-col items-start gap-1" role="alert">
+								<div class="font-semibold">{$_('Worth checking:')}</div>
+								<ul class="list-disc ps-5">
+									{#each authorWarnings as warning}
+										<li>{warning}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="flex flex-col gap-4 xl:order-1 xl:col-span-8">
 		<div class="ats-card">
 			<div class="ats-card-section ats-card-divider">
 				<div class="flex flex-wrap items-center justify-between gap-3">
@@ -593,6 +1103,40 @@
 							<label class="ats-check-label" for="case-enabled">{$_('Enabled (included in runs)')}</label>
 						</div>
 					</div>
+					<div class="md:col-span-4">
+						<label class="ats-label" for="case-type">{$_('Case type')}</label>
+						<!-- Spelled out rather than looped: bare 'Routing' and 'Agent' already exist as
+						     unrelated i18n keys (zh.json translates 'Routing' as the routing-graph
+						     screen), so reusing them would mistranslate the options. -->
+						<select id="case-type" class="ats-input" bind:value={form.caseType}>
+							<option value="Routing">{$_('Routing case')}</option>
+							<option value="Agent">{$_('Agent case')}</option>
+						</select>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{#if form.caseType === 'Routing'}
+								{$_('One turn, entered on the Copilot entry agent, asserting only which agent took the conversation. The only type counted towards a run\'s routing accuracy.')}
+							{:else}
+								{$_('One agent\'s own behaviour. Enter directly on that agent to keep the router out of what is measured. A journey across several agents is an Agent case too -- use an agentChain assertion for the hand-offs.')}
+							{/if}
+						</p>
+					</div>
+					<div class="md:col-span-8">
+						<label class="ats-label" for="case-entry-agent">{$_('Entry agent')}</label>
+						<!-- A dropdown rather than an id field: the id is a guid nobody can type from
+						     memory, and a typo is only caught on save. Use the dropdown own
+						     "Clear selection" to fall back to the suite agent. -->
+						<Select
+							tag={'agent-test-case-entry-agent'}
+							placeholder={$_('Use the suite\'s agent')}
+							selectedValues={form.entryAgentId ? [form.entryAgentId] : []}
+							options={agentOptions}
+							onselect={e => changeEntryAgent(e)}
+						/>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('The agent the conversation opens on. Leave it unset to use the suite\'s.')}
+							{$_('A routing agent runs the router and can hand off; any other agent is entered directly, so the router never runs.')}
+						</p>
+					</div>
 					{#if form.sourceConversationId}
 						<div class="md:col-span-12">
 							<div class="ats-alert ats-tone-info" role="alert">
@@ -622,7 +1166,12 @@
 							<i class="mdi mdi-comment-text-multiple-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Turns')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Turns')}
+								{#if changedFields.includes('turns')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.turns.length}</p>
 						</div>
 					</div>
@@ -711,7 +1260,12 @@
 							<i class="mdi mdi-check-circle-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Case Assertions')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Case Assertions')}
+								{#if changedFields.includes('assertions')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.assertions.length}</p>
 						</div>
 					</div>
@@ -737,13 +1291,234 @@
 
 		<div class="ats-card">
 			<div class="ats-card-section ats-card-divider">
+				<div class="flex items-center gap-3">
+					<span class="ats-card-icon">
+						<i class="mdi mdi-clipboard-text-outline"></i>
+					</span>
+					<div class="grow">
+						<h5 class="ats-card-title">{$_('Registration')}</h5>
+						<p class="ats-card-subtitle">
+							{$_('Decides when this case runs and what a failure of it means. Used to work out which cases a change actually needs to run.')}
+						</p>
+					</div>
+				</div>
+			</div>
+			<div class="ats-card-body">
+				<div class="grid grid-cols-1 gap-4 md:grid-cols-12">
+					<div class="md:col-span-3">
+						<label class="ats-label" for="case-priority">{$_('Priority')}</label>
+						<select id="case-priority" class="ats-input" bind:value={form.priority}>
+							{#each CASE_PRIORITIES as priority}
+								<option value={priority}>{priority}</option>
+							{/each}
+						</select>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('P0 runs in the stop-loss batch, P2 does not block a release.')}
+						</p>
+					</div>
+					<div class="md:col-span-3">
+						<label class="ats-label" for="case-severity">{$_('Severity')}</label>
+						<select id="case-severity" class="ats-input" bind:value={form.severity}>
+							{#each CASE_SEVERITIES as severity}
+								<option value={severity}>{severity}</option>
+							{/each}
+						</select>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('S0 is a stop, not a statistic. S2 is phrasing and experience.')}
+						</p>
+					</div>
+					<div class="md:col-span-3">
+						<label class="ats-label" for="case-batch">{$_('Batch')}</label>
+						<select id="case-batch" class="ats-input" bind:value={form.batch}>
+							<option value={null}>{$_('Derive from priority')}</option>
+							{#each CASE_BATCHES as batch}
+								<option value={batch}>{batch}</option>
+							{/each}
+						</select>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('Runs in batch {n}.', { values: { n: effectiveBatch(form) } })}
+						</p>
+					</div>
+					<div class="md:col-span-3 md:pt-4">
+						<div class="ats-check">
+							<input
+								id="case-cross-cutting"
+								type="checkbox"
+								class="ats-switch"
+								bind:checked={form.crossCutting}
+							/>
+							<label class="ats-check-label" for="case-cross-cutting">{$_('Cross-cutting')}</label>
+						</div>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('Runs in every scope, whatever changed, and always in batch 1.')}
+						</p>
+					</div>
+					<div class="md:col-span-6">
+						<label class="ats-label" for="case-involved-agents">{$_('Involved agents')}</label>
+						<Select
+							tag={'agent-test-case-involved-agents'}
+							multiSelect={true}
+							placeholder={$_('Derived from the entry agent')}
+							selectedValues={form.involvedAgents}
+							options={agentOptions}
+							onselect={e => changeInvolvedAgents(e)}
+						/>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('Leave empty and the entry agent is used. Worth filling in for a routing case, where the agents that matter are the ones downstream of the router.')}
+						</p>
+					</div>
+					<div class="md:col-span-3">
+						<label class="ats-label" for="case-business-domain">{$_('Business domain')}</label>
+						<input
+							id="case-business-domain"
+							type="text"
+							class="ats-input"
+							bind:value={form.businessDomain}
+						/>
+					</div>
+					<div class="md:col-span-3">
+						<label class="ats-label" for="case-last-reviewed">{$_('Last reviewed')}</label>
+						<div class="flex gap-2">
+							<input
+								id="case-last-reviewed"
+								type="date"
+								class="ats-input"
+								bind:value={form.lastReviewedDate}
+							/>
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+								onclick={() => markReviewedToday()}
+							>
+								{$_('Today')}
+							</button>
+						</div>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('Never set automatically -- editing a case is not reviewing it.')}
+						</p>
+					</div>
+					<div class="md:col-span-12">
+						<label class="ats-label" for="case-expected-outcome">{$_('Expected outcome')}</label>
+						<textarea
+							id="case-expected-outcome"
+							class="ats-textarea"
+							rows="2"
+							bind:value={form.expectedOutcome}
+						></textarea>
+						<p class="mt-1 mb-0 text-xs text-muted">
+							{$_('For whoever reviews the result. Never evaluated -- an expected outcome a machine can check is an assertion, and belongs below where it will be enforced.')}
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="ats-card">
+			<div class="ats-card-section ats-card-divider">
+				<div class="flex flex-wrap items-center justify-between gap-3">
+					<div class="flex items-center gap-3">
+						<span class="ats-card-icon">
+							<i class="mdi mdi-comment-text-multiple-outline"></i>
+						</span>
+						<div class="grow">
+							<h5 class="ats-card-title">
+								{$_('History')}
+								{#if changedFields.includes('history')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
+							<p class="ats-card-subtitle">{form.history.length}</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						class="ats-btn ats-btn-sm ats-btn-soft ats-tone-primary"
+						onclick={() => (form.history = [...form.history, newHistoryMessage()])}
+					>
+						<i class="mdi mdi-plus"></i> {$_('Add Message')}
+					</button>
+				</div>
+			</div>
+			<div class="ats-card-body">
+				<p class="mb-3 text-xs text-muted">
+					{$_('Written into the conversation before the first turn runs, so an existing question-and-answer exchange becomes the fixed starting context for this case.')}
+					{$_('These messages are not driven through the model, cost no tokens, and never appear in the agent chain.')}
+				</p>
+				{#each form.history as message, i}
+					<div class="ats-panel mb-2">
+						<div class="grid grid-cols-1 gap-3 md:grid-cols-12">
+							<div class="md:col-span-3">
+								<label class="ats-label" for={`history-role-${i}`}>{$_('Role')}</label>
+								<select id={`history-role-${i}`} class="ats-input" bind:value={message.role}>
+									{#each HISTORY_ROLES as role}
+										<option value={role}>{role === 'user' ? $_('User') : $_('Assistant')}</option>
+									{/each}
+								</select>
+							</div>
+							<div class="md:col-span-7">
+								<label class="ats-label" for={`history-content-${i}`}>
+									{$_('Content')} <span class="text-danger">*</span>
+								</label>
+								<textarea
+									id={`history-content-${i}`}
+									class="ats-textarea"
+									rows="2"
+									bind:value={message.content}
+								></textarea>
+							</div>
+							<div class="flex items-end justify-end gap-1 md:col-span-2 md:pb-1">
+								<button
+									type="button"
+									class="ats-btn ats-btn-icon ats-btn-soft ats-tone-secondary"
+									aria-label={$_('Move up')}
+									disabled={i === 0}
+									onclick={() => moveHistoryMessage(i, -1)}
+								>
+									<i class="mdi mdi-arrow-up"></i>
+								</button>
+								<button
+									type="button"
+									class="ats-btn ats-btn-icon ats-btn-soft ats-tone-secondary"
+									aria-label={$_('Move down')}
+									disabled={i === form.history.length - 1}
+									onclick={() => moveHistoryMessage(i, 1)}
+								>
+									<i class="mdi mdi-arrow-down"></i>
+								</button>
+								<button
+									type="button"
+									class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+									aria-label={$_('Remove message')}
+									onclick={() => form.history.splice(i, 1)}
+								>
+									<i class="mdi mdi-trash-can-outline"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+				{/each}
+				{#if form.history.length === 0}
+					<div class="ats-empty">
+						<p class="ats-empty-text">{$_('No history. The case starts from an empty conversation.')}</p>
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="ats-card">
+			<div class="ats-card-section ats-card-divider">
 				<div class="flex flex-wrap items-center justify-between gap-3">
 					<div class="flex items-center gap-3">
 						<span class="ats-card-icon">
 							<i class="mdi mdi-database-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Initial States')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Initial States')}
+								{#if changedFields.includes('initialStates')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.initialStates.length}</p>
 						</div>
 					</div>
@@ -777,7 +1552,12 @@
 							<i class="mdi mdi-tools"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Tool Mocks')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Tool Mocks')}
+								{#if changedFields.includes('mocks')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.mocks.length}</p>
 						</div>
 					</div>
@@ -910,6 +1690,7 @@
 					{$_('Save')}
 				</button>
 			</div>
+		</div>
 		</div>
 	</div>
 {/if}

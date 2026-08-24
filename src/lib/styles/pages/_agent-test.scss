@@ -878,3 +878,58 @@
     font-size: 0.875rem;
     color: var(--color-muted);
 }
+
+/* ========================================================================
+ * Authoring chat (case editor right-hand column)
+ * ========================================================================
+ * A transcript, not a chat product: no avatars, no timestamps, no streaming.
+ * The two roles are told apart by ground and alignment only, because the
+ * thing worth looking at is the form next to it -- the chat is the input
+ * device, not the output.
+ *
+ * The log is height-capped and scrolls on its own so that a long
+ * conversation cannot push the composer off the bottom of a sticky column,
+ * which is exactly where it stops being usable.
+ */
+.ats-chat-log {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 22rem;
+    margin: 0.75rem 0;
+    overflow-y: auto;
+    padding-right: 0.25rem;
+}
+
+.ats-chat-msg {
+    max-width: 92%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    font-size: 0.8125rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+.ats-chat-msg-user {
+    align-self: flex-end;
+    background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    color: rgb(31 41 55);
+
+    .dark & {
+        color: rgb(229 231 235);
+    }
+}
+
+.ats-chat-msg-agent {
+    align-self: flex-start;
+    border: 1px solid rgb(229 231 235);
+    background-color: rgb(249 250 251);
+    color: rgb(31 41 55);
+
+    .dark & {
+        border-color: rgb(55 65 81);
+        background-color: rgb(17 24 39 / 0.6);
+        color: rgb(229 231 235);
+    }
+}

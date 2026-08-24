@@ -113,6 +113,58 @@ export async function updateCase(id, body) {
 }
 
 /**
+ * Work out which cases a change needs to run, before running anything.
+ *
+ * Read-only: it plans a run, it does not start one. Triggering stays per-suite,
+ * so a caller takes the included case ids from here and triggers each suite that
+ * appears among them.
+ * @param {{ targetAgentIds?: string[], fullPlatform?: boolean, batch?: number | null }} body
+ * @returns {Promise<import('$agentTestTypes').ScopeSelection>}
+ */
+export async function selectScope(body) {
+    const url = endpoints.agentTestScopeUrl;
+    const response = await axios.post(url, body);
+    return response.data;
+}
+
+/**
+ * Clear run history: delete the named runs and the case results underneath them.
+ *
+ * Bulk-only on the server, and the single-row button calls it with one id -- the
+ * guard that refuses to delete a still-running run is worth having in exactly one
+ * place.
+ *
+ * A run that is still executing is skipped rather than failing the whole call, so
+ * the response reports what actually went and what did not.
+ * @param {string[]} runIds
+ * @returns {Promise<import('$agentTestTypes').RunDeleteResult>}
+ */
+export async function deleteRuns(runIds) {
+    const url = endpoints.agentTestRunDeleteUrl;
+    const response = await axios.post(url, { runIds: runIds });
+    return response.data;
+}
+
+/**
+ * Duplicate an agent test case inside its own suite.
+ *
+ * Server-side rather than a get-then-create here, so the copy carries every
+ * field the case has. Rebuilding the payload from this client would drop
+ * anything it does not know about, and a copy missing its mocks looks identical
+ * in the list right up to the run where it blocks every tool.
+ *
+ * The copy lands disabled -- an exact duplicate joining the next run would
+ * measure the same thing twice.
+ * @param {string} id
+ * @returns {Promise<import('$agentTestTypes').AgentTestCase>}
+ */
+export async function copyCase(id) {
+    const url = endpoints.agentTestCaseCopyUrl.replace("{id}", id);
+    const response = await axios.post(url);
+    return response.data;
+}
+
+/**
  * Delete a test case
  * @param {string} id
  */
@@ -206,5 +258,22 @@ export async function getMockTargets(agentId) {
     const response = await axios.get(url, {
         params: { agentId: agentId }
     });
+    return response.data;
+}
+
+/**
+ * One turn of authoring a case by conversation.
+ *
+ * Stateless on the server: the whole chat and the whole current draft go up every time, and what
+ * comes back replaces the draft. Nothing is saved -- the returned draft still has to go through
+ * createCase/updateCase, which is the only path that validates the entry agent and the only one the
+ * user presses deliberately.
+ *
+ * @param {import('$agentTestTypes').AgentTestAuthorRequest} body
+ * @returns {Promise<import('$agentTestTypes').AgentTestAuthorResult>}
+ */
+export async function authorCase(body) {
+    const url = endpoints.agentTestCaseAuthorUrl;
+    const response = await axios.post(url, body);
     return response.data;
 }

@@ -7,7 +7,15 @@
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import { getRun, cancelRun, triggerRun } from '$lib/services/agent-test-service.js';
-	import { statusColor, isTerminalStatus, errorMessage, formatDuration, formatDateTime, t } from '$lib/helpers/utils/agent-test.js';
+	import {
+		statusColor,
+		isTerminalStatus,
+		errorMessage,
+		formatDuration,
+		formatDateTime,
+		formatAgentChain,
+		t
+	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const pollIntervalMs = 2000;
@@ -52,6 +60,36 @@
 
 	/** Column order for the comparison grid; follows the run's own model order. */
 	let modelColumns = $derived((run?.models || []).map(m => ({ ...m, key: `${m.provider}/${m.model}` })));
+
+	/**
+	 * Per-model routing accuracy, straight off the run. Shown as "passed / total" next to the
+	 * percentage on purpose: the gate is expressed in percentage points, but 3/4 says how much the
+	 * figure is worth trusting and 75% does not -- and with a handful of routing cases that is the
+	 * difference between a gate and a guess.
+	 */
+	let routingAccuracies = $derived((run?.routingAccuracies || []).map(a => ({
+		...a,
+		label: a.model || $_('agent default'),
+		percent: a.caseCount > 0 ? Math.round((a.passedCount / a.caseCount) * 1000) / 10 : null
+	})));
+
+	/**
+	 * Latency, token and cost figures per model, as stored on the run. A table rather than tiles
+	 * because there is one row per model and the whole point is comparing them side by side.
+	 */
+	let performance = $derived((run?.performanceSummaries || []).map(s => ({
+		...s,
+		label: s.model || $_('agent default')
+	})));
+
+	/**
+	 * The unit costs the cost column was computed from. Shown next to the figures because a cost is
+	 * not comparable with another run unless these match -- a provider price change would otherwise
+	 * read as a cost regression with nothing to point at.
+	 */
+	let pricingByModel = $derived(Object.fromEntries(
+		(run?.modelPricing || []).map(p => [p.model || '', p])
+	));
 	let isComparison = $derived(modelColumns.length > 1);
 
 	/**
@@ -309,6 +347,71 @@
 				</div>
 			</div>
 			<div class="ats-card-body">
+				{#if routingAccuracies.length > 0}
+					<!-- Routing accuracy is gated separately from the agent pass rate, so it gets its own
+					     row rather than being folded into the totals below. Absent entirely when the run
+					     contained no routing cases: a 0/0 tile would read as "measured routing, got none
+					     right". -->
+					<div class="mb-3">
+						<h6 class="ats-meta-label mb-2">{$_('Routing accuracy')}</h6>
+						<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
+							{#each routingAccuracies as accuracy (accuracy.label)}
+								<div class="ats-stat">
+									<span class="ats-stat-value">{accuracy.percent}%</span>
+									<span class="ats-stat-label font-code">
+										{accuracy.label} · {accuracy.passedCount}/{accuracy.caseCount}
+									</span>
+								</div>
+							{/each}
+						</div>
+					</div>
+				{/if}
+				{#if performance.length > 0}
+					<div class="mb-3">
+						<h6 class="ats-meta-label mb-2">{$_('Latency, tokens and cost')}</h6>
+						<div class="table-responsive thin-scrollbar">
+							<table class="table ats-table align-middle mb-0">
+								<thead>
+									<tr>
+										<th scope="col">{$_('Model')}</th>
+										<th scope="col" class="text-end">{$_('Cases')}</th>
+										<th scope="col" class="text-end">{$_('Latency P50')}</th>
+										<th scope="col" class="text-end">{$_('Latency P95')}</th>
+										<th scope="col" class="text-end">{$_('Tokens')}</th>
+										<th scope="col" class="text-end">{$_('Cost')}</th>
+										<th scope="col">{$_('Unit cost (in / out)')}</th>
+									</tr>
+								</thead>
+								<tbody>
+									{#each performance as row (row.label)}
+										{@const pricing = pricingByModel[row.model || '']}
+										<tr>
+											<td class="font-code">{row.label}</td>
+											<td class="text-end">{row.caseCount}</td>
+											<td class="text-end">{formatDuration(row.latencyP50Ms)}</td>
+											<td class="text-end">{formatDuration(row.latencyP95Ms)}</td>
+											<td class="text-end">{row.totalTokens}</td>
+											<td class="text-end">{row.totalCost.toFixed(4)}</td>
+											<td class="font-code text-xs text-muted">
+												{#if pricing && pricing.textInputCost != null}
+													{pricing.textInputCost} / {pricing.textOutputCost}
+												{:else}
+													<!-- Never rendered as 0: that would read as "this model is free",
+													     which is a claim. Unknown is the truth, and it is also the
+													     reason this run cost cannot be compared with another. -->
+													{$_('unknown')}
+												{/if}
+											</td>
+										</tr>
+									{/each}
+								</tbody>
+							</table>
+						</div>
+						<p class="mt-2 mb-0 text-xs text-muted">
+							{$_('Percentiles are nearest-rank over the agent-call time of the cases that reached the model, so every figure is a duration some case actually took. Cases that failed before their first turn are excluded from the percentiles but still counted in tokens and cost.')}
+						</p>
+					</div>
+				{/if}
 				<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
 					<div class="ats-stat">
 						<span class="ats-stat-value">{run.totalCount}</span>
@@ -455,7 +558,32 @@
 											{result.model}
 										</span>
 									{/if}
-									<span class="text-xs text-muted">{formatDuration(result.durationMs)}</span>
+									<span class="text-xs text-muted" title={$_('Wall clock for the whole case')}>
+										{formatDuration(result.durationMs)}
+									</span>
+									{#if result.modelDurationMs > 0}
+										<!-- The agent-call time on its own. This is what the latency percentiles
+										     are built from; the figure above also contains the canary and the
+										     conversation reads. -->
+										<span class="text-xs text-muted" title={$_('Agent call time only')}>
+											({formatDuration(result.modelDurationMs)})
+										</span>
+									{/if}
+									{#if result.totalTokens > 0}
+										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Tokens / cost')}>
+											{result.totalTokens} · {result.cost.toFixed(4)}
+										</span>
+									{/if}
+									{#if result.agentChain?.length > 0}
+										<!-- The only record of the hand-offs: route_to_agent is allowed through the
+										     mock seam untouched, so it produces no observed tool call and the chain
+										     is reconstructed from the conversation own assistant messages. Worth
+										     showing without expanding, because "which agent actually answered" is
+										     the first thing looked at when a routing case goes red. -->
+										<span class="ats-badge ats-badge-soft ats-tone-info font-code" title={$_('Agent chain')}>
+											{formatAgentChain(result.agentChain)}
+										</span>
+									{/if}
 									{#if result.conversationId}
 										<span class="font-code text-xs text-muted">{result.conversationId}</span>
 									{/if}
@@ -490,6 +618,12 @@
 												<div class="ats-meta-label">{$_('Agent output')}</div>
 												<div class="ats-code mt-1">{turn.output || '--'}</div>
 											</div>
+											{#if turn.agentChain?.length > 0}
+												<div class="mb-2">
+													<div class="ats-meta-label">{$_('Answered by')}</div>
+													<div class="font-code text-xs mt-1">{formatAgentChain(turn.agentChain)}</div>
+												</div>
+											{/if}
 											{#if turn.assertions?.length > 0}
 												{@render assertionTable(turn.assertions)}
 											{:else}

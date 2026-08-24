@@ -10,7 +10,7 @@
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { getAgentOptions } from '$lib/services/agent-service.js';
 	import { getSuites, createSuite, deleteSuite } from '$lib/services/agent-test-service.js';
-	import { t } from '$lib/helpers/utils/agent-test.js';
+	import { errorMessage, t } from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
@@ -220,7 +220,6 @@
 
 <HeadTitle title={$_('Test Suites')} />
 <Breadcrumb title={$_('Agent Testing')} pagetitle={$_('Test Suites')} />
-
 <LoadingToComplete
 	isLoading={isLoading}
 	isComplete={isComplete}
@@ -258,9 +257,22 @@
 							</p>
 						</div>
 					</div>
-					<button type="button" class="ats-btn ats-btn-primary" onclick={() => openCreateModal()}>
-						<i class="mdi mdi-plus"></i> {$_('New Suite')}
-					</button>
+					<div class="flex flex-wrap items-center gap-2">
+						<!-- Scope planning spans every suite, so it is its own page rather than a panel
+						     here. Linked from this card because it is otherwise unreachable: nothing
+						     else in the UI points at that route. -->
+						<!-- An anchor rather than a button with goto(), so middle-click, open-in-new-tab
+						     and screen-reader semantics come for free. Note the route itself is
+						     registered in svelte.config.js: prerendering here runs with crawl disabled
+						     and an explicit entries list, so a new page is invisible to the build until
+						     it is named there. -->
+						<a class="ats-btn ats-btn-soft ats-tone-secondary" href="/page/agent-test/scope">
+							<i class="mdi mdi-target"></i> {$_('Plan a scope')}
+						</a>
+						<button type="button" class="ats-btn ats-btn-primary" onclick={() => openCreateModal()}>
+							<i class="mdi mdi-plus"></i> {$_('New Suite')}
+						</button>
+					</div>
 				</div>
 			</div>
 			<div class="ats-card-section ats-card-divider">

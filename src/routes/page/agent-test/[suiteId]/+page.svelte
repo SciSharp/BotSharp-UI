@@ -16,14 +16,26 @@
 		getSuite,
 		updateSuite,
 		getCases,
+		copyCase,
 		deleteCase,
 		updateCase,
 		getRuns,
 		triggerRun,
 		cancelRun,
+		deleteRuns,
 		recordCases
 	} from '$lib/services/agent-test-service.js';
-	import { statusColor, isTerminalStatus, errorMessage, formatDateTime, formatDuration, t } from '$lib/helpers/utils/agent-test.js';
+	import {
+		statusColor,
+		isTerminalStatus,
+		priorityTone,
+		severityTone,
+		effectiveBatch,
+		errorMessage,
+		formatDateTime,
+		formatDuration,
+		t
+	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
 	const nameMaxLength = 200;
@@ -66,6 +78,13 @@
 
 	/** @type {import('$agentTestTypes').AgentTestCase | null} */
 	let caseToDelete = $state(null);
+
+	/** @type {string[]} */
+	let selectedRunIds = $state([]);
+
+	/** Runs the confirm dialog is currently asking about; empty means it is closed. */
+	/** @type {import('$agentTestTypes').AgentTestRun[]} */
+	let runsToDelete = $state([]);
 
 	/** true = the run modal was opened by "Run Selected", false = "Run All Enabled". */
 	let runPartial = $state(false);
@@ -171,6 +190,14 @@
 	let canSaveSettings = $derived(!!settingsDraft.name?.trim() && settingsDraft.caseTimeoutSeconds > 0);
 	let canRecord = $derived(!!recordConversationId?.trim());
 	let allCasesSelected = $derived(cases.length > 0 && selectedCaseIds.length === cases.length);
+	let allRunsSelected = $derived(runs.length > 0 && selectedRunIds.length === runs.length);
+
+	/**
+	 * Selected runs that can actually go. A run still executing is refused by the server, so counting
+	 * it here would promise a delete that will not happen.
+	 */
+	let deletableSelectedRuns = $derived(
+		runs.filter(r => selectedRunIds.includes(r.id) && isTerminalStatus(r.status)));
 
 	onMount(async () => {
 		isLoading = true;
@@ -258,6 +285,10 @@
 	function loadRuns() {
 		return getRuns(suiteId).then(res => {
 			runs = res || [];
+			// Drop selections for runs that are gone, or a later delete would post ids the server
+			// can only answer "already deleted" for.
+			const ids = new Set(runs.map(r => r.id));
+			selectedRunIds = selectedRunIds.filter(id => ids.has(id));
 		}).catch(() => {
 			runs = [];
 		});
@@ -317,6 +348,55 @@
 		selectedCaseIds = allCasesSelected ? [] : cases.map(x => x.id);
 	}
 
+	/** @param {string} runId */
+	function toggleRun(runId) {
+		selectedRunIds = selectedRunIds.includes(runId)
+			? selectedRunIds.filter(id => id !== runId)
+			: [...selectedRunIds, runId];
+	}
+
+	function toggleAllRuns() {
+		selectedRunIds = allRunsSelected ? [] : runs.map(x => x.id);
+	}
+
+	/** @param {import('$agentTestTypes').AgentTestRun[]} target */
+	function openDeleteRunsModal(target) {
+		runsToDelete = target;
+	}
+
+	function closeDeleteRunsModal() {
+		runsToDelete = [];
+	}
+
+	function confirmDeleteRuns() {
+		const target = runsToDelete.map(r => r.id);
+		runsToDelete = [];
+		if (target.length === 0) return;
+
+		isLoading = true;
+		deleteRuns(target).then(res => {
+			const deleted = res?.deletedRunIds?.length || 0;
+			if (deleted > 0) {
+				notifySuccess(t('Deleted {runs} run(s) and {results} result(s).', {
+					runs: deleted,
+					results: res?.deletedResultCount || 0
+				}));
+			}
+			// Reported, not swallowed: a still-running run is left alone on purpose, and the reason
+			// says what to do about it. Silently showing "deleted 2" while a third row stays put is
+			// how a user concludes the button is broken.
+			(res?.skipped || []).forEach((/** @type {any} */ s) => {
+				notifyError(t('Run {id} was kept: {reason}', { id: s.runId.substring(0, 8), reason: s.reason }));
+			});
+			selectedRunIds = [];
+			return loadRuns();
+		}).catch(err => {
+			notifyError(errorMessage(err, t('Failed to delete the runs.')));
+		}).finally(() => {
+			isLoading = false;
+		});
+	}
+
 	function goBack() {
 		goto('/page/agent-test');
 	}
@@ -326,8 +406,31 @@
 		goto(`/page/agent-test/${suiteId}/case/${caseId}`);
 	}
 
+	/** @param {import('$agentTestTypes').AgentTestCase} testCase */
+	function copyTestCase(testCase) {
+		isLoading = true;
+		copyCase(testCase.id).then(copy => {
+			notifySuccess(t('Copied to "{name}". It is disabled until you enable it.', { name: copy.name }));
+			// Straight into the copy: it lands disabled and named "(copy)", and neither is
+			// something anyone leaves as it is -- a copy is made in order to be edited.
+			goToCase(copy.id);
+		}).catch(err => {
+			notifyError(errorMessage(err, t('Failed to copy the case.')));
+			isLoading = false;
+		});
+	}
+
 	function goToNewCase() {
 		goto(`/page/agent-test/${suiteId}/case/new`);
+	}
+
+	/**
+	 * Same editor, with the authoring chat already open -- see the `chat` query parameter there.
+	 * A separate entry rather than a mode of its own: whatever the chat produces still has to be
+	 * reviewed and saved in the normal editor, so landing anywhere else would only add a hop.
+	 */
+	function goToNewCaseWithChat() {
+		goto(`/page/agent-test/${suiteId}/case/new?chat=1`);
 	}
 
 	/** @param {string} runId */
@@ -396,18 +499,15 @@
 	/** @param {import('$agentTestTypes').AgentTestCase} testCase */
 	function toggleCaseEnabled(testCase) {
 		isLoading = true;
-		// Full replace again: everything the editor does not touch here still has
-		// to travel, or flipping the toggle wipes turns/mocks/assertions.
+		// PUT is a full replace, so everything has to travel or flipping this toggle wipes it.
+		// Spread rather than listed field by field: a hand-written payload silently drops each
+		// field added to a case afterwards, which is how caseType, entryAgentId and history all
+		// came to be erased by a single click on this toggle. Server-owned keys (id, createDate,
+		// updateDate) ride along harmlessly -- the upsert request has no such properties, so model
+		// binding ignores them.
 		updateCase(testCase.id, {
-			suiteId: testCase.suiteId,
-			name: testCase.name,
-			enabled: !testCase.enabled,
-			turns: testCase.turns || [],
-			assertions: testCase.assertions || [],
-			initialStates: testCase.initialStates || [],
-			mocks: testCase.mocks || [],
-			unmockedToolPolicy: testCase.unmockedToolPolicy || 'Block',
-			sourceConversationId: testCase.sourceConversationId
+			...testCase,
+			enabled: !testCase.enabled
 		}).then(() => {
 			notifySuccess(testCase.enabled ? t('Case disabled.') : t('Case enabled.'));
 			return loadCases();
@@ -585,6 +685,21 @@
 />
 
 <ConfirmModal
+	isOpen={runsToDelete.length > 0}
+	icon="warning"
+	title={t('Are you sure?')}
+	text={runsToDelete.length === 1
+		? t('Delete this run and its case results? You won\'t be able to revert this!')
+		: t('Delete {n} runs and all their case results? You won\'t be able to revert this!', { n: runsToDelete.length })}
+	confirmBtnText={t('Yes, delete it!')}
+	cancelBtnText={t('Cancel')}
+	confirmBtnColor="danger"
+	confirm={confirmDeleteRuns}
+	cancel={closeDeleteRunsModal}
+	toggleModal={closeDeleteRunsModal}
+/>
+
+<ConfirmModal
 	isOpen={!!caseToDelete}
 	icon="warning"
 	title={t('Are you sure?')}
@@ -649,6 +764,9 @@
 						</button>
 						<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>
 							<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
+						</button>
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCaseWithChat()}>
+							<i class="mdi mdi-message-text-outline"></i> {$_('New Case by Chat')}
 						</button>
 						<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCase()}>
 							<i class="mdi mdi-plus"></i> {$_('New Case')}
@@ -721,7 +839,10 @@
 					<div class="ats-empty">
 						<p class="ats-empty-text">{$_('No test cases in this suite yet.')}</p>
 						<div class="flex flex-wrap items-center justify-center gap-2">
-							<button type="button" class="ats-btn ats-btn-primary" onclick={() => goToNewCase()}>
+							<button type="button" class="ats-btn ats-btn-primary" onclick={() => goToNewCaseWithChat()}>
+								<i class="mdi mdi-message-text-outline"></i> {$_('New Case by Chat')}
+							</button>
+							<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCase()}>
 								<i class="mdi mdi-plus"></i> {$_('New Case')}
 							</button>
 							<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>
@@ -744,7 +865,11 @@
 										/>
 									</th>
 									<th scope="col">{$_('Name')}</th>
+									<th scope="col">{$_('Type')}</th>
+									<th scope="col">{$_('Priority')}</th>
+									<th scope="col">{$_('Severity')}</th>
 									<th scope="col">{$_('Turns')}</th>
+									<th scope="col">{$_('History')}</th>
 									<th scope="col">{$_('Mocks')}</th>
 									<th scope="col">{$_('Assertions')}</th>
 									<th scope="col">{$_('Source')}</th>
@@ -775,7 +900,37 @@
 												{testCase.name}
 											</button>
 										</td>
+										<td>
+											<!-- Cases stored before caseType existed read back as Agent. Shown here
+											     because the type decides how a case is validated and whether it counts
+											     towards routing accuracy, which is not something to have to open every
+											     case to discover. -->
+											{#if testCase.caseType === 'Routing'}
+												<span class="ats-badge ats-tone-info">{$_('Routing case')}</span>
+											{:else}
+												<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('Agent case')}</span>
+											{/if}
+										</td>
+										<td class="whitespace-nowrap">
+											<span class="ats-badge ats-badge-soft ats-tone-{priorityTone(testCase.priority)}">
+												{testCase.priority || 'P1'}
+											</span>
+											<!-- The batch, not just the priority. Cross-cutting overrides priority
+											     and forces batch 1, so a P2 safety case runs FIRST -- showing the
+											     priority alone would have it read as "runs last", which is the
+											     opposite of the truth and exactly the call this column exists to
+											     inform. -->
+											<div class="text-xs text-muted">
+												{$_('batch {n}', { values: { n: effectiveBatch(testCase) } })}
+											</div>
+										</td>
+										<td>
+											<span class="ats-badge ats-badge-soft ats-tone-{severityTone(testCase.severity)}">
+												{testCase.severity || 'S1'}
+											</span>
+										</td>
 										<td>{testCase.turns?.length || 0}</td>
+										<td>{testCase.history?.length || 0}</td>
 										<td>{testCase.mocks?.length || 0}</td>
 										<td>{assertionCount}</td>
 										<td>
@@ -819,6 +974,16 @@
 														<i class="mdi mdi-pencil-outline"></i>
 													</button>
 												</li>
+												<li title={$_('Copy')}>
+													<button
+														type="button"
+														class="ats-btn ats-btn-icon ats-btn-soft ats-tone-secondary"
+														aria-label={$_('Copy case')}
+														onclick={() => copyTestCase(testCase)}
+													>
+														<i class="mdi mdi-content-copy"></i>
+													</button>
+												</li>
 												<li title={$_('Delete')}>
 													<button
 														type="button"
@@ -854,13 +1019,36 @@
 							</p>
 						</div>
 					</div>
-					<button
-						type="button"
-						class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
-						onclick={() => refresh()}
-					>
-						<i class="mdi mdi-refresh"></i> {$_('Refresh')}
-					</button>
+					<div class="flex flex-wrap items-center gap-2">
+						{#if selectedRunIds.length > 0}
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-danger"
+								disabled={deletableSelectedRuns.length === 0}
+								onclick={() => openDeleteRunsModal(deletableSelectedRuns)}
+							>
+								<i class="mdi mdi-delete-outline"></i>
+								{$_('Delete selected')} ({deletableSelectedRuns.length})
+							</button>
+							{#if deletableSelectedRuns.length < selectedRunIds.length}
+								<!-- Say it before the click, not after. A run still executing is refused by
+								     the server, and a count that included it would promise a delete that
+								     never happens. -->
+								<span class="text-xs text-muted">
+									{$_('{n} still running and cannot be deleted', {
+										values: { n: selectedRunIds.length - deletableSelectedRuns.length }
+									})}
+								</span>
+							{/if}
+						{/if}
+						<button
+							type="button"
+							class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+							onclick={() => refresh()}
+						>
+							<i class="mdi mdi-refresh"></i> {$_('Refresh')}
+						</button>
+					</div>
 				</div>
 			</div>
 			<div class="ats-card-body">
@@ -873,6 +1061,15 @@
 						<table class="ats-table">
 							<thead>
 								<tr>
+									<th scope="col" style="width: 40px;">
+										<input
+											type="checkbox"
+											class="ats-check-input"
+											aria-label={$_('Select all runs')}
+											checked={allRunsSelected}
+											onchange={() => toggleAllRuns()}
+										/>
+									</th>
 									<th scope="col">{$_('Status')}</th>
 									<th scope="col">{$_('Result')}</th>
 									<th scope="col">{$_('Scope')}</th>
@@ -884,6 +1081,15 @@
 							<tbody>
 								{#each runs as run (run.id)}
 									<tr>
+										<td>
+											<input
+												type="checkbox"
+												class="ats-check-input"
+												aria-label={$_('Select run')}
+												checked={selectedRunIds.includes(run.id)}
+												onchange={() => toggleRun(run.id)}
+											/>
+										</td>
 										<td>
 											<span class="flex flex-wrap items-center gap-1">
 												<span class="ats-badge ats-tone-{statusColor(run.status)}">{$_(run.status)}</span>
@@ -934,7 +1140,21 @@
 														<i class="mdi mdi-eye-outline"></i>
 													</button>
 												</li>
-												{#if !isTerminalStatus(run.status)}
+												{#if isTerminalStatus(run.status)}
+													<li title={$_('Delete')}>
+														<button
+															type="button"
+															class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+															aria-label={$_('Delete run')}
+															onclick={() => openDeleteRunsModal([run])}
+														>
+															<i class="mdi mdi-delete-outline"></i>
+														</button>
+													</li>
+												{:else}
+													<!-- Cancel and delete are mutually exclusive on purpose: deleting a
+													     run that is still executing would not stop it, so the only
+													     useful button on a live run is the one that does. -->
 													<li title={$_('Cancel')}>
 														<button
 															type="button"
@@ -1056,7 +1276,7 @@
 						</div>
 					</div>
 					<div class="ats-alert ats-tone-info mt-4" role="alert">
-						{$_('llmJudge assertions always fail in P1 regardless of these two fields.')}
+						{$_('Required by llmJudge assertions. Without both, an llmJudge assertion records an Error rather than a score -- it is never scored with a default model.')}
 					</div>
 					<div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 						<div>
