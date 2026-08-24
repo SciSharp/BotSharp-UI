@@ -386,4 +386,44 @@
  * @property {AgentTestCaseResult[]} results
  */
 
+/**
+ * Body of POST /agent-test/author. Carries the whole conversation and the whole draft because the
+ * server keeps no authoring session -- there is no draft row to orphan when a tab is closed.
+ * @typedef {Object} AgentTestAuthorRequest
+ * @property {string} suiteId
+ * @property {string?} [caseId] - The case being edited; null while creating. Supplied so the backend
+ *   can ground the model in that case's most recent run -- what the agent really replied and what
+ *   arguments it really passed -- instead of letting it invent both.
+ * @property {AuthorChatMessage[]} messages - Oldest first; the last one is the new instruction.
+ * @property {AgentTestCaseUpsertRequest?} [draft] - The draft as it stands, or null to start empty.
+ * @property {TestModel?} [model] - Omit to use the suite's judge model.
+ */
+
+/**
+ * @typedef {Object} AuthorChatMessage
+ * @property {string} role - user | assistant.
+ * @property {string} content
+ */
+
+/**
+ * One changed field of a draft.
+ * @typedef {Object} AuthorChange
+ * @property {string} field - camelCase draft field name, e.g. "turns".
+ * @property {string} detail - Short human summary, e.g. "3 -> 4 item(s)".
+ */
+
+/**
+ * Result of one authoring turn.
+ * @typedef {Object} AgentTestAuthorResult
+ * @property {string} reply - What to show in the chat.
+ * @property {AgentTestCaseUpsertRequest} draft - Always populated, so the client can assign it
+ *   unconditionally.
+ * @property {boolean} draftChanged
+ * @property {AuthorChange[]} changes - Computed by the backend by diffing the two drafts, never read
+ *   off the model's own account of what it did.
+ * @property {string[]} validationErrors - Non-empty means the draft cannot be saved as it stands.
+ * @property {string[]} warnings - Silently wrong things that were corrected (a mock for a function
+ *   this agent cannot call) or are merely suspect and were left alone (an unfamiliar state key).
+ */
+
 export default {};

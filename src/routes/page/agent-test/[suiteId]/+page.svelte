@@ -424,6 +424,15 @@
 		goto(`/page/agent-test/${suiteId}/case/new`);
 	}
 
+	/**
+	 * Same editor, with the authoring chat already open -- see the `chat` query parameter there.
+	 * A separate entry rather than a mode of its own: whatever the chat produces still has to be
+	 * reviewed and saved in the normal editor, so landing anywhere else would only add a hop.
+	 */
+	function goToNewCaseWithChat() {
+		goto(`/page/agent-test/${suiteId}/case/new?chat=1`);
+	}
+
 	/** @param {string} runId */
 	function goToRun(runId) {
 		goto(`/page/agent-test/run/${runId}`);
@@ -756,6 +765,9 @@
 						<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>
 							<i class="mdi mdi-record-rec"></i> {$_('Record from Conversation')}
 						</button>
+						<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCaseWithChat()}>
+							<i class="mdi mdi-message-text-outline"></i> {$_('New Case by Chat')}
+						</button>
 						<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCase()}>
 							<i class="mdi mdi-plus"></i> {$_('New Case')}
 						</button>
@@ -827,7 +839,10 @@
 					<div class="ats-empty">
 						<p class="ats-empty-text">{$_('No test cases in this suite yet.')}</p>
 						<div class="flex flex-wrap items-center justify-center gap-2">
-							<button type="button" class="ats-btn ats-btn-primary" onclick={() => goToNewCase()}>
+							<button type="button" class="ats-btn ats-btn-primary" onclick={() => goToNewCaseWithChat()}>
+								<i class="mdi mdi-message-text-outline"></i> {$_('New Case by Chat')}
+							</button>
+							<button type="button" class="ats-btn ats-btn-soft ats-tone-primary" onclick={() => goToNewCase()}>
 								<i class="mdi mdi-plus"></i> {$_('New Case')}
 							</button>
 							<button type="button" class="ats-btn ats-btn-soft ats-tone-info" onclick={() => openRecord()}>

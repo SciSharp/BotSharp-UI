@@ -7,8 +7,10 @@
 	import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
-	import { getSuite, getCase, createCase, updateCase, getMockTargets } from '$lib/services/agent-test-service.js';
+	import { getSuite, getCase, createCase, updateCase, getMockTargets, authorCase } from '$lib/services/agent-test-service.js';
 	import { getAgentOptions } from '$lib/services/agent-service.js';
+	import { getLlmConfigs } from '$lib/services/llm-provider-service';
+	import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
 	import {
 		ASSERTION_TYPES,
 		AGENT_CHAIN_MODES,
@@ -52,6 +54,77 @@
 	let mockTargets = $state([]);
 
 	let isSaving = $state(false);
+
+	/* ------------------------------------------------------------------
+	 * Authoring chat
+	 *
+	 * The draft lives in `form`, exactly as it does when a human types it, so everything downstream
+	 * -- validationErrors, buildPayload, the save button -- works on a chat-authored case without
+	 * knowing a chat exists. The server keeps no session: the whole message log and the whole draft
+	 * go up on every turn.
+	 * ------------------------------------------------------------------ */
+
+	let isChatOpen = $state(false);
+
+	/** @type {import('$agentTestTypes').AuthorChatMessage[]} */
+	let chatMessages = $state([]);
+	let chatInput = $state('');
+	let isAuthoring = $state(false);
+
+	/** @type {any[]} */
+	let llmConfigs = $state([]);
+
+	/**
+	 * Model the chat authors with. Null means "use the suite's judge model" -- the same fallback
+	 * ICaseAuthor.ResolveModel applies server-side, so leaving this unset behaves exactly like
+	 * today's default and only needs a picker at all because plenty of suites have no judge model
+	 * configured yet, and going to Settings to set one is a detour this page can remove.
+	 * @type {import('$agentTestTypes').TestModel | null}
+	 */
+	let chatModel = $state(null);
+
+	/** @type {import('$agentTestTypes').AuthorChange[]} */
+	let authorChanges = $state([]);
+	/** @type {string[]} */
+	let authorWarnings = $state([]);
+	/** @type {string[]} */
+	let authorErrors = $state([]);
+	/** @type {string | null} */
+	let authorErrorText = $state(null);
+
+	/**
+	 * Previous drafts, newest last. Undo is entirely local -- no server call and no model call, so
+	 * backing out a bad suggestion costs nothing and cannot fail.
+	 * @type {any[]}
+	 */
+	let draftHistory = $state([]);
+
+	/** Field names the last authoring turn touched, badged on the matching section until the next turn. */
+	let changedFields = $derived(authorChanges.map(c => c.field));
+
+	/**
+	 * Flattened provider/model options for the chat's model Select -- the same shape the suite
+	 * page's record modal builds from the same /llm-provider catalogue, because it is the same
+	 * choice (which chat-capable model backs one AI call) made in a second place.
+	 */
+	let chatModelOptions = $derived(
+		llmConfigs.flatMap(cfg => (cfg.models || [])
+			.filter(isChatModel)
+			.map((/** @type {any} */ m) => ({ label: `${cfg.provider} / ${m.name}`, value: `${cfg.provider}/${m.name}` })))
+	);
+
+	// Cast for the same reason buildPayload() is cast in sendChat() below: `suite` carries a JSDoc
+	// type but svelte-check collapses $state(null)'s inferred type to `never` the moment a property
+	// is read from it inside a $derived, a pre-existing quirk of this file and not specific to
+	// either variable.
+	let suiteHasJudgeModel = $derived(
+		!!(/** @type {any} */ (suite)?.judgeProvider) && !!(/** @type {any} */ (suite)?.judgeModel));
+	let chatModelPlaceholder = $derived(
+		suiteHasJudgeModel
+			? t('Suite default ({provider} / {model})',
+				{ provider: /** @type {any} */ (suite).judgeProvider, model: /** @type {any} */ (suite).judgeModel })
+			: t('No suite default -- pick a model to use chat authoring')
+	);
 
 	/**
 	 * The whole editable case. Every field the backend accepts lives here even
@@ -100,6 +173,11 @@
 
 	onMount(async () => {
 		isLoading = true;
+		// `?chat=1` is how the suite page's "New Case by Chat" lands here. A query parameter rather
+		// than a separate route: it is the same editor, and whatever the chat produces still has to
+		// be reviewed and saved here.
+		isChatOpen = page.url.searchParams.get('chat') === '1';
+		loadLlmConfigs();
 		try {
 			await loadSuite();
 			if (!isNew) {
@@ -127,6 +205,33 @@
 			suite = null;
 			loadErrorText = errorMessage(err, t('Failed to load the suite this case belongs to.'));
 		});
+	}
+
+	/** @param {any} model */
+	function isChatModel(model) {
+		return model.type === LlmModelType.Chat || model.capabilities?.includes(LlmModelCapability.Chat);
+	}
+
+	function loadLlmConfigs() {
+		return getLlmConfigs().then(res => {
+			llmConfigs = res || [];
+		}).catch(() => {
+			// The picker degrades to "suite default only" rather than blocking the whole editor on
+			// an endpoint the rest of this page does not otherwise need.
+			llmConfigs = [];
+		});
+	}
+
+	/** @param {any} e */
+	function changeChatModel(e) {
+		const selecteds = e?.detail?.selecteds || [];
+		const value = selecteds.length > 0 ? selecteds[0].value : '';
+		if (!value) {
+			chatModel = null;
+			return;
+		}
+		const separator = value.indexOf('/');
+		chatModel = { provider: value.slice(0, separator), model: value.slice(separator + 1) };
 	}
 
 	function loadAgentOptions() {
@@ -160,59 +265,69 @@
 
 	function loadCase() {
 		return getCase(caseId).then(res => {
-			form = {
-				name: res.name || '',
-				enabled: res.enabled,
-				// Blank for all of these is what a case stored before the fields existed reads back
-				// as, and each blank means the old behaviour: an Agent case on the suite own agent,
-				// untriaged at P1/S1.
-				caseType: res.caseType || 'Agent',
-				entryAgentId: res.entryAgentId || '',
-				history: (res.history || []).map(m => ({
-					role: m.role || 'user',
-					content: m.content || ''
-				})),
-				priority: res.priority || 'P1',
-				severity: res.severity || 'S1',
-				batch: res.batch ?? null,
-				crossCutting: !!res.crossCutting,
-				involvedAgents: res.involvedAgents || [],
-				businessDomain: res.businessDomain || '',
-				expectedOutcome: res.expectedOutcome || '',
-				lastReviewedDate: res.lastReviewedDate ? res.lastReviewedDate.substring(0, 10) : null,
-				turns: (res.turns || []).map((turn, i) => ({
-					index: i,
-					userMessage: turn.userMessage || '',
-					assertions: (turn.assertions || []).map(normalizeAssertion)
-				})),
-				assertions: (res.assertions || []).map(normalizeAssertion),
-				initialStates: (res.initialStates || []).map(s => ({
+			form = toForm(res);
+		}).catch(err => {
+			loadErrorText = errorMessage(err, t('Failed to load this test case.'));
+		});
+	}
+
+	/**
+	 * A stored case or an authored draft -> the editor's form shape. One function for both because
+	 * the two have the same field names: the authoring endpoint returns the same upsert shape this
+	 * page posts, so a draft can be dropped straight in.
+	 * @param {any} res
+	 */
+	function toForm(res) {
+		return {
+			name: res.name || '',
+			enabled: res.enabled,
+			// Blank for all of these is what a case stored before the fields existed reads back
+			// as, and each blank means the old behaviour: an Agent case on the suite own agent,
+			// untriaged at P1/S1.
+			caseType: res.caseType || 'Agent',
+			entryAgentId: res.entryAgentId || '',
+			history: (res.history || []).map((/** @type {any} */ m) => ({
+				role: m.role || 'user',
+				content: m.content || ''
+			})),
+			priority: res.priority || 'P1',
+			severity: res.severity || 'S1',
+			batch: res.batch ?? null,
+			crossCutting: !!res.crossCutting,
+			involvedAgents: res.involvedAgents || [],
+			businessDomain: res.businessDomain || '',
+			expectedOutcome: res.expectedOutcome || '',
+			lastReviewedDate: res.lastReviewedDate ? res.lastReviewedDate.substring(0, 10) : null,
+			turns: (res.turns || []).map((/** @type {any} */ turn, /** @type {number} */ i) => ({
+				index: i,
+				userMessage: turn.userMessage || '',
+				assertions: (turn.assertions || []).map(normalizeAssertion)
+			})),
+			assertions: (res.assertions || []).map(normalizeAssertion),
+			initialStates: (res.initialStates || []).map((/** @type {any} */ s) => ({
+				key: s.key || '',
+				value: s.value || '',
+				activeRounds: s.activeRounds ?? -1,
+				global: !!s.global
+			})),
+			mocks: (res.mocks || []).map((/** @type {any} */ m) => ({
+				functionName: m.functionName || '',
+				argsMatchJson: m.argsMatchJson || '',
+				callIndex: m.callIndex ?? null,
+				resultContent: m.resultContent || '',
+				stopCompletion: !!m.stopCompletion,
+				stateWrites: (m.stateWrites || []).map((/** @type {any} */ s) => ({
 					key: s.key || '',
 					value: s.value || '',
 					activeRounds: s.activeRounds ?? -1,
 					global: !!s.global
-				})),
-				mocks: (res.mocks || []).map(m => ({
-					functionName: m.functionName || '',
-					argsMatchJson: m.argsMatchJson || '',
-					callIndex: m.callIndex ?? null,
-					resultContent: m.resultContent || '',
-					stopCompletion: !!m.stopCompletion,
-					stateWrites: (m.stateWrites || []).map(s => ({
-						key: s.key || '',
-						value: s.value || '',
-						activeRounds: s.activeRounds ?? -1,
-						global: !!s.global
-					}))
-				})),
-				// Carried through untouched: P1 only accepts Block, and the recorded
-				// source id is the only trace back to where a draft came from.
-				unmockedToolPolicy: res.unmockedToolPolicy || 'Block',
-				sourceConversationId: res.sourceConversationId ?? null
-			};
-		}).catch(err => {
-			loadErrorText = errorMessage(err, t('Failed to load this test case.'));
-		});
+				}))
+			})),
+			// Carried through untouched: P1 only accepts Block, and the recorded
+			// source id is the only trace back to where a draft came from.
+			unmockedToolPolicy: res.unmockedToolPolicy || 'Block',
+			sourceConversationId: res.sourceConversationId ?? null
+		};
 	}
 
 	/** @param {any} a */
@@ -503,6 +618,81 @@
 	function goBack() {
 		goto(`/page/agent-test/${suiteId}`);
 	}
+
+	async function sendChat() {
+		const text = chatInput.trim();
+		if (!text || isAuthoring) return;
+
+		// Appended before the call so the user sees their own message immediately, and so it is still
+		// there to read if the call fails.
+		chatMessages = [...chatMessages, { role: 'user', content: text }];
+		chatInput = '';
+		isAuthoring = true;
+		authorErrorText = null;
+
+		try {
+			/** @type {import('$agentTestTypes').AgentTestAuthorRequest} */
+			const body = {
+				suiteId: suiteId ?? '',
+				// Sent only for a saved case: it is what lets the backend ground the model in that
+				// case's last run instead of letting it invent an expected reply.
+				caseId: isNew ? null : caseId,
+				messages: chatMessages,
+				// The draft is whatever is on screen right now, in the exact shape the save endpoint
+				// takes -- so a hand edit made between two chat turns is carried in, not overwritten.
+				// Cast because `form` carries no type in this file, so buildPayload's inferred shape
+				// has `any` in it; the save path has the same gap and typing `form` properly is a
+				// separate change.
+				draft: /** @type {any} */ (buildPayload()),
+				// Null (the default) falls back to the suite's judge model on the server, same as
+				// leaving the picker below untouched.
+				model: chatModel
+			};
+
+			const result = await authorCase(body);
+
+			chatMessages = [...chatMessages, { role: 'assistant', content: result.reply }];
+			authorChanges = result.changes || [];
+			authorWarnings = result.warnings || [];
+			authorErrors = result.validationErrors || [];
+
+			if (result.draftChanged && result.draft) {
+				applyDraft(result.draft);
+			}
+		} catch (err) {
+			authorErrorText = errorMessage(err, t('The assistant could not answer.'));
+		} finally {
+			isAuthoring = false;
+		}
+	}
+
+	/** @param {any} draft */
+	function applyDraft(draft) {
+		// JSON round-trip rather than keeping the reactive object: history entries have to be inert
+		// snapshots, or undo would restore something that has since been edited in place.
+		draftHistory = [...draftHistory, JSON.parse(JSON.stringify(form))];
+		form = toForm(draft);
+	}
+
+	function undoDraft() {
+		if (draftHistory.length === 0) return;
+
+		form = draftHistory[draftHistory.length - 1];
+		draftHistory = draftHistory.slice(0, -1);
+		// The badges described the change that has just been undone.
+		authorChanges = [];
+		authorErrors = [];
+	}
+
+	/** @param {KeyboardEvent} e */
+	function chatKeydown(e) {
+		// Enter sends, Shift+Enter is a newline: a case description is usually one line, and the
+		// alternative made every message need a mouse trip to the button.
+		if (e.key === 'Enter' && !e.shiftKey) {
+			e.preventDefault();
+			sendChat();
+		}
+	}
 </script>
 
 {#snippet assertionRows(list, idPrefix)}
@@ -697,7 +887,158 @@
 		</div>
 	</div>
 {:else}
-	<div class="flex flex-col gap-4">
+	<!--
+		The draft and the chat that edits it are one activity: every suggestion has to be read
+		against the form it changed, which is why this is a column of the editor and not a page of
+		its own. Chat first in the markup so it sits above the form when the columns collapse --
+		below xl a 700-line form ahead of it would bury it.
+	-->
+	<div class="grid grid-cols-1 gap-4 xl:grid-cols-12">
+		<div class="xl:order-2 xl:col-span-4">
+			<div class="ats-card xl:sticky xl:top-4">
+				<div class="ats-card-section ats-card-divider">
+					<div class="flex flex-wrap items-center justify-between gap-2">
+						<div class="flex items-center gap-3">
+							<span class="ats-card-icon">
+								<i class="mdi mdi-message-text-outline"></i>
+							</span>
+							<h5 class="ats-card-title">{$_('Write by Chat')}</h5>
+						</div>
+						<div class="flex flex-wrap items-center gap-2">
+							{#if draftHistory.length > 0}
+								<button
+									type="button"
+									class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+									onclick={() => undoDraft()}
+								>
+									<i class="mdi mdi-undo"></i> {$_('Undo')}
+								</button>
+							{/if}
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-secondary"
+								onclick={() => (isChatOpen = !isChatOpen)}
+							>
+								<i class={isChatOpen ? 'mdi mdi-chevron-up' : 'mdi mdi-chevron-down'}></i>
+								{isChatOpen ? $_('Hide') : $_('Show')}
+							</button>
+						</div>
+					</div>
+				</div>
+
+				{#if isChatOpen}
+					<div class="ats-card-section">
+						<p class="ats-help">
+							{$_('Say what the case should cover, in your own words. Every reply edits the draft on this page -- nothing is stored until you press Save.')}
+						</p>
+
+						<div class="mb-3">
+							<span class="ats-label">{$_('Model')}</span>
+							<Select
+								tag={'agent-test-chat-model'}
+								placeholder={chatModelPlaceholder}
+								selectedValues={chatModel ? [`${chatModel.provider}/${chatModel.model}`] : []}
+								options={chatModelOptions}
+								onselect={e => changeChatModel(e)}
+							/>
+							{#if !chatModel && !suiteHasJudgeModel}
+								<span class="ats-help text-warning">
+									{$_('This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.')}
+								</span>
+							{/if}
+						</div>
+
+						<div class="ats-chat-log scrollbar-on-hover">
+							{#if chatMessages.length === 0}
+								<p class="ats-empty-text">
+									{$_('For example: the resident says the fridge is leaking and asks when someone will come; it should reach the work order agent and look the order up.')}
+								</p>
+							{/if}
+							{#each chatMessages as message}
+								<div class="ats-chat-msg {message.role === 'user' ? 'ats-chat-msg-user' : 'ats-chat-msg-agent'}">
+									{message.content}
+								</div>
+							{/each}
+							{#if isAuthoring}
+								<div class="ats-chat-msg ats-chat-msg-agent">
+									<i class="mdi mdi-loading mdi-spin"></i> {$_('Working on it...')}
+								</div>
+							{/if}
+						</div>
+
+						<label class="ats-label" for="author-chat-input">{$_('Your instruction')}</label>
+						<textarea
+							id="author-chat-input"
+							class="ats-textarea"
+							rows="3"
+							bind:value={chatInput}
+							onkeydown={chatKeydown}
+							placeholder={$_('Add a turn, change an assertion, ask what a field means...')}
+						></textarea>
+
+						<div class="mt-2 flex flex-wrap items-center justify-between gap-2">
+							<span class="ats-help">{$_('Enter sends. Shift+Enter starts a new line.')}</span>
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-primary"
+								disabled={isAuthoring || !chatInput.trim()}
+								onclick={() => sendChat()}
+							>
+								{#if isAuthoring}
+									<i class="mdi mdi-loading mdi-spin"></i>
+								{:else}
+									<i class="mdi mdi-send"></i>
+								{/if}
+								{$_('Send')}
+							</button>
+						</div>
+
+						{#if authorErrorText}
+							<div class="ats-alert ats-tone-danger mt-3" role="alert">
+								<span>{authorErrorText}</span>
+							</div>
+						{/if}
+
+						{#if authorChanges.length > 0}
+							<!-- Computed by the backend by diffing the two drafts, not read off the
+							     model's own account of what it did. -->
+							<div class="ats-panel mt-3">
+								<p class="ats-panel-title">{$_('Changed in this reply')}</p>
+								<ul class="mt-2 list-disc ps-5 text-xs">
+									{#each authorChanges as change}
+										<li><span class="font-code">{change.field}</span> — {change.detail}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+
+						{#if authorErrors.length > 0}
+							<div class="ats-alert ats-tone-warning mt-3 flex-col items-start gap-1" role="alert">
+								<div class="font-semibold">{$_('The assistant could not produce a valid draft:')}</div>
+								<ul class="list-disc ps-5">
+									{#each authorErrors as error}
+										<li>{error}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+
+						{#if authorWarnings.length > 0}
+							<div class="ats-alert ats-tone-info mt-3 flex-col items-start gap-1" role="alert">
+								<div class="font-semibold">{$_('Worth checking:')}</div>
+								<ul class="list-disc ps-5">
+									{#each authorWarnings as warning}
+										<li>{warning}</li>
+									{/each}
+								</ul>
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+		</div>
+
+		<div class="flex flex-col gap-4 xl:order-1 xl:col-span-8">
 		<div class="ats-card">
 			<div class="ats-card-section ats-card-divider">
 				<div class="flex flex-wrap items-center justify-between gap-3">
@@ -825,7 +1166,12 @@
 							<i class="mdi mdi-comment-text-multiple-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Turns')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Turns')}
+								{#if changedFields.includes('turns')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.turns.length}</p>
 						</div>
 					</div>
@@ -914,7 +1260,12 @@
 							<i class="mdi mdi-check-circle-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Case Assertions')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Case Assertions')}
+								{#if changedFields.includes('assertions')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.assertions.length}</p>
 						</div>
 					</div>
@@ -1070,7 +1421,12 @@
 							<i class="mdi mdi-comment-text-multiple-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('History')}</h5>
+							<h5 class="ats-card-title">
+								{$_('History')}
+								{#if changedFields.includes('history')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.history.length}</p>
 						</div>
 					</div>
@@ -1157,7 +1513,12 @@
 							<i class="mdi mdi-database-outline"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Initial States')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Initial States')}
+								{#if changedFields.includes('initialStates')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.initialStates.length}</p>
 						</div>
 					</div>
@@ -1191,7 +1552,12 @@
 							<i class="mdi mdi-tools"></i>
 						</span>
 						<div class="grow">
-							<h5 class="ats-card-title">{$_('Tool Mocks')}</h5>
+							<h5 class="ats-card-title">
+								{$_('Tool Mocks')}
+								{#if changedFields.includes('mocks')}
+									<span class="ats-badge ats-badge-soft ats-tone-info">{$_('changed by chat')}</span>
+								{/if}
+							</h5>
 							<p class="ats-card-subtitle">{form.mocks.length}</p>
 						</div>
 					</div>
@@ -1324,6 +1690,7 @@
 					{$_('Save')}
 				</button>
 			</div>
+		</div>
 		</div>
 	</div>
 {/if}

@@ -260,3 +260,20 @@ export async function getMockTargets(agentId) {
     });
     return response.data;
 }
+
+/**
+ * One turn of authoring a case by conversation.
+ *
+ * Stateless on the server: the whole chat and the whole current draft go up every time, and what
+ * comes back replaces the draft. Nothing is saved -- the returned draft still has to go through
+ * createCase/updateCase, which is the only path that validates the entry agent and the only one the
+ * user presses deliberately.
+ *
+ * @param {import('$agentTestTypes').AgentTestAuthorRequest} body
+ * @returns {Promise<import('$agentTestTypes').AgentTestAuthorResult>}
+ */
+export async function authorCase(body) {
+    const url = endpoints.agentTestCaseAuthorUrl;
+    const response = await axios.post(url, body);
+    return response.data;
+}

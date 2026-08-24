@@ -648,5 +648,22 @@
     "Failed to delete the runs.": "Failed to delete the runs.",
     "Evaluation scope": "Evaluation scope",
     "No test cases are registered yet.": "No test cases are registered yet.",
-    "batch {n}": "batch {n}"
+    "batch {n}": "batch {n}",
+    "Write by Chat": "Write by Chat",
+    "Show": "Show",
+    "Hide": "Hide",
+    "Undo": "Undo",
+    "Say what the case should cover, in your own words. Every reply edits the draft on this page -- nothing is stored until you press Save.": "Say what the case should cover, in your own words. Every reply edits the draft on this page -- nothing is stored until you press Save.",
+    "For example: the resident says the fridge is leaking and asks when someone will come; it should reach the work order agent and look the order up.": "For example: the resident says the fridge is leaking and asks when someone will come; it should reach the work order agent and look the order up.",
+    "Working on it...": "Working on it...",
+    "Your instruction": "Your instruction",
+    "Add a turn, change an assertion, ask what a field means...": "Add a turn, change an assertion, ask what a field means...",
+    "Enter sends. Shift+Enter starts a new line.": "Enter sends. Shift+Enter starts a new line.",
+    "Send": "Send",
+    "Changed in this reply": "Changed in this reply",
+    "The assistant could not produce a valid draft:": "The assistant could not produce a valid draft:",
+    "Worth checking:": "Worth checking:",
+    "changed by chat": "changed by chat",
+    "New Case by Chat": "New Case by Chat",
+    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above."
 }

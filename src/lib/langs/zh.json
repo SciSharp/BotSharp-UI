@@ -842,5 +842,22 @@
     "Failed to delete the runs.": "删除跑批记录失败。",
     "Evaluation scope": "评估范围",
     "No test cases are registered yet.": "还没有登记任何测试用例。",
-    "batch {n}": "第 {n} 批"
+    "batch {n}": "第 {n} 批",
+    "Write by Chat": "用对话写",
+    "Show": "展开",
+    "Hide": "收起",
+    "Undo": "撤销",
+    "Say what the case should cover, in your own words. Every reply edits the draft on this page -- nothing is stored until you press Save.": "用自己的话说说这个用例应该覆盖什么。每次回复都会直接改这页上的草稿——按下保存之前什么都不会存进去。",
+    "For example: the resident says the fridge is leaking and asks when someone will come; it should reach the work order agent and look the order up.": "例如：住户说冰箱在漏水，问什么时候有人来；应该转到工单 agent 并查一下工单。",
+    "Working on it...": "处理中……",
+    "Your instruction": "你的指令",
+    "Add a turn, change an assertion, ask what a field means...": "加一轮对话、改一条断言、或者问某个字段是什么意思……",
+    "Enter sends. Shift+Enter starts a new line.": "Enter 发送，Shift+Enter 换行。",
+    "Send": "发送",
+    "Changed in this reply": "本次回复改动了",
+    "The assistant could not produce a valid draft:": "助手没能给出一份能保存的草稿：",
+    "Worth checking:": "建议确认一下：",
+    "changed by chat": "对话改动过",
+    "New Case by Chat": "用对话新建",
+    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "这个套件没有配置判官模型，对话出题也就没有默认可用的模型——请在上面选一个。"
 }
