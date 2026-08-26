@@ -859,5 +859,16 @@
     "Worth checking:": "建议确认一下：",
     "changed by chat": "对话改动过",
     "New Case by Chat": "用对话新建",
-    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "这个套件没有配置判官模型，对话出题也就没有默认可用的模型——请在上面选一个。"
+    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "这个套件没有配置判官模型，对话出题也就没有默认可用的模型——请在上面选一个。",
+  "Search tools": "搜索工具",
+  "Pick a tool": "选择工具",
+  "Pick an agent": "选择 Agent",
+  "Type a name instead": "改为手动输入",
+  "Pick from the list": "改为从列表选择",
+  "agent name or id": "Agent 名称或 id",
+  "Add an agent to the chain": "往调用链里加一个 Agent",
+  "Move earlier": "前移",
+  "Move later": "后移",
+  "Remove agent from the chain": "从调用链里移除",
+  "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "这条用例涉及的 Agent 没有查到可用工具。可以在\"涉及的 Agent\"里补上对应 Agent，或者手动输入工具名。"
 }
