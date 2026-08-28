@@ -51,12 +51,8 @@
 
         /** @type {import('$agentTypes').AgentRule[]} */
         const rules = [];
-        const unique = new Set();
         candidates.forEach(x => {
-            if (!unique.has(x.trigger_name)) {
-                rules.push(x);
-                unique.add(x.trigger_name);
-            }
+            rules.push(x);
         });
 
         innerRefresh(rules);
