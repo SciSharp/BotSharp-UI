@@ -1,9 +1,7 @@
 <script>
-    import { getContext } from 'svelte';
     import collapse from 'svelte-collapse';
 
     const collapseDuration = 0.3;
-    const { autoScrollToBottom } = getContext('chat-window-context');
 
     /**
      * @type {{
@@ -20,16 +18,25 @@
 
     let open = $state(false);
 
+    /** @type {HTMLDivElement | null} */
+    let wrapperEl = $state(null);
+
     function toggleCollapse() {
         open = !open;
         if (open) {
-            setTimeout(() => autoScrollToBottom?.(), collapseDuration * 1000);
+            // Bring the expanded embed into view once the collapse animation has
+            // settled. `block: 'nearest'` scrolls only as far as needed, so a
+            // message in the middle of the thread stays put instead of the whole
+            // pane jumping to the bottom.
+            setTimeout(() => {
+                wrapperEl?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }, collapseDuration * 1000);
         }
     }
 </script>
 
 {#if htmlTag && url}
-    <div class="rc-embedding-wrapper">
+    <div class="rc-embedding-wrapper" bind:this={wrapperEl}>
         <div class="rc-embedding-toggle-group">
             <button type="button" class="rc-embedding-toggle" class:closed={!open} onclick={toggleCollapse}>
                 <span>{open ? 'Close' : 'Open'}{title ? ` ${title}` : ''}</span>

@@ -66,6 +66,7 @@
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
+	import RcEmbedding from './rich-content/rc-embedding.svelte';
 	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import ChatUtil from './chat-util/chat-util.svelte';
 	import ChatFileUploader from './chat-util/chat-file-uploader.svelte';
@@ -2441,6 +2442,17 @@
 														</div>
 													{:else}
 														<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+													{/if}
+													<!-- Embedded content belongs to the
+														 message that produced it, so it renders inline here rather than in
+														 the trailing <RichContent>, which only ever shows the last bot
+														 message and would drop embeds on intermediate function-call turns. -->
+													{#if message?.rich_content?.message?.rich_type === RichType.Embedding && editingBotMsgUid !== message.uuid}
+														<RcEmbedding
+															url={message?.rich_content?.message?.url}
+															title={message?.rich_content?.message?.title}
+															htmlTag={message?.rich_content?.message?.html_tag}
+														/>
 													{/if}
 													{#if !!(message?.rich_content?.message?.text || message?.text) && editingBotMsgUid !== message.uuid}
 														{@const isLastBotMsg = message?.message_id === lastBotMsg?.message_id && message?.uuid === lastBotMsg?.uuid}

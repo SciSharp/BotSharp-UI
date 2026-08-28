@@ -50,8 +50,6 @@
 
 {#if message?.rich_content?.editor === EditorType.File}
     <ChatAttachmentOptions options={resolvedOptions.options} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
-{:else if message?.rich_content?.message?.rich_type === RichType.Embedding}
-    <RcEmbedding url={message?.rich_content?.message?.url} title={message?.rich_content?.message?.title} htmlTag={message?.rich_content?.message?.html_tag} />
 {:else if !resolvedOptions.isComplexElement}
     <RcPlainOptions options={resolvedOptions.options} isMultiSelect={resolvedOptions.isMultiSelect} disabled={disabled} onConfirm={(title, payload) => handleConfirm(title, payload)} />
 {:else}
