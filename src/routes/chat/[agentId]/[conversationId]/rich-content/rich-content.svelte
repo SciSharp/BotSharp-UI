@@ -1,8 +1,13 @@
+<!--
+	Options and attachments only. An EMBEDDING is deliberately not handled here any more: this
+	component renders the LAST bot message's rich content in the composer area, and a panel drawn
+	there is detached from the message that produced it and vanishes as soon as another message
+	arrives. Embeddings are rendered per message in chat-box.svelte instead — see the note there.
+-->
 <script>
 	import { EditorType, RichType } from "$lib/helpers/enums";
 	import RcPlainOptions from "./rc-plain-options.svelte";
 	import RcComplexOptions from "./rc-complex-options.svelte";
-	import RcEmbedding from "./rc-embedding.svelte";
 	import ChatAttachmentOptions from "../chat-util/chat-attachment-options.svelte";
 
     /**

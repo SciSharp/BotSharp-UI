@@ -1441,6 +1441,28 @@
 }
 
 
+/* The strip already draws that icon, to its left, and is already the quiet register — so the
+   markdown's own live-view treatment would put a second replay glyph on the line and dim an
+   already-dim sentence. Both are undone here; the treatment is meant for a live-view line
+   inside a MESSAGE, where it has body text to be quieter than.
+
+   The long selector is deliberate: Markdown.svelte styles that paragraph from its own
+   scoped block, so undoing it takes one more class than it uses. */
+
+
+.cb-sys-note .md-live-icon {
+    display: none;
+}
+
+
+.cb-sys-note .cb-sys-note-text.markdown-container p.md-live-line {
+    margin-top: 0;
+    font-size: inherit;
+    line-height: inherit;
+    color: inherit;
+}
+
+
 /* A note with nothing left to offer: the link's credential has expired, so it is a record of
    something that happened rather than a way in. The accent goes — it is the app's promise that
    a thing is actionable — and the border stops being dashed, because there is no longer an

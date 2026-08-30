@@ -1,12 +1,12 @@
 <script>
 	import { onMount } from 'svelte';
-	import { marked } from 'marked';
+	import { marked, Renderer } from 'marked';
     import { replaceMarkdown, replaceNewLine } from '$lib/helpers/http';
 	import 'overlayscrollbars/overlayscrollbars.css';
     import { OverlayScrollbars } from 'overlayscrollbars';
 	import { v4 as uuidv4 } from 'uuid';
 	import { openAppRoute, openExternal, openPopup } from '$lib/helpers/utils/desktop';
-	import { liveRunId } from '$lib/helpers/utils/common';
+	import { liveRunId, liveRunIdInText } from '$lib/helpers/utils/common';
 
 	let {
 		/** @type {string} */
@@ -20,6 +20,33 @@
 		/** @type {boolean} */
 		scrollable = false
 	} = $props();
+
+	/**
+	 * Marks the paragraph that offers a live view, so it can be dressed as the secondary thing
+	 * it is.
+	 *
+	 * A step's note is a heading, what the step found, and a line offering the run it drove.
+	 * The first two are the message; the third is a way in, and rendered as plain markdown it
+	 * arrived in the same size and weight as the finding above it with a full-strength accent
+	 * link — the loudest thing in a bubble whose point was the sentence above.
+	 *
+	 * AT THE PARAGRAPH, not the link: the sentence that qualifies the offer ("available for
+	 * about 30 minutes after the step ran") sits OUTSIDE the anchor, and styling only the
+	 * anchor leaves half the line at body weight. The producers all put the offer on a line of
+	 * its own, which is what makes the paragraph the right unit.
+	 *
+	 * Matched on the URL rather than the wording, like everything else that reasons about these
+	 * links: `liveRunIdInText` reads the href straight out of the rendered inline HTML. A
+	 * paragraph that merely mentions a run link in passing gets the treatment too, which is
+	 * the right answer — it is still an offer of a live view, wherever it sits.
+	 */
+	const liveLinkRenderer = new Renderer();
+	const renderParagraph = liveLinkRenderer.paragraph.bind(liveLinkRenderer);
+	liveLinkRenderer.paragraph = (text) => {
+		if (!liveRunIdInText(text)) return renderParagraph(text);
+
+		return `<p class="md-live-line"><i class="mdi mdi-motion-play-outline md-live-icon" aria-hidden="true"></i>${text}</p>`;
+	};
 
 	const scrollbarId = `markdown-scrollbar-${uuidv4()}`;
 	const options = {
@@ -114,8 +141,8 @@
 	let innerText = $derived.by(() => {
 		const normalizedText = typeof text !== 'string' ? `${JSON.stringify(text)}` : text;
 		const markedText = !rawText
-			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''))?.toString())
-			: marked(normalizedText || '', { breaks: true })?.toString();
+			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''), { renderer: liveLinkRenderer })?.toString())
+			: marked(normalizedText || '', { breaks: true, renderer: liveLinkRenderer })?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			return markedText.substring(0, idx);
@@ -228,5 +255,49 @@
     }
     .markdown-dark :global(a) {
         color: var(--color-primary);
+    }
+
+    /* The line that offers a live view — see `liveLinkRenderer`.
+
+       Quieter than the message it hangs off, and quieter than a link normally is here: it is a
+       way in, offered under a finding somebody is reading, and at full accent it was the first
+       thing the eye landed on in every step of a flow. Smaller, dimmer, with the same replay
+       glyph the app uses for a recorded run.
+
+       Colour comes from `currentColor` rather than a palette entry, so one rule is right in
+       both variants — muted against a white bubble and muted against a dark one, without
+       either having to know which surface it is on. The link gives up the accent and keeps an
+       underline to stay recognisably a link, then takes the accent back on hover, which is
+       where an affordance is worth being loud.
+
+       Inline flow, deliberately not flex: the qualifying sentence follows the anchor as a
+       sibling text node, and flex would make the two separate items that cannot wrap as one
+       sentence. */
+    .markdown-container :global(p.md-live-line) {
+        margin-top: 0.45rem;
+        font-size: 0.86em;
+        line-height: 1.45;
+        color: color-mix(in srgb, currentColor 58%, transparent);
+    }
+
+    .markdown-container :global(p.md-live-line .md-live-icon) {
+        margin-right: 0.3rem;
+        font-size: 1.05em;
+        vertical-align: -0.08em;
+    }
+
+    /* Beats both variants' plain `a` rule: same element, one class deeper. */
+    .markdown-container :global(p.md-live-line a) {
+        color: inherit;
+        text-decoration: underline;
+        text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+        text-underline-offset: 0.16em;
+        transition: color 0.15s ease, text-decoration-color 0.15s ease;
+    }
+
+    .markdown-container :global(p.md-live-line a:hover),
+    .markdown-container :global(p.md-live-line a:focus-visible) {
+        color: var(--color-primary);
+        text-decoration-color: currentColor;
     }
 </style>
