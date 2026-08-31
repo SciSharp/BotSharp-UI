@@ -218,28 +218,6 @@
     <div class="ari-row ari-row-secondary" transition:slide={{ duration: 200 }}>
         <div class="ari-label ari-label-strong">
             <div class="ari-cell">
-                {'Message'}
-            </div>
-        </div>
-        <div class="ari-value">
-            <div class="ari-input-wrap ari-cell">
-                <textarea
-                    class="ari-textarea"
-                    rows="3"
-                    maxlength={textLimit}
-                    placeholder="Message sent to the agent when this rule fires..."
-                    disabled={rule.disabled}
-                    value={rule.message || ''}
-                    oninput={e => changeText(e, 'message')}
-                ></textarea>
-            </div>
-            <div class="ari-delete ari-cell"></div>
-        </div>
-    </div>
-
-    <div class="ari-row ari-row-secondary" transition:slide={{ duration: 200 }}>
-        <div class="ari-label ari-label-strong">
-            <div class="ari-cell">
                 {'Criteria Mode'}
             </div>
         </div>
@@ -309,6 +287,29 @@
             <div class="ari-delete ari-cell"></div>
         </div>
     </div>
+
+    <div class="ari-row ari-row-secondary" transition:slide={{ duration: 200 }}>
+        <div class="ari-label ari-label-strong">
+            <div class="ari-cell">
+                {'Initial Message'}
+            </div>
+        </div>
+        <div class="ari-value">
+            <div class="ari-input-wrap ari-cell">
+                <textarea
+                    class="ari-textarea"
+                    rows="5"
+                    maxlength={textLimit}
+                    placeholder="Message sent to the agent when this rule fires..."
+                    disabled={rule.disabled}
+                    value={rule.message || ''}
+                    oninput={e => changeText(e, 'message')}
+                ></textarea>
+            </div>
+            <div class="ari-delete ari-cell"></div>
+        </div>
+    </div>
+
     {/if}
 </div>
 

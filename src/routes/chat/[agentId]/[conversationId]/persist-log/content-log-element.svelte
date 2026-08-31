@@ -48,9 +48,26 @@
         return '';
     });
 
+    let isCollapsible = $derived(collapsedSources.includes(data.source) && isOverflowing);
+
     /** @param {any} e */
     function toggleText(e) {
         e.preventDefault();
+        is_collapsed = !is_collapsed;
+    }
+
+    /**
+     * Toggle by clicking anywhere in the block, while leaving normal
+     * interactions intact: text selection, links and nested controls.
+     * @param {MouseEvent} e
+     */
+    function handleContentClick(e) {
+        if (!isCollapsible) return;
+
+        const target = /** @type {HTMLElement | null} */ (e.target);
+        if (target?.closest('a, button, input, textarea, select')) return;
+        if (window.getSelection()?.toString()) return;
+
         is_collapsed = !is_collapsed;
     }
 
@@ -95,15 +112,21 @@
             <span class="cle-meta-ts">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
         </div>
     </div>
-    <div class={`cle-content ${logDisplayStyle}`}>
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div
+        class={`cle-content ${logDisplayStyle}`}
+        class:cle-content-clickable={isCollapsible}
+        onclick={handleContentClick}
+    >
         <div
             bind:this={contentEl}
-            class:cle-collapse={collapsedSources.includes(data.source) && isOverflowing && !!is_collapsed}
+            class:cle-collapse={isCollapsible && !!is_collapsed}
         >
             <Markdown containerClasses={logTextStyle} text={data?.content} rawText={rawTextSources.includes(data.source)} />
         </div>
 
-        {#if collapsedSources.includes(data.source) && isOverflowing}
+        {#if isCollapsible}
             <button class="cle-toggle-btn" onclick={(e) => toggleText(e)}>
                 {`${is_collapsed ? 'More +' : 'Less -'}`}
             </button>

@@ -32,6 +32,7 @@
      *   contentLogs?: import('$conversationTypes').ConversationContentLogModel[],
      *   convStateLogs?: import('$conversationTypes').ConversationStateLogModel[],
      *   autoScroll?: boolean,
+     *   isWaiting?: boolean,
      *   closeWindow: () => void,
      *   cleanScreen: () => void
      * }}
@@ -40,6 +41,7 @@
         contentLogs = $bindable([]),
         convStateLogs = $bindable([]),
         autoScroll = $bindable(false),
+        isWaiting = false,
         closeWindow,
         cleanScreen
     } = $props();
@@ -48,6 +50,19 @@
     let scrollbars = [];
     /** @type {number} */
     let selectedTab = $state(contentLogTab);
+
+    /*
+     * Same rule as the chat thread: incoming log entries never move a panel on
+     * their own. A panel follows the tail only while the user asked it to — by
+     * pressing its jump button — and scrolling away from the bottom cancels that.
+     * Indexes match `scrollbarElements`: 0 = content log, 1 = conversation states.
+     */
+    const BOTTOM_THRESHOLD_PX = 60;
+    let isPinnedToBottom = $state([true, true]);
+    let followTail = $state([false, false]);
+
+    let activeIndex = $derived(selectedTab === contentLogTab ? 0 : 1);
+    let showJumpButton = $derived(!isPinnedToBottom[activeIndex]);
 
     /** @type {import('$conversationTypes').ConversationLogFilter} */
     let contentLogFilter = { size: 100, startTime: utcNow };
@@ -75,6 +90,7 @@
             await Promise.all([getChatContentLogs(), getChatStateLogs()]);
             await tick();
             initScrollbars();
+            trackBottomProximity();
             pinToBottomWhileSettling();
         })();
 
@@ -84,17 +100,47 @@
 	});
 
     $effect(() => {
-        // Re-run whenever autoScroll or logs change
+        // Re-run whenever autoScroll or logs change. Only panels the user put in
+        // follow mode are moved; the rest stay where they were left.
         contentLogs;
         convStateLogs;
         if (autoScroll) {
-            scroll();
+            followTail.forEach((following, idx) => {
+                if (following) {
+                    scroll(false, idx);
+                }
+            });
         }
     });
 
+    /** Keep `isPinnedToBottom` in step with where the user has scrolled each panel. */
+    function trackBottomProximity() {
+        scrollbars.forEach((scrollbar, idx) => {
+            if (!scrollbar) return;
+
+            const { viewport } = scrollbar.elements();
+            const update = () => {
+                const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+                const atBottom = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
+                isPinnedToBottom[idx] = atBottom;
+                if (!atBottom) {
+                    followTail[idx] = false;
+                }
+            };
+            update();
+            viewport.addEventListener('scroll', update, { passive: true });
+            // Growing content moves the bottom away without firing a scroll event, so
+            // the button would stay hidden while the tail slips out of reach.
+            new ResizeObserver(update).observe(viewport.firstElementChild || viewport);
+        });
+    }
+
     let _scrollScheduled = false;
-    /** @param {boolean} goToTop */
-    function scroll(goToTop = false) {
+    /**
+     * @param {boolean} goToTop
+     * @param {number | null} index Panel to scroll, or null for every panel.
+     */
+    function scroll(goToTop = false, index = null) {
         if (_scrollScheduled) {
             return;
         }
@@ -102,13 +148,24 @@
         requestAnimationFrame(() => {
             setTimeout(() => {
                 // @ts-ignore
-                scrollbars.forEach(scrollbar => {
+                scrollbars.forEach((scrollbar, idx) => {
+                    if (index !== null && idx !== index) return;
+
                     const { viewport } = scrollbar.elements();
                     viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
+                    if (!goToTop) {
+                        isPinnedToBottom[idx] = true;
+                    }
                 });
                 _scrollScheduled = false;
             }, 150);
         });
+    }
+
+    /** The jump button: go to the tail of the visible panel and follow it from there. */
+    function jumpToBottom() {
+        followTail[activeIndex] = true;
+        scroll(false, activeIndex);
     }
 
     /**
@@ -256,7 +313,7 @@
                     data-bs-toggle="tooltip"
                     data-bs-placement="top"
                     title="Scroll to bottom"
-                    onclick={() => scroll()}
+                    onclick={() => jumpToBottom()}
                 >
                     <i class="mdi mdi-chevron-double-down"></i>
                 </button>
@@ -279,6 +336,33 @@
                     <ContentLogElement data={log} />
                 {/each}
             </ul>
+
+            <!--
+                Sticky, zero-height strip: the button floats over the last entries
+                instead of taking a row at the end of the list. Dots while a turn is
+                still running (more entries are coming), an arrow once it is done —
+                clickable in both states, and clicking also resumes following.
+            -->
+            <div class="pl-jump-strip">
+                {#if showJumpButton}
+                    <button
+                        type="button"
+                        class="pl-jump-btn"
+                        class:pl-jump-btn-waiting={isWaiting}
+                        aria-label={isWaiting ? 'Waiting for more log entries; scroll to bottom' : 'Scroll to latest log entry'}
+                        title={isWaiting ? 'Waiting for more entries' : 'Scroll to latest'}
+                        onclick={() => jumpToBottom()}
+                    >
+                        {#if isWaiting}
+                            <span class="pl-jump-dots" aria-hidden="true">
+                                <span></span><span></span><span></span>
+                            </span>
+                        {:else}
+                            <i class="mdi mdi-chevron-down"></i>
+                        {/if}
+                    </button>
+                {/if}
+            </div>
         </div>
 
         <div class="pl-scroll-area conv-state-log-scrollbar" class:pl-hide={selectedTab !== conversationStateLogTab}>
@@ -287,6 +371,33 @@
                     <ConversationStateLogElement data={log} />
                 {/each}
             </ul>
+
+            <!--
+                Sticky, zero-height strip: the button floats over the last entries
+                instead of taking a row at the end of the list. Dots while a turn is
+                still running (more entries are coming), an arrow once it is done —
+                clickable in both states, and clicking also resumes following.
+            -->
+            <div class="pl-jump-strip">
+                {#if showJumpButton}
+                    <button
+                        type="button"
+                        class="pl-jump-btn"
+                        class:pl-jump-btn-waiting={isWaiting}
+                        aria-label={isWaiting ? 'Waiting for more log entries; scroll to bottom' : 'Scroll to latest log entry'}
+                        title={isWaiting ? 'Waiting for more entries' : 'Scroll to latest'}
+                        onclick={() => jumpToBottom()}
+                    >
+                        {#if isWaiting}
+                            <span class="pl-jump-dots" aria-hidden="true">
+                                <span></span><span></span><span></span>
+                            </span>
+                        {:else}
+                            <i class="mdi mdi-chevron-down"></i>
+                        {/if}
+                    </button>
+                {/if}
+            </div>
         </div>
 
         <div class="pl-footer">
