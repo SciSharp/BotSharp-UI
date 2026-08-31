@@ -2144,7 +2144,8 @@ $panel-radius: 0.5rem;
     background-color: rgb(255 255 255);
     border: 1px solid rgb(209 213 219);
     border-radius: 0.375rem;
-    resize: none;
+    resize: vertical;
+    min-height: 2.25rem;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 
     &:focus {

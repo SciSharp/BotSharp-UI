@@ -148,6 +148,17 @@
 
 	/** @type {any[]} */
     let scrollbars = $state([]);
+	/** Within this many px of the bottom the thread counts as "at the bottom". */
+	const BOTTOM_THRESHOLD_PX = 80;
+	let isPinnedToBottom = $state(true);
+	/*
+	 * Incoming socket messages never move the viewport on their own. They only keep
+	 * it at the bottom while the user has explicitly asked to follow along — by
+	 * sending a message, or by pressing the jump button (including while a reply is
+	 * still streaming, which is the point of it being clickable in that state).
+	 * Scrolling away from the bottom cancels the follow.
+	 */
+	let followStream = $state(false);
 
 	/** @type {import('$conversationTypes').ConversationModel} */
     let conversation = $state(/** @type {any} */ (undefined));
@@ -334,8 +345,85 @@
 		return () => clearInterval(timer);
 	});
 
+	/*
+	 * Index rail: one tick per user message, in order. The preview pairs what the
+	 * user asked with the start of the reply it got, which is what makes a tick
+	 * recognisable — the question alone is often the same few words.
+	 */
+	let messageIndex = $derived.by(() => {
+		/** @type {{ id: string, ordinal: number, text: string, reply: string }[]} */
+		const entries = [];
+		dialogs.forEach((msg, idx) => {
+			if (BOT_SENDERS.includes(msg?.sender?.role || '') || !msg?.message_id) return;
+
+			const reply = dialogs.slice(idx + 1).find(x => BOT_SENDERS.includes(x?.sender?.role || ''));
+			entries.push({
+				id: msg.message_id,
+				ordinal: entries.length + 1,
+				text: _.trim(msg.text || '') || '(no text)',
+				reply: _.trim(reply?.rich_content?.message?.text || reply?.text || '')
+			});
+		});
+		return entries;
+	});
+
+	let activeIndexId = $state('');
+	/*
+	 * The preview is a single fixed-position node rather than a child of each tick:
+	 * the rail scrolls when a conversation has many turns, and any scrollable box
+	 * clips what its children paint outside it, which hid the preview entirely.
+	 */
+	/** @type {{ entry: any, top: number, left: number } | null} */
+	let indexPreview = $state(null);
+
+	/**
+	 * @param {any} entry
+	 * @param {EventTarget | null} target
+	 */
+	function showIndexPreview(entry, target) {
+		const rect = /** @type {HTMLElement} */ (target)?.getBoundingClientRect?.();
+		if (!rect) return;
+		indexPreview = {
+			entry,
+			top: rect.top + rect.height / 2,
+			left: rect.right + 10
+		};
+	}
+
+	function hideIndexPreview() {
+		indexPreview = null;
+	}
+
+	/**
+	 * Jump the thread to a user message, and take the log panes with it — the same
+	 * thing clicking the bubble does, so the rail is a shortcut to that, not a
+	 * second behaviour.
+	 * @param {string} messageId
+	 */
+	function goToUserMessage(messageId) {
+		const scrollbar = scrollbars[0];
+		const target = document.querySelector(`#user-msg-${messageId}`);
+		if (scrollbar && target) {
+			const { viewport } = scrollbar.elements();
+			// Offset by a bit so the message is not flush against the top edge.
+			const top = viewport.scrollTop + target.getBoundingClientRect().top
+				- viewport.getBoundingClientRect().top - 16;
+			viewport.scrollTo({ top, behavior: 'smooth' });
+			// A jump to history is a deliberate move away from the tail.
+			followStream = false;
+		}
+		activeIndexId = messageId;
+		directToLog(messageId);
+	}
+
+	/*
+	 * Consumers (rich content options, the file gallery) call this when content
+	 * they own appears — which for a bot reply means it fires right after a socket
+	 * message. So it is deliberately NOT forced: it follows the thread only while
+	 * the user is already at the bottom.
+	 */
 	setContext('chat-window-context', {
-		autoScrollToBottom: autoScrollToBottom
+		autoScrollToBottom: () => autoScrollToBottom()
 	});
 
 	onDestroy(() => {
@@ -399,7 +487,33 @@
 		if (msgScrollElem) {
 			// @ts-ignore
 			scrollbars = [OverlayScrollbars(msgScrollElem, options)];
+			trackBottomProximity();
 		}
+	}
+
+	/**
+	 * New messages only pull the thread down while the user is already reading
+	 * the bottom of it. Once they scroll up, auto-scroll stops fighting them and
+	 * the "jump to latest" button takes over.
+	 */
+	function trackBottomProximity() {
+		const scrollbar = scrollbars[0];
+		if (!scrollbar) return;
+
+		const { viewport } = scrollbar.elements();
+		const update = () => {
+			const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
+			isPinnedToBottom = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
+			if (!isPinnedToBottom) {
+				followStream = false;
+			}
+			updateActiveIndex(viewport);
+		};
+		update();
+		viewport.addEventListener('scroll', update, { passive: true });
+		// Growing content moves the bottom away without firing a scroll event, so the
+		// button would stay hidden while the thread quietly scrolls out of reach.
+		new ResizeObserver(update).observe(viewport.firstElementChild || viewport);
 	}
 
 	function handleLogoutAction() {
@@ -578,8 +692,55 @@
 		}
     }
 
+	/**
+	 * The rail tracks the user messages themselves: the active tick is the last one
+	 * whose bubble has come into view. Anchoring on the top edge instead marked the
+	 * previous turn while its successor's question was plainly on screen.
+	 * @param {HTMLElement} viewport
+	 */
+	function updateActiveIndex(viewport) {
+		const viewportBottom = viewport.getBoundingClientRect().bottom;
+		let current = '';
+		for (const entry of messageIndex) {
+			const el = document.querySelector(`#user-msg-${entry.id}`);
+			if (!el) continue;
+			// Ask for a little more than a sliver so a bubble just cresting the bottom
+			// edge does not steal the highlight from the turn being read.
+			if (el.getBoundingClientRect().top <= viewportBottom - 40) {
+				current = entry.id;
+			} else {
+				break;
+			}
+		}
+		const next = current || messageIndex[0]?.id || '';
+		if (next === activeIndexId) return;
+
+		activeIndexId = next;
+		// A long conversation makes the rail itself scroll, so keep the active tick
+		// inside it — otherwise the highlight is somewhere off the rail's own view.
+		requestAnimationFrame(() => {
+			const rail = document.querySelector('.cb-msg-index');
+			const tick = document.querySelector('.cb-msg-index-tick-active');
+			if (!rail || !tick || rail.scrollHeight <= rail.clientHeight) return;
+
+			const railRect = rail.getBoundingClientRect();
+			const tickRect = tick.getBoundingClientRect();
+			if (tickRect.top < railRect.top || tickRect.bottom > railRect.bottom) {
+				tick.scrollIntoView({ block: 'nearest' });
+			}
+		});
+	}
+
 	let _autoScrollScheduled = false;
-	function autoScrollToBottom() {
+	/**
+	 * @param {boolean} force Scroll even when the user has scrolled away from the
+	 * bottom — used by the explicit "jump to latest" button, never by new messages.
+	 */
+	function autoScrollToBottom(force = false) {
+		if (force) {
+			followStream = true;
+		}
+		if (!force && !isPinnedToBottom) return;
 		if (_autoScrollScheduled) return;
 		_autoScrollScheduled = true;
 		requestAnimationFrame(() => {
@@ -589,6 +750,7 @@
 					const { viewport } = scrollbar.elements();
 					viewport.scrollTo({ top: viewport.scrollHeight, behavior: 'smooth' });
 				});
+				isPinnedToBottom = true;
 				_autoScrollScheduled = false;
 			};
 			scrollToBottom();
@@ -792,7 +954,7 @@
 			...message,
 			is_chat_message: true
 		});
-		refresh();
+		refresh(!followStream);
 		text = "";
     }
 
@@ -823,7 +985,7 @@
 
 		isStreaming = false;
 		latestStateLog = message.states;
-		refresh();
+		refresh(!followStream);
 
 		if (isFrame) {
 			window.parent.postMessage(message, "*");
@@ -847,7 +1009,7 @@
 			});
 		}
 
-		refresh();
+		refresh(!followStream);
 
 		if (isFrame) {
 			window.parent.postMessage(message, "*");
@@ -870,7 +1032,7 @@
 				}
 			});
 		}
-		refresh();
+		refresh(!followStream);
 	}
 
 
@@ -893,7 +1055,7 @@
 					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
-					autoScrollToBottom();
+					if (followStream) autoScrollToBottom();
 				}, 0);
 			}
 		} else {
@@ -929,7 +1091,7 @@
 					for (const tt of thinkingText) {
 						dialogs[dialogs.length - 1].thought.thinking_text += tt;
 						refreshDialogs();
-						autoScrollToBottom();
+						if (followStream) autoScrollToBottom();
 						await delay(10);
 					}
 				}
@@ -937,7 +1099,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refreshDialogs();
-					autoScrollToBottom();
+					if (followStream) autoScrollToBottom();
 					await delay(10);
 				}
 			} catch (err) {
@@ -950,7 +1112,7 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function afterReceiveLlmStreamMessage(message) {
 		isStreaming = false;
-		refresh();
+		refresh(!followStream);
 	}
 
 	function stopStreaming() {
@@ -1123,6 +1285,9 @@
 	 */
     async function sendChatMessage(msgText, data = null, conversationId = null) {
 		isSendingMsg = true;
+		// Sending is a deliberate action by the user, so it still jumps the thread
+		// down — unlike incoming socket messages, which never move the viewport.
+		autoScrollToBottom(true);
 		resetProgress();
 		clearInstantLogs();
 		renewUserSentMessages(msgText);
@@ -2266,7 +2431,47 @@
 						cancel={() => toggleUserAddStateModal()}
 					/>
 
-					<div class={`cb-msgs-scroll cb-msgs-content ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+					<div class={`cb-msgs-area cb-msgs-content ${!loadEditor ? 'cb-msgs-content-expand' : ''}`}>
+						<!--
+							Index rail: one tick per user message, oldest at the top, so the
+							shape of the conversation is visible at a glance and any turn is
+							one click away. Hovering a tick previews the turn; clicking it
+							scrolls the thread there and points the log panes at the same
+							message, exactly as clicking the bubble does.
+						-->
+						{#if messageIndex.length > 1}
+							<nav class="cb-msg-index" aria-label="Conversation index">
+								{#each messageIndex as entry (entry.id)}
+									<button
+										type="button"
+										class="cb-msg-index-tick"
+										class:cb-msg-index-tick-active={activeIndexId === entry.id}
+										aria-label={`Go to message ${entry.ordinal}: ${entry.text.slice(0, 80)}`}
+										onclick={() => goToUserMessage(entry.id)}
+										onmouseenter={(e) => showIndexPreview(entry, e.currentTarget)}
+										onmouseleave={() => hideIndexPreview()}
+										onfocus={(e) => showIndexPreview(entry, e.currentTarget)}
+										onblur={() => hideIndexPreview()}
+									>
+										<span class="cb-msg-index-bar"></span>
+									</button>
+								{/each}
+							</nav>
+						{/if}
+
+						{#if indexPreview}
+							<div
+								class="cb-msg-index-preview"
+								style={`top: ${indexPreview.top}px; left: ${indexPreview.left}px;`}
+							>
+								<span class="cb-msg-index-preview-user">{indexPreview.entry.text}</span>
+								{#if indexPreview.entry.reply}
+									<span class="cb-msg-index-preview-reply">{indexPreview.entry.reply}</span>
+								{/if}
+							</div>
+						{/if}
+
+						<div class="cb-msgs-scroll">
 						<div class="cb-conv">
 							<ul class="cb-conv-list">
 								{#each Object.entries(groupedDialogs) as [createDate, dialogGroup]}
@@ -2695,6 +2900,38 @@
 								/>
 							{/if}
 						</div>
+
+						<!--
+							Sticky, zero-height strip so the button floats over the last
+							messages instead of reserving a row at the end of the thread.
+						-->
+						<div class="cb-jump-strip">
+							{#if !isPinnedToBottom}
+								<!--
+									While a reply is in flight the button says so with pulsing
+									dots: there is no "latest message" to jump to yet, only one
+									on its way. It stays clickable throughout — pressing it
+									still parks you at the bottom to watch the reply arrive.
+								-->
+								<button
+									type="button"
+									class="cb-jump-btn"
+									class:cb-jump-btn-waiting={isWaiting}
+									aria-label={isWaiting ? 'Waiting for reply; scroll to bottom' : 'Scroll to latest message'}
+									title={isWaiting ? 'Waiting for reply' : 'Scroll to latest message'}
+									onclick={() => autoScrollToBottom(true)}
+								>
+									{#if isWaiting}
+										<span class="cb-jump-dots" aria-hidden="true">
+											<span></span><span></span><span></span>
+										</span>
+									{:else}
+										<i class="mdi mdi-chevron-down"></i>
+									{/if}
+								</button>
+							{/if}
+						</div>
+						</div>
 					</div>
 
 					<div class={`cb-input-section cb-css-animation ${!loadEditor ? 'cb-input-hide' : 'cb-fade-in'}`}>
@@ -2819,6 +3056,7 @@
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
 				bind:autoScroll={autoScrollLog}
+				isWaiting={isWaiting}
 				closeWindow={() => closePersistLog()}
 				cleanScreen={() => cleanPersistLogScreen()}
 			/>

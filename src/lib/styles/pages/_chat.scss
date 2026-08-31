@@ -1333,6 +1333,256 @@
 }
 
 
+/* Message area wrapper: holds the scroller plus the index rail that sits
+   outside it, so the rail stays put while the thread moves. */
+
+
+.cb-msgs-area {
+    position: relative;
+}
+
+
+.cb-msgs-area > .cb-msgs-scroll {
+    height: 100%;
+}
+
+
+/* ===== Conversation index rail ===== */
+
+
+.cb-msg-index {
+    position: absolute;
+    left: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    max-height: 80%;
+    padding: 4px 2px;
+    overflow-y: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
+.cb-msg-index-tick {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+    line-height: 0;
+}
+
+
+.cb-msg-index-bar {
+    display: block;
+    width: 14px;
+    height: 2px;
+    border-radius: 2px;
+    background-color: rgb(203 213 225);
+    transition: width 0.15s ease, background-color 0.15s ease;
+}
+
+
+.cb-msg-index-tick:hover .cb-msg-index-bar,
+.cb-msg-index-tick:focus-visible .cb-msg-index-bar {
+    width: 20px;
+    background-color: var(--color-primary, #556ee6);
+}
+
+
+.cb-msg-index-tick-active .cb-msg-index-bar {
+    width: 20px;
+    background-color: rgb(100 116 139);
+}
+
+
+.cb-msg-index-tick:focus-visible {
+    outline: none;
+}
+
+
+/* Hover preview: the question, then the opening of the answer it got. */
+
+
+.cb-msg-index-preview {
+    /* Fixed, and positioned from JS: the rail scrolls, and a scrollable box would
+       clip a preview drawn outside it. */
+    position: fixed;
+    transform: translateY(-50%);
+    z-index: 1050;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: max-content;
+    max-width: 280px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid rgb(229 231 235);
+    background-color: rgb(255 255 255);
+    box-shadow: 0 6px 20px rgb(0 0 0 / 14%);
+    text-align: left;
+    line-height: 1.35;
+    pointer-events: none;
+}
+
+
+.cb-msg-index-preview-user {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgb(31 41 55);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+
+
+.cb-msg-index-preview-reply {
+    font-size: 11.5px;
+    color: rgb(107 114 128);
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+}
+
+
+.dark .cb-msg-index-bar {
+    background-color: rgb(75 85 99);
+}
+
+
+.dark .cb-msg-index-tick-active .cb-msg-index-bar {
+    background-color: rgb(156 163 175);
+}
+
+
+.dark .cb-msg-index-preview {
+    background-color: rgb(31 41 55);
+    border-color: rgb(55 65 81);
+}
+
+
+.dark .cb-msg-index-preview-user {
+    color: rgb(229 231 235);
+}
+
+
+.dark .cb-msg-index-preview-reply {
+    color: rgb(156 163 175);
+}
+
+
+/* "Jump to latest" affordance. The strip has no height of its own so the
+   button floats over the tail of the conversation rather than pushing it up. */
+
+
+.cb-jump-strip {
+    position: sticky;
+    bottom: 12px;
+    height: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 3;
+}
+
+
+.cb-jump-btn {
+    pointer-events: auto;
+    transform: translateY(-100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid var(--bs-border-color, rgb(0 0 0 / 12%));
+    background-color: var(--bs-body-bg, #fff);
+    color: var(--bs-body-color, #495057);
+    box-shadow: 0 2px 8px rgb(0 0 0 / 18%);
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        background-color: var(--bs-primary, #556ee6);
+        color: #fff;
+        transform: translateY(-100%) scale(1.06);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--bs-primary, #556ee6);
+        outline-offset: 2px;
+    }
+}
+
+
+/* In-flight state: three pulsing dots in place of the arrow. */
+
+
+.cb-jump-btn-waiting {
+    color: var(--bs-primary, #556ee6);
+}
+
+
+.cb-jump-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    & > span {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: currentcolor;
+        animation: cb-jump-dot-pulse 1.2s ease-in-out infinite;
+    }
+
+    & > span:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    & > span:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+}
+
+
+@keyframes cb-jump-dot-pulse {
+    0%,
+    80%,
+    100% {
+        opacity: 0.3;
+        transform: translateY(0);
+    }
+
+    40% {
+        opacity: 1;
+        transform: translateY(-2px);
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .cb-jump-dots > span {
+        animation: none;
+        opacity: 0.75;
+    }
+}
+
+
 /* Conversation container (replaces .chat-conversation.p-3) */
 
 
@@ -3624,6 +3874,12 @@
 }
 
 
+/* Whole collapsible block is a toggle target; the More/Less button stays. */
+.cle-content-clickable {
+    cursor: pointer;
+}
+
+
 /* More/Less toggle (replaces .btn.btn-link.toggle-btn.btn-sm) */
 
 
@@ -3901,6 +4157,88 @@
     margin: 0;
     padding-left: 2px;
     padding-right: 0;
+}
+
+
+/* "Jump to latest" affordance, mirroring the chat thread's. The strip has no
+   height of its own so the button floats over the tail of the log. */
+
+
+.pl-jump-strip {
+    position: sticky;
+    bottom: 10px;
+    height: 0;
+    display: flex;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 3;
+}
+
+
+.pl-jump-btn {
+    pointer-events: auto;
+    transform: translateY(-100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid color-mix(in srgb, white 16%, transparent);
+    background-color: rgb(17 24 42);
+    color: rgb(226 232 240);
+    box-shadow: 0 2px 10px rgb(0 0 0 / 45%);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    transition: background-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+
+    &:hover {
+        background-color: var(--color-primary, #556ee6);
+        color: rgb(255 255 255);
+        transform: translateY(-100%) scale(1.06);
+    }
+
+    &:focus-visible {
+        outline: 2px solid var(--color-primary, #556ee6);
+        outline-offset: 2px;
+    }
+}
+
+
+.pl-jump-btn-waiting {
+    color: var(--color-primary, #556ee6);
+}
+
+
+.pl-jump-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+
+    & > span {
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background-color: currentcolor;
+        animation: cb-jump-dot-pulse 1.2s ease-in-out infinite;
+    }
+
+    & > span:nth-child(2) {
+        animation-delay: 0.15s;
+    }
+
+    & > span:nth-child(3) {
+        animation-delay: 0.3s;
+    }
+}
+
+
+@media (prefers-reduced-motion: reduce) {
+    .pl-jump-dots > span {
+        animation: none;
+        opacity: 0.75;
+    }
 }
 
 
