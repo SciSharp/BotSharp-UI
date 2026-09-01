@@ -266,20 +266,27 @@
 	 *
 	 * A planner's turn does not end until its whole plan does — the reason the link is pushed
 	 * from a hook instead of written into the reply — so "this turn is still in flight" IS "the
-	 * run is still going". At most one link is ever rendered (hideSupersededLiveLinks drops the
-	 * rest), so one flag covers the conversation.
+	 * run is still going".
+	 *
+	 * A RUN ID rather than a flag, and that is not cosmetic. It used to be a boolean, on the
+	 * grounds that at most one link is ever on screen — true when every link was a bare offer and
+	 * hideSupersededLiveLinks kept only the newest. A flow execution breaks it: each step leaves a
+	 * note carrying its own run, so a screen full of finished steps was labelled with the running
+	 * one's icon. Only the LAST link can be the live one, so that is the only run this names.
 	 *
 	 * A soft signal, and it can be wrong for a few seconds after a reload mid-run, before the
 	 * first progress push arrives. Tolerable because both mislabellings lead to the SAME page:
 	 * one URL serves the live screen and the recording, and the executor renders whichever the
 	 * run actually is. Only the sentence around the link is ever wrong, never the destination.
 	 */
-	let liveRunInFlight = $derived.by(() => {
-		if (!isWaiting) return false;
+	let inFlightRunId = $derived.by(() => {
+		if (!isWaiting) return null;
 
 		const lastUser = dialogs.findLastIndex(msg => !BOT_SENDERS.includes(msg?.sender?.role || ''));
 		const lastLink = dialogs.findLastIndex(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
-		return lastLink > lastUser;
+		if (lastLink < 0 || lastLink <= lastUser) return null;
+
+		return liveRunIdInText(dialogs[lastLink]?.rich_content?.message?.text || dialogs[lastLink]?.text);
 	});
 
 	/** When the live-view link on screen stops working, or null when nothing on screen expires. */
@@ -810,14 +817,76 @@
 	}
 
 	/**
-	 * Drops every live-view link but the most recent one.
+	 * The message with every line that carries a live-view link removed.
 	 *
-	 * These are pushed into the conversation each time a browser task starts, and they
+	 * A note about a browser task is a heading, what the task did, and a line offering the run.
+	 * Those first two keep their value long after the third stops working, so anything that has
+	 * to answer "is there anything here besides the link" or "show this without the link" needs
+	 * the message minus that line. Line-wise, because the link always sits on one of its own —
+	 * markdown puts it there and the producers all write it that way.
+	 *
+	 * @param {string | null | undefined} text
+	 */
+	function liveLinkFreeText(text) {
+		return (text || '')
+			.split('\n')
+			.filter(line => !liveRunIdInText(line))
+			.join('\n')
+			.trim();
+	}
+
+	/**
+	 * Is this message nothing but an offer of a live view?
+	 *
+	 * The distinction two things turn on. A note whose every line is the link has nothing left to
+	 * say once a newer link exists, and nothing to lose when the app restates it in its own words.
+	 * A note that ALSO reports something — a flow step's name and what it found — says that
+	 * whether or not its link still works, so hiding it or rewriting it destroys the report.
+	 *
+	 * Not a match on the sentence: the producers word it differently, and one of them (OneFlow)
+	 * words it two ways on purpose — "Watch this run", "Watch the action", "Replay the action".
+	 * The shape that matters is not the wording but whether anything survives removing the link.
+	 *
+	 * @param {string | null | undefined} text
+	 */
+	function isBareLiveLink(text) {
+		if (!liveRunIdInText(text)) return false;
+
+		return liveLinkFreeText(text).length === 0;
+	}
+
+	/**
+	 * Drops superseded live-view links — but only the notes that are nothing else.
+	 *
+	 * A bare link is pushed into the conversation each time a browser task starts, and they
 	 * accumulate: a session that looks up three things leaves three identical-looking
 	 * "Watch this run" lines, only the last of which leads anywhere. The URLs carry a
 	 * short-lived single-run token, so an earlier one is a dead link dressed as a live
 	 * one — and the reader has no way to tell them apart, since the sentence is the same
 	 * every time. Clicking the wrong one is the whole cost.
+	 *
+	 * WHY IT IS NOT SIMPLY "EVERY MESSAGE HOLDING A LINK". It was, and that stopped being safe
+	 * the moment a producer put a link INSIDE a message that also carries content. OneFlow's
+	 * per-node notes do: each one is a step's heading and what that step found, with the link
+	 * under it. Filtering on "holds a link" deleted those notes outright — a ten-node flow
+	 * rendered as step 1, then a jump to the step running now, with every outcome in between
+	 * gone from the screen while sitting intact in the server's history. Both premises above
+	 * fail for them too: the sentences are NOT the same (a finished step's says it replays), and
+	 * the reader CAN tell them apart, because each sits under its own numbered step.
+	 *
+	 * `latest` is still the newest link of ANY shape, so a bare one is superseded by a link that
+	 * arrived inside a step note, which is the ordering a reader sees.
+	 *
+	 * THE SECOND RULE, and the only one that reads the run id: a note is superseded outright by a
+	 * LATER note about the SAME run. That is the pair OneFlow writes around every web step — one
+	 * when it starts ("Running in a browser now", with the link to watch) and one when it reports
+	 * (the outcome, with the same link, which now replays). Both are real content so neither is
+	 * bare, and the first went on offering to "take the controls" of a run that had already
+	 * finished, directly above the note saying it had. Keyed on the id rather than on the wording
+	 * because the id is a fact: the completion note carries the very same URL, so a step that
+	 * reports twice collapses onto its last word without this having to know what that word is.
+	 * A RETRIED node keeps both, correctly — the failed attempt has a run id of its own that never
+	 * appears again, so its link stays where the reader can still open it.
 	 *
 	 * Hidden at render, not deleted: the messages stay in `dialogs` and in the server's
 	 * history, so message ids, truncation indices and the content log are untouched, and
@@ -826,14 +895,23 @@
 	 * @param {import('$conversationTypes').ChatResponseModel[]} dialogs
 	 */
 	function hideSupersededLiveLinks(dialogs) {
-		const isLiveLink = dialogs.map(msg => !!liveRunIdInText(msg?.rich_content?.message?.text || msg?.text));
-		const latest = isLiveLink.lastIndexOf(true);
+		const texts = dialogs.map(msg => msg?.rich_content?.message?.text || msg?.text);
+		const runIds = texts.map(text => liveRunIdInText(text));
+		const latest = runIds.findLastIndex(id => !!id);
 
 		// Nothing to supersede: zero or one live link. Returning the array as-is keeps the
-		// common case — every conversation that never touches SimpleClaw — free.
-		if (latest < 0 || isLiveLink.indexOf(true) === latest) return dialogs;
+		// common case — every conversation that never touches a browser task — free.
+		if (latest < 0 || runIds.findIndex(id => !!id) === latest) return dialogs;
 
-		return dialogs.filter((_msg, idx) => !isLiveLink[idx] || idx === latest);
+		const isBare = texts.map(isBareLiveLink);
+
+		return dialogs.filter((_msg, idx) => {
+			const runId = runIds[idx];
+			if (!runId) return true;
+			// Superseded by a later note about the SAME run: the step it opened has reported.
+			if (runIds.lastIndexOf(runId) !== idx) return false;
+			return !isBare[idx] || idx === latest;
+		});
 	}
 
 	/** @param {import('$conversationTypes').ChatResponseModel[]} dialogs */
@@ -2403,11 +2481,21 @@
 										</div>
 									</li>
 									{#each dialogGroup as message}
-										{@const liveView = BOT_SENDERS.includes(message.sender?.role)
-											? liveViewInText(message?.rich_content?.message?.text || message?.text)
+										{@const messageText = message?.rich_content?.message?.text || message?.text}
+										<!--
+											A message that is NOTHING BUT a live-view offer. Not any message that happens to
+											hold one: a flow step's note carries its heading and what the step found, with the
+											link underneath, and that is the agent reporting — it belongs in a bubble beside
+											the steps around it, not in the centred strip below, which said "the app is doing
+											something" about three consecutive paragraphs of findings and left them ragged and
+											out of line with the one step that had no link to show.
+										-->
+										{@const liveNote = BOT_SENDERS.includes(message.sender?.role) && isBareLiveLink(messageText)
+											? liveViewInText(messageText)
 											: null}
-										{#if liveView}
-											{@const spent = !!liveView.expiresAt && liveView.expiresAt <= linkClock}
+										{#if liveNote}
+											{@const spent = !!liveNote.expiresAt && liveNote.expiresAt <= linkClock}
+											{@const inFlight = !!inFlightRunId && liveNote.runId === inFlightRunId}
 											<!--
 												A live view is the app telling you what it is doing, not the agent
 												talking to you, so it is not dressed as speech: no avatar, no bubble,
@@ -2435,36 +2523,35 @@
 													<i
 														class={`mdi cb-sys-note-icon ${spent
 															? 'mdi-link-off'
-															: liveRunInFlight ? 'mdi-remote-desktop' : 'mdi-motion-play-outline'}`}
+															: inFlight ? 'mdi-remote-desktop' : 'mdi-motion-play-outline'}`}
 													></i>
 													{#if spent}
 														<!--
-															Deliberately not a link. The credential in the URL is a
-															30-minute one and the executor refuses it now, so anything
-															clickable here would lead to an error page — a dead link
-															dressed as a live one is worse than an honest sentence.
+															Deliberately not a link. The credential in the URL is a 30-minute one and the
+															executor refuses it now, so anything clickable here would lead to an error
+															page — a dead link dressed as a live one is worse than an honest sentence.
 														-->
 														<span class="cb-sys-note-text">This run's recording has expired.</span>
-													{:else if liveRunInFlight}
-														<Markdown
-															containerClasses={'cb-sys-note-text markdown-dark'}
-															text={message?.rich_content?.message?.text || message?.text}
-														/>
+													{:else if inFlight}
+														<Markdown containerClasses={'cb-sys-note-text markdown-dark'} text={messageText} />
 													{:else}
 														<!--
-															The agent's own sentence — "take the controls if needed" —
-															is wrong once the run is over: there are no controls left to
-															take. The URL is unchanged, because the executor's run page
-															serves the recording from the same address; only what to
-															expect on the other side is restated.
-
-															Still rendered through Markdown, on markdown the UI wrote
-															itself, so the link keeps the click handler that opens the
-															run beside the conversation instead of on top of it.
+															The agent's own sentence — "take the controls if needed" — is wrong once the
+															run is over: there are no controls left to take. The URL is unchanged, because
+															the executor's run page serves the recording from the same address; only what
+															to expect on the other side is restated.
+															
+															Safe to restate ONLY because this branch is reached by notes that say nothing
+															else — see the note on `liveNote` above. A step note keeps its own wording,
+															which is already right for a finished run.
+															
+															Still rendered through Markdown, on markdown the UI wrote itself, so the link
+															keeps the click handler that opens the run beside the conversation instead of
+															on top of it.
 														-->
 														<Markdown
 															containerClasses={'cb-sys-note-text markdown-dark'}
-															text={`[Replay this session](${liveView.url}) — every step the agent took`}
+															text={`[Replay this session](${liveNote.url}) — every step the agent took`}
 														/>
 													{/if}
 												</div>
