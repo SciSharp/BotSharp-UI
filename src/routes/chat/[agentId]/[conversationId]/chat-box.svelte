@@ -1731,11 +1731,19 @@
 		}
 	}
 
-	/** @param {string} messageId */
+	/**
+	 * Clicking a user message marks it as the one being inspected, and points the
+	 * log panes at it. The highlight is unconditional — it is feedback that the
+	 * click landed, and the message stays picked out whether or not the logs are
+	 * on screen. Directing the panes only makes sense while they are open.
+	 * @param {string} messageId
+	 */
 	function directToLog(messageId) {
-		if (!messageId || isLite || !isLoadPersistLog) return;
+		if (!messageId || isLite) return;
 
 		highlightedMsgId = messageId;
+		if (!isLoadPersistLog) return;
+
 		highlightStateLog(messageId);
 		autoScrollToTargetLog(messageId);
 	}
@@ -1760,6 +1768,9 @@
 
 	/** @param {string} messageId */
 	function autoScrollToTargetLog(messageId) {
+		// Tell a freshly opened log pane to stop pinning itself to the tail, or it
+		// would pull straight back down from the entry we are about to show.
+		window.dispatchEvent(new CustomEvent('persist-log:cancel-pin'));
 		const contentLogWrapper = '.content-log-scrollbar';
 		const stateLogWrapper = '.conv-state-log-scrollbar';
 		const elements = [];
