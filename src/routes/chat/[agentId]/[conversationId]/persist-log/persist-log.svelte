@@ -14,6 +14,8 @@
     const contentLogTab = 1;
     const conversationStateLogTab = 2;
     const conversationId = page.params.conversationId;
+    /** Fired by chat-box when it scrolls a pane to a specific log entry. */
+    const CANCEL_PIN_EVENT = 'persist-log:cancel-pin';
     const utcNow = moment.utc().toDate();
 
     const scrollbarElements = [
@@ -178,6 +180,17 @@
      * @param {number} timeoutMs
      */
     function pinToBottomWhileSettling(timeoutMs = 3000) {
+        /** @type {(() => void)[]} */
+        const stops = [];
+        /*
+         * Opening the panes to look at one message races the settling pin: the pin
+         * would drag the pane back to the tail moments after the jump. A scroll
+         * aimed at a specific entry cancels the pin, the same way a wheel does.
+         */
+        const cancelPin = () => stops.forEach(stop => stop());
+        window.addEventListener(CANCEL_PIN_EVENT, cancelPin);
+        stops.push(() => window.removeEventListener(CANCEL_PIN_EVENT, cancelPin));
+
         scrollbars.forEach(scrollbar => {
             if (!scrollbar) return;
 
@@ -202,6 +215,7 @@
             viewport.addEventListener('pointerdown', stop);
             viewport.addEventListener('keydown', stop);
             timer = setTimeout(stop, timeoutMs);
+            stops.push(stop);
         });
     }
 
