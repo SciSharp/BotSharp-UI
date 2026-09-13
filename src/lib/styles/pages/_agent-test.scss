@@ -475,6 +475,54 @@
 }
 
 /* ========================================================================
+ * Agent chain editor
+ *
+ * The expected list of an agentChain assertion. Chips rather than a text field
+ * because the order is the assertion in `ordered`/`exact` mode, and a chip can
+ * carry its own move and remove controls.
+ * ======================================================================== */
+
+.ats-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-bottom: 0.375rem;
+}
+
+/* Inline control inside a chip: sized down to the chip's own line-height so a
+   chip with three of them stays the height of a plain badge. */
+.ats-chip-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1rem;
+    height: 1rem;
+    padding: 0;
+    border: 0;
+    border-radius: 0.1875rem;
+    background: transparent;
+    color: inherit;
+    line-height: 1;
+
+    & i {
+        font-size: 0.875rem;
+    }
+
+    &:hover:not(:disabled) {
+        background-color: color-mix(in srgb, var(--ats-tone) 25%, transparent);
+    }
+
+    &:disabled {
+        opacity: 0.35;
+    }
+}
+
+.ats-chip-index {
+    opacity: 0.7;
+    font-variant-numeric: tabular-nums;
+}
+
+/* ========================================================================
  * Alerts (replaces .alert.alert-danger / -warning / -info)
  * ======================================================================== */
 
