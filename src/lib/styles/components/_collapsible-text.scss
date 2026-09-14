@@ -1,0 +1,86 @@
+/* ========================================================================
+ * src/lib/common/shared/CollapsibleText.svelte
+ * ========================================================================
+ * Shared by the chat bubbles, the persist-log content rows and the
+ * conversation page's dialog entries, so nothing here may assume a
+ * particular surface: no background, no padding, no colour of its own
+ * beyond the toggle.
+ */
+
+
+.ctxt {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    min-width: 0;
+    max-width: 100%;
+}
+
+
+.ctxt-end {
+    align-items: flex-end;
+}
+
+
+.ctxt-view {
+    max-width: 100%;
+}
+
+
+.ctxt-view-clickable {
+    cursor: pointer;
+}
+
+
+/* The mask is doing the real work. The two things it replaces each had a
+   surface-specific flaw: a hard cut sliced the chat bubble's rounded corners
+   flat, and the painted '...' it replaces on the conversation page was drawn
+   over a hard-coded white gradient, which was wrong the moment the page was
+   in dark mode. A mask paints nothing, so it is correct on every surface and
+   in both themes. */
+.ctxt-view-collapsed {
+    max-height: var(--ctxt-max-height, 16rem);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 40px), transparent 100%);
+}
+
+
+/* Deliberately quiet: it belongs to the content it sits under, not to any row
+   of actions nearby, so it reads as a hint rather than another button. */
+
+
+.ctxt-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-top: 2px;
+    padding: 0.1rem 0.4rem;
+    background: transparent;
+    border: 0;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1.6;
+    color: color-mix(in srgb, var(--color-primary) 80%, transparent);
+    cursor: pointer;
+    transition: color 0.15s ease, background-color 0.15s ease;
+
+
+    i {
+        font-size: 13px;
+        line-height: 1;
+    }
+
+
+    &:hover {
+        color: var(--color-primary);
+        background-color: color-mix(in srgb, var(--color-primary) 12%, transparent);
+    }
+
+
+    &:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+        outline-offset: 2px;
+    }
+}

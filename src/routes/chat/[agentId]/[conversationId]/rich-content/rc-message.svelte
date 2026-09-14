@@ -115,7 +115,7 @@
                 && message?.rich_content?.message?.language === 'javascript'}
                 <RcJsInterpreter message={message} scrollable />
             {:else}
-                <Markdown containerClasses={markdownClasses} text={text} rawText />
+                <Markdown containerClasses={markdownClasses} text={text} rawText copyableCode />
             {/if}
         </div>
     </div>

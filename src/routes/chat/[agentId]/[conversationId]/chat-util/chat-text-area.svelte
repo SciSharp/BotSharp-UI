@@ -84,7 +84,7 @@
 
 <div class="cta-wrap" use:clickoutsideDirective onclickoutside={handleClickOutside}>
     {#if showOptions}
-        <ul class="cta-option-list cta-popup">
+        <ul class="cta-option-list cta-overlay">
             {#each options as option, idx (idx)}
                 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
                 <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -98,7 +98,7 @@
         </ul>
     {/if}
     {#if loadUtils}
-        <div class="cta-util-container cta-popup">
+        <div class="cta-util-container cta-overlay">
             {#if children}
                 {@render children()}
             {/if}

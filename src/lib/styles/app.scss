@@ -9,6 +9,8 @@
  * Loaded once from src/routes/+layout.svelte alongside the icon CSS.
  */
 
+@import "components/collapsible-text";
+
 @import "pages/auth";
 @import "pages/chat";
 @import "pages/conversation";
