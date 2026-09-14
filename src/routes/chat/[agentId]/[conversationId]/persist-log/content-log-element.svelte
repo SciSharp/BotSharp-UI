@@ -1,5 +1,6 @@
 <script>
     import Markdown from "$lib/common/markdown/Markdown.svelte";
+    import CollapsibleText from '$lib/common/shared/CollapsibleText.svelte';
 	import { ContentLogSource } from '$lib/helpers/enums';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { directToAgentPage } from '$lib/helpers/utils/common';
@@ -7,11 +8,10 @@
     /** @type {{ data: import('$conversationTypes').ConversationContentLogModel }} */
     let { data } = $props();
 
-    let is_collapsed = $state(true);
-    let contentEl = $state();
-    let isOverflowing = $state(false);
-    
-    const COLLAPSE_LINE_THRESHOLD = 10;
+    let copied = $state(false);
+    /** @type {any} */
+    let copiedTimer = null;
+
     const unknownAgent = "Uknown";
     const collapsedSources = [
         ContentLogSource.UserInput,
@@ -48,51 +48,34 @@
         return '';
     });
 
-    let isCollapsible = $derived(collapsedSources.includes(data.source) && isOverflowing);
-
-    /** @param {any} e */
-    function toggleText(e) {
+    /** @param {MouseEvent} e */
+    function copyContent(e) {
         e.preventDefault();
-        is_collapsed = !is_collapsed;
-    }
+        e.stopPropagation();
 
-    /**
-     * Toggle by clicking anywhere in the block, while leaving normal
-     * interactions intact: text selection, links and nested controls.
-     * @param {MouseEvent} e
-     */
-    function handleContentClick(e) {
-        if (!isCollapsible) return;
+        const text = data?.content || '';
+        if (!text) return;
 
-        const target = /** @type {HTMLElement | null} */ (e.target);
-        if (target?.closest('a, button, input, textarea, select')) return;
-        if (window.getSelection()?.toString()) return;
-
-        is_collapsed = !is_collapsed;
+        navigator.clipboard?.writeText(text).then(() => {
+            copied = true;
+            clearTimeout(copiedTimer);
+            copiedTimer = setTimeout(() => {
+                copied = false;
+            }, 800);
+        }).catch(() => {
+            copied = false;
+        });
     }
 
     $effect(() => {
-        void data?.content;
-        if (!contentEl || !collapsedSources.includes(data.source)) {
-            isOverflowing = false;
-            return;
-        }
-        requestAnimationFrame(() => {
-            if (!contentEl) return;
-            const cs = getComputedStyle(contentEl);
-            let lineHeight = parseFloat(cs.lineHeight);
-            if (!Number.isFinite(lineHeight) || lineHeight <= 0) {
-                lineHeight = parseFloat(cs.fontSize) * 1.5 || 21;
-            }
-            isOverflowing = contentEl.scrollHeight > lineHeight * COLLAPSE_LINE_THRESHOLD + 1;
-        });
+        return () => clearTimeout(copiedTimer);
     });
 </script>
 
 
 <div class="cle-element" id={`content-log-${data.message_id}`}>
     <div class="cle-meta">
-        <div>
+        <div class="cle-meta-row">
             <span class="cle-title">
             {#if data?.agent_id?.length > 0}
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -109,28 +92,34 @@
                 </span>
             {/if}
             </span>
-            <span class="cle-meta-ts">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
-        </div>
-    </div>
-    <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div
-        class={`cle-content ${logDisplayStyle}`}
-        class:cle-content-clickable={isCollapsible}
-        onclick={handleContentClick}
-    >
-        <div
-            bind:this={contentEl}
-            class:cle-collapse={isCollapsible && !!is_collapsed}
-        >
-            <Markdown containerClasses={logTextStyle} text={data?.content} rawText={rawTextSources.includes(data.source)} />
-        </div>
-
-        {#if isCollapsible}
-            <button class="cle-toggle-btn" onclick={(e) => toggleText(e)}>
-                {`${is_collapsed ? 'More +' : 'Less -'}`}
+            <button
+                type="button"
+                class="cle-copy-btn"
+                class:cle-copy-btn-done={copied}
+                title={copied ? 'Copied!' : 'Copy content'}
+                aria-label={copied ? 'Content copied' : 'Copy content'}
+                onclick={(e) => copyContent(e)}
+            >
+                {#if copied}
+                    <i class="bx bx-check"></i>
+                    <span>{'Copied!'}</span>
+                {:else}
+                    <i class="bx bx-copy"></i>
+                    <span>{'Copy'}</span>
+                {/if}
             </button>
-        {/if}
+        </div>
+        <span class="cle-meta-ts">{`${utcToLocal(data?.created_at, 'hh:mm:ss.SSS A, MMM DD YYYY')} `}</span>
+    </div>
+    <div class={`cle-content ${logDisplayStyle}`}>
+        <!--
+            Only the sources in `collapsedSources` are worth folding: a hard rule
+            or a state change runs to a line or two, and a toggle on those would
+            be more chrome than content.
+        -->
+        <CollapsibleText enabled={collapsedSources.includes(data.source)}>
+            <Markdown containerClasses={logTextStyle} text={data?.content} rawText={rawTextSources.includes(data.source)} />
+        </CollapsibleText>
     </div>
 
     {#if data.message_id && data.source === ContentLogSource.UserInput}

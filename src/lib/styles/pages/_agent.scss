@@ -336,10 +336,15 @@ $panel-radius: 0.5rem;
 
 /* ========================================================================
  * src/routes/page/agent/[agentId]/+page.svelte
- * ======================================================================== */
+ * ========================================================================
+ * Prefix is `agd-` (agent detail), NOT `ad-`: ad blockers ship element-hiding
+ * rules that match a leading `ad-` on a class, which hid this page's layout
+ * for anyone running one. Keep new classes here clear of `ad`, `ads`,
+ * `banner`, `sponsor` and `promo` for the same reason.
+ */
 
 
-.ad-page {
+.agd-page {
     display: flex;
     flex-direction: column;
 }
@@ -350,14 +355,14 @@ $panel-radius: 0.5rem;
    the cards' min-content is wider than 40% of the page. */
 
 
-.ad-grid {
+.agd-grid {
     display: grid;
     grid-template-columns: 2fr 3fr;
     gap: 1.125rem;
 }
 
 
-.ad-col {
+.agd-col {
     display: flex;
     flex-direction: column;
     gap: 0.875rem;
@@ -366,26 +371,26 @@ $panel-radius: 0.5rem;
 
 
 @media (max-width: 991.98px) {
-    .ad-grid {
+    .agd-grid {
         grid-template-columns: minmax(0, 1fr);
     }
 }
 
 
 /* ===== Section wrapper =====
-   Each ad-section hosts a panel card. The card owns its own surface (see the
+   Each agd-section hosts a panel card. The card owns its own surface (see the
    panel-shell mixin); this is only the grid slot. No hover lift — the panels
    are flat and static, and a panel that moves reads as clickable when it is
    not. */
 
 
-.ad-section {
+.agd-section {
     display: block;
 }
 
 
 @media (max-width: 423px) {
-    .ad-section {
+    .agd-section {
         height: fit-content;
     }
 }
@@ -399,7 +404,7 @@ $panel-radius: 0.5rem;
    button's edge lines up with the panels above it. */
 
 
-.ad-action-bar {
+.agd-action-bar {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -412,7 +417,7 @@ $panel-radius: 0.5rem;
 /* ===== Buttons ===== */
 
 
-.ad-btn {
+.agd-btn {
 		display: inline-flex;
 		align-items: center;
 		gap: 0.45rem;
@@ -445,7 +450,7 @@ $panel-radius: 0.5rem;
 }
 
 
-.ad-btn-primary {
+.agd-btn-primary {
 		background-color: var(--color-primary);
 		color: rgb(255 255 255);
 
@@ -456,7 +461,7 @@ $panel-radius: 0.5rem;
 }
 
 
-.ad-btn-danger {
+.agd-btn-danger {
 		background-color: var(--color-danger);
 		color: rgb(255 255 255);
 
@@ -473,7 +478,7 @@ $panel-radius: 0.5rem;
    reads as a unified cluster. */
 
 
-.ad-btn-ghost {
+.agd-btn-ghost {
 		background-color: rgb(255 255 255);
 		border-color: rgb(229 231 235);
 		color: var(--color-primary);

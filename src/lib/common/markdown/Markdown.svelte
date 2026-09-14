@@ -18,7 +18,15 @@
 		/** @type {boolean} */
 		rawText = false,
 		/** @type {boolean} */
-		scrollable = false
+		scrollable = false,
+		/**
+		 * Puts a copy button on every fenced code block. Off by default: on a log
+		 * row or a state dump the control would be chrome over content nobody
+		 * copies, and it is the message surfaces where a snippet is there to be
+		 * taken somewhere else.
+		 * @type {boolean}
+		 */
+		copyableCode = false
 	} = $props();
 
 	/**
@@ -40,13 +48,54 @@
 	 * paragraph that merely mentions a run link in passing gets the treatment too, which is
 	 * the right answer — it is still an offer of a live view, wherever it sits.
 	 */
-	const liveLinkRenderer = new Renderer();
-	const renderParagraph = liveLinkRenderer.paragraph.bind(liveLinkRenderer);
-	liveLinkRenderer.paragraph = (text) => {
-		if (!liveRunIdInText(text)) return renderParagraph(text);
+	/**
+	 * Wraps a fenced code block so it can carry a copy button.
+	 *
+	 * Emitted as part of the markdown HTML rather than attached to the DOM
+	 * afterwards, so it survives every re-render of a streaming message without
+	 * anything having to re-scan for new blocks. Nothing from the message is
+	 * interpolated into it — the code is read back out of the DOM when the button
+	 * is clicked, which keeps the copied text identical to what is on screen and
+	 * keeps message content out of generated markup.
+	 *
+	 * @param {string} codeHtml
+	 */
+	function withCopyButton(codeHtml) {
+		return '<div class="md-code">'
+			+ '<button type="button" class="md-code-copy" aria-label="Copy code">'
+			+ '<i class="bx bx-copy" aria-hidden="true"></i>'
+			+ '<span class="md-code-copy-label">Copy</span>'
+			+ '</button>'
+			+ codeHtml
+			+ '</div>';
+	}
 
-		return `<p class="md-live-line"><i class="mdi mdi-motion-play-outline md-live-icon" aria-hidden="true"></i>${text}</p>`;
-	};
+	/* Per instance rather than module-level, because the code renderer below
+	   depends on `copyableCode`, which differs by call site. */
+	const markdownRenderer = buildRenderer();
+
+	function buildRenderer() {
+		const renderer = new Renderer();
+
+		const renderParagraph = renderer.paragraph.bind(renderer);
+		renderer.paragraph = (text) => {
+			if (!liveRunIdInText(text)) return renderParagraph(text);
+
+			return `<p class="md-live-line"><i class="mdi mdi-motion-play-outline md-live-icon" aria-hidden="true"></i>${text}</p>`;
+		};
+
+		if (copyableCode) {
+			const renderCode = renderer.code.bind(renderer);
+			/**
+			 * @param {string} code
+			 * @param {string | undefined} infostring
+			 * @param {boolean} escaped
+			 */
+			renderer.code = (code, infostring, escaped) => withCopyButton(renderCode(code, infostring, escaped));
+		}
+
+		return renderer;
+	}
 
 	const scrollbarId = `markdown-scrollbar-${uuidv4()}`;
 	const options = {
@@ -138,11 +187,84 @@
 		};
 	}
 
+	/** The button currently showing its "copied" state, if any. */
+	/** @type {Element | null} */
+	let copiedBtn = null;
+	/** @type {any} */
+	let copyResetTimer = null;
+
+	/**
+	 * @param {Element} btn
+	 * @param {boolean} done
+	 */
+	function setCopyState(btn, done) {
+		const icon = btn.querySelector('i');
+		const label = btn.querySelector('.md-code-copy-label');
+		btn.classList.toggle('md-code-copy-done', done);
+		if (icon) icon.className = done ? 'bx bx-check' : 'bx bx-copy';
+		if (label) label.textContent = done ? 'Copied!' : 'Copy';
+		btn.setAttribute('aria-label', done ? 'Code copied' : 'Copy code');
+	}
+
+	/**
+	 * Copies a fenced code block, delegated for the same reason as
+	 * `interceptLinks`: the buttons come from `{@html}`, so Svelte never sees
+	 * those nodes and cannot bind to them.
+	 *
+	 * @param {HTMLElement} node
+	 */
+	function interceptCodeCopy(node) {
+		/** @param {MouseEvent} e */
+		const onClick = (e) => {
+			const btn = /** @type {Element | null} */ (e.target)?.closest?.('.md-code-copy');
+			if (!btn) return;
+
+			// The surfaces this renders on put their own click on the block around
+			// it — collapse a message, jump to its log entry — and reaching for a
+			// snippet is not a request for either.
+			e.preventDefault();
+			e.stopPropagation();
+
+			// Read from the DOM, so what lands on the clipboard is exactly what is
+			// on screen. The trailing newline is `marked`'s, not the author's.
+			const codeEl = btn.parentElement?.querySelector('pre code') || btn.parentElement?.querySelector('pre');
+			const text = (codeEl?.textContent || '').replace(/\n$/, '');
+			if (!text) return;
+
+			navigator.clipboard?.writeText(text).then(() => {
+				if (copiedBtn && copiedBtn !== btn) {
+					setCopyState(copiedBtn, false);
+				}
+				clearTimeout(copyResetTimer);
+				copiedBtn = btn;
+				setCopyState(btn, true);
+				copyResetTimer = setTimeout(() => {
+					// A streaming re-render can have replaced the button by now.
+					if (copiedBtn?.isConnected) {
+						setCopyState(copiedBtn, false);
+					}
+					copiedBtn = null;
+				}, 800);
+			}).catch(() => {
+				// Clipboard refused — an insecure context, or permission denied.
+				// Leave the button alone rather than report a copy that never was.
+			});
+		};
+
+		node.addEventListener('click', onClick);
+		return {
+			destroy() {
+				clearTimeout(copyResetTimer);
+				node.removeEventListener('click', onClick);
+			}
+		};
+	}
+
 	let innerText = $derived.by(() => {
 		const normalizedText = typeof text !== 'string' ? `${JSON.stringify(text)}` : text;
 		const markedText = !rawText
-			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''), { renderer: liveLinkRenderer })?.toString())
-			: marked(normalizedText || '', { breaks: true, renderer: liveLinkRenderer })?.toString();
+			? replaceNewLine(marked(replaceMarkdown(normalizedText || ''), { renderer: markdownRenderer })?.toString())
+			: marked(normalizedText || '', { breaks: true, renderer: markdownRenderer })?.toString();
 		if (!!markedText && markedText.endsWith('<br>')) {
 			const idx = markedText.lastIndexOf('<br>');
 			return markedText.substring(0, idx);
@@ -157,6 +279,7 @@
 	class={`markdown-container markdown-lite ${containerClasses || 'text-white'}`}
 	style={`${containerStyles}`}
 	use:interceptLinks
+	use:interceptCodeCopy
 >
 	{@html innerText}
 	<!-- <SvelteMarkdown
@@ -257,7 +380,75 @@
         color: var(--color-primary);
     }
 
-    /* The line that offers a live view — see `liveLinkRenderer`.
+    /* Copy control on a fenced code block — see `withCopyButton`.
+
+       Absolutely positioned rather than given a header row of its own: these
+       blocks sit in chat bubbles a few hundred pixels wide, where a bar above
+       the code costs a line of the message. The wrapper has no padding or
+       border, so the `pre`'s top margin collapses through it and the wrapper's
+       top edge is the code's top edge, which is what the offsets below assume.
+
+       Quiet until the block is hovered or the button is focused, so it does not
+       compete with the code; always visible where there is no hover to reveal
+       it. */
+    .markdown-container :global(.md-code) {
+        position: relative;
+    }
+
+    .markdown-container :global(.md-code-copy) {
+        position: absolute;
+        top: 0.35rem;
+        right: 0.35rem;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        padding: 0.1rem 0.4rem;
+        font-size: 11px;
+        font-weight: 600;
+        line-height: 1.6;
+        color: rgb(255 255 255 / 0.75);
+        background: rgb(0 0 0 / 0.55);
+        border: 1px solid rgb(255 255 255 / 0.2);
+        border-radius: 999px;
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+    }
+
+    .markdown-container :global(.md-code-copy i) {
+        font-size: 13px;
+        line-height: 1;
+    }
+
+    .markdown-container :global(.md-code:hover .md-code-copy),
+    .markdown-container :global(.md-code-copy:focus-visible),
+    .markdown-container :global(.md-code-copy-done) {
+        opacity: 1;
+    }
+
+    @media (hover: none) {
+        .markdown-container :global(.md-code-copy) {
+            opacity: 1;
+        }
+    }
+
+    .markdown-container :global(.md-code-copy:hover) {
+        color: rgb(255 255 255);
+        background: rgb(0 0 0 / 0.78);
+    }
+
+    .markdown-container :global(.md-code-copy:focus-visible) {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    .markdown-container :global(.md-code-copy-done) {
+        color: var(--color-success, #22c55e);
+        border-color: color-mix(in srgb, var(--color-success, #22c55e) 45%, transparent);
+    }
+
+    /* The line that offers a live view — see the paragraph renderer.
 
        Quieter than the message it hangs off, and quieter than a link normally is here: it is a
        way in, offered under a finding somebody is reading, and at full accent it was the first
