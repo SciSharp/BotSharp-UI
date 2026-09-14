@@ -8,11 +8,18 @@
 	import { cubicOut } from "svelte/easing";
 
     /**
+     * `textOverride` renders the message as something other than what it holds — null (the
+     * default) means "as it arrived". The one caller uses it to drop a line whose content the
+     * page has moved elsewhere on screen, so the same link is not offered twice; the message
+     * itself is left alone, since anything that reads it back (copy, speak, edit) still wants
+     * what the agent actually said.
+     *
      * @type {{
      *   message?: import('$conversationTypes').ChatResponseModel | null,
      *   containerClasses?: string,
      *   containerStyles?: string,
      *   markdownClasses?: string,
+     *   textOverride?: string | null,
      *   isStreaming?: boolean
      * }}
      */
@@ -21,10 +28,11 @@
         containerClasses = '',
         containerStyles = '',
         markdownClasses = '',
+        textOverride = null,
         isStreaming = false
     } = $props();
 
-    let text = $derived(message?.rich_content?.message?.text || message?.text || '');
+    let text = $derived(textOverride ?? (message?.rich_content?.message?.text || message?.text || ''));
     let thinkingText = $derived(message?.thought?.thinking_text || '');
     let isThinking = $derived(thinkingText && !text && isStreaming);
     let isStoppedThinking = $derived(thinkingText && !text && !isStreaming);

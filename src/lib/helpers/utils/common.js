@@ -97,8 +97,8 @@ export function liveRunIdInText(text) {
 }
 
 /**
- * The live view a message points at — its run id, the URL to open, and the moment that URL
- * stops working — or null when the message has none.
+ * The live view a message points at — its run id, the URL to open, what that URL is authority
+ * over, and the moment it stops working — or null when the message has none.
  *
  * One URL covers a run's whole life. The executor's run page serves the live screen while the
  * run is going and the recorded history afterwards, deliberately ungated on the run being
@@ -106,7 +106,7 @@ export function liveRunIdInText(text) {
  * ends is the credential.
  *
  * @param {string | null | undefined} text
- * @returns {{ runId: string, url: string, expiresAt: number | null } | null}
+ * @returns {{ runId: string, url: string, kind: 'run' | 'replay' | null, expiresAt: number | null } | null}
  */
 export function liveViewInText(text) {
     if (!text) return null;
@@ -122,11 +122,43 @@ export function liveViewInText(text) {
 
         const runId = liveRunId(url);
         if (runId) {
-            return { runId, url: match[0], expiresAt: liveTokenExpiry(url.searchParams.get('t')) };
+            const token = url.searchParams.get('t');
+            return {
+                runId,
+                url: match[0],
+                kind: liveTokenKind(token),
+                expiresAt: liveTokenExpiry(token)
+            };
         }
     }
 
     return null;
+}
+
+/**
+ * What a run link is authority over: 'run' to watch and operate the browser while the step is
+ * going, 'replay' to read the recording afterwards. Null when the token does not say.
+ *
+ * Both kinds address the same `/run/<id>` page and are told apart only by their credential, so
+ * this is the ONLY way to tell "watch this now" from "here is what happened" — the wording
+ * cannot be relied on, since the producers phrase both several ways (see `isBareLiveLink` in
+ * chat-box). The kind is the first segment of the signed payload, which the executor documents
+ * as readable on purpose; only the signature is secret. See live-token.ts.
+ *
+ * An unrecognised prefix is UNKNOWN rather than either kind: a caller that needs one specific
+ * kind must not be handed a guess, and one that just wants a link ignores this field.
+ *
+ * @param {string | null} token
+ * @returns {'run' | 'replay' | null}
+ */
+function liveTokenKind(token) {
+    if (!token) return null;
+
+    const cut = token.indexOf(':');
+    if (cut <= 0) return null;
+
+    const kind = token.slice(0, cut);
+    return kind === 'run' || kind === 'replay' ? kind : null;
 }
 
 /**

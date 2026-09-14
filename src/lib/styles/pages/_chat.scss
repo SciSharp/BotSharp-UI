@@ -2336,17 +2336,23 @@
 }
 
 
-/* The live browser, offered above the composer while the agent is driving one.
+/* The run, offered above the composer: the live browser while the agent is driving one, and
+   afterwards the recording of what it did.
 
-   It sits in the footer rather than in the thread because the link is only good for the step
-   running now — an agent walking a flow starts a run per node and each node's link dies with
-   it. One current link beats a column of expired ones.
+   Both sit in the footer rather than in the thread because both are ways IN rather than things
+   the agent said. The live link is only good for the step running now — an agent walking a flow
+   starts a run per node and each node's link dies with it — so one current link beats a column
+   of expired ones. The recording is the opposite case and lands here for the opposite reason: it
+   stays good for weeks, and in the thread it was a line inside whichever step closed the flow,
+   already scrolled away by the time anyone wanted it.
 
-   Deliberately quiet: this is an offer, not an event. It must not read as a message, and it
-   must not push the composer around, hence the small fixed height and the flex-shrink. */
+   One strip at a time, so the two share a shape rather than stacking into a paragraph above the
+   box. Deliberately quiet: an offer, not an event. It must not read as a message, and it must
+   not push the composer around, hence the small fixed height and the flex-shrink. */
 
 
-.cb-live-view-strip {
+.cb-live-view-strip,
+.cb-replay-strip {
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -2364,7 +2370,8 @@
 }
 
 
-.cb-live-view-link {
+.cb-live-view-link,
+.cb-replay-link {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
@@ -2386,7 +2393,8 @@
    so it stays readable in either theme, and held well above the small-text contrast minimum. */
 
 
-.cb-live-view-note {
+.cb-live-view-note,
+.cb-replay-note {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;

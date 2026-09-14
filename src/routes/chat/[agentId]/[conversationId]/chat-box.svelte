@@ -57,6 +57,7 @@
 	import LocalStorageManager from '$lib/helpers/utils/storage-manager';
 	import { clickoutsideDirective } from '$lib/helpers/directives';
 	import { delay, directToAgentPage, formatNumber, liveRunIdInText, liveViewInText } from '$lib/helpers/utils/common';
+	import { openPopup } from '$lib/helpers/utils/desktop';
 	import { AgentExtensions } from '$lib/helpers/utils/agent';
 	import { utcToLocal } from '$lib/helpers/datetime';
 	import { replaceNewLine } from '$lib/helpers/http';
@@ -128,11 +129,19 @@
 	 * is a dead link within a minute or two, and a fifteen-node flow left fifteen of them. Pinned,
 	 * there is exactly one on screen and it is always the step running now.
 	 *
-	 * Arrives on the indication, after a `|` (see `onIndicationReceived`). Cleared only by
-	 * `resetProgress`, i.e. at the end of a turn — which for a flow is when the whole flow is
-	 * done, and is exactly when there is no longer a browser to watch.
+	 * Arrives on the indication, after a `|` (see `onIndicationReceived`). Held until
+	 * `resetProgress`, but not necessarily SHOWN that long — see `showLiveView`, which is what
+	 * the strip renders on.
 	 */
 	let liveViewUrl = $state('');
+	/**
+	 * How many messages the thread held when the pin above was adopted.
+	 *
+	 * The pin is retired by the note that reports the run it points at, and "reports" means
+	 * ARRIVES AFTER — every note of one flow carries the same session id, so without a mark the
+	 * first one would retire every later step's pin too.
+	 */
+	let liveViewMark = $state(0);
 	/**
 	 * Wall clock (ms) the progress line currently on screen started at, and its age in whole
 	 * seconds. `progressSince === 0` means nothing is being timed — no wait has begun since
@@ -305,6 +314,41 @@
 		return liveRunIdInText(dialogs[lastLink]?.rich_content?.message?.text || dialogs[lastLink]?.text);
 	});
 
+	/**
+	 * Whether the pin above the composer is still TRUE — whether there is a browser running right
+	 * now that this link would show you.
+	 *
+	 * Separate from HOLDING the url, because the two end at different moments and the pin used to
+	 * outlive both. The strip rendered on `liveViewUrl` alone, which only `resetProgress` clears —
+	 * and that runs on the user's next message or on Stop, never when the agent simply finishes.
+	 * So a completed flow sat under "Watch the execution · take the controls if it needs a hand"
+	 * indefinitely, offering the controls of a browser that had closed minutes earlier.
+	 *
+	 * Two ways it stops being true, and a finished flow hits both:
+	 *
+	 *   the turn ended       → nothing is running, whatever the last link said
+	 *   its run has reported → the note offering to REPLAY that run is the run saying it is over
+	 *
+	 * The second is the one a reader sees first: OneFlow offers the recording on the note that
+	 * closes the flow ("Replay the action"), and a live pin under a replay offer for the same run
+	 * is two contradictory things about one browser. Matched on the run id, not on the wording —
+	 * the producers word these notes several ways on purpose, see `isBareLiveLink` — and only over
+	 * notes that arrived after the pin, which is what `liveViewMark` is for.
+	 */
+	let showLiveView = $derived.by(() => {
+		if (!liveViewUrl || !isWaiting) return false;
+
+		const runId = liveRunIdInText(liveViewUrl);
+		if (!runId) return true;
+
+		for (let i = liveViewMark; i < dialogs.length; i++) {
+			const msg = dialogs[i];
+			if (!BOT_SENDERS.includes(msg?.sender?.role || '')) continue;
+			if (liveRunIdInText(msg?.rich_content?.message?.text || msg?.text) === runId) return false;
+		}
+		return true;
+	});
+
 	/** When the live-view link on screen stops working, or null when nothing on screen expires. */
 	let liveViewExpiresAt = $derived.by(() => {
 		for (let i = dialogs.length - 1; i >= 0; i--) {
@@ -312,7 +356,11 @@
 			if (!BOT_SENDERS.includes(msg?.sender?.role || '')) continue;
 
 			const view = liveViewInText(msg?.rich_content?.message?.text || msg?.text);
-			if (view) return view.expiresAt;
+			// Only a LIVE credential is worth a clock. It dies in thirty minutes, so a link left
+			// on screen has to be re-judged while the page sits open; a replay credential runs for
+			// a month (see live-token.ts), and ticking every half minute for thirty days to catch
+			// a moment nobody will be here for is a timer that never stops, for nothing.
+			if (view) return view.kind === 'replay' ? null : view.expiresAt;
 		}
 		return null;
 	});
@@ -339,6 +387,57 @@
 		}, 30_000);
 		return () => clearInterval(timer);
 	});
+
+	/**
+	 * The recording offered above the composer: the newest replay link the thread holds.
+	 *
+	 * Same slot as the live view and pinned for the same reason — a way IN to what the agent did
+	 * is not something the agent said — but this is the offer that OUTLIVES the flow. A live link
+	 * dies with its step; a replay credential is good for a month and what it opens is kept until
+	 * retention reclaims it. So the place for it is the one place a reader never has to scroll to
+	 * find: over the box they are about to type in. In the thread it was a line inside whichever
+	 * step happened to close the flow, and by the time anyone wanted it, it had scrolled away.
+	 *
+	 * Newest wins. Every web step of a conversation records into one session, so a flow's notes
+	 * all carry the same run id and the last of them simply holds the freshest credential for it.
+	 * A second flow is a different session, and the one worth offering is the one whose steps are
+	 * still on screen at the bottom.
+	 *
+	 * Read off the dialogs rather than tracked from the event that delivered it, so it survives a
+	 * reload: a flow runs for minutes and the recording is most wanted afterwards, which is
+	 * exactly when someone has refreshed the page.
+	 */
+	let pinnedReplay = $derived.by(() => {
+		for (let i = dialogs.length - 1; i >= 0; i--) {
+			const msg = dialogs[i];
+			if (!BOT_SENDERS.includes(msg?.sender?.role || '')) continue;
+
+			const view = liveViewInText(msg?.rich_content?.message?.text || msg?.text);
+			if (view?.kind === 'replay') return view;
+		}
+		return null;
+	});
+
+	/**
+	 * The recording as it is actually offered — the pin above, or null when the slot is not its
+	 * to take.
+	 *
+	 * The live view wins the slot whenever it is showing. There is one strip there, and "watch
+	 * this now, take the controls if it needs a hand" is the more urgent of the two: a run in
+	 * flight can be replayed a minute later from the note that closes it, but a browser stuck on
+	 * a password cannot wait.
+	 *
+	 * Withdrawn once the credential is refused, because from then on the link leads to an error
+	 * page. Nothing is said in its place — the recording itself may well still be there, and this
+	 * strip is an offer, not a report on the flow.
+	 */
+	let replayOnOffer = $derived(
+		!!pinnedReplay
+			&& !showLiveView
+			&& !(pinnedReplay.expiresAt && pinnedReplay.expiresAt <= linkClock)
+			? pinnedReplay
+			: null
+	);
 
 	/*
 	 * Ages the progress line once a second.
@@ -870,6 +969,54 @@
 	}
 
 	/**
+	 * A note with its replay offer taken out, or null to render the note exactly as it arrived.
+	 *
+	 * The offer moves to the strip above the composer instead of appearing in both places: one
+	 * link, in the spot that does not scroll away. The heading and what the step found stay as
+	 * written — only the line carrying the link goes.
+	 *
+	 * Three ways a note keeps its own link, and each of them is a case where taking it out would
+	 * cost the reader the only way in: the strip is not showing; the note is about some EARLIER
+	 * session than the one pinned; or the link is all the note has, so removing it would leave an
+	 * empty bubble (see `isBareLiveLink` — those are handled as system notes above anyway).
+	 *
+	 * @param {string | null | undefined} text
+	 */
+	function textWithoutPinnedReplay(text) {
+		if (!replayOnOffer) return null;
+
+		const view = liveViewInText(text);
+		if (view?.kind !== 'replay' || view.runId !== replayOnOffer.runId) return null;
+
+		const stripped = liveLinkFreeText(text);
+		return stripped.length > 0 ? stripped : null;
+	}
+
+	/**
+	 * Opens a run the way the thread does: beside the conversation, not on top of it.
+	 *
+	 * The link had this behaviour while it lived in a step note — Markdown.svelte intercepts run
+	 * links and hands them to `openPopup` — and moving it above the composer must not quietly
+	 * downgrade it to a navigation that abandons the conversation it belongs to. Same window
+	 * label as the thread uses, so watching a run and then replaying it reuses one window.
+	 *
+	 * The `href` stays real underneath: modified clicks are the reader's own instruction about
+	 * where to open something, and middle-click, ctrl-click and "copy link" all keep working.
+	 *
+	 * @param {MouseEvent} e
+	 * @param {{ runId: string, url: string }} view
+	 */
+	function openRunLink(e, view) {
+		if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+		e.preventDefault();
+		openPopup(view.url, {
+			label: `run-${view.runId}`,
+			title: `Recording · ${view.runId.slice(0, 8)}`
+		});
+	}
+
+	/**
 	 * Drops superseded live-view links — but only the notes that are nothing else.
 	 *
 	 * A bare link is pushed into the conversation each time a browser task starts, and they
@@ -1188,6 +1335,7 @@
 		// The turn is over, so there is no browser left to watch. What survives the flow is the
 		// RECORDING, and that link is written into the thread by whoever ran the flow.
 		liveViewUrl = '';
+		liveViewMark = 0;
 	}
 
 	/** `m:ss`. Minutes run past 60 rather than growing an hours field no run needs. */
@@ -1237,6 +1385,9 @@
 		const next = (url || '').trim();
 		if (next) {
 			liveViewUrl = next;
+			// Every note already in the thread is about an earlier step, so only what lands from
+			// here on can retire this pin. See `showLiveView`.
+			liveViewMark = dialogs.length;
 		}
 	}
 
@@ -2803,7 +2954,12 @@
 															still arriving so it cannot fold up under the reader mid-sentence.
 														-->
 														<CollapsibleText enabled={!isLive} padding={BUBBLE_PADDING_PX}>
-															<RcMessage markdownClasses={'markdown-dark cb-md-dark font-libre'} message={message} isStreaming={isStreaming || isThinking} />
+															<RcMessage
+																markdownClasses={'markdown-dark cb-md-dark font-libre'}
+																message={message}
+																textOverride={textWithoutPinnedReplay(messageText)}
+																isStreaming={isStreaming || isThinking}
+															/>
 														</CollapsibleText>
 													{/if}
 													<!-- Embedded content belongs to the
@@ -3012,7 +3168,7 @@
 							NOW: it expires with that step, so in the transcript it would be a dead
 							link a minute later, one per step. Here there is one, and it is current.
 						-->
-						{#if liveViewUrl}
+						{#if showLiveView}
 							<div class="cb-live-view-strip">
 								<a
 									class="cb-live-view-link"
@@ -3024,6 +3180,25 @@
 									<span>Watch the execution</span>
 								</a>
 								<span class="cb-live-view-note">take the controls if it needs a hand</span>
+							</div>
+						{/if}
+						<!--
+							The recording of what the agent did, in the same slot once the live run
+							is over — the offer a reader wants AFTER a flow, and the one they would
+							otherwise have to scroll back through fifteen step notes to find. Only
+							one of the two strips is ever up; see `replayOnOffer`.
+						-->
+						{#if replayOnOffer}
+							<div class="cb-replay-strip">
+								<a
+									class="cb-replay-link"
+									href={replayOnOffer.url}
+									onclick={e => openRunLink(e, replayOnOffer)}
+								>
+									<i class="mdi mdi-motion-play-outline" aria-hidden="true"></i>
+									<span>Replay the action</span>
+								</a>
+								<span class="cb-replay-note">the browser recording, every step of this flow</span>
 							</div>
 						{/if}
 						<div class="cb-input-row">
