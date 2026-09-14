@@ -1,5 +1,5 @@
 <script>
-    import { onMount, tick } from 'svelte';
+    import { onMount, tick, untrack } from 'svelte';
     import { page } from '$app/state';
     import moment from 'moment';
     import { v4 as uuidv4 } from 'uuid';
@@ -33,7 +33,6 @@
      * @type {{
      *   contentLogs?: import('$conversationTypes').ConversationContentLogModel[],
      *   convStateLogs?: import('$conversationTypes').ConversationStateLogModel[],
-     *   autoScroll?: boolean,
      *   isWaiting?: boolean,
      *   closeWindow: () => void,
      *   cleanScreen: () => void
@@ -42,7 +41,6 @@
     let {
         contentLogs = $bindable([]),
         convStateLogs = $bindable([]),
-        autoScroll = $bindable(false),
         isWaiting = false,
         closeWindow,
         cleanScreen
@@ -54,14 +52,13 @@
     let selectedTab = $state(contentLogTab);
 
     /*
-     * Same rule as the chat thread: incoming log entries never move a panel on
-     * their own. A panel follows the tail only while the user asked it to — by
-     * pressing its jump button — and scrolling away from the bottom cancels that.
+     * Same rule as the chat thread: a panel already parked at the bottom follows
+     * incoming entries, while one the user scrolled up in stays where they left
+     * it until they ask for the tail again with the jump button.
      * Indexes match `scrollbarElements`: 0 = content log, 1 = conversation states.
      */
     const BOTTOM_THRESHOLD_PX = 60;
     let isPinnedToBottom = $state([true, true]);
-    let followTail = $state([false, false]);
 
     let activeIndex = $derived(selectedTab === contentLogTab ? 0 : 1);
     let showJumpButton = $derived(!isPinnedToBottom[activeIndex]);
@@ -96,24 +93,42 @@
             pinToBottomWhileSettling();
         })();
 
+        // A pane scrolled to a specific entry is no longer on the tail. Its own
+        // scroll listener catches up a frame or two later; marking it here closes
+        // the window in which an arriving log entry would pull it back down.
+        const stopFollowing = () => { isPinnedToBottom = [false, false]; };
+        window.addEventListener(CANCEL_PIN_EVENT, stopFollowing);
+
         return () => {
+            window.removeEventListener(CANCEL_PIN_EVENT, stopFollowing);
             cleanLogs();
         };
 	});
 
     $effect(() => {
-        // Re-run whenever autoScroll or logs change. Only panels the user put in
-        // follow mode are moved; the rest stay where they were left.
+        // Re-run whenever either log list changes. Panels sitting at the bottom
+        // ride along with the new entries; the rest stay where they were left.
+        // `isPinnedToBottom` is read untracked so that scroll()'s own write to it
+        // cannot re-trigger this effect.
         contentLogs;
         convStateLogs;
-        if (autoScroll) {
-            followTail.forEach((following, idx) => {
-                if (following) {
+        untrack(() => {
+            isPinnedToBottom.forEach((pinned, idx) => {
+                if (pinned) {
                     scroll(false, idx);
                 }
             });
-        }
+        });
     });
+
+    /**
+     * A panel in the hidden tab is `display: none`, so its scroll metrics read as
+     * zero and mean nothing - neither worth measuring nor worth scrolling.
+     * @param {HTMLElement} viewport
+     */
+    function isViewportVisible(viewport) {
+        return viewport.clientHeight > 0;
+    }
 
     /** Keep `isPinnedToBottom` in step with where the user has scrolled each panel. */
     function trackBottomProximity() {
@@ -122,12 +137,11 @@
 
             const { viewport } = scrollbar.elements();
             const update = () => {
+                // Keep the last known state for a panel whose tab is hidden.
+                if (!isViewportVisible(viewport)) return;
+
                 const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
-                const atBottom = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
-                isPinnedToBottom[idx] = atBottom;
-                if (!atBottom) {
-                    followTail[idx] = false;
-                }
+                isPinnedToBottom[idx] = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
             };
             update();
             viewport.addEventListener('scroll', update, { passive: true });
@@ -137,16 +151,22 @@
         });
     }
 
-    let _scrollScheduled = false;
+    /**
+     * Pending scrolls keyed by target - panel index, or 'all' - so a scroll already
+     * queued for one panel does not swallow another panel's.
+     * @type {Set<number | string>}
+     */
+    const _scrollScheduled = new Set();
     /**
      * @param {boolean} goToTop
      * @param {number | null} index Panel to scroll, or null for every panel.
      */
     function scroll(goToTop = false, index = null) {
-        if (_scrollScheduled) {
+        const key = index === null ? 'all' : index;
+        if (_scrollScheduled.has(key)) {
             return;
         }
-        _scrollScheduled = true;
+        _scrollScheduled.add(key);
         requestAnimationFrame(() => {
             setTimeout(() => {
                 // @ts-ignore
@@ -154,19 +174,23 @@
                     if (index !== null && idx !== index) return;
 
                     const { viewport } = scrollbar.elements();
+                    // Scrolling a hidden panel would only park it at 0, since its
+                    // scrollHeight reads as 0 while the tab is closed. It is
+                    // re-pinned when its tab is opened instead.
+                    if (!isViewportVisible(viewport)) return;
+
                     viewport.scrollTo({ top: goToTop ? 0 : viewport.scrollHeight, behavior: 'smooth' });
                     if (!goToTop) {
                         isPinnedToBottom[idx] = true;
                     }
                 });
-                _scrollScheduled = false;
+                _scrollScheduled.delete(key);
             }, 150);
         });
     }
 
     /** The jump button: go to the tail of the visible panel and follow it from there. */
     function jumpToBottom() {
-        followTail[activeIndex] = true;
         scroll(false, activeIndex);
     }
 
@@ -277,11 +301,18 @@
     }
     
     /** @param {number} selected */
-    function handleTabClick(selected) {
+    async function handleTabClick(selected) {
         if (selectedTab === selected) {
             return;
         }
         selectedTab = selected;
+
+        // A hidden panel is `display: none`, which drops its scroll position, so a
+        // panel that was following the tail is put back on it when it reappears.
+        await tick();
+        if (isPinnedToBottom[activeIndex]) {
+            scroll(false, activeIndex);
+        }
     }
 
     async function goToTopLog() {

@@ -2803,7 +2803,7 @@
 
 
 /* ===== Popup container ===== */
-.cta-popup {
+.cta-overlay {
     position: absolute;
     bottom: calc(100% + 6px);
     left: 0;
@@ -2920,7 +2920,7 @@
 /* ===== Dark mode ===== */
 
 
-.dark .cta-popup {
+.dark .cta-overlay {
     background-color: rgb(31 41 55);
     border-color: rgb(55 65 81);
     color: rgb(229 231 235);
@@ -3575,6 +3575,10 @@
 .cle-meta {
     position: relative;
     z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
     font-size: 13px;
     color: color-mix(in srgb, white 68%, transparent);
     margin-bottom: 8px;
@@ -3591,6 +3595,19 @@
         height: 1px;
         background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-secondary) 28%, transparent), transparent);
     }
+}
+
+
+/* First meta line: agent name on the left, copy button on the right.
+   The timestamp sits on its own line below. */
+
+
+.cle-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
 }
 
 
@@ -3634,13 +3651,69 @@
 }
 
 
+/* Per-log copy button in the meta row. Sits at low opacity until the log
+   element is hovered or the button itself is focused, so it never competes
+   with the log text. */
+
+
+.cle-copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 0 0 auto;
+    padding: 0.16rem 0.5rem;
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    color: color-mix(in srgb, white 72%, transparent);
+    background: color-mix(in srgb, black 18%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-secondary) 26%, transparent);
+    border-radius: 999px;
+    cursor: pointer;
+    opacity: 0.45;
+    transition: opacity 0.15s ease, color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+
+
+    i {
+        font-size: 13px;
+    }
+
+
+    &:hover {
+        color: rgb(255 255 255);
+        background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
+        border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
+    }
+
+
+    &:focus-visible {
+        opacity: 1;
+        outline: 2px solid color-mix(in srgb, var(--color-primary) 55%, transparent);
+        outline-offset: 2px;
+    }
+}
+
+
+.cle-element:hover .cle-copy-btn,
+.cle-copy-btn:focus-visible,
+.cle-copy-btn-done {
+    opacity: 1;
+}
+
+
+.cle-copy-btn-done {
+    color: color-mix(in srgb, var(--color-success, #22c55e) 70%, white);
+    border-color: color-mix(in srgb, var(--color-success, #22c55e) 40%, transparent);
+    background: color-mix(in srgb, var(--color-success, #22c55e) 14%, transparent);
+}
+
+
 /* Timestamp suffix (replaces Bootstrap .ms-2) */
 
 
 .cle-meta-ts {
     display: inline-flex;
     align-items: center;
-    margin-left: 0.5rem;
     padding: 0.12rem 0.45rem;
     font-size: 11px;
     color: color-mix(in srgb, white 58%, transparent);
@@ -3919,58 +3992,6 @@
 .cle-text-info {
     color: color-mix(in srgb, var(--color-info, #0ea5e9) 78%, white 22%);
     text-shadow: 0 0 14px color-mix(in srgb, var(--color-info, #0ea5e9) 18%, transparent);
-}
-
-
-/* Collapsed text clamp (replaces .log-collapse nested under .log-content).
-   Note: -webkit-line-clamp with display:-webkit-box forces the browser to
-   resolve overflow-x to 'auto' even if we only set overflow-y:hidden,
-   which surfaces a native horizontal scrollbar whenever the clamped
-   content has long lines. Setting overflow:hidden (both axes) clips
-   cleanly without ever showing a scrollbar in collapsed state. */
-
-
-.cle-collapse {
-    overflow: hidden;
-    height: fit-content;
-    max-height: 200px;
-    display: -webkit-box;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 10;
-}
-
-
-/* Whole collapsible block is a toggle target; the More/Less button stays. */
-.cle-content-clickable {
-    cursor: pointer;
-}
-
-
-/* More/Less toggle (replaces .btn.btn-link.toggle-btn.btn-sm) */
-
-
-.cle-toggle-btn {
-    background: color-mix(in srgb, var(--color-primary) 11%, transparent);
-    border: 1px solid color-mix(in srgb, var(--color-primary) 16%, transparent);
-    outline: none;
-    box-shadow: none;
-    color: color-mix(in srgb, var(--color-primary) 75%, white);
-    font-size: 12px;
-    font-weight: 700;
-    padding: 0.18rem 0.55rem;
-    margin-top: 8px;
-    border-radius: 999px;
-    cursor: pointer;
-    transition: color 0.15s ease, background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
-
-
-    &:hover {
-        color: rgb(255 255 255);
-        background-color: color-mix(in srgb, var(--color-primary) 20%, transparent);
-        border-color: color-mix(in srgb, var(--color-primary) 35%, transparent);
-        transform: translateY(-1px);
-        text-decoration: none;
-    }
 }
 
 
@@ -5418,7 +5439,7 @@
     }
 
 
-    .cta-popup {
+    .cta-overlay {
         bottom: calc(100% + 8px);
         max-height: 14rem;
         font-size: 0.75rem;

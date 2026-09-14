@@ -238,37 +238,37 @@
 />
 
 {#if agent}
-<div class="ad-page">
-    <div class="ad-grid">
-        <div class="ad-col ad-col-left">
-            <div class="ad-section">
+<div class="agd-page">
+    <div class="agd-grid">
+        <div class="agd-col agd-col-left">
+            <div class="agd-section">
                 <AgentOverview
                     bind:agent={agent}
                     bind:profiles={agent.profiles}
                     bind:labels={agent.labels}
                 />
             </div>
-            <div class="ad-section">
+            <div class="agd-section">
                 <AgentTabs
                     bind:this={agentTabsCmp}
                     agent={agent}
                 />
             </div>
         </div>
-        <div class="ad-col ad-col-right">
-            <div class="ad-section">
+        <div class="agd-col agd-col-right">
+            <div class="agd-section">
                 <AgentInstruction
                     bind:this={agentInstructionCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="ad-section">
+            <div class="agd-section">
                 <AgentTemplate
                     bind:this={agentTemplateCmp}
                     bind:agent={agent}
                 />
             </div>
-            <div class="ad-section">
+            <div class="agd-section">
                 <AgentFunction
                     bind:this={agentFunctionCmp}
                     bind:agent={agent}
@@ -278,10 +278,10 @@
     </div>
 
     {#if !!AgentExtensions.editable(agent)}
-        <div class="ad-action-bar">
+        <div class="agd-action-bar">
             <button
                 type="button"
-                class="ad-btn ad-btn-primary"
+                class="agd-btn agd-btn-primary"
                 onclick={() => updateCurrentAgent()}
             >
                 <i class="bx bx-check"></i>
@@ -289,7 +289,7 @@
             </button>
             <button
                 type="button"
-                class="ad-btn ad-btn-ghost"
+                class="agd-btn agd-btn-ghost"
                 onclick={() => exportAgent()}
             >
                 <i class="mdi mdi-download"></i>
@@ -297,7 +297,7 @@
             </button>
             <button
                 type="button"
-                class="ad-btn ad-btn-danger"
+                class="agd-btn agd-btn-danger"
                 onclick={() => deleteCurrentAgent()}
             >
                 <i class="bx bx-trash"></i>

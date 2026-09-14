@@ -67,6 +67,7 @@
 	import RichContent from './rich-content/rich-content.svelte';
 	import RcMessage from "./rich-content/rc-message.svelte";
 	import RcDisclaimer from './rich-content/rc-disclaimer.svelte';
+	import CollapsibleText from '$lib/common/shared/CollapsibleText.svelte';
 	import RcEmbedding from './rich-content/rc-embedding.svelte';
 	import MessageFileGallery from '$lib/common/files/MessageFileGallery.svelte';
 	import ChatUtil from './chat-util/chat-util.svelte';
@@ -174,15 +175,16 @@
     let scrollbars = $state([]);
 	/** Within this many px of the bottom the thread counts as "at the bottom". */
 	const BOTTOM_THRESHOLD_PX = 80;
-	let isPinnedToBottom = $state(true);
+	/** A bubble's own top + bottom padding, which sits inside its measured height. */
+	const BUBBLE_PADDING_PX = 20;
 	/*
-	 * Incoming socket messages never move the viewport on their own. They only keep
-	 * it at the bottom while the user has explicitly asked to follow along — by
-	 * sending a message, or by pressing the jump button (including while a reply is
-	 * still streaming, which is the point of it being clickable in that state).
-	 * Scrolling away from the bottom cancels the follow.
+	 * Whether the thread is following the tail. Incoming socket messages and stream
+	 * chunks move the viewport only while it is already at the bottom, so reading
+	 * back through history is never interrupted; scrolling back down resumes the
+	 * follow, as does the jump button (which works while a reply is still streaming,
+	 * the point of it being clickable in that state).
 	 */
-	let followStream = $state(false);
+	let isPinnedToBottom = $state(true);
 
 	/** @type {import('$conversationTypes').ConversationModel} */
     let conversation = $state(/** @type {any} */ (undefined));
@@ -248,7 +250,6 @@
 	let isListening = $state(false);
 	let isLite = $state(false);
 	let isFrame = $state(false);
-	let autoScrollLog = $state(false);
 	let loadChatUtils = $state(false);
 	let disableSpeech = $state(false);
 	let isLoading = $state(false);
@@ -523,8 +524,11 @@
 			const top = viewport.scrollTop + target.getBoundingClientRect().top
 				- viewport.getBoundingClientRect().top - 16;
 			viewport.scrollTo({ top, behavior: 'smooth' });
-			// A jump to history is a deliberate move away from the tail.
-			followStream = false;
+			// A jump into history is a deliberate move away from the tail. The scroll
+			// listener would work this out on its own once the smooth scroll starts,
+			// but a message landing in the same frame would read the stale value and
+			// drag the thread straight back down.
+			isPinnedToBottom = false;
 		}
 		activeIndexId = messageId;
 		directToLog(messageId);
@@ -608,7 +612,8 @@
 	/**
 	 * New messages only pull the thread down while the user is already reading
 	 * the bottom of it. Once they scroll up, auto-scroll stops fighting them and
-	 * the "jump to latest" button takes over.
+	 * the "jump to latest" button takes over; scrolling back down to the bottom
+	 * puts the thread on the tail again.
 	 */
 	function trackBottomProximity() {
 		const scrollbar = scrollbars[0];
@@ -618,9 +623,6 @@
 		const update = () => {
 			const distanceFromBottom = viewport.scrollHeight - viewport.scrollTop - viewport.clientHeight;
 			isPinnedToBottom = distanceFromBottom <= BOTTOM_THRESHOLD_PX;
-			if (!isPinnedToBottom) {
-				followStream = false;
-			}
 			updateActiveIndex(viewport);
 		};
 		update();
@@ -851,9 +853,6 @@
 	 * bottom — used by the explicit "jump to latest" button, never by new messages.
 	 */
 	function autoScrollToBottom(force = false) {
-		if (force) {
-			followStream = true;
-		}
 		if (!force && !isPinnedToBottom) return;
 		if (_autoScrollScheduled) return;
 		_autoScrollScheduled = true;
@@ -1111,12 +1110,11 @@
 			resetProgress();
 		}
 
-		autoScrollLog = true;
 		dialogs.push({
 			...message,
 			is_chat_message: true
 		});
-		refresh(!followStream);
+		refresh();
 		text = "";
     }
 
@@ -1147,7 +1145,7 @@
 
 		isStreaming = false;
 		latestStateLog = message.states;
-		refresh(!followStream);
+		refresh();
 
 		if (isFrame) {
 			window.parent.postMessage(message, "*");
@@ -1171,7 +1169,7 @@
 			});
 		}
 
-		refresh(!followStream);
+		refresh();
 
 		if (isFrame) {
 			window.parent.postMessage(message, "*");
@@ -1194,7 +1192,7 @@
 				}
 			});
 		}
-		refresh(!followStream);
+		refresh();
 	}
 
 
@@ -1217,7 +1215,7 @@
 					}
 					dialogs[dialogs.length - 1].text += message.text;
 					refreshDialogs();
-					if (followStream) autoScrollToBottom();
+					autoScrollToBottom();
 				}, 0);
 			}
 		} else {
@@ -1253,7 +1251,7 @@
 					for (const tt of thinkingText) {
 						dialogs[dialogs.length - 1].thought.thinking_text += tt;
 						refreshDialogs();
-						if (followStream) autoScrollToBottom();
+						autoScrollToBottom();
 						await delay(10);
 					}
 				}
@@ -1261,7 +1259,7 @@
 				for (const char of item.text) {
 					dialogs[dialogs.length - 1].text += char;
 					refreshDialogs();
-					if (followStream) autoScrollToBottom();
+					autoScrollToBottom();
 					await delay(10);
 				}
 			} catch (err) {
@@ -1274,7 +1272,7 @@
 	/** @param {import('$conversationTypes').ChatResponseModel} message */
 	function afterReceiveLlmStreamMessage(message) {
 		isStreaming = false;
-		refresh(!followStream);
+		refresh();
 	}
 
 	function stopStreaming() {
@@ -2797,23 +2795,31 @@
 															</div>
 														</div>
 													{:else}
-														<div
-															class="cb-user-msg-link"
-															tabindex="0"
-															aria-label="user-msg-to-log"
-															role="link"
-															onkeydown={() => {}}
-															onclick={() => directToLog(message.message_id)}
-														>
+														<!--
+															A long message is clipped to a readable height; clicking it, or the
+															toggle under it, swaps between the clipped and the full text. The
+															bubble's own click (jump to this turn in the log panes) is
+															unchanged and still fires alongside.
+														-->
+														<CollapsibleText align={'end'} padding={BUBBLE_PADDING_PX}>
 															<div
-																class="cb-bubble cb-bubble-user"
-																class:cb-clickable={!isLite && isLoadPersistLog}
-																class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
-																id={`user-msg-${message.message_id}`}
+																class="cb-user-msg-link"
+																tabindex="0"
+																aria-label="user-msg-to-log"
+																role="link"
+																onkeydown={() => {}}
+																onclick={() => directToLog(message.message_id)}
 															>
-																<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
+																<div
+																	class="cb-bubble cb-bubble-user"
+																	class:cb-clickable={!isLite && isLoadPersistLog}
+																	class:cb-bubble-user-danger={highlightedMsgId === message.message_id}
+																	id={`user-msg-${message.message_id}`}
+																>
+																	<div class="cb-bubble-text-user font-libre">{@html replaceNewLine(message.text)}</div>
+																</div>
 															</div>
-														</div>
+														</CollapsibleText>
 														<p class="cb-chat-time">
 															<i class="bx bx-time-five cb-align-middle cb-chat-time-icon"></i>
 															{utcToLocal(message.created_at, 'h:mm:ss A')}
@@ -2940,12 +2946,21 @@
 															</div>
 														</div>
 													{:else}
-														<RcMessage
-															markdownClasses={'markdown-dark cb-md-dark font-libre'}
-															message={message}
-															textOverride={textWithoutPinnedReplay(messageText)}
-															isStreaming={isStreaming || isThinking}
-														/>
+														{@const isLive = message?.message_id === lastBotMsg?.message_id
+															&& message?.uuid === lastBotMsg?.uuid
+															&& (isStreaming || isHandlingQueue || isThinking)}
+														<!--
+															Same clipping as the user's messages, held off while this reply is
+															still arriving so it cannot fold up under the reader mid-sentence.
+														-->
+														<CollapsibleText enabled={!isLive} padding={BUBBLE_PADDING_PX}>
+															<RcMessage
+																markdownClasses={'markdown-dark cb-md-dark font-libre'}
+																message={message}
+																textOverride={textWithoutPinnedReplay(messageText)}
+																isStreaming={isStreaming || isThinking}
+															/>
+														</CollapsibleText>
 													{/if}
 													<!-- Embedded content belongs to the
 														 message that produced it, so it renders inline here rather than in
@@ -3306,7 +3321,6 @@
 			<PersistLog
 				bind:contentLogs={contentLogs}
 				bind:convStateLogs={convStateLogs}
-				bind:autoScroll={autoScrollLog}
 				isWaiting={isWaiting}
 				closeWindow={() => closePersistLog()}
 				cleanScreen={() => cleanPersistLogScreen()}
