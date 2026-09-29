@@ -3,7 +3,6 @@
     import Select from '$lib/common/dropdowns/Select.svelte';
 
     const duration = 200;
-    const limit = 10;
 
     /**
      * @type {{
@@ -207,25 +206,23 @@
                 </div>
             {/each}
 
-            {#if mcp.functions?.length < limit}
-                <div class="mti-list-item">
-                    <div class="mti-label">
-                        {mcp.functions.length === 0 ? 'Functions' : ''}
-                    </div>
-                    <div class="mti-value">
-                        <i
-                            class="bx bx-list-plus mti-add-list"
-                            data-bs-toggle="tooltip"
-                            data-bs-placement="top"
-                            title="Add function"
-                            role="link"
-                            tabindex="0"
-                            onkeydown={() => {}}
-                            onclick={() => addMcpItem('function')}
-                        ></i>
-                    </div>
+            <div class="mti-list-item">
+                <div class="mti-label">
+                    {mcp.functions.length === 0 ? 'Functions' : ''}
                 </div>
-            {/if}
+                <div class="mti-value">
+                    <i
+                        class="bx bx-list-plus mti-add-list"
+                        data-bs-toggle="tooltip"
+                        data-bs-placement="top"
+                        title="Add function"
+                        role="link"
+                        tabindex="0"
+                        onkeydown={() => {}}
+                        onclick={() => addMcpItem('function')}
+                    ></i>
+                </div>
+            </div>
         </div>
     </div>
     {/if}
