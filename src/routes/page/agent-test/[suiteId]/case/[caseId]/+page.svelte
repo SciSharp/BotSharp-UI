@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
@@ -49,9 +49,16 @@
 	/** @type {import('$agentTestTypes').AgentTestSuite | null} */
 	let suite = $state(null);
 
-	/** Function names this agent can actually call, for the mock/assertion pickers. */
-	/** @type {string[]} */
-	let mockTargets = $state([]);
+	/**
+	 * Function names per agent id, for the mock and tool-assertion pickers.
+	 *
+	 * Keyed by agent rather than held as one flat list because one case can reach past the suite's
+	 * agent: it can enter on a different one, and the negative form of a routing assertion
+	 * (`toolNotCalled` on the signature tool of the agent the conversation must stay away from) names
+	 * a tool that by definition belongs to someone else.
+	 * @type {Record<string, string[]>}
+	 */
+	let mockTargetsByAgent = $state({});
 
 	let isSaving = $state(false);
 
@@ -145,6 +152,15 @@
 	/** @type {{ label: string, value: string }[]} */
 	let agentOptions = $state([]);
 
+	/**
+	 * The same agents keyed by name instead of id, for the assertion pickers.
+	 *
+	 * `routedToAgent` and `agentChain` accept either identifier -- AgentChainHop.Matches compares the
+	 * expected token against both -- and the name is the one worth storing: it is what the run report
+	 * prints in the expected and actual columns, and a guid there tells a reviewer nothing.
+	 */
+	let agentNameOptions = $derived(agentOptions.map(o => ({ label: o.label, value: o.label })));
+
 	let form = $state({
 		name: '',
 		enabled: true,
@@ -165,6 +181,34 @@
 		mocks: [],
 		unmockedToolPolicy: 'Block',
 		sourceConversationId: null
+	});
+
+	/**
+	 * Every agent whose tools this case might name: the suite's, because it is the default entry; the
+	 * case's own entry agent, because it can override that; and the involved agents, which is exactly
+	 * the field for "the other agents this case is about".
+	 */
+	let toolAgentIds = $derived([...new Set([
+		/** @type {any} */ (suite)?.agentId,
+		form.entryAgentId,
+		...(form.involvedAgents || [])
+	].filter(Boolean))]);
+
+	/** Tool names for the pickers, de-duplicated and sorted across those agents. */
+	let toolOptions = $derived([...new Set(toolAgentIds.flatMap(id => mockTargetsByAgent[id] || []))]
+		.sort((a, b) => a.localeCompare(b))
+		.map(name => ({ label: name, value: name })));
+
+	/**
+	 * Keep the tool cache covering whatever agents the case currently names. An effect rather than a
+	 * call at each of the five places the agent fields can change -- load, chat authoring, undo, and
+	 * the two pickers -- because missing one of them is a picker that silently offers the wrong agent's
+	 * tools.
+	 */
+	$effect(() => {
+		const ids = toolAgentIds;
+		// The cache is read and written inside; tracking it would re-run this on its own writes.
+		untrack(() => ensureMockTargets(ids));
 	});
 
 	/** Blocking problems, recomputed on every keystroke and shown before the user can save. */
@@ -195,12 +239,8 @@
 		return getSuite(suiteId).then(res => {
 			suite = res;
 			loadAgentOptions();
-			return getMockTargets(res.agentId).then(targets => {
-				mockTargets = targets || [];
-			}).catch(() => {
-				// A missing target list only costs autocomplete; the editor still works.
-				mockTargets = [];
-			});
+			// The tool lists are not fetched here: `suite.agentId` feeds `toolAgentIds`, and the effect
+			// watching it picks this agent up along with the case's own.
 		}).catch(err => {
 			suite = null;
 			loadErrorText = errorMessage(err, t('Failed to load the suite this case belongs to.'));
@@ -232,6 +272,29 @@
 		}
 		const separator = value.indexOf('/');
 		chatModel = { provider: value.slice(0, separator), model: value.slice(separator + 1) };
+	}
+
+	/**
+	 * Fetch and cache the tool list for any agent not already fetched.
+	 *
+	 * Cached rather than re-fetched because the entry agent picker gets flipped back and forth while an
+	 * author works out which agent a case belongs on, and because the same agent is usually both the
+	 * suite's and one of the involved.
+	 * @param {string[]} ids
+	 */
+	async function ensureMockTargets(ids) {
+		const missing = ids.filter(id => !(id in mockTargetsByAgent));
+		if (missing.length === 0) return;
+
+		// Claimed before the first await, so a second pass triggered while these are in flight does not
+		// queue the same agent again.
+		missing.forEach(id => { mockTargetsByAgent[id] = []; });
+
+		await Promise.all(missing.map(id => getMockTargets(id)
+			.then((/** @type {string[]} */ targets) => { mockTargetsByAgent[id] = targets || []; })
+			// A list that fails to load costs that agent its options and nothing more -- every picker
+			// keeps a manual escape hatch, so the case is still authorable.
+			.catch(() => {})));
 	}
 
 	function loadAgentOptions() {
@@ -312,6 +375,8 @@
 			})),
 			mocks: (res.mocks || []).map((/** @type {any} */ m) => ({
 				functionName: m.functionName || '',
+				// Editor-only, like the assertion flags above -- buildPayload never sends it.
+				manualFunctionName: false,
 				argsMatchJson: m.argsMatchJson || '',
 				callIndex: m.callIndex ?? null,
 				resultContent: m.resultContent || '',
@@ -330,7 +395,12 @@
 		};
 	}
 
-	/** @param {any} a */
+	/**
+	 * `manualTarget` and `manualExpected` are editor-only: they say "this author asked for a text box
+	 * instead of the picker". They never reach the API -- buildPayload's cleanAssertion lists the six
+	 * fields the backend has -- and they start false so a freshly loaded case shows pickers.
+	 * @param {any} a
+	 */
 	function normalizeAssertion(a) {
 		return {
 			type: a?.type || 'outputContains',
@@ -338,7 +408,9 @@
 			expected: a?.expected || '',
 			argsMatchJson: a?.argsMatchJson || '',
 			minScore: a?.minScore ?? null,
-			fatal: !!a?.fatal
+			fatal: !!a?.fatal,
+			manualTarget: false,
+			manualExpected: false
 		};
 	}
 
@@ -367,7 +439,10 @@
 	}
 
 	function newAssertion() {
-		return { type: 'outputContains', target: '', expected: '', argsMatchJson: '', minScore: null, fatal: false };
+		return {
+			type: 'outputContains', target: '', expected: '', argsMatchJson: '',
+			minScore: null, fatal: false, manualTarget: false, manualExpected: false
+		};
 	}
 
 	function newState() {
@@ -375,7 +450,10 @@
 	}
 
 	function newMock() {
-		return { functionName: '', argsMatchJson: '', callIndex: null, resultContent: '', stopCompletion: false, stateWrites: [] };
+		return {
+			functionName: '', argsMatchJson: '', callIndex: null, resultContent: '',
+			stopCompletion: false, stateWrites: [], manualFunctionName: false
+		};
 	}
 
 	/**
@@ -586,6 +664,12 @@
 		} else if (isMode) {
 			assertion.target = '';
 		}
+
+		// Both fields mean something different under the new type, so an explicit "let me type it" from
+		// the old one does not carry over. A value the new picker cannot show still opens in the text
+		// box on its own -- see isManualEntry.
+		assertion.manualTarget = false;
+		assertion.manualExpected = false;
 	}
 
 	/** @param {any} assertion @param {any} e */
@@ -594,6 +678,106 @@
 		if (selecteds.length > 0) {
 			assertion.target = selecteds[0].value;
 		}
+	}
+
+	/* ------------------------------------------------------------------
+	 * Pickers with a manual escape hatch
+	 *
+	 * A tool name and an agent name are both things the author has in front of them and cannot spell
+	 * from memory, and both fail silently when mistyped: a `toolCalled` on a function that does not
+	 * exist can never pass, and a `routedToAgent` on a misspelt agent fails every run while looking
+	 * like a real regression. So both are picked, not typed.
+	 *
+	 * They still fall back to a text box, because neither catalogue is the whole truth: MCP tools are
+	 * discovered at run time, a stored case can name a function its agent has since dropped, and the
+	 * tool list only covers the agents this case names. A value the picker cannot show switches its own
+	 * row to the text box rather than being quietly lost on the next save.
+	 * ------------------------------------------------------------------ */
+
+	/**
+	 * @param {string} value
+	 * @param {{ value: string }[]} options
+	 */
+	function isOffCatalogue(value, options) {
+		const trimmed = (value || '').trim();
+		return !!trimmed && !options.some(o => o.value === trimmed);
+	}
+
+	/**
+	 * Whether one field is showing a text box right now -- either the author asked for it, or the value
+	 * it holds is not one the picker can offer.
+	 * @param {any} holder @param {string} flag @param {string} field @param {{ value: string }[]} options
+	 */
+	function isManualEntry(holder, flag, field, options) {
+		return holder[flag] === true || isOffCatalogue(holder[field], options);
+	}
+
+	/**
+	 * @param {any} holder @param {string} flag @param {string} field @param {{ value: string }[]} options
+	 */
+	function toggleManualEntry(holder, flag, field, options) {
+		if (isManualEntry(holder, flag, field, options)) {
+			// Going back to the picker has to drop a value the picker cannot represent, or the toggle
+			// would appear to do nothing -- isManualEntry would put the row straight back in the box.
+			if (isOffCatalogue(holder[field], options)) holder[field] = '';
+			holder[flag] = false;
+		} else {
+			holder[flag] = true;
+		}
+	}
+
+	/**
+	 * Single-select Select -> one string field. An empty selection is the dropdown's own
+	 * "Clear selection", which here means "not chosen yet".
+	 * @param {any} holder @param {string} field @param {any} e
+	 */
+	function pickValue(holder, field, e) {
+		const selecteds = e?.detail?.selecteds || [];
+		holder[field] = selecteds.length > 0 ? selecteds[0].value : '';
+	}
+
+	/* ------------------------------------------------------------------
+	 * agentChain expected list
+	 *
+	 * Stored as the comma-separated string the backend parses, edited as an ordered list. Ordered, not
+	 * a multi-select: in `ordered` and `exact` modes the sequence IS the assertion, and a multi-select
+	 * hands back its options in list order, not click order.
+	 * ------------------------------------------------------------------ */
+
+	/** @param {string} value */
+	function parseAgentChain(value) {
+		return (value || '').split(',').map(x => x.trim()).filter(Boolean);
+	}
+
+	/** @param {any} assertion @param {string[]} list */
+	function setAgentChain(assertion, list) {
+		assertion.expected = list.join(', ');
+	}
+
+	/** @param {any} assertion @param {any} e */
+	function addChainAgent(assertion, e) {
+		const selecteds = e?.detail?.selecteds || [];
+		if (selecteds.length === 0) return;
+		// Not de-duplicated: a conversation can hand off and come back, and A -> B -> A is a chain a
+		// case has every reason to assert.
+		setAgentChain(assertion, [...parseAgentChain(assertion.expected), selecteds[0].value]);
+	}
+
+	/** @param {any} assertion @param {number} index */
+	function removeChainAgent(assertion, index) {
+		const list = parseAgentChain(assertion.expected);
+		list.splice(index, 1);
+		setAgentChain(assertion, list);
+	}
+
+	/** @param {any} assertion @param {number} index @param {number} delta */
+	function moveChainAgent(assertion, index, delta) {
+		const list = parseAgentChain(assertion.expected);
+		const target = index + delta;
+		if (target < 0 || target >= list.length) return;
+		const [moved] = list.splice(index, 1);
+		list.splice(target, 0, moved);
+		setAgentChain(assertion, list);
 	}
 
 	/** @param {any} e */
@@ -697,6 +881,13 @@
 
 {#snippet assertionRows(list, idPrefix)}
 	{#each list as assertion, i}
+		<!-- Which of the two fields is a picker right now. Also decides whether the label may carry a
+		     `for`: Select renders its own button under its own id, so a `for` aimed at the plain-input
+		     id would point at nothing and announce an unlabelled control. -->
+		{@const toolPicked = ['toolCalled', 'toolNotCalled'].includes(assertion.type)
+			&& !isManualEntry(assertion, 'manualTarget', 'target', toolOptions)}
+		{@const agentPicked = assertion.type === 'routedToAgent'
+			&& !isManualEntry(assertion, 'manualExpected', 'expected', agentNameOptions)}
 		<div class="ats-panel">
 			<div class="grid grid-cols-1 gap-3 md:grid-cols-12">
 				<div class="md:col-span-3">
@@ -712,7 +903,10 @@
 					{/if}
 				</div>
 				<div class="md:col-span-3">
-					<label class="ats-label" for={`${idPrefix}-target-${i}`}>
+					<label
+						class="ats-label"
+						for={assertion.type === 'agentChain' || toolPicked ? undefined : `${idPrefix}-target-${i}`}
+					>
 						{assertion.type === 'agentChain' ? $_('Mode') : $_('Target')}
 						{#if ['toolCalled', 'toolNotCalled', 'stateEquals'].includes(assertion.type)}
 							<span class="text-danger">*</span>
@@ -728,31 +922,152 @@
 							options={AGENT_CHAIN_MODE_OPTIONS}
 							onselect={e => changeAgentChainMode(assertion, e)}
 						/>
+					{:else if assertion.type === 'toolCalled' || assertion.type === 'toolNotCalled'}
+						{#if toolPicked}
+							<Select
+								tag={`${idPrefix}-target-${i}`}
+								searchMode={true}
+								searchPlaceholder={$_('Search tools')}
+								placeholder={$_('Pick a tool')}
+								selectedValues={assertion.target ? [assertion.target] : []}
+								options={toolOptions}
+								onselect={e => pickValue(assertion, 'target', e)}
+							/>
+						{:else}
+							<input
+								id={`${idPrefix}-target-${i}`}
+								type="text"
+								class="ats-input font-code"
+								placeholder={$_('function name')}
+								bind:value={assertion.target}
+							/>
+						{/if}
+						<button
+							type="button"
+							class="ats-btn ats-btn-link"
+							onclick={() => toggleManualEntry(assertion, 'manualTarget', 'target', toolOptions)}
+						>
+							{toolPicked ? $_('Type a name instead') : $_('Pick from the list')}
+						</button>
+						{#if toolOptions.length === 0}
+							<span class="ats-help">
+								{$_('No tools found for the agents on this case. Add the agent under Involved agents, or type the name.')}
+							</span>
+						{/if}
 					{:else}
 						<input
 							id={`${idPrefix}-target-${i}`}
 							type="text"
 							class="ats-input font-code"
-							list={['toolCalled', 'toolNotCalled'].includes(assertion.type) ? 'agent-test-mock-targets' : undefined}
 							placeholder={assertion.type === 'stateEquals' ? $_('state key') : $_('function name')}
 							bind:value={assertion.target}
 						/>
 					{/if}
 				</div>
 				<div class="md:col-span-4">
-					<label class="ats-label" for={`${idPrefix}-expected-${i}`}>
+					<label
+						class="ats-label"
+						for={assertion.type === 'agentChain' || agentPicked ? undefined : `${idPrefix}-expected-${i}`}
+					>
 						{$_('Expected')}
 						{#if assertion.type !== 'toolCalled' && assertion.type !== 'toolNotCalled'}
 							<span class="text-danger">*</span>
 						{/if}
 					</label>
-					<input
-						id={`${idPrefix}-expected-${i}`}
-						type="text"
-						class="ats-input"
-						placeholder={assertion.type === 'agentChain' ? $_('Copilot, Work Order Creator') : undefined}
-						bind:value={assertion.expected}
-					/>
+					{#if assertion.type === 'routedToAgent'}
+						{#if agentPicked}
+							<Select
+								tag={`${idPrefix}-expected-${i}`}
+								searchMode={true}
+								searchPlaceholder={$_('Search agents')}
+								placeholder={$_('Pick an agent')}
+								selectedValues={assertion.expected ? [assertion.expected] : []}
+								options={agentNameOptions}
+								onselect={e => pickValue(assertion, 'expected', e)}
+							/>
+						{:else}
+							<input
+								id={`${idPrefix}-expected-${i}`}
+								type="text"
+								class="ats-input"
+								placeholder={$_('agent name or id')}
+								bind:value={assertion.expected}
+							/>
+						{/if}
+						<button
+							type="button"
+							class="ats-btn ats-btn-link"
+							onclick={() => toggleManualEntry(assertion, 'manualExpected', 'expected', agentNameOptions)}
+						>
+							{agentPicked ? $_('Type a name instead') : $_('Pick from the list')}
+						</button>
+					{:else if assertion.type === 'agentChain'}
+						{@const chain = parseAgentChain(assertion.expected)}
+						{@const ordered = (assertion.target || 'contains') !== 'contains'}
+						{#if chain.length > 0}
+							<div class="ats-chain">
+								{#each chain as hop, h}
+									<span class="ats-badge ats-badge-soft ats-tone-secondary">
+										<!-- Reordering is offered only where order is part of the assertion.
+										     Under `contains` the position means nothing, and arrows that
+										     change nothing would suggest it does. -->
+										{#if ordered}
+											<button
+												type="button"
+												class="ats-chip-btn"
+												aria-label={$_('Move earlier')}
+												disabled={h === 0}
+												onclick={() => moveChainAgent(assertion, h, -1)}
+											>
+												<i class="mdi mdi-chevron-left"></i>
+											</button>
+											<span class="ats-chip-index">{h + 1}</span>
+										{/if}
+										<span>{hop}</span>
+										{#if ordered}
+											<button
+												type="button"
+												class="ats-chip-btn"
+												aria-label={$_('Move later')}
+												disabled={h === chain.length - 1}
+												onclick={() => moveChainAgent(assertion, h, 1)}
+											>
+												<i class="mdi mdi-chevron-right"></i>
+											</button>
+										{/if}
+										<button
+											type="button"
+											class="ats-chip-btn"
+											aria-label={$_('Remove agent from the chain')}
+											onclick={() => removeChainAgent(assertion, h)}
+										>
+											<i class="mdi mdi-close"></i>
+										</button>
+									</span>
+								{/each}
+							</div>
+						{/if}
+						<!-- Remounted after every add so the picker returns to its placeholder instead of
+						     sitting on the agent just added, which reads as "already in the chain". -->
+						{#key chain.length}
+							<Select
+								tag={`${idPrefix}-chain-add-${i}`}
+								searchMode={true}
+								searchPlaceholder={$_('Search agents')}
+								placeholder={$_('Add an agent to the chain')}
+								selectedValues={[]}
+								options={agentNameOptions}
+								onselect={e => addChainAgent(assertion, e)}
+							/>
+						{/key}
+					{:else}
+						<input
+							id={`${idPrefix}-expected-${i}`}
+							type="text"
+							class="ats-input"
+							bind:value={assertion.expected}
+						/>
+					{/if}
 					{#if assertion.type === 'agentChain'}
 						<p class="mt-1 mb-0 text-xs text-muted">
 							{#if (assertion.target || 'contains') === 'exact'}
@@ -868,12 +1183,6 @@
 	successText={successText}
 	errorText={errorText}
 />
-
-<datalist id="agent-test-mock-targets">
-	{#each mockTargets as target}
-		<option value={target}></option>
-	{/each}
-</datalist>
 
 {#if loadErrorText}
 	<div class="flex flex-wrap">
@@ -1575,6 +1884,11 @@
 					{$_('Every tool this case does not mock is blocked. If the agent needs a tool to move forward, mock it here.')}
 				</p>
 				{#each form.mocks as mock, i (i)}
+					<!-- Cast for the same reason `suite` is cast further up: svelte-check collapses
+					     $state([])'s element type to `never`, so a plain property read off a mock is an
+					     error the moment it is not a bind: target. Pre-existing quirk of this file. -->
+					{@const mockName = /** @type {any} */ (mock).functionName}
+					{@const mockPicked = !isManualEntry(mock, 'manualFunctionName', 'functionName', toolOptions)}
 					<div class="ats-panel">
 						<div class="mb-3 flex items-center justify-between gap-2">
 							<h6 class="ats-panel-title">{$_('Mock')} {i + 1}</h6>
@@ -1589,16 +1903,39 @@
 						</div>
 						<div class="grid grid-cols-1 gap-3 md:grid-cols-12">
 							<div class="md:col-span-6">
-								<label class="ats-label" for={`mock-name-${i}`}>
+								<label class="ats-label" for={mockPicked ? undefined : `mock-name-${i}`}>
 									{$_('Function name')} <span class="text-danger">*</span>
 								</label>
-								<input
-									id={`mock-name-${i}`}
-									type="text"
-									class="ats-input font-code"
-									list="agent-test-mock-targets"
-									bind:value={mock.functionName}
-								/>
+								<!-- Picked for the same reason the assertion target is, only the cost of a
+								     typo is higher here: the real tool stays unmocked, UnmockedToolPolicy
+								     blocks it, and the turn is cut short with nothing naming the mock that
+								     missed. -->
+								{#if mockPicked}
+									<Select
+										tag={`mock-name-${i}`}
+										searchMode={true}
+										searchPlaceholder={$_('Search tools')}
+										placeholder={$_('Pick a tool')}
+										selectedValues={mockName ? [mockName] : []}
+										options={toolOptions}
+										onselect={e => pickValue(mock, 'functionName', e)}
+									/>
+								{:else}
+									<input
+										id={`mock-name-${i}`}
+										type="text"
+										class="ats-input font-code"
+										placeholder={$_('function name')}
+										bind:value={mock.functionName}
+									/>
+								{/if}
+								<button
+									type="button"
+									class="ats-btn ats-btn-link"
+									onclick={() => toggleManualEntry(mock, 'manualFunctionName', 'functionName', toolOptions)}
+								>
+									{mockPicked ? $_('Type a name instead') : $_('Pick from the list')}
+								</button>
 							</div>
 							<div class="md:col-span-3">
 								<label class="ats-label" for={`mock-call-index-${i}`}>

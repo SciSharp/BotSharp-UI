@@ -665,5 +665,16 @@
     "Worth checking:": "Worth checking:",
     "changed by chat": "changed by chat",
     "New Case by Chat": "New Case by Chat",
-    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above."
+    "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.": "This suite has no judge model configured, so chat authoring has no default to fall back on -- pick one above.",
+    "Search tools": "Search tools",
+    "Pick a tool": "Pick a tool",
+    "Pick an agent": "Pick an agent",
+    "Type a name instead": "Type a name instead",
+    "Pick from the list": "Pick from the list",
+    "agent name or id": "agent name or id",
+    "Add an agent to the chain": "Add an agent to the chain",
+    "Move earlier": "Move earlier",
+    "Move later": "Move later",
+    "Remove agent from the chain": "Remove agent from the chain",
+    "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "No tools found for the agents on this case. Add the agent under Involved agents, or type the name."
 }
