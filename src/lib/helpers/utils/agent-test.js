@@ -303,6 +303,20 @@ export function formatAgentChain(chain) {
 }
 
 /**
+ * A turn's rich content, pretty-printed. Stored as a JSON string; anything that does not parse is
+ * shown as-is rather than hidden.
+ * @param {string} richContent
+ * @returns {string}
+ */
+export function formatRichContent(richContent) {
+	try {
+		return JSON.stringify(JSON.parse(richContent), null, 2);
+	} catch {
+		return richContent;
+	}
+}
+
+/**
  * @param {string} text
  * @returns {boolean}
  */

@@ -317,6 +317,8 @@
  *   LlmConfig was used.
  * @property {string?} model - As above. In a multi-model run the same `caseId` yields several
  *   results, told apart by these two fields.
+ * @property {string[]?} usedModels - "provider/model" of every completion the agents under test
+ *   actually ran on, filled even when `model` is null. Can hold several (router + hand-off target).
  * @property {number} durationMs - Wall clock for the whole case, including the canary and the
  *   conversation reads. Comparable between models, but not a model-latency measurement.
  * @property {number} modelDurationMs - The agent calls alone, summed over the turns. This is what the
