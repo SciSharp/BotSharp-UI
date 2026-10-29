@@ -752,6 +752,7 @@
     "A Routing case cannot use llmJudge: routing is judged only by which agent handled the conversation.": "路由用例不能用 llmJudge：路由只按由哪个 agent 处理了对话来判定。",
     "Mode": "比较方式",
     "Assertion \"agentChain\" mode must be one of {modes}.": "agentChain 断言的比较方式只能是 {modes} 之一。",
+    "Assertion \"{type}\" target must be one of {sources}.": "{type} 断言的 Target 只能是 {sources} 之一。",
     "Copilot, Work Order Creator": "Copilot, Work Order Creator",
     "These agents appear somewhere in the chain, in any order.": "这些 agent 出现在链路中的任意位置，不论顺序。",
     "These agents appear in this order; other agents may come in between. This is the hand-off assertion.": "这些 agent 按此顺序出现，中间允许有其他 agent。这条就是交接断言。",

@@ -14,6 +14,8 @@
 	import {
 		ASSERTION_TYPES,
 		AGENT_CHAIN_MODES,
+		OUTPUT_SOURCES,
+		OUTPUT_SOURCE_TYPES,
 		HISTORY_ROLES,
 		CASE_PRIORITIES,
 		CASE_SEVERITIES,
@@ -32,6 +34,8 @@
 	/** Assertion types as Select options. Constant -- the list never changes at runtime. */
 	const ASSERTION_TYPE_OPTIONS = ASSERTION_TYPES.map(name => ({ label: name, value: name }));
 	const AGENT_CHAIN_MODE_OPTIONS = AGENT_CHAIN_MODES.map(name => ({ label: name, value: name }));
+	/** `reply` is shown as "content": it is the reply text, as opposed to the rich content. */
+	const OUTPUT_SOURCE_OPTIONS = OUTPUT_SOURCES.map(name => ({ label: name === 'reply' ? 'content' : name, value: name }));
 
 	let isLoading = $state(false);
 	let isComplete = $state(false);
@@ -665,6 +669,12 @@
 			assertion.target = '';
 		}
 
+		// Output types carry the output source in `target` the same way.
+		const isSource = OUTPUT_SOURCES.some(s => s.toLowerCase() === (assertion.target || '').trim().toLowerCase());
+		if (OUTPUT_SOURCE_TYPES.includes(assertion.type) ? !isSource : isSource) {
+			assertion.target = '';
+		}
+
 		// Both fields mean something different under the new type, so an explicit "let me type it" from
 		// the old one does not carry over. A value the new picker cannot show still opens in the text
 		// box on its own -- see isManualEntry.
@@ -905,7 +915,7 @@
 				<div class="md:col-span-3">
 					<label
 						class="ats-label"
-						for={assertion.type === 'agentChain' || toolPicked ? undefined : `${idPrefix}-target-${i}`}
+						for={assertion.type === 'agentChain' || OUTPUT_SOURCE_TYPES.includes(assertion.type) || toolPicked ? undefined : `${idPrefix}-target-${i}`}
 					>
 						{assertion.type === 'agentChain' ? $_('Mode') : $_('Target')}
 						{#if ['toolCalled', 'toolNotCalled', 'stateEquals'].includes(assertion.type)}
@@ -921,6 +931,13 @@
 							selectedValues={assertion.target ? [assertion.target] : ['contains']}
 							options={AGENT_CHAIN_MODE_OPTIONS}
 							onselect={e => changeAgentChainMode(assertion, e)}
+						/>
+					{:else if OUTPUT_SOURCE_TYPES.includes(assertion.type)}
+						<Select
+							tag={`${idPrefix}-source-${i}`}
+							selectedValues={[assertion.target || 'reply']}
+							options={OUTPUT_SOURCE_OPTIONS}
+							onselect={e => pickValue(assertion, 'target', e)}
 						/>
 					{:else if assertion.type === 'toolCalled' || assertion.type === 'toolNotCalled'}
 						{#if toolPicked}

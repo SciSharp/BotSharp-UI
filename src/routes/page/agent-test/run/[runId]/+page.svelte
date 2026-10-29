@@ -14,6 +14,7 @@
 		formatDuration,
 		formatDateTime,
 		formatAgentChain,
+		formatRichContent,
 		t
 	} from '$lib/helpers/utils/agent-test.js';
 
@@ -58,6 +59,28 @@
 		...new Set(results.filter(r => r.status === 'Failed' || r.status === 'Error').map(r => r.caseId))
 	]);
 
+	/**
+	 * The models the failures ran on, so a re-run reproduces them on the same model instead of
+	 * falling back to the agent's own (possibly since changed) LlmConfig. An "agent default" failure
+	 * counts only when it ran on a single model: forcing one model onto a case whose router and
+	 * hand-off target used different ones would re-run a different conversation. Null = re-run on
+	 * the agents' own LlmConfig.
+	 */
+	let failedModels = $derived.by(() => {
+		/** @type {Map<string, import('$agentTestTypes').TestModel>} */
+		const models = new Map();
+		for (const r of results) {
+			if (r.status !== 'Failed' && r.status !== 'Error') continue;
+			if (r.model) {
+				models.set(`${r.provider}/${r.model}`, { provider: r.provider, model: r.model });
+			} else if (r.usedModels?.length === 1) {
+				const [provider, ...rest] = r.usedModels[0].split('/');
+				models.set(r.usedModels[0], { provider, model: rest.join('/') });
+			}
+		}
+		return models.size > 0 ? [...models.values()] : null;
+	});
+
 	/** Column order for the comparison grid; follows the run's own model order. */
 	let modelColumns = $derived((run?.models || []).map(m => ({ ...m, key: `${m.provider}/${m.model}` })));
 
@@ -77,9 +100,20 @@
 	 * Latency, token and cost figures per model, as stored on the run. A table rather than tiles
 	 * because there is one row per model and the whole point is comparing them side by side.
 	 */
+	/**
+	 * A run that named no models still ran on something: each agent's own LlmConfig as it stood at
+	 * run time. Named here because that config may have changed since.
+	 */
+	let defaultLabel = $derived.by(() => {
+		const used = [...new Set(results.filter(r => !r.model).flatMap(r => r.usedModels || []))];
+		return used.length > 0
+			? `${$_('agent default')} (${used.map(u => u.split('/').slice(1).join('/')).join(', ')})`
+			: $_('agent default');
+	});
+
 	let performance = $derived((run?.performanceSummaries || []).map(s => ({
 		...s,
-		label: s.model || $_('agent default')
+		label: s.model || defaultLabel
 	})));
 
 	/**
@@ -212,7 +246,7 @@
 	function handleRerunFailed() {
 		if (isBusy || !suiteId || failedCaseIds.length === 0) return;
 		isBusy = true;
-		triggerRun(suiteId, failedCaseIds).then(newRun => {
+		triggerRun(suiteId, failedCaseIds, failedModels).then(newRun => {
 			notifySuccess(t('Re-run queued!'));
 			goto(`/page/agent-test/run/${newRun.id}`);
 		}).catch(err => {
@@ -557,6 +591,14 @@
 										<span class="ats-badge ats-tone-primary font-code" title={result.provider}>
 											{result.model}
 										</span>
+									{:else}
+										<!-- "Agent default" run: what each agent's LlmConfig resolved to at run
+										     time. Several when a router and its hand-off target differ. -->
+										{#each result.usedModels || [] as used (used)}
+											<span class="ats-badge ats-tone-primary font-code" title={used}>
+												{used.split('/').slice(1).join('/')}
+											</span>
+										{/each}
 									{/if}
 									<span class="text-xs text-muted" title={$_('Wall clock for the whole case')}>
 										{formatDuration(result.durationMs)}
@@ -618,6 +660,15 @@
 												<div class="ats-meta-label">{$_('Agent output')}</div>
 												<div class="ats-code mt-1">{turn.output || '--'}</div>
 											</div>
+											{#if turn.richContent}
+												<!-- Its own block, not appended to the output: assertions target the
+												     two separately (output vs. richContent), so each is shown where
+												     its assertions point. -->
+												<div class="mb-2">
+													<div class="ats-meta-label">{$_('Rich content')}</div>
+													<div class="ats-code mt-1 max-h-80 overflow-auto">{formatRichContent(turn.richContent)}</div>
+												</div>
+											{/if}
 											{#if turn.agentChain?.length > 0}
 												<div class="mb-2">
 													<div class="ats-meta-label">{$_('Answered by')}</div>

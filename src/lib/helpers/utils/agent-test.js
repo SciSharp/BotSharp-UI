@@ -60,6 +60,13 @@ const TARGET_REQUIRED = ['toolCalled', 'toolNotCalled', 'stateEquals'];
 export const AGENT_CHAIN_MODES = ['contains', 'ordered', 'exact'];
 
 /**
+ * Which text an output assertion or llmJudge reads (OutputSources in
+ * AssertionEvaluator.cs), carried in `target`. Blank means `reply`.
+ */
+export const OUTPUT_SOURCES = ['reply', 'richContent'];
+export const OUTPUT_SOURCE_TYPES = ['outputContains', 'outputNotContains', 'outputRegex', 'llmJudge'];
+
+/**
  * What a case is verifying (CaseTypes in AgentTestCase.cs). Routing is checked
  * more strictly -- see `validateCaseType` -- because it is the only type counted
  * towards a run's routing accuracy. A multi-agent journey is an Agent case whose
@@ -241,6 +248,13 @@ export function validateAssertion(assertion) {
 		return t('Assertion "agentChain" mode must be one of {modes}.', { modes: AGENT_CHAIN_MODES.join(', ') });
 	}
 
+	// Same for the output source: an unrecognised value fails the assertion rather
+	// than falling back to the reply text. Blank is legal and means `reply`.
+	if (OUTPUT_SOURCE_TYPES.includes(type) && assertion.target?.trim()
+		&& !OUTPUT_SOURCES.some(s => s.toLowerCase() === assertion.target.trim().toLowerCase())) {
+		return t('Assertion "{type}" target must be one of {sources}.', { type, sources: OUTPUT_SOURCES.join(', ') });
+	}
+
 	if (assertion.argsMatchJson?.trim() && !isParsableJson(assertion.argsMatchJson)) {
 		return t('The args match on an assertion is not valid JSON.');
 	}
@@ -300,6 +314,20 @@ export function validateCaseType(caseType, turns, caseAssertions) {
  */
 export function formatAgentChain(chain) {
 	return chain?.length ? chain.join(' -> ') : '--';
+}
+
+/**
+ * A turn's rich content, pretty-printed. Stored as a JSON string; anything that does not parse is
+ * shown as-is rather than hidden.
+ * @param {string} richContent
+ * @returns {string}
+ */
+export function formatRichContent(richContent) {
+	try {
+		return JSON.stringify(JSON.parse(richContent), null, 2);
+	} catch {
+		return richContent;
+	}
 }
 
 /**
