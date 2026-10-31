@@ -72,7 +72,7 @@ export const OUTPUT_SOURCE_TYPES = ['outputContains', 'outputNotContains', 'outp
  * towards a run's routing accuracy. A multi-agent journey is an Agent case whose
  * `agentChain` assertion describes the hand-offs.
  */
-export const CASE_TYPES = ['Routing', 'Agent'];
+export const CASE_TYPES = ['Routing', 'Agent', 'Template'];
 
 /**
  * Roles an authored history message may take (HistoryRoles in AgentTestCase.cs).

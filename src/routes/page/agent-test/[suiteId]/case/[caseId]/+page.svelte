@@ -33,6 +33,11 @@
 
 	/** Assertion types as Select options. Constant -- the list never changes at runtime. */
 	const ASSERTION_TYPE_OPTIONS = ASSERTION_TYPES.map(name => ({ label: name, value: name }));
+	/**
+	 * Fixed outcome in a Template case: a template call has no conversation and calls no functions, so
+	 * the agent chain and tool calls they read are empty -- toolNotCalled always passes, the rest always fail.
+	 */
+	const TEMPLATE_UNUSABLE_TYPES = ['routedToAgent', 'agentChain', 'toolCalled', 'toolNotCalled'];
 	const AGENT_CHAIN_MODE_OPTIONS = AGENT_CHAIN_MODES.map(name => ({ label: name, value: name }));
 	/** `reply` is shown as "content": it is the reply text, as opposed to the rich content. */
 	const OUTPUT_SOURCE_OPTIONS = OUTPUT_SOURCES.map(name => ({ label: name === 'reply' ? 'content' : name, value: name }));
@@ -240,7 +245,10 @@
 				templatesByAgent[id] = (agent?.templates || []).map((/** @type {any} */ x) => x.name).sort();
 			})
 			// Costs the picker its options and nothing more; the backend still rejects an unknown template.
-			.catch(() => {});
+			// Uncached so picking the agent again retries instead of keeping the empty list.
+			.catch(() => {
+				delete templatesByAgent[id];
+			});
 	}
 
 	/** @param {any} e */
@@ -350,7 +358,13 @@
 		const selecteds = e?.detail?.selecteds || [];
 		// Empty means the dropdown own "Clear selection", which is how the author says "use the
 		// suite agent" -- the payload turns '' into null.
-		form.entryAgentId = selecteds.length > 0 ? selecteds[0].value : '';
+		const id = selecteds.length > 0 ? selecteds[0].value : '';
+		// A template belongs to one agent; keeping it across a switch would pass validation and
+		// then be rejected on save for not existing on the new agent.
+		if (id !== form.entryAgentId) {
+			form.templateName = '';
+		}
+		form.entryAgentId = id;
 	}
 
 	/** @param {any} e */
@@ -403,8 +417,10 @@
 			turns: (res.turns || []).map((/** @type {any} */ turn, /** @type {number} */ i) => ({
 				index: i,
 				userMessage: turn.userMessage || '',
-				// No editor for these yet; carried through so a save does not clear them.
-				files: turn.files || [],
+				files: (turn.files || []).map((/** @type {any} */ f) => ({
+					fileName: f.fileName || '',
+					fileUrl: f.fileUrl || ''
+				})),
 				assertions: (turn.assertions || []).map(normalizeAssertion)
 			})),
 			assertions: (res.assertions || []).map(normalizeAssertion),
@@ -551,6 +567,13 @@
 			if (value.history?.length) {
 				errors.push(t('A Template case cannot have history: a template call does not read the conversation.'));
 			}
+			// Not a backend rule; the Type picker hides these too, this catches ones already on the case.
+			const used = [...(value.turns || []).flatMap(turn => turn.assertions || []), ...(value.assertions || [])]
+				.map(a => a?.type)
+				.filter(type => TEMPLATE_UNUSABLE_TYPES.includes(type));
+			if (used.length) {
+				errors.push(t('A Template case cannot use {types} assertions: a template call does not route or call functions, so their result is fixed.', { types: [...new Set(used)].join(', ') }));
+			}
 		}
 
 		// Rejected by the backend, and worth catching here: BotSharp dialog storage drops elements
@@ -572,6 +595,11 @@
 			if (!turn.userMessage?.trim()) {
 				errors.push(t('Turn {n}: the user message is empty.', { n: i + 1 }));
 			}
+			turn.files?.forEach((/** @type {any} */ file, /** @type {number} */ j) => {
+				if (!file.fileName?.trim() || !file.fileUrl?.trim()) {
+					errors.push(t('Turn {n}, file {m}: needs both a name and a URL.', { n: i + 1, m: j + 1 }));
+				}
+			});
 			turn.assertions?.forEach((assertion, j) => {
 				const error = validateAssertion(assertion);
 				if (error) {
@@ -658,7 +686,7 @@
 			turns: form.turns.map((turn, i) => ({
 				index: i,
 				userMessage: turn.userMessage.trim(),
-				files: turn.files || [],
+				files: (turn.files || []).map(f => ({ fileName: f.fileName.trim(), fileUrl: f.fileUrl.trim() })),
 				assertions: (turn.assertions || []).map(cleanAssertion)
 			})),
 			assertions: form.assertions.map(cleanAssertion),
@@ -956,7 +984,9 @@
 					<Select
 						tag={`${idPrefix}-type-${i}`}
 						selectedValues={assertion.type ? [assertion.type] : []}
-						options={ASSERTION_TYPE_OPTIONS}
+						options={form.caseType === 'Template'
+							? ASSERTION_TYPE_OPTIONS.filter(o => o.value === assertion.type || !TEMPLATE_UNUSABLE_TYPES.includes(o.value))
+							: ASSERTION_TYPE_OPTIONS}
 						onselect={e => changeAssertionType(assertion, e)}
 					/>
 					{#if assertion.type === 'llmJudge'}
@@ -1627,16 +1657,55 @@
 								rows="2"
 								bind:value={turn.userMessage}
 							></textarea>
-							{#if turn.files?.length}
-								<div class="mt-2 text-xs text-muted">
-									<i class="mdi mdi-paperclip"></i>
-									{$_('Files')} ({turn.files.length}) · {$_('read-only, maintained through the API')}
-									{#each turn.files as file}
-										<div class="font-code">{file.fileName} &nbsp; {file.fileUrl}</div>
-									{/each}
-								</div>
-							{/if}
 						</div>
+						<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+							<span class="text-xs text-muted">
+								<i class="mdi mdi-paperclip"></i> {$_('Files')} ({turn.files.length})
+							</span>
+							<button
+								type="button"
+								class="ats-btn ats-btn-sm ats-btn-soft ats-tone-primary"
+								onclick={() => (turn.files = [...turn.files, { fileName: '', fileUrl: '' }])}
+							>
+								<i class="mdi mdi-plus"></i> {$_('Add File')}
+							</button>
+						</div>
+						{#each turn.files as file, j}
+							<div class="mb-3 grid grid-cols-1 gap-3 md:grid-cols-12">
+								<div class="md:col-span-4">
+									<label class="ats-label" for={`turn-${i}-file-name-${j}`}>
+										{$_('File name')} <span class="text-danger">*</span>
+									</label>
+									<input
+										id={`turn-${i}-file-name-${j}`}
+										type="text"
+										class="ats-input font-code"
+										bind:value={file.fileName}
+									/>
+								</div>
+								<div class="md:col-span-7">
+									<label class="ats-label" for={`turn-${i}-file-url-${j}`}>
+										{$_('File URL')} <span class="text-danger">*</span>
+									</label>
+									<input
+										id={`turn-${i}-file-url-${j}`}
+										type="text"
+										class="ats-input font-code"
+										bind:value={file.fileUrl}
+									/>
+								</div>
+								<div class="flex items-end justify-end md:col-span-1 md:pb-1">
+									<button
+										type="button"
+										class="ats-btn ats-btn-icon ats-btn-soft ats-tone-danger"
+										aria-label={$_('Remove file')}
+										onclick={() => (turn.files = turn.files.filter((x, k) => k !== j))}
+									>
+										<i class="mdi mdi-delete-outline"></i>
+									</button>
+								</div>
+							</div>
+						{/each}
 						<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 							<span class="text-xs text-muted">
 								{$_('Assertions checked right after this turn')} ({turn.assertions.length})
