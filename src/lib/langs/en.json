@@ -644,6 +644,8 @@
     "Agent call time only": "Agent call time only",
     "Tokens / cost": "Tokens / cost",
     "Judge tokens / cost": "Judge tokens / cost",
+    "Judge tokens": "Judge tokens",
+    "Judge cost": "Judge cost",
     "Judge": "Judge",
     "Tokens and cost cover the model under test only; llmJudge spend is listed separately.": "Tokens and cost cover the model under test only; llmJudge spend is listed separately.",
     "Plan a scope": "Plan a scope",

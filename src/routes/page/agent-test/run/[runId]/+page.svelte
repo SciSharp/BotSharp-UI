@@ -465,7 +465,8 @@
 										<th scope="col" class="text-end">{$_('Tokens')}</th>
 										<th scope="col" class="text-end">{$_('Cost')}</th>
 										{#if hasJudgeSpend}
-											<th scope="col" class="text-end">{$_('Judge tokens / cost')}</th>
+											<th scope="col" class="text-end">{$_('Judge tokens')}</th>
+											<th scope="col" class="text-end">{$_('Judge cost')}</th>
 										{/if}
 										<th scope="col">{$_('Unit cost (in / out)')}</th>
 									</tr>
@@ -481,7 +482,8 @@
 											<td class="text-end">{row.totalTokens}</td>
 											<td class="text-end">{row.totalCost.toFixed(4)}</td>
 											{#if hasJudgeSpend}
-												<td class="text-end text-muted">{row.judgeTokens || 0} · {(row.judgeCost || 0).toFixed(4)}</td>
+												<td class="text-end text-muted">{row.judgeTokens || 0}</td>
+												<td class="text-end text-muted">{(row.judgeCost || 0).toFixed(4)}</td>
 											{/if}
 											<td class="font-code text-xs text-muted">
 												{#if pricing && pricing.textInputCost != null}
@@ -673,12 +675,12 @@
 									{/if}
 									{#if result.totalTokens > 0}
 										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Tokens / cost')}>
-											{result.totalTokens} · {result.cost.toFixed(4)}
+											{result.totalTokens} / {result.cost.toFixed(4)}
 										</span>
 									{/if}
 									{#if result.judgeTokens > 0}
 										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Judge tokens / cost')}>
-											{$_('Judge')} {result.judgeTokens} · {result.judgeCost.toFixed(4)}
+											{$_('Judge')} {result.judgeTokens} / {result.judgeCost.toFixed(4)}
 										</span>
 									{/if}
 									{#if result.agentChain?.length > 0}

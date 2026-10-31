@@ -838,6 +838,8 @@
     "Agent call time only": "仅 agent 调用耗时",
     "Tokens / cost": "Token / 成本",
     "Judge tokens / cost": "Judge Token / 成本",
+    "Judge tokens": "Judge Token",
+    "Judge cost": "Judge 成本",
     "Judge": "Judge",
     "Tokens and cost cover the model under test only; llmJudge spend is listed separately.": "Token 与成本只统计被测模型；llmJudge 的消耗单独列出。",
     "Plan a scope": "规划评估范围",
