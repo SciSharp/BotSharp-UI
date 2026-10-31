@@ -609,6 +609,12 @@
     }
 }
 
+/* A summary row set apart from the data rows above it; pair with an ats-tone-* class. */
+.ats-table-row-tone > td {
+    background-color: color-mix(in srgb, var(--ats-tone) 10%, transparent);
+    border-top: 2px solid color-mix(in srgb, var(--ats-tone) 35%, transparent);
+}
+
 /* Row-level hover + pointer for the rows that navigate on click
    (was .clickable). */
 .ats-table-row-link {

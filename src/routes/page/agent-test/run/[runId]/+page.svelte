@@ -140,6 +140,12 @@
 	// existed have no judgeTokens at all.
 	let hasJudgeSpend = $derived(performance.some(row => (row.judgeTokens || 0) > 0));
 
+	/** One judge scores every row, so its spend is also shown once, summed, on its own row. */
+	let judgeTotal = $derived({
+		tokens: performance.reduce((sum, row) => sum + (row.judgeTokens || 0), 0),
+		cost: performance.reduce((sum, row) => sum + (row.judgeCost || 0), 0)
+	});
+
 	/**
 	 * The unit costs the cost column was computed from. Shown next to the figures because a cost is
 	 * not comparable with another run unless these match -- a provider price change would otherwise
@@ -469,11 +475,9 @@
 										<th scope="col" class="text-end">{$_('Cases')}</th>
 										<th scope="col" class="text-end">{$_('Latency P50')}</th>
 										<th scope="col" class="text-end">{$_('Latency P95')}</th>
-										<th scope="col" class="text-end">{$_('Tokens')}</th>
-										<th scope="col" class="text-end">{$_('Cost')}</th>
+										<th scope="col" class="text-end">{$_('Agent tokens / cost')}</th>
 										{#if hasJudgeSpend}
-											<th scope="col" class="text-end">{$_('Judge tokens')}</th>
-											<th scope="col" class="text-end">{$_('Judge cost')}</th>
+											<th scope="col" class="text-end">{$_('Judge tokens / cost')}</th>
 										{/if}
 										<th scope="col">{$_('Unit cost (in / out)')}</th>
 									</tr>
@@ -486,11 +490,9 @@
 											<td class="text-end">{row.caseCount}</td>
 											<td class="text-end">{formatDuration(row.latencyP50Ms)}</td>
 											<td class="text-end">{formatDuration(row.latencyP95Ms)}</td>
-											<td class="text-end">{row.totalTokens}</td>
-											<td class="text-end">{row.totalCost.toFixed(4)}</td>
+											<td class="text-end">{row.totalTokens} / {row.totalCost.toFixed(4)}</td>
 											{#if hasJudgeSpend}
-												<td class="text-end text-muted">{row.judgeTokens || 0}</td>
-												<td class="text-end text-muted">{(row.judgeCost || 0).toFixed(4)}</td>
+												<td class="text-end text-muted">{row.judgeTokens || 0} / {(row.judgeCost || 0).toFixed(4)}</td>
 											{/if}
 											<td class="font-code text-xs text-muted">
 												{#if pricing && pricing.textInputCost != null}
@@ -504,6 +506,26 @@
 											</td>
 										</tr>
 									{/each}
+									{#if hasJudgeSpend && run.judgePricing}
+										{@const judge = run.judgePricing}
+										<!-- The judge's own row, so its unit cost sits in the unit cost column
+										     instead of beside a model it is not. Taken from the run, not the
+										     suite: the suite's judge may have changed since. -->
+										<tr class="ats-table-row-tone ats-tone-info">
+											<td class="font-semibold">
+												<i class="mdi mdi-scale-balance"></i> {$_('Judge')}:
+												<span class="font-code" title={judge.provider}>{judge.provider} / {judge.model}</span>
+											</td>
+											<td class="text-end text-muted">—</td>
+											<td class="text-end text-muted">—</td>
+											<td class="text-end text-muted">—</td>
+											<td class="text-end text-muted">—</td>
+											<td class="text-end font-semibold">{judgeTotal.tokens} / {judgeTotal.cost.toFixed(4)}</td>
+											<td class="font-code text-xs">
+												{judge.textInputCost != null ? `${judge.textInputCost} / ${judge.textOutputCost}` : $_('unknown')}
+											</td>
+										</tr>
+									{/if}
 								</tbody>
 							</table>
 						</div>
@@ -681,7 +703,7 @@
 										</span>
 									{/if}
 									{#if result.totalTokens > 0}
-										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Tokens / cost')}>
+										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Agent tokens / cost')}>
 											{result.totalTokens} / {result.cost.toFixed(4)}
 										</span>
 									{/if}

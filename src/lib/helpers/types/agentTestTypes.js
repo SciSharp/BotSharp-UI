@@ -229,6 +229,9 @@
  *   cost figure is not comparable with another run's unless these match. Kept per model because a single run-wide figure would
  *   average a candidate model together with the baseline and hide the difference the run exists to
  *   measure.
+ * @property {ModelPricingSnapshot?} [judgePricing] - The judge model llmJudge scored with and its unit
+ *   costs, as of this run. Absent on runs recorded before the field existed, and when the suite had no
+ *   judge configured.
  * @property {boolean} cancelRequested
  * @property {string?} startedAt - ISO date string; null until it starts.
  * @property {string?} completedAt - ISO date string; null until it finishes.
