@@ -42,6 +42,7 @@
  * @typedef {Object} TestTurn
  * @property {number} index
  * @property {string} userMessage
+ * @property {{ fileName: string, fileUrl: string }[]} [files] - Attached to the user message.
  * @property {TestAssertion[]} assertions - Turn-level assertions, as opposed to the case-level
  *   AgentTestCase.assertions.
  */
@@ -104,7 +105,7 @@
  * @property {string} name
  * @property {boolean} enabled - Recorded drafts land as false; a human has to review and enable them
  *   before they join a normal run.
- * @property {string} caseType - Routing | Agent. Defaults to Agent, which is also what every case
+ * @property {string} caseType - Routing | Agent | Template. Defaults to Agent, which is also what every case
  *   stored before the field existed reads back as. Routing is validated more strictly (one turn,
  *   must assert a routing outcome, no llmJudge) and is the only type counted towards a run's routing
  *   accuracy. A journey across several agents is an Agent case whose `agentChain` assertion
@@ -113,6 +114,7 @@
  *   uses the suite's. This is the switch between testing routing and testing one agent alone:
  *   BotSharp sends a routing-type agent through the router (which can hand off) and any other agent
  *   straight into itself (the router never runs).
+ * @property {string?} templateName - The entry agent's template a Template case calls directly.
  * @property {TestTurn[]} turns - Length 1 is a single-turn case.
  * @property {TestAssertion[]} assertions - Case-level assertions, evaluated after every turn has run.
  * @property {TestState[]} initialStates - Injected before the conversation starts; maps to BotSharp's
@@ -156,10 +158,11 @@
  * @property {string} suiteId
  * @property {string} name
  * @property {boolean} [enabled] - Defaults to true.
- * @property {string} [caseType] - Routing | Agent; blank or omitted means Agent. Any other value is
- *   a 400 rather than a silent fallback.
+ * @property {string} [caseType] - Routing | Agent | Template; blank or omitted means Agent. Any other
+ *   value is a 400 rather than a silent fallback.
  * @property {string?} [entryAgentId] - Send null rather than "" to mean "use the suite's agent";
- *   validated to exist at save time.
+ *   validated to exist at save time. Required for a Template case.
+ * @property {string?} [templateName] - Required for a Template case; must exist on the entry agent.
  * @property {TestHistoryMessage[]} [history] - Authored prior turns; every message needs a
  *   user/assistant role and non-empty content.
  * @property {string} [priority] - P0 | P1 | P2; blank keeps P1. Any other value is a 400.

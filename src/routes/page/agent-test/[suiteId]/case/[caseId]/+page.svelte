@@ -8,7 +8,7 @@
 	import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
 	import Select from '$lib/common/dropdowns/Select.svelte';
 	import { getSuite, getCase, createCase, updateCase, getMockTargets, authorCase } from '$lib/services/agent-test-service.js';
-	import { getAgentOptions } from '$lib/services/agent-service.js';
+	import { getAgent, getAgentOptions } from '$lib/services/agent-service.js';
 	import { getLlmConfigs } from '$lib/services/llm-provider-service';
 	import { LlmModelCapability, LlmModelType } from '$lib/helpers/enums';
 	import {
@@ -170,6 +170,7 @@
 		enabled: true,
 		caseType: 'Agent',
 		entryAgentId: '',
+		templateName: '',
 		history: [],
 		priority: 'P1',
 		severity: 'S1',
@@ -214,6 +215,39 @@
 		// The cache is read and written inside; tracking it would re-run this on its own writes.
 		untrack(() => ensureMockTargets(ids));
 	});
+
+	/**
+	 * Template names per agent id, for the Template case picker. Cached like the tool lists: the entry
+	 * agent picker gets flipped back and forth while an author settles on one.
+	 * @type {Record<string, string[]>}
+	 */
+	let templatesByAgent = $state({});
+
+	let templateOptions = $derived((templatesByAgent[form.entryAgentId] || [])
+		.map(name => ({ label: name, value: name })));
+
+	$effect(() => {
+		const id = form.caseType === 'Template' ? form.entryAgentId : '';
+		untrack(() => ensureTemplates(id));
+	});
+
+	/** @param {string} id */
+	async function ensureTemplates(id) {
+		if (!id || id in templatesByAgent) return;
+		templatesByAgent[id] = [];
+		await getAgent(id)
+			.then((/** @type {any} */ agent) => {
+				templatesByAgent[id] = (agent?.templates || []).map((/** @type {any} */ x) => x.name).sort();
+			})
+			// Costs the picker its options and nothing more; the backend still rejects an unknown template.
+			.catch(() => {});
+	}
+
+	/** @param {any} e */
+	function changeTemplate(e) {
+		const selecteds = e?.detail?.selecteds || [];
+		form.templateName = selecteds.length > 0 ? selecteds[0].value : '';
+	}
 
 	/** Blocking problems, recomputed on every keystroke and shown before the user can save. */
 	let validationErrors = $derived(collectValidationErrors(form));
@@ -353,6 +387,7 @@
 			// untriaged at P1/S1.
 			caseType: res.caseType || 'Agent',
 			entryAgentId: res.entryAgentId || '',
+			templateName: res.templateName || '',
 			history: (res.history || []).map((/** @type {any} */ m) => ({
 				role: m.role || 'user',
 				content: m.content || ''
@@ -368,6 +403,8 @@
 			turns: (res.turns || []).map((/** @type {any} */ turn, /** @type {number} */ i) => ({
 				index: i,
 				userMessage: turn.userMessage || '',
+				// No editor for these yet; carried through so a save does not clear them.
+				files: turn.files || [],
 				assertions: (turn.assertions || []).map(normalizeAssertion)
 			})),
 			assertions: (res.assertions || []).map(normalizeAssertion),
@@ -439,7 +476,7 @@
 
 	/** @param {number} index */
 	function newTurn(index) {
-		return { index: index, userMessage: '', assertions: [] };
+		return { index: index, userMessage: '', files: [], assertions: [] };
 	}
 
 	function newAssertion() {
@@ -503,6 +540,18 @@
 		// Routing cases carry extra rules; the helper is shared with nothing else, so this cannot
 		// drift from what the backend would reject on save.
 		errors.push(...validateCaseType(value.caseType, value.turns, value.assertions));
+
+		if (value.caseType === 'Template') {
+			if (!value.entryAgentId) {
+				errors.push(t('A Template case needs an entry agent: the agent that owns the template.'));
+			}
+			if (!value.templateName?.trim()) {
+				errors.push(t('A Template case needs a template.'));
+			}
+			if (value.history?.length) {
+				errors.push(t('A Template case cannot have history: a template call does not read the conversation.'));
+			}
+		}
 
 		// Rejected by the backend, and worth catching here: BotSharp dialog storage drops elements
 		// with blank content, so an empty message would silently not be in the conversation and the
@@ -592,6 +641,7 @@
 			// Null, not '', so the backend "fall back to the suite agent" check reads it correctly --
 			// an empty string would be a request to enter on an agent whose id is empty.
 			entryAgentId: form.entryAgentId?.trim() || null,
+			templateName: form.caseType === 'Template' ? form.templateName?.trim() || null : null,
 			history: form.history.map(m => ({ role: m.role, content: m.content ?? '' })),
 			priority: form.priority || 'P1',
 			severity: form.severity || 'S1',
@@ -608,6 +658,7 @@
 			turns: form.turns.map((turn, i) => ({
 				index: i,
 				userMessage: turn.userMessage.trim(),
+				files: turn.files || [],
 				assertions: (turn.assertions || []).map(cleanAssertion)
 			})),
 			assertions: form.assertions.map(cleanAssertion),
@@ -1437,10 +1488,13 @@
 						<select id="case-type" class="ats-input" bind:value={form.caseType}>
 							<option value="Routing">{$_('Routing case')}</option>
 							<option value="Agent">{$_('Agent case')}</option>
+							<option value="Template">{$_('Template case')}</option>
 						</select>
 						<p class="mt-1 mb-0 text-xs text-muted">
 							{#if form.caseType === 'Routing'}
 								{$_('One turn, entered on the Copilot entry agent, asserting only which agent took the conversation. The only type counted towards a run\'s routing accuracy.')}
+							{:else if form.caseType === 'Template'}
+								{$_('Calls one of the entry agent\'s templates directly, the way code calls it outside a conversation. No routing, no function calls; each turn is an independent call.')}
 							{:else}
 								{$_('One agent\'s own behaviour. Enter directly on that agent to keep the router out of what is measured. A journey across several agents is an Agent case too -- use an agentChain assertion for the hand-offs.')}
 							{/if}
@@ -1463,6 +1517,21 @@
 							{$_('A routing agent runs the router and can hand off; any other agent is entered directly, so the router never runs.')}
 						</p>
 					</div>
+					{#if form.caseType === 'Template'}
+						<div class="md:col-span-12">
+							<label class="ats-label" for="case-template">
+								{$_('Template')} <span class="text-danger">*</span>
+							</label>
+							<Select
+								tag={'agent-test-case-template'}
+								placeholder={form.entryAgentId ? $_('Select a template') : $_('Select an entry agent first')}
+								selectedValues={form.templateName ? [form.templateName] : []}
+								options={templateOptions}
+								disabled={!form.entryAgentId}
+								onselect={e => changeTemplate(e)}
+							/>
+						</div>
+					{/if}
 					{#if form.sourceConversationId}
 						<div class="md:col-span-12">
 							<div class="ats-alert ats-tone-info" role="alert">
@@ -1554,6 +1623,15 @@
 								rows="2"
 								bind:value={turn.userMessage}
 							></textarea>
+							{#if turn.files?.length}
+								<div class="mt-2 text-xs text-muted">
+									<i class="mdi mdi-paperclip"></i>
+									{$_('Files')} ({turn.files.length}) · {$_('read-only, maintained through the API')}
+									{#each turn.files as file}
+										<div class="font-code">{file.fileName} &nbsp; {file.fileUrl}</div>
+									{/each}
+								</div>
+							{/if}
 						</div>
 						<div class="mb-3 flex flex-wrap items-center justify-between gap-2">
 							<span class="text-xs text-muted">

@@ -907,6 +907,8 @@
 											     case to discover. -->
 											{#if testCase.caseType === 'Routing'}
 												<span class="ats-badge ats-tone-info">{$_('Routing case')}</span>
+											{:else if testCase.caseType === 'Template'}
+												<span class="ats-badge ats-badge-soft ats-tone-warning">{$_('Template case')}</span>
 											{:else}
 												<span class="ats-badge ats-badge-soft ats-tone-secondary">{$_('Agent case')}</span>
 											{/if}
