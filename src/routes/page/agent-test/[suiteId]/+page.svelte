@@ -1141,7 +1141,7 @@
 											<span class="text-success">{run.passedCount} {$_('passed')}</span>,
 											<span class="text-danger">{run.failedCount} {$_('failed')}</span>,
 											<span class="text-warning">{run.errorCount} {$_('errored')}</span>
-											<span class="text-muted">/ {run.totalCount}</span>
+											<span class="text-muted">/ {run.plannedCount || run.totalCount}</span>
 										</td>
 										<td>
 											<span class="flex flex-wrap items-center gap-1">

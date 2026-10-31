@@ -217,6 +217,9 @@
  *   and then this is the only place the reason exists.
  * @property {string?} triggeredBy - User id of whoever triggered it.
  * @property {string[]?} caseIds - Run only these cases; null/empty = every enabled case in the suite.
+ * @property {number?} plannedCount - Case x model executions the run set out to do, set when it
+ *   starts Running. `totalCount` is how many have finished, so "10 / 30" is the run's progress.
+ *   0 or absent on runs from before the field existed.
  * @property {number} totalCount
  * @property {number} passedCount
  * @property {number} failedCount

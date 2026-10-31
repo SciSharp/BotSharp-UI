@@ -539,7 +539,9 @@
 				{/if}
 				<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
 					<div class="ats-stat">
-						<span class="ats-stat-value">{run.totalCount}</span>
+						<span class="ats-stat-value">
+							{run.totalCount}{#if run.plannedCount}<span class="text-muted"> / {run.plannedCount}</span>{/if}
+						</span>
 						<span class="ats-stat-label">{$_('Total')}</span>
 					</div>
 					<div class="ats-stat">
