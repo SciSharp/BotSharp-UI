@@ -646,6 +646,7 @@
     "Judge tokens / cost": "Judge tokens / cost",
     "Judge tokens": "Judge tokens",
     "Judge cost": "Judge cost",
+    "You edited the form while the assistant was working; the new draft replaced those edits. Press Undo to get them back.": "You edited the form while the assistant was working; the new draft replaced those edits. Press Undo to get them back.",
     "Judge": "Judge",
     "Tokens and cost cover the model under test only; llmJudge spend is listed separately.": "Tokens and cost cover the model under test only; llmJudge spend is listed separately.",
     "Plan a scope": "Plan a scope",

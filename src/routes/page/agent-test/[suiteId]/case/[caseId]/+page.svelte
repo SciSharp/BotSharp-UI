@@ -29,6 +29,11 @@
 	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
+	// One handle per banner, so a second message restarts its timer instead of being cleared early by the first one's.
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let successTimer;
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let errorTimer;
 	const nameMaxLength = 200;
 
 	/** Assertion types as Select options. Constant -- the list never changes at runtime. */
@@ -142,21 +147,6 @@
 			: t('No suite default -- pick a model to use chat authoring')
 	);
 
-	/**
-	 * The whole editable case. Every field the backend accepts lives here even
-	 * when it has no control (unmockedToolPolicy, sourceConversationId), because
-	 * PUT is a full replace -- anything missing from the payload is cleared.
-	 * @type {{
-	 *   name: string,
-	 *   enabled: boolean,
-	 *   turns: import('$agentTestTypes').TestTurn[],
-	 *   assertions: import('$agentTestTypes').TestAssertion[],
-	 *   initialStates: import('$agentTestTypes').TestState[],
-	 *   mocks: import('$agentTestTypes').TestToolMock[],
-	 *   unmockedToolPolicy: string,
-	 *   sourceConversationId: string | null
-	 * }}
-	 */
 	/** Agents the entry-agent and involved-agent pickers can offer. */
 	/** @type {{ label: string, value: string }[]} */
 	let agentOptions = $state([]);
@@ -170,6 +160,11 @@
 	 */
 	let agentNameOptions = $derived(agentOptions.map(o => ({ label: o.label, value: o.label })));
 
+	/**
+	 * The whole editable case. Every field the backend accepts lives here even
+	 * when it has no control (unmockedToolPolicy, sourceConversationId), because
+	 * PUT is a full replace -- anything missing from the payload is cleared.
+	 */
 	let form = $state({
 		name: '',
 		enabled: true,
@@ -375,7 +370,9 @@
 	function markReviewedToday() {
 		// A date field nobody can be bothered to type is a date field that stays empty, and an empty
 		// reviewed date is indistinguishable from a case reviewed long ago.
-		form.lastReviewedDate = new Date().toISOString().substring(0, 10);
+		// Local date, not toISOString(): that is UTC, which is still yesterday before 08:00 in UTC+8.
+		const now = new Date();
+		form.lastReviewedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 	}
 
 	function loadCase() {
@@ -714,7 +711,8 @@
 	function notifySuccess(text) {
 		isComplete = true;
 		successText = text;
-		setTimeout(() => {
+		clearTimeout(successTimer);
+		successTimer = setTimeout(() => {
 			isComplete = false;
 			successText = '';
 		}, duration);
@@ -724,7 +722,8 @@
 	function notifyError(text) {
 		isError = true;
 		errorText = text;
-		setTimeout(() => {
+		clearTimeout(errorTimer);
+		errorTimer = setTimeout(() => {
 			isError = false;
 			errorText = '';
 		}, duration);
@@ -908,6 +907,9 @@
 		chatInput = '';
 		isAuthoring = true;
 		authorErrorText = null;
+		// The reply replaces the whole form with a draft built from this snapshot, so anything typed
+		// while waiting would vanish without a word. Compared afterwards to say so.
+		const sentForm = JSON.stringify(form);
 
 		try {
 			/** @type {import('$agentTestTypes').AgentTestAuthorRequest} */
@@ -936,6 +938,12 @@
 			authorErrors = result.validationErrors || [];
 
 			if (result.draftChanged && result.draft) {
+				if (JSON.stringify(form) !== sentForm) {
+					authorWarnings = [
+						...authorWarnings,
+						t('You edited the form while the assistant was working; the new draft replaced those edits. Press Undo to get them back.')
+					];
+				}
 				applyDraft(result.draft);
 			}
 		} catch (err) {

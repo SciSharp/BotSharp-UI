@@ -19,6 +19,11 @@
 	} from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
+	// One handle per banner, so a second message restarts its timer instead of being cleared early by the first one's.
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let successTimer;
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let errorTimer;
 	const pollIntervalMs = 2000;
 
 	let isLoading = $state(false);
@@ -254,7 +259,8 @@
 	function notifySuccess(text) {
 		isComplete = true;
 		successText = text;
-		setTimeout(() => {
+		clearTimeout(successTimer);
+		successTimer = setTimeout(() => {
 			isComplete = false;
 			successText = '';
 		}, duration);
@@ -264,7 +270,8 @@
 	function notifyError(text) {
 		isError = true;
 		errorText = text;
-		setTimeout(() => {
+		clearTimeout(errorTimer);
+		errorTimer = setTimeout(() => {
 			isError = false;
 			errorText = '';
 		}, duration);
