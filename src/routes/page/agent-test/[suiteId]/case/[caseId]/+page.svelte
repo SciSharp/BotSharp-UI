@@ -574,6 +574,12 @@
 			if (used.length) {
 				errors.push(t('A Template case cannot use {types} assertions: a template call does not route or call functions, so their result is fixed.', { types: [...new Set(used)].join(', ') }));
 			}
+			// A template call returns text only (InstructAsync passes no rich content), so this source
+			// is always empty. Case-insensitive like the backend's source match.
+			if ([...(value.turns || []).flatMap(turn => turn.assertions || []), ...(value.assertions || [])]
+				.some(a => OUTPUT_SOURCE_TYPES.includes(a?.type) && a?.target?.trim().toLowerCase() === 'richcontent')) {
+				errors.push(t('A Template case cannot assert on richContent: a template call returns text only.'));
+			}
 		}
 
 		// Rejected by the backend, and worth catching here: BotSharp dialog storage drops elements
@@ -944,7 +950,12 @@
 		// JSON round-trip rather than keeping the reactive object: history entries have to be inert
 		// snapshots, or undo would restore something that has since been edited in place.
 		draftHistory = [...draftHistory, JSON.parse(JSON.stringify(form))];
-		form = toForm(draft);
+		const next = toForm(draft);
+		// Same rule as picking another entry agent by hand: the template belongs to the old one.
+		if (next.entryAgentId !== form.entryAgentId) {
+			next.templateName = '';
+		}
+		form = next;
 	}
 
 	function undoDraft() {
@@ -1017,7 +1028,9 @@
 						<Select
 							tag={`${idPrefix}-source-${i}`}
 							selectedValues={[assertion.target || 'reply']}
-							options={OUTPUT_SOURCE_OPTIONS}
+							options={form.caseType === 'Template'
+								? OUTPUT_SOURCE_OPTIONS.filter(o => o.value === 'reply' || o.value === assertion.target)
+								: OUTPUT_SOURCE_OPTIONS}
 							onselect={e => pickValue(assertion, 'target', e)}
 						/>
 					{:else if assertion.type === 'toolCalled' || assertion.type === 'toolNotCalled'}

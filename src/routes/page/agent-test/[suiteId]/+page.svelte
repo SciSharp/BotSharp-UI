@@ -50,6 +50,15 @@
 	/** @type {string | null} */
 	let loadErrorText = $state(null);
 
+	/**
+	 * Per-list load failures. Without these a failed fetch fell through to the empty states, which
+	 * read as "this suite has no cases / was never run" -- as if the data were gone.
+	 * @type {string | null}
+	 */
+	let casesLoadError = $state(null);
+	/** @type {string | null} */
+	let runsLoadError = $state(null);
+
 	let suiteId = $derived(page.params.suiteId);
 
 	/** @type {import('$agentTestTypes').AgentTestSuite | null} */
@@ -272,25 +281,28 @@
 
 	function loadCases() {
 		return getCases(suiteId).then(res => {
+			casesLoadError = null;
 			cases = res || [];
 			// Drop ticks for cases that no longer exist, otherwise a stale id ends
 			// up in caseIds and the run comes back Error with nothing matched.
 			const ids = new Set(cases.map(x => x.id));
 			selectedCaseIds = selectedCaseIds.filter(id => ids.has(id));
-		}).catch(() => {
-			cases = [];
+		}).catch(err => {
+			// The previous list, if any, stays: it is stale at worst, never wrong about what exists.
+			casesLoadError = errorMessage(err, t('Failed to load the test cases.'));
 		});
 	}
 
 	function loadRuns() {
 		return getRuns(suiteId).then(res => {
+			runsLoadError = null;
 			runs = res || [];
 			// Drop selections for runs that are gone, or a later delete would post ids the server
 			// can only answer "already deleted" for.
 			const ids = new Set(runs.map(r => r.id));
 			selectedRunIds = selectedRunIds.filter(id => ids.has(id));
-		}).catch(() => {
-			runs = [];
+		}).catch(err => {
+			runsLoadError = errorMessage(err, t('Failed to load the run history.'));
 		});
 	}
 
@@ -712,6 +724,15 @@
 	toggleModal={closeDeleteCaseModal}
 />
 
+{#snippet listLoadError(/** @type {string} */ text, /** @type {() => Promise<any>} */ retry)}
+	<div class="ats-alert ats-tone-danger justify-between" role="alert">
+		<span>{text}</span>
+		<button type="button" class="ats-btn ats-btn-sm ats-btn-outline ats-tone-danger" onclick={() => retry()}>
+			<i class="mdi mdi-refresh"></i> {$_('Retry')}
+		</button>
+	</div>
+{/snippet}
+
 {#if loadErrorText}
 	<div class="flex flex-wrap">
 		<div class="w-full">
@@ -835,7 +856,10 @@
 				</div>
 			</div>
 			<div class="ats-card-body">
-				{#if cases.length === 0}
+				{#if casesLoadError}
+					{@render listLoadError(casesLoadError, loadCases)}
+				{/if}
+				{#if cases.length === 0 && !casesLoadError}
 					<div class="ats-empty">
 						<p class="ats-empty-text">{$_('No test cases in this suite yet.')}</p>
 						<div class="flex flex-wrap items-center justify-center gap-2">
@@ -850,7 +874,7 @@
 							</button>
 						</div>
 					</div>
-				{:else}
+				{:else if cases.length > 0}
 					<div class="ats-table-wrap scrollbar-on-hover">
 						<table class="ats-table">
 							<thead>
@@ -1054,11 +1078,14 @@
 				</div>
 			</div>
 			<div class="ats-card-body">
-				{#if runs.length === 0}
+				{#if runsLoadError}
+					{@render listLoadError(runsLoadError, loadRuns)}
+				{/if}
+				{#if runs.length === 0 && !runsLoadError}
 					<div class="ats-empty">
 						<p class="ats-empty-text">{$_('This suite has never been run.')}</p>
 					</div>
-				{:else}
+				{:else if runs.length > 0}
 					<div class="ats-table-wrap scrollbar-on-hover">
 						<table class="ats-table">
 							<thead>

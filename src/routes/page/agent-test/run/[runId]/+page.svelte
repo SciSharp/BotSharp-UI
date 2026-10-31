@@ -1,5 +1,5 @@
 <script>
-	import { onMount } from 'svelte';
+	import { untrack } from 'svelte';
 	import { _ } from 'svelte-i18n';
 	import { page } from '$app/state';
 	import { goto } from '$app/navigation';
@@ -60,17 +60,21 @@
 	]);
 
 	/**
-	 * The models the failures ran on, so a re-run reproduces them on the same model instead of
-	 * falling back to the agent's own (possibly since changed) LlmConfig. An "agent default" failure
-	 * counts only when it ran on a single model: forcing one model onto a case whose router and
-	 * hand-off target used different ones would re-run a different conversation. Null = re-run on
-	 * the agents' own LlmConfig.
+	 * The failures grouped by the models each case failed on, one re-run per group, so every case is
+	 * reproduced on its own model instead of falling back to the agent's own (possibly since changed)
+	 * LlmConfig. Grouped because a run applies its models to every case in it: one run would force
+	 * case A's model onto case B, and in a multi-model run cross every failed case with every model.
+	 * An "agent default" failure keeps its model only when it ran on a single one: forcing one model
+	 * onto a case whose router and hand-off target used different ones would re-run a different
+	 * conversation. Null models = re-run on the agents' own LlmConfig.
 	 */
-	let failedModels = $derived.by(() => {
-		/** @type {Map<string, import('$agentTestTypes').TestModel>} */
-		const models = new Map();
+	let rerunGroups = $derived.by(() => {
+		/** @type {Map<string, Map<string, import('$agentTestTypes').TestModel>>} */
+		const modelsByCase = new Map();
 		for (const r of results) {
 			if (r.status !== 'Failed' && r.status !== 'Error') continue;
+			const models = modelsByCase.get(r.caseId) || new Map();
+			modelsByCase.set(r.caseId, models);
 			if (r.model) {
 				models.set(`${r.provider}/${r.model}`, { provider: r.provider, model: r.model });
 			} else if (r.usedModels?.length === 1) {
@@ -78,7 +82,16 @@
 				models.set(r.usedModels[0], { provider, model: rest.join('/') });
 			}
 		}
-		return models.size > 0 ? [...models.values()] : null;
+
+		/** @type {Map<string, { caseIds: string[], models: import('$agentTestTypes').TestModel[] | null }>} */
+		const groups = new Map();
+		for (const [caseId, models] of modelsByCase) {
+			const key = [...models.keys()].sort().join('|');
+			const group = groups.get(key) || { caseIds: [], models: models.size > 0 ? [...models.values()] : null };
+			group.caseIds.push(caseId);
+			groups.set(key, group);
+		}
+		return [...groups.values()];
 	});
 
 	/** Column order for the comparison grid; follows the run's own model order. */
@@ -92,6 +105,7 @@
 	 */
 	let routingAccuracies = $derived((run?.routingAccuracies || []).map(a => ({
 		...a,
+		key: `${a.provider || ''}/${a.model || ''}`,
 		label: a.model || $_('agent default'),
 		percent: a.caseCount > 0 ? Math.round((a.passedCount / a.caseCount) * 1000) / 10 : null
 	})));
@@ -113,6 +127,7 @@
 
 	let performance = $derived((run?.performanceSummaries || []).map(s => ({
 		...s,
+		key: `${s.provider || ''}/${s.model || ''}`,
 		label: s.model || defaultLabel
 	})));
 
@@ -122,7 +137,7 @@
 	 * read as a cost regression with nothing to point at.
 	 */
 	let pricingByModel = $derived(Object.fromEntries(
-		(run?.modelPricing || []).map(p => [p.model || '', p])
+		(run?.modelPricing || []).map(p => [`${p.provider || ''}/${p.model || ''}`, p])
 	));
 	let isComparison = $derived(modelColumns.length > 1);
 
@@ -161,18 +176,33 @@
 		};
 	}));
 
-	onMount(() => {
-		isLoading = true;
-		load().finally(() => {
-			isLoading = false;
+	/** True while a getRun is in flight, so a slow response is never overtaken by the next poll's. */
+	let isFetching = false;
+
+	// Keyed on runId rather than onMount: "Re-run Failures" navigates to another run on this same
+	// route, and SvelteKit reuses the component for it, so a mount-only load would keep showing
+	// the old run.
+	$effect(() => {
+		const id = runId;
+		untrack(() => {
+			run = null;
+			results = [];
+			expandedIds = [];
+			hasAutoExpanded = false;
+			loadErrorText = null;
+			isLoading = true;
+			load().finally(() => {
+				isLoading = false;
+			});
 		});
 
 		// A queued run reaches a terminal status on its own schedule, so the page
 		// keeps pulling until it does -- nothing pushes here, there is no SignalR
 		// channel for test runs. Cleared on destroy so leaving the page stops the
-		// requests.
+		// requests. Also stops when the run never loaded at all (e.g. it was deleted):
+		// retrying a 404 every two seconds only hides the error behind a spinner.
 		const timer = setInterval(() => {
-			if (isFinished) return;
+			if (id !== runId || isFinished || isFetching || (!run && loadErrorText)) return;
 			load();
 		}, pollIntervalMs);
 
@@ -180,13 +210,21 @@
 	});
 
 	function load() {
-		loadErrorText = null;
-		return getRun(runId).then(res => {
+		const id = runId;
+		isFetching = true;
+		return getRun(id).then(res => {
+			if (id !== runId) return;
+			loadErrorText = null;
 			run = res.run;
 			results = res.results || [];
 			autoExpandFailures();
 		}).catch(err => {
+			// A failed poll on a run already on screen keeps the last good snapshot; the next poll
+			// retries. Only a run that never loaded replaces the page with the error.
+			if (id !== runId || run) return;
 			loadErrorText = errorMessage(err, t('Failed to load this run.'));
+		}).finally(() => {
+			isFetching = false;
 		});
 	}
 
@@ -246,11 +284,20 @@
 	function handleRerunFailed() {
 		if (isBusy || !suiteId || failedCaseIds.length === 0) return;
 		isBusy = true;
-		triggerRun(suiteId, failedCaseIds, failedModels).then(newRun => {
-			notifySuccess(t('Re-run queued!'));
-			goto(`/page/agent-test/run/${newRun.id}`);
-		}).catch(err => {
-			notifyError(errorMessage(err, t('Failed to start the re-run.')));
+		Promise.allSettled(rerunGroups.map(g => triggerRun(suiteId, g.caseIds, g.models))).then(settled => {
+			const queued = settled.filter(s => s.status === 'fulfilled').map(s => s.value);
+			const failed = settled.find(s => s.status === 'rejected');
+			if (failed) {
+				notifyError(errorMessage(failed.reason, t('Failed to start the re-run.')));
+			}
+			if (settled.length === 1 && queued.length === 1) {
+				notifySuccess(t('Re-run queued!'));
+				goto(`/page/agent-test/run/${queued[0].id}`);
+			} else if (queued.length > 0) {
+				// Several runs, one per model set: the suite's run history shows them side by side.
+				notifySuccess(t('Queued {n} re-runs, one per model the failures ran on.', { n: queued.length }));
+				goto(`/page/agent-test/${suiteId}`);
+			}
 		}).finally(() => {
 			isBusy = false;
 		});
@@ -389,10 +436,10 @@
 					<div class="mb-3">
 						<h6 class="ats-meta-label mb-2">{$_('Routing accuracy')}</h6>
 						<div class="grid grid-cols-2 gap-3 md:grid-cols-4">
-							{#each routingAccuracies as accuracy (accuracy.label)}
+							{#each routingAccuracies as accuracy (accuracy.key)}
 								<div class="ats-stat">
 									<span class="ats-stat-value">{accuracy.percent}%</span>
-									<span class="ats-stat-label font-code">
+									<span class="ats-stat-label font-code" title={accuracy.provider}>
 										{accuracy.label} · {accuracy.passedCount}/{accuracy.caseCount}
 									</span>
 								</div>
@@ -417,10 +464,10 @@
 									</tr>
 								</thead>
 								<tbody>
-									{#each performance as row (row.label)}
-										{@const pricing = pricingByModel[row.model || '']}
+									{#each performance as row (row.key)}
+										{@const pricing = pricingByModel[row.key]}
 										<tr>
-											<td class="font-code">{row.label}</td>
+											<td class="font-code" title={row.provider}>{row.label}</td>
 											<td class="text-end">{row.caseCount}</td>
 											<td class="text-end">{formatDuration(row.latencyP50Ms)}</td>
 											<td class="text-end">{formatDuration(row.latencyP95Ms)}</td>
