@@ -131,6 +131,10 @@
 		label: s.model || defaultLabel
 	})));
 
+	// The judge column only appears when a judge actually ran; runs recorded before the field
+	// existed have no judgeTokens at all.
+	let hasJudgeSpend = $derived(performance.some(row => (row.judgeTokens || 0) > 0));
+
 	/**
 	 * The unit costs the cost column was computed from. Shown next to the figures because a cost is
 	 * not comparable with another run unless these match -- a provider price change would otherwise
@@ -460,6 +464,9 @@
 										<th scope="col" class="text-end">{$_('Latency P95')}</th>
 										<th scope="col" class="text-end">{$_('Tokens')}</th>
 										<th scope="col" class="text-end">{$_('Cost')}</th>
+										{#if hasJudgeSpend}
+											<th scope="col" class="text-end">{$_('Judge tokens / cost')}</th>
+										{/if}
 										<th scope="col">{$_('Unit cost (in / out)')}</th>
 									</tr>
 								</thead>
@@ -473,6 +480,9 @@
 											<td class="text-end">{formatDuration(row.latencyP95Ms)}</td>
 											<td class="text-end">{row.totalTokens}</td>
 											<td class="text-end">{row.totalCost.toFixed(4)}</td>
+											{#if hasJudgeSpend}
+												<td class="text-end text-muted">{row.judgeTokens || 0} · {(row.judgeCost || 0).toFixed(4)}</td>
+											{/if}
 											<td class="font-code text-xs text-muted">
 												{#if pricing && pricing.textInputCost != null}
 													{pricing.textInputCost} / {pricing.textOutputCost}
@@ -490,6 +500,9 @@
 						</div>
 						<p class="mt-2 mb-0 text-xs text-muted">
 							{$_('Percentiles are nearest-rank over the agent-call time of the cases that reached the model, so every figure is a duration some case actually took. Cases that failed before their first turn are excluded from the percentiles but still counted in tokens and cost.')}
+							{#if hasJudgeSpend}
+								{$_('Tokens and cost cover the model under test only; llmJudge spend is listed separately.')}
+							{/if}
 						</p>
 					</div>
 				{/if}
@@ -661,6 +674,11 @@
 									{#if result.totalTokens > 0}
 										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Tokens / cost')}>
 											{result.totalTokens} · {result.cost.toFixed(4)}
+										</span>
+									{/if}
+									{#if result.judgeTokens > 0}
+										<span class="ats-badge ats-badge-soft ats-tone-secondary" title={$_('Judge tokens / cost')}>
+											{$_('Judge')} {result.judgeTokens} · {result.judgeCost.toFixed(4)}
 										</span>
 									{/if}
 									{#if result.agentChain?.length > 0}

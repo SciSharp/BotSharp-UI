@@ -249,6 +249,9 @@
  * @property {number} totalTokens - Over EVERY result, unlike latency: a case that errored still spent
  *   what it spent.
  * @property {number} totalCost
+ * @property {number} [judgeTokens] - llmJudge spend for these cases, not included in totalTokens.
+ *   Absent on runs recorded before it existed.
+ * @property {number} [judgeCost]
  */
 
 /**
@@ -327,8 +330,11 @@
  * @property {number} modelDurationMs - The agent calls alone, summed over the turns. This is what the
  *   run's latency percentiles are built from.
  * @property {number} totalTokens - Measured as a delta across this case's own execution. Total only:
- *   the input/output split is not reachable through ITokenStatistics.
+ *   the input/output split is not reachable through ITokenStatistics. Excludes llmJudge calls.
  * @property {number} cost
+ * @property {number} [judgeTokens] - What this case's llmJudge assertions spent, priced by the judge
+ *   model. Absent on results recorded before it existed.
+ * @property {number} [judgeCost]
  * @property {string?} error - Infrastructure-level reason for failure (timeout, a dead mock seam, a
  *   case with no turns), as distinct from an assertion failure. Show this text whenever `status` is
  *   `Error`.
