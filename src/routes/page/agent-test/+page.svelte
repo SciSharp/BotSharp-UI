@@ -13,6 +13,11 @@
 	import { errorMessage, t } from '$lib/helpers/utils/agent-test.js';
 
 	const duration = 3000;
+	// One handle per banner, so a second message restarts its timer instead of being cleared early by the first one's.
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let successTimer;
+	/** @type {ReturnType<typeof setTimeout> | undefined} */
+	let errorTimer;
 	const nameMaxLength = 200;
 	const descriptionMaxLength = 2000;
 
@@ -73,9 +78,13 @@
 
 	function loadSuites() {
 		loadErrorText = null;
-		return getSuites(selectedAgentId).then(res => {
+		const agentId = selectedAgentId;
+		return getSuites(agentId).then(res => {
+			// Filters can change faster than the list loads; only the latest one may fill it.
+			if (agentId !== selectedAgentId) return;
 			suites = res || [];
 		}).catch(() => {
+			if (agentId !== selectedAgentId) return;
 			suites = [];
 			loadErrorText = t('Failed to load test suites. Please try again.');
 		});
@@ -97,6 +106,9 @@
 	function changeAgentFilter(e) {
 		const selecteds = e?.detail?.selecteds || [];
 		selectedAgentId = selecteds.length > 0 ? selecteds[0].value : null;
+		// Applied on pick: otherwise the picker shows one agent while the list still shows another,
+		// and New Suite already pre-fills from the picker.
+		refreshSuites();
 	}
 
 	function applyAgentFilter() {
@@ -146,7 +158,8 @@
 			isCreateModalOpen = false;
 			isComplete = true;
 			successText = t('Test suite created!');
-			setTimeout(() => {
+			clearTimeout(successTimer);
+			successTimer = setTimeout(() => {
 				isComplete = false;
 				successText = '';
 			}, duration);
@@ -154,7 +167,8 @@
 		}).catch(() => {
 			isError = true;
 			errorText = t('Failed to create test suite.');
-			setTimeout(() => {
+			clearTimeout(errorTimer);
+			errorTimer = setTimeout(() => {
 				isError = false;
 				errorText = '';
 			}, duration);
@@ -200,7 +214,8 @@
 		deleteSuite(suiteId).then(() => {
 			isComplete = true;
 			successText = t('Test suite deleted!');
-			setTimeout(() => {
+			clearTimeout(successTimer);
+			successTimer = setTimeout(() => {
 				isComplete = false;
 				successText = '';
 			}, duration);
@@ -208,7 +223,8 @@
 		}).catch(() => {
 			isError = true;
 			errorText = t('Failed to delete test suite.');
-			setTimeout(() => {
+			clearTimeout(errorTimer);
+			errorTimer = setTimeout(() => {
 				isError = false;
 				errorText = '';
 			}, duration);

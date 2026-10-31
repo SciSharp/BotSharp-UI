@@ -49,6 +49,9 @@ const EXPECTED_REQUIRED = [
 	'llmJudge'
 ];
 
+/** .NET regex constructs JS RegExp rejects; see the outputRegex check in validateAssertion. */
+const DOTNET_ONLY_REGEX_SYNTAX = /\(\?[imnsx-]+[:)]|\(\?>|\(\?#|\(\?\(|\\[AZzG]|-\[/;
+
 /** Types whose `target` the backend rejects as empty. */
 const TARGET_REQUIRED = ['toolCalled', 'toolNotCalled', 'stateEquals'];
 
@@ -72,7 +75,7 @@ export const OUTPUT_SOURCE_TYPES = ['outputContains', 'outputNotContains', 'outp
  * towards a run's routing accuracy. A multi-agent journey is an Agent case whose
  * `agentChain` assertion describes the hand-offs.
  */
-export const CASE_TYPES = ['Routing', 'Agent'];
+export const CASE_TYPES = ['Routing', 'Agent', 'Template'];
 
 /**
  * Roles an authored history message may take (HistoryRoles in AgentTestCase.cs).
@@ -231,11 +234,17 @@ export function validateAssertion(assertion) {
 		return t('Assertion "stateEquals" needs an expected value, otherwise it can never pass.');
 	}
 
+	// Checked with JS RegExp as an approximation of the backend's .NET Regex. A pattern JS cannot
+	// parse is let through when it uses .NET-only syntax -- inline options (?i), atomic (?>...),
+	// comments (?#...), conditionals (?(...)), anchors \A \Z \z \G, class subtraction -[...] -- since
+	// JS cannot judge it and the backend would accept it.
 	if (type === 'outputRegex' && assertion.expected?.trim()) {
 		try {
 			new RegExp(assertion.expected);
 		} catch {
-			return t('"{pattern}" is not a valid regular expression.', { pattern: assertion.expected });
+			if (!DOTNET_ONLY_REGEX_SYNTAX.test(assertion.expected)) {
+				return t('"{pattern}" is not a valid regular expression.', { pattern: assertion.expected });
+			}
 		}
 	}
 

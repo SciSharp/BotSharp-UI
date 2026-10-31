@@ -42,6 +42,7 @@
  * @typedef {Object} TestTurn
  * @property {number} index
  * @property {string} userMessage
+ * @property {{ fileName: string, fileUrl: string }[]} [files] - Attached to the user message.
  * @property {TestAssertion[]} assertions - Turn-level assertions, as opposed to the case-level
  *   AgentTestCase.assertions.
  */
@@ -104,7 +105,7 @@
  * @property {string} name
  * @property {boolean} enabled - Recorded drafts land as false; a human has to review and enable them
  *   before they join a normal run.
- * @property {string} caseType - Routing | Agent. Defaults to Agent, which is also what every case
+ * @property {string} caseType - Routing | Agent | Template. Defaults to Agent, which is also what every case
  *   stored before the field existed reads back as. Routing is validated more strictly (one turn,
  *   must assert a routing outcome, no llmJudge) and is the only type counted towards a run's routing
  *   accuracy. A journey across several agents is an Agent case whose `agentChain` assertion
@@ -113,6 +114,7 @@
  *   uses the suite's. This is the switch between testing routing and testing one agent alone:
  *   BotSharp sends a routing-type agent through the router (which can hand off) and any other agent
  *   straight into itself (the router never runs).
+ * @property {string?} templateName - The entry agent's template a Template case calls directly.
  * @property {TestTurn[]} turns - Length 1 is a single-turn case.
  * @property {TestAssertion[]} assertions - Case-level assertions, evaluated after every turn has run.
  * @property {TestState[]} initialStates - Injected before the conversation starts; maps to BotSharp's
@@ -156,10 +158,11 @@
  * @property {string} suiteId
  * @property {string} name
  * @property {boolean} [enabled] - Defaults to true.
- * @property {string} [caseType] - Routing | Agent; blank or omitted means Agent. Any other value is
- *   a 400 rather than a silent fallback.
+ * @property {string} [caseType] - Routing | Agent | Template; blank or omitted means Agent. Any other
+ *   value is a 400 rather than a silent fallback.
  * @property {string?} [entryAgentId] - Send null rather than "" to mean "use the suite's agent";
- *   validated to exist at save time.
+ *   validated to exist at save time. Required for a Template case.
+ * @property {string?} [templateName] - Required for a Template case; must exist on the entry agent.
  * @property {TestHistoryMessage[]} [history] - Authored prior turns; every message needs a
  *   user/assistant role and non-empty content.
  * @property {string} [priority] - P0 | P1 | P2; blank keeps P1. Any other value is a 400.
@@ -214,6 +217,9 @@
  *   and then this is the only place the reason exists.
  * @property {string?} triggeredBy - User id of whoever triggered it.
  * @property {string[]?} caseIds - Run only these cases; null/empty = every enabled case in the suite.
+ * @property {number?} plannedCount - Case x model executions the run set out to do, set when it
+ *   starts Running. `totalCount` is how many have finished, so "10 / 30" is the run's progress.
+ *   0 or absent on runs from before the field existed.
  * @property {number} totalCount
  * @property {number} passedCount
  * @property {number} failedCount
@@ -226,6 +232,9 @@
  *   cost figure is not comparable with another run's unless these match. Kept per model because a single run-wide figure would
  *   average a candidate model together with the baseline and hide the difference the run exists to
  *   measure.
+ * @property {ModelPricingSnapshot?} [judgePricing] - The judge model llmJudge scored with and its unit
+ *   costs, as of this run. Absent on runs recorded before the field existed, and when the suite had no
+ *   judge configured.
  * @property {boolean} cancelRequested
  * @property {string?} startedAt - ISO date string; null until it starts.
  * @property {string?} completedAt - ISO date string; null until it finishes.
@@ -246,6 +255,9 @@
  * @property {number} totalTokens - Over EVERY result, unlike latency: a case that errored still spent
  *   what it spent.
  * @property {number} totalCost
+ * @property {number} [judgeTokens] - llmJudge spend for these cases, not included in totalTokens.
+ *   Absent on runs recorded before it existed.
+ * @property {number} [judgeCost]
  */
 
 /**
@@ -324,8 +336,11 @@
  * @property {number} modelDurationMs - The agent calls alone, summed over the turns. This is what the
  *   run's latency percentiles are built from.
  * @property {number} totalTokens - Measured as a delta across this case's own execution. Total only:
- *   the input/output split is not reachable through ITokenStatistics.
+ *   the input/output split is not reachable through ITokenStatistics. Excludes llmJudge calls.
  * @property {number} cost
+ * @property {number} [judgeTokens] - What this case's llmJudge assertions spent, priced by the judge
+ *   model. Absent on results recorded before it existed.
+ * @property {number} [judgeCost]
  * @property {string?} error - Infrastructure-level reason for failure (timeout, a dead mock seam, a
  *   case with no turns), as distinct from an assertion failure. Show this text whenever `status` is
  *   `Error`.
