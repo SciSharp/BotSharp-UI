@@ -1507,6 +1507,8 @@
 						     "Clear selection" to fall back to the suite agent. -->
 						<Select
 							tag={'agent-test-case-entry-agent'}
+							searchMode={true}
+							searchPlaceholder={$_('Search agents')}
 							placeholder={$_('Use the suite\'s agent')}
 							selectedValues={form.entryAgentId ? [form.entryAgentId] : []}
 							options={agentOptions}
@@ -1524,6 +1526,8 @@
 							</label>
 							<Select
 								tag={'agent-test-case-template'}
+								searchMode={true}
+								searchPlaceholder={$_('Search templates')}
 								placeholder={form.entryAgentId ? $_('Select a template') : $_('Select an entry agent first')}
 								selectedValues={form.templateName ? [form.templateName] : []}
 								options={templateOptions}
@@ -1762,6 +1766,8 @@
 						<Select
 							tag={'agent-test-case-involved-agents'}
 							multiSelect={true}
+							searchMode={true}
+							searchPlaceholder={$_('Search agents')}
 							placeholder={$_('Derived from the entry agent')}
 							selectedValues={form.involvedAgents}
 							options={agentOptions}

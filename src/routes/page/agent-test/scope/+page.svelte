@@ -116,6 +116,8 @@
 						<Select
 							tag={'agent-test-scope-agents'}
 							multiSelect={true}
+							searchMode={true}
+							searchPlaceholder={$_('Search agents')}
 							placeholder={$_('Select Agent')}
 							selectedValues={query.targetAgentIds}
 							options={agentOptions}

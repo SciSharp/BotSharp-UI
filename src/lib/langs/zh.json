@@ -748,6 +748,7 @@
     "Calls one of the entry agent's templates directly, the way code calls it outside a conversation. No routing, no function calls; each turn is an independent call.": "直接调用入口 agent 的某个模板，和代码在对话之外调用它的方式一致。不走路由、不调函数；每一轮都是独立的一次调用。",
     "Template": "模板",
     "Select a template": "选择模板",
+    "Search templates": "搜索模板",
     "Select an entry agent first": "请先选择入口 agent",
     "read-only, maintained through the API": "只读，通过 API 维护",
     "A Template case needs an entry agent: the agent that owns the template.": "模板用例需要指定入口 agent，即模板所属的 agent。",

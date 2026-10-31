@@ -554,6 +554,7 @@
     "Calls one of the entry agent's templates directly, the way code calls it outside a conversation. No routing, no function calls; each turn is an independent call.": "Calls one of the entry agent's templates directly, the way code calls it outside a conversation. No routing, no function calls; each turn is an independent call.",
     "Template": "Template",
     "Select a template": "Select a template",
+    "Search templates": "Search templates",
     "Select an entry agent first": "Select an entry agent first",
     "read-only, maintained through the API": "read-only, maintained through the API",
     "A Template case needs an entry agent: the agent that owns the template.": "A Template case needs an entry agent: the agent that owns the template.",
