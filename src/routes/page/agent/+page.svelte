@@ -144,7 +144,7 @@
 		});
 	}
 
-	/** @typedef {{ kind: 'create' } | { kind: 'import-error' }} PendingAction */
+	/** @typedef {{ kind: 'create' } | { kind: 'import-error', message: string }} PendingAction */
 
 	let confirmOpen = $state(false);
 	/** @type {PendingAction | null} */
@@ -192,11 +192,14 @@
 			const file = e.target.files?.[0];
 			if (!file) return;
 
+			/** @type {any} */
+			let data = null;
 			try {
 				const text = await file.text();
-				const data = JSON.parse(text);
+				data = JSON.parse(text);
 
 				const newAgent = {
+					id: data.id,
 					name: data.name || 'Imported Agent',
 					description: data.description || '',
 					instruction: data.instruction || '',
@@ -218,7 +221,11 @@
 
 				goto(`page/agent/${createdAgent.id}`);
 			} catch (err) {
-				pendingAction = { kind: 'import-error' };
+				// 409: the backend already has an agent with the exported id
+				const message = /** @type {any} */ (err)?.response?.status === 409
+					? `Agent "${data?.name}" (${data?.id}) already exists.`
+					: 'Failed to import agent. Please check the JSON file.';
+				pendingAction = { kind: 'import-error', message };
 				confirmOpen = true;
 			}
 		};
@@ -352,7 +359,7 @@
 	icon={pendingAction?.kind === 'import-error' ? 'error' : 'warning'}
 	title={pendingAction?.kind === 'import-error' ? 'Error' : 'Are you sure?'}
 	text={pendingAction?.kind === 'import-error'
-		? 'Failed to import agent. Please check the JSON file.'
+		? pendingAction.message
 		: 'Are you sure you want to create a new agent?'}
 	confirmBtnText={pendingAction?.kind === 'import-error' ? 'OK' : 'Yes'}
 	cancelBtnText="No"
