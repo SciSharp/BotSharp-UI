@@ -6,9 +6,10 @@
     import HeadTitle from '$lib/common/shared/HeadTitle.svelte';
     import { getSettings, getSettingDetail } from '$lib/services/setting-service';
     import { JSONEditor } from 'svelte-jsoneditor';
-    import { refreshAgents } from '$lib/services/agent-service';
+    import { refreshAgents, getFileAgentOptions } from '$lib/services/agent-service';
     import { formatNumber } from '$lib/helpers/utils/common';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
+    import Select from '$lib/common/dropdowns/Select.svelte';
 
     const duration = 3000;
     let isLoading = $state(false);
@@ -25,11 +26,31 @@
 
     let content = $state({ json: {} });
 
+    /** @type {import('$commonTypes').LabelValuePair[]} */
+    let agentOptions = $state([]);
+    /** @type {string[]} */
+    let selectedAgentIds = $state([]);
+
     onMount(async () => {
+        loadAgentOptions();
         settings = await getSettings();
         selectedTab = settings[0];
         handleGetSettingDetail(selectedTab);
     });
+
+    async function loadAgentOptions() {
+        try {
+            const agents = await getFileAgentOptions();
+            agentOptions = agents.map(x => ({ label: x.name, value: x.id || '' }));
+        } catch {
+            showError($_('Failed to load agents.'));
+        }
+    }
+
+    /** @param {{ detail: { selecteds: import('$commonTypes').LabelValuePair[] } }} e */
+    function selectAgents(e) {
+        selectedAgentIds = e.detail.selecteds.map(x => x.value);
+    }
 
     /**
      * @param {string} tab
@@ -42,10 +63,6 @@
         };
     }
 
-    function readyToRefresh() {
-        confirmOpen = true;
-    }
-
     function closeConfirm() {
         confirmOpen = false;
     }
@@ -55,27 +72,31 @@
         refreshAgentData();
     }
 
-    const refreshAgentData = () => {
+    async function refreshAgentData() {
         isLoading = true;
-        refreshAgents().then(res => {
+        try {
+            successText = await refreshAgents(selectedAgentIds);
             isComplete = true;
-            isLoading = false;
-            successText = res;
             setTimeout(() => {
                 isComplete = false;
                 successText = '';
             }, duration);
-        }).catch(() => {
+        } catch {
+            showError($_('Failed to migrate agents.'));
+        } finally {
             isLoading = false;
-            isComplete = false;
-            isError = true;
-            errorText = 'Failed to migrate agents.';
-            setTimeout(() => {
-                isError = false;
-                errorText = '';
-            }, duration);
-        });
-    };
+        }
+    }
+
+    /** @param {string} text */
+    function showError(text) {
+        isError = true;
+        errorText = text;
+        setTimeout(() => {
+            isError = false;
+            errorText = '';
+        }, duration);
+    }
 </script>
 
 <HeadTitle title={$_('Settings')} />
@@ -93,7 +114,7 @@
     isOpen={confirmOpen}
     icon="warning"
     title="Are you sure?"
-    text="You will migrate all agents data to mongoDb."
+    text={$_('You will migrate {n} selected agent(s) to mongoDb.', { values: { n: selectedAgentIds.length } })}
     confirmBtnText="Yes"
     cancelBtnText="No"
     confirm={onConfirmRefresh}
@@ -153,12 +174,25 @@
             </span>
             <div class="grow">
                 <h4 class="mb-0 text-base font-semibold text-dark dark:text-gray-100">{$_('Migrate agents from file repository to MongoDB')}</h4>
-                <p class="mb-0 text-xs text-muted">One-time migration. All agents will be copied to the MongoDB datastore.</p>
+                <p class="mb-0 text-xs text-muted">{$_('Select the agents to copy to the MongoDB datastore. Only the selected agents are migrated.')}</p>
             </div>
         </div>
     </div>
 
     <div class="p-4 sm:p-6">
+        <div class="mb-4">
+            <Select
+                tag={'migrate-agent-select'}
+                placeholder={$_('Select agents to migrate')}
+                searchPlaceholder={$_('Search agents')}
+                selectedText={'agents'}
+                multiSelect
+                searchMode
+                selectedValues={selectedAgentIds}
+                options={agentOptions}
+                onselect={selectAgents}
+            />
+        </div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div class="inline-flex items-center gap-2 text-sm text-muted">
                 <i class="mdi mdi-alert-circle-outline shrink-0 text-base leading-none text-warning"></i>
@@ -167,8 +201,8 @@
             <button
                 type="button"
                 class="inline-flex shrink-0 items-center gap-1.5 rounded-md bg-primary px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors cursor-pointer hover:bg-primary-hover disabled:cursor-not-allowed disabled:opacity-60"
-                onclick={() => readyToRefresh()}
-                disabled={isLoading}
+                onclick={() => (confirmOpen = true)}
+                disabled={isLoading || selectedAgentIds.length === 0}
             >
                 <i class="bx bx-copy"></i>
                 {$_('Start Migration')}

@@ -37,6 +37,7 @@ export const endpoints = {
     agentOptionsUrl: `${host}/agent/options`,
     agentDetailUrl: `${host}/agent/{id}`,
     agentRefreshUrl: `${host}/refresh-agents`,
+    agentRefreshOptionsUrl: `${host}/refresh-agents/options`,
     agentCreateUrl: `${host}/agent`,
     agentUtilityOptionsUrl: `${host}/agent/utility/options`,
     agentRuleOptionsUrl: `${host}/rule/triggers`,
