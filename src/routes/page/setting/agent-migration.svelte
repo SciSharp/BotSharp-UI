@@ -4,7 +4,7 @@
     import ConfirmModal from '$lib/common/modals/ConfirmModal.svelte';
     import Select from '$lib/common/dropdowns/Select.svelte';
     import LoadingToComplete from '$lib/common/spinners/LoadingToComplete.svelte';
-    import { getFileAgentOptions, refreshAgents } from '$lib/services/agent-service';
+    import { getFileAgents, refreshAgents } from '$lib/services/agent-service';
 
     const RESULT_DURATION = 3000;
 
@@ -28,7 +28,7 @@
 
     async function loadAgentOptions() {
         try {
-            const agents = await getFileAgentOptions();
+            const agents = await getFileAgents();
             agentOptions = agents
                 .filter(x => x.id)
                 .map(x => ({ label: x.name, value: /** @type {string} */ (x.id) }));

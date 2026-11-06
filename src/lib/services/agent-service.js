@@ -94,7 +94,7 @@ export async function refreshAgents(agentIds) {
  * Get agents defined in the file repository (candidates to migrate)
  * @returns {Promise<import('$commonTypes').IdName[]>}
  */
-export async function getFileAgentOptions() {
+export async function getFileAgents() {
     const response = await axios.get(endpoints.agentRefreshOptionsUrl);
     return response.data;
 }
