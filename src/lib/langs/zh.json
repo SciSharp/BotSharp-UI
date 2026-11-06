@@ -416,6 +416,7 @@
   "You will migrate {n} selected agent(s) to mongoDb.": "将把所选的 {n} 个代理迁移到MongoDB。",
   "Failed to load agents.": "加载代理列表失败。",
   "Failed to migrate agents.": "迁移代理失败。",
+  "No agent files found, or the default database is the file repository.": "未找到代理文件，或默认数据库是文件存储库。",
   "Plugin": "插件",
   "My Profile": "我的资料",
   "Detail": "细节",

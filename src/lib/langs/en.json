@@ -222,6 +222,7 @@
     "You will migrate {n} selected agent(s) to mongoDb.": "You will migrate {n} selected agent(s) to mongoDb.",
     "Failed to load agents.": "Failed to load agents.",
     "Failed to migrate agents.": "Failed to migrate agents.",
+    "No agent files found, or the default database is the file repository.": "No agent files found, or the default database is the file repository.",
     "Plugin": "Plugin",
     "My Profile": "My Profile",
     "Detail": "Detail",
