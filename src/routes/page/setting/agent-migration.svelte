@@ -32,6 +32,7 @@
             agentOptions = agents
                 .filter(x => x.id)
                 .map(x => ({ label: x.name, value: /** @type {string} */ (x.id) }));
+            selectedAgentIds = agentOptions.map(x => x.value);
         } catch (error) {
             console.error('Failed to load agents:', error);
             showResult(false, $_('Failed to load agents.'));
