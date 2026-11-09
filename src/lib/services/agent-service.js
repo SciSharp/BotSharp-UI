@@ -95,7 +95,7 @@ export async function refreshAgents(agentIds) {
  * @returns {Promise<import('$commonTypes').IdName[]>}
  */
 export async function getFileAgents() {
-    const response = await axios.get(endpoints.agentRefreshOptionsUrl);
+    const response = await axios.get(endpoints.fileAgentsUrl);
     return response.data;
 }
 
