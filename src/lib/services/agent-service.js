@@ -76,12 +76,26 @@ export async function deleteAgent(agentId, options = null) {
 }
 
 /**
- * Refresh agent data
+ * Migrate the given agents from the file repository to the database
+ * @param {string[]} agentIds
  * @returns {Promise<string>}
  */
-export async function refreshAgents() {
-    const url = endpoints.agentRefreshUrl;
-    const response = await axios.post(url, {});
+export async function refreshAgents(agentIds) {
+    if (!agentIds.length) {
+        // An empty list would make the server migrate every agent.
+        throw new Error('Select at least one agent to migrate.');
+    }
+
+    const response = await axios.post(endpoints.agentRefreshUrl, { agent_ids: agentIds });
+    return response.data;
+}
+
+/**
+ * Get agents defined in the file repository (candidates to migrate)
+ * @returns {Promise<import('$commonTypes').IdName[]>}
+ */
+export async function getFileAgents() {
+    const response = await axios.get(endpoints.fileAgentsUrl);
     return response.data;
 }
 
