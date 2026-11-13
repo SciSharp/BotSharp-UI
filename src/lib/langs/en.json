@@ -711,5 +711,11 @@
     "Move earlier": "Move earlier",
     "Move later": "Move later",
     "Remove agent from the chain": "Remove agent from the chain",
-    "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "No tools found for the agents on this case. Add the agent under Involved agents, or type the name."
+    "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.",
+    "Filler": "Filler",
+    "Idle prompt": "Idle prompt",
+    "Idle goodbye": "Idle goodbye",
+    "Apology": "Apology",
+    "Said again": "Said again",
+    "Said by the phone relay on its own, kept as a record of what the caller heard": "Said by the phone relay on its own, kept as a record of what the caller heard"
 }

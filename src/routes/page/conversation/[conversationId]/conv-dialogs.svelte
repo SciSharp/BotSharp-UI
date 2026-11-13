@@ -15,6 +15,17 @@
     const maxTextLength = 4096;
     const duration = 1500;
 
+    // Lines a phone relay said on its own, kept only as a record of what the caller heard (the Twilio plugin's
+    // ConversationRelayLabels). They show under the agent's name, so each is tagged with what it was.
+    /** @type {Record<string, string>} */
+    const relayLineTags = {
+        twilio_relay_filler: 'Filler',
+        twilio_relay_idle_prompt: 'Idle prompt',
+        twilio_relay_idle_goodbye: 'Idle goodbye',
+        twilio_relay_apology: 'Apology',
+        twilio_relay_said_again: 'Said again'
+    };
+
     /**
      * @type {{
      *   conversation: import('$conversationTypes').ConversationModel,
@@ -151,6 +162,14 @@
                             <div class="flex flex-wrap items-baseline gap-2">
                                 <span class="text-sm font-semibold text-dark dark:text-gray-100">{dialog.sender?.full_name || dialog.sender?.user_name || 'Unknown'}</span>
                                 <span class="text-[0.7rem] text-muted">{utcToLocal(dialog.created_at)}</span>
+                                {#if dialog.message_label && relayLineTags[dialog.message_label]}
+                                    <span
+                                        class="inline-flex items-center rounded-full bg-info/10 px-2 py-0.5 text-xs font-medium text-info"
+                                        title={$_('Said by the phone relay on its own, kept as a record of what the caller heard')}
+                                    >
+                                        {$_(relayLineTags[dialog.message_label])}
+                                    </span>
+                                {/if}
                             </div>
                             <div class="mt-1.5">
                                 <ConvDialogElement dialog={dialog} />

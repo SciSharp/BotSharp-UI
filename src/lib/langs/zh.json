@@ -905,5 +905,11 @@
   "Move earlier": "前移",
   "Move later": "后移",
   "Remove agent from the chain": "从调用链里移除",
-  "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "这条用例涉及的 Agent 没有查到可用工具。可以在\"涉及的 Agent\"里补上对应 Agent，或者手动输入工具名。"
+  "No tools found for the agents on this case. Add the agent under Involved agents, or type the name.": "这条用例涉及的 Agent 没有查到可用工具。可以在\"涉及的 Agent\"里补上对应 Agent，或者手动输入工具名。",
+  "Filler": "等待语",
+  "Idle prompt": "空闲提示",
+  "Idle goodbye": "挂断告别",
+  "Apology": "道歉",
+  "Said again": "重说",
+  "Said by the phone relay on its own, kept as a record of what the caller heard": "电话中继自己说的话，仅记录来电者听到了什么"
 }
